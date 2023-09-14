@@ -14,9 +14,9 @@ class ConfigurationChannelsController extends Controller
      */
     public function index(): View
     {
-        //
         $pageCount = 5;
         $channels = Channels::latest()->paginate($pageCount);
+
         return view('channels.index', compact('channels'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
     }
 
@@ -34,8 +34,8 @@ class ConfigurationChannelsController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => 'required',
-            'description' => 'required',
+            'name' => 'required|string|max:190',
+            'description' => 'required|string|max:190',
         ]);
 
         Channels::create($request->all());
@@ -47,30 +47,34 @@ class ConfigurationChannelsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Channels $channels): View
+    public function show(String $id): View
     {
-        return view('channels.show', compact('channels'));
+        $channel = Channels::findOrFail($id);
+
+        return view('channels.show', compact('channel'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Channels $channels): View
+    public function edit(String $id): View
     {
-        return view('channels.edit', compact('channels'));
+        $channel = Channels::findOrFail($id);
+
+        return view('channels.edit', compact('channel'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Channels $channels): RedirectResponse
+    public function update(Request $request, String $id): RedirectResponse
     {
+        $channel = Channels::findOrFail($id);
         $request->validate([
-            'name' => 'required',
-            'detail' => 'required',
+            'name' => 'required|string|max:190',
+            'description' => 'required|string|max:190',
         ]);
-
-        $channels->update($request->all());
+        $channel->update($request->all());
 
         return redirect()->route('channels.index')
             ->with('success', 'Channels updated successfully');
@@ -79,8 +83,9 @@ class ConfigurationChannelsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Channels $channels): RedirectResponse
+    public function destroy(String $id): RedirectResponse
     {
+        $channels = Channels::findOrFail($id);
         $channels->delete();
 
         return redirect()->route('channels.index')

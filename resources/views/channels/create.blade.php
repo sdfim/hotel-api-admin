@@ -1,47 +1,60 @@
 @extends('channels.layout')
 @section('content')
-<div class="row">
-    <div class="col-lg-12 margin-tb">
-        <div class="pull-left">
-            <h2>Add New Channel</h2>
-        </div>
-        <div class="pull-right">
-            <a class="btn btn-primary" href="{{ route('channels.index') }}"> Back</a>
-        </div>
-    </div>
-</div>
-   
-@if ($errors->any())
-    <div class="alert alert-danger">
-        <strong>Whoops!</strong> There were some problems with your input.<br><br>
-        <ul>
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-   
-<form action="{{ route('channels.store') }}" method="POST">
-    @csrf
-  
-     <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group">
-                <strong>Name:</strong>
-                <input type="text" name="name" class="form-control" placeholder="Name">
+    <div class="col-span-12 xl:col-span-6">
+        <div class="card dark:bg-zinc-800 dark:border-zinc-600">
+            <div class="card-body pb-0">
+                <h6 class="mb-1 text-15 text-gray-700 dark:text-gray-100">Add New Channel</h6>
+            </div>
+            <div class="card-body">
+                <div class="relative overflow-x-auto">
+                    <div class="row">
+                        <div class="col-lg-12 margin-tb">
+                            <div class="pull-left">
+                                <h2>Add New Channel</h2>
+                            </div>
+                            @include('partials.button-back')
+                        </div>
+                    </div>
+                    @if ($errors->any())
+                        <div class="alert alert-danger">
+                            <strong>Whoops!</strong>
+                            <p>There were some problems with your input.</p>
+                            <ul>
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <form action="{{ route('channels.store') }}" method="POST">
+                        @csrf
+                        <div class="col-span-12 lg:col-span-6">
+                            <div class="mb-4">
+                                <label for="example-text-input"
+                                    class="block font-medium text-gray-700 dark:text-gray-100 mb-2">Name</label>
+                                <input
+                                    class="w-full rounded border-gray-100 placeholder:text-sm focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:placeholder:text-zinc-100 dark:text-zinc-100"
+                                    type="text" name="name" placeholder="Name" id="example-text-input">
+                            </div>
+                            <div class="mb-4">
+                                <label for="example-text-input"
+                                    class="block font-medium text-gray-700 dark:text-gray-100 mb-2">Description:</label>
+                                <input
+                                    class="w-full rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                    type="text" name="description" placeholder="Description" id="example-search-input">
+                            </div>
+                            <div class="mt-6">
+                                <button type="submit"
+                                    class="btn bg-violet-500 border-transparent text-white font-medium w-28 hover:bg-violet-700 focus:bg-violet-700 focus:ring focus:ring-violet-50">Submit</button>
+                            </div>
+                        </div>
+
+                    </form>
+
+                </div>
             </div>
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group">
-                <strong>Description:</strong>
-                <input class="form-control" name="description" placeholder="Description">
-            </div>
-        </div>
-        <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-                <button type="submit" class="btn btn-outline-primary">Submit</button>
-        </div>
     </div>
-   
-</form>
+    </div>
 @endsection
