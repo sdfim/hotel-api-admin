@@ -20,12 +20,61 @@
             </div>
             @endrole
             <ul class="metismenu" id="side-menu">
-                <li class="menu-heading px-4 py-3.5 text-xs font-medium text-gray-500 cursor-default" data-key="t-menu">Menu</li>
-
+                
                 <li>
-                    <a href="{{ url('index') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i data-feather="home"></i>
-                        <span data-key="t-dashboard"> Dashboard</span>
+                    <a href="javascript: void(0);" aria-expanded="false"  class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-gear"></i>
+                        <span data-key="t-configuration">Configuration</span>
+                    </a>
+                    <ul>
+                        <li>
+                            <a href="{{ Route('general_configuration') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">General Configuration</a>
+                        </li>
+                        <li>
+                            <a href="{{ Route('chanels_configuration') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Chanels Configuration</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="{{ Route('pricing_rules') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-to-do"></i>
+                        <span data-key="t-pricing-rules"> Pricing Rules</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ Route('reservations') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-pin"></i>
+                        <span data-key="t-reservations"> Reservations</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ Route('inspector') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-search"></i>
+                        <span data-key="t-inspector"> Inspector</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ Route('content_loader_exceptions') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-meter"></i>
+                        <span data-key="t-content-loader-exception"> Content Loader Exceptions</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ Route('property_mapping') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-disc"></i>
+                        <span data-key="t-property-mapping"> Property Mapping</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ Route('geography') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-direction"></i>
+                        <span data-key="t-geography"> Geography</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ Route('content') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-blog"></i>
+                        <span data-key="t-content"> Content</span>
                     </a>
                 </li>
 <!-- 

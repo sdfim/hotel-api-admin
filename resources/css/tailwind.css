@@ -133,7 +133,9 @@
    animation: square ease 20s infinite;
    animation-delay: 11s;
 }
-
+.metismenu i{
+   margin-right: 16px;
+}
 @keyframes square {
    0% {
       transform: translateY(0);

@@ -1,5 +1,14 @@
 <?php
 
+use App\Http\Controllers\dashboard\ContentController;
+use App\Http\Controllers\dashboard\ContentLoaderExceptionsController;
+use App\Http\Controllers\dashboard\GeneralConfigurationController;
+use App\Http\Controllers\dashboard\ChanelsConfigurationController;
+use App\Http\Controllers\dashboard\GeographyController;
+use App\Http\Controllers\dashboard\InspectorController;
+use App\Http\Controllers\dashboard\PricingRulesController;
+use App\Http\Controllers\dashboard\PropertyMappingController;
+use App\Http\Controllers\dashboard\ReservationsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,6 +28,16 @@ Route::get('/', function () {
 
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
+    Route::get('/chanels-configuration', [ChanelsConfigurationController::class, 'index'])->name('chanels_configuration');
+    Route::get('/content-loader-exceptions', [ContentLoaderExceptionsController::class, 'index'])->name('content_loader_exceptions');
+    Route::get('/content', [ContentController::class, 'index'])->name('content');
+    Route::get('/general-configuration', [GeneralConfigurationController::class, 'index'])->name('general_configuration');
+    Route::get('/geography', [GeographyController::class, 'index'])->name('geography');
+    Route::get('/inspector', [InspectorController::class, 'index'])->name('inspector');
+    Route::get('/pricing-rules', [PricingRulesController::class, 'index'])->name('pricing_rules');
+    Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
+    Route::get('/reservations', [ReservationsController::class, 'index'])->name('reservations');
+
     Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
     Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
 });
