@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\dashboard;
-use App\Http\Controllers\Controller;
-
+namespace Modules\AdministrationSuite\Http\Controllers;
+// namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 class ReservationsController extends Controller

@@ -1,14 +1,14 @@
 <?php
 
-use App\Http\Controllers\dashboard\ContentController;
-use App\Http\Controllers\dashboard\ContentLoaderExceptionsController;
-use App\Http\Controllers\dashboard\GeneralConfigurationController;
-use App\Http\Controllers\dashboard\ChanelsConfigurationController;
-use App\Http\Controllers\dashboard\GeographyController;
-use App\Http\Controllers\dashboard\InspectorController;
-use App\Http\Controllers\dashboard\PricingRulesController;
-use App\Http\Controllers\dashboard\PropertyMappingController;
-use App\Http\Controllers\dashboard\ReservationsController;
+use Modules\AdministrationSuite\Http\Controllers\ContentController;
+use Modules\AdministrationSuite\Http\Controllers\ContentLoaderExceptionsController;
+use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
+use Modules\AdministrationSuite\Http\Controllers\ChanelsConfigurationController;
+use Modules\AdministrationSuite\Http\Controllers\GeographyController;
+use Modules\AdministrationSuite\Http\Controllers\InspectorController;
+use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
+use Modules\AdministrationSuite\Http\Controllers\PropertyMappingController;
+use Modules\AdministrationSuite\Http\Controllers\ReservationsController;
 use Illuminate\Support\Facades\Route;
 
 /*
