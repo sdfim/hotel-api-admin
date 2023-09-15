@@ -12,7 +12,7 @@
                             <div class="pull-left">
                                 <h2>Edit Channel</h2>
                             </div>
-                            @include('partials.button-back')
+                            @include('partials.button-back', ['route' => route('channels.index')])
                         </div>
                     </div>
                     @if ($errors->any())

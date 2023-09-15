@@ -14,10 +14,11 @@ class ConfigurationChannelsController extends Controller
      */
     public function index(): View
     {
-        $pageCount = 5;
-        $channels = Channels::latest()->paginate($pageCount);
+        $pageCount = 2;
 
-        return view('channels.index', compact('channels'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
+        $channels = Channels::latest()->paginate($pageCount);
+        $startNumber = ($channels->currentPage() - 1) * $channels->perPage() + 1;
+        return view('channels.index', compact('channels', 'startNumber'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
     }
 
     /**

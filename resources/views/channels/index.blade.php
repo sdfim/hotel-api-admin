@@ -54,7 +54,7 @@
                                 <tr class="bg-white border border-gray-50 dark:border-zinc-600 dark:bg-transparent">
                                     <th scope="row"
                                         class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 font-medium text-gray-900 whitespace-nowrap dark:text-zinc-100">
-                                        {{ $loop->index }}
+                                        {{ $startNumber++ }}
                                     </th>
                                     <td
                                         class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 font-medium text-gray-900 whitespace-nowrap dark:text-zinc-100">
@@ -94,6 +94,7 @@
                             @endforeach
                         </tbody>
                     </table>
+                    {!! $channels->appends(request()->query())->links() !!}
                 </div>
             </div>
         </div>
