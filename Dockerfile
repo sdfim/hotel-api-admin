@@ -1,3 +1,13 @@
+FROM node:18-bookworm as npmbuild
+
+RUN mkdir -p /app
+WORKDIR /app
+
+COPY package.json package-lock.json *.js /app/
+COPY resources/ /app/resources/
+
+RUN npm i && npm run build
+
 FROM php:8.2-apache-bookworm
 
 RUN apt-get update && apt-get install -y git zip unzip && rm -rf /var/lib/apt/lists/*
@@ -10,6 +20,7 @@ RUN a2enmod rewrite headers
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 COPY . /var/www/html
+COPY --from=npmbuild /app/public/build/ /var/www/html/public/build/
 
 WORKDIR /var/www/html
 
