@@ -30,8 +30,10 @@ Route::get('/', function () {
 
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
+
     Route::resource('channels', ConfigurationChannelsController::class);
     Route::resource('pricing-rules', PricingRulesController::class);
+
     Route::get('/chanels-configuration', [ChanelsConfigurationController::class, 'index'])->name('chanels_configuration');
     Route::get('/content-loader-exceptions', [ContentLoaderExceptionsController::class, 'index'])->name('content_loader_exceptions');
     Route::get('/content', [ContentController::class, 'index'])->name('content');
