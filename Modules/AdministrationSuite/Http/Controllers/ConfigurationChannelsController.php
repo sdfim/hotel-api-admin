@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Modules\AdministrationSuite\Http\Controllers;
 
 use App\Models\Channels;
 use Illuminate\Http\RedirectResponse;

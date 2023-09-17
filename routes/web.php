@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\ConfigurationChannelsController;
-use App\Http\Controllers\PricingRulesController;
 use Illuminate\Support\Facades\Route;
+use Modules\AdministrationSuite\Http\Controllers\ConfigurationChannelsController;
+use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
+
 
 /*
 |--------------------------------------------------------------------------
