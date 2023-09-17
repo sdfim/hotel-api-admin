@@ -34,7 +34,7 @@ class PricingRulesController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        var_dump('pre',$request->input());die;
+        dump('pre',$request->input());
         $request->validate([
             'name' => 'required|string|max:190',
             'description' => 'required|string|max:190',
