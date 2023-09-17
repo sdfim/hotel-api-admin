@@ -4,9 +4,9 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class GeneralConfigurationController extends Controller
+class ChanelsConfigurationController extends Controller
 {
     public function index(){
-        return view('dashboard.general-configuration');
+        return view('dashboard.chanels-configuration');
     }
 }
