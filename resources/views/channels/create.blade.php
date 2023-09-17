@@ -12,7 +12,9 @@
                             <div class="pull-left">
                                 <h2>Add New Channel</h2>
                             </div>
-                            @include('partials.button-back', ['route' => route('channels.index')])
+                            <div class="mt-6 mb-6">
+                                <x-button-back route="{{ route('channels.index') }}" text="Back" style="additional-styles" />
+                            </div>
                         </div>
                     </div>
                     @if ($errors->any())
@@ -45,8 +47,9 @@
                                     type="text" name="description" placeholder="Description" id="example-search-input">
                             </div>
                             <div class="mt-6">
-                                <button type="submit"
-                                    class="btn bg-violet-500 border-transparent text-white font-medium w-28 hover:bg-violet-700 focus:bg-violet-700 focus:ring focus:ring-violet-50">Submit</button>
+                                <x-button>
+                                    Submit
+                                </x-button>
                             </div>
                         </div>
 
@@ -55,6 +58,5 @@
                 </div>
             </div>
         </div>
-    </div>
     </div>
 @endsection

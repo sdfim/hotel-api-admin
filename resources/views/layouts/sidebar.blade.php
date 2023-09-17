@@ -1,26 +1,26 @@
 <!-- ========== Left Sidebar Start ========== -->
-<div class="vertical-menu rtl:right-0 fixed ltr:left-0 bottom-0 top-16 h-screen border-r bg-slate-50 border-gray-50 print:hidden dark:bg-zinc-800 dark:border-neutral-700 z-10">
-    
+<div
+    class="vertical-menu rtl:right-0 fixed ltr:left-0 bottom-0 top-16 h-screen border-r bg-slate-50 border-gray-50 print:hidden dark:bg-zinc-800 dark:border-neutral-700 z-10">
+
     <div data-simplebar class="h-full">
         <!--- Sidemenu -->
         <div id="sidebar-menu">
             <!-- Left Menu Start -->
             @role('admin')
-            <div style="text-align:center">
-                <h3>
-                    <b>Admin</b>
-                </h3>
-            </div>
-            @endrole 
-            @role('user')
-            <div style="text-align:center">
-                <h3>
-                    <b>User</b>
-                </h3>
-            </div>
+                <div style="text-align:center">
+                    <h3>
+                        <b>Admin</b>
+                    </h3>
+                </div>
             @endrole
-            <ul class="metismenu" id="side-menu">
-                
+            @role('user')
+                <div style="text-align:center">
+                    <h3>
+                        <b>User</b>
+                    </h3>
+                </div>
+            @endrole
+            <ul class="metismenu" id="side-menu">                
                 <li>
                     <a href="javascript: void(0);" aria-expanded="false"  class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-gear"></i>
@@ -77,13 +77,19 @@
                         <span data-key="t-content"> Content</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{{ url('channels') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i data-feather="home"></i>
-                        <span data-key="t-dashboard"> General Channels</span>
+				<li>
+                    <a href="{{ Route('channels') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-direction"></i>
+                        <span data-key="t-channels"> General Channels</span>
                     </a>
                 </li>
-<!-- 
+                <li>
+                    <a href="{{ Route('pricing-rules') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-blog"></i>
+                        <span data-key="t-pricing-rules"> Pricing Rule</span>
+                    </a>
+                </li>
+                <!--
 
                 <li>
                     <a href="javascript: void(0);" aria-expanded="false"  class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
@@ -118,7 +124,7 @@
                     </ul>
                 </li> -->
 
-                 <!-- <li>
+                <!-- <li>
                     <a href="javascript: void(0);" aria-expanded="false" class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i data-feather="briefcase"></i><span data-key="t-pages">Pages</span>
                     </a>
