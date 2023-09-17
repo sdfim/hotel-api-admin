@@ -2,10 +2,8 @@ name: Laravel Tests
 on:
   pull_request:
     branches:
-      - master
       - dev
-    paths:
-      - ".github/workflows/test.yaml"
+
 
 jobs:
   laravel-tests:
