@@ -1,4 +1,4 @@
-@extends('channels.layout')
+@extends('dashboard.channels.layout')
 
 @section('content')
     <div class="col-span-12 xl:col-span-6">
