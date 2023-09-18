@@ -1,16 +1,16 @@
-@extends('channels.layout')
+@extends('pricingRules.layout')
 @section('content')
     <div class="col-span-12 xl:col-span-6">
         <div class="card dark:bg-zinc-800 dark:border-zinc-600">
             <div class="card-body pb-0">
-                <h6 class="mb-1 text-15 text-gray-700 dark:text-gray-100">Add New Channel</h6>
+                <h6 class="mb-1 text-15 text-gray-700 dark:text-gray-100">Add Pricing Rules</h6>
             </div>
             <div class="card-body">
                 <div class="relative overflow-x-auto">
                     <div class="row">
                         <div class="col-lg-12 margin-tb">
                             <div class="pull-left">
-                                <h2>Add New Channel</h2>
+                                <h2>Add Pricing Rules</h2>
                             </div>
                             <div class="mt-6 mb-6">
                                 <x-button-back route="{{ route('pricing-rules.index') }}" text="Back"
@@ -59,8 +59,9 @@
                             </div>
                             <div class="mb-4">
                                 <x-label for="travel_date" class="dark:text-gray-100" value="{{ __('Travel Date') }}" />
-                                <x-input id="travel_date" name="travel_date" value="{{ old('travel_date') }}"
-                                    placeholder="Travel Date" type="datetime-local"
+                                <x-input id="travel_date" name="travel_date"
+                                    value="{{ old('travel_date', now()->format('Y-m-d\TH:i')) }}" placeholder="Travel Date"
+                                    type="datetime-local"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
                                     wire:model="state.travel_date" autocomplete="travel_date" />
                                 <x-input-error for="travel_date" class="mt-2" />
@@ -85,8 +86,8 @@
                                 <label for="supplier_id" class="dark:text-gray-100">{{ __('Supplier') }}</label>
                                 <select id="supplier_id" name="supplier_id"
                                     class="dark:bg-zinc-800 dark:border-zinc-700 w-full rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:text-zinc-100">
+                                    <option disabled selected>Select</option>
                                     @foreach ($suppliers as $supplier)
-                                        <option disabled selected>Select</option>
                                         <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
                                     @endforeach
                                 </select>
@@ -152,48 +153,6 @@
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
                                     wire:model="state.rating" autocomplete="rating" />
                                 <x-input-error for="rating" class="mt-2" />
-                            </div>
-                            <div class="mb-4">
-                                <x-label for="manipulate_data_id" class="dark:text-gray-100"
-                                    value="{{ __('Manipulate Data') }}" />
-                                <select id="manipulate_data_id" name="manipulate_data_id"
-                                    class="dark:bg-zinc-800 dark:border-zinc-700 w-full rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:text-zinc-100">
-                                    @foreach ($manipulateDatas as $manipulateData)
-                                        <option disabled selected>Select</option>
-                                        <option value="{{ $manipulateData->id }}">{{ $manipulateData->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('manipulate_data_id')
-                                    <span class="text-red-500">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="mb-4">
-                                <x-label for="manipulate_type_id" class="dark:text-gray-100"
-                                    value="{{ __('Manipulate Type') }}" />
-                                <select id="manipulate_type_id" name="manipulate_type_id"
-                                    class="dark:bg-zinc-800 dark:border-zinc-700 w-full rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:text-zinc-100">
-                                    @foreach ($manipulateTypes as $manipulateType)
-                                        <option disabled selected>Select</option>
-                                        <option value="{{ $manipulateType->id }}">{{ $manipulateType->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('manipulate_type_id')
-                                    <span class="text-red-500">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="mb-4">
-                                <x-label for="manipulate_item_id" class="dark:text-gray-100"
-                                    value="{{ __('Manipulate Items') }}" />
-                                <select id="manipulate_item_id" name="manipulate_item_id"
-                                    class="dark:bg-zinc-800 dark:border-zinc-700 w-full rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:text-zinc-100">
-                                    @foreach ($manipulateItems as $manipulateItem)
-                                        <option disabled selected>Select</option>
-                                        <option value="{{ $manipulateItem->id }}">{{ $manipulateItem->name }}</option>
-                                    @endforeach
-                                </select>
-                                @error('manipulate_item_id')
-                                    <span class="text-red-500">{{ $message }}</span>
-                                @enderror
                             </div>
                             <div class="mt-6">
                                 <x-button>

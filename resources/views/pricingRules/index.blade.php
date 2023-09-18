@@ -13,10 +13,10 @@
 
         </div>
     </div>
-
     @if ($message = Session::get('success'))
-        <div class="relative px-5 py-3 border-2 bg-green-50 text-green-700 border-green-100 rounded mb-3">
+        <div class="relative flex items-center px-5 py-2 border-2 text-green-500 border-green-500 rounded alert-dismissible">
             <p>{{ $message }}</p>
+            <button class="alert-close ltr:ml-auto rtl:mr-auto text-green-400 text-lg"><i class="mdi mdi-close"></i></button>
         </div>
     @endif
     <div class="col-span-12 xl:col-span-6">
@@ -47,15 +47,6 @@
                                 <th class="px-6 py-3 border-l border-gray-50 dark:border-zinc-600">Meal Plan / Board Basis
                                 </th>
                                 <th class="px-6 py-3 border-l border-gray-50 dark:border-zinc-600">Rating</th>
-                                <th scope="col" class="px-6 py-3 border-l border-gray-50 dark:border-zinc-600">
-                                    Update
-                                </th>
-                                <th scope="col" class="px-6 py-3 border-l border-gray-50 dark:border-zinc-600">
-                                    Update
-                                </th>
-                                <th scope="col" class="px-6 py-3 border-l border-gray-50 dark:border-zinc-600">
-                                    Update
-                                </th>
                                 <th scope="col" class="px-6 py-3 border-l border-gray-50 dark:border-zinc-600">
                                     Create
                                 </th>
@@ -130,35 +121,20 @@
                                         class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 font-medium text-gray-900 whitespace-nowrap dark:text-zinc-100">
                                         {{ $item->rating }}
                                     </td>
-                                    <td data-field="manipulate_data_id"
-                                        class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 font-medium text-gray-900 whitespace-nowrap dark:text-zinc-100">
-                                        {{ $item->manipulateData->name }}</td>
-                                    <td data-field="manipulate_type_id"
-                                        class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 font-medium text-gray-900 whitespace-nowrap dark:text-zinc-100">
-                                        {{ $item->manipulateType->name }}</td>
-                                    <td data-field="manipulate_item_id"
-                                        class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 font-medium text-gray-900 whitespace-nowrap dark:text-zinc-100">
-                                        {{ $item->manipulateItem->name }}</td>
                                     <td class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 dark:text-zinc-100">
                                         {{ $item->created_at }}
                                     </td>
                                     <td class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 dark:text-zinc-100">
                                         {{ $item->updated_at }}
                                     </td>
-                                    <td class="w-40 px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 dark:text-zinc-100">
-                                        <form class="w-40" action="{{ route('pricing-rules.destroy', $item->id) }}" method="POST">
+                                    <td
+                                        class="w-40 px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 dark:text-zinc-100">
+                                        <form class="w-40" action="{{ route('pricing-rules.destroy', $item->id) }}"
+                                            method="POST">
                                             <x-button-icon route="{{ route('pricing-rules.show', $item->id) }}"
                                                 iconClass="bx bx-show" />
                                             <x-button-icon route="{{ route('pricing-rules.edit', $item->id) }}"
                                                 iconClass="mdi mdi-pencil" />
-                                            {{-- <a class="btn text-neutral-800 bg-neutral-100 border-neutral-100 hover:text-violet-500 hover:bg-neutral-900 hover:border-neutral-900 focus:text-violet-500 focus:bg-neutral-900 focus:border-neutral-900 focus:ring focus:ring-neutral-500/10 active:bg-neutral-900 active:border-neutral-900 dark:bg-neutral-500/20 dark:border-transparent dark:text-gray-100"
-                                                href="{{ route('pricing-rules.show', $item->id) }}"><i
-                                                    class="bx bx-show block text-lg"></i>
-                                            </a> --}}
-
-                                            {{-- <a class="btn text-neutral-800 bg-neutral-100 border-neutral-100 hover:text-violet-500 hover:bg-neutral-900 hover:border-neutral-900 focus:text-violet-500 focus:bg-neutral-900 focus:border-neutral-900 focus:ring focus:ring-neutral-500/10 active:bg-neutral-900 active:border-neutral-900 dark:bg-neutral-500/20 dark:border-transparent dark:text-gray-100"
-                                                href="{{ route('pricing-rules.edit', $item->id) }}"><i
-                                                    class="mdi mdi-pencil block text-lg"></i><span class=""></span></a> --}}
 
                                             @csrf
                                             @method('DELETE')

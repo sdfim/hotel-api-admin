@@ -1,10 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace Modules\AdministrationSuite\Http\Controllers;
 
-use App\Models\ManipulateData;
-use App\Models\ManipulateItem;
-use App\Models\ManipulateType;
 use App\Models\PricingRules;
 use App\Models\Suppliers;
 use Illuminate\Http\RedirectResponse;
@@ -13,7 +10,6 @@ use Illuminate\Http\Request;
 
 class PricingRulesController extends Controller
 {
-
     private $validate = [
         'name' => 'bail|required|string|max:190',
         'property' => 'bail|required|string|max:190',
@@ -28,10 +24,7 @@ class PricingRulesController extends Controller
         'room_guests' => 'bail|required|integer|gt:0',
         'number_rooms' => 'bail|required|integer|gt:0',
         'meal_plan' => 'bail|required|string|max:190',
-        'rating' => 'bail|required|string|max:190',
-        'manipulate_data_id' => 'bail|required|exists:manipulate_data,id',
-        'manipulate_item_id' => 'bail|required|exists:manipulate_item,id',
-        'manipulate_type_id' => 'bail|required|exists:manipulate_type,id',
+        'rating' => 'bail|required|string|max:190'
     ];
 
     /**
@@ -40,7 +33,7 @@ class PricingRulesController extends Controller
     public function index(): View
     {
         $pageCount = 2;
-        $pricingRules = PricingRules::with(['suppliers', 'manipulateData', 'manipulateType', 'manipulateItem'])->get();
+        $pricingRules = PricingRules::with(['suppliers'])->get();
         $pricingRules = PricingRules::latest()->paginate($pageCount);
         // echo '<pre>', $pricingRules, '</pre>';
         // die;
@@ -54,11 +47,7 @@ class PricingRulesController extends Controller
     public function create()
     {
         $suppliers = Suppliers::all();
-        $manipulateDatas = ManipulateData::all();
-        $manipulateTypes = ManipulateType::all();
-        $manipulateItems = ManipulateItem::all();
-
-        return view('pricingRules.create', compact('suppliers', 'manipulateDatas', 'manipulateTypes', 'manipulateItems'));
+        return view('pricingRules.create', compact('suppliers'));
     }
 
     /**
@@ -90,13 +79,8 @@ class PricingRulesController extends Controller
     {
         $pricingRule = PricingRules::findOrFail($id);
         $suppliers = Suppliers::all();
-        $manipulateData = ManipulateData::all();
-        $manipulateTypes = ManipulateType::all();
-        $manipulateItems = ManipulateItem::all();
 
-        return view('pricing-rules.edit', compact('pricingRule', 'suppliers', 'manipulateData', 'manipulateTypes', 'manipulateItems'));
-
-        // return view('pricingRules.edit', compact('pricingRule'));
+        return view('pricingRules.edit', compact('pricingRule', 'suppliers'));
     }
 
     /**
@@ -105,10 +89,7 @@ class PricingRulesController extends Controller
     public function update(Request $request, String $id): RedirectResponse
     {
         $pricingRules = PricingRules::findOrFail($id);
-        $request->validate([
-            'name' => 'required|string|max:190',
-            'description' => 'required|string|max:190',
-        ]);
+        $request->validate($this->validate);
         $pricingRules->update($request->all());
 
         return redirect()->route('pricing-rules.index')
