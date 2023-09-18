@@ -43,23 +43,6 @@ jobs:
       - name: Directory Permissions
         run: chmod -R 777 storage bootstrap/cache
 
-      - name: Wait for MySQL to be ready
-        run: |
-          apt-get update
-          apt-get install -y mysql-client
-          while ! mysqladmin ping -h mysql --silent; do
-            sleep 1
-          done
-
-      - name: Execute migrations and seed the database
-        env:
-          DB_CONNECTION: mysql
-          DB_HOST: mysql
-          DB_PORT: 3306
-          DB_DATABASE: laravel_database
-          DB_USERNAME: root
-          DB_PASSWORD: root_password
-        run: php artisan migrate --seed
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -70,6 +53,7 @@ jobs:
       - run: npm run build --if-present
 
       - name: Execute tests (Unit and Feature tests) via PHPUnit
+        
         env:
           DB_CONNECTION: mysql
           DB_HOST: mysql
