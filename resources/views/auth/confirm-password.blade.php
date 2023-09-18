@@ -16,7 +16,7 @@
                                 <a href="index" class="">
                                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
                                         class="h-8 inline"> <span
-                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">Minia</span>
+                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
                                 </a>
                             </div>
 
@@ -69,11 +69,12 @@
                                         </a>
                                     </div>
                                 </div>
-
+								<!--
                                 <div class="mt-12 text-center">
                                     <p class="text-gray-500 dark:text-gray-100">Don't have an account ? <a
                                             href="{{ route('register') }}" class="text-violet-500 font-semibold"> Signup now </a> </p>
                                 </div>
+								-->
                             </div>
 
 
@@ -81,8 +82,8 @@
                                 <p class="text-gray-500 dark:text-gray-100 relative mb-5">©
                                     <script>
                                         document.write(new Date().getFullYear())
-                                    </script> Minia . Crafted with <i class="mdi mdi-heart text-red-400"></i>
-                                    by Themesbrand
+                                    </script> UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
+                                    by Smarty
                                 </p>
                             </div>
                         </div>

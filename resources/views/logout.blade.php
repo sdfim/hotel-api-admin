@@ -15,7 +15,7 @@
                         <div class="flex h-[90vh] flex-col">
                             <div class="mx-auto">
                                 <a href="{{ url('index') }}" class="">
-                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline"> <span class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">Minia</span>
+                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline"> <span class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
                                 </a>
                             </div>
 
@@ -28,7 +28,7 @@
 
                                 <div class="text-center mt-6">
                                     <h5 class="text-gray-700 dark:text-gray-100">You are Logged Out</h5>
-                                    <p class="text-15 text-gray-500 dark:text-zinc-100/60 mt-2">Thank you for using <span class="text-gray-800 font-semibold dark:text-gray-100">Minia</span></p>
+                                    <p class="text-15 text-gray-500 dark:text-zinc-100/60 mt-2">Thank you for using <span class="text-gray-800 font-semibold dark:text-gray-100">UJV</span></p>
                                 </div>
 
                                 <div class="mt-5">
@@ -42,7 +42,7 @@
 
                             
                             <div class=" text-center">
-                                <p class="text-gray-500 dark:text-gray-100 relative mb-5">© <script>document.write(new Date().getFullYear())</script> Minia . Crafted with <i class="mdi mdi-heart text-red-400"></i> by Themesbrand</p>
+                                <p class="text-gray-500 dark:text-gray-100 relative mb-5">© <script>document.write(new Date().getFullYear())</script> UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i> by Smarty</p>
                             </div>
                         </div>
                     </div>

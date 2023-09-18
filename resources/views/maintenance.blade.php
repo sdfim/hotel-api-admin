@@ -12,7 +12,7 @@
                             <div class="text-center mb-5">
                                 <a href="{{ url('index') }}">
                                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-7 mx-auto inline-block"><span
-                                        class="text-22 align-middle ltr:ml-2 rtl:mr-2 font-semibold dark:text-gray-100">Minia</span>
+                                        class="text-22 align-middle ltr:ml-2 rtl:mr-2 font-semibold dark:text-gray-100">UJV</span>
                                 </a>
                             </div>
 
