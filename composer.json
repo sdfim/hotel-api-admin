@@ -7,7 +7,6 @@
     "require": {
 
         "php": "^8.2",
-        "brokenice/laravel-mysql-partition": "^1.2",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.10",
         "laravel/jetstream": "^4.0",
