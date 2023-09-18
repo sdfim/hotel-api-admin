@@ -31,7 +31,7 @@
                             <a href="{{ Route('general_configuration') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">General Configuration</a>
                         </li>
                         <li>
-                            <a href="{{ Route('chanels_configuration') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Chanels Configuration</a>
+                            <a href="{{ url('channels') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Chanels Configuration</a>
                         </li>
                     </ul>
                 </li>
@@ -79,12 +79,12 @@
                         <span data-key="t-content"> Content</span>
                     </a>
                 </li>
-				<li>
+				<!-- <li>
                     <a href="{{ url('channels') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-direction"></i>
                         <span data-key="t-channels"> General Channels</span>
                     </a>
-                </li>
+                </li> -->
                 <li>
                     <a href="{{ url('pricing-rules') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-blog"></i>

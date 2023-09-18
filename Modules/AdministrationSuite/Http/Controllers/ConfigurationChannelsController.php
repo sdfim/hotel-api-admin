@@ -18,7 +18,7 @@ class ConfigurationChannelsController extends Controller
 
         $channels = Channels::latest()->paginate($pageCount);
         $startNumber = ($channels->currentPage() - 1) * $channels->perPage() + 1;
-        return view('channels.index', compact('channels', 'startNumber'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
+        return view('dashboard.channels.index', compact('channels', 'startNumber'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
     }
 
     /**
@@ -26,7 +26,7 @@ class ConfigurationChannelsController extends Controller
      */
     public function create(): View
     {
-        return view('channels.create');
+        return view('dashboard.channels.create');
     }
 
     /**
@@ -52,7 +52,7 @@ class ConfigurationChannelsController extends Controller
     {
         $channel = Channels::findOrFail($id);
 
-        return view('channels.show', compact('channel'));
+        return view('dashboard.channels.show', compact('channel'));
     }
 
     /**
@@ -62,7 +62,7 @@ class ConfigurationChannelsController extends Controller
     {
         $channel = Channels::findOrFail($id);
 
-        return view('channels.edit', compact('channel'));
+        return view('dashboard.channels.edit', compact('channel'));
     }
 
     /**
