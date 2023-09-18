@@ -31,24 +31,6 @@ return new class extends Migration
 			$table->integer('number_rooms');
 			$table->string('meal_plan');
 			$table->string('rating');
-
-			$table->foreignId('manipulate_data_id')
-				->constrained(
-					table: 'manipulate_data', 
-					indexName: 'pricing_rules__manipulate_data_id'
-				);
-			$table->foreignId('manipulate_type_id')
-				->constrained(
-					table: 'manipulate_types', 
-					indexName: 'pricing_rules__manipulate_type_id'
-				);
-			$table->foreignId('manipulate_item_id')
-				->constrained(
-					table: 'manipulate_items', 
-					indexName: 'pricing_rules__manipulate_item_id'
-				);
-			$table->dateTimeTz('start_date');
-			$table->dateTimeTz('end_date');
             $table->timestamps();
         });
     }

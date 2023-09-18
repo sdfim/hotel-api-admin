@@ -20,7 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+		$currentUrl = \Illuminate\Support\Facades\URL::current();
+		if (!str_contains($currentUrl, 'localhost')) {
+            \URL::forceScheme('https');
+        }
         Schema::defaultStringLength(191);
     }
 }
