@@ -49,16 +49,16 @@ jobs:
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
-        run: php artisan test --coverage
+        run: php artisan test --coverage --coverage-text=coverage.txt
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v2
         with:
           name: coverage
-          path: coverage/
+          path: coverage.txt
 
-      - name: Execute tests (Unit and Feature tests) via PHPUnit
-        env:
-          DB_CONNECTION: sqlite
-          DB_DATABASE: database/database.sqlite
-        run: vendor/bin/phpunit
+      # - name: Execute tests (Unit and Feature tests) via PHPUnit
+      #   env:
+      #     DB_CONNECTION: sqlite
+      #     DB_DATABASE: database/database.sqlite
+      #   run: vendor/bin/phpunit
