@@ -1,0 +1,28 @@
+FROM php:8.2-fpm
+
+WORKDIR /var/www
+
+#ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+RUN apt-get update && apt-get install -y git zip unzip nginx cron \
+    supervisor && rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-install pdo_mysql && docker-php-ext-install mysqli
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+COPY . /var/www
+
+RUN cp docker/supervisord.conf /etc/supervisord.conf
+RUN cp docker/php.ini /usr/local/etc/php/conf.d/app.ini
+RUN cp docker/nginx.conf /etc/nginx/sites-enabled/default
+RUN cp -r docker/cron.d /etc/
+
+RUN composer install --no-dev --optimize-autoloader
+RUN mv .env.example .env
+RUN php artisan key:generate
+
+RUN chown -R www-data:www-data /var/www
+RUN chmod +x /var/www/docker/start.sh
+
+EXPOSE 80
+ENTRYPOINT ["/var/www/docker/start.sh"]
