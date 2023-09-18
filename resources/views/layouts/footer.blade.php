@@ -5,9 +5,9 @@
             &copy;
             <script>
                 document.write(new Date().getFullYear());
-            </script> Minia
+            </script> UJV
         </div>
-        <div class="hidden md:inline-block text-end">Design & Develop by <a href="" class="text-violet-500 underline">Themesbrand</a></div>
+        <div class="hidden md:inline-block text-end">Design & Develop by <a href="" class="text-violet-500 underline">Smarty</a></div>
 
     </div>
 </footer>

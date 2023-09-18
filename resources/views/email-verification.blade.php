@@ -15,7 +15,7 @@
                             <div class=" mx-auto">
                                 <a href="{{ url('index') }}" class="">
                                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline"> <span
-                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">Minia</span>
+                                        class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
                                 </a>
                             </div>
 
@@ -49,8 +49,8 @@
                                 <p class="text-gray-500 relative mb-5 dark:text-zinc-100">©
                                     <script>
                                         document.write(new Date().getFullYear())
-                                    </script> Minia . Crafted with <i class="mdi mdi-heart text-red-400"></i>
-                                    by Themesbrand
+                                    </script> UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
+                                    by Smarty
                                 </p>
                             </div>
                         </div>

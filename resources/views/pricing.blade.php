@@ -37,7 +37,7 @@
                                                     class="text-gray-500 dark:text-zinc-100/60 text-base ">/ Month</span>
                                             </h1>
                                             <p class="text-gray-500 dark:text-zinc-100/60 mt-3 text-15 ">For small teams
-                                                trying out Minia for an unlimited
+                                                trying out UJV for an unlimited
                                                 period of time</p>
                                             <div class="mt-4 pt-2 text-muted">
                                                 <p class="mb-4 text-15 text-gray-500 dark:text-zinc-100/60"><i
@@ -80,7 +80,7 @@
                                                     class="text-gray-500 dark:text-zinc-100/60 text-base ">/ Month</span>
                                             </h1>
                                             <p class="text-gray-500 dark:text-zinc-100/60 mt-3 text-15 ">For small teams
-                                                trying out Minia for an unlimited
+                                                trying out UJV for an unlimited
                                                 period of time</p>
                                             <div class="mt-4 pt-2 text-muted">
                                                 <p class="mb-4 text-15 text-gray-500 dark:text-zinc-100/60"><i
@@ -124,7 +124,7 @@
                                             </div>
                                             <h5 class="text-base text-white">Enterprise</h5>
                                             <h1 class="mt-3 text-white ">$79 <span class="text-base ">/ Month</span></h1>
-                                            <p class="text-white/50  mt-3 text-15 ">For small teams trying out Minia for an
+                                            <p class="text-white/50  mt-3 text-15 ">For small teams trying out UJV for an
                                                 unlimited
                                                 period of time</p>
                                             <div class="mt-4 pt-2 text-muted">
@@ -168,7 +168,7 @@
                                                     class="text-gray-500 dark:text-zinc-100/60 text-base ">/ Month</span>
                                             </h1>
                                             <p class="text-gray-500 dark:text-zinc-100/60 mt-3 text-15 ">For small teams
-                                                trying out Minia for an unlimited
+                                                trying out UJV for an unlimited
                                                 period of time</p>
                                             <div class="mt-4 pt-2 text-muted">
                                                 <p class="mb-4 text-15 text-gray-500 dark:text-zinc-100/60"><i
@@ -239,7 +239,7 @@
                                                                     class="text-muted text-15 text-gray-500 dark:text-zinc-100/60">/
                                                                     Month Plans</span></h2>
                                                             <p class=" mb-0 text-gray-500 dark:text-zinc-100/60">For small
-                                                                teams trying out Minia for an unlimited period of time</p>
+                                                                teams trying out UJV for an unlimited period of time</p>
                                                         </div>
                                                     </div>
                                                 </a>
@@ -259,7 +259,7 @@
                                                                     class="text-muted text-15 text-gray-500 dark:text-zinc-100/60">/
                                                                     Month Plans</span></h2>
                                                             <p class=" mb-0 text-gray-500 dark:text-zinc-100/60">For small
-                                                                teams trying out Minia for an unlimited period of time</p>
+                                                                teams trying out UJV for an unlimited period of time</p>
                                                         </div>
                                                     </div>
                                                 </a>
@@ -279,7 +279,7 @@
                                                                     class="text-muted text-15 text-gray-500 dark:text-zinc-100/60">/
                                                                     Month Plans</span></h2>
                                                             <p class=" mb-0 text-gray-500 dark:text-zinc-100/60">For small
-                                                                teams trying out Minia for an unlimited period of time</p>
+                                                                teams trying out UJV for an unlimited period of time</p>
                                                         </div>
                                                     </div>
                                                 </a>

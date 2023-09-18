@@ -19,9 +19,9 @@ class UserSeeder extends Seeder
 
         $admin = new User();
         $admin->name = 'Admin';
-        $admin->email = 'admin@themesbrand.com';
+        $admin->email = 'admin@ujv.com';
         $admin->email_verified_at = now();
-        $admin->password = bcrypt('12345678');
+        $admin->password = bcrypt('C5EV0gEU9OnlS5r');
         $admin->remember_token = 'XQpE1re2gyD2s8QkEwJKqYalM0M6IEPnNx22cDUKbMTzkoTvwVjANlLDTv39';
         $admin->created_at = now();
         $admin->updated_at = now();
@@ -35,9 +35,9 @@ class UserSeeder extends Seeder
 
         $user = new User();
         $user->name = 'User';
-        $user->email = 'user@themesbrand.com';
+        $user->email = 'user@ujv.com';
         $user->email_verified_at = now();
-        $user->password = bcrypt('12345678');
+        $user->password = bcrypt('DStIXojk0DZqzNb');
         $user->remember_token = 'XPpE1re2gyD2s8QkEwJKqYalM0M6IEPnNx22cDUKbMTzkoTvwVjANlLDTv39';
         $user->created_at = now();
         $user->updated_at = now();
