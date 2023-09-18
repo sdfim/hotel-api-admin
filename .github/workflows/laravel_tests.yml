@@ -14,11 +14,22 @@ jobs:
       matrix:
         node-version: ["18.x"]
         php-version: ["8.2"]
+        xdebug: ["xdebug-3.2.1"]
 
     steps:
       - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
         with:
           php-version: ${{ matrix.php-version }}
+          extensions: ${{ matrix.xdebug }}
+          # Top: Xdebug v3
+          # Bottom: Xdebug v2
+          ini-values: >-
+            xdebug.mode = debug,
+            xdebug.start_with_request = yes,
+            xdebug.remote_enable = 1,
+            xdebug.remote_autostart = 1,
+            xdebug.remote_port = 9003,
+            xdebug.remote_log = /tmp/xdebug.log
 
       - uses: actions/checkout@v3
       - name: Copy .env
@@ -45,8 +56,13 @@ jobs:
       - run: npm ci
       - run: npm run build --if-present
 
+      - name: Display Tests Coverage
+        run: php artisan test --coverage
+
       - name: Execute tests (Unit and Feature tests) via PHPUnit
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
         run: vendor/bin/phpunit
+
+      
