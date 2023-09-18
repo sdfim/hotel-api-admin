@@ -17,6 +17,9 @@ jobs:
         xdebug: ["xdebug-3.2.1"]
 
     steps:
+      - name: Xdebug Action
+        uses: MilesChou/docker-xdebug@master
+
       - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
         with:
           php-version: ${{ matrix.php-version }}
