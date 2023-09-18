@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class page-title extends Component
+class pagetitle extends Component
 {
     /**
      * Create a new component instance.
