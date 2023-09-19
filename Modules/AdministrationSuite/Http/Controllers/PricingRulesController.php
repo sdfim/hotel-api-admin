@@ -35,9 +35,8 @@ class PricingRulesController extends Controller
         $pageCount = 2;
         $pricingRules = PricingRules::with(['suppliers'])->get();
         $pricingRules = PricingRules::latest()->paginate($pageCount);
-        // echo '<pre>', $pricingRules, '</pre>';
-        // die;
         $startNumber = ($pricingRules->currentPage() - 1) * $pricingRules->perPage() + 1;
+        
         return view('pricingRules.index', compact('pricingRules', 'startNumber'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
     }
 
@@ -57,9 +56,8 @@ class PricingRulesController extends Controller
     {
         $request->validate($this->validate);
         PricingRules::create($request->all());
-        /* var_dump('pre', $request->input());
-        die; */
-        return redirect()->route('pricing-rules.index')->with('success', 'Pricing rule created successfully.');
+
+        return redirect()->route('pricing_rules.index')->with('success', 'Pricing rule created successfully.');
     }
 
     /**
@@ -92,7 +90,7 @@ class PricingRulesController extends Controller
         $request->validate($this->validate);
         $pricingRules->update($request->all());
 
-        return redirect()->route('pricing-rules.index')
+        return redirect()->route('pricing_rules.index')
             ->with('success', 'Pricing rule updated successfully');
     }
 
@@ -104,7 +102,7 @@ class PricingRulesController extends Controller
         $pricingRules = PricingRules::findOrFail($id);
         $pricingRules->delete();
 
-        return redirect()->route('pricing-rules.index')
+        return redirect()->route('pricing_rules.index')
             ->with('success', 'Pricing rule deleted successfully');
     }
 }

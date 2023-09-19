@@ -14,10 +14,28 @@ class PricingRulesControllerTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testStore()
+    public function testListPricingRule(): void
     {
         $this->auth();
-        // Створюємо фейкові дані для тестування
+
+        $response = $this->get('/pricing_rules');
+
+        $response->assertStatus(200);
+    }
+
+    public function testShowPricingRule()
+    {
+        $this->auth();
+        $pricingRule = PricingRules::factory()->create();
+
+        $response = $this->get(route('pricing_rules.show', $pricingRule->id));
+
+        $response->assertStatus(200);
+    }
+
+    public function testCreatePricingRule()
+    {
+        $this->auth();
         $supplier = Suppliers::factory()->create();
         $data = [
             'name' => $this->faker->name,
@@ -36,57 +54,68 @@ class PricingRulesControllerTest extends TestCase
             'rating' => $this->faker->word,
         ];
 
-        // Виконуємо POST-запит на маршрут створення PricingRule
-        $response = $this->post(route('pricing-rules.store'), $data);
+        $response = $this->post(route('pricing_rules.store'), $data);
+        $response->assertStatus(302);
+        $response->assertRedirect(route('pricing_rules.index'));
 
-        // Перевіряємо, чи відбулася успішна переадресація
-        $response->assertRedirect(route('pricing-rules.index'));
-
-        // Перевіряємо, чи запис був створений у базі даних
         $this->assertDatabaseHas('pricing_rules', $data);
+    }
 
-        // Перевіряємо повідомлення про успіх
+    public function testStorePricingRule()
+    {
+        $this->auth();
+        $supplier = Suppliers::factory()->create();
+        $data = [
+            'name' => $this->faker->name,
+            'property' => $this->faker->word,
+            'destination' => $this->faker->word,
+            'travel_date' => now(), // Поточна дата і час
+            'days' => 7,
+            'nights' => 5,
+            'supplier_id' => $supplier->id, // Використовуємо ID створеного постачальника
+            'rate_code' => $this->faker->word,
+            'room_type' => $this->faker->word,
+            'total_guests' => 2,
+            'room_guests' => 2,
+            'number_rooms' => 1,
+            'meal_plan' => $this->faker->word,
+            'rating' => $this->faker->word,
+        ];
+
+        $response = $this->post(route('pricing_rules.store'), $data);
+
+        $response->assertRedirect(route('pricing_rules.index'));
+
+        $this->assertDatabaseHas('pricing_rules', $data);
         $response->assertSessionHas('success', 'Pricing rule created successfully.');
     }
 
-    public function testCreatePricingRule()
-    {
-        $this->auth();
-        $data = [
-            'name' => 'Test Pricing Rule',
-            // Додайте інші поля сюди
-        ];
-
-        $response = $this->post(route('pricing-rules.store'), $data);
-
-        $response->assertRedirect(route('pricing-rules.index'));
-
-        $this->assertDatabaseHas('pricing_rules', $data);
-    }
-
-    public function testShowPricingRule()
-    {
-        $this->auth();
-        $pricingRule = PricingRules::factory()->create();
-
-        $response = $this->get(route('pricing-rules.show', $pricingRule->id));
-
-        $response->assertStatus(200);
-    }
 
     public function testUpdatePricingRule()
     {
         $this->auth();
         $pricingRule = PricingRules::factory()->create();
-
+        $supplier = Suppliers::factory()->create();
         $newData = [
             'name' => 'Updated Pricing Rule Name',
-            // Додайте інші поля сюди
+            'property' => 'Updated Pricing Rule Property',
+            'destination' => 'Updated Pricing Rule Destination',
+            'travel_date' => now(), // Поточна дата і час
+            'days' => 7,
+            'nights' => 5,
+            'supplier_id' => $supplier->id, // Використовуємо ID створеного постачальника
+            'rate_code' => 'dret1',
+            'room_type' => 'vip',
+            'total_guests' => 2,
+            'room_guests' => 2,
+            'number_rooms' => 1,
+            'meal_plan' => 'plan',
+            'rating' => 'rating',
         ];
 
-        $response = $this->post(route('pricing-rules.update', $pricingRule->id), $newData);
-
-        $response->assertRedirect(route('pricing-rules.index'));
+        $response = $this->put(route('pricing_rules.update', [$pricingRule->id]), $newData);
+        $response->assertStatus(302);
+        $response->assertRedirect(route('pricing_rules.index'));
 
         $this->assertDatabaseHas('pricing_rules', $newData);
     }
@@ -96,11 +125,10 @@ class PricingRulesControllerTest extends TestCase
         $this->auth();
         $pricingRule = PricingRules::factory()->create();
 
-        $response = $this->post(route('pricing-rules.destroy', $pricingRule->id));
-
-        $response->assertRedirect(route('pricing-rules.index'));
-
-        $response->assertDeleted('pricing_rules', $pricingRule->toArray());
+        $response = $this->delete(route('pricing_rules.destroy', [$pricingRule->id]));
+        $response->assertStatus(302);
+        $response->assertRedirect(route('pricing_rules.index'));
+        $this->assertDatabaseMissing('pricing_rules', ['id' => $pricingRule->id]);
     }
 
     public function auth()
