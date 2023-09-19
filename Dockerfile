@@ -3,8 +3,7 @@ FROM node:18-bookworm as npmbuild
 RUN mkdir -p /app
 WORKDIR /app
 
-COPY package.json package-lock.json *.js /app/
-COPY resources/ /app/resources/
+COPY . /app/
 
 RUN npm i && npm run build
 
