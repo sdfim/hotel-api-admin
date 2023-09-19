@@ -2,6 +2,7 @@
 
 .icon-demo-content {
     @apply text-gray-300 flex;
+    cursor: pointer;
 }
 .icon-demo-content i {
     @apply inline-flex items-center justify-center text-xl border border-gray-50 align-middle rounded-full dark:border dark:border-zinc-600;
@@ -14,6 +15,10 @@
     margin-top: 24px
 }
 .icon-demo-content .col-lg-4:hover i {
+    background-color: rgba(81, 86, 190, .2);
+    color: #5156be
+}
+.icon-demo-content:hover i {
     background-color: rgba(81, 86, 190, .2);
     color: #5156be
 }
