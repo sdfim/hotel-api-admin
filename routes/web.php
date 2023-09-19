@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Suppliers;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\ContentLoaderExceptionsController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
@@ -10,8 +9,9 @@ use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
 use Modules\AdministrationSuite\Http\Controllers\PropertyMappingController;
 use Modules\AdministrationSuite\Http\Controllers\ReservationsController;
 use Modules\AdministrationSuite\Http\Controllers\ConfigurationChannelsController;
+use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,7 +37,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
     Route::resource('channels', ConfigurationChannelsController::class);
     Route::resources([
         'pricing_rules' => PricingRulesController::class,
-        'suppliers' => Suppliers::class
+        'suppliers' => SuppliersController::class
     ]);
 
     Route::get('/content-loader-exceptions', [ContentLoaderExceptionsController::class, 'index'])->name('content_loader_exceptions');

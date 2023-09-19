@@ -14,21 +14,11 @@ class PricingRulesControllerTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testListPricingRule(): void
+    public function testIndexPricingRule(): void
     {
         $this->auth();
 
         $response = $this->get('/pricing_rules');
-
-        $response->assertStatus(200);
-    }
-
-    public function testShowPricingRule()
-    {
-        $this->auth();
-        $pricingRule = PricingRules::factory()->create();
-
-        $response = $this->get(route('pricing_rules.show', $pricingRule->id));
 
         $response->assertStatus(200);
     }
@@ -90,6 +80,25 @@ class PricingRulesControllerTest extends TestCase
         $response->assertSessionHas('success', 'Pricing rule created successfully.');
     }
 
+    public function testShow()
+    {
+        $this->auth();
+        $pricingRule = PricingRules::factory()->create();
+
+        $response = $this->get(route('pricing_rules.show', $pricingRule->id));
+
+        $response->assertStatus(200);
+    }
+
+    public function testEditPricingRule()
+    {
+        $this->auth();
+        $pricingRule = PricingRules::factory()->create();
+
+        $response = $this->get(route('pricing_rules.edit', $pricingRule->id));
+
+        $response->assertStatus(200);
+    }
 
     public function testUpdatePricingRule()
     {
@@ -120,7 +129,7 @@ class PricingRulesControllerTest extends TestCase
         $this->assertDatabaseHas('pricing_rules', $newData);
     }
 
-    public function testDeletePricingRule()
+    public function testDestroyPricingRule()
     {
         $this->auth();
         $pricingRule = PricingRules::factory()->create();

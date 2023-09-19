@@ -19,12 +19,13 @@ class SuppliersController extends Controller
      */
     public function index(): View
     {
-        $pageCount = 2;
+        //phpinfo();
+        $pageCount = 5;
        // $suppliers = PricingRules::with(['suppliers'])->get();
         $suppliers = Suppliers::latest()->paginate($pageCount);
         $startNumber = ($suppliers->currentPage() - 1) * $suppliers->perPage() + 1;
         
-        return view('suppliers.index', compact('suppliers', 'startNumber'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
+        return view('dashboard.suppliers.index', compact('suppliers', 'startNumber'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
     }
 
     /**
@@ -33,7 +34,7 @@ class SuppliersController extends Controller
     public function create()
     {
         $suppliers = Suppliers::all();
-        return view('suppliers.create', compact('suppliers'));
+        return view('dashboard.suppliers.create', compact('suppliers'));
     }
 
     /**
@@ -54,7 +55,7 @@ class SuppliersController extends Controller
     {
         $suppliers = Suppliers::findOrFail($id);
 
-        return view('suppliers.show', compact('suppliers'));
+        return view('dashboard.suppliers.show', compact('suppliers'));
     }
 
     /**
@@ -63,9 +64,8 @@ class SuppliersController extends Controller
     public function edit(String $id): View
     {
         $suppliers = Suppliers::findOrFail($id);
-        $suppliers = Suppliers::all();
 
-        return view('suppliers.edit', compact('suppliers', 'suppliers'));
+        return view('dashboard.suppliers.edit', compact('suppliers'));
     }
 
     /**
