@@ -1,19 +1,19 @@
-@extends('channels.layout')
+@extends('pricingRules.layout')
 @section('content')
     <div class="col-span-12 xl:col-span-6">
         <div class="card dark:bg-zinc-800 dark:border-zinc-600">
             <div class="card-body pb-0">
-                <h6 class="mb-1 text-15 text-gray-700 dark:text-gray-100">Add New Channel</h6>
+                <h6 class="mb-1 text-15 text-gray-700 dark:text-gray-100">Add Pricing Rules</h6>
             </div>
             <div class="card-body">
                 <div class="relative overflow-x-auto">
                     <div class="row">
                         <div class="col-lg-12 margin-tb">
                             <div class="pull-left">
-                                <h2>Add New Channel</h2>
+                                <h2>Add Pricing Rules</h2>
                             </div>
                             <div class="mt-6 mb-6">
-                                <x-button-back route="{{ route('pricing-rules.index') }}" text="Back"
+                                <x-button-back route="{{ route('pricing_rules.index') }}" text="Back"
                                     style="additional-styles" />
                             </div>
                         </div>
@@ -30,113 +30,130 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('pricing-rules.store') }}" method="POST">
+                    <form action="{{ route('pricing_rules.store') }}" method="POST">
                         @csrf
                         <div class="col-span-12 lg:col-span-6">
                             <div class="mb-4">
                                 <x-label for="name" class="dark:text-gray-100" value="{{ __('Name') }}" />
-                                <x-input id="name" name="name" placeholder="Name" type="text"
+                                <x-input id="name" name="name" value="{{ old('name') }}" placeholder="Name"
+                                    type="text"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.name" required autocomplete="name" />
+                                    wire:model="state.name" autocomplete="name" />
                                 <x-input-error for="name" class="mt-2" />
                             </div>
                             <div class="mb-4">
                                 <x-label for="property" class="dark:text-gray-100" value="{{ __('Property') }}" />
-                                <x-input id="property" name="property" placeholder="Property" type="text"
+                                <x-input id="property" name="property" value="{{ old('property') }}" placeholder="Property"
+                                    type="text"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.property" required autocomplete="property" />
+                                    wire:model="state.property" autocomplete="property" />
                                 <x-input-error for="property" class="mt-2" />
                             </div>
                             <div class="mb-4">
                                 <x-label for="destination" class="dark:text-gray-100" value="{{ __('Destination') }}" />
-                                <x-input id="destination" name="destination" placeholder="Destination" type="text"
+                                <x-input id="destination" name="destination" value="{{ old('destination') }}"
+                                    placeholder="Destination" type="text"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.destination" required autocomplete="destination" />
+                                    wire:model="state.destination" autocomplete="destination" />
                                 <x-input-error for="destination" class="mt-2" />
                             </div>
                             <div class="mb-4">
-                                <x-label for="travelDate" class="dark:text-gray-100" value="{{ __('Travel Date') }}" />
-                                <x-input id="travelDate" name="travelDate" placeholder="Travel Date" type="text"
+                                <x-label for="travel_date" class="dark:text-gray-100" value="{{ __('Travel Date') }}" />
+                                <x-input id="travel_date" name="travel_date"
+                                    value="{{ old('travel_date', now()->format('Y-m-d\TH:i')) }}" placeholder="Travel Date"
+                                    type="datetime-local"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.travelDate" required autocomplete="travelDate" />
-                                <x-input-error for="travelDate" class="mt-2" />
+                                    wire:model="state.travel_date" autocomplete="travel_date" />
+                                <x-input-error for="travel_date" class="mt-2" />
                             </div>
                             <div class="mb-4">
                                 <x-label for="days" class="dark:text-gray-100" value="{{ __('Days until Travel') }}" />
-                                <x-input id="days" name="days" placeholder="Days until Travel" type="text"
+                                <x-input id="days" name="days" value="{{ old('days') }}"
+                                    placeholder="Days until Travel" type="number"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.days" required autocomplete="days" />
+                                    wire:model="state.days" autocomplete="days" />
                                 <x-input-error for="days" class="mt-2" />
                             </div>
                             <div class="mb-4">
                                 <x-label for="nights" class="dark:text-gray-100" value="{{ __('Nights') }}" />
-                                <x-input id="nights" name="nights" placeholder="Nights" type="text"
+                                <x-input id="nights" name="nights" value="{{ old('nights') }}" placeholder="Nights"
+                                    type="number"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.nights" required autocomplete="nights" />
+                                    wire:model="state.nights" autocomplete="nights" />
                                 <x-input-error for="nights" class="mt-2" />
                             </div>
                             <div class="mb-4">
-                                <x-label for="supplierId" class="dark:text-gray-100" value="{{ __('Supplier') }}" />
-                                <x-input id="supplierId" name="supplierId" placeholder="Supplier" type="text"
-                                    class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.supplierId" required autocomplete="supplierId" />
-                                <x-input-error for="supplierId" class="mt-2" />
+                                <label for="supplier_id" class="dark:text-gray-100">{{ __('Supplier') }}</label>
+                                <select id="supplier_id" name="supplier_id"
+                                    class="dark:bg-zinc-800 dark:border-zinc-700 w-full rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:text-zinc-100">
+                                    <option disabled selected>Select</option>
+                                    @foreach ($suppliers as $supplier)
+                                        <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('supplier_id')
+                                    <span class="text-red-500">{{ $message }}</span>
+                                @enderror
                             </div>
                             <div class="mb-4">
-                                <x-label for="supplierId" class="dark:text-gray-100" value="{{ __('Rate Code') }}" />
-                                <x-input id="supplierId" name="supplierId" placeholder="Rate Code" type="text"
+                                <x-label for="rate_code" class="dark:text-gray-100" value="{{ __('Rate Code') }}" />
+                                <x-input id="rate_code" name="rate_code" value="{{ old('rate_code') }}"
+                                    placeholder="Rate Code" type="text"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.supplierId" required autocomplete="supplierId" />
-                                <x-input-error for="supplierId" class="mt-2" />
+                                    wire:model="state.rate_code" autocomplete="rate_code" />
+                                <x-input-error for="rate_code" class="mt-2" />
                             </div>
                             <div class="mb-4">
-                                <x-label for="roomType" class="dark:text-gray-100" value="{{ __('Room type') }}" />
-                                <x-input id="roomType" name="roomType" placeholder="Roome type" type="text"
+                                <x-label for="room_type" class="dark:text-gray-100" value="{{ __('Room type') }}" />
+                                <x-input id="room_type" name="room_type" value="{{ old('room_type') }}"
+                                    placeholder="Roome type" type="text"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.roomType" required autocomplete="roomType" />
-                                <x-input-error for="roomType" class="mt-2" />
+                                    wire:model="state.room_type" autocomplete="room_type" />
+                                <x-input-error for="room_type" class="mt-2" />
                             </div>
                             <div class="mb-4">
-                                <x-label for="totalGuests" class="dark:text-gray-100"
+                                <x-label for="total_guests" class="dark:text-gray-100"
                                     value="{{ __('Total Guests') }}" />
-                                <x-input id="totalGuests" name="totalGuests" placeholder="Total Guests" type="text"
+                                <x-input id="total_guests" name="total_guests" value="{{ old('total_guests') }}"
+                                    placeholder="Total Guests" type="number"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.totalGuests" required autocomplete="totalGuests" />
-                                <x-input-error for="totalGuests" class="mt-2" />
+                                    wire:model="state.total_guests" autocomplete="total_guests" />
+                                <x-input-error for="total_guests" class="mt-2" />
                             </div>
                             <div class="mb-4">
-                                <x-label for="roomGuests" class="dark:text-gray-100" value="{{ __('Room Guests') }}" />
-                                <x-input id="roomGuests" name="roomGuests" placeholder="Roome Guests" type="text"
+                                <x-label for="room_guests" class="dark:text-gray-100" value="{{ __('Room Guests') }}" />
+                                <x-input id="room_guests" name="room_guests" value="{{ old('room_guests') }}"
+                                    placeholder="Room Guests" type="number"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.roomGuests" required autocomplete="roomGuests" />
-                                <x-input-error for="roomGuests" class="mt-2" />
+                                    wire:model="state.room_guests" autocomplete="room_guests" />
+                                <x-input-error for="room_guests" class="mt-2" />
                             </div>
                             <div class="mb-4">
-                                <x-label for="numberRooms" class="dark:text-gray-100"
+                                <x-label for="number_rooms" class="dark:text-gray-100"
                                     value="{{ __('Number of Rooms') }}" />
-                                <x-input id="numberRooms" name="numberRooms" placeholder="Number of Rooms"
-                                    type="text"
+                                <x-input id="number_rooms" name="number_rooms" value="{{ old('number_rooms') }}"
+                                    placeholder="Number of Rooms" type="number"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.numberRooms" required autocomplete="numberRooms" />
-                                <x-input-error for="numberRooms" class="mt-2" />
+                                    wire:model="state.number_rooms" autocomplete="number_rooms" />
+                                <x-input-error for="number_rooms" class="mt-2" />
                             </div>
                             <div class="mb-4">
-                                <x-label for="mealPlan" class="dark:text-gray-100"
+                                <x-label for="meal_plan" class="dark:text-gray-100"
                                     value="{{ __('Meal Plan / Board Basis') }}" />
-                                <x-input id="mealPlan" name="mealPlan" placeholder="Meal Plan / Board Basis"
-                                    type="text"
+                                <x-input id="meal_plan" name="meal_plan" value="{{ old('meal_plan') }}"
+                                    placeholder="Meal Plan / Board Basis" type="text"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.mealPlan" required autocomplete="mealPlan" />
-                                <x-input-error for="mealPlan" class="mt-2" />
+                                    wire:model="state.meal_plan" autocomplete="meal_plan" />
+                                <x-input-error for="meal_plan" class="mt-2" />
                             </div>
                             <div class="mb-4">
                                 <x-label for="rating" class="dark:text-gray-100" value="{{ __('Rating') }}" />
-                                <x-input id="rating" name="rating" placeholder="Rating" type="text"
+                                <x-input id="rating" name="rating" value="{{ old('rating') }}" placeholder="Rating"
+                                    type="text"
                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.rating" required autocomplete="rating" />
+                                    wire:model="state.rating" autocomplete="rating" />
                                 <x-input-error for="rating" class="mt-2" />
                             </div>
-
                             <div class="mt-6">
                                 <x-button>
                                     Submit

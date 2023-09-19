@@ -4,5 +4,5 @@
         {{ __('Pricing Rules') }}
     @endsection
     @section('css')
-        <link href="{{ URL::asset('build/libs/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
+        <link rel="stylesheet" href="{{ URL::asset('build/libs/swiper/swiper-bundle.min.css') }}">
     @endsection
