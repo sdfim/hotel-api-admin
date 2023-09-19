@@ -6,9 +6,15 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
+use App\Models\Reservations;
+use App\Models\Contains;
+use App\Models\Channels;
+
 
 class ReservationsTest extends TestCase
 {
+    use RefreshDatabase; 
+    use WithFaker;
     /**
      * A basic feature test example.
      */
@@ -29,5 +35,24 @@ class ReservationsTest extends TestCase
 			'email' => $user->email,
 			'password' => 'password',
 		]);
+	}
+
+    public function testShowReservations()
+	{
+		$this->auth();
+		Contains::factory()->create();
+		Channels::factory()->create();
+		$reservations = Reservations::factory()->create();
+		$response = $this->get("/reservations/{$reservations->id}");
+
+        $response->assertSee($reservations->date_offload);
+		$response->assertSee($reservations->date_travel);
+		$response->assertSee($reservations->passenger_surname);
+		$response->assertSee($reservations->contains_id);
+		$response->assertSee($reservations->channel_id);
+		$response->assertSee($reservations->total_cost);
+		$response->assertSee($reservations->created_at);
+		$response->assertSee($reservations->updated_at);
+		$response->assertStatus(200);
 	}
 }
