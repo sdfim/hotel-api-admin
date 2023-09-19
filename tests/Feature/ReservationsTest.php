@@ -40,9 +40,9 @@ class ReservationsTest extends TestCase
     public function testShowReservations()
 	{
 		$this->auth();
-		Contains::factory()->create();
-		Channels::factory()->create();
-		$reservations = Reservations::factory()->create();
+		$contain = Contains::factory()->create();
+		$channel = Channels::factory()->create();
+		$reservations = Reservations::factory()->create(['contains_id' => $contain->id, 'channel_id' => $channel->id]);
 		$response = $this->get("/reservations/{$reservations->id}");
 
         $response->assertSee($reservations->date_offload);

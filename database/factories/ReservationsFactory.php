@@ -17,6 +17,7 @@ class ReservationsFactory extends Factory
 	 */
 	protected $model = Reservations::class;
 
+
     /**
      * Define the model's default state.
      *
@@ -28,8 +29,6 @@ class ReservationsFactory extends Factory
             'date_offload' => null,
 			'date_travel' => \Carbon\Carbon::now()->subDays(30),
 			'passenger_surname' => 'Passengersing',
-			'contains_id' => 1,
-			'channel_id' => 5,
 			'total_cost' => 1240,
 			'created_at' => \Carbon\Carbon::now(),
 			'updated_at' => \Carbon\Carbon::now(),
