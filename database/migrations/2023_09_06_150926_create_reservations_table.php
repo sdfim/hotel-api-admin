@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
-			$table->dateTimeTz('date_offload');
+			$table->dateTimeTz('date_offload')->nullable();
 			$table->dateTimeTz('date_travel');
 			$table->string('passenger_surname');
 			$table->foreignId('contains_id')

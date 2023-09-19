@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
 		$currentUrl = \Illuminate\Support\Facades\URL::current();
-		if (!str_contains($currentUrl, 'localhost')) {
+		if (!str_contains($currentUrl, 'localhost') && !str_contains($currentUrl, '127.0.0.1')) {
             \URL::forceScheme('https');
         }
         Schema::defaultStringLength(191);
