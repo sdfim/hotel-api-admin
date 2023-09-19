@@ -1,5 +1,5 @@
 #!/bin/sh
 
 cd /var/www
-php artisan migrate --seed
+php artisan migrate
 /usr/bin/supervisord -c /etc/supervisord.conf
