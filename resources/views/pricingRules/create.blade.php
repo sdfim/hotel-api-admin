@@ -13,7 +13,7 @@
                                 <h2>Add Pricing Rules</h2>
                             </div>
                             <div class="mt-6 mb-6">
-                                <x-button-back route="{{ route('pricing-rules.index') }}" text="Back"
+                                <x-button-back route="{{ route('pricing_rules.index') }}" text="Back"
                                     style="additional-styles" />
                             </div>
                         </div>
@@ -30,7 +30,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('pricing-rules.store') }}" method="POST">
+                    <form action="{{ route('pricing_rules.store') }}" method="POST">
                         @csrf
                         <div class="col-span-12 lg:col-span-6">
                             <div class="mb-4">

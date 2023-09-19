@@ -13,7 +13,7 @@
                                 <h2>Edit Pricing Rules</h2>
                             </div>
                             <div class="mt-6 mb-6">
-                                <x-button-back route="{{ route('pricing-rules.index') }}" text="Back"
+                                <x-button-back route="{{ route('pricing_rules.index') }}" text="Back"
                                     style="additional-styles" />
                             </div>
                         </div>
@@ -28,7 +28,7 @@
                             </ul>
                         </div>
                     @endif
-                    <form action="{{ route('pricing-rules.update', $pricingRule->id) }}" method="POST">
+                    <form action="{{ route('pricing_rules.update', $pricingRule->id) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <div class="mb-4">
@@ -162,7 +162,5 @@
 
             </div>
         </div>
-    </div>
-    </div>
-    </div>
+    </div> 
 @endsection

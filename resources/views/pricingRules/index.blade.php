@@ -8,7 +8,7 @@
 
             <div class="mt-6 mb-6">
                 <a class="btn text-violet-500 hover:text-white border-violet-500 hover:bg-violet-600 hover:border-violet-600 focus:bg-violet-600 focus:text-white focus:border-violet-600 focus:ring focus:ring-violet-500/30 active:bg-violet-600 active:border-violet-600"
-                    href="{{ route('pricing-rules.create') }}"> <i class="bx bx-plus block text-lg"></i></a>
+                    href="{{ route('pricing_rules.create') }}"> <i class="bx bx-plus block text-lg"></i></a>
             </div>
 
         </div>
@@ -129,11 +129,11 @@
                                     </td>
                                     <td
                                         class="w-40 px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 dark:text-zinc-100">
-                                        <form class="w-40" action="{{ route('pricing-rules.destroy', $item->id) }}"
+                                        <form class="w-40" action="{{ route('pricing_rules.destroy', $item->id) }}"
                                             method="POST">
-                                            <x-button-icon route="{{ route('pricing-rules.show', $item->id) }}"
+                                            <x-button-icon route="{{ route('pricing_rules.show', $item->id) }}"
                                                 iconClass="bx bx-show" />
-                                            <x-button-icon route="{{ route('pricing-rules.edit', $item->id) }}"
+                                            <x-button-icon route="{{ route('pricing_rules.edit', $item->id) }}"
                                                 iconClass="mdi mdi-pencil" />
 
                                             @csrf
