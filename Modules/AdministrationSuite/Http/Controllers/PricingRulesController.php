@@ -33,7 +33,6 @@ class PricingRulesController extends Controller
     public function index(): View
     {
         $pageCount = 2;
-        $pricingRules = PricingRules::with(['suppliers'])->get();
         $pricingRules = PricingRules::latest()->paginate($pageCount);
         $startNumber = ($pricingRules->currentPage() - 1) * $pricingRules->perPage() + 1;
         

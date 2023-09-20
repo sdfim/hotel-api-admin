@@ -9,8 +9,9 @@ use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
 use Modules\AdministrationSuite\Http\Controllers\PropertyMappingController;
 use Modules\AdministrationSuite\Http\Controllers\ReservationsController;
 use Modules\AdministrationSuite\Http\Controllers\ConfigurationChannelsController;
+use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,17 +26,19 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     if (!Auth::check()) {
-		return redirect('/login');
-	}
-	else {
-		return redirect('/index');
-	}
+        return redirect('/login');
+    } else {
+        return redirect('/index');
+    }
 });
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
 
     Route::resource('channels', ConfigurationChannelsController::class);
-    Route::resources(['pricing_rules' => PricingRulesController::class]);
+    Route::resources([
+        'pricing_rules' => PricingRulesController::class,
+        'suppliers' => SuppliersController::class
+    ]);
 
     Route::get('/content-loader-exceptions', [ContentLoaderExceptionsController::class, 'index'])->name('content_loader_exceptions');
     Route::get('/content', [ContentController::class, 'index'])->name('content');
@@ -45,7 +48,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
     Route::get('/inspector', [InspectorController::class, 'index'])->name('inspector');
     // Route::get('/pricing-rules', [PricingRulesController::class, 'index'])->name('pricing_rules');
     Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
-    Route::resource('reservations', ReservationsController::class)->except(['delete','store','create']);
+    Route::resource('reservations', ReservationsController::class)->except(['delete', 'store', 'create']);
 
     Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
     Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
