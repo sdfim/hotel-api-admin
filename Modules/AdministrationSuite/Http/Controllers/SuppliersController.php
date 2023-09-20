@@ -19,9 +19,7 @@ class SuppliersController extends Controller
      */
     public function index(): View
     {
-        //phpinfo();
         $pageCount = 5;
-       // $suppliers = PricingRules::with(['suppliers'])->get();
         $suppliers = Suppliers::latest()->paginate($pageCount);
         $startNumber = ($suppliers->currentPage() - 1) * $suppliers->perPage() + 1;
         
