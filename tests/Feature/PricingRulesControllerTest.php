@@ -19,13 +19,13 @@ class PricingRulesControllerTest extends TestCase
         $this->auth();
 
         $response = $this->get('/pricing_rules');
-
         $response->assertStatus(200);
     }
 
     public function testCreatePricingRule()
     {
         $this->auth();
+
         $supplier = Suppliers::factory()->create();
         $data = [
             'name' => $this->faker->name,
@@ -54,6 +54,7 @@ class PricingRulesControllerTest extends TestCase
     public function testStorePricingRule()
     {
         $this->auth();
+
         $supplier = Suppliers::factory()->create();
         $data = [
             'name' => $this->faker->name,
@@ -73,20 +74,20 @@ class PricingRulesControllerTest extends TestCase
         ];
 
         $response = $this->post(route('pricing_rules.store'), $data);
-
         $response->assertRedirect(route('pricing_rules.index'));
 
         $this->assertDatabaseHas('pricing_rules', $data);
+
         $response->assertSessionHas('success', 'Pricing rule created successfully.');
     }
 
     public function testShow()
     {
         $this->auth();
+
         $pricingRule = PricingRules::factory()->create();
 
         $response = $this->get(route('pricing_rules.show', $pricingRule->id));
-
         $response->assertStatus(200);
     }
 
@@ -96,15 +97,16 @@ class PricingRulesControllerTest extends TestCase
         $pricingRule = PricingRules::factory()->create();
 
         $response = $this->get(route('pricing_rules.edit', $pricingRule->id));
-
         $response->assertStatus(200);
     }
 
     public function testUpdatePricingRule()
     {
         $this->auth();
+
         $pricingRule = PricingRules::factory()->create();
         $supplier = Suppliers::factory()->create();
+
         $newData = [
             'name' => 'Updated Pricing Rule Name',
             'property' => 'Updated Pricing Rule Property',
@@ -132,11 +134,13 @@ class PricingRulesControllerTest extends TestCase
     public function testDestroyPricingRule()
     {
         $this->auth();
+
         $pricingRule = PricingRules::factory()->create();
 
         $response = $this->delete(route('pricing_rules.destroy', [$pricingRule->id]));
         $response->assertStatus(302);
         $response->assertRedirect(route('pricing_rules.index'));
+        
         $this->assertDatabaseMissing('pricing_rules', ['id' => $pricingRule->id]);
     }
 
