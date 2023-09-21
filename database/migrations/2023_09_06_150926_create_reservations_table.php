@@ -27,6 +27,7 @@ return new class extends Migration
 					indexName: 'channels__channel_id'
 				);
 			$table->float('total_cost', 8, 2);
+			$table->dateTimeTz('canceled_at')->nullable();
             $table->timestamps();
         });
     }
