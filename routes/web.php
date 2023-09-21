@@ -28,7 +28,7 @@ Route::get('/', function () {
     if (!Auth::check()) {
         return redirect('/login');
     } else {
-        return redirect('/index');
+        return redirect('/reservations');
     }
 });
 
@@ -50,6 +50,5 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
     Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
     Route::resource('reservations', ReservationsController::class)->except(['delete', 'store', 'create']);
 
-    Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
     Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
 });

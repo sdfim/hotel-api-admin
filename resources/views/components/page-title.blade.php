@@ -5,7 +5,7 @@
             <ol class="inline-flex items-center space-x-1 ltr:md:space-x-3 rtl:md:space-x-0">
                 <li class="inline-flex items-center">
                     <a href="#" class="inline-flex items-center text-sm font-medium text-gray-800 hover:text-gray-900 dark:text-zinc-100 dark:hover:text-white">
-                        {{ $attributes['pagetitle'] }}
+                        Admin
                     </a>
                 </li>
                 <li>
