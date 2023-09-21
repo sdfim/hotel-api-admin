@@ -33,6 +33,12 @@
                                 {{ $channel->description }}
                             </div>
                         </div>
+						<div class="col-xs-12 col-sm-12 col-md-12">
+                            <div class="form-group">
+                                <strong>Access Token:</strong>
+                                {{ $channel->access_token }}
+                            </div>
+                        </div>
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="form-group">
                                 <strong>Create:</strong>
