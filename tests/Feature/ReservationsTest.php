@@ -55,4 +55,14 @@ class ReservationsTest extends TestCase
 		$response->assertSee($reservations->updated_at);
 		$response->assertStatus(200);
 	}
+
+	public function testCancelReservations()
+	{
+		$this->auth();
+		$contain = Contains::factory()->create();
+		$channel = Channels::factory()->create();
+		$reservations = Reservations::factory()->create(['contains_id' => $contain->id, 'channel_id' => $channel->id]);
+		$response = $this->followingRedirects()->get("/reservations/cancel/{$reservations->id}");
+		$response->assertStatus(200);
+	}
 }

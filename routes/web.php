@@ -49,6 +49,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',
     // Route::get('/pricing-rules', [PricingRulesController::class, 'index'])->name('pricing_rules');
     Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
     Route::resource('reservations', ReservationsController::class)->except(['delete', 'store', 'create']);
+    Route::get('reservations/cancel/{id}', [ReservationsController::class, 'cancel'])->name('reservations.cancel');
+    
 
     Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
 });
