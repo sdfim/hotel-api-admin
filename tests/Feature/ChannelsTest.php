@@ -38,22 +38,9 @@ class ChannelsTest extends TestCase
             'description' => $this->faker->sentence,
         ]);
 
-        $response->assertStatus(302);
+        $response->assertStatus(302); 
         $response->assertRedirect('/admin/channels');
         $this->assertDatabaseHas('channels', ['name' => 'New Channel Name']); // Check if the data is in the database
-    }
-
-    public function testShowChannel()
-    {
-        $this->auth();
-
-        $channel = Channels::factory()->create();
-
-        $response = $this->get("/admin/channels/{$channel->id}");
-
-        $response->assertStatus(200);
-        $response->assertSee($channel->name);
-        $response->assertSee($channel->description);
     }
 
     public function testUpdateChannel()
@@ -79,7 +66,6 @@ class ChannelsTest extends TestCase
 
         $channel = Channels::factory()->create();
 
-
         $response = $this->get(route('channels.show', $channel->id));
         $response->assertStatus(200);
         $response->assertSee($channel->name);
@@ -93,24 +79,7 @@ class ChannelsTest extends TestCase
         $channels = Channels::factory()->create();
         $response = $this->get(route('channels.edit', $channels->id));
         $response->assertStatus(200);
-    }
-
-    public function testUpdate()
-    {
-        $this->auth();
-
-        $channel = Channels::factory()->create();
-        $data = [
-            'name' => $this->faker->name,
-            'description' => $this->faker->word,
-        ];
-
-        $response = $this->put("/channels/{$channel->id}", $data);
-
-        $response->assertStatus(302);
-        $response->assertRedirect('/channels');
-        $this->assertDatabaseHas('channels', $data);
-    }
+    }   
 
     public function testDestroy()
     {
