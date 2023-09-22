@@ -22,7 +22,7 @@ class ReservationsTest extends TestCase
     {
         $this->auth();
 
-        $response = $this->get('/reservations');
+        $response = $this->get('/admin/reservations');
 
         $response->assertStatus(200);
     }
@@ -43,7 +43,7 @@ class ReservationsTest extends TestCase
 		$contain = Contains::factory()->create();
 		$channel = Channels::factory()->create();
 		$reservations = Reservations::factory()->create(['contains_id' => $contain->id, 'channel_id' => $channel->id]);
-		$response = $this->get("/reservations/{$reservations->id}");
+		$response = $this->get("/admin/reservations/{$reservations->id}");
 
         $response->assertSee($reservations->date_offload);
 		$response->assertSee($reservations->date_travel);

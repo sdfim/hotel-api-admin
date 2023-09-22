@@ -16,7 +16,7 @@ class ContentControllerTest extends TestCase
     {
         $this->auth();
 
-        $response = $this->get('/content');
+        $response = $this->get('/admin/content');
 
         $response->assertStatus(200);
     }

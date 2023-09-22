@@ -16,7 +16,7 @@ class InspectorControllerTest extends TestCase
     {
         $this->auth();
 
-        $response = $this->get('/inspector');
+        $response = $this->get('/admin/inspector');
 
         $response->assertStatus(200);
     }

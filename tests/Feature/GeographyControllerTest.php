@@ -16,7 +16,7 @@ class GeographyControllerTest extends TestCase
     {
         $this->auth();
 
-        $response = $this->get('/geography');
+        $response = $this->get('/admin/geography');
 
         $response->assertStatus(200);
     }

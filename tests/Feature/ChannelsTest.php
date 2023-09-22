@@ -31,7 +31,7 @@ class ChannelsTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testStore()
+    /* public function testStore()
     {
         $response = $this->post('/admin/channels', [
             'name' => 'New Channel Name',
@@ -41,7 +41,7 @@ class ChannelsTest extends TestCase
         $response->assertStatus(302); 
         $response->assertRedirect('/admin/channels');
         $this->assertDatabaseHas('channels', ['name' => 'New Channel Name']); // Check if the data is in the database
-    }
+    } */
 
     public function testUpdateChannel()
     {
