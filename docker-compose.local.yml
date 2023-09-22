@@ -1,0 +1,88 @@
+version: '3'
+services:
+
+  ujv-api:
+    build:
+      context: .
+      dockerfile: local.Dockerfile
+    image: ujv-api:latest
+    container_name: ujv-api
+    restart: unless-stopped
+    volumes:
+      - '.:/var/www/html'
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ujv
+      DB_USERNAME: admin
+      DB_PASSWORD: mysqlsecretpasswd
+      REDIS_HOST: redis
+    ports:
+      - "8080:80"
+    networks:
+      - ujv-network
+    depends_on:
+      - mysql
+      - redis
+
+  redis:
+    image: redis
+    container_name: ujv_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - ujv-network
+    volumes:
+      - 'ujv-redis:/data'
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      retries: 3
+      timeout: 5s
+
+  mysql:
+    image: mysql:8.0.33
+    container_name: ujv_db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ujv
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: mysqlsecretpasswd
+      MYSQL_ROOT_PASSWORD: mysqlpasswdroot
+    networks:
+      - ujv-network
+    volumes:
+      - 'ujv-mysql:/var/lib/mysql'
+    healthcheck:
+      test:
+        - CMD
+        - mysqladmin
+        - ping
+        - '-pmysqlsecretpasswd'
+      retries: 3
+      timeout: 5s
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-container
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_ARBITRARY=1
+    networks:
+      - ujv-network
+
+networks:
+  ujv-network:
+    driver: bridge
+
+volumes:
+  ujv-mysql:
+    driver: local
+  ujv-redis:
+    driver: local
