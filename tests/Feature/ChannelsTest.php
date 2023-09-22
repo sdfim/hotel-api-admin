@@ -8,7 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class ConfigurationChannelsTest extends TestCase
+class ChannelsTest extends TestCase
 {
     use RefreshDatabase; 
     use WithFaker;
@@ -17,7 +17,7 @@ class ConfigurationChannelsTest extends TestCase
     {
 		$this->auth();
 
-        $response = $this->get('/channels');
+        $response = $this->get('/admin/channels');
 
         $response->assertStatus(200);
     }
@@ -26,13 +26,13 @@ class ConfigurationChannelsTest extends TestCase
     {
 		$this->auth();
 
-        $response = $this->post('/channels', [
+        $response = $this->post('/admin/channels', [
             'name' => 'New Channel Name',
             'description' => $this->faker->sentence,
         ]);
 
         $response->assertStatus(302);
-        $response->assertRedirect('/channels');
+        $response->assertRedirect('/admin/channels');
         $this->assertDatabaseHas('channels', ['name' => 'New Channel Name']); // Check if the data is in the database
     }
 
@@ -42,7 +42,7 @@ class ConfigurationChannelsTest extends TestCase
 
 		$channel = Channels::factory()->create();
 
-		$response = $this->get("/channels/{$channel->id}");
+		$response = $this->get("/admin/channels/{$channel->id}");
 
 		$response->assertStatus(200);
 		$response->assertSee($channel->name);
@@ -55,13 +55,13 @@ class ConfigurationChannelsTest extends TestCase
 
         $channel = Channels::factory()->create();
 
-        $response = $this->put("/channels/{$channel->id}", [
+        $response = $this->put("/admin/channels/{$channel->id}", [
             'name' => 'Updated Channel Name',
             'description' => 'Updated Channel Description',
         ]);
 
         $response->assertStatus(302);
-        $response->assertRedirect('/channels');
+        $response->assertRedirect('/admin/channels');
         $this->assertDatabaseHas('channels', ['name' => 'Updated Channel Name']);
     }
 
@@ -71,10 +71,10 @@ class ConfigurationChannelsTest extends TestCase
 
         $channel = Channels::factory()->create();
 
-        $response = $this->delete("/channels/{$channel->id}");
+        $response = $this->delete("/admin/channels/{$channel->id}");
 
         $response->assertStatus(302);
-        $response->assertRedirect('/channels');
+        $response->assertRedirect('/admin/channels');
         $this->assertDatabaseMissing('channels', ['id' => $channel->id]);
     }
 

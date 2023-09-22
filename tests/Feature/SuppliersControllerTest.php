@@ -17,7 +17,7 @@ class SuppliersControllerTest extends TestCase
     {
         $this->auth();
 
-        $response = $this->get('/suppliers');
+        $response = $this->get('/admin/suppliers');
         $response->assertStatus(200);
     }
 
