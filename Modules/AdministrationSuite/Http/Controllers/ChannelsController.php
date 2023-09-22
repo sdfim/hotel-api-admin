@@ -6,19 +6,29 @@ use App\Models\Channels;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Pagination\LengthAwarePaginator;
 
-class ConfigurationChannelsController extends Controller
+class ChannelsController extends Controller
 {
 	/**
 	 * Display a listing of the resource.
 	 */
-	public function index(): View
+	public function index(Request $request): View
 	{
-		$pageCount = 10;
-
-		$channels = Channels::latest()->paginate($pageCount);
-		$startNumber = ($channels->currentPage() - 1) * $channels->perPage() + 1;
-		return view('dashboard.channels.index', compact('channels', 'startNumber'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
+  		$perPage = $request->query('perPage') ?? 10;
+  		$page = $request->query('page') ?? 1;
+  
+  		$channels = Channels::skip(($page - 1) * $perPage)
+  			->take($perPage)
+  			->get();
+  
+  		$totalItems = Channels::count();
+  
+  		$paginator = new LengthAwarePaginator($channels, $totalItems, $perPage, $page);
+		$paginator->setPath(route('channels.index'));
+ 
+		return view('dashboard.channels.index', compact('channels', 'paginator'));
 	}
 
 	/**
@@ -39,7 +49,16 @@ class ConfigurationChannelsController extends Controller
 			'description' => 'required|string|max:190',
 		]);
 
-		Channels::create($request->all());
+		$token = auth()->user()->createToken($request->get('name'));
+
+		$channel = [
+			'token_id' => $token->accessToken->id,
+			'access_token' => $token->plainTextToken,
+			'name' => $request->get('name'),
+			'description' => $request->get('description'),
+			];
+
+		Channels::create($channel);
 
 		return redirect()->route('channels.index')
 			->with('success', 'Channels created successfully.');

@@ -18,7 +18,7 @@ class PricingRulesControllerTest extends TestCase
     {
         $this->auth();
 
-        $response = $this->get('/pricing_rules');
+        $response = $this->get('/admin/pricing_rules');
         $response->assertStatus(200);
     }
 

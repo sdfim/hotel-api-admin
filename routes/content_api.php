@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\GiataGeography;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,10 +15,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'content'], function () 
+Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'v1'], function () 
 {
-	Route::post('/giata_geography', function (Request $request) {
-		dd($request->all());
-		return $request->user();
-	});
+	Route::post('/giata_geography', [Giata::class, 'geography']);
 });

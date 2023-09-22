@@ -81,13 +81,12 @@
                                     <td class="p-4 pr-8 border border-t-0 border-l-0 border-gray-50 dark:border-zinc-600">{{$reservation->channel->name}}</td>
                                     <td class="p-4 pr-8 border border-t-0 border-l-0 border-gray-50 dark:border-zinc-600">{{$reservation->total_cost}}</td>
                                     <td class="p-4 pr-8 border rtl:border-l border-t-0 border-l-0 border-gray-50 dark:border-zinc-600">
-                                    <form class="form-actions" action="{{ route('reservations.destroy', $reservation->id) }}" method="POST">
+                                    <form class="form-actions" action="{{ route('reservations.cancel', $reservation->id) }}" method="GET">
                                             <a class="btn text-neutral-800 bg-neutral-100 border-neutral-100 hover:text-violet-500 hover:bg-neutral-900 hover:border-neutral-900 focus:text-violet-500 focus:bg-neutral-900 focus:border-neutral-900 focus:ring focus:ring-neutral-500/10 active:bg-neutral-900 active:border-neutral-900 dark:bg-neutral-500/20 dark:border-transparent dark:text-gray-100"
                                                 href="{{ route('reservations.show', $reservation->id) }}"><i
                                                     class="bx bx-show block text-lg"></i>
                                             </a>
                                             @csrf
-                                            @method('DELETE')
                                             <button type="submit"
                                                 class="btn text-neutral-800 bg-neutral-100 border-neutral-100 hover:text-violet-500 hover:bg-neutral-900 hover:border-neutral-900 focus:text-violet-500 focus:bg-neutral-900 focus:border-neutral-900 focus:ring focus:ring-neutral-500/10 active:bg-neutral-900 active:border-neutral-900 dark:bg-neutral-500/20 dark:border-transparent dark:text-gray-100"><i
                                                     class="mdi mdi-cancel block text-lg"></i> </button>

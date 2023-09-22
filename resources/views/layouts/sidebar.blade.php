@@ -31,23 +31,15 @@
                             <a href="{{ Route('general_configuration') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">General Configuration</a>
                         </li>
                         <li>
-                            <a href="{{ url('channels') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Chanels Configuration</a>
+                            <a href="{{ Route('channels.index') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Chanels Configuration</a>
                         </li>
                         <li>
                             <a href="{{ Route('suppliers.index') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Suppliers Configuration</a>
                         </li>
                     </ul>
                 </li>
-				<!--
                 <li>
-                    <a href="{#{ Route('pricing_rules') }#}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-to-do"></i>
-                        <span data-key="t-pricing-rules"> Pricing Rules</span>
-                    </a>
-                </li>
-				-->
-                <li>
-                    <a href="{{ url('reservations') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                    <a href="{{ Route('reservations.index') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-pin"></i>
                         <span data-key="t-reservations"> Reservations</span>
                     </a>
@@ -83,9 +75,15 @@
                     </a>
                 </li>				
                 <li>
-                    <a href="{{ url('pricing_rules') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                    <a href="{{ Route('pricing_rules.index') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-blog"></i>
                         <span data-key="t-pricing-rules"> Pricing Rule</span>
+                    </a>
+                </li>
+				<li>
+                    <a href="{{ url('log-viewer') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-document-remove"></i>
+                        <span data-key="t-log-viewer"> Log Viewer</span>
                     </a>
                 </li>
 				
@@ -99,9 +97,6 @@
                     <ul>
                         <li>
                             <a href="{{ url('login') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Login</a>
-                        </li>
-                        <li>
-                            <a href="{{ url('register') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Register</a>
                         </li>
                          <li>
                             <a href="{{ url('recoverpw') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Recover Password</a>

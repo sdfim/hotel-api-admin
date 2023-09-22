@@ -98,63 +98,7 @@
                     <i data-feather="moon" class="h-5 w-5 block dark:hidden"></i>
                     <i data-feather="sun" class="h-5 w-5 hidden dark:block"></i>
             </div>
-
-            <div>
-                <div class="dropdown relative text-gray-600 hidden sm:block">
-                    <button type="button" class="btn border-0 h-[70px] text-xl px-4 dropdown-toggle dark:text-gray-100"
-                        data-bs-toggle="dropdown" id="dropdownMenuButton1">
-                        <i data-feather="grid" class="h-5 w-5"></i>
-                    </button>
-                    <div class="dropdown-menu absolute -left-40 z-50 hidden w-72 list-none border border-gray-50 rounded bg-white shadow dark:bg-zinc-800 dark:border-zinc-600 dark:text-gray-300"
-                        aria-labelledby="dropdownMenuButton1">
-                        <div class="p-2">
-                            <div class="grid grid-cols-3">
-                                <a class="dropdown-item hover:bg-gray-50/50 py-4 text-center dark:hover:bg-zinc-700/50 dark:hover:text-gray-50"
-                                    href="#">
-                                    <img src="{{ URL::asset('build/images/brands/github.png') }}"
-                                        class="mb-2 mx-auto h-6" alt="Github">
-                                    <span>GitHub</span>
-                                </a>
-                                <a class="dropdown-item hover:bg-gray-50/50 py-4 text-center dark:hover:bg-zinc-700/50 dark:hover:text-gray-50"
-                                    href="#">
-                                    <img src="{{ URL::asset('build/images/brands/bitbucket.png') }}"
-                                        class="mb-2 mx-auto h-6" alt="Github">
-                                    <span>Bitbucket</span>
-                                </a>
-                                <a class="dropdown-item hover:bg-gray-50/50 py-4 text-center dark:hover:bg-zinc-700/50 dark:hover:text-gray-50"
-                                    href="#">
-                                    <img src="{{ URL::asset('build/images/brands/dribbble.png') }}"
-                                        class="mb-2 mx-auto h-6" alt="Github">
-                                    <span>Dribbble</span>
-                                </a>
-                            </div>
-                            <div class="grid grid-cols-3">
-                                <a class="dropdown-item hover:bg-gray-50/50 py-4 text-center dark:hover:bg-zinc-700/50 dark:hover:text-gray-50"
-                                    href="#">
-                                    <img src="{{ URL::asset('build/images/brands/dropbox.png') }}"
-                                        class="mb-2 mx-auto h-6" alt="Github">
-                                    <span>Dropbox</span>
-                                </a>
-                                <a class="dropdown-item hover:bg-gray-50/50 py-4 text-center dark:hover:bg-zinc-700/50 dark:hover:text-gray-50"
-                                    href="#">
-                                    <img src="{{ URL::asset('build/images/brands/mail_chimp.png') }}"
-                                        class="mb-2 mx-auto h-6" alt="Github">
-                                    <span>Mail Chimp</span>
-                                </a>
-                                <a class="dropdown-item hover:bg-gray-50/50 py-4 text-center dark:hover:bg-zinc-700/50 dark:hover:text-gray-50"
-                                    href="#">
-                                    <img src="{{ URL::asset('build/images/brands/slack.png') }}"
-                                        class="mb-2 mx-auto h-6" alt="Github">
-                                    <span>Slack</span>
-                                </a>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div>
+            <!-- <div>
                 <div class="dropdown relative ">
                     <div class="relative">
                         <button type="button"
@@ -270,7 +214,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
 
             <div>
