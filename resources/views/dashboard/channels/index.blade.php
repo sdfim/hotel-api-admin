@@ -22,11 +22,11 @@
     <div class="col-span-12 xl:col-span-6">
         <div class="card dark:bg-zinc-800 dark:border-zinc-600">
             <div class="card-body pb-0">
-                <h6 class="mb-1 text-15 text-gray-700 dark:text-gray-100">General configuration channels table</h6>
+                <h6 class="mb-1 text-15 text-gray-700 dark:text-gray-100"></h6>
             </div>
             <div class="card-body">
                 <div class="relative overflow-x-auto">
-                    <table class="w-full text-sm text-left text-gray-500 ">
+                    <table class="w-full text-sm text-left text-gray-500 mb-4">
                         <thead class="text-sm text-gray-700 dark:text-gray-100">
                             <tr class="border border-gray-50 dark:border-zinc-600">
                                 <th scope="col" class="px-6 py-3 border-l border-gray-50 dark:border-zinc-600">
@@ -37,6 +37,9 @@
                                 </th>
                                 <th scope="col" class="px-6 py-3 border-l border-gray-50 dark:border-zinc-600">
                                     Description
+                                </th>
+								<th scope="col" class="px-6 py-3 border-l border-gray-50 dark:border-zinc-600">
+                                    Token
                                 </th>
                                 <th scope="col" class="px-6 py-3 border-l border-gray-50 dark:border-zinc-600">
                                     Create
@@ -54,7 +57,7 @@
                                 <tr class="bg-white border border-gray-50 dark:border-zinc-600 dark:bg-transparent">
                                     <th scope="row"
                                         class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 font-medium text-gray-900 whitespace-nowrap dark:text-zinc-100">
-                                        {{ $startNumber++ }}
+                                        {{ $channel->id }}
                                     </th>
                                     <td
                                         class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 font-medium text-gray-900 whitespace-nowrap dark:text-zinc-100">
@@ -63,6 +66,10 @@
                                     <td
                                         class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 font-medium text-gray-900 whitespace-nowrap dark:text-zinc-100">
                                         {{ $channel->description }}
+                                    </td>
+									<td
+                                        class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 font-medium text-gray-900 whitespace-nowrap dark:text-zinc-100">
+                                        {{ $channel->access_token }}
                                     </td>
                                     <td class="px-6 py-3.5 border-l border-gray-50 dark:border-zinc-600 dark:text-zinc-100">
                                         {{ $channel->created_at }}
@@ -93,7 +100,7 @@
                             @endforeach
                         </tbody>
                     </table>
-                    {!! $channels->appends(request()->query())->links() !!}
+					{{ $paginator->appends($_GET)->links() }}
                 </div>
             </div>
         </div>

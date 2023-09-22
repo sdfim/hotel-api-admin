@@ -14,6 +14,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'content'], function () 
+{
+	Route::post('/giata_geography', function (Request $request) {
+		dd($request->all());
+		return $request->user();
+	});
 });
