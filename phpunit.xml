@@ -14,8 +14,9 @@
     </testsuites>
     <source>
         <include>
-            <directory>app</directory>
-			<directory>Modules</directory>
+            <directory>app/Providers</directory>
+			<directory>app/Actions</directory>
+			<directory>Modules/AdministrationSuite</directory>
         </include>
     </source>
     <php>
