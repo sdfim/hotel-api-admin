@@ -31,6 +31,9 @@ Route::get('/', function () {
         return redirect('/index');
     }
 });
+Route::get('/test-admin', function () {
+    return 'Admin Page';
+})->middleware('role:admin');
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
 
