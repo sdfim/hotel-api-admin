@@ -26,29 +26,10 @@ class PricingRulesControllerTest extends TestCase
     {
         $this->auth();
 
-        $supplier = Suppliers::factory()->create();
-        $data = [
-            'name' => $this->faker->name,
-            'property' => $this->faker->word,
-            'destination' => $this->faker->word,
-            'travel_date' => now(), // Поточна дата і час
-            'days' => 7,
-            'nights' => 5,
-            'supplier_id' => $supplier->id, // Використовуємо ID створеного постачальника
-            'rate_code' => $this->faker->word,
-            'room_type' => $this->faker->word,
-            'total_guests' => 2,
-            'room_guests' => 2,
-            'number_rooms' => 1,
-            'meal_plan' => $this->faker->word,
-            'rating' => $this->faker->word,
-        ];
+        $pricingRule = PricingRules::factory()->create();
 
-        $response = $this->post(route('pricing_rules.store'), $data);
-        $response->assertStatus(302);
-        $response->assertRedirect(route('pricing_rules.index'));
-
-        $this->assertDatabaseHas('pricing_rules', $data);
+        $response = $this->get(route('pricing_rules.create', $pricingRule->id));
+        $response->assertStatus(200);
     }
 
     public function testStorePricingRule()

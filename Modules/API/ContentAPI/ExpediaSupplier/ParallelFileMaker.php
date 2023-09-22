@@ -5,7 +5,7 @@ namespace Modules\API\ContentAPI\ExpediaSupplier;
 use GuzzleHttp\Client;
 
 class ParallelFileMaker {
-    private const APIKEY = env('EXPEDIA_RAPID_API_KEY');
+    public const APIKEY = env('EXPEDIA_RAPID_API_KEY');
 
     private const SHARED_SECRET = env('EXPEDIA_RAPID_SHARED_SECRET');
     private const COUNTRIES = ["AD", "AE", "AF", "AG", "AI", "AL", "AM", "AO", "AQ",

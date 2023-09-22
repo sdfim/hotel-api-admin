@@ -19,22 +19,7 @@ class ReservationsController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
+    
     /**
 	 * Display the specified resource.
 	 */
@@ -50,7 +35,7 @@ class ReservationsController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        return redirect()->route('reservations.index');
     }
 
     /**
@@ -58,14 +43,7 @@ class ReservationsController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        return redirect()->route('reservations.index');
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
+    
 }

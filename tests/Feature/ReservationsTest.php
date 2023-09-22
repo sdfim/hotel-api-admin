@@ -55,4 +55,18 @@ class ReservationsTest extends TestCase
 		$response->assertSee($reservations->updated_at);
 		$response->assertStatus(200);
 	}
+
+	public function testEdit(){
+		$this->auth();
+		$response = $this->get(route('reservations.edit', 2));
+		$response->assertStatus(302);
+        $response->assertRedirect(route('reservations.index'));
+	}
+
+	public function testUpdate(){
+		$this->auth();
+		$response = $this->put(route('reservations.update', [2]), []);
+		$response->assertStatus(302);
+        $response->assertRedirect(route('reservations.index'));
+	}
 }
