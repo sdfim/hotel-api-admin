@@ -11,9 +11,9 @@
         "laravel/jetstream": "^4.0",
         "laravel/sanctum": "^3.2",
         "laravel/tinker": "^2.8",
-        "livewire/livewire": "^2.0",
+        "livewire/livewire": "3.0",
         "opcodesio/log-viewer": "^3.1",
-        "rappasoft/laravel-livewire-tables": "^2.15"
+        "rappasoft/laravel-livewire-tables": "dev-v3-master"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
