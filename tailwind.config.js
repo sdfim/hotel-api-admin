@@ -14,11 +14,6 @@ export default {
     ],
     important: true,
     theme: {
-        extend: {
-            fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
-            },
-        },
         screens: {
             xs: "100%",
             sm: '540px',
@@ -32,8 +27,11 @@ export default {
         },
         fontFamily: {
             primary: ['IBM Plex Sans', 'sans-serif'],
-        }, 
+        },
         extend: {
+            fontFamily: {
+                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+            },
             fontSize: {
                 '10': '0.625rem',
                 '11': '0.688rem',
@@ -144,10 +142,8 @@ export default {
                     900: '#242726',
                 },
             },
-        }, 
+        },
     },
-
-    plugins: [forms, typography],
     plugins: [
         forms, typography,
         plugin(function ({ addBase, theme }) {
