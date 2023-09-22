@@ -18,7 +18,7 @@ class GeneralConfigurationTest extends TestCase
     {
 		$this->auth();
 
-        $response = $this->get('/general-configuration');
+        $response = $this->get('/admin/general-configuration');
 
         $response->assertStatus(200);
     }
@@ -36,7 +36,7 @@ class GeneralConfigurationTest extends TestCase
 			'stop_bookings' => date('Y-m-d H:i:s'),
         ];
 
-        $response = $this->post('/general-configuration/save', $data);
+        $response = $this->post('/admin/general-configuration/save', $data);
 
         $response->assertStatus(302);
         $response->assertRedirect('/');
