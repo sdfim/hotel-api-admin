@@ -14,6 +14,7 @@
     <!-- css files -->
     @include('layouts.head-css')
     <!-- Styles -->
+    @filamentStyles
     @livewireStyles
 </head>
 
@@ -39,6 +40,7 @@
     @include('layouts.vendor-scripts')
       <!-- Scripts -->
     @vite(['resources/js/app.js'])
+    @filamentScripts
     @livewireScripts
 </body>
 
