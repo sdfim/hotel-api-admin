@@ -93,6 +93,16 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+		'mysql2' => [
+			'driver' => 'mysql',
+			'host' => env('SECOND_DB_HOST', '127.0.0.1'),
+			'port' => env('SECOND_DB_PORT', '3306'),
+			'database' => env('SECOND_DB_DATABASE', 'forge'),
+			'username' => env('SECOND_DB_USERNAME', 'forge'),
+			'password' => env('SECOND_DB_PASSWORD', ''),
+		],
+		
+
     ],
 
     /*

@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Modules\API\ContentAPI\Controllers\ExpediaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,8 +17,10 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'content'], function () 
 {
-	Route::post('/giata_geography', function (Request $request) {
+	Route::post('/test', function (Request $request) {
 		dd($request->all());
 		return $request->user();
 	});
+	Route::post('/search', 	[ExpediaController::class, 'search']);
+	Route::get('/property', [ExpediaController::class, 'property']);
 });

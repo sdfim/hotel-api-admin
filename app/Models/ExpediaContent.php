@@ -9,6 +9,8 @@ class ExpediaContent extends Model
 {
     use HasFactory;
 
+	protected $connection= 'mysql2';
+
 	protected $casts = [
         'address' => 'array',
         'ratings' => 'array',
