@@ -1,22 +1,20 @@
-FROM php:8.2-apache-bookworm
+FROM webdevops/php-nginx:8.2
 
-RUN apt-get update && apt-get install -y git zip unzip && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
-RUN curl -sLS https://deb.nodesource.com/setup_18.x | bash - \
+RUN apt-get update \
+    && curl -sLS https://deb.nodesource.com/setup_18.x | bash - \
     && apt-get install -y nodejs \
     && npm install -g npm \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN docker-php-ext-install pdo_mysql && docker-php-ext-install mysqli
-
-RUN sed -i 's/\/var\/www\/html/\/var\/www\/html\/public/g' /etc/apache2/sites-enabled/000-default.conf
-RUN a2enmod rewrite headers
-
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-WORKDIR /var/www/html
-
-EXPOSE 80
-
-CMD ["bash", "./ujv-start.local.sh"]
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
+RUN install-php-extensions xdebug
+ENV PHP_IDE_CONFIG 'serverName=ujv-api.loc'
+RUN echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN echo "xdebug.start_with_request = yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN echo "xdebug.client_host=docker.for.mac.localhost" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN echo "xdebug.client_port=9000" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN echo "xdebug.log=/var/log/xdebug.log" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN echo "xdebug.idekey = UJVAPI" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini

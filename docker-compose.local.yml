@@ -5,11 +5,8 @@ services:
     build:
       context: .
       dockerfile: local.Dockerfile
-    image: ujv-api:latest
     container_name: ujv-api
     restart: unless-stopped
-    volumes:
-      - '.:/var/www/html'
     environment:
       DB_HOST: mysql
       DB_PORT: 3306
@@ -17,8 +14,22 @@ services:
       DB_USERNAME: admin
       DB_PASSWORD: mysqlsecretpasswd
       REDIS_HOST: redis
+      WEB_DOCUMENT_ROOT: /app/public
+      WEB_DOCUMENT_INDEX: index.php
+      PHP_POST_MAX_SIZE: 100M
+      PHP_UPLOAD_MAX_FILESIZE: 100M
+      php.opcache.enable_cli: 1
+      php.variables_order: EGPCS
+      SERVICE_NGINX_CLIENT_MAX_BODY_SIZE: 100M
     ports:
       - "8080:80"
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    tty: true
+    working_dir: /app
+    volumes:
+      - ./:/app
+    #      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/php.ini
     networks:
       - ujv-network
     depends_on:
