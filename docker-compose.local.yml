@@ -22,7 +22,7 @@ services:
       php.variables_order: EGPCS
       SERVICE_NGINX_CLIENT_MAX_BODY_SIZE: 100M
     ports:
-      - "8080:80"
+      - "80:80"
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     tty: true
