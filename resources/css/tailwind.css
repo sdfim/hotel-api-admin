@@ -4,11 +4,6 @@
    File Description: Main Css file of the template
 */
 
-/* // Tailwindcss */
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
-
 /* Custom Css */
 @import "custom/general.css";
 @import "custom/components.css";
@@ -36,6 +31,9 @@
 @import "plugins/map.css";
 @import "plugins/calender.css";
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
    --tw-sidebar-width: 250px;

@@ -12,8 +12,11 @@
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ URL::asset('build/images/favicon.ico') }}" />
     <!-- css -->
-    @include('layouts.head-css')
+    <!-- Styles -->
     @livewireStyles
+    @filamentStyles
+    @vite(['resources/css/app.css'])
+    @include('layouts.head-css')
 </head>
 
 <body data-mode="light" data-sidebar-size="lg">
@@ -24,8 +27,8 @@
     <!-- script -->
     @include('layouts.vendor-scripts')
     <!-- Scripts -->
-    @vite(['resources/js/app.js'])
     @livewireScripts
+    @filamentScripts
+    @vite(['resources/js/app.js'])
 </body>
-
 </html>

@@ -12,10 +12,11 @@
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{ URL::asset('build/images/favicon.ico') }}" />
     <!-- css files -->
-    @include('layouts.head-css')
     <!-- Styles -->
-    @filamentStyles
     @livewireStyles
+    @filamentStyles
+    @vite(['resources/css/app.css'])
+    @include('layouts.head-css')
 </head>
 
 <body data-mode="light" data-sidebar-size="lg">
@@ -38,10 +39,10 @@
     @include('layouts.rtl-ltr')
     <!-- script -->
     @include('layouts.vendor-scripts')
-      <!-- Scripts -->
-    @vite(['resources/js/app.js'])
-    @filamentScripts
+    <!-- Scripts -->
     @livewireScripts
+    @filamentScripts
+    @vite(['resources/js/app.js'])
+    <script src="https:://unpkg.com/alpinejs" defer></script>
 </body>
-
 </html>
