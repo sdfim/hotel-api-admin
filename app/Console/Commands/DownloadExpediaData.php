@@ -133,6 +133,8 @@ class DownloadExpediaData extends Command
 
 	function parseJsonToDb() :void
 	{
+		ExpediaContent::truncate();
+
 		$filePath = storage_path().'/app/expedia_'.$this->type;
 
 		// Open the JSONL file for reading

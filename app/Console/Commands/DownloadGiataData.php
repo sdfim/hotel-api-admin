@@ -24,6 +24,8 @@ class DownloadGiataData extends Command
 
 	public function handle()
 	{
+		GiataProperty::truncate();
+
 		$this->current_time = microtime(true);
 
 		$url = 'http://tticodes.giatamedia.com/webservice/rest/1.0/properties';
@@ -51,7 +53,7 @@ class DownloadGiataData extends Command
 
 					$this->info('Get XML BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
 
-					$this->parseXMLToDb($textXML);
+					$url = $this->parseXMLToDb($textXML);
 
 					$this->info('parseXMLToDb BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
 
@@ -86,6 +88,7 @@ class DownloadGiataData extends Command
 		$phpObj = json_decode($json, true);
 
 		dump(count($phpObj['TTI_Property']), $url);
+		$this->info('parseXMLToDb, count: ' . count($phpObj['TTI_Property']). ', url ' . $url) ;
 
 		foreach ($phpObj['TTI_Property'] as $data) {
 			$data = [
@@ -108,6 +111,9 @@ class DownloadGiataData extends Command
 			GiataProperty::insert($batchData);
 		} catch (\Exception $e) {
 			\Log::error('ImportJsonlData', ['error' => $e->getMessage()]);
+			return false;
 		}
+
+		return $url;
 	}
 }
