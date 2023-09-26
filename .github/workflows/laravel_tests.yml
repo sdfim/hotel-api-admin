@@ -26,7 +26,6 @@ jobs:
 
       - name: Install Dependencies
         run: composer install
-        # run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
       - name: Generate key
         run: php artisan key:generate
@@ -34,10 +33,15 @@ jobs:
       - name: Directory Permissions
         run: chmod -R 777 storage bootstrap/cache
 
+      - name: Set up MySQL
+        uses: actions/setup-mysql@v1
+        with:
+          mysql-version: '5.7'
+
       - name: Create Database
         run: |
-          mkdir -p database
-          touch database/database.sqlite
+          mysql -u ${{ secrets.MYSQL_USERNAME }} -p${{ secrets.MYSQL_PASSWORD }} -e "CREATE DATABASE laravel_db;"
+          mysql -u ${{ secrets.MYSQL_USERNAME }} -p${{ secrets.MYSQL_PASSWORD }} -e "CREATE DATABASE laravel_db2;"
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -48,19 +52,15 @@ jobs:
 
       - name: Run PHPUnit Tests with Coverage
         env:
-          DB_CONNECTION: sqlite
-          DB_DATABASE: database/database.sqlite
-          SECOND_DB_DATABASE: database/database.sqlite
+          DB_CONNECTION: mysql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: laravel_db
+          DB_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+          DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
+          SECOND_DB_HOST: 127.0.0.1
+          SECOND_DB_PORT: 3306
+          SECOND_DB_DATABASE: laravel_db2
+          SECOND_DB_USERNAME: ${{ secrets.MYSQL_USERNAME }}
+          SECOND_DB_PASSWORD: ${{ secrets.MYSQL_PASSWORD }}
         run: php artisan test --coverage --min=75
-
-      # - name: Upload Coverage Report
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: coverage
-      #     path: coverage.txt
-
-      # - name: Execute tests (Unit and Feature tests) via PHPUnit
-      #   env:
-      #     DB_CONNECTION: sqlite
-      #     DB_DATABASE: database/database.sqlite
-      #   run: vendor/bin/phpunit
