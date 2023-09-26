@@ -1,2 +1,2 @@
-30 18 * * * www-data cd /var/www && php artisan download-expedia-data content 4 >> /dev/null 2>&1
-30 18 * * * www-data cd /var/www && php artisan download-giata-data >> /dev/null 2>&1
+30 19 * * * www-data cd /var/www && php artisan download-expedia-data content 4 >> /dev/null 2>&1
+30 19 * * * www-data cd /var/www && php artisan download-giata-data >> /dev/null 2>&1

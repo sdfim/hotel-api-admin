@@ -81,13 +81,13 @@ class DownloadGiataData extends Command
 	{
 		$xmlContent = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $text);
 		$url_next = explode('<More_Properties xlink:href=', $xmlContent)[1];
-		$url = explode('"', $url_next)[1] ?? false;
+		$url_arr = explode('"', $url_next);
+		$url = array_key_exists(1, $url_arr) ? $url_arr[1] : false;
 		$xml = simplexml_load_string($xmlContent);
 		$json = json_encode($xml);
 
 		$phpObj = json_decode($json, true);
 
-		dump(count($phpObj['TTI_Property']), $url);
 		$this->info('parseXMLToDb, count: ' . count($phpObj['TTI_Property']). ', url ' . $url) ;
 
 		foreach ($phpObj['TTI_Property'] as $data) {
