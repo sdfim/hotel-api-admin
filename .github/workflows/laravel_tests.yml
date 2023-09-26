@@ -13,19 +13,11 @@ jobs:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_DATABASE: ujv
           MYSQL_ROOT_PASSWORD: testrootpass
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-      mysql2:
-        image: mysql:8.0
-        env:
-          MYSQL_DATABASE: ujv_api
-          MYSQL_ROOT_PASSWORD: testrootpass
-        ports:
-          - 3307:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     strategy:
       matrix:
@@ -57,6 +49,14 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: npm ci
       - run: npm run build --if-present
+
+      - name: Create MySQL database
+        env:
+          MYSQL_ROOT_PASSWORD: testrootpass
+        run: |
+          sleep 30
+          mysql -h 127.0.0.1 -u root --password=$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS ujv;"
+          mysql -h 127.0.0.1 -u root --password=$MYSQL_ROOT_PASSWORD -e "CREATE DATABASE IF NOT EXISTS ujv_api;"
 
       - name: Run PHPUnit Tests with Coverage
         env:
