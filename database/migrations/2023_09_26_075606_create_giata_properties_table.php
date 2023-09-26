@@ -11,21 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection('mysql2')->create('giata_properties', function (Blueprint $table) {
-            $table->id();
-			$table->integer('code')->index();
-			$table->timestamp('last_updated');
-			$table->string('name')->default('');
-			$table->json('chain')->nullable();
-			$table->string('city')->default('');
-			$table->string('locale')->default('');
-			$table->json('address');
-			$table->json('phone')->nullable();
-			$table->json('position')->nullable();
-			$table->json('url')->nullable();
-			$table->json('cross_references');
-            $table->timestamps();
-        });
+		if (!Schema::connection('mysql2')->hasTable('giata_properties')) {
+			Schema::connection('mysql2')->create('giata_properties', function (Blueprint $table) {
+				$table->id();
+				$table->integer('code')->index();
+				$table->timestamp('last_updated');
+				$table->string('name')->default('');
+				$table->json('chain')->nullable();
+				$table->string('city')->default('');
+				$table->string('locale')->default('');
+				$table->json('address');
+				$table->json('phone')->nullable();
+				$table->json('position')->nullable();
+				$table->json('url')->nullable();
+				$table->json('cross_references');
+				$table->timestamps();
+			});
+		}
     }
 
     /**
