@@ -30,6 +30,9 @@ class DownloadExpediaData extends Command
 	private const MIN_RATING = 4;
 	private $type;
 	private $step;
+	protected $current_time;
+	protected $step_current_time;
+
 
     /**
      * Execute the console command.
@@ -43,14 +46,14 @@ class DownloadExpediaData extends Command
 		if ($this->step <= 1) {
 			# get url from expedia
 			$url = $this->getUrlArchive();
-			$this->info('url from expedia '. $url);
+			$this->info('url from expedia '. $url. ' in ' . $this->executionStepTime() . ' seconds');
 		}
 		
 		if ($this->step <= 2) {
 			# download file from url and save to storage
 			$success = $this->downloadArchive($url);
 			if ($success) {
-				$this->info('Zip file downloaded and extracted successfully.');
+				$this->info('gz file downloaded.  in ' . $this->executionStepTime() . ' seconds');
 			} else {
 				$this->error('Failed to download or extract the zip file.');
 			}
@@ -59,11 +62,13 @@ class DownloadExpediaData extends Command
 		if ($this->step <= 3) {
 			# unzip file
 			$this->unzipFile();
+			$this->info('unzip file '. $url. ' in ' . $this->executionStepTime() . ' seconds');
 		}
 
 		if ($this->step <= 4) {
 			# parse json to db
 			$this->parseJsonToDb();
+			$this->info('parse json to db '. $url. ' in ' . $this->executionStepTime() . ' seconds');
 		}	
     }
 
@@ -95,22 +100,18 @@ class DownloadExpediaData extends Command
 			\Log::debug('start downloadAndExtractGz', ['url' => $url, 'type' => $this->type]);
 
 			$response = Http::timeout(3600)->get($url);
-			dump($response->status());
+
 			if ($response->successful()) {
 				$fileContents = $response->body();
 				$fileName = 'expedia_'.$this->type.'.gz';
 
-				$end_time = microtime(true);
-				$execution_time = ($end_time - $start_time);
-				dump('step 1', $fileName, $execution_time);
-				\Log::debug('downloadAndExtractGz step 1', ['fileName' => $fileName, 'execution_time' => $execution_time]);
+				$this->info('downloadAndExtractGz step 1 '. $url. ' in ' . $this->executionTime() . ' seconds');
+				\Log::debug('downloadAndExtractGz step 1', ['fileName' => $fileName, 'execution_time' => $this->executionTime()]);
 
 				Storage::put($fileName, $fileContents);
-				\Log::info('downloadAndExtractGz gz download');
-				$end_time = microtime(true);
-				$execution_time = ($end_time - $start_time);
-				dump('step 2', $fileName, $execution_time);
-				\Log::debug('downloadAndExtractGz step 2', ['fileName' => $fileName, 'execution_time' => $execution_time]);
+				$this->info('downloadAndExtractGz step 2 '. $url. ' in ' . $this->executionTime() . ' seconds');
+				\Log::debug('downloadAndExtractGz step 2', ['fileName' => $fileName, 'execution_time' => $this->executionTime()]);
+
 			} else {
 				\Log::error('Error downloading gz file: ' . $response->status() . ' ' . $response->body());
 			}
@@ -262,6 +263,22 @@ class DownloadExpediaData extends Command
 		$execution_time = ($end_time - $start_time);
 		$this->info('Import completed. ' . round($execution_time, 2) . " seconds");
 
+	}
+
+	private function executionTime() 
+	{
+		$execution_time = (microtime(true) - $this->current_time);
+		$this->current_time = microtime(true);
+
+		return $execution_time;
+	}
+
+	private function executionStepTime() 
+	{
+		$execution_time = (microtime(true) - $this->current_time);
+		$this->step_current_time = microtime(true);
+
+		return $execution_time;
 	}
 
 }
