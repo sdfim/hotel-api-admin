@@ -9,16 +9,6 @@
         "apexcharts",
         "chart.js",
         "choices.js",
-        "datatables.net",
-        "datatables.net-autofill",
-        "datatables.net-autofill-bs4",
-        "datatables.net-bs4",
-        "datatables.net-buttons",
-        "datatables.net-buttons-bs4",
-        "datatables.net-responsive",
-        "datatables.net-responsive-bs4",
-        "datatables.net-select",
-        "datatables.net-select-bs4",
         "dropzone",
         "echarts",
         "feather-icons",
@@ -49,4 +39,3 @@
         "admin-resources"
     ]
   }
-  
