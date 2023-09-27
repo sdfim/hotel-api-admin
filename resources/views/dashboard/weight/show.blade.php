@@ -1,4 +1,7 @@
-@extends('dashboard.weight.layout')
+@extends('layouts.master')
+@section('title')
+    {{ __('Weight') }}
+@endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6">
         <div class="card dark:bg-zinc-800 dark:border-zinc-600">
@@ -10,11 +13,10 @@
                     <div class="row">
                         <div class="col-lg-12 margin-tb">
                             <div class="pull-left">
-                                <h2> Show weight</h2>
+                                <h2>Show weight</h2>
                             </div>
                             <div class="mt-6 mb-6">
-                                <x-button-back route="{{ route('weight.index') }}" text="Back"
-                                    style="additional-styles" />
+                                <x-button-back route="{{ route('weight.index') }}" text="Back"/>
                             </div>
                         </div>
                     </div>
@@ -22,29 +24,28 @@
                         <strong>Property:</strong>
                         {{ $weight->property }}
                     </div>
-                    <x-section-border />
+                    <x-section-border/>
                     <div class="mt-10 sm:mt-0">
                         <strong>Supplier:</strong>
-                        {{ $weight->supplier->name }}
+                        {{ $weight->supplier->name ?? __('Supplier not specified')}}
                     </div>
-                    <x-section-border />
+                    <x-section-border/>
                     <div class="mt-10 sm:mt-0">
                         <strong>Weight:</strong>
                         {{ $weight->weight }}
                     </div>
-                    <x-section-border />
+                    <x-section-border/>
                     <div class="mt-10 sm:mt-0">
                         <strong>Created:</strong>
                         {{ $weight->created_at }}
                     </div>
-                    <x-section-border />
+                    <x-section-border/>
                     <div class="mt-10 sm:mt-0">
                         <strong>Update:</strong>
                         {{ $weight->updated_at }}
                     </div>
-                    <x-section-border />
+                    <x-section-border/>
                 </div>
-
             </div>
         </div>
     </div>
