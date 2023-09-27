@@ -8,15 +8,12 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Filters\Filter;
+use Filament\Tables\Actions\Action;
 
 
 class ReservationsTable extends Component implements HasForms, HasTable
@@ -29,43 +26,42 @@ class ReservationsTable extends Component implements HasForms, HasTable
         return $table
             ->query(Reservations::query()->whereNull('canceled_at'))
             ->columns([
-                Tables\Columns\ViewColumn::make('contains.name')->searchable()->view('components.datatable-contains-column'),
+                ViewColumn::make('contains.name')->searchable()->view('components.datatable-contains-column'),
                 
-                Tables\Columns\TextColumn::make('channel.name')
+                TextColumn::make('channel.name')
                     ->numeric()
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('date_offload')
+                TextColumn::make('date_offload')
+                    ->default('N\A')
+                    ->searchable()
+                    ->sortable(),
+                TextColumn::make('date_travel')
                     ->dateTime()
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('date_travel')
-                    ->dateTime()
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('passenger_surname')
+                TextColumn::make('passenger_surname')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('total_cost')
+                TextColumn::make('total_cost')
                     ->numeric()
                     ->searchable()
                     ->money('USD')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
+                TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
+                TextColumn::make('updated_at')
                     ->dateTime()
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('canceled_at')
+                TextColumn::make('canceled_at')
                     ->dateTime()
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\ViewColumn::make('id')->searchable()->view('components.datatable-reservations-actions-column'),
                 
 
             ])
@@ -73,7 +69,13 @@ class ReservationsTable extends Component implements HasForms, HasTable
                 //
             ])
             ->actions([
-                
+                Action::make('View')
+                ->url(fn (Reservations $record): string => route('reservations.show', $record)),
+                Action::make('Cancel')
+                ->requiresConfirmation()
+                ->action(function (Reservations $record){
+                    $record->update(['canceled_at' => date('Y-m-d H:i:s')]);
+                }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

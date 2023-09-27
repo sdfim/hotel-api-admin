@@ -11,7 +11,7 @@ class ReservationsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index():View
     {
         $reservations = Reservations::with(['channel','contains'])->get();
         return view('dashboard.reservations.index',[
@@ -29,21 +29,5 @@ class ReservationsController extends Controller
 
 		return view('dashboard.reservations.show', compact('reservation'));
 	}
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        return redirect()->route('reservations.index');
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        return redirect()->route('reservations.index');
-    }
     
 }
