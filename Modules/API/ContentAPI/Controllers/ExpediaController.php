@@ -12,86 +12,87 @@ use Illuminate\Support\Facades\DB;
 
 class ExpediaController extends BaseController
 {
-	private $fullListFields = [
-		'property_id', 'name', 'address', 'ratings', 'location', 
-		'category', 'business_model', 'checkin', 'checkout', 
-		'fees', 'policies', 'attributes', 'amenities', 
-		'onsite_payments', 'rates', 
-		'images',  'rooms', 
-		'dates', 'descriptions', 'themes', 'chain', 'brand', 
-		'statistics', 'vacation_rental_details', 'airports', 
-		'spoken_languages', 'all_inclusive', 'rooms_occupancy', 
-		'total_occupancy', 'city', 'rating'
-	];
-	private $shortListFields = [
-		'property_id', 'name', 'address', 'ratings', 'location', 
-		'category', 'business_model',
-		'fees', 'policies', 'attributes', 'amenities', 
-		'onsite_payments', 
-		// 'rates', 
-		'statistics', 'vacation_rental_details', 'airports', 
-		'total_occupancy', 'city', 'rating', 'rooms_occupancy', 
-	];
+    private $fullListFields = [
+        'property_id', 'name', 'address', 'ratings', 'location',
+        'category', 'business_model', 'checkin', 'checkout',
+        'fees', 'policies', 'attributes', 'amenities',
+        'onsite_payments', 'rates',
+        'images', 'rooms',
+        'dates', 'descriptions', 'themes', 'chain', 'brand',
+        'statistics', 'vacation_rental_details', 'airports',
+        'spoken_languages', 'all_inclusive', 'rooms_occupancy',
+        'total_occupancy', 'city', 'rating'
+    ];
+    private $shortListFields = [
+        'property_id', 'name', 'address', 'ratings', 'location',
+        'category', 'business_model',
+        'fees', 'policies', 'attributes', 'amenities',
+        'onsite_payments',
+        // 'rates',
+        'statistics', 'vacation_rental_details', 'airports',
+        'total_occupancy', 'city', 'rating', 'rooms_occupancy',
+    ];
+
     /**
      * @param SearchRequest $request
      * @return JsonResponse
      */
-    public function search(SearchRequest $request): JsonResponse
+    public function search (SearchRequest $request): JsonResponse
     {
         $filters = $request->validatedDate();
-		try {
+        try {
 
-			$query = DB::connection(env(('DB_CONNECTION_2'), 'mysql2'))->table('expedia_contents'); 
-			
-			$fields = $request->get('fullList') ? $this->fullListFields : $this->shortListFields;
+            $query = DB::connection(env(('DB_CONNECTION_2'), 'mysql2'))->table('expedia_contents');
 
-			$query = $query->select($fields);
+            $fields = $request->get('fullList') ? $this->fullListFields : $this->shortListFields;
 
-			$searchBuilder = new HotelSearchBuilder($query);
-			$results = $searchBuilder->applyFilters($filters)->get();
+            $query = $query->select($fields);
 
-			$results = $this->dtoDbToResponse($results, $fields);
+            $searchBuilder = new HotelSearchBuilder($query);
+            $results = $searchBuilder->applyFilters($filters)->get();
 
-			return $this->sendResponse(['count' => count($results), 'results' => $results], 'success');
-		} catch (\Exception $e) {
-			\Log::error('ExpediaController ' . $e->getMessage());
-			return $this->sendError(['error' => $e->getMessage()], 'falied');
-		}
+            $results = $this->dtoDbToResponse($results, $fields);
+
+            return $this->sendResponse(['count' => count($results), 'results' => $results], 'success');
+        } catch (\Exception $e) {
+            \Log::error('ExpediaController ' . $e->getMessage());
+            return $this->sendError(['error' => $e->getMessage()], 'falied');
+        }
 
     }
 
-	/**
+    /**
      * @param SearchRequest $request
      * @return JsonResponse
      */
-    public function property(Request $request): JsonResponse
+    public function property (Request $request): JsonResponse
     {
-		try {
+        try {
 
-			$query = DB::connection(env(('DB_CONNECTION_2'), 'mysql2'))->table('expedia_contents'); 
+            $query = DB::connection(env(('DB_CONNECTION_2'), 'mysql2'))->table('expedia_contents');
 
-			$property_id = $request->get('property_id') ?? null;
-			$results = $query->where('property_id', $property_id)->get();
+            $property_id = $request->get('property_id') ?? null;
+            $results = $query->where('property_id', $property_id)->get();
 
-			$results = $this->dtoDbToResponse($results, $this->fullListFields );
+            $results = $this->dtoDbToResponse($results, $this->fullListFields);
 
-			return $this->sendResponse(['count' => count($results), 'results' => $results], 'success');
-		} catch (\Exception $e) {
-			\Log::error('ExpediaController ' . $e->getMessage());
-			return $this->sendError(['error' => $e->getMessage()], 'falied');
-		}
+            return $this->sendResponse(['count' => count($results), 'results' => $results], 'success');
+        } catch (\Exception $e) {
+            \Log::error('ExpediaController ' . $e->getMessage());
+            return $this->sendError(['error' => $e->getMessage()], 'falied');
+        }
     }
 
-	private function dtoDbToResponse($results, $fields)
-	{
-		return collect($results)->map(function ($item) use ($fields){
-			foreach ($fields as $key) {
-				if (!is_string($item->$key)) continue;
-				if (str_contains($item->$key, '{')) {
-					$item->$key = json_decode($item->$key);
-				}
-			}
-			return $item;
-		});
-	}
+    private function dtoDbToResponse ($results, $fields)
+    {
+        return collect($results)->map(function ($item) use ($fields) {
+            foreach ($fields as $key) {
+                if (!is_string($item->$key)) continue;
+                if (str_contains($item->$key, '{')) {
+                    $item->$key = json_decode($item->$key);
+                }
+            }
+            return $item;
+        });
+    }
 }

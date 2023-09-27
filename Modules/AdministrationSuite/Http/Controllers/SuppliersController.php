@@ -17,19 +17,19 @@ class SuppliersController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index (): View
     {
         $pageCount = 5;
         $suppliers = Suppliers::latest()->paginate($pageCount);
         $startNumber = ($suppliers->currentPage() - 1) * $suppliers->perPage() + 1;
-        
+
         return view('dashboard.suppliers.index', compact('suppliers', 'startNumber'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create ()
     {
         $suppliers = Suppliers::all();
         return view('dashboard.suppliers.create', compact('suppliers'));
@@ -38,7 +38,7 @@ class SuppliersController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store (Request $request): RedirectResponse
     {
         $request->validate($this->validate);
         Suppliers::create($request->all());
@@ -49,7 +49,7 @@ class SuppliersController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(String $id): View
+    public function show (string $id): View
     {
         $suppliers = Suppliers::findOrFail($id);
 
@@ -59,7 +59,7 @@ class SuppliersController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(String $id): View
+    public function edit (string $id): View
     {
         $suppliers = Suppliers::findOrFail($id);
 
@@ -69,7 +69,7 @@ class SuppliersController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, String $id): RedirectResponse
+    public function update (Request $request, string $id): RedirectResponse
     {
         $suppliers = Suppliers::findOrFail($id);
         $request->validate($this->validate);
@@ -82,7 +82,7 @@ class SuppliersController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(String $id): RedirectResponse
+    public function destroy (string $id): RedirectResponse
     {
         $suppliers = Suppliers::findOrFail($id);
         $suppliers->delete();

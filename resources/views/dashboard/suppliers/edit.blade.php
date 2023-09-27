@@ -14,13 +14,13 @@
                             </div>
                             <div class="mt-6 mb-6">
                                 <x-button-back route="{{ route('suppliers.index') }}" text="Back"
-                                    style="additional-styles" />
+                                               style="additional-styles"/>
                             </div>
                         </div>
                     </div>
                     @if ($errors->any())
                         <div class="relative px-5 py-3 border-2 bg-red-50 text-red-700 border-red-100 rounded">
-                            <p> <strong>Whoops!</strong>There were some problems with your input.</p>
+                            <p><strong>Whoops!</strong>There were some problems with your input.</p>
                             <ul>
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -32,22 +32,22 @@
                         @csrf
                         @method('PUT')
                         <div class="mb-4">
-                            <x-label for="name" class="dark:text-gray-100" value="{{ __('Name') }}" />
+                            <x-label for="name" class="dark:text-gray-100" value="{{ __('Name') }}"/>
                             <x-input id="name" name="name" value="{{ $suppliers->name }}" placeholder="Name"
-                                type="text"
-                                class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                wire:model="state.name" autocomplete="name" />
-                            <x-input-error for="name" class="mt-2" />
+                                     type="text"
+                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
+                                     wire:model="state.name" autocomplete="name"/>
+                            <x-input-error for="name" class="mt-2"/>
                         </div>
                         <div class="mb-4">
-                            <x-label for="description" class="dark:text-gray-100" value="{{ __('Description') }}" />
+                            <x-label for="description" class="dark:text-gray-100" value="{{ __('Description') }}"/>
                             <x-input id="description" name="description" value="{{ $suppliers->description }}"
-                                placeholder="Description" type="text"
-                                class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                wire:model="state.description" autocomplete="description" />
-                            <x-input-error for="description" class="mt-2" />
+                                     placeholder="Description" type="text"
+                                     class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
+                                     wire:model="state.description" autocomplete="description"/>
+                            <x-input-error for="description" class="mt-2"/>
                         </div>
-                        
+
                         <div class="mt-6">
                             <x-button>
                                 Submit
@@ -58,5 +58,5 @@
 
             </div>
         </div>
-    </div> 
+    </div>
 @endsection

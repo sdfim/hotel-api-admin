@@ -16,7 +16,7 @@
                             </div>
                             <div class="mt-6 mb-6">
                                 <x-button-back route="{{ route('reservations.index') }}" text="Back"
-                                    style="additional-styles"/>
+                                               style="additional-styles"/>
                             </div>
                         </div>
                     </div>

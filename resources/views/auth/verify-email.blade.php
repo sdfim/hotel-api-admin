@@ -15,15 +15,17 @@
                             <div class="mx-auto">
                                 <a href="{{ url('index') }}" class="">
                                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
-                                        class="h-8 inline"> <span
+                                         class="h-8 inline"> <span
                                         class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
                                 </a>
                             </div>
 
                             <div class="my-auto">
                                 <div class="text-center">
-                                    <h5 class="text-gray-600 dark:text-gray-100 dark:text-gray-100">Email Verification !</h5>
-                                    <p class="text-gray-500 text-inherit mt-1 dark:text-zinc-100">Before continuing, could you verify
+                                    <h5 class="text-gray-600 dark:text-gray-100 dark:text-gray-100">Email Verification
+                                        !</h5>
+                                    <p class="text-gray-500 text-inherit mt-1 dark:text-zinc-100">Before continuing,
+                                        could you verify
                                         your email address by clicking on the link we just emailed to you? If you didn't
                                         receive the email, we will gladly send you another.</p>
                                 </div>
@@ -40,19 +42,20 @@
                                     <div class="mb-3">
                                         <button
                                             class="btn border-transparent bg-violet-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-violet-200 dark:shadow-zinc-600"
-                                            type="submit">Resend Verification Email</button>
+                                            type="submit">Resend Verification Email
+                                        </button>
                                     </div>
                                 </form>
 
                                 <a href="{{ route('profile.show') }}"
-                                    class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:text-zinc-100">
+                                   class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:text-zinc-100">
                                     {{ __('Edit Profile') }}</a>
 
                                 <form method="POST" action="{{ route('logout') }}" class="inline">
                                     @csrf
 
                                     <button type="submit"
-                                        class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ml-2 dark:text-zinc-100">
+                                            class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ml-2 dark:text-zinc-100">
                                         {{ __('Log Out') }}
                                     </button>
                                 </form>
@@ -64,7 +67,8 @@
                                 <p class="text-gray-500 dark:text-gray-100 relative mb-5">©
                                     <script>
                                         document.write(new Date().getFullYear())
-                                    </script> UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
+                                    </script>
+                                    UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
                                     by Smarty
                                 </p>
                             </div>
@@ -100,7 +104,7 @@
                                                 balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
                                                 <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}"
-                                                    class="h-12 w-12 rounded-full" alt="...">
+                                                     class="h-12 w-12 rounded-full" alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-2 mb-4">
                                                     <h5 class="font-size-18 text-white">Ilse R. Eaton</h5>
                                                     <p class="mb-0 text-white/50">Manager
@@ -116,7 +120,7 @@
                                                 balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
                                                 <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}"
-                                                    class="h-12 w-12 rounded-full" alt="...">
+                                                     class="h-12 w-12 rounded-full" alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-2 mb-4">
                                                     <h5 class="font-size-18 text-white">Mariya Willam</h5>
                                                     <p class="mb-0 text-white/50">Designer
@@ -132,7 +136,7 @@
                                                 balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
                                                 <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}"
-                                                    class="h-12 w-12 rounded-full" alt="...">
+                                                     class="h-12 w-12 rounded-full" alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-2 mb-4">
                                                     <h5 class="font-size-18 text-white">Jiya Jons</h5>
                                                     <p class="mb-0 text-white/50">Developer

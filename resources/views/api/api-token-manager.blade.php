@@ -12,20 +12,23 @@
         <x-slot name="form">
             <!-- Token Name -->
             <div class="col-span-6 sm:col-span-4">
-                <x-label for="name" class="dark:text-gray-100" value="{{ __('Token Name') }}" />
-                <x-input id="name" type="text" class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100" wire:model="createApiTokenForm.name" autofocus />
-                <x-input-error for="name" class="mt-2" />
+                <x-label for="name" class="dark:text-gray-100" value="{{ __('Token Name') }}"/>
+                <x-input id="name" type="text"
+                         class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
+                         wire:model="createApiTokenForm.name" autofocus/>
+                <x-input-error for="name" class="mt-2"/>
             </div>
 
             <!-- Token Permissions -->
             @if (Laravel\Jetstream\Jetstream::hasPermissions())
                 <div class="col-span-6">
-                    <x-label for="permissions" class="dark:text-gray-100" value="{{ __('Permissions') }}" />
+                    <x-label for="permissions" class="dark:text-gray-100" value="{{ __('Permissions') }}"/>
 
                     <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                         @foreach (Laravel\Jetstream\Jetstream::$permissions as $permission)
                             <label class="flex items-center">
-                                <x-checkbox wire:model="createApiTokenForm.permissions" :value="$permission" class="dark:bg-zinc-600/50"/>
+                                <x-checkbox wire:model="createApiTokenForm.permissions" :value="$permission"
+                                            class="dark:bg-zinc-600/50"/>
                                 <span class="ml-2 text-sm text-gray-600 dark:text-gray-100">{{ $permission }}</span>
                             </label>
                         @endforeach
@@ -46,7 +49,7 @@
     </x-form-section>
 
     @if ($this->user->tokens->isNotEmpty())
-        <x-section-border />
+        <x-section-border/>
 
         <!-- Manage API Tokens -->
         <div class="mt-10 sm:mt-0">
@@ -76,12 +79,14 @@
                                     @endif
 
                                     @if (Laravel\Jetstream\Jetstream::hasPermissions())
-                                        <button class="cursor-pointer ml-6 text-sm text-gray-400 underline" wire:click="manageApiTokenPermissions({{ $token->id }})">
+                                        <button class="cursor-pointer ml-6 text-sm text-gray-400 underline"
+                                                wire:click="manageApiTokenPermissions({{ $token->id }})">
                                             {{ __('Permissions') }}
                                         </button>
                                     @endif
 
-                                    <button class="cursor-pointer ml-6 text-sm text-red-500" wire:click="confirmApiTokenDeletion({{ $token->id }})">
+                                    <button class="cursor-pointer ml-6 text-sm text-red-500"
+                                            wire:click="confirmApiTokenDeletion({{ $token->id }})">
                                         {{ __('Delete') }}
                                     </button>
                                 </div>
@@ -105,14 +110,15 @@
             </div>
 
             <x-input x-ref="plaintextToken" type="text" readonly :value="$plainTextToken"
-                class="mt-4 bg-gray-100 px-4 py-2 rounded font-mono text-sm text-gray-500 w-full break-all dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                @showing-token-modal.window="setTimeout(() => $refs.plaintextToken.select(), 250)"
+                     class="mt-4 bg-gray-100 px-4 py-2 rounded font-mono text-sm text-gray-500 w-full break-all dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
+                     autofocus autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                     @showing-token-modal.window="setTimeout(() => $refs.plaintextToken.select(), 250)"
             />
         </x-slot>
 
         <x-slot name="footer">
-            <x-secondary-button wire:click="$set('displayingToken', false)" wire:loading.attr="disabled" class="dark:bg-gray-600 dark:text-gray-100 dark:border-transparent">
+            <x-secondary-button wire:click="$set('displayingToken', false)" wire:loading.attr="disabled"
+                                class="dark:bg-gray-600 dark:text-gray-100 dark:border-transparent">
                 {{ __('Close') }}
             </x-secondary-button>
         </x-slot>
@@ -128,7 +134,8 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 @foreach (Laravel\Jetstream\Jetstream::$permissions as $permission)
                     <label class="flex items-center">
-                        <x-checkbox wire:model="updateApiTokenForm.permissions" class="dark:bg-zinc-600/50" :value="$permission"/>
+                        <x-checkbox wire:model="updateApiTokenForm.permissions" class="dark:bg-zinc-600/50"
+                                    :value="$permission"/>
                         <span class="ml-2 text-sm text-gray-600 dark:text-gray-100">{{ $permission }}</span>
                     </label>
                 @endforeach
@@ -136,7 +143,8 @@
         </x-slot>
 
         <x-slot name="footer">
-            <x-secondary-button wire:click="$set('managingApiTokenPermissions', false)" wire:loading.attr="disabled" class="dark:bg-gray-600 dark:text-gray-100 dark:border-transparent">
+            <x-secondary-button wire:click="$set('managingApiTokenPermissions', false)" wire:loading.attr="disabled"
+                                class="dark:bg-gray-600 dark:text-gray-100 dark:border-transparent">
                 {{ __('Cancel') }}
             </x-secondary-button>
 
@@ -157,7 +165,8 @@
         </x-slot>
 
         <x-slot name="footer">
-            <x-secondary-button wire:click="$toggle('confirmingApiTokenDeletion')" wire:loading.attr="disabled" class="dark:bg-gray-600 dark:text-gray-100 dark:border-transparent">
+            <x-secondary-button wire:click="$toggle('confirmingApiTokenDeletion')" wire:loading.attr="disabled"
+                                class="dark:bg-gray-600 dark:text-gray-100 dark:border-transparent">
                 {{ __('Cancel') }}
             </x-secondary-button>
 

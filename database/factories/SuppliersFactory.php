@@ -10,23 +10,23 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class SuppliersFactory extends Factory
 {
-	/**
-	 * The name of the factory's corresponding model.
-	 *
-	 * @var string
-	 */
-	protected $model = Suppliers::class;
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Suppliers::class;
 
     /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
+    public function definition (): array
     {
         return [
             'name' => $this->faker->name(),
-			'description' => $this->faker->name(),
+            'description' => $this->faker->name(),
         ];
     }
 }

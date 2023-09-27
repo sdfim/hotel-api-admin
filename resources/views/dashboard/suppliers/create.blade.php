@@ -14,7 +14,7 @@
                             </div>
                             <div class="mt-6 mb-6">
                                 <x-button-back route="{{ route('suppliers.index') }}" text="Back"
-                                    style="additional-styles" />
+                                               style="additional-styles"/>
                             </div>
                         </div>
                     </div>
@@ -34,22 +34,23 @@
                         @csrf
                         <div class="col-span-12 lg:col-span-6">
                             <div class="mb-4">
-                                <x-label for="name" class="dark:text-gray-100" value="{{ __('Name') }}" />
+                                <x-label for="name" class="dark:text-gray-100" value="{{ __('Name') }}"/>
                                 <x-input id="name" name="name" value="{{ old('name') }}" placeholder="Name"
-                                    type="text"
-                                    class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.name" autocomplete="name" />
-                                <x-input-error for="name" class="mt-2" />
+                                         type="text"
+                                         class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
+                                         wire:model="state.name" autocomplete="name"/>
+                                <x-input-error for="name" class="mt-2"/>
                             </div>
                             <div class="mb-4">
-                                <x-label for="description" class="dark:text-gray-100" value="{{ __('Description') }}" />
-                                <x-input id="description" name="description" value="{{ old('description') }}" placeholder="Description"
-                                    type="text"
-                                    class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                    wire:model="state.description" autocomplete="description" />
-                                <x-input-error for="description" class="mt-2" />
+                                <x-label for="description" class="dark:text-gray-100" value="{{ __('Description') }}"/>
+                                <x-input id="description" name="description" value="{{ old('description') }}"
+                                         placeholder="Description"
+                                         type="text"
+                                         class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
+                                         wire:model="state.description" autocomplete="description"/>
+                                <x-input-error for="description" class="mt-2"/>
                             </div>
-                            
+
                             <div class="mt-6">
                                 <x-button>
                                     Submit

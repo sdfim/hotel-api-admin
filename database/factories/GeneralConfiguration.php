@@ -22,7 +22,7 @@ class GeneralConfigurationFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
+    public function definition (): array
     {
         return [
             'time_supplier_requests' => $this->faker->numberBetween(30, 120),

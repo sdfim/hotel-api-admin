@@ -14,7 +14,8 @@
                         <div class="flex h-[90vh] flex-col">
                             <div class="mx-auto">
                                 <a href="{{ url('index') }}" class="">
-                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline"> <span
+                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline">
+                                    <span
                                         class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
                                 </a>
                             </div>
@@ -30,8 +31,8 @@
                                         <label
                                             class="text-gray-600 dark:text-gray-100 font-medium mb-2 block">Username</label>
                                         <input type="text"
-                                            class="w-full rounded placeholder:text-sm py-2 border-gray-100 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-gray-100 dark:placeholder:text-zinc-100/60"
-                                            id="username" placeholder="Enter username">
+                                               class="w-full rounded placeholder:text-sm py-2 border-gray-100 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-gray-100 dark:placeholder:text-zinc-100/60"
+                                               id="username" placeholder="Enter username">
                                     </div>
                                     <div class="mb-3">
                                         <div class="flex">
@@ -47,9 +48,9 @@
 
                                         <div class="flex">
                                             <input type="password"
-                                                class="w-full rounded ltr:rounded-r-none rtl:rounded-l-none placeholder:text-sm py-2 border-gray-100 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-gray-100 dark:placeholder:text-zinc-100/60"
-                                                placeholder="Enter password" aria-label="Password"
-                                                aria-describedby="password-addon">
+                                                   class="w-full rounded ltr:rounded-r-none rtl:rounded-l-none placeholder:text-sm py-2 border-gray-100 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-gray-100 dark:placeholder:text-zinc-100/60"
+                                                   placeholder="Enter password" aria-label="Password"
+                                                   aria-describedby="password-addon">
                                             <button
                                                 class="bg-gray-50 px-4 rounded ltr:rounded-l-none rtl:rounded-r-none border border-gray-100 ltr:border-l-0 rtl:border-r-0 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100"
                                                 type="button" id="password-addon"><i
@@ -60,9 +61,10 @@
                                         <div class="col">
                                             <div>
                                                 <input type="checkbox"
-                                                    class="h-4 w-4 border border-gray-300 rounded bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain ltr:float-left rtl:float-right ltr:mr-2 rtl:ml-2 cursor-pointer focus:ring-offset-0"
-                                                    checked id="exampleCheck1">
-                                                <label class="align-middle text-gray-600 dark:text-gray-100 font-medium">
+                                                       class="h-4 w-4 border border-gray-300 rounded bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain ltr:float-left rtl:float-right ltr:mr-2 rtl:ml-2 cursor-pointer focus:ring-offset-0"
+                                                       checked id="exampleCheck1">
+                                                <label
+                                                    class="align-middle text-gray-600 dark:text-gray-100 font-medium">
                                                     Remember me
                                                 </label>
                                             </div>
@@ -72,13 +74,15 @@
                                     <div class="mb-3">
                                         <button
                                             class="btn border-transparent bg-violet-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-violet-200 dark:shadow-zinc-600"
-                                            type="submit">Log In</button>
+                                            type="submit">Log In
+                                        </button>
                                     </div>
                                 </form>
 
                                 <div class="mt-4 pt-2 text-center">
                                     <div>
-                                        <h6 class="text-14 mb-3 text-gray-500 dark:text-gray-100 font-medium">- Sign in with
+                                        <h6 class="text-14 mb-3 text-gray-500 dark:text-gray-100 font-medium">- Sign in
+                                            with
                                             -</h6>
                                     </div>
 
@@ -101,7 +105,8 @@
                                 <p class="text-gray-500 dark:text-gray-100 relative mb-5">©
                                     <script>
                                         document.write(new Date().getFullYear())
-                                    </script> UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
+                                    </script>
+                                    UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
                                     by Smarty
                                 </p>
                             </div>
@@ -131,12 +136,15 @@
                                     <div class="swiper-wrapper">
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-2 mb-4">
                                                     <h5 class="font-size-18 text-white">Ilse R. Eaton</h5>
                                                     <p class="mb-0 text-white/50">Manager
@@ -151,8 +159,9 @@
                                                 ultricies enim at malesuada nibh diam on tortor neaded to throw curve
                                                 balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-2 mb-4">
                                                     <h5 class="font-size-18 text-white">Mariya Willam</h5>
                                                     <p class="mb-0 text-white/50">Designer
@@ -167,8 +176,9 @@
                                                 ultricies enim at malesuada nibh diam on tortor neaded to throw curve
                                                 balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-2 mb-4">
                                                     <h5 class="font-size-18 text-white">Jiya Jons</h5>
                                                     <p class="mb-0 text-white/50">Developer

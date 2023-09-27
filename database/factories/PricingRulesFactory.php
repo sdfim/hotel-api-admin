@@ -23,7 +23,7 @@ class PricingRulesFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
+    public function definition (): array
     {
         $supplier = Suppliers::factory()->create();
         return [
@@ -34,13 +34,13 @@ class PricingRulesFactory extends Factory
             'days' => 7,
             'nights' => 5,
             'supplier_id' => $supplier->id, // Використовуємо ID створеного постачальника
-            'rate_code' =>  $this->faker->name(),
-            'room_type' =>  $this->faker->name(),
+            'rate_code' => $this->faker->name(),
+            'room_type' => $this->faker->name(),
             'total_guests' => 2,
             'room_guests' => 2,
             'number_rooms' => 1,
-            'meal_plan' =>  $this->faker->name(),
-            'rating' =>  $this->faker->name(),
+            'meal_plan' => $this->faker->name(),
+            'rating' => $this->faker->name(),
         ];
     }
 }

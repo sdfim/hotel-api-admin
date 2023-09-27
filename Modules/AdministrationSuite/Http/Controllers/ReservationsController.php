@@ -10,20 +10,20 @@ class ReservationsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index():View
+    public function index (): View
     {
-        $reservations = Reservations::with(['channel','contains'])->get();
-        return view('dashboard.reservations.index',[
+        $reservations = Reservations::with(['channel', 'contains'])->get();
+        return view('dashboard.reservations.index', [
             'reservations' => $reservations
         ]);
     }
 
     /**
-	 * Display the specified resource.
-	 */
-	public function show(String $id): View
-	{
-		$reservation = Reservations::with(['channel','contains'])->findOrFail($id);
-		return view('dashboard.reservations.show', compact('reservation'));
-	}
+     * Display the specified resource.
+     */
+    public function show (string $id): View
+    {
+        $reservation = Reservations::with(['channel', 'contains'])->findOrFail($id);
+        return view('dashboard.reservations.show', compact('reservation'));
+    }
 }

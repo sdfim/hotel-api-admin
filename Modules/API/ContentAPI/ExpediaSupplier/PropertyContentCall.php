@@ -2,7 +2,8 @@
 
 namespace Modules\API\ContentAPI\ExpediaSupplier;
 
-class PropertyContentCall {
+class PropertyContentCall
+{
     // Path
     private const PROPERTY_CONTENT_PATH = "v3/properties/content";
 
@@ -17,10 +18,10 @@ class PropertyContentCall {
     private const CATEGORY_ID_EXCLUDE = "category_id_exclude";
     private const TOKEN = "token";
     private const INCLUDE = "include";
-	private const PROPERTY_RATING_MIN = "property_rating_min";
-	private const PROPERTY_RATING_MAX = "property_rating_max";
-	private const MAX_EXECUTION_COUNT = 200;
-	private const MAX_EXECUTION_TIME = 120; // seconds
+    private const PROPERTY_RATING_MIN = "property_rating_min";
+    private const PROPERTY_RATING_MAX = "property_rating_max";
+    private const MAX_EXECUTION_COUNT = 200;
+    private const MAX_EXECUTION_TIME = 120; // seconds
 
     // Call parameters
     private $client;
@@ -28,71 +29,74 @@ class PropertyContentCall {
     private $supplySource;
     private $countryCodes;
     private $categoryIdExcludes;
-	private $propertyRatingMin;
-	private $propertyRatingMax;
+    private $propertyRatingMin;
+    private $propertyRatingMax;
 
     private $token;
 
-    public function __construct($client, $property) {
+    public function __construct ($client, $property)
+    {
         $this->client = $client;
         $this->language = $property['language'];
         $this->supplySource = $property['supplySource'];
         $this->countryCodes = $property['countryCodes'];
         $this->categoryIdExcludes = $property['categoryIdExcludes'];
-		$this->propertyRatingMin = $property['propertyRatingMin'] ?? 3.3;
-		$this->propertyRatingMax = $property['propertyRatingMax'] ?? 5.0;
+        $this->propertyRatingMin = $property['propertyRatingMin'] ?? 3.3;
+        $this->propertyRatingMax = $property['propertyRatingMax'] ?? 5.0;
     }
 
-	public function stream() {
-		$results = [];
-		$count = 0;
-		$startTime = microtime(true); // Record the start time
+    public function stream ()
+    {
+        $results = [];
+        $count = 0;
+        $startTime = microtime(true); // Record the start time
 
-		$ids = [];
+        $ids = [];
 
-		while (true) {
-			// Make the call to Rapid.
-			$response = $this->client->get(self::PROPERTY_CONTENT_PATH, $this->queryParameters());
+        while (true) {
+            // Make the call to Rapid.
+            $response = $this->client->get(self::PROPERTY_CONTENT_PATH, $this->queryParameters());
 
-			dump('queryParameters', $this->queryParameters());
-	
-			// Read the response to return.
-			$propertyContents = $response->getBody()->getContents(); // Read the stream contents as a string
+            dump('queryParameters', $this->queryParameters());
 
-			// Store the token for pagination if we got one.
-			$this->token = $this->getTokenFromLink($response->getHeaderLine(self::LINK));
-	
-			if (empty($propertyContents)) {
-				break; // Exit the loop when there's no more data to fetch
-			}
+            // Read the response to return.
+            $propertyContents = $response->getBody()->getContents(); // Read the stream contents as a string
 
-			$count++;
-			// dump('$propertyContents', current((array)json_decode($propertyContents))->property_id, array_keys((array)json_decode($propertyContents)));
+            // Store the token for pagination if we got one.
+            $this->token = $this->getTokenFromLink($response->getHeaderLine(self::LINK));
 
-			$ids = array_merge($ids, array_keys((array)json_decode($propertyContents)));
-			$uniqueArray = array_unique($ids);
-			// dump('$count', $count, count(json_decode($propertyContents, true)), $uniqueArray);
-			dump('$count', $count, count(json_decode($propertyContents, true)));
+            if (empty($propertyContents)) {
+                break; // Exit the loop when there's no more data to fetch
+            }
 
-			// Check the elapsed time and exit if it exceeds the maximum allowed time
-			$elapsedTime = microtime(true) - $startTime;
+            $count++;
+            // dump('$propertyContents', current((array)json_decode($propertyContents))->property_id, array_keys((array)json_decode($propertyContents)));
 
-			dump('$elapsedTime', $elapsedTime);
+            $ids = array_merge($ids, array_keys((array)json_decode($propertyContents)));
+            $uniqueArray = array_unique($ids);
+            // dump('$count', $count, count(json_decode($propertyContents, true)), $uniqueArray);
+            dump('$count', $count, count(json_decode($propertyContents, true)));
 
-			if ($elapsedTime > self::MAX_EXECUTION_TIME || $count > self::MAX_EXECUTION_COUNT) {
-				break;
-			}
-	
-			// Append the contents to the results array
-			$results[] = $propertyContents;
-			// $results = array_merge($results, array_values($propertyContents));
-		}
-	
-		return $results;
-	}
-	
+            // Check the elapsed time and exit if it exceeds the maximum allowed time
+            $elapsedTime = microtime(true) - $startTime;
 
-    public function size() {
+            dump('$elapsedTime', $elapsedTime);
+
+            if ($elapsedTime > self::MAX_EXECUTION_TIME || $count > self::MAX_EXECUTION_COUNT) {
+                break;
+            }
+
+            // Append the contents to the results array
+            $results[] = $propertyContents;
+            // $results = array_merge($results, array_values($propertyContents));
+        }
+
+        return $results;
+    }
+
+
+    public function size ()
+    {
         // Make the call to Rapid.
         $queryParameters = $this->queryParameters();
         $queryParameters[self::INCLUDE] = "property_ids";
@@ -107,13 +111,13 @@ class PropertyContentCall {
         return $size;
     }
 
-    private function queryParameters() {
+    private function queryParameters ()
+    {
         $queryParams = [];
 
         if ($this->token !== null) {
             $queryParams[self::TOKEN] = $this->token;
-        } 
-		else {
+        } else {
             // Add required parameters
             $queryParams[self::LANGUAGE] = $this->language;
             $queryParams[self::SUPPLY_SOURCE] = $this->supplySource;
@@ -125,18 +129,19 @@ class PropertyContentCall {
             if (!empty($this->categoryIdExcludes)) {
                 $queryParams[self::CATEGORY_ID_EXCLUDE] = $this->categoryIdExcludes;
             }
-			if (!empty($this->propertyRatingMin)) {
-				$queryParams[self::PROPERTY_RATING_MIN] = $this->propertyRatingMin;
-			}
-			if (!empty($this->propertyRatingMax)) {
-				$queryParams[self::PROPERTY_RATING_MAX] = $this->propertyRatingMax;
-			}
+            if (!empty($this->propertyRatingMin)) {
+                $queryParams[self::PROPERTY_RATING_MIN] = $this->propertyRatingMin;
+            }
+            if (!empty($this->propertyRatingMax)) {
+                $queryParams[self::PROPERTY_RATING_MAX] = $this->propertyRatingMax;
+            }
         }
 
         return $queryParams;
     }
 
-    private function getTokenFromLink($linkHeader) {
+    private function getTokenFromLink ($linkHeader)
+    {
         if (empty($linkHeader)) {
             return null;
         }
@@ -144,7 +149,7 @@ class PropertyContentCall {
         $startOfToken = strpos($linkHeader, "=") + 1;
         $endOfToken = strpos($linkHeader, ">");
 
-		// dd($linkHeader, $startOfToken, $endOfToken, substr($linkHeader, $startOfToken, $endOfToken - $startOfToken));
+        // dd($linkHeader, $startOfToken, $endOfToken, substr($linkHeader, $startOfToken, $endOfToken - $startOfToken));
 
         return substr($linkHeader, $startOfToken, $endOfToken - $startOfToken);
     }

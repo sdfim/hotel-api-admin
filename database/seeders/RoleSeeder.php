@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Seeders;
 
 use App\Models\Role;
@@ -11,7 +12,7 @@ class RoleSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run ()
     {
         $manager = new Role();
         $manager->name = 'Admin';

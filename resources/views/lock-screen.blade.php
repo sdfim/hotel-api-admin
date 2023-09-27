@@ -14,7 +14,8 @@
                         <div class="flex h-[90vh] flex-col">
                             <div class=" mx-auto">
                                 <a href="{{ url('index') }}" class="">
-                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline"> <span
+                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline">
+                                    <span
                                         class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
                                 </a>
                             </div>
@@ -22,14 +23,15 @@
                             <div class="my-auto">
                                 <div class="text-center mb-8">
                                     <h5 class="text-gray-600 dark:text-gray-100">Lock Screen</h5>
-                                    <p class="text-gray-500 dark:text-zinc-100/60 mt-1">Enter your password to unlock the
+                                    <p class="text-gray-500 dark:text-zinc-100/60 mt-1">Enter your password to unlock
+                                        the
                                         screen!</p>
                                 </div>
 
                                 <div class=" my-5 pt-2 text-center">
                                     <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}"
-                                        class="h-16 w-16 mx-auto rounded-full border p-1 dark:border-zinc-600"
-                                        alt="thumbnail">
+                                         class="h-16 w-16 mx-auto rounded-full border p-1 dark:border-zinc-600"
+                                         alt="thumbnail">
                                     <h5 class="text-15 text-gray-600 dark:text-gray-100 mt-3">Shawn</h5>
                                 </div>
 
@@ -38,20 +40,22 @@
                                         <label
                                             class="text-gray-600 dark:text-zinc-100 font-medium mb-2 block">Password</label>
                                         <input type="password"
-                                            class="w-full rounded placeholder:text-sm py-2 placeholder:text-gray-400 border-gray-100 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
-                                            id="password" placeholder="Enter password">
+                                               class="w-full rounded placeholder:text-sm py-2 placeholder:text-gray-400 border-gray-100 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                               id="password" placeholder="Enter password">
                                     </div>
 
                                     <div class="mb-4">
                                         <button
                                             class="btn border-transparent bg-violet-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-violet-200 dark:shadow-zinc-600"
-                                            type="submit">Unlock</button>
+                                            type="submit">Unlock
+                                        </button>
                                     </div>
                                 </form>
 
                                 <div class="mt-12 text-center">
-                                    <p class="text-gray-500 dark:text-zinc-100">Not you ? return <a href="{{ url('login') }}"
-                                            class="text-violet-500 font-semibold"> Sign In </a> </p>
+                                    <p class="text-gray-500 dark:text-zinc-100">Not you ? return <a
+                                            href="{{ url('login') }}"
+                                            class="text-violet-500 font-semibold"> Sign In </a></p>
                                 </div>
                             </div>
 
@@ -60,7 +64,8 @@
                                 <p class="text-gray-500 dark:text-gray-100  relative mb-5">©
                                     <script>
                                         document.write(new Date().getFullYear())
-                                    </script> UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
+                                    </script>
+                                    UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
                                     by Smarty
                                 </p>
                             </div>
@@ -90,12 +95,15 @@
                                     <div class="swiper-wrapper">
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-3 mb-4">
                                                     <h5 class="font-size-18 text-white">Ilse R. Eaton</h5>
                                                     <p class="mb-0 text-white/50">Manager
@@ -105,12 +113,15 @@
                                         </div>
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-3 mb-4">
                                                     <h5 class="font-size-18 text-white">Mariya Willam</h5>
                                                     <p class="mb-0 text-white/50">Designer
@@ -120,12 +131,15 @@
                                         </div>
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-3 mb-4">
                                                     <h5 class="font-size-18 text-white">Jiya Jons</h5>
                                                     <p class="mb-0 text-white/50">Developer
