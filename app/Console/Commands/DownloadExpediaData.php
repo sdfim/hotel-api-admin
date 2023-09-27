@@ -37,39 +37,40 @@ class DownloadExpediaData extends Command
     /**
      * Execute the console command.
      */
-    public function handle ()
-    {
+    public function handle()
+    {	
 
-        $this->type = $this->argument('type'); // content
-        $this->step = $this->argument('step'); // 1, 2, 3, 4
+		$this->type = $this->argument('type'); // content
+		$this->step = $this->argument('step'); // 1, 2, 3, 4
 
-        if ($this->step <= 1) {
-            # get url from expedia
-            $url = $this->getUrlArchive();
-            $this->info('url from expedia ' . $url . ' in ' . $this->executionStepTime() . ' seconds');
-        }
+		if ($this->step <= 1) {
+			# get url from expedia
+			$url = $this->getUrlArchive();
+			$this->info('url from expedia '. $url. ' in ' . $this->executionStepTime() . ' seconds');
+		}
+		
+		if ($this->step <= 2) {
+			# download file from url and save to storage
+			$success = $this->downloadArchive($url);
+			if ($success) {
+				$this->info('gz file downloaded.  in ' . $this->executionStepTime() . ' seconds');
+			} else {
+				$this->error('Failed to download or extract the zip file.');
+			}
+		}
 
-        if ($this->step <= 2) {
-            # download file from url and save to storage
-            $success = $this->downloadArchive($url);
-            if ($success) {
-                $this->info('gz file downloaded.  in ' . $this->executionStepTime() . ' seconds');
-            } else {
-                $this->error('Failed to download or extract the zip file.');
-            }
-        }
+		if ($this->step <= 3) {
+			# unzip file
+			$this->unzipFile();
+			$this->info('unzip file in ' . $this->executionStepTime() . ' seconds');
+		}
 
-        if ($this->step <= 3) {
-            # unzip file
-            $this->unzipFile();
-            $this->info('unzip file ' . $url . ' in ' . $this->executionStepTime() . ' seconds');
-        }
+		if ($this->step <= 4) {
+			# parse json to db
+			$this->parseJsonToDb();
+			$this->info('parse json to db in ' . $this->executionStepTime() . ' seconds');
+		}	
 
-        if ($this->step <= 4) {
-            # parse json to db
-            $this->parseJsonToDb();
-            $this->info('parse json to db ' . $url . ' in ' . $this->executionStepTime() . ' seconds');
-        }
     }
 
     function getUrlArchive (): string
