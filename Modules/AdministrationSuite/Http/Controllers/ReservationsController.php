@@ -24,7 +24,6 @@ class ReservationsController extends Controller
 	public function show(String $id): View
 	{
 		$reservation = Reservations::with(['channel','contains'])->findOrFail($id);
-
 		return view('dashboard.reservations.show', compact('reservation'));
 	}
 }

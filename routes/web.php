@@ -49,7 +49,6 @@ Route::prefix('admin')->group(function () {
 		// Route::get('/pricing-rules', [PricingRulesController::class, 'index'])->name('pricing_rules');
 		Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
 		Route::resource('reservations', ReservationsController::class)->only(['index', 'show']);
-		Route::get('/reservations/cancel/{id}', [ReservationsController::class, 'cancel'])->name('reservations.cancel');
 
 		Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
 		Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
