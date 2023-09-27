@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::table('weights', function (Blueprint $table) {
             $table->integer('property')->change();
             $table->integer('weight')->change();
+            $table->foreignId('supplier_id')->nullable()->change();
         });
-        //
     }
 
     /**
