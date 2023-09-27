@@ -14,7 +14,8 @@
                         <div class="flex h-[90vh] flex-col">
                             <div class=" mx-auto">
                                 <a href="{{ url('index') }}" class="">
-                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline"> <span
+                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline">
+                                    <span
                                         class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
                                 </a>
                             </div>
@@ -28,7 +29,8 @@
 
                                 <div class="text-center mt-6">
                                     <h4 class="text-gray-700 text-21 dark:text-gray-100">Verify your email</h4>
-                                    <p class="mb-5 text-gray-500 dark:text-zinc-100 mt-2">Please enter the 4 digit code sent
+                                    <p class="mb-5 text-gray-500 dark:text-zinc-100 mt-2">Please enter the 4 digit code
+                                        sent
                                         to <span
                                             class="font-semibold text-gray-600 dark:text-gray-100">example@abc.com</span>
                                     </p>
@@ -38,25 +40,25 @@
                                     <div class="mb-3">
                                         <label class="invisible">Dight 1</label>
                                         <input type="text" data-value="1" maxlength="1"
-                                            class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-violet-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
+                                               class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-violet-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="invisible">Dight 1</label>
                                         <input type="text" data-value="1" maxlength="1"
-                                            class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-violet-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
+                                               class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-violet-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="invisible">Dight 1</label>
                                         <input type="text" data-value="1" maxlength="1"
-                                            class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-violet-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
+                                               class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-violet-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="invisible">Dight 1</label>
                                         <input type="text" data-value="1" maxlength="1"
-                                            class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-violet-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
+                                               class="w-full text-center border-gray-100 rounded-md py-3 focus:ring-violet-500/50 dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100">
                                     </div>
 
                                 </div>
@@ -64,12 +66,12 @@
 
                                 <div class="mt-5 text-center">
                                     <a href="{{ url('auth-login') }}"
-                                        class="btn border-transparent bg-violet-500 py-2.5 text-white shadow-md shadow-violet-500/50 w-full dark:shadow-zinc-700">Confirm</a>
+                                       class="btn border-transparent bg-violet-500 py-2.5 text-white shadow-md shadow-violet-500/50 w-full dark:shadow-zinc-700">Confirm</a>
                                 </div>
 
                                 <div class="mt-10 text-center">
                                     <p class="text-gray-500 dark:text-zinc-100 mb-0">Didn't receive an email ? <a
-                                            href="#" class="text-primary font-semibold"> Resend </a> </p>
+                                            href="#" class="text-primary font-semibold"> Resend </a></p>
                                 </div>
                             </div>
 
@@ -78,7 +80,8 @@
                                 <p class="text-gray-500 dark:text-gray-100  relative mb-5">©
                                     <script>
                                         document.write(new Date().getFullYear())
-                                    </script> UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
+                                    </script>
+                                    UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
                                     by Smarty
                                 </p>
                             </div>
@@ -108,12 +111,15 @@
                                     <div class="swiper-wrapper">
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-3 mb-4">
                                                     <h5 class="font-size-18 text-white">Ilse R. Eaton</h5>
                                                     <p class="mb-0 text-white/50">Manager
@@ -123,12 +129,15 @@
                                         </div>
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-3 mb-4">
                                                     <h5 class="font-size-18 text-white">Mariya Willam</h5>
                                                     <p class="mb-0 text-white/50">Designer
@@ -138,12 +147,15 @@
                                         </div>
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-3 mb-4">
                                                     <h5 class="font-size-18 text-white">Jiya Jons</h5>
                                                     <p class="mb-0 text-white/50">Developer

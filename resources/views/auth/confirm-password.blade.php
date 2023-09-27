@@ -15,7 +15,7 @@
                             <div class="mx-auto">
                                 <a href="index" class="">
                                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
-                                        class="h-8 inline"> <span
+                                         class="h-8 inline"> <span
                                         class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
                                 </a>
                             </div>
@@ -23,7 +23,8 @@
                             <div class="my-auto">
                                 <div class="text-center">
                                     <h5 class="text-gray-600 dark:text-gray-100">Confirm Password !</h5>
-                                    <p class="text-gray-500 dark:text-gray-100/60 mt-1">This is a secure area of the application. Please confirm your password before continuing.</p>
+                                    <p class="text-gray-500 dark:text-gray-100/60 mt-1">This is a secure area of the
+                                        application. Please confirm your password before continuing.</p>
                                 </div>
                                 @if (session('status'))
                                     <div class="">
@@ -36,24 +37,27 @@
 
                                     <div class="mb-4">
                                         <label for="password"
-                                            class="text-gray-600 dark:text-gray-100 font-medium mb-2 block">Password <span class="text-red-600">*</span></label>
+                                               class="text-gray-600 dark:text-gray-100 font-medium mb-2 block">Password
+                                            <span class="text-red-600">*</span></label>
                                         <input type="password" name="password" :value="old('password')"
-                                            class="w-full rounded placeholder:text-sm py-2 border-gray-100 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-gray-100 dark:placeholder:text-zinc-100/60"
-                                            id="password" placeholder="Enter password" required>
+                                               class="w-full rounded placeholder:text-sm py-2 border-gray-100 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-gray-100 dark:placeholder:text-zinc-100/60"
+                                               id="password" placeholder="Enter password" required>
                                         @error('password')
-                                            <span class="text-sm text-red-600">{{ $message }}</span>
+                                        <span class="text-sm text-red-600">{{ $message }}</span>
                                         @enderror
                                     </div>
                                     <div class="mb-3">
                                         <button
                                             class="btn border-transparent bg-violet-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-violet-200 dark:shadow-zinc-600"
-                                            type="submit">Confirm</button>
+                                            type="submit">Confirm
+                                        </button>
                                     </div>
                                 </form>
 
                                 <div class="mt-4 pt-2 text-center">
                                     <div>
-                                        <h6 class="text-14 mb-3 text-gray-500 dark:text-gray-100 font-medium">- Sign in with
+                                        <h6 class="text-14 mb-3 text-gray-500 dark:text-gray-100 font-medium">- Sign in
+                                            with
                                             -</h6>
                                     </div>
 
@@ -76,7 +80,8 @@
                                 <p class="text-gray-500 dark:text-gray-100 relative mb-5">©
                                     <script>
                                         document.write(new Date().getFullYear())
-                                    </script> UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
+                                    </script>
+                                    UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
                                     by Smarty
                                 </p>
                             </div>
@@ -112,7 +117,7 @@
                                                 balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
                                                 <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}"
-                                                    class="h-12 w-12 rounded-full" alt="...">
+                                                     class="h-12 w-12 rounded-full" alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-2 mb-4">
                                                     <h5 class="font-size-18 text-white">Ilse R. Eaton</h5>
                                                     <p class="mb-0 text-white/50">Manager
@@ -128,7 +133,7 @@
                                                 balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
                                                 <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}"
-                                                    class="h-12 w-12 rounded-full" alt="...">
+                                                     class="h-12 w-12 rounded-full" alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-2 mb-4">
                                                     <h5 class="font-size-18 text-white">Mariya Willam</h5>
                                                     <p class="mb-0 text-white/50">Designer
@@ -144,7 +149,7 @@
                                                 balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
                                                 <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}"
-                                                    class="h-12 w-12 rounded-full" alt="...">
+                                                     class="h-12 w-12 rounded-full" alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-2 mb-4">
                                                     <h5 class="font-size-18 text-white">Jiya Jons</h5>
                                                     <p class="mb-0 text-white/50">Developer

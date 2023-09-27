@@ -10,9 +10,9 @@ class Channels extends Model
     use HasFactory;
 
     protected $fillable = [
-		'name',
-		'description',
-		'token_id',
-		'access_token'
-	];
+        'name',
+        'description',
+        'token_id',
+        'access_token'
+    ];
 }

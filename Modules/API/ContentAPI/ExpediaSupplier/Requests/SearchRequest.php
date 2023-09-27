@@ -11,9 +11,9 @@ class SearchRequest extends ApiRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize(): bool
+    public function authorize (): bool
     {
-		return Auth::check();
+        return Auth::check();
     }
 
     /**
@@ -21,24 +21,24 @@ class SearchRequest extends ApiRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules (): array
     {
-		return [
+        return [
             'checkin' => 'string',
             'checkout' => 'string',
             'destination' => ['required', 'string'],
             'rating' => 'string',
-			'room1' => ['required', 'string'],
-			'room2' => 'string',
-			'room3' => 'string',
+            'room1' => ['required', 'string'],
+            'room2' => 'string',
+            'room3' => 'string',
         ];
     }
 
-	public function validatedDate(): array
+    public function validatedDate (): array
     {
         $search = parent::validated();
         $search['type'] = 'search';
-        
+
         return $search;
     }
 

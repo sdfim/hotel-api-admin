@@ -30,19 +30,19 @@ class PricingRulesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index (): View
     {
         $pageCount = 2;
         $pricingRules = PricingRules::latest()->paginate($pageCount);
         $startNumber = ($pricingRules->currentPage() - 1) * $pricingRules->perPage() + 1;
-        
+
         return view('pricingRules.index', compact('pricingRules', 'startNumber'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create ()
     {
         $suppliers = Suppliers::all();
         return view('pricingRules.create', compact('suppliers'));
@@ -51,7 +51,7 @@ class PricingRulesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store (Request $request): RedirectResponse
     {
         $request->validate($this->validate);
         PricingRules::create($request->all());
@@ -62,7 +62,7 @@ class PricingRulesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(String $id): View
+    public function show (string $id): View
     {
         $pricingRule = PricingRules::findOrFail($id);
 
@@ -72,7 +72,7 @@ class PricingRulesController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(String $id): View
+    public function edit (string $id): View
     {
         $pricingRule = PricingRules::findOrFail($id);
         $suppliers = Suppliers::all();
@@ -83,7 +83,7 @@ class PricingRulesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, String $id): RedirectResponse
+    public function update (Request $request, string $id): RedirectResponse
     {
         $pricingRules = PricingRules::findOrFail($id);
         $request->validate($this->validate);
@@ -96,7 +96,7 @@ class PricingRulesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(String $id): RedirectResponse
+    public function destroy (string $id): RedirectResponse
     {
         $pricingRules = PricingRules::findOrFail($id);
         $pricingRules->delete();

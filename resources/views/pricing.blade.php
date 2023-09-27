@@ -3,7 +3,7 @@
     {{ __('Pricing') }}
 @endsection
 @section('content')
-     <x-page-title title="Pricing" pagetitle="Components" />
+    <x-page-title title="Pricing" pagetitle="Components"/>
 
     <div class="grid grid-cols-1 gap-5">
         <div class="card dark:bg-zinc-800 dark:border-zinc-600">
@@ -14,7 +14,7 @@
                     <div class="justify-self-center">
                         <ul id="tabs" class="flex w-full gap-3">
                             <li class="font-medium text-14 active relative"><a id="default-tab" href="#monthly"
-                                    class=" text-violet-500 p-5">Monthly</a>
+                                                                               class=" text-violet-500 p-5">Monthly</a>
                                 <div
                                     class="after:content-[''] after:absolute after:border-b after:block after:text-sm after:font-medium after:w-full after:border-violet-500 after:-bottom-5 translate-y-0.5 after:pt-2">
                                 </div>
@@ -63,7 +63,7 @@
                                             </div>
                                             <div class="mt-5 pt-2 text-center">
                                                 <a href=""
-                                                    class="btn w-full order-2 border-violet-500 text-violet-500 hover:bg-violet-500 hover:text-white focus:bg-violet-500 focus:text-white focus:ring focus:ring-violet-200">Choose
+                                                   class="btn w-full order-2 border-violet-500 text-violet-500 hover:bg-violet-500 hover:text-white focus:bg-violet-500 focus:text-white focus:ring focus:ring-violet-200">Choose
                                                     Plan</a>
                                             </div>
                                         </div>
@@ -106,7 +106,7 @@
                                             </div>
                                             <div class="mt-5 pt-2 text-center">
                                                 <a href=""
-                                                    class="btn w-full order-2 border-violet-500 text-violet-500 hover:bg-violet-500 hover:text-white focus:bg-violet-500 focus:text-white focus:ring focus:ring-violet-200">Choose
+                                                   class="btn w-full order-2 border-violet-500 text-violet-500 hover:bg-violet-500 hover:text-white focus:bg-violet-500 focus:text-white focus:ring focus:ring-violet-200">Choose
                                                     Plan</a>
                                             </div>
                                         </div>
@@ -123,8 +123,10 @@
                                                 <span>Featured</span>
                                             </div>
                                             <h5 class="text-base text-white">Enterprise</h5>
-                                            <h1 class="mt-3 text-white ">$79 <span class="text-base ">/ Month</span></h1>
-                                            <p class="text-white/50  mt-3 text-15 ">For small teams trying out UJV for an
+                                            <h1 class="mt-3 text-white ">$79 <span class="text-base ">/ Month</span>
+                                            </h1>
+                                            <p class="text-white/50  mt-3 text-15 ">For small teams trying out UJV for
+                                                an
                                                 unlimited
                                                 period of time</p>
                                             <div class="mt-4 pt-2 text-muted">
@@ -151,7 +153,7 @@
                                             </div>
                                             <div class="mt-5 pt-2 text-center">
                                                 <a href=""
-                                                    class="btn border-transparent block bg-white w-100 hover:bg-gray-50/50 transition-all duration-300 shadow shadow-white/30 dark:bg-zinc-700 dark:text-gray-50 dark:shadow-zinc-500">Choose
+                                                   class="btn border-transparent block bg-white w-100 hover:bg-gray-50/50 transition-all duration-300 shadow shadow-white/30 dark:bg-zinc-700 dark:text-gray-50 dark:shadow-zinc-500">Choose
                                                     Plan</a>
                                             </div>
                                         </div>
@@ -194,7 +196,7 @@
                                             </div>
                                             <div class="mt-5 pt-2 text-center">
                                                 <a href=""
-                                                    class="btn w-full order-2 border-violet-500 text-violet-500 hover:bg-violet-500 hover:text-white focus:bg-violet-500 focus:text-white focus:ring focus:ring-violet-200">Choose
+                                                   class="btn w-full order-2 border-violet-500 text-violet-500 hover:bg-violet-500 hover:text-white focus:bg-violet-500 focus:text-white focus:ring focus:ring-violet-200">Choose
                                                     Plan</a>
                                             </div>
                                         </div>
@@ -229,8 +231,8 @@
                                         <div class="p-4 px-5 border border-violet-500 rounded">
                                             <div id="v-pills-tab" role="tablist">
                                                 <a class="mb-3 active" id="v-pills-tab-one" data-bs-toggle="pill"
-                                                    href="#v-price-one" role="tab" aria-controls="v-price-one"
-                                                    aria-selected="true">
+                                                   href="#v-price-one" role="tab" aria-controls="v-price-one"
+                                                   aria-selected="true">
                                                     <div class="flex items-center">
                                                         <i
                                                             class="bx bx-check-circle text-2xl mb-0 ltr:mr-4 rtl:ml-4 text-violet-500"></i>
@@ -238,7 +240,8 @@
                                                             <h2 class="text-gray-600 dark:text-gray-100">$29 <span
                                                                     class="text-muted text-15 text-gray-500 dark:text-zinc-100/60">/
                                                                     Month Plans</span></h2>
-                                                            <p class=" mb-0 text-gray-500 dark:text-zinc-100/60">For small
+                                                            <p class=" mb-0 text-gray-500 dark:text-zinc-100/60">For
+                                                                small
                                                                 teams trying out UJV for an unlimited period of time</p>
                                                         </div>
                                                     </div>
@@ -249,8 +252,8 @@
                                         <div class="p-5 border rounded border-gray-50 dark:border-zinc-600">
                                             <div class="" id="v-pills-tab" role="tablist">
                                                 <a class="mb-3 active" id="v-pills-tab-one" data-bs-toggle="pill"
-                                                    href="#v-price-one" role="tab" aria-controls="v-price-one"
-                                                    aria-selected="true">
+                                                   href="#v-price-one" role="tab" aria-controls="v-price-one"
+                                                   aria-selected="true">
                                                     <div class="flex items-center">
                                                         <i
                                                             class="bx bx-check-circle text-2xl mb-0 ltr:mr-4 rtl:ml-4 text-violet-500"></i>
@@ -258,7 +261,8 @@
                                                             <h2 class="text-gray-600 dark:text-gray-100">$79 <span
                                                                     class="text-muted text-15 text-gray-500 dark:text-zinc-100/60">/
                                                                     Month Plans</span></h2>
-                                                            <p class=" mb-0 text-gray-500 dark:text-zinc-100/60">For small
+                                                            <p class=" mb-0 text-gray-500 dark:text-zinc-100/60">For
+                                                                small
                                                                 teams trying out UJV for an unlimited period of time</p>
                                                         </div>
                                                     </div>
@@ -269,8 +273,8 @@
                                         <div class="p-5 border rounded border-gray-50 dark:border-zinc-600">
                                             <div class="" id="v-pills-tab" role="tablist">
                                                 <a class="mb-3 active" id="v-pills-tab-one" data-bs-toggle="pill"
-                                                    href="#v-price-one" role="tab" aria-controls="v-price-one"
-                                                    aria-selected="true">
+                                                   href="#v-price-one" role="tab" aria-controls="v-price-one"
+                                                   aria-selected="true">
                                                     <div class="flex items-center">
                                                         <i
                                                             class="bx bx-check-circle text-2xl mb-0 ltr:mr-4 rtl:ml-4 text-violet-500"></i>
@@ -278,7 +282,8 @@
                                                             <h2 class="text-gray-600 dark:text-gray-100">$99 <span
                                                                     class="text-muted text-15 text-gray-500 dark:text-zinc-100/60">/
                                                                     Month Plans</span></h2>
-                                                            <p class=" mb-0 text-gray-500 dark:text-zinc-100/60">For small
+                                                            <p class=" mb-0 text-gray-500 dark:text-zinc-100/60">For
+                                                                small
                                                                 teams trying out UJV for an unlimited period of time</p>
                                                         </div>
                                                     </div>
@@ -292,119 +297,125 @@
                                 <div class="col-span-9">
                                     <table class="border-collapse border border-gray-50 w-full dark:border-zinc-600">
                                         <tbody>
-                                            <tr class="border-b text-center border-gray-50 dark:border-zinc-600">
-                                                <td class="border-r border-gray-50 dark:border-zinc-600"></td>
-                                                <td class="border-r border-gray-50 dark:border-zinc-600 w-[20%]">
-                                                    <div class="py-3">
-                                                        <h6 class="text-gray-600 dark:text-gray-100">1 Month</h6>
-                                                    </div>
-                                                </td>
-                                                <td class="border-r border-gray-50 dark:border-zinc-600 w-[20%]">
-                                                    <div class="py-3">
-                                                        <h6 class="text-gray-600 dark:text-gray-100">3 Month</h6>
-                                                    </div>
-                                                </td>
-                                                <td class="border-r border-gray-50 dark:border-zinc-600 w-[20%]">
-                                                    <div class="py-3">
-                                                        <h6 class="text-gray-600 dark:text-gray-100">6 Month</h6>
-                                                    </div>
-                                                </td>
-                                                <td class="border-r border-gray-50 dark:border-zinc-600 w-[20%]">
-                                                    <div class="py-3">
-                                                        <h6 class="text-gray-600 dark:text-gray-100">1 Year</h6>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr
-                                                class="border-b border-gray-50 text-center text-gray-600 dark:text-gray-100 dark:border-zinc-600">
-                                                <th scope="row" class="border-r border-gray-50 dark:border-zinc-600">
-                                                    Users</th>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">1</td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">3</td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">5</td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">7</td>
-                                            </tr>
-                                            <tr
-                                                class="border-b border-gray-50 text-center text-gray-600 dark:text-gray-100 dark:border-zinc-600">
-                                                <th scope="row" class="border-r border-gray-50 dark:border-zinc-600">
-                                                    Storage</th>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">1 GB</td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">10 GB</td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">20 GB</td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">40 GB</td>
-                                            </tr>
-                                            <tr
-                                                class="border-b border-gray-50 text-center text-gray-600 dark:text-gray-100 dark:border-zinc-600">
-                                                <th scope="row" class="border-r border-gray-50 dark:border-zinc-600">
-                                                    Domain</th>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
-                                                    <div>
-                                                        <i class="mdi mdi-close-circle text-red-400 text-xl"></i>
-                                                    </div>
-                                                </td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">1</td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">2</td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">4</td>
-                                            </tr>
-                                            <tr
-                                                class="border-b border-gray-50 text-center text-gray-600 dark:text-gray-100 dark:border-zinc-600">
-                                                <th scope="row" class="border-r border-gray-50 dark:border-zinc-600">
-                                                    Hidden Fees</th>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">Yes</td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">Yes</td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">No</td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">No</td>
-                                            </tr>
-                                            <tr
-                                                class="border-b border-gray-50 text-center text-gray-600 dark:text-gray-100 dark:border-zinc-600">
-                                                <th scope="row" class="border-r border-gray-50 dark:border-zinc-600">
-                                                    Support</th>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
-                                                    <div>
-                                                        <i class="mdi mdi-close-circle text-red-400 text-xl"></i>
-                                                    </div>
-                                                </td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
-                                                    <div>
-                                                        <i class="mdi mdi-check-circle text-green-600 text-xl"></i>
-                                                    </div>
-                                                </td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
-                                                    <div>
-                                                        <i class="mdi mdi-check-circle text-green-600 text-xl"></i>
-                                                    </div>
-                                                </td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
-                                                    <div>
-                                                        <i class="mdi mdi-check-circle text-green-600 text-xl"></i>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr
-                                                class="border-b border-gray-50 text-center text-gray-600 dark:text-gray-100 dark:border-zinc-600">
-                                                <th scope="row" class="border-r border-gray-50 dark:border-zinc-600">
-                                                    Update</th>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
-                                                    <div>
-                                                        <i class="mdi mdi-close-circle text-red-400 text-xl"></i>
-                                                    </div>
-                                                </td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
-                                                    <div>
-                                                        <i class="mdi mdi-close-circle text-red-400 text-xl"></i>
-                                                    </div>
-                                                </td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
-                                                    <div>
-                                                        <i class="mdi mdi-check-circle text-green-600 text-xl"></i>
-                                                    </div>
-                                                </td>
-                                                <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
-                                                    <div>
-                                                        <i class="mdi mdi-check-circle text-green-600 text-xl"></i>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                        <tr class="border-b text-center border-gray-50 dark:border-zinc-600">
+                                            <td class="border-r border-gray-50 dark:border-zinc-600"></td>
+                                            <td class="border-r border-gray-50 dark:border-zinc-600 w-[20%]">
+                                                <div class="py-3">
+                                                    <h6 class="text-gray-600 dark:text-gray-100">1 Month</h6>
+                                                </div>
+                                            </td>
+                                            <td class="border-r border-gray-50 dark:border-zinc-600 w-[20%]">
+                                                <div class="py-3">
+                                                    <h6 class="text-gray-600 dark:text-gray-100">3 Month</h6>
+                                                </div>
+                                            </td>
+                                            <td class="border-r border-gray-50 dark:border-zinc-600 w-[20%]">
+                                                <div class="py-3">
+                                                    <h6 class="text-gray-600 dark:text-gray-100">6 Month</h6>
+                                                </div>
+                                            </td>
+                                            <td class="border-r border-gray-50 dark:border-zinc-600 w-[20%]">
+                                                <div class="py-3">
+                                                    <h6 class="text-gray-600 dark:text-gray-100">1 Year</h6>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr
+                                            class="border-b border-gray-50 text-center text-gray-600 dark:text-gray-100 dark:border-zinc-600">
+                                            <th scope="row" class="border-r border-gray-50 dark:border-zinc-600">
+                                                Users
+                                            </th>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">1</td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">3</td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">5</td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">7</td>
+                                        </tr>
+                                        <tr
+                                            class="border-b border-gray-50 text-center text-gray-600 dark:text-gray-100 dark:border-zinc-600">
+                                            <th scope="row" class="border-r border-gray-50 dark:border-zinc-600">
+                                                Storage
+                                            </th>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">1 GB</td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">10 GB</td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">20 GB</td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">40 GB</td>
+                                        </tr>
+                                        <tr
+                                            class="border-b border-gray-50 text-center text-gray-600 dark:text-gray-100 dark:border-zinc-600">
+                                            <th scope="row" class="border-r border-gray-50 dark:border-zinc-600">
+                                                Domain
+                                            </th>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
+                                                <div>
+                                                    <i class="mdi mdi-close-circle text-red-400 text-xl"></i>
+                                                </div>
+                                            </td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">1</td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">2</td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">4</td>
+                                        </tr>
+                                        <tr
+                                            class="border-b border-gray-50 text-center text-gray-600 dark:text-gray-100 dark:border-zinc-600">
+                                            <th scope="row" class="border-r border-gray-50 dark:border-zinc-600">
+                                                Hidden Fees
+                                            </th>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">Yes</td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">Yes</td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">No</td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">No</td>
+                                        </tr>
+                                        <tr
+                                            class="border-b border-gray-50 text-center text-gray-600 dark:text-gray-100 dark:border-zinc-600">
+                                            <th scope="row" class="border-r border-gray-50 dark:border-zinc-600">
+                                                Support
+                                            </th>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
+                                                <div>
+                                                    <i class="mdi mdi-close-circle text-red-400 text-xl"></i>
+                                                </div>
+                                            </td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
+                                                <div>
+                                                    <i class="mdi mdi-check-circle text-green-600 text-xl"></i>
+                                                </div>
+                                            </td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
+                                                <div>
+                                                    <i class="mdi mdi-check-circle text-green-600 text-xl"></i>
+                                                </div>
+                                            </td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
+                                                <div>
+                                                    <i class="mdi mdi-check-circle text-green-600 text-xl"></i>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr
+                                            class="border-b border-gray-50 text-center text-gray-600 dark:text-gray-100 dark:border-zinc-600">
+                                            <th scope="row" class="border-r border-gray-50 dark:border-zinc-600">
+                                                Update
+                                            </th>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
+                                                <div>
+                                                    <i class="mdi mdi-close-circle text-red-400 text-xl"></i>
+                                                </div>
+                                            </td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
+                                                <div>
+                                                    <i class="mdi mdi-close-circle text-red-400 text-xl"></i>
+                                                </div>
+                                            </td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
+                                                <div>
+                                                    <i class="mdi mdi-check-circle text-green-600 text-xl"></i>
+                                                </div>
+                                            </td>
+                                            <td class="p-4 border-r border-gray-50 dark:border-zinc-600">
+                                                <div>
+                                                    <i class="mdi mdi-check-circle text-green-600 text-xl"></i>
+                                                </div>
+                                            </td>
+                                        </tr>
                                         </tbody>
                                     </table>
                                 </div>

@@ -1,4 +1,7 @@
-@extends('dashboard.channels.layout')
+@extends('layouts.master')
+@section('title')
+    {{ __('General channels') }}
+@endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6">
         <div class="card dark:bg-zinc-800 dark:border-zinc-600">
@@ -13,13 +16,14 @@
                                 <h2>Edit Channel</h2>
                             </div>
                             <div class="mt-6 mb-6">
-                                <x-button-back route="{{ route('channels.index') }}" text="Back" style="additional-styles" />
+                                <x-button-back route="{{ route('channels.index') }}" text="Back"/>
                             </div>
                         </div>
                     </div>
+
                     @if ($errors->any())
                         <div class="relative px-5 py-3 border-2 bg-red-50 text-red-700 border-red-100 rounded">
-                            <p> <strong>Whoops!</strong>There were some problems with your input.</p>
+                            <p><strong>Whoops!</strong>There were some problems with your input.</p>
                             <ul>
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
@@ -34,7 +38,7 @@
                         <div class="col-span-12 lg:col-span-6">
                             <div class="mb-4">
                                 <label for="example-text-input"
-                                    class="block font-medium text-gray-700 dark:text-gray-100 mb-2">Name</label>
+                                       class="block font-medium text-gray-700 dark:text-gray-100 mb-2">Name</label>
                                 <input
                                     class="w-full rounded border-gray-100 placeholder:text-sm focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:placeholder:text-zinc-100 dark:text-zinc-100"
                                     type="text" name="name" value="{{ $channel->name }}" placeholder="Name"
@@ -42,7 +46,7 @@
                             </div>
                             <div class="mb-4">
                                 <label for="example-text-input"
-                                    class="block font-medium text-gray-700 dark:text-gray-100 mb-2">Description:</label>
+                                       class="block font-medium text-gray-700 dark:text-gray-100 mb-2">Description:</label>
                                 <input
                                     class="w-full rounded border-gray-100 placeholder:text-sm focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:placeholder:text-zinc-100 dark:text-zinc-100"
                                     type="text" name="description" value="{{ $channel->description }}"
@@ -54,12 +58,9 @@
                                 </x-button>
                             </div>
                         </div>
-
                     </form>
-
                 </div>
             </div>
         </div>
-    </div>
     </div>
 @endsection

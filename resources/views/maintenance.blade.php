@@ -11,7 +11,8 @@
                         <div class="col-span-12">
                             <div class="text-center mb-5">
                                 <a href="{{ url('index') }}">
-                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-7 mx-auto inline-block"><span
+                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
+                                         class="h-7 mx-auto inline-block"><span
                                         class="text-22 align-middle ltr:ml-2 rtl:mr-2 font-semibold dark:text-gray-100">UJV</span>
                                 </a>
                             </div>
@@ -36,11 +37,13 @@
                                                 </div>
                                             </div>
                                             <div class="text-center">
-                                                <h5 class="font-semibold mt-6 text-15 text-gray-700 dark:text-gray-100">WHY
+                                                <h5 class="font-semibold mt-6 text-15 text-gray-700 dark:text-gray-100">
+                                                    WHY
                                                     IS THE SITE DOWN?</h5>
                                                 <p class="text-14 text-gray-500 dark:text-zinc-100 mt-2">There are many
                                                     variations of passages of
-                                                    Lorem Ipsum available, but the majority have suffered alteration.</p>
+                                                    Lorem Ipsum available, but the majority have suffered
+                                                    alteration.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -55,11 +58,13 @@
                                                 </div>
                                             </div>
                                             <div class="text-center">
-                                                <h5 class="font-semibold mt-6 text-15 text-gray-700 dark:text-gray-100">WHAT
+                                                <h5 class="font-semibold mt-6 text-15 text-gray-700 dark:text-gray-100">
+                                                    WHAT
                                                     IS THE DOWNTIME?</h5>
                                                 <p class="text-14 text-gray-500 dark:text-zinc-100 mt-2">There are many
                                                     variations of passages of
-                                                    Lorem Ipsum available, but the majority have suffered alteration.</p>
+                                                    Lorem Ipsum available, but the majority have suffered
+                                                    alteration.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -74,13 +79,15 @@
                                                 </div>
                                             </div>
                                             <div class="text-center">
-                                                <h5 class="font-semibold mt-6 text-15 text-gray-700 dark:text-gray-100">DO
+                                                <h5 class="font-semibold mt-6 text-15 text-gray-700 dark:text-gray-100">
+                                                    DO
                                                     YOU NEED SUPPORT?</h5>
                                                 <p class="text-14 text-gray-500 dark:text-zinc-100 mt-2">There are many
                                                     variations of passages of
-                                                    Lorem Ipsum available, but the majority have suffered alteration.</p>
+                                                    Lorem Ipsum available, but the majority have suffered
+                                                    alteration.</p>
                                                 <a href="mailto:no-reply@domain.com"
-                                                    class="border-b border-violet-500 text-violet-500 dark:text-gray-50 dark:border-gray-50">no-reply@domain.com</a>
+                                                   class="border-b border-violet-500 text-violet-500 dark:text-gray-50 dark:border-gray-50">no-reply@domain.com</a>
                                             </div>
                                         </div>
                                     </div>

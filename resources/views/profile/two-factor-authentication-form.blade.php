@@ -50,13 +50,15 @@
 
                 @if ($showingConfirmation)
                     <div class="mt-4">
-                        <x-label for="code" class="dark:text-gray-100" value="{{ __('Code') }}" />
+                        <x-label for="code" class="dark:text-gray-100" value="{{ __('Code') }}"/>
 
-                        <x-input id="code" type="text" name="code" class="block mt-1 w-1/2 dark:bg-zinc-700 dark:border-transparent dark:text-gray-100" inputmode="numeric" autofocus autocomplete="one-time-code"
-                            wire:model="code"
-                            wire:keydown.enter="confirmTwoFactorAuthentication" />
+                        <x-input id="code" type="text" name="code"
+                                 class="block mt-1 w-1/2 dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
+                                 inputmode="numeric" autofocus autocomplete="one-time-code"
+                                 wire:model="code"
+                                 wire:keydown.enter="confirmTwoFactorAuthentication"/>
 
-                        <x-input-error for="code" class="mt-2" />
+                        <x-input-error for="code" class="mt-2"/>
                     </div>
                 @endif
             @endif
@@ -98,7 +100,8 @@
                     </x-confirms-password>
                 @else
                     <x-confirms-password wire:then="showRecoveryCodes">
-                        <x-secondary-button class="mr-3" class="dark:bg-gray-600 dark:text-gray-100 dark:border-transparent">
+                        <x-secondary-button class="mr-3"
+                                            class="dark:bg-gray-600 dark:text-gray-100 dark:border-transparent">
                             {{ __('Show Recovery Codes') }}
                         </x-secondary-button>
                     </x-confirms-password>
@@ -106,7 +109,8 @@
 
                 @if ($showingConfirmation)
                     <x-confirms-password wire:then="disableTwoFactorAuthentication">
-                        <x-secondary-button wire:loading.attr="disabled" class="dark:bg-gray-600 dark:text-gray-100 dark:border-transparent">
+                        <x-secondary-button wire:loading.attr="disabled"
+                                            class="dark:bg-gray-600 dark:text-gray-100 dark:border-transparent">
                             {{ __('Cancel') }}
                         </x-secondary-button>
                     </x-confirms-password>

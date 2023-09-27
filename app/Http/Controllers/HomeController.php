@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function index(Request $request)
+    public function index (Request $request)
     {
         if (view()->exists($request->path())) {
             return view($request->path());
@@ -14,7 +14,7 @@ class HomeController extends Controller
         return abort(404);
     }
 
-    public function root()
+    public function root ()
     {
         return view('index');
     }

@@ -3,5 +3,5 @@
     {{ __('Starter Page') }}
 @endsection
 @section('content')
-     <x-page-title title="Starter Page" pagetitle="Components" />
+    <x-page-title title="Starter Page" pagetitle="Components"/>
 @endsection

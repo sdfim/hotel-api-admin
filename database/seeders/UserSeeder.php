@@ -1,6 +1,7 @@
 <?php
 
 namespace Database\Seeders;
+
 use App\Models\Role;
 use App\Models\Permission;
 use App\Models\User;
@@ -12,10 +13,10 @@ class UserSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
+    public function run (): void
     {
-        $admin_role = Role::where('slug','admin')->first();
-        $createAdminPermission = Permission::where('slug','admin')->first();
+        $admin_role = Role::where('slug', 'admin')->first();
+        $createAdminPermission = Permission::where('slug', 'admin')->first();
 
         $admin = new User();
         $admin->name = 'Admin';
@@ -30,8 +31,8 @@ class UserSeeder extends Seeder
         $admin->permissions()->attach($createAdminPermission);
 
 
-        $user_role = Role::where('slug','user')->first();
-        $createUserPermission = Permission::where('slug','user')->first();
+        $user_role = Role::where('slug', 'user')->first();
+        $createUserPermission = Permission::where('slug', 'user')->first();
 
         $user = new User();
         $user->name = 'User';
@@ -44,6 +45,6 @@ class UserSeeder extends Seeder
         $user->save();
         $user->roles()->attach($user_role);
         $user->permissions()->attach($createUserPermission);
-        
+
     }
 }

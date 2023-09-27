@@ -14,7 +14,8 @@
                         <div class="flex h-[90vh] flex-col">
                             <div class=" mx-auto">
                                 <a href="{{ url('index') }}" class="">
-                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline"> <span
+                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline">
+                                    <span
                                         class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
                                 </a>
                             </div>
@@ -31,22 +32,25 @@
 
                                 <form class="mt-4 pt-2" action="index.html">
                                     <div class="mb-6">
-                                        <label class="text-gray-600 font-medium mb-2 block dark:text-gray-100">Email</label>
+                                        <label
+                                            class="text-gray-600 font-medium mb-2 block dark:text-gray-100">Email</label>
                                         <input type="text"
-                                            class="w-full border-gray-100 rounded placeholder:text-sm py-2 placeholder:text-gray-400 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-gray-100 dark:placeholder:text-zinc-100/60"
-                                            id="email" placeholder="Enter email">
+                                               class="w-full border-gray-100 rounded placeholder:text-sm py-2 placeholder:text-gray-400 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-gray-100 dark:placeholder:text-zinc-100/60"
+                                               id="email" placeholder="Enter email">
                                     </div>
 
                                     <div class="mb-4">
                                         <button
                                             class="btn border-transparent bg-violet-500 w-full py-2.5 text-white w-100 waves-effect waves-light shadow-md shadow-violet-200 dark:shadow-zinc-600"
-                                            type="submit">Reset</button>
+                                            type="submit">Reset
+                                        </button>
                                     </div>
                                 </form>
 
                                 <div class="mt-12 text-center">
-                                    <p class="text-gray-500 dark:text-zinc-100">Remember It ? <a href="{{ url('login') }}"
-                                            class="text-violet-500 font-semibold"> Sign In </a> </p>
+                                    <p class="text-gray-500 dark:text-zinc-100">Remember It ? <a
+                                            href="{{ url('login') }}"
+                                            class="text-violet-500 font-semibold"> Sign In </a></p>
                                 </div>
                             </div>
 
@@ -54,7 +58,8 @@
                                 <p class="text-gray-500 relative mb-5 dark:text-gray-100">©
                                     <script>
                                         document.write(new Date().getFullYear())
-                                    </script> UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
+                                    </script>
+                                    UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
                                     by Smarty
                                 </p>
                             </div>
@@ -84,12 +89,15 @@
                                     <div class="swiper-wrapper">
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-3 mb-4">
                                                     <h5 class="font-size-18 text-white">Ilse R. Eaton</h5>
                                                     <p class="mb-0 text-white/50">Manager
@@ -99,12 +107,15 @@
                                         </div>
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-3 mb-4">
                                                     <h5 class="font-size-18 text-white">Mariya Willam</h5>
                                                     <p class="mb-0 text-white/50">Designer
@@ -114,12 +125,15 @@
                                         </div>
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-3 mb-4">
                                                     <h5 class="font-size-18 text-white">Jiya Jons</h5>
                                                     <p class="mb-0 text-white/50">Developer

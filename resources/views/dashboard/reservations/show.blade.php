@@ -1,6 +1,7 @@
-@extends('dashboard.reservations.layout')
-
-
+@extends('layouts.master')
+@section('title')
+    {{ __('Reservations') }}
+@endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6">
         <div class="card dark:bg-zinc-800 dark:border-zinc-600">
@@ -15,8 +16,7 @@
                                 <h2> Show Reservation</h2>
                             </div>
                             <div class="mt-6 mb-6">
-                                <x-button-back route="{{ route('reservations.index') }}" text="Back"
-                                    style="additional-styles"/>
+                                <x-button-back route="{{ route('reservations.index') }}" text="Back"/>
                             </div>
                         </div>
                     </div>

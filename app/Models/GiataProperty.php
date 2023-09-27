@@ -8,9 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class GiataProperty extends Model
 {
     use HasFactory;
-	protected $connection;
 
-	protected $table = 'giata_properties';
+    protected $connection;
+
+    protected $table = 'giata_properties';
 
     protected $fillable = [
         'code',
@@ -34,7 +35,7 @@ class GiataProperty extends Model
         'cross_references' => 'json',
     ];
 
-	public function __construct(array $attributes = [])
+    public function __construct (array $attributes = [])
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');

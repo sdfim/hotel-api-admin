@@ -7,86 +7,108 @@
         <div id="sidebar-menu">
             <!-- Left Menu Start -->
             @role('admin')
-                <div style="text-align:center">
-                    <h3>
-                        <b>Admin</b>
-                    </h3>
-                </div>
+            <div style="text-align:center">
+                <h3>
+                    <b>Admin</b>
+                </h3>
+            </div>
             @endrole
             @role('user')
-                <div style="text-align:center">
-                    <h3>
-                        <b>User</b>
-                    </h3>
-                </div>
+            <div style="text-align:center">
+                <h3>
+                    <b>User</b>
+                </h3>
+            </div>
             @endrole
-            <ul class="metismenu" id="side-menu">                
+            <ul class="metismenu" id="side-menu">
                 <li>
-                    <a href="javascript: void(0);" aria-expanded="false"  class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                    <a href="javascript: void(0);" aria-expanded="false"
+                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-gear"></i>
                         <span data-key="t-configuration">Configuration</span>
                     </a>
                     <ul>
                         <li>
-                            <a href="{{ Route('general_configuration') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">General Configuration</a>
+                            <a href="{{ Route('general_configuration') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">General
+                                Configuration</a>
                         </li>
                         <li>
-                            <a href="{{ Route('channels.index') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Chanels Configuration</a>
+                            <a href="{{ Route('channels.index') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Chanels
+                                Configuration</a>
                         </li>
                         <li>
-                            <a href="{{ Route('suppliers.index') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Suppliers Configuration</a>
+                            <a href="{{ Route('suppliers.index') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Suppliers
+                                Configuration</a>
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <a href="{{ Route('reservations.index') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                    <a href="{{ Route('reservations.index') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-pin"></i>
                         <span data-key="t-reservations"> Reservations</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ Route('inspector') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                    <a href="{{ Route('inspector') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-search"></i>
                         <span data-key="t-inspector"> Inspector</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ Route('content_loader_exceptions') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                    <a href="{{ Route('content_loader_exceptions') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-meter"></i>
                         <span data-key="t-content-loader-exception"> Content Loader Exceptions</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ Route('property_mapping') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                    <a href="{{ Route('property_mapping') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-disc"></i>
                         <span data-key="t-property-mapping"> Property Mapping</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ Route('geography') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                    <a href="{{ Route('geography') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-direction"></i>
                         <span data-key="t-geography"> Geography</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ Route('content') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                    <a href="{{ Route('content') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-blog"></i>
                         <span data-key="t-content"> Content</span>
                     </a>
-                </li>				
+                </li>
                 <li>
-                    <a href="{{ Route('pricing_rules.index') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                    <a href="{{ Route('pricing_rules.index') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-blog"></i>
                         <span data-key="t-pricing-rules"> Pricing Rule</span>
                     </a>
                 </li>
-				<li>
-                    <a href="{{ url('log-viewer') }}" class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                <li>
+                    <a href="{{ url('log-viewer') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-document-remove"></i>
                         <span data-key="t-log-viewer"> Log Viewer</span>
                     </a>
                 </li>
-				
+                <li>
+                    <a href="{{ Route('weight.index') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-document-remove"></i>
+                        <span data-key="t-log-viewer"> Weight</span>
+                    </a>
+                </li>
+
                 <!--
 
                 <li>

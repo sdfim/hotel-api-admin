@@ -15,14 +15,14 @@ abstract class ApiRequest extends FormRequest
      *
      * @return array
      */
-    abstract public function rules(): array;
+    abstract public function rules (): array;
 
     /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    abstract public function authorize(): bool;
+    abstract public function authorize (): bool;
 
     /**
      * Handle a failed validation attempt.
@@ -32,7 +32,7 @@ abstract class ApiRequest extends FormRequest
      *
      * @throws ValidationException
      */
-    protected function failedValidation(Validator $validator)
+    protected function failedValidation (Validator $validator)
     {
         $errors = (new ValidationException($validator))->errors();
 
@@ -41,7 +41,7 @@ abstract class ApiRequest extends FormRequest
         );
     }
 
-    protected function failedAuthorization()
+    protected function failedAuthorization ()
     {
         throw new HttpResponseException(
             response()->json([

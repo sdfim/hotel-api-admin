@@ -26,34 +26,34 @@ class RapidPropertyContentCall extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle ()
     {
         $apiKey = env('EXPEDIA_RAPID_API_KEY');
-		$sharedSecret = env('EXPEDIA_RAPID_SHARED_SECRET');
-		
-		$client = new RapidClient($apiKey, $sharedSecret);
-		$property['language'] = "en-US";
-		$property['supplySource'] = "expedia";
-		$property['countryCodes'] = "PL";
-		$property['categoryIdExcludes'] = null;
-		$property['propertyRatingMmin'] = 4;
-		$property['propertyRatingMmax'] = 5;
+        $sharedSecret = env('EXPEDIA_RAPID_SHARED_SECRET');
 
-		// dd($client, $language, $supplySource, $countryCodes, $categoryIdExcludes);
+        $client = new RapidClient($apiKey, $sharedSecret);
+        $property['language'] = "en-US";
+        $property['supplySource'] = "expedia";
+        $property['countryCodes'] = "PL";
+        $property['categoryIdExcludes'] = null;
+        $property['propertyRatingMmin'] = 4;
+        $property['propertyRatingMmax'] = 5;
 
-		$propertyContentCall = new PropertyContentCall($client, $property);
-				
-		$stream = $propertyContentCall->stream();
-		$size = $propertyContentCall->size();
+        // dd($client, $language, $supplySource, $countryCodes, $categoryIdExcludes);
 
-		// dump('$stream', $stream);
-		echo 'size = ' . json_encode($size);
+        $propertyContentCall = new PropertyContentCall($client, $property);
 
-		Cache::put('stream', json_encode($stream), 3600);
+        $stream = $propertyContentCall->stream();
+        $size = $propertyContentCall->size();
 
-		$value = Cache::get('stream');
+        // dump('$stream', $stream);
+        echo 'size = ' . json_encode($size);
 
-		// dump('$value', json_decode($value));
-		\Log::debug('RapidPropertyContentCall', ['value' => json_decode($value)]);
+        Cache::put('stream', json_encode($stream), 3600);
+
+        $value = Cache::get('stream');
+
+        // dump('$value', json_decode($value));
+        \Log::debug('RapidPropertyContentCall', ['value' => json_decode($value)]);
     }
 }
