@@ -44,7 +44,7 @@
                                     //dd($suppliers);
                                 ?>  
                                 <x-label for="supplier" class="dark:text-gray-100" value="{{ __('Supplier') }}" />
-                                <x-select id="supplier" class="block mt-1 w-full" name="supplier_id" :value="old('supplier_id', $weight->supplier_id)" required
+                                <x-select id="supplier" class="block mt-1 w-full" name="supplier_id" :value="old('supplier_id', $weight->supplier_id)" 
                                         :options="$array_suppliers"
                                         autofocus
                                 />

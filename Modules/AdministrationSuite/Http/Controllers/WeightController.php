@@ -5,13 +5,14 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 use App\Models\Suppliers;
 use App\Models\Weights;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class WeightController extends Controller
 {
     private $validate = [
         'property' => 'bail|required|integer',
-        'supplier_id' => 'bail|required|integer',
+        'supplier_id' => 'bail|nullable|integer',
         'weight' => 'bail|required|integer',
     ];
     /**
@@ -24,10 +25,10 @@ class WeightController extends Controller
 /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create():View
     {
         $suppliers = Suppliers::all();
-        $array_suppliers = [];
+        $array_suppliers = ['' => 'Select supplier'];
         foreach($suppliers as $supplier){
             $array_suppliers += [$supplier->id => $supplier->name];
         }
@@ -40,7 +41,7 @@ class WeightController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request):RedirectResponse
     {
         $request->validate($this->validate);
         Weights::create($request->all());
@@ -65,7 +66,7 @@ class WeightController extends Controller
     {
         $weight = Weights::findOrFail($id);
         $suppliers = Suppliers::all();
-        $array_suppliers = [];
+        $array_suppliers = ['' => 'Select supplier'];
         foreach($suppliers as $supplier){
             $array_suppliers += [$supplier->id => $supplier->name];
         }
@@ -75,7 +76,7 @@ class WeightController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, String $id)
+    public function update(Request $request, String $id):RedirectResponse
     {
         $suppliers = Weights::findOrFail($id);
         $request->validate($this->validate);
@@ -88,7 +89,7 @@ class WeightController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(String $id)
+    public function destroy(String $id):RedirectResponse
     {
         $suppliers = Weights::findOrFail($id);
         $suppliers->delete();
