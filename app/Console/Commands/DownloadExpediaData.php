@@ -62,13 +62,13 @@ class DownloadExpediaData extends Command
 		if ($this->step <= 3) {
 			# unzip file
 			$this->unzipFile();
-			$this->info('unzip file '. $url. ' in ' . $this->executionStepTime() . ' seconds');
+			$this->info('unzip file in ' . $this->executionStepTime() . ' seconds');
 		}
 
 		if ($this->step <= 4) {
 			# parse json to db
 			$this->parseJsonToDb();
-			$this->info('parse json to db '. $url. ' in ' . $this->executionStepTime() . ' seconds');
+			$this->info('parse json to db in ' . $this->executionStepTime() . ' seconds');
 		}	
     }
 

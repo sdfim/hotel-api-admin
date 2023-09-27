@@ -80,9 +80,15 @@ class DownloadGiataData extends Command
 	private function parseXMLToDb($text) 
 	{
 		$xmlContent = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $text);
-		$url_next = explode('<More_Properties xlink:href=', $xmlContent)[1];
-		$url_arr = explode('"', $url_next);
-		$url = array_key_exists(1, $url_arr) ? $url_arr[1] : false;
+		try {
+			$url_next = explode('<More_Properties xlink:href=', $xmlContent)[1];
+			$url_arr = explode('"', $url_next);
+			$url = array_key_exists(1, $url_arr) ? $url_arr[1] : false;
+		} catch (Exception $e) {
+			$this->error('Error get url or it not exist: ' . $e->getMessage());
+			return false;
+		}
+		
 		$xml = simplexml_load_string($xmlContent);
 		$json = json_encode($xml);
 

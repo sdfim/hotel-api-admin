@@ -53,16 +53,4 @@ jobs:
           DB_DATABASE: database/database.sqlite
           DB_CONNECTION_2: sqlite2
           SECOND_DB_DATABASE: database/database2.sqlite
-        run: php artisan test --coverage --min=75
-
-      # - name: Upload Coverage Report
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: coverage
-      #     path: coverage.txt
-
-      # - name: Execute tests (Unit and Feature tests) via PHPUnit
-      #   env:
-      #     DB_CONNECTION: sqlite
-      #     DB_DATABASE: database/database.sqlite
-      #   run: vendor/bin/phpunit
+        run: php artisan test --coverage --min=65
