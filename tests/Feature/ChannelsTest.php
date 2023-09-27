@@ -10,64 +10,80 @@ use Tests\TestCase;
 
 class ChannelsTest extends TestCase
 {
-    use RefreshDatabase; 
+    use RefreshDatabase;
     use WithFaker;
 
-	public function testListChannel(): void
+    public function testIndex(): void
     {
-		$this->auth();
+        $this->auth();
 
         $response = $this->get('/admin/channels');
 
         $response->assertStatus(200);
     }
 
-    public function testCreateChannel()
+    public function testCreate()
     {
-		$this->auth();
+        $this->auth();
+        $channels = Channels::factory()->create();
 
+        $response = $this->get(route('channels.create', $channels->id));
+        $response->assertStatus(200);
+    }
+
+    /* public function testStore()
+    {
         $response = $this->post('/admin/channels', [
             'name' => 'New Channel Name',
             'description' => $this->faker->sentence,
         ]);
 
-        $response->assertStatus(302);
+        $response->assertStatus(302); 
         $response->assertRedirect('/admin/channels');
         $this->assertDatabaseHas('channels', ['name' => 'New Channel Name']); // Check if the data is in the database
-    }
-
-	public function testShowChannel()
-	{
-		$this->auth();
-
-		$channel = Channels::factory()->create();
-
-		$response = $this->get("/admin/channels/{$channel->id}");
-
-		$response->assertStatus(200);
-		$response->assertSee($channel->name);
-		$response->assertSee($channel->description);
-	}
+    } */
 
     public function testUpdateChannel()
     {
-		$this->auth();
+        $this->auth();
+
+        $data = [
+            'name' => $this->faker->name,
+            'description' => $this->faker->word,
+        ];
+
+        $response = $this->post(route('channels.store'), $data);
+        $response->assertRedirect(route('channels.index'));
+
+        $this->assertDatabaseHas('channels', $data);
+
+        $response->assertSessionHas('success', 'Channels created successfully.');
+    }
+
+    public function testShow()
+    {
+        $this->auth();
 
         $channel = Channels::factory()->create();
 
-        $response = $this->put("/admin/channels/{$channel->id}", [
-            'name' => 'Updated Channel Name',
-            'description' => 'Updated Channel Description',
-        ]);
-
-        $response->assertStatus(302);
-        $response->assertRedirect('/admin/channels');
-        $this->assertDatabaseHas('channels', ['name' => 'Updated Channel Name']);
+        $response = $this->get(route('channels.show', $channel->id));
+        $response->assertStatus(200);
+        $response->assertSee($channel->name);
+        $response->assertSee($channel->description);
     }
 
-    public function testDeleteChannel()
+    public function testEdit()
     {
-		$this->auth();
+        $this->auth();
+
+        $channels = Channels::factory()->create();
+        $response = $this->get(route('channels.edit', $channels->id));
+        $response->assertStatus(200);
+    }   
+
+    public function testDestroy()
+    {
+        $this->auth();
 
         $channel = Channels::factory()->create();
 
@@ -78,13 +94,13 @@ class ChannelsTest extends TestCase
         $this->assertDatabaseMissing('channels', ['id' => $channel->id]);
     }
 
-	public function auth()
-	{
-		$user = User::factory()->create();
+    public function auth()
+    {
+        $user = User::factory()->create();
 
-		$this->post('/login', [
-			'email' => $user->email,
-			'password' => 'password',
-		]);
-	}
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+    }
 }

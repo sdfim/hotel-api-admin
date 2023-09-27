@@ -43,7 +43,7 @@ class SuppliersController extends Controller
         $request->validate($this->validate);
         Suppliers::create($request->all());
 
-        return redirect()->route('suppliers.index')->with('success', 'Pricing rule created successfully.');
+        return redirect()->route('suppliers.index')->with('success', 'Suppliers created successfully.');
     }
 
     /**

@@ -13,28 +13,13 @@ class ReservationsController extends Controller
      */
     public function index()
     {
-        $reservations = Reservations::with(['channel','contains'])->whereNull('canceled_at')->get();
+        $reservations = Reservations::with(['channel','contains'])->get();
         return view('dashboard.reservations.index',[
             'reservations' => $reservations
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
+    
     /**
 	 * Display the specified resource.
 	 */
@@ -46,13 +31,19 @@ class ReservationsController extends Controller
 	}
 
     /**
-     * Canceled reservation.
+     * Show the form for editing the specified resource.
      */
-    public function cancel(string $id)
+    public function edit(string $id)
     {
-        $reservations = Reservations::findOrFail($id);
-        $reservations->update(['canceled_at' => date('Y-m-d H:i:s')]);
-        return back();
+        return redirect()->route('reservations.index');
     }
 
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        return redirect()->route('reservations.index');
+    }
+    
 }

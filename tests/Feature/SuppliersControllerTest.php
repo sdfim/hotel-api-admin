@@ -25,16 +25,10 @@ class SuppliersControllerTest extends TestCase
     {
         $this->auth();
 
-        $data = [
-            'name' => $this->faker->name,
-            'description' => $this->faker->word,
-        ];
+        $suppliers = Suppliers::factory()->create();
 
-        $response = $this->post(route('suppliers.store'), $data);
-        $response->assertStatus(302);
-        $response->assertRedirect(route('suppliers.index'));
-
-        $this->assertDatabaseHas('suppliers', $data);
+        $response = $this->get(route('suppliers.create', $suppliers->id));
+        $response->assertStatus(200);
     }
 
     public function testStore()
@@ -51,7 +45,7 @@ class SuppliersControllerTest extends TestCase
        
         $this->assertDatabaseHas('suppliers', $data);
        
-        $response->assertSessionHas('success', 'Pricing rule created successfully.');
+        $response->assertSessionHas('success', 'Suppliers created successfully.');
     }
 
     public function testShow()
@@ -62,6 +56,9 @@ class SuppliersControllerTest extends TestCase
 
         $response = $this->get(route('suppliers.show', $suppliers->id));
         $response->assertStatus(200);
+		$response->assertSee($suppliers->name);
+		$response->assertSee($suppliers->description);
+
     }
 
     public function testEdit()
@@ -79,8 +76,8 @@ class SuppliersControllerTest extends TestCase
 
         $suppliers = Suppliers::factory()->create();
         $newData = [
-            'name' => 'Updated Suppliers Name',
-            'description' => 'Updated Suppliers Description',
+            'name' => $this->faker->name,
+            'description' => $this->faker->word,
         ];
 
         $response = $this->put(route('suppliers.update', [$suppliers->id]), $newData);

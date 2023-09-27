@@ -16,7 +16,7 @@
         <include>
             <directory>app/Providers</directory>
 			<directory>app/Actions</directory>
-			<directory>Modules/AdministrationSuite</directory>
+            <directory>Modules/AdministrationSuite</directory>
         </include>
     </source>
     <php>
