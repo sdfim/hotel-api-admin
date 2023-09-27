@@ -1,4 +1,7 @@
-@extends('dashboard.suppliers.layout')
+@extends('layouts.master')
+@section('title')
+    {{ __('Suppliers') }}
+@endsection
 @section('css')
     <!-- DataTables -->
     <link href="{{ URL::asset('build/libs/datatables.net-bs4/css/dataTables.bootstrap4.min.css')  }}" rel="stylesheet"

@@ -13,8 +13,7 @@
                                 <h2>Add Pricing Rules</h2>
                             </div>
                             <div class="mt-6 mb-6">
-                                <x-button-back route="{{ route('pricing_rules.index') }}" text="Back"
-                                               style="additional-styles"/>
+                                <x-button-back route="{{ route('pricing_rules.index') }}" text="Back"/>
                             </div>
                         </div>
                     </div>

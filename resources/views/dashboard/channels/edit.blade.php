@@ -1,4 +1,7 @@
-@extends('dashboard.channels.layout')
+@extends('layouts.master')
+@section('title')
+    {{ __('General channels') }}
+@endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6">
         <div class="card dark:bg-zinc-800 dark:border-zinc-600">
@@ -13,11 +16,11 @@
                                 <h2>Edit Channel</h2>
                             </div>
                             <div class="mt-6 mb-6">
-                                <x-button-back route="{{ route('channels.index') }}" text="Back"
-                                               style="additional-styles"/>
+                                <x-button-back route="{{ route('channels.index') }}" text="Back"/>
                             </div>
                         </div>
                     </div>
+
                     @if ($errors->any())
                         <div class="relative px-5 py-3 border-2 bg-red-50 text-red-700 border-red-100 rounded">
                             <p><strong>Whoops!</strong>There were some problems with your input.</p>
@@ -55,12 +58,9 @@
                                 </x-button>
                             </div>
                         </div>
-
                     </form>
-
                 </div>
             </div>
         </div>
-    </div>
     </div>
 @endsection
