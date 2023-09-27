@@ -2,13 +2,15 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
 import typography from '@tailwindcss/typography';
 import plugin from 'tailwindcss/plugin';
-// import preset from './vendor/filament/support/tailwind.config.preset'
+// filament tailwind settings
+import preset from './vendor/filament/support/tailwind.config.preset'
 
 /** @type {import('tailwindcss').Config} */
 export default {
     // preset: [preset],
     darkMode: ['class', '[data-mode="dark"]'],
     content: [
+        ...preset.content,
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './vendor/laravel/jetstream/**/*.blade.php',
         './storage/framework/views/*.php',
@@ -50,6 +52,7 @@ export default {
                 '22': '1.375rem',
             },
             colors: {
+                ...preset.theme.extend.colors,
                 violet: {
                     50: '#D0D1ED',
                     100: '#B0B2E1',

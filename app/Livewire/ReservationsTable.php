@@ -3,31 +3,31 @@
 namespace App\Livewire;
 
 use App\Models\Reservations;
+use Livewire\Component;
+use Illuminate\Contracts\View\View;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
-use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
-use Livewire\Component;
-use Illuminate\Contracts\View\View;
-use Filament\Tables\Actions\Action;
-
+use Filament\Tables\Concerns\InteractsWithTable;
 
 class ReservationsTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table(Table $table): Table
+    public function table (Table $table): Table
     {
         return $table
             ->query(Reservations::query()->whereNull('canceled_at'))
             ->columns([
                 ViewColumn::make('contains.name')->searchable()->view('components.datatable-contains-column'),
-                
+
                 TextColumn::make('channel.name')
                     ->numeric()
                     ->searchable()
@@ -62,20 +62,24 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                
-
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Action::make('View')
-                ->url(fn (Reservations $record): string => route('reservations.show', $record)),
-                Action::make('Cancel')
-                ->requiresConfirmation()
-                ->action(function (Reservations $record){
-                    $record->update(['canceled_at' => date('Y-m-d H:i:s')]);
-                }),
+                ActionGroup::make([
+                    Action::make('View')
+                        ->url(fn(Reservations $record): string => route('reservations.show', $record))
+                        ->icon('heroicon-s-eye')
+                        ->color('info'),
+                    Action::make('Cancel')
+                        ->requiresConfirmation()
+                        ->action(function (Reservations $record) {
+                            $record->update(['canceled_at' => date('Y-m-d H:i:s')]);
+                        })
+                        ->icon('heroicon-s-x-circle')
+                        ->color('danger'),
+                ])->color('gray'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -84,7 +88,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render(): View
+    public function render (): View
     {
         return view('livewire.reservations-table');
     }
