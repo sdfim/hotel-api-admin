@@ -2,7 +2,6 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Reservations;
 use Illuminate\View\View;
 
@@ -19,7 +18,6 @@ class ReservationsController extends Controller
         ]);
     }
 
-    
     /**
 	 * Display the specified resource.
 	 */
@@ -29,5 +27,4 @@ class ReservationsController extends Controller
 
 		return view('dashboard.reservations.show', compact('reservation'));
 	}
-    
 }
