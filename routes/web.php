@@ -36,7 +36,6 @@ Route::get('/', function () {
 
 Route::prefix('admin')->group(function () {
 	Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
-
 		Route::resource('channels', ChannelsController::class);
 		Route::resources([
 			'pricing_rules' => PricingRulesController::class,

@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Reservations;
+use Filament\Tables\Actions\ViewAction;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -68,9 +69,8 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ])
             ->actions([
                 ActionGroup::make([
-                    Action::make('View')
+                    ViewAction::make()
                         ->url(fn(Reservations $record): string => route('reservations.show', $record))
-                        ->icon('heroicon-s-eye')
                         ->color('info'),
                     Action::make('Cancel')
                         ->requiresConfirmation()

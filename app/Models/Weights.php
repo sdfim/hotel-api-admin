@@ -9,9 +9,10 @@ class Weights extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['property','supplier_id','weight','created_at','updated_at'];
+    protected $fillable = ['property', 'supplier_id', 'weight', 'created_at', 'updated_at'];
 
-    public function supplier(){
+    public function supplier ()
+    {
         return $this->belongsTo(Suppliers::class);
     }
 

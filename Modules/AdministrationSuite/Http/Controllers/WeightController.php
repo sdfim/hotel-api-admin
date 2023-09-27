@@ -15,24 +15,26 @@ class WeightController extends Controller
         'supplier_id' => 'bail|nullable|integer',
         'weight' => 'bail|required|integer',
     ];
+
     /**
      * Display a listing of the resource.
      */
-    public function index():View
+    public function index (): View
     {
         return view('dashboard.weight.index');
     }
-/**
+
+    /**
      * Show the form for creating a new resource.
      */
-    public function create():View
+    public function create (): View
     {
         $suppliers = Suppliers::all();
         $array_suppliers = ['' => 'Select supplier'];
-        foreach($suppliers as $supplier){
+        foreach ($suppliers as $supplier) {
             $array_suppliers += [$supplier->id => $supplier->name];
         }
-            
+
         return view('dashboard.weight.create', [
             'suppliers' => $array_suppliers,
         ]);
@@ -41,7 +43,7 @@ class WeightController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request):RedirectResponse
+    public function store (Request $request): RedirectResponse
     {
         $request->validate($this->validate);
         Weights::create($request->all());
@@ -52,7 +54,7 @@ class WeightController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(String $id):View
+    public function show (string $id): View
     {
         $weight = Weights::findOrFail($id);
 
@@ -62,21 +64,21 @@ class WeightController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(String $id):View
+    public function edit (string $id): View
     {
         $weight = Weights::findOrFail($id);
         $suppliers = Suppliers::all();
         $array_suppliers = ['' => 'Select supplier'];
-        foreach($suppliers as $supplier){
+        foreach ($suppliers as $supplier) {
             $array_suppliers += [$supplier->id => $supplier->name];
         }
-        return view('dashboard.weight.edit', compact(['weight','array_suppliers']));
+        return view('dashboard.weight.edit', compact(['weight', 'array_suppliers']));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, String $id):RedirectResponse
+    public function update (Request $request, string $id): RedirectResponse
     {
         $suppliers = Weights::findOrFail($id);
         $request->validate($this->validate);
@@ -89,7 +91,7 @@ class WeightController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(String $id):RedirectResponse
+    public function destroy (string $id): RedirectResponse
     {
         $suppliers = Weights::findOrFail($id);
         $suppliers->delete();
