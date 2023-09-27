@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Weights;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\ContentLoaderExceptionsController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
@@ -8,6 +9,7 @@ use Modules\AdministrationSuite\Http\Controllers\InspectorController;
 use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
 use Modules\AdministrationSuite\Http\Controllers\PropertyMappingController;
 use Modules\AdministrationSuite\Http\Controllers\ReservationsController;
+use Modules\AdministrationSuite\Http\Controllers\WeightController;
 use Modules\AdministrationSuite\Http\Controllers\ChannelsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +53,7 @@ Route::prefix('admin')->group(function () {
 		// Route::get('/pricing-rules', [PricingRulesController::class, 'index'])->name('pricing_rules');
 		Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
 		Route::resource('reservations', ReservationsController::class)->except(['delete', 'store', 'create']);
+		Route::resource('weight', WeightController::class);
 
 		Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
 		Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
