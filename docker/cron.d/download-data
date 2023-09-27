@@ -1,2 +1,2 @@
-50 10 * * * www-data cd /var/www && php artisan download-expedia-data content 4 
-50 10 * * * www-data cd /var/www && php artisan download-giata-data 
+15 11 * * * www-data cd /var/www && php artisan download-expedia-data content 4 
+15 11 * * * www-data cd /var/www && php artisan download-giata-data 

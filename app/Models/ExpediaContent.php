@@ -9,7 +9,7 @@ class ExpediaContent extends Model
 {
     use HasFactory;
 
-	protected $connection = env(('DB_CONNECTION_2'), 'mysql2');
+	protected $connection;
 
 	protected $casts = [
         'address' => 'array',
@@ -38,4 +38,10 @@ class ExpediaContent extends Model
 		'spoken_languages' => 'array',
 		'all_inclusive' => 'array',
     ];
+
+	public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
+    }
 }
