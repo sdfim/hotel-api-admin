@@ -38,7 +38,8 @@ jobs:
         run: |
           mkdir -p database
           touch database/database.sqlite
-          touch database/database2.sqlite
+          mkdir -p database2
+          touch database2/database.sqlite
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
@@ -51,7 +52,7 @@ jobs:
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
-          SECOND_DB_DATABASE: database/database2.sqlite
+          SECOND_DB_DATABASE: database2/database.sqlite
         run: php artisan test --coverage --min=75
 
       # - name: Upload Coverage Report
