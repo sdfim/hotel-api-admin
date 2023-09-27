@@ -51,7 +51,7 @@ jobs:
         env:
           DB_CONNECTION: sqlite
           DB_DATABASE: database/database.sqlite
-          DB_CONNECTION2: sqlite2
+          DB_CONNECTION_2: sqlite2
           SECOND_DB_DATABASE: database/database2.sqlite
         run: php artisan test --coverage --min=75
 
