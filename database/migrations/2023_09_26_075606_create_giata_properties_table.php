@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-		if (!Schema::connection('mysql2')->hasTable('giata_properties')) {
-			Schema::connection('mysql2')->create('giata_properties', function (Blueprint $table) {
+		if (!Schema::connection(env(('DB_CONNECTION_2'), 'mysql2'))->hasTable('giata_properties')) {
+			Schema::connection(env(('DB_CONNECTION_2'), 'mysql2'))->create('giata_properties', function (Blueprint $table) {
 				$table->id();
 				$table->integer('code')->index();
 				$table->timestamp('last_updated');
@@ -35,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection('mysql2')->dropIfExists('giata_properties');
+        Schema::connection(env(('DB_CONNECTION_2'), 'mysql2'))->dropIfExists('giata_properties');
     }
 };

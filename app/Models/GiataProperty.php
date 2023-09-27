@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class GiataProperty extends Model
 {
     use HasFactory;
-	protected $connection= 'mysql2';
+	protected $connection = env(('DB_CONNECTION_2'), 'mysql2');
 	protected $table = 'giata_properties';
 
     protected $fillable = [

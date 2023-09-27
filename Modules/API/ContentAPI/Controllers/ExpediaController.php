@@ -41,7 +41,7 @@ class ExpediaController extends BaseController
         $filters = $request->validatedDate();
 		try {
 
-			$query = DB::connection('mysql2')->table('expedia_contents'); 
+			$query = DB::connection(env(('DB_CONNECTION_2'), 'mysql2'))->table('expedia_contents'); 
 			
 			$fields = $request->get('fullList') ? $this->fullListFields : $this->shortListFields;
 
@@ -68,7 +68,7 @@ class ExpediaController extends BaseController
     {
 		try {
 
-			$query = DB::connection('mysql2')->table('expedia_contents'); 
+			$query = DB::connection(env(('DB_CONNECTION_2'), 'mysql2'))->table('expedia_contents'); 
 
 			$property_id = $request->get('property_id') ?? null;
 			$results = $query->where('property_id', $property_id)->get();
