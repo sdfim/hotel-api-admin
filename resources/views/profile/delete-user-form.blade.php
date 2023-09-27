@@ -27,20 +27,23 @@
             <x-slot name="content">
                 {{ __('Are you sure you want to delete your account? Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
 
-                <div class="mt-4" x-data="{}" x-on:confirming-delete-user.window="setTimeout(() => $refs.password.focus(), 250)">
-                    <x-input type="password" class="mt-1 block w-3/4 dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                autocomplete="current-password"
-                                placeholder="{{ __('Password') }}"
-                                x-ref="password"
-                                wire:model="password"
-                                wire:keydown.enter="deleteUser" />
+                <div class="mt-4" x-data="{}"
+                     x-on:confirming-delete-user.window="setTimeout(() => $refs.password.focus(), 250)">
+                    <x-input type="password"
+                             class="mt-1 block w-3/4 dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
+                             autocomplete="current-password"
+                             placeholder="{{ __('Password') }}"
+                             x-ref="password"
+                             wire:model="password"
+                             wire:keydown.enter="deleteUser"/>
 
-                    <x-input-error for="password" class="mt-2" />
+                    <x-input-error for="password" class="mt-2"/>
                 </div>
             </x-slot>
 
             <x-slot name="footer">
-                <x-secondary-button wire:click="$toggle('confirmingUserDeletion')" wire:loading.attr="disabled" class="dark:bg-gray-600 dark:text-gray-100 dark:border-transparent">
+                <x-secondary-button wire:click="$toggle('confirmingUserDeletion')" wire:loading.attr="disabled"
+                                    class="dark:bg-gray-600 dark:text-gray-100 dark:border-transparent">
                     {{ __('Cancel') }}
                 </x-secondary-button>
 

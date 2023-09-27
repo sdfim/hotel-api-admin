@@ -7,7 +7,8 @@ use Illuminate\Http\Request;
 
 class InspectorController extends Controller
 {
-    public function index(){
+    public function index ()
+    {
         return view('dashboard.inspector');
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Providers;
 
 use App\Models\Permission;
@@ -12,7 +13,7 @@ class PermissionServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register ()
     {
         //
     }
@@ -22,7 +23,7 @@ class PermissionServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot ()
     {
         try {
             Permission::get()->map(function ($permission) {

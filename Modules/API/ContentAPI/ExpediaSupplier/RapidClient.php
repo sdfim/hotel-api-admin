@@ -5,26 +5,29 @@ namespace Modules\API\ContentAPI\ExpediaSupplier;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 
-class RapidClient {
+class RapidClient
+{
     // Base URL
     // private const RAPID_BASE_URL = env('EXPEDIA_RAPID_BASE_URL');
-	private const RAPID_BASE_URL = "https://test.ean.com";
-	
+    private const RAPID_BASE_URL = "https://test.ean.com";
+
     // Headers
     private const GZIP = "gzip";
     private const AUTHORIZATION_HEADER = "EAN APIKey=%s,Signature=%s,timestamp=%s";
 
     private $apiKey;
     private $sharedSecret;
-	private $client;
+    private $client;
 
-    public function __construct($apiKey, $sharedSecret) {
+    public function __construct ($apiKey, $sharedSecret)
+    {
         $this->apiKey = $apiKey;
         $this->sharedSecret = $sharedSecret;
-		$this->client = new Client(); // Initialize the client in the constructor
+        $this->client = new Client(); // Initialize the client in the constructor
     }
 
-    public function get($path, $queryParameters) {
+    public function get ($path, $queryParameters)
+    {
         $queryParams = [];
         foreach ($queryParameters as $key => $value) {
             $queryParams[$key] = $value;
@@ -42,7 +45,8 @@ class RapidClient {
         return $response;
     }
 
-    private function generateAuthHeader() {
+    private function generateAuthHeader ()
+    {
         $timeStampInSeconds = strval(time());
         $input = $this->apiKey . $this->sharedSecret . $timeStampInSeconds;
         $signature = hash('sha512', $input);

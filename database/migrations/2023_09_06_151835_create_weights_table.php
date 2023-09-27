@@ -4,22 +4,21 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up (): void
     {
         Schema::create('weights', function (Blueprint $table) {
             $table->id();
-			$table->string('property');
-			$table->foreignId('supplier_id')
-				->constrained(
-					table: 'contains', 
-					indexName: 'weights__supplier_id'
-				);
-			$table->string('weight');
+            $table->string('property');
+            $table->foreignId('supplier_id')
+                ->constrained(
+                    table: 'contains',
+                    indexName: 'weights__supplier_id'
+                );
+            $table->string('weight');
             $table->timestamps();
         });
     }
@@ -27,7 +26,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
+    public function down (): void
     {
         Schema::dropIfExists('weights');
     }

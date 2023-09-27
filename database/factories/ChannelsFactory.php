@@ -10,26 +10,26 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ChannelsFactory extends Factory
 {
-	/**
-	 * The name of the factory's corresponding model.
-	 *
-	 * @var string
-	 */
-	protected $model = Channels::class;
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Channels::class;
 
     /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
      */
-    public function definition(): array
+    public function definition (): array
     {
-		$token = auth()->user()->createToken('name');
+        $token = auth()->user()->createToken('name');
         return [
-			'token_id' => $token->accessToken->id,
-			'access_token' => $token->plainTextToken,
+            'token_id' => $token->accessToken->id,
+            'access_token' => $token->plainTextToken,
             'name' => $this->faker->name(),
-			'description' => $this->faker->name(),
+            'description' => $this->faker->name(),
         ];
     }
 }

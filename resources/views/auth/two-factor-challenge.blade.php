@@ -15,7 +15,7 @@
                             <div class="mx-auto">
                                 <a href="{{ url('index') }}" class="">
                                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
-                                        class="h-8 inline"> <span
+                                         class="h-8 inline"> <span
                                         class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
                                 </a>
                             </div>
@@ -39,32 +39,37 @@
 
                                         <div class="mt-4" x-show="! recovery">
                                             <label for="code"
-                                                class="block font-medium text-sm text-gray-700 dark:text-zinc-100">Code</label>
-                                            <input id="code" class="block mt-1 w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100" type="text"
-                                                inputmode="numeric" name="code" autofocus x-ref="code"
-                                                autocomplete="one-time-code" placeholder="Enter your code"
-                                                class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                                   class="block font-medium text-sm text-gray-700 dark:text-zinc-100">Code</label>
+                                            <input id="code"
+                                                   class="block mt-1 w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
+                                                   type="text"
+                                                   inputmode="numeric" name="code" autofocus x-ref="code"
+                                                   autocomplete="one-time-code" placeholder="Enter your code"
+                                                   class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                             @error('code')
-                                                <span class="text-sm text-red-600">{{ $message }}</span>
+                                            <span class="text-sm text-red-600">{{ $message }}</span>
                                             @enderror
                                         </div>
 
                                         <div class="mt-4" x-cloak x-show="recovery">
                                             <label for="recovery_code"
-                                                class="block font-medium text-sm text-gray-700 dark:text-zinc-100">Recovery</label>
-                                            <input id="recovery_code" class="block mt-1 w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100" type="text"
-                                                name="recovery_code" x-ref="recovery_code" autocomplete="one-time-code" placeholder="Enter recovery code"
-                                                class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                                   class="block font-medium text-sm text-gray-700 dark:text-zinc-100">Recovery</label>
+                                            <input id="recovery_code"
+                                                   class="block mt-1 w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
+                                                   type="text"
+                                                   name="recovery_code" x-ref="recovery_code"
+                                                   autocomplete="one-time-code" placeholder="Enter recovery code"
+                                                   class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                             @error('recovery_code')
-                                                <span class="text-sm text-red-600">{{ $message }}</span>
+                                            <span class="text-sm text-red-600">{{ $message }}</span>
                                             @enderror
                                         </div>
 
                                         <div class="flex items-center justify-end mt-4">
                                             <button type="button"
-                                                class="text-sm text-gray-600 hover:text-gray-900 underline cursor-pointer"
-                                                x-show="! recovery"
-                                                x-on:click="
+                                                    class="text-sm text-gray-600 hover:text-gray-900 underline cursor-pointer"
+                                                    x-show="! recovery"
+                                                    x-on:click="
                                                                 recovery = true;
                                                                 $nextTick(() => { $refs.recovery_code.focus() })
                                                             ">
@@ -72,9 +77,9 @@
                                             </button>
 
                                             <button type="button"
-                                                class="text-sm text-gray-600 hover:text-gray-900 underline cursor-pointer"
-                                                x-cloak x-show="recovery"
-                                                x-on:click="
+                                                    class="text-sm text-gray-600 hover:text-gray-900 underline cursor-pointer"
+                                                    x-cloak x-show="recovery"
+                                                    x-on:click="
                                                                 recovery = false;
                                                                 $nextTick(() => { $refs.code.focus() })
                                                             ">
@@ -82,7 +87,7 @@
                                             </button>
 
                                             <button type="submit"
-                                                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 ml-4 dark:bg-gray-600">
+                                                    class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 ml-4 dark:bg-gray-600">
                                                 Log in
                                             </button>
 
@@ -96,7 +101,8 @@
                                 <p class="text-gray-500 dark:text-gray-100 relative mb-5">©
                                     <script>
                                         document.write(new Date().getFullYear())
-                                    </script> UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
+                                    </script>
+                                    UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
                                     by Smarty
                                 </p>
                             </div>
@@ -132,7 +138,7 @@
                                                 balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
                                                 <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}"
-                                                    class="h-12 w-12 rounded-full" alt="...">
+                                                     class="h-12 w-12 rounded-full" alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-2 mb-4">
                                                     <h5 class="font-size-18 text-white">Ilse R. Eaton</h5>
                                                     <p class="mb-0 text-white/50">Manager
@@ -148,7 +154,7 @@
                                                 balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
                                                 <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}"
-                                                    class="h-12 w-12 rounded-full" alt="...">
+                                                     class="h-12 w-12 rounded-full" alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-2 mb-4">
                                                     <h5 class="font-size-18 text-white">Mariya Willam</h5>
                                                     <p class="mb-0 text-white/50">Designer
@@ -164,7 +170,7 @@
                                                 balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
                                                 <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}"
-                                                    class="h-12 w-12 rounded-full" alt="...">
+                                                     class="h-12 w-12 rounded-full" alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-2 mb-4">
                                                     <h5 class="font-size-18 text-white">Jiya Jons</h5>
                                                     <p class="mb-0 text-white/50">Developer

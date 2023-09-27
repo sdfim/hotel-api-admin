@@ -15,7 +15,7 @@
                             </div>
                             <div class="mt-6 mb-6">
                                 <x-button-back route="{{ route('channels.index') }}" text="Back"
-                                    style="additional-styles" />
+                                               style="additional-styles"/>
                             </div>
                         </div>
                     </div>
@@ -33,7 +33,7 @@
                                 {{ $channel->description }}
                             </div>
                         </div>
-						<div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="form-group">
                                 <strong>Access Token:</strong>
                                 {{ $channel->access_token }}

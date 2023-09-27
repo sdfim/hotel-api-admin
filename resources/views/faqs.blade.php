@@ -3,7 +3,7 @@
     {{ __('FAQs') }}
 @endsection
 @section('content')
-     <x-page-title title="FAQs" pagetitle="Components" />
+    <x-page-title title="FAQs" pagetitle="Components"/>
 
     <div class="grid grid-cols-12 gap-5 mb-5">
         <div class="col-span-12">
@@ -18,19 +18,23 @@
                                     is more simple and regular than that of the individual</p>
                                 <div class="mt-4">
                                     <button type="button"
-                                        class="btn border-transparent bg-violet-500 mt-2 mr-2 shadow-md text-white shadow-violet-200 focus:ring focus:ring-violet-50 dark:shadow-zinc-600">Email
-                                        Us</button>
+                                            class="btn border-transparent bg-violet-500 mt-2 mr-2 shadow-md text-white shadow-violet-200 focus:ring focus:ring-violet-50 dark:shadow-zinc-600">
+                                        Email
+                                        Us
+                                    </button>
                                     <button type="button"
-                                        class="btn border-transparent bg-green-500 shadow-md text-white shadow-green-100 mt-2 waves-effect waves-light focus:ring focus:ring-green-100 dark:shadow-zinc-600">Send
+                                            class="btn border-transparent bg-green-500 shadow-md text-white shadow-green-100 mt-2 waves-effect waves-light focus:ring focus:ring-green-100 dark:shadow-zinc-600">
+                                        Send
                                         us a
-                                        tweet</button>
+                                        tweet
+                                    </button>
                                 </div>
                             </div>
                             <form class="app-search d-none d-lg-block my-10">
                                 <div class="flex relative">
                                     <input type="text"
-                                        class="form-control w-full rounded bg-gray-500/10 border border-transparent pr-16 dark:border-zinc-600 dark:bg-zinc-700"
-                                        placeholder="Search...">
+                                           class="form-control w-full rounded bg-gray-500/10 border border-transparent pr-16 dark:border-zinc-600 dark:bg-zinc-700"
+                                           placeholder="Search...">
                                     <button
                                         class=" bg-violet-500 px-3 py-1.5 top-1 text-white rounded-md absolute right-1 shadow-md shadow-violet-500/50"
                                         type="button"><i class="bx bx-search-alt align-middle"></i></button>
@@ -48,8 +52,10 @@
                             <div class="p-5">
                                 <h5 class="text-violet-500">01.</h5>
                                 <h5 class="mt-3 text-gray-700 dark:text-gray-100">What is Lorem Ipsum?</h5>
-                                <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">New common language will
-                                    be more simple and regular than the existing European languages. It will be as simple as
+                                <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">New common language
+                                    will
+                                    be more simple and regular than the existing European languages. It will be as
+                                    simple as
                                     occidental.</p>
                             </div>
                         </div>
@@ -62,8 +68,10 @@
                             <div class="p-5">
                                 <h5 class="text-violet-500">02.</h5>
                                 <h5 class="mt-3 text-gray-700 dark:text-gray-100">Where does it come from?</h5>
-                                <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">Everyone realizes why a
-                                    new common language would be desirable one could refuse to pay expensive translators.
+                                <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">Everyone realizes
+                                    why a
+                                    new common language would be desirable one could refuse to pay expensive
+                                    translators.
                                 </p>
                             </div>
 
@@ -78,7 +86,8 @@
                                 <h5 class="text-violet-500">03.</h5>
                                 <h5 class="mt-3 text-gray-700 dark:text-gray-100">Where can I get some?</h5>
                                 <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">If several languages
-                                    coalesce, the grammar of the resulting language is more simple and regular than that of
+                                    coalesce, the grammar of the resulting language is more simple and regular than that
+                                    of
                                     the individual languages.</p>
                             </div>
                         </div>
@@ -91,7 +100,8 @@
                             <div class="p-5">
                                 <h5 class="text-violet-500">04.</h5>
                                 <h5 class="mt-3 text-gray-700 dark:text-gray-100">Why do we use it?</h5>
-                                <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">Their separate existence
+                                <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">Their separate
+                                    existence
                                     is a myth. For science, music, sport, etc, Europe uses the same vocabulary.</p>
                             </div>
                         </div>
@@ -104,8 +114,10 @@
                             <div class="p-5">
                                 <h5 class="text-violet-500">05.</h5>
                                 <h5 class="mt-3 text-gray-700 dark:text-gray-100">Where can I get some?</h5>
-                                <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">The point of using Lorem
-                                    Ipsum is that it has a more-or-less normal they distribution of letters opposed to using
+                                <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">The point of using
+                                    Lorem
+                                    Ipsum is that it has a more-or-less normal they distribution of letters opposed to
+                                    using
                                     content here. </p>
                             </div>
                         </div>
@@ -118,8 +130,10 @@
                             <div class="p-5">
                                 <h5 class="text-violet-500">06.</h5>
                                 <h5 class="mt-3 text-gray-700 dark:text-gray-100">What is Lorem Ipsum?</h5>
-                                <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">To an English person, it
-                                    will seem like simplified English, as a skeptical Cambridge friend of mine told me what
+                                <p class="text-muted mt-3 mb-0 text-gray-500 dark:text-zinc-100/60">To an English
+                                    person, it
+                                    will seem like simplified English, as a skeptical Cambridge friend of mine told me
+                                    what
                                     Occidental</p>
                             </div>
                         </div>

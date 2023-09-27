@@ -3,7 +3,7 @@
     {{ __('Timeline') }}
 @endsection
 @section('content')
-     <x-page-title title="Timeline" pagetitle="Components" />
+    <x-page-title title="Timeline" pagetitle="Components"/>
 
     <!-- start grid -->
     <div class="grid grid-cols-12 gap-5 mb-5">
@@ -37,20 +37,24 @@
                                         <div class="col-span-11 md:col-span-6">
                                             <div
                                                 class="m-4 border border-gray-50 rounded-lg relative ml-8 dark:border-zinc-600">
-                                                <div class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 right-5 -top-3 w-14 h-20 bg-violet-500 rounded-md text-center"
+                                                <div
+                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 right-5 -top-3 w-14 h-20 bg-violet-500 rounded-md text-center"
                                                     style="clip-path: polygon(0% 0%, 100% 0, 100% 80%, 50% 100%, 0 80%);">
                                                     <div class="p-2">
                                                         <h3 class="text-white">25</h3>
-                                                        <p class="mb-0 text-white-50 leading-tight text-white/60">June</p>
+                                                        <p class="mb-0 text-white-50 leading-tight text-white/60">
+                                                            June</p>
                                                     </div>
                                                 </div>
                                                 <div class="p-5">
                                                     <div class="mr-10 pr-6">
-                                                        <h3 class="text-lg text-gray-600 dark:text-gray-100">Timeline Event
+                                                        <h3 class="text-lg text-gray-600 dark:text-gray-100">Timeline
+                                                            Event
                                                             One</h3>
                                                         <p class="mb-0 mt-2 pt-1 text-gray-500 dark:text-zinc-100/80">
                                                             Perspitis unde omnis it voluptatem
-                                                            accusantium doloremque laudantium, totam rem aperiam, eaque ipsa
+                                                            accusantium doloremque laudantium, totam rem aperiam, eaque
+                                                            ipsa
                                                             quae ab illo inventore veritatis et quasi
                                                             architecto beatae explicabo.</p>
                                                     </div>
@@ -72,25 +76,30 @@
                                         <div class="col-span-11 md:col-span-6 order-2 md:order-1">
                                             <div
                                                 class="m-4 border border-gray-50 rounded-lg relative ml-8 md:mr-8 dark:border-zinc-600">
-                                                <div class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 left-5 -top-3 w-14 h-20 bg-violet-500 rounded-md text-center"
+                                                <div
+                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 left-5 -top-3 w-14 h-20 bg-violet-500 rounded-md text-center"
                                                     style="clip-path: polygon(0% 0%, 100% 0, 100% 80%, 50% 100%, 0 80%);">
                                                     <div class="p-2">
                                                         <h3 class="text-white">25</h3>
-                                                        <p class="mb-0 text-white-50 leading-tight text-white/60">June</p>
+                                                        <p class="mb-0 text-white-50 leading-tight text-white/60">
+                                                            June</p>
                                                     </div>
                                                 </div>
                                                 <div class="p-5">
                                                     <div class="md:ml-10 md:pl-6 md:text-right">
-                                                        <h3 class="text-lg text-gray-600 dark:text-gray-100">Timeline Event
+                                                        <h3 class="text-lg text-gray-600 dark:text-gray-100">Timeline
+                                                            Event
                                                             two</h3>
                                                         <p class="mb-0 mt-2 pt-1 text-gray-500 dark:text-zinc-100/80">At
                                                             vero eos dignissimos ducimus quos dolores chooses to enjoy
                                                             pleasure that has no annoying.</p>
                                                         <div class="flex flex-wrap md:justify-end mt-3 gap-2">
-                                                            <img src="{{ URL::asset('build/images/small/img-2.jpg') }}" alt=""
-                                                                class="img-fluid rounded w-14">
-                                                            <img src="{{ URL::asset('build/images/small/img-5.jpg') }}" alt=""
-                                                                class="img-fluid rounded w-14">
+                                                            <img src="{{ URL::asset('build/images/small/img-2.jpg') }}"
+                                                                 alt=""
+                                                                 class="img-fluid rounded w-14">
+                                                            <img src="{{ URL::asset('build/images/small/img-5.jpg') }}"
+                                                                 alt=""
+                                                                 class="img-fluid rounded w-14">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -132,21 +141,27 @@
                                         <div class="col-span-11 md:col-span-6">
                                             <div
                                                 class="m-4 border border-gray-50 rounded-lg relative ml-8 dark:border-zinc-600">
-                                                <div class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 right-5 -top-3 w-14 h-20 bg-violet-500 rounded-md text-center"
+                                                <div
+                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 right-5 -top-3 w-14 h-20 bg-violet-500 rounded-md text-center"
                                                     style="clip-path: polygon(0% 0%, 100% 0, 100% 80%, 50% 100%, 0 80%);">
                                                     <div class="p-2">
                                                         <h3 class="text-white">28</h3>
-                                                        <p class="mb-0 text-white-50 leading-tight text-white/60">Des</p>
+                                                        <p class="mb-0 text-white-50 leading-tight text-white/60">
+                                                            Des</p>
                                                     </div>
                                                 </div>
                                                 <div class="p-5">
                                                     <div class="mr-10 pr-6">
-                                                        <h3 class="text-lg text-gray-600 dark:text-gray-100">Timeline Event
+                                                        <h3 class="text-lg text-gray-600 dark:text-gray-100">Timeline
+                                                            Event
                                                             Three</h3>
                                                         <p class="mb-0 mt-2 pt-1 text-gray-500 dark:text-zinc-100/80">
-                                                            Vivamus ultrices massa turna interdum eu. Pellentesque habitant
-                                                            morbi tristique eget justo sit amet est varius mollis et quis
-                                                            nisi. Suspendisse potenti. senectus et netus et malesuada fames
+                                                            Vivamus ultrices massa turna interdum eu. Pellentesque
+                                                            habitant
+                                                            morbi tristique eget justo sit amet est varius mollis et
+                                                            quis
+                                                            nisi. Suspendisse potenti. senectus et netus et malesuada
+                                                            fames
                                                             ac turpis egestas.</p>
                                                     </div>
                                                 </div>
@@ -167,22 +182,27 @@
                                         <div class="col-span-11 md:col-span-6 order-2 md:order-1">
                                             <div
                                                 class="m-4 border border-gray-50 rounded-lg relative ml-8 md:mr-8 dark:border-zinc-600">
-                                                <div class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 left-5 -top-3 w-14 h-20 bg-violet-500 rounded-md text-center"
+                                                <div
+                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 left-5 -top-3 w-14 h-20 bg-violet-500 rounded-md text-center"
                                                     style="clip-path: polygon(0% 0%, 100% 0, 100% 80%, 50% 100%, 0 80%);">
                                                     <div class="p-2">
                                                         <h3 class="text-white">25</h3>
-                                                        <p class="mb-0 text-white-50 leading-tight text-white/60">June</p>
+                                                        <p class="mb-0 text-white-50 leading-tight text-white/60">
+                                                            June</p>
                                                     </div>
                                                 </div>
                                                 <div class="p-5">
                                                     <div class="md:ml-10 md:pl-6 md:text-right">
-                                                        <h3 class="text-lg text-gray-600 dark:text-gray-100">Timeline Event
+                                                        <h3 class="text-lg text-gray-600 dark:text-gray-100">Timeline
+                                                            Event
                                                             Four</h3>
                                                         <p class="mb-0 mt-2 pt-1 text-gray-500 dark:text-zinc-100/80">
-                                                            Printing and typesetting industry. been the industry'scrambled
+                                                            Printing and typesetting industry. been the
+                                                            industry'scrambled
                                                             it make a type specimen book.</p>
                                                         <button type="button"
-                                                            class="btn border-transparent bg-violet-500 rounded-full shadow-md shadow-violet-500/40 text-white mt-4">See
+                                                                class="btn border-transparent bg-violet-500 rounded-full shadow-md shadow-violet-500/40 text-white mt-4">
+                                                            See
                                                             more detail
                                                         </button>
                                                     </div>
@@ -225,23 +245,27 @@
                                         <div class="col-span-11 md:col-span-6">
                                             <div
                                                 class="m-4 border border-gray-50 rounded-lg relative ml-8 dark:border-zinc-600">
-                                                <div class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 right-5 -top-3 w-14 h-20 bg-violet-500 rounded-md text-center"
+                                                <div
+                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 right-5 -top-3 w-14 h-20 bg-violet-500 rounded-md text-center"
                                                     style="clip-path: polygon(0% 0%, 100% 0, 100% 80%, 50% 100%, 0 80%);">
                                                     <div class="p-2">
                                                         <h3 class="text-white">23</h3>
-                                                        <p class="mb-0 text-white-50 leading-tight text-white/60">Des</p>
+                                                        <p class="mb-0 text-white-50 leading-tight text-white/60">
+                                                            Des</p>
                                                     </div>
                                                 </div>
                                                 <div class="p-5">
                                                     <div class="mr-10 pr-6">
-                                                        <h3 class="text-lg text-gray-600 dark:text-gray-100">Timeline Event
+                                                        <h3 class="text-lg text-gray-600 dark:text-gray-100">Timeline
+                                                            Event
                                                             Five</h3>
                                                         <p class="mb-0 mt-2 pt-1 text-gray-500 dark:text-zinc-100/80">
                                                             Excepturi, obcaecati, quisquam id
                                                             molestias eaque asperiores voluptatibus cupiditate error
                                                             assumenda delectus odit
                                                             similique earum voluptatem
-                                                            Odit, itaque, deserunt corporis vero ipsum nisi repellat ... <a
+                                                            Odit, itaque, deserunt corporis vero ipsum nisi repellat ...
+                                                            <a
                                                                 href="#" class="text-violet-500">Read more</a></p>
                                                     </div>
                                                 </div>
@@ -261,21 +285,26 @@
                                         <div class="col-span-11 md:col-span-6 order-2 md:order-1">
                                             <div
                                                 class="m-4 border border-gray-50 rounded-lg relative ml-8 md:mr-8 dark:border-zinc-600">
-                                                <div class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 left-5 -top-3 w-14 h-20 bg-violet-500 rounded-md text-center"
+                                                <div
+                                                    class="md:absolute mx-5 mt-5 md:mx-0 md:mt-0 left-5 -top-3 w-14 h-20 bg-violet-500 rounded-md text-center"
                                                     style="clip-path: polygon(0% 0%, 100% 0, 100% 80%, 50% 100%, 0 80%);">
                                                     <div class="p-2">
                                                         <h3 class="text-white">25</h3>
-                                                        <p class="mb-0 text-white-50 leading-tight text-white/60">June</p>
+                                                        <p class="mb-0 text-white-50 leading-tight text-white/60">
+                                                            June</p>
                                                     </div>
                                                 </div>
                                                 <div class="p-5">
                                                     <div class="md:ml-10 md:pl-6 md:text-right">
-                                                        <h3 class="text-lg text-gray-600 dark:text-gray-100">Timeline Event
+                                                        <h3 class="text-lg text-gray-600 dark:text-gray-100">Timeline
+                                                            Event
                                                             End</h3>
                                                         <p class="mb-0 mt-2 pt-1 text-gray-500 dark:text-zinc-100/80">
                                                             Suspendisse tempor porttitor elit non maximus. Sed suscipit,
-                                                            purus in convallis condimentum, risus ex pellentesque sapien,
-                                                            vel tempor arcu dolor ut est. Nam ac felis id mauris fermentum
+                                                            purus in convallis condimentum, risus ex pellentesque
+                                                            sapien,
+                                                            vel tempor arcu dolor ut est. Nam ac felis id mauris
+                                                            fermentum
                                                             nisl pharetra auctor.</p>
                                                     </div>
                                                 </div>
@@ -312,9 +341,11 @@
                                     <div
                                         class="mt-12 border border-gray-50 rounded-lg relative inline-block dark:border-zinc-600">
                                         <div class="p-5">
-                                            <h3 class="text-lg text-gray-600 dark:text-gray-100">Launched our company on 21
+                                            <h3 class="text-lg text-gray-600 dark:text-gray-100">Launched our company on
+                                                21
                                                 June 2021</h3>
-                                            <p class="text-gray-500 dark:text-zinc-100/80 mt-1 mb-0">Pellentesque sapien ut
+                                            <p class="text-gray-500 dark:text-zinc-100/80 mt-1 mb-0">Pellentesque sapien
+                                                ut
                                                 est.</p>
                                         </div>
                                         <div

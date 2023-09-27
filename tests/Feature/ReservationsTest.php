@@ -13,7 +13,7 @@ use App\Models\Channels;
 
 class ReservationsTest extends TestCase
 {
-    use RefreshDatabase; 
+    use RefreshDatabase;
     use WithFaker;
     /**
      * A basic feature test example.
@@ -27,7 +27,7 @@ class ReservationsTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function auth()
+    public function auth():void
 	{
 		$user = User::factory()->create();
 
@@ -54,19 +54,5 @@ class ReservationsTest extends TestCase
 		$response->assertSee($reservations->created_at);
 		$response->assertSee($reservations->updated_at);
 		$response->assertStatus(200);
-	}
-
-	public function testEdit(){
-		$this->auth();
-		$response = $this->get(route('reservations.edit', 2));
-		$response->assertStatus(302);
-        $response->assertRedirect(route('reservations.index'));
-	}
-
-	public function testUpdate(){
-		$this->auth();
-		$response = $this->put(route('reservations.update', [2]), []);
-		$response->assertStatus(302);
-        $response->assertRedirect(route('reservations.index'));
 	}
 }

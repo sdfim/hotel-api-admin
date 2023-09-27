@@ -35,13 +35,15 @@
                 <div class="col-span-8 col-start-3">
                     <div class="text-center mb-5">
                         <a href="{{ url('index') }}">
-                            <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-7 mx-auto inline-block"><span
+                            <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
+                                 class="h-7 mx-auto inline-block"><span
                                 class="text-22 align-middle ml-2 font-semibold text-white">UJV</span>
                         </a>
                     </div>
                     <div class="text-center">
                         <h2 class="mt-8 text-white">Let's get started with UJV</h2>
-                        <p class="text-base text-white/50">Donec pede justo fringilla vel aliquet nec vulputate eget arcu.
+                        <p class="text-base text-white/50">Donec pede justo fringilla vel aliquet nec vulputate eget
+                            arcu.
                             In enim justo, rhoncus ut imperdiet a <br> venenatis vitae, justo felis</p>
                     </div>
                     <div class="mt-4">
@@ -51,40 +53,49 @@
                                     <div class=" w-[25%]">
                                         <div class="coming-box relative">
                                             <div class="count-title text-18 font-medium text-white/50 mb-2">Days</div>
-                                            <div class="bg-white px-2 py-6 text-4xl text-gray-600 font-semibold rounded-lg dark:bg-zinc-800 dark:text-gray-100"
+                                            <div
+                                                class="bg-white px-2 py-6 text-4xl text-gray-600 font-semibold rounded-lg dark:bg-zinc-800 dark:text-gray-100"
                                                 id="days">
                                             </div>
                                             <div
                                                 class="absolute text-white block text-4xl font-medium top-[50%] -translate-y-1 -right-5 z-50">
-                                                :</div>
+                                                :
+                                            </div>
                                         </div>
                                     </div>
                                     <div class=" w-[25%]">
                                         <div class="coming-box relative">
                                             <div class="count-title text-18 font-medium text-white/50 mb-2">Hours</div>
-                                            <div class="bg-white px-2 py-6 text-4xl text-gray-600 font-semibold rounded-lg dark:bg-zinc-800 dark:text-gray-100"
+                                            <div
+                                                class="bg-white px-2 py-6 text-4xl text-gray-600 font-semibold rounded-lg dark:bg-zinc-800 dark:text-gray-100"
                                                 id="hours">
                                             </div>
                                             <div
                                                 class="absolute text-white block text-4xl font-medium top-[50%] -translate-y-1 -right-5 z-50">
-                                                :</div>
+                                                :
+                                            </div>
                                         </div>
                                     </div>
                                     <div class=" w-[25%]">
                                         <div class="coming-box relative">
-                                            <div class="count-title text-18 font-medium text-white/50 mb-2">Minutes</div>
-                                            <div class="bg-white px-2 py-6 text-4xl text-gray-600 font-semibold rounded-lg dark:bg-zinc-800 dark:text-gray-100"
+                                            <div class="count-title text-18 font-medium text-white/50 mb-2">Minutes
+                                            </div>
+                                            <div
+                                                class="bg-white px-2 py-6 text-4xl text-gray-600 font-semibold rounded-lg dark:bg-zinc-800 dark:text-gray-100"
                                                 id="minutes">
                                             </div>
                                             <div
                                                 class="absolute text-white block text-4xl font-medium top-[50%] -translate-y-1 -right-5 z-50">
-                                                :</div>
+                                                :
+                                            </div>
                                         </div>
                                     </div>
                                     <div class=" w-[25%]">
                                         <div class="coming-box relative">
-                                            <div class="count-title text-18 font-medium text-white/50 mb-2">Seconds</div>
-                                            <div class="bg-white px-2 py-6 text-4xl text-gray-600 font-semibold rounded-lg dark:bg-zinc-800 dark:text-gray-100"
+                                            <div class="count-title text-18 font-medium text-white/50 mb-2">Seconds
+                                            </div>
+                                            <div
+                                                class="bg-white px-2 py-6 text-4xl text-gray-600 font-semibold rounded-lg dark:bg-zinc-800 dark:text-gray-100"
                                                 id="seconds">
                                             </div>
                                         </div>
@@ -97,8 +108,8 @@
                             <div class="col-span-4 col-start-5">
                                 <form class="flex mt-5 relative">
                                     <input type="text"
-                                        class="form-control w-full py-3 rounded-md placeholder:text-gray-400  placeholder:text-14 pr-14 dark:bg-zinc-800 dark:text-gray-100 dark:border-zinc-600"
-                                        placeholder="Enter your email address">
+                                           class="form-control w-full py-3 rounded-md placeholder:text-gray-400  placeholder:text-14 pr-14 dark:bg-zinc-800 dark:text-gray-100 dark:border-zinc-600"
+                                           placeholder="Enter your email address">
                                     <button
                                         class="py-[10px] px-3 top-1 right-1 text-white rounded-md bg-violet-500 absolute"
                                         type="button"><i class="bx bx-paper-plane align-middle"></i></button>

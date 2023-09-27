@@ -12,12 +12,13 @@
                             <div class="text-center">
                                 <h1 class="text-8xl text-gray-600 mb-3 dark:text-gray-100">5<span
                                         class="text-violet-500 mx-2">0</span>0</h1>
-                                <h3 class="uppercase mb-2 text-gray-600 text-[21px] dark:text-gray-100">Internal Server Error
+                                <h3 class="uppercase mb-2 text-gray-600 text-[21px] dark:text-gray-100">Internal Server
+                                    Error
                                 </h3>
                             </div>
                             <div class="mt-12 text-center">
                                 <a class="btn bg-violet-500 border-transparent focus:ring focus:ring-violet-50 text-white py-2"
-                                    href="{{ url('index') }}">Back to Dashboard</a>
+                                   href="{{ url('index') }}">Back to Dashboard</a>
                             </div>
                         </div>
                         <div class="col-span-8 col-start-3">

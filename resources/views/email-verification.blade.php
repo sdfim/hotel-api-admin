@@ -14,33 +14,36 @@
                         <div class="flex h-[90vh] flex-col">
                             <div class=" mx-auto">
                                 <a href="{{ url('index') }}" class="">
-                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline"> <span
+                                    <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt="" class="h-8 inline">
+                                    <span
                                         class="text-xl align-middle font-medium ltr:ml-2 rtl:mr-2 dark:text-white">UJV</span>
                                 </a>
                             </div>
 
                             <div class="my-auto">
                                 <div>
-                                    <div class=" bg-gray-500/10 h-16 w-16 text-primary text-center mx-auto rounded-full">
+                                    <div
+                                        class=" bg-gray-500/10 h-16 w-16 text-primary text-center mx-auto rounded-full">
                                         <i class="bx bx-mail-send text-3xl leading-[2.2] text-violet-500"></i>
                                     </div>
                                 </div>
 
                                 <div class="text-center mt-6">
                                     <h4 class="text-gray-700 dark:text-gray-100 text-21">Verify your email</h4>
-                                    <p class="text-gray-500 mt-1 dark:text-zinc-100/60">We have sent you verification email
+                                    <p class="text-gray-500 mt-1 dark:text-zinc-100/60">We have sent you verification
+                                        email
                                         example@abc.com, Please check it</p>
                                 </div>
 
                                 <div class="mt-5 text-center">
                                     <a href="{{ url('auth-login') }}"
-                                        class="btn border-transparent bg-violet-500 py-2.5 text-white shadow-md shadow-violet-200 dark:shadow-zinc-600">Verify
+                                       class="btn border-transparent bg-violet-500 py-2.5 text-white shadow-md shadow-violet-200 dark:shadow-zinc-600">Verify
                                         email</a>
                                 </div>
 
                                 <div class="mt-10 text-center">
                                     <p class="text-gray-500 mb-0 dark:text-zinc-100">Didn't receive an email ? <a
-                                            href="#" class="text-primary font-semibold"> Resend </a> </p>
+                                            href="#" class="text-primary font-semibold"> Resend </a></p>
                                 </div>
                             </div>
 
@@ -49,7 +52,8 @@
                                 <p class="text-gray-500 relative mb-5 dark:text-zinc-100">©
                                     <script>
                                         document.write(new Date().getFullYear())
-                                    </script> UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
+                                    </script>
+                                    UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
                                     by Smarty
                                 </p>
                             </div>
@@ -79,12 +83,15 @@
                                     <div class="swiper-wrapper">
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-1.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-3 mb-4">
                                                     <h5 class="font-size-18 text-white">Ilse R. Eaton</h5>
                                                     <p class="mb-0 text-white/50">Manager
@@ -94,12 +101,15 @@
                                         </div>
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-2.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-3 mb-4">
                                                     <h5 class="font-size-18 text-white">Mariya Willam</h5>
                                                     <p class="mb-0 text-white/50">Designer
@@ -109,12 +119,15 @@
                                         </div>
                                         <div class="swiper-slide">
                                             <i class="bx bxs-quote-alt-left text-green-600 text-5xl"></i>
-                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on myself.
-                                                It's a lot more progressing fun than looking back. That's why I ultricies
+                                            <h3 class="mt-4 text-white text-22">“I feel confident imposing change on
+                                                myself.
+                                                It's a lot more progressing fun than looking back. That's why I
+                                                ultricies
                                                 enim at malesuada nibh diam on tortor neaded to throw curve balls.”</h3>
                                             <div class="flex mt-6 mb-10 pt-4">
-                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}" class="h-12 w-12 rounded-full"
-                                                    alt="...">
+                                                <img src="{{ URL::asset('build/images/users/avatar-3.jpg') }}"
+                                                     class="h-12 w-12 rounded-full"
+                                                     alt="...">
                                                 <div class="flex-1 ltr:ml-3 rtl:mr-3 mb-4">
                                                     <h5 class="font-size-18 text-white">Jiya Jons</h5>
                                                     <p class="mb-0 text-white/50">Developer

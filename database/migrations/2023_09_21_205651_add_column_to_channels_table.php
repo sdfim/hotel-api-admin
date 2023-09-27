@@ -4,15 +4,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up(): void
+    public function up (): void
     {
         Schema::table('channels', function (Blueprint $table) {
-			$table->unsignedBigInteger('token_id')->after('description');
+            $table->unsignedBigInteger('token_id')->after('description');
             $table->foreign('token_id')
                 ->references('id')
                 ->on('personal_access_tokens')
@@ -25,11 +24,11 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
+    public function down (): void
     {
         Schema::table('channels', function (Blueprint $table) {
-			$table->dropColumn('token_id');
-			$table->dropColumn('access_token');
+            $table->dropColumn('token_id');
+            $table->dropColumn('access_token');
         });
     }
 };

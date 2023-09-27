@@ -4,9 +4,9 @@ WORKDIR /var/www
 
 #ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN apt-get update && apt-get install -y git zip unzip nginx cron \
-    supervisor && rm -rf /var/lib/apt/lists/*
+    supervisor libicu-dev && rm -rf /var/lib/apt/lists/*
 
-RUN docker-php-ext-install pdo_mysql && docker-php-ext-install mysqli
+RUN docker-php-ext-install pdo_mysql && docker-php-ext-install mysqli && docker-php-ext-configure intl && docker-php-ext-install intl
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 

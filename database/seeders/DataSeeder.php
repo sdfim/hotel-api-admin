@@ -11,7 +11,7 @@ class DataSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run(): void
+    public function run (): void
     {
         //
         $contain = new Contains();

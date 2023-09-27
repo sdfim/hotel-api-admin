@@ -1,4 +1,5 @@
 <?php
+
 namespace Database\Seeders;
 
 use App\Models\Permission;
@@ -11,7 +12,7 @@ class PermissionSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run ()
     {
         $manageUser = new Permission();
         $manageUser->name = 'Admin';

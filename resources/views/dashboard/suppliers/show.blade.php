@@ -14,7 +14,7 @@
                             </div>
                             <div class="mt-6 mb-6">
                                 <x-button-back route="{{ route('suppliers.index') }}" text="Back"
-                                    style="additional-styles" />
+                                               style="additional-styles"/>
                             </div>
                         </div>
                     </div>
@@ -22,22 +22,22 @@
                         <strong>Name:</strong>
                         {{ $suppliers->name }}
                     </div>
-                    <x-section-border />
+                    <x-section-border/>
                     <div class="mt-10 sm:mt-0">
                         <strong>Description:</strong>
                         {{ $suppliers->description }}
                     </div>
-                    <x-section-border />
+                    <x-section-border/>
                     <div class="mt-10 sm:mt-0">
                         <strong>Create:</strong>
                         {{ $suppliers->created_at }}
                     </div>
-                    <x-section-border />
+                    <x-section-border/>
                     <div class="mt-10 sm:mt-0">
                         <strong>Update:</strong>
                         {{ $suppliers->updated_at }}
                     </div>
-                    <x-section-border />
+                    <x-section-border/>
                 </div>
 
             </div>
