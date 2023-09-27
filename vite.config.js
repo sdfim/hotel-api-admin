@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel, { refreshPaths } from 'laravel-vite-plugin';
 import { viteStaticCopy } from 'vite-plugin-static-copy';
-
 import fs from 'fs-extra';
 import path from 'path';
 
@@ -22,7 +21,7 @@ export default defineConfig({
         rollupOptions: {
             output: {
                 assetFileNames: (css) => {
-                    if (css.name.split('.').pop() == 'css') {
+                    if (css.name.split('.').pop() === 'css') {
                         return 'css/' + `[name]` + '.min.' + 'css';
                     } else {
                         return 'icons/' + css.name;
@@ -39,6 +38,7 @@ export default defineConfig({
                 'resources/css/tailwind.css',
                 'resources/css/icons.css',
                 'resources/js/app.js',
+                'resources/js/bootstrap.js',
             ],
             refresh: [
                 ...refreshPaths,
@@ -56,8 +56,8 @@ export default defineConfig({
                     dest: ''
                 },
                 {
-                    src: 'resources/js',
-                    dest: ''
+                    src: 'resources/js/pages',
+                    dest: 'js'
                 },
             ]
         }),

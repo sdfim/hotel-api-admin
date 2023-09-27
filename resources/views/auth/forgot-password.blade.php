@@ -27,7 +27,7 @@
                                 </div>
 
                                 <div class="px-5 py-3 bg-green-500/10  border-2 border-green-500/30 rounded">
-                                    <p class="text-green-500">Enter your Email and instructions will be sent to you!</p> 
+                                    <p class="text-green-500">Enter your Email and instructions will be sent to you!</p>
                                 </div>
 
                                 @if (session('status'))
@@ -156,5 +156,5 @@
 
     <script src="{{ URL::asset('build/js/pages/login.init.js') }}"></script>
 
-    <script src="{{ URL::asset('build/js/app.js') }}"></script>
+    @vite(['resources/js/app.js'])
 @endsection

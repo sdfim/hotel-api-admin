@@ -56,15 +56,17 @@ class ReservationsTest extends TestCase
 		$response->assertStatus(200);
 	}
 
-	/*
-	public function testCancelReservations()
-	{
+	public function testEdit(){
 		$this->auth();
-		$contain = Contains::factory()->create();
-		$channel = Channels::factory()->create();
-		$reservations = Reservations::factory()->create(['contains_id' => $contain->id, 'channel_id' => $channel->id]);
-		$response = $this->followingRedirects()->get("/admin/reservations/cancel/{$reservations->id}");
-		$response->assertStatus(200);
+		$response = $this->get(route('reservations.edit', 2));
+		$response->assertStatus(302);
+        $response->assertRedirect(route('reservations.index'));
 	}
-	*/
+
+	public function testUpdate(){
+		$this->auth();
+		$response = $this->put(route('reservations.update', [2]), []);
+		$response->assertStatus(302);
+        $response->assertRedirect(route('reservations.index'));
+	}
 }

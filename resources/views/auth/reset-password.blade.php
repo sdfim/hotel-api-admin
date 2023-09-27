@@ -215,5 +215,5 @@
 
     <script src="{{ URL::asset('build/js/pages/login.init.js') }}"></script>
 
-    <script src="{{ URL::asset('build/js/app.js') }}"></script>
+    @vite(['resources/js/app.js'])
 @endsection
