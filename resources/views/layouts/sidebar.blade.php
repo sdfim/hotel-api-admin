@@ -6,20 +6,6 @@
         <!--- Sidemenu -->
         <div id="sidebar-menu">
             <!-- Left Menu Start -->
-            @role('admin')
-            <div style="text-align:center">
-                <h3>
-                    <b>Admin</b>
-                </h3>
-            </div>
-            @endrole
-            @role('user')
-            <div style="text-align:center">
-                <h3>
-                    <b>User</b>
-                </h3>
-            </div>
-            @endrole
             <ul class="metismenu" id="side-menu">
                 <li>
                     <a href="javascript: void(0);" aria-expanded="false"

@@ -16,7 +16,7 @@
         window.onload = function () {
             if (window.innerWidth >= 1024 && window.innerWidth <= 1366) {
                 document.body.setAttribute('data-sidebar-size', 'sm');
-                updateRadio('sidebar-size-small')
+               // updateRadio('sidebar-size-small')
             }
         }
         var verticalButton = document.getElementsByClassName("vertical-menu-btn");
