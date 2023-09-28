@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Carbon\Carbon;
 
 class TestCommand extends Command
 {
@@ -25,7 +26,8 @@ class TestCommand extends Command
      */
     public function handle()
     {
-		$this->info('test-command successful');
+		$currentTime = Carbon::now('UTC');
+		$this->info('test-command successful, UTC: ' . $currentTime);
 
     }
 }
