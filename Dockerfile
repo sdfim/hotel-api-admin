@@ -1,13 +1,4 @@
-FROM node:18-bookworm as npmbuild
-
-RUN mkdir -p /app
-WORKDIR /app
-
-COPY . /app/
-
-RUN npm i && npm run build
-
-FROM php:8.2-apache-bookworm
+FROM php:8.2-apache-bookworm as baseapache2
 
 RUN apt-get update && apt-get install -y git zip unzip libicu-dev && rm -rf /var/lib/apt/lists/*
 
@@ -19,11 +10,23 @@ RUN a2enmod rewrite headers
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 COPY . /var/www/html
+
+RUN composer install --no-dev --optimize-autoloader
+
+FROM node:18-bookworm as npmbuild
+
+RUN mkdir -p /app
+WORKDIR /app
+
+COPY --from=baseapache2 /var/www/html/ /app/
+
+RUN npm i && npm run build
+
+FROM baseapache2
+
 COPY --from=npmbuild /app/public/build/ /var/www/html/public/build/
 
 WORKDIR /var/www/html
-
-RUN composer install --no-dev --optimize-autoloader
 
 RUN chown -R www-data:www-data /var/www/html
 RUN mv .env.example .env
