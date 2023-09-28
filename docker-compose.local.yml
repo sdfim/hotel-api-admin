@@ -69,6 +69,8 @@ services:
     volumes:
       - 'ujv-mysql:/var/lib/mysql'
       - './docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql'
+      - './copy-tables-structure-to-another-db:/opt/copy-tables-structure-to-another-db.sh'
+      - './copy-tables-structure-with-data-to-another-db:/opt/copy-tables-structure-with-data-to-another-db'
     healthcheck:
       test:
         - CMD
