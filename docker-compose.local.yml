@@ -61,14 +61,14 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MYSQL_DATABASE: ujv
+      MYSQL_ROOT_PASSWORD: mysqlpasswdroot
       MYSQL_USER: admin
       MYSQL_PASSWORD: mysqlsecretpasswd
-      MYSQL_ROOT_PASSWORD: mysqlpasswdroot
     networks:
       - ujv-network
     volumes:
       - 'ujv-mysql:/var/lib/mysql'
+      - './docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql'
     healthcheck:
       test:
         - CMD
