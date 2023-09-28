@@ -32,7 +32,7 @@
                         </div>
                     @endif
 
-                    <form action="{{ route('weight.store') }}" method="POST">
+                    <form action="{{ route('weight.store') }}" method="POST" x-data="{ submitButtonDisable: false  }" @submit="submitButtonDisable = true">
                         @csrf
                         <div class="col-span-12 lg:col-span-6">
                             <div class="mb-4">
@@ -66,7 +66,7 @@
                             </div>
 
                             <div class="mt-6">
-                                <x-button>
+                                <x-button  x-bind:disabled="submitButtonDisable">
                                     Submit
                                 </x-button>
                             </div>

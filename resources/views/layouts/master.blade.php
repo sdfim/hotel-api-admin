@@ -36,7 +36,7 @@
     @include('layouts.footer')
 </div>
 <!-- rtl-ltr -->
-@include('layouts.rtl-ltr')
+<!-- @include('layouts.rtl-ltr') -->
 <!-- script -->
 @include('layouts.vendor-scripts')
 <!-- Scripts -->
