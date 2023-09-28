@@ -1,1 +1,1 @@
-*/5 * * * * root su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan test-command' > /proc/1/fd/1 2>>/proc/1/fd/2
+55 14 * * * root su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan download-giata-data' > /proc/1/fd/1 2>>/proc/1/fd/2
