@@ -3,7 +3,7 @@ import forms from '@tailwindcss/forms';
 import typography from '@tailwindcss/typography';
 import plugin from 'tailwindcss/plugin';
 // filament tailwind settings
-import preset from './vendor/filament/support/tailwind.config.preset'
+import preset from './vendor/filament/support/tailwind.config.preset';
 
 /** @type {import('tailwindcss').Config} */
 export default {
