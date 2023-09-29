@@ -13,7 +13,7 @@ class PricingRules extends Model
         'name', 'property', 'destination', 'travel_date', 'datetime', 'days', 'nights', 'supplier_id', 'rate_code', 'room_type', 'total_guests', 'room_guests', 'number_rooms', 'meal_plan', 'rating'
     ];
 
-    public function suppliers ()
+    public function suppliers()
     {
         return $this->belongsTo(Suppliers::class, 'supplier_id');
     }

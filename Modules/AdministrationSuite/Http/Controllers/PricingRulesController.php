@@ -34,7 +34,7 @@ class PricingRulesController extends Controller
      */
     public function index (): View
     {
-        return view('pricingRules.index');
+        return view('dashboard.pricing-rules.index');
     }
 
     /**
@@ -44,7 +44,7 @@ class PricingRulesController extends Controller
     {
         $text = $this->message;
         $suppliers = Suppliers::all()->pluck('name', 'id')->toArray();
-        return view('pricingRules.create', compact('suppliers', 'text'));
+        return view('dashboard.pricing-rules.create', compact('suppliers', 'text'));
     }
 
     /**
@@ -66,7 +66,7 @@ class PricingRulesController extends Controller
         $text = $this->message;
         $pricingRule = PricingRules::findOrFail($id);
 
-        return view('pricingRules.show', compact('pricingRule', 'text'));
+        return view('dashboard.pricing-rules.show', compact('pricingRule', 'text'));
     }
 
     /**
@@ -78,7 +78,7 @@ class PricingRulesController extends Controller
         $pricingRule = PricingRules::findOrFail($id);
         $suppliers = Suppliers::all();
 
-        return view('pricingRules.edit', compact('pricingRule', 'suppliers', 'text'));
+        return view('dashboard.pricing-rules.edit', compact('pricingRule', 'suppliers', 'text'));
     }
 
     /**
