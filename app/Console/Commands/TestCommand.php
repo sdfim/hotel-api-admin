@@ -24,10 +24,10 @@ class TestCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle ()
     {
-		$currentTime = Carbon::now('UTC');
-		$this->info('test-command successful, UTC: ' . $currentTime);
+        $currentTime = Carbon::now('UTC');
+        $this->info('test-command successful, UTC: ' . $currentTime);
 
     }
 }

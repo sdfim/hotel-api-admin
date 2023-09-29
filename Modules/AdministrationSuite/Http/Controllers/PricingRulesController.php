@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class PricingRulesController extends Controller
 {
     private $message = ['create' => 'Add New Pricing Rules', 'edit' => 'Edit Pricing Rules', 'show' => 'Show Pricing Rules'];
-    
+
     private $validate = [
         'name' => 'bail|required|string|max:190',
         'property' => 'bail|required|string|max:190',
@@ -32,7 +32,7 @@ class PricingRulesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index (): View
     {
         return view('pricingRules.index');
     }
@@ -40,7 +40,7 @@ class PricingRulesController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create ()
     {
         $text = $this->message;
         $suppliers = Suppliers::all()->pluck('name', 'id')->toArray();
@@ -50,7 +50,7 @@ class PricingRulesController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
+    public function store (Request $request): RedirectResponse
     {
         $request->validate($this->validate);
         PricingRules::create($request->all());
@@ -61,7 +61,7 @@ class PricingRulesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id): View
+    public function show (string $id): View
     {
         $text = $this->message;
         $pricingRule = PricingRules::findOrFail($id);
@@ -72,7 +72,7 @@ class PricingRulesController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id): View
+    public function edit (string $id): View
     {
         $text = $this->message;
         $pricingRule = PricingRules::findOrFail($id);
@@ -84,7 +84,7 @@ class PricingRulesController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id): RedirectResponse
+    public function update (Request $request, string $id): RedirectResponse
     {
         $pricingRules = PricingRules::findOrFail($id);
         $request->validate($this->validate);
@@ -97,7 +97,7 @@ class PricingRulesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id): RedirectResponse
+    public function destroy (string $id): RedirectResponse
     {
         $pricingRules = PricingRules::findOrFail($id);
         $pricingRules->delete();

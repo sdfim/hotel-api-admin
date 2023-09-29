@@ -8,7 +8,7 @@ use Illuminate\View\View;
 class ReservationsController extends Controller
 {
     private $message = ['create' => 'Add New Reservations', 'edit' => 'Edit Reservations', 'show' => 'Show Reservations'];
-    
+
     /**
      * Display a listing of the resource.
      */

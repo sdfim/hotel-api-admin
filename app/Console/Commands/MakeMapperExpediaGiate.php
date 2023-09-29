@@ -22,32 +22,32 @@ class MakeMapperExpediaGiate extends Command
      * @var string
      */
     protected $description = 'Command description';
-	private const BATCH_SIZE = 100;
+    private const BATCH_SIZE = 100;
 
     /**
      * Execute the console command.
      */
-    public function handle()
-    {	
-		$batch = 1;
-		$mapper = [];
+    public function handle ()
+    {
+        $batch = 1;
+        $mapper = [];
         $arrExpedia = ExpediaContent::select('property_id', 'name')->get()->toArray();
-		foreach ($arrExpedia as $expedia) {
-			$giata = GiataProperty::where('name', $expedia['name'])->get()->toArray();
-			if ($giata) {
-				foreach ($giata as $giataItem) {
-					$this->info('Expedia: ' . $expedia['property_id'] . ' - ' . $expedia['name'] . ' - ' . $giataItem['code'] . ' - ' . $giataItem['name']);
-					$batch++;
-					$mapper[] = [
-						'expedia_id' => $expedia['property_id'],
-						'giata_id' => $giataItem['code'],
-					];
-				}
-			}
-			if ($batch % self::BATCH_SIZE == 0) {
-				MapperExpediaGiata::insert($mapper);
-				$mapper = [];
-			}
-		}
+        foreach ($arrExpedia as $expedia) {
+            $giata = GiataProperty::where('name', $expedia['name'])->get()->toArray();
+            if ($giata) {
+                foreach ($giata as $giataItem) {
+                    $this->info('Expedia: ' . $expedia['property_id'] . ' - ' . $expedia['name'] . ' - ' . $giataItem['code'] . ' - ' . $giataItem['name']);
+                    $batch++;
+                    $mapper[] = [
+                        'expedia_id' => $expedia['property_id'],
+                        'giata_id' => $giataItem['code'],
+                    ];
+                }
+            }
+            if ($batch % self::BATCH_SIZE == 0) {
+                MapperExpediaGiata::insert($mapper);
+                $mapper = [];
+            }
+        }
     }
 }

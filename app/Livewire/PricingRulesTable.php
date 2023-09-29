@@ -23,7 +23,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table(Table $table): Table
+    public function table (Table $table): Table
     {
         return $table
             ->query(PricingRules::query())
@@ -96,7 +96,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render(): View
+    public function render (): View
     {
         return view('livewire.pricing-rules-table');
     }
