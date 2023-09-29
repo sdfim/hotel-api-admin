@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 
 class SuppliersController extends Controller
 {
+    private $message = ['create' => 'Add New Suppliers', 'edit' => 'Edit Suppliers', 'show' => 'Show Suppliers'];
+    
     private $validate = [
         'name' => 'bail|required|string|max:190',
         'description' => 'bail|required|string|max:190'
@@ -17,28 +19,25 @@ class SuppliersController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index (): View
+    public function index(): View
     {
-        $pageCount = 5;
-        $suppliers = Suppliers::latest()->paginate($pageCount);
-        $startNumber = ($suppliers->currentPage() - 1) * $suppliers->perPage() + 1;
-
-        return view('dashboard.suppliers.index', compact('suppliers', 'startNumber'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
+        return view('dashboard.suppliers.index');
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create ()
+    public function create()
     {
+        $text = $this->message;
         $suppliers = Suppliers::all();
-        return view('dashboard.suppliers.create', compact('suppliers'));
+        return view('dashboard.suppliers.create', compact('suppliers', 'text'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store (Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $request->validate($this->validate);
         Suppliers::create($request->all());
@@ -49,27 +48,29 @@ class SuppliersController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show (string $id): View
+    public function show(string $id): View
     {
+        $text = $this->message;
         $suppliers = Suppliers::findOrFail($id);
 
-        return view('dashboard.suppliers.show', compact('suppliers'));
+        return view('dashboard.suppliers.show', compact('suppliers', 'text'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit (string $id): View
+    public function edit(string $id): View
     {
+        $text = $this->message;
         $suppliers = Suppliers::findOrFail($id);
 
-        return view('dashboard.suppliers.edit', compact('suppliers'));
+        return view('dashboard.suppliers.edit', compact('suppliers', 'text'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update (Request $request, string $id): RedirectResponse
+    public function update(Request $request, string $id): RedirectResponse
     {
         $suppliers = Suppliers::findOrFail($id);
         $request->validate($this->validate);
@@ -82,7 +83,7 @@ class SuppliersController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy (string $id): RedirectResponse
+    public function destroy(string $id): RedirectResponse
     {
         $suppliers = Suppliers::findOrFail($id);
         $suppliers->delete();

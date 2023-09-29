@@ -25,24 +25,33 @@
 <!-- sidebar -->
 @include('layouts.sidebar')
 
-<div class="main-content">
-    <div class="page-content dark:bg-zinc-700 min-h-screen">
-        <div class="container-fluid px-[0.625rem]">
-            <!-- content -->
-            @yield('content')
+    <div class="main-content">
+
+        <div class="page-content dark:bg-zinc-700 min-h-screen">
+            @if (session('success'))
+                <x-flash-message :message="session('success')" />
+            @endif
+
+            @if (session('error'))
+                <x-flash-message type="error" :message="session('error')" />
+            @endif
+
+            <div class="container-fluid px-[0.625rem]">
+                <!-- content -->
+                @yield('content')
+            </div>
         </div>
+        <!-- footer -->
+        @include('layouts.footer')
     </div>
-    <!-- footer -->
-    @include('layouts.footer')
-</div>
-<!-- rtl-ltr -->
-<!-- @include('layouts.rtl-ltr') -->
-<!-- script -->
-@include('layouts.vendor-scripts')
-<!-- Scripts -->
-@livewireScripts
-@filamentScripts
-@vite(['resources/js/app.js'])
-<script src="https:://unpkg.com/alpinejs" defer></script>
+    <!-- rtl-ltr -->
+    @include('layouts.rtl-ltr')
+    <!-- script -->
+    @include('layouts.vendor-scripts')
+    <!-- Scripts -->
+    @livewireScripts
+    @filamentScripts
+    @vite(['resources/js/app.js'])
+    <script src="https:://unpkg.com/alpinejs" defer></script>
 </body>
 </html>

@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 
 class PricingRulesController extends Controller
 {
+    private $message = ['create' => 'Add New Pricing Rules', 'edit' => 'Edit Pricing Rules', 'show' => 'Show Pricing Rules'];
+    
     private $validate = [
         'name' => 'bail|required|string|max:190',
         'property' => 'bail|required|string|max:190',
@@ -30,28 +32,25 @@ class PricingRulesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index (): View
+    public function index(): View
     {
-        $pageCount = 2;
-        $pricingRules = PricingRules::latest()->paginate($pageCount);
-        $startNumber = ($pricingRules->currentPage() - 1) * $pricingRules->perPage() + 1;
-
-        return view('pricingRules.index', compact('pricingRules', 'startNumber'))->with('1', (request()->input('page', 1) - 1) * $pageCount);
+        return view('pricingRules.index');
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create ()
+    public function create()
     {
-        $suppliers = Suppliers::all();
-        return view('pricingRules.create', compact('suppliers'));
+        $text = $this->message;
+        $suppliers = Suppliers::all()->pluck('name', 'id')->toArray();
+        return view('pricingRules.create', compact('suppliers', 'text'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store (Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $request->validate($this->validate);
         PricingRules::create($request->all());
@@ -62,28 +61,30 @@ class PricingRulesController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show (string $id): View
+    public function show(string $id): View
     {
+        $text = $this->message;
         $pricingRule = PricingRules::findOrFail($id);
 
-        return view('pricingRules.show', compact('pricingRule'));
+        return view('pricingRules.show', compact('pricingRule', 'text'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit (string $id): View
+    public function edit(string $id): View
     {
+        $text = $this->message;
         $pricingRule = PricingRules::findOrFail($id);
         $suppliers = Suppliers::all();
 
-        return view('pricingRules.edit', compact('pricingRule', 'suppliers'));
+        return view('pricingRules.edit', compact('pricingRule', 'suppliers', 'text'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update (Request $request, string $id): RedirectResponse
+    public function update(Request $request, string $id): RedirectResponse
     {
         $pricingRules = PricingRules::findOrFail($id);
         $request->validate($this->validate);
@@ -96,7 +97,7 @@ class PricingRulesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy (string $id): RedirectResponse
+    public function destroy(string $id): RedirectResponse
     {
         $pricingRules = PricingRules::findOrFail($id);
         $pricingRules->delete();

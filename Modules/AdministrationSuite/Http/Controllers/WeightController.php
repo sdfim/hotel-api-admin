@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 
 class WeightController extends Controller
 {
+    private $message = ['create' => 'Add New Weight', 'edit' => 'Edit Weight', 'show' => 'Show Weight'];
     private $validate = [
         'property' => 'bail|required|integer',
         'supplier_id' => 'bail|nullable|integer',
@@ -19,7 +20,7 @@ class WeightController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index (): View
+    public function index(): View
     {
         return view('dashboard.weight.index');
     }
@@ -27,7 +28,7 @@ class WeightController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create (): View
+    public function create(): View
     {
         $suppliers = Suppliers::all();
         $array_suppliers = ['' => 'Select supplier'];
@@ -36,14 +37,14 @@ class WeightController extends Controller
         }
 
         return view('dashboard.weight.create', [
-            'suppliers' => $array_suppliers,
+            'suppliers' => $array_suppliers, 'text' => $this->message
         ]);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store (Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $request->validate($this->validate);
         Weights::create($request->all());
@@ -54,17 +55,18 @@ class WeightController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show (string $id): View
+    public function show(string $id): View
     {
+        $text = $this->message;
         $weight = Weights::findOrFail($id);
 
-        return view('dashboard.weight.show', compact('weight'));
+        return view('dashboard.weight.show', compact('weight', 'text'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit (string $id): View
+    public function edit(string $id): View
     {
         $weight = Weights::findOrFail($id);
         $suppliers = Suppliers::all();
@@ -78,7 +80,7 @@ class WeightController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update (Request $request, string $id): RedirectResponse
+    public function update(Request $request, string $id): RedirectResponse
     {
         $suppliers = Weights::findOrFail($id);
         $request->validate($this->validate);
@@ -91,7 +93,7 @@ class WeightController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy (string $id): RedirectResponse
+    public function destroy(string $id): RedirectResponse
     {
         $suppliers = Weights::findOrFail($id);
         $suppliers->delete();

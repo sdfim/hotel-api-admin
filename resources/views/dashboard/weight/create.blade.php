@@ -20,19 +20,9 @@
                             </div>
                         </div>
                     </div>
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <strong>Whoops!</strong>
-                            <p>There were some problems with your input.</p>
-                            <ul>
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
 
-                    <form action="{{ route('weight.store') }}" method="POST" x-data="{ submitButtonDisable: false  }" @submit="submitButtonDisable = true">
+                    <form action="{{ route('weight.store') }}" method="POST" x-data="{ inputProperty: '{{ old('property') }}', submitButtonDisable: false }"
+                        @submit="submitButtonDisable = true">
                         @csrf
                         <div class="col-span-12 lg:col-span-6">
                             <div class="mb-4">
@@ -66,8 +56,8 @@
                             </div>
 
                             <div class="mt-6">
-                                <x-button  x-bind:disabled="submitButtonDisable">
-                                    Submit
+                                <x-button class="ml-4" x-bind:disabled="submitButtonDisable">
+                                    {{ __('Create') }}
                                 </x-button>
                             </div>
                         </div>

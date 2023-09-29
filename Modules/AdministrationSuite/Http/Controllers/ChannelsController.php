@@ -6,43 +6,33 @@ use App\Models\Channels;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class ChannelsController extends Controller
 {
+
+    private $message = ['create' => 'Add New Channel', 'edit' => 'Edit Channel', 'show' => 'Show Channel'];
     /**
      * Display a listing of the resource.
      */
-    public function index (Request $request): View
+    public function index(): View
     {
-        $perPage = $request->query('perPage') ?? 10;
-        $page = $request->query('page') ?? 1;
-
-        $channels = Channels::skip(($page - 1) * $perPage)
-            ->take($perPage)
-            ->get();
-
-        $totalItems = Channels::count();
-
-        $paginator = new LengthAwarePaginator($channels, $totalItems, $perPage, $page);
-        $paginator->setPath(route('channels.index'));
-
-        return view('dashboard.channels.index', compact('channels', 'paginator'));
+        return view('dashboard.channels.index');
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create (): View
+    public function create(): View
     {
-        return view('dashboard.channels.create');
+        $text = $this->message;
+        
+        return view('dashboard.channels.create', compact('text'));
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store (Request $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => 'required|string|max:190',
@@ -67,27 +57,29 @@ class ChannelsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show (string $id): View
+    public function show(string $id): View
     {
         $channel = Channels::findOrFail($id);
+        $text = $this->message;
 
-        return view('dashboard.channels.show', compact('channel'));
+        return view('dashboard.channels.show', compact('channel', 'text'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit (string $id): View
+    public function edit(string $id): View
     {
         $channel = Channels::findOrFail($id);
+        $text = $this->message;
 
-        return view('dashboard.channels.edit', compact('channel'));
+        return view('dashboard.channels.edit', compact('channel', 'text'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update (Request $request, string $id): RedirectResponse
+    public function update(Request $request, string $id): RedirectResponse
     {
         $channel = Channels::findOrFail($id);
         $request->validate([
@@ -103,7 +95,7 @@ class ChannelsController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy (string $id): RedirectResponse
+    public function destroy(string $id): RedirectResponse
     {
         $channels = Channels::findOrFail($id);
         $channels->delete();
