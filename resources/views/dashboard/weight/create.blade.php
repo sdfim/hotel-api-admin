@@ -21,8 +21,9 @@
                         </div>
                     </div>
 
-                    <form action="{{ route('weight.store') }}" method="POST" x-data="{ inputProperty: '{{ old('property') }}', submitButtonDisable: false }"
-                        @submit="submitButtonDisable = true">
+                    <form action="{{ route('weight.store') }}" method="POST"
+                          x-data="{ inputProperty: '{{ old('property') }}', submitButtonDisable: false }"
+                          @submit="submitButtonDisable = true">
                         @csrf
                         <div class="col-span-12 lg:col-span-6">
                             <div class="mb-4">
