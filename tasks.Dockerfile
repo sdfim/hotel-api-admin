@@ -23,6 +23,7 @@ RUN php artisan key:generate
 
 RUN chown -R www-data:www-data /var/www
 RUN chmod +x /var/www/docker/start.sh
+RUN sed -i 's/;clear_env = no/clear_env = no/' /usr/local/etc/php-fpm.d/www.conf
 
 EXPOSE 80
 ENTRYPOINT ["/var/www/docker/start.sh"]
