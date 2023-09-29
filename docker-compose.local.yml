@@ -1,6 +1,5 @@
 version: '3'
 services:
-
   ujv-api:
     build:
       context: .
@@ -8,11 +7,6 @@ services:
     container_name: ujv-api
     restart: unless-stopped
     environment:
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_DATABASE: ujv
-      DB_USERNAME: admin
-      DB_PASSWORD: mysqlsecretpasswd
       REDIS_HOST: redis
       WEB_DOCUMENT_ROOT: /app/public
       WEB_DOCUMENT_INDEX: index.php
