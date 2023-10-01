@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\MapperExpediaGiata;
 
 class ExpediaContent extends Model
 {
@@ -84,5 +85,10 @@ class ExpediaContent extends Model
             }
             return $item;
         });
+    }
+
+	public function mapperGiataExpedia()
+    {
+		return $this->hasMany(MapperExpediaGiata::class, 'expedia_id', 'property_id');
     }
 }

@@ -10,11 +10,16 @@ return new class extends Migration {
      */
     public function up (): void
     {
-        Schema::create('mapper_expedia_giatas', function (Blueprint $table) {
-            $table->id();
-            $table->integer('expedia_id')->index();
-            $table->integer('giata_id')->index();
-        });
+		if (!Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->hasTable('mapper_expedia_giatas')) {
+            Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->create('mapper_expedia_giatas', function (Blueprint $table) {
+				$table->id();
+				$table->integer('expedia_id');
+				$table->integer('giata_id');
+				$table->foreign('giata_id')->references('code')->on(env('SECOND_DB_DATABASE', 'ujv_api').'.giata_properties')->onDelete('cascade');
+				$table->foreign('expedia_id')->references('property_id')->on(env('SECOND_DB_DATABASE', 'ujv_api').'.expedia_contents')->onDelete('cascade');
+				$table->integer('step');
+			});
+		}
     }
 
     /**
@@ -22,6 +27,6 @@ return new class extends Migration {
      */
     public function down (): void
     {
-        Schema::dropIfExists('mapper_expedia_giatas');
+        Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->dropIfExists('mapper_expedia_giatas');
     }
 };
