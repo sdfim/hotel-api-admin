@@ -1,8 +1,10 @@
 <?php
 
-namespace Modules\API\ContentAPI\ExpediaSupplier;
+namespace Modules\API\Suppliers\ExpediaSupplier;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise\PromiseInterface as promise;
+use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\RequestOptions;
 
 class RapidClient
@@ -23,7 +25,7 @@ class RapidClient
     {
         $this->apiKey = $apiKey;
         $this->sharedSecret = $sharedSecret;
-        $this->client = new Client(); // Initialize the client in the constructor
+        $this->client = new Client();
     }
 
     public function get ($path, $queryParameters)
@@ -52,5 +54,23 @@ class RapidClient
         $signature = hash('sha512', $input);
 
         return sprintf(self::AUTHORIZATION_HEADER, $this->apiKey, $signature, $timeStampInSeconds);
+    }
+
+	public function getAsync($path, $queryParameters) :promise
+    {
+        $queryParams = [];
+        foreach ($queryParameters as $key => $value) {
+            $queryParams[$key] = $value;
+        }
+
+        $url = self::RAPID_BASE_URL . '/' . $path . '?' . http_build_query($queryParams);
+
+		$headers = [
+			'Accept-Encoding' => self::GZIP,
+			'Authorization' => $this->generateAuthHeader()
+		];
+		$request = new Request('GET', $url, $headers);
+		return $this->client->sendAsync($request);
+
     }
 }

@@ -20,19 +20,18 @@ class HotelSearchBuilder
         if (isset($filters['rating'])) {
             $this->query->where('rating', '>=', $filters['rating']);
         }
-
-        for ($i = 1; $i <= 3; $i++) {
-            $roomKey = "room{$i}";
-            $total = 0;
-            if (isset($filters[$roomKey])) {
-                $arr = explode('-', $filters[$roomKey]);
-                $total_current = $arr[0] + $arr[1];
-                if ($total < $total_current) {
-                    $total = $total_current;
-                }
-            }
-            $this->query->where('total_occupancy', '>=', $total);
-        }
+ 
+ 		// TODO: add ocuppancy filter
+ 		if (isset($filters['ocuppancy'])) {
+ 			$max_ocuppancy = 1;
+ 			foreach ($filters['ocuppancy'] as $value) {
+ 				$current_ocuppancy = $value['adults'] + ($value['children'] ?? 0);
+ 				if ($current_ocuppancy > $max_ocuppancy) {
+ 					$max_ocuppancy = $current_ocuppancy;
+ 				}
+ 			}
+             $this->query->where('total_occupancy', '>=', $max_ocuppancy);
+         }
 
         return $this->query;
     }

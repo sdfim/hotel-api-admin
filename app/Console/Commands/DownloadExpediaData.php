@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Modules\API\ContentAPI\ExpediaSupplier\RapidClient;
+use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use App\Models\ExpediaContent;

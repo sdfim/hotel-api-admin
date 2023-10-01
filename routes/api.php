@@ -1,8 +1,7 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use Modules\API\ContentAPI\Controllers\ExpediaController;
+use Modules\API\Controllers\RoteApiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,10 +15,11 @@ use Modules\API\ContentAPI\Controllers\ExpediaController;
 */
 
 Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'content'], function () {
-    Route::post('/test', function (Request $request) {
-        dd($request->all());
-        return $request->user();
-    });
-    Route::post('/search', [ExpediaController::class, 'search']);
-    Route::get('/property', [ExpediaController::class, 'property']);
+	Route::post('/search', [RoteApiController::class, 'handle'])->name('search');
+	Route::get('/detail', [RoteApiController::class, 'handle'])->name('detail');
+});
+
+Route::group(['middleware' => 'auth:sanctum'], function () {
+
+	Route::post('/price', [RoteApiController::class, 'handle'])->name('price');
 });
