@@ -3,12 +3,12 @@
 namespace Modules\API\Validate;
 
 use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Foundation\Http\FormRequest as LaravelFormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
-abstract class ApiRequest extends FormRequest
+abstract class ApiRequest extends LaravelFormRequest
 {
     /**
      * Get the validation rules that apply to the request.

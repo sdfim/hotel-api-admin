@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\ContentAPI\ExpediaSupplier;
+namespace Modules\API\ContentAPI\Suppliers\ExpediaSupplier;
 
 use GuzzleHttp\Client;
 
