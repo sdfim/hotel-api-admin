@@ -49,20 +49,26 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                 TextColumn::make('rate_code')
                     ->searchable(),
                 TextColumn::make('room_type')
-                    ->searchable(),
+                    ->searchable()
+					->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('total_guests')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+					->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('room_guests')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+					->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('number_rooms')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+					->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('meal_plan')
-                    ->searchable(),
+                    ->searchable()
+					->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('rating')
-                    ->searchable(),
+                    ->searchable()
+					->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
