@@ -58,6 +58,8 @@ class RapidClient
 
 	public function getAsync($path, $queryParameters) :promise
     {
+		\Log::debug('RapidClient | getAsync | path: ' . $path . ' | queryParameters: ' . json_encode($queryParameters));
+		
         $queryParams = [];
         foreach ($queryParameters as $key => $value) {
             $queryParams[$key] = $value;

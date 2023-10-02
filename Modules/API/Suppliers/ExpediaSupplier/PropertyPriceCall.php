@@ -99,6 +99,8 @@ class PropertyPriceCall
 			}
 		}
 
+		\Log::debug('PropertyPriceCall count ' . count($promises), ['promises' => $promises]);
+
 		try {
 			$responses = Promise\Utils::unwrap($promises);
 			$resolvedResponses = Promise\Utils::settle($promises)->wait();
