@@ -11,6 +11,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
@@ -42,12 +43,10 @@ class CreatePricingRules extends Component implements HasForms
                     ->label('Property')
                     ->searchable()
                     ->getSearchResultsUsing(fn(string $search): array => ExpediaContent::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'property_id')->toArray())
-                    ->getOptionLabelUsing(fn($value): ?string => ExpediaContent::find($value)?->name)
                     ->required(),
                 Select::make('destination')
                     ->searchable()
                     ->getSearchResultsUsing(fn(string $search): array => ExpediaContent::where('city', 'like', "%{$search}%")->limit(20)->pluck('city', 'giata_TTIcode')->toArray())
-                    ->getOptionLabelUsing(fn($value): ?string => ExpediaContent::find($value)?->city)
                     ->required(),
                 DateTimePicker::make('travel_date')
                     ->required(),
@@ -61,9 +60,17 @@ class CreatePricingRules extends Component implements HasForms
                     ->required()
                     ->maxLength(191),
                 Select::make('room_type')
+                    ->options(function (Get $get): array {
+                        $rooms = ExpediaContent::where('property_id', $get('property'))->first(['rooms']);
+                        $options = [];
+                        if ($rooms) {
+                            foreach ($rooms->rooms as $id => $room) {
+                                $options[$id] = $room['name'];
+                            }
+                        }
+                        return $options;
+                    })
                     ->searchable()
-                    ->getSearchResultsUsing(fn(string $search): array => ExpediaContent::where('rooms', 'like', "%{$search}%")->limit(20)->pluck('rooms', 'giata_TTIcode')->toArray())
-                    ->getOptionLabelUsing(fn($value): ?string => ExpediaContent::find($value)?->rooms)
                     ->required(),
                 TextInput::make('total_guests')
                     ->required()
@@ -80,31 +87,32 @@ class CreatePricingRules extends Component implements HasForms
                 TextInput::make('rating')
                     ->required()
                     ->maxLength(191),
-                //total price, net price, rate price
                 Select::make('price_type_to_apply')
                     ->required()
                     ->options([
-                        'total_price' => 'Guest',
-                        'net_price' => 'Per Room',
-                        'rate_price' => 'Per Night',
+                        'total_price' => 'Total Price',
+                        'net_price' => 'Net Price',
+                        'rate_price' => 'Rate Price',
                     ]),
                 Select::make('price_value_type_to_apply')
                     ->required()
                     ->options([
-                        'fixed' => 'Fixed',
+                        'fixed_value' => 'Fixed Value',
                         'percentage,' => 'Percentage',
-                    ]),
+                    ])
+                    ->live(),
                 TextInput::make('price_value_to_apply')
                     ->required()
                     ->numeric(),
-                //show if fixed to price_value_type_to_apply
                 Select::make('price_type_to_apply')
                     ->required()
                     ->options([
                         'guest' => 'Guest',
                         'per_room' => 'Per Room',
                         'per_night' => 'Per Night',
-                    ]),
+                    ])
+                    ->visible(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
+                    ->required(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
             ])
             ->statePath('data')
             ->model(PricingRules::class);

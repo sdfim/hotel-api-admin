@@ -4,10 +4,12 @@ namespace App\Livewire\PricingRules;
 
 use App\Models\PricingRules;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
@@ -71,6 +73,32 @@ class UpdatePricingRules extends Component implements HasForms
                 TextInput::make('rating')
                     ->required()
                     ->maxLength(191),
+                Select::make('price_type_to_apply')
+                    ->required()
+                    ->options([
+                        'total_price' => 'Total Price',
+                        'net_price' => 'Net Price',
+                        'rate_price' => 'Rate Price',
+                    ]),
+                Select::make('price_value_type_to_apply')
+                    ->required()
+                    ->options([
+                        'fixed_value' => 'Fixed Value',
+                        'percentage,' => 'Percentage',
+                    ])
+                    ->live(),
+                TextInput::make('price_value_to_apply')
+                    ->required()
+                    ->numeric(),
+                Select::make('price_type_to_apply')
+                    ->required()
+                    ->options([
+                        'guest' => 'Guest',
+                        'per_room' => 'Per Room',
+                        'per_night' => 'Per Night',
+                    ])
+                    ->visible(fn(Get $get): string => $get('price_value_type_to_apply') === 'fixed_value')
+                    ->required(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
             ])
             ->statePath('data')
             ->model($this->record);
