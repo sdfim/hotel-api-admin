@@ -83,6 +83,8 @@ services:
       - PMA_ARBITRARY=1
     networks:
       - ujv-network
+    depends_on:
+      - mysql
 
 networks:
   ujv-network:
