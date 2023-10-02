@@ -24,10 +24,15 @@ class ExperiaService
 		$propertyIds = $queryIds ?? [];
 
 		\Log::debug('HotelApiHandler | price | step4 | getExpediaPriceByPropertyIds ' , ['client' => $client] );
-
-        $propertyContentCall = new PropertyPriceCall($client, $property);
-        $dataPrice = $propertyContentCall->getPriceData($propertyIds);
-
+		
+		try {
+			$propertyContentCall = new PropertyPriceCall($client, $property);
+        	$dataPrice = $propertyContentCall->getPriceData($propertyIds);
+		} catch (\Exception $e) {
+			\Log::error('HotelApiHandler | getExpediaPriceByPropertyIds' . $e->getMessage());
+			return [];
+		}
+        
 		\Log::debug('HotelApiHandler | price | step5 | getExpediaPriceByPropertyIds ' , ['dataPrice' => $dataPrice] );
 
 		// TODO: Save Data to Redis for Inspector
