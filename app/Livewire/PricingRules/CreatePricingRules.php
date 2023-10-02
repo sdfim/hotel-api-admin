@@ -61,11 +61,14 @@ class CreatePricingRules extends Component implements HasForms
                     ->maxLength(191),
                 Select::make('room_type')
                     ->options(function (Get $get): array {
-                        $rooms = ExpediaContent::where('property_id', $get('property'))->first(['rooms']);
                         $options = [];
-                        if ($rooms) {
-                            foreach ($rooms->rooms as $id => $room) {
-                                $options[$id] = $room['name'];
+                        if($get('property')) {
+                            $rooms = ExpediaContent::where('property_id', $get('property'))->first(['rooms']);
+
+                            if ($rooms) {
+                                foreach ($rooms->rooms as $id => $room) {
+                                    $options[$id] = $room['name'];
+                                }
                             }
                         }
                         return $options;
