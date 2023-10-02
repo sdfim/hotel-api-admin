@@ -12,6 +12,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
@@ -60,7 +61,9 @@ class CreatePricingRules extends Component implements HasForms
                     ->required()
                     ->maxLength(191),
                 Select::make('room_type')
-                    ->options(function (Get $get): array {
+                    ->options(function (Get $get, Set $set): array {
+                        // reset room_type each time especially if property field value was changed
+                        $set('room_type', '');
                         $options = [];
                         if($get('property')) {
                             $rooms = ExpediaContent::where('property_id', $get('property'))->first(['rooms']);
