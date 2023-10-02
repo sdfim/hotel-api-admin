@@ -73,12 +73,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 			$rules = $priceRequest->rules();
 			$filters = Validator::make($request->all(), $rules)->validated();
 
-			\Log::debug('HotelApiHandler | price | step1 ' , ['filters' => $filters] );
-
 			$preSearchData = $this->preSearchData ($request);
 			$filters = $preSearchData['filters'] ?? null;
-
-			\Log::debug('HotelApiHandler | price | step2 ' , ['preSearchData' => $preSearchData] );
 
 			$key = 'search:'.md5(json_encode($filters));
 			if (Cache::has($key)) {
@@ -86,9 +82,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 			} else {
 				# get PriceData from RapidAPI Expedia
 				$priceData = ExperiaService::getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
-
-				\Log::debug('HotelApiHandler | price | step3 ' , ['priceData' => $priceData] );
-
 				# add price to results
 				$output = [];
 				foreach ($preSearchData['results'] as $value) {
@@ -106,7 +99,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             return $this->sendResponse(['count' => count($output), 'results' => $output], 'success');
         } catch (\Exception $e) {
-            \Log::error('HotelApiHandler ' . $e->getMessage());
+            \Log::error('ExpediaController ' . $e->getMessage());
             return $this->sendError(['error' => $e->getMessage()], 'falied');
         }
     }
@@ -130,7 +123,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             return $this->sendResponse(['results' => $results], 'success');
         } catch (\Exception $e) {
-            \Log::error('HotelApiHandler ' . $e->getMessage());
+            \Log::error('ExpediaController ' . $e->getMessage());
             return $this->sendError(['error' => $e->getMessage()], 'falied');
         }
     }

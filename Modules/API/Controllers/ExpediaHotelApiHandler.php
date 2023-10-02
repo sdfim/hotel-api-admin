@@ -39,7 +39,7 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
             $results = $expedia->dtoDbToResponse($results, $fields);
 
 		} catch (\Exception $e) {
-            \Log::error('HotelApiHandler | preSearchData' . $e->getMessage());
+            \Log::error('ExpediaHotelApiHandler | preSearchData' . $e->getMessage());
             return null;
         }
 
@@ -57,7 +57,7 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 			$results = $preSearchData['results'] ?? null;
 			return $this->sendResponse(['count' => count($results), 'results' => $results], 'success');
         } catch (\Exception $e) {
-            \Log::error('HotelApiHandler | search' . $e->getMessage());
+            \Log::error('ExpediaHotelApiHandler | search' . $e->getMessage());
             return $this->sendError(['error' => $e->getMessage()], 'falied');
 		}
 	}
@@ -99,7 +99,7 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 
             return $this->sendResponse(['count' => count($output), 'results' => $output], 'success');
         } catch (\Exception $e) {
-            \Log::error('ExpediaController ' . $e->getMessage());
+            \Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
             return $this->sendError(['error' => $e->getMessage()], 'falied');
         }
     }
@@ -122,7 +122,7 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 
             return $this->sendResponse(['results' => $results], 'success');
         } catch (\Exception $e) {
-            \Log::error('ExpediaController ' . $e->getMessage());
+            \Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
             return $this->sendError(['error' => $e->getMessage()], 'falied');
         }
     }

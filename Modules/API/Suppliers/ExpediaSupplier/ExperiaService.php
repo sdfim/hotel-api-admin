@@ -22,18 +22,17 @@ class ExperiaService
         $property['checkout'] = $query['checkout'] ?? date('Y-m-d', strtotime(date("Y-m-d") . ' +2 days'));
         $property['occupancy'] = $query['occupancy'] ?? ["2"];
 		$propertyIds = $queryIds ?? [];
-
-		\Log::debug('HotelApiHandler | price | step4 | getExpediaPriceByPropertyIds ' , ['client' => $client] );
 		
 		try {
-			$propertyContentCall = new PropertyPriceCall($client, $property);
-        	$dataPrice = $propertyContentCall->getPriceData($propertyIds);
+			$propertyPriceCall = new PropertyPriceCall($client, $property);
+			\Log::debug('ExpediaHotelApiHandler | price | step1 | getExpediaPriceByPropertyIds ' );
+        	$dataPrice = $propertyPriceCall->getPriceData($propertyIds);
 		} catch (\Exception $e) {
-			\Log::error('HotelApiHandler | getExpediaPriceByPropertyIds' . $e->getMessage());
+			\Log::error('ExpediaHotelApiHandler | getExpediaPriceByPropertyIds' . $e->getMessage());
 			return [];
 		}
         
-		\Log::debug('HotelApiHandler | price | step5 | getExpediaPriceByPropertyIds ' , ['dataPrice' => $dataPrice] );
+		\Log::debug('ExpediaHotelApiHandler | price | step2 | getExpediaPriceByPropertyIds ' , ['dataPrice' => $dataPrice] );
 
 		// TODO: Save Data to Redis for Inspector
         Cache::put('dataPriceAll', json_encode($dataPrice), 3600);

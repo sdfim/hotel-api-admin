@@ -88,6 +88,10 @@ class PropertyPriceCall
 			$this->propertyId = $propertyId;
 			$queryParameters = $this->queryParameters();
 
+			\Log::debug('ExpediaHotelApiHandler | price | step1 | getPriceData ',
+				['propertyId' => $propertyId, 'queryParameters' => $queryParameters]
+			);
+
 			try {
 				$promises[$propertyId] = $this->client->getAsync(self::PROPERTY_CONTENT_PATH, $queryParameters);
 			} catch (Exception $e) {
