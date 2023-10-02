@@ -62,7 +62,7 @@ class CreatePricingRules extends Component implements HasForms
                     ->maxLength(191),
                 Select::make('room_type')
                     ->options(function (Get $get, Set $set): array {
-                        // reset room_type each time especially if property field value was changed
+                        // reset room_type value each time to prevent storing room types for a previous selected property
                         $set('room_type', '');
                         $options = [];
                         if($get('property')) {
