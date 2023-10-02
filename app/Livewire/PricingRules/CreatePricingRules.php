@@ -2,8 +2,13 @@
 
 namespace App\Livewire\PricingRules;
 
+use App\Models\ExpediaContent;
 use App\Models\PricingRules;
+use App\Models\Suppliers;
 use Filament\Forms;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -25,47 +30,82 @@ class CreatePricingRules extends Component implements HasForms
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('supplier_id')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('property')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('destination')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\DateTimePicker::make('travel_date')
+                Select::make('supplier_id')
+                    ->label('Supplier')
+                    ->options(Suppliers::all()->pluck('name', 'id'))
+                    ->searchable()
                     ->required(),
-                Forms\Components\TextInput::make('days')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('nights')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('rate_code')
+                TextInput::make('name')
                     ->required()
                     ->maxLength(191),
-                Forms\Components\TextInput::make('room_type')
-                    ->required()
-                    ->maxLength(191),
-                Forms\Components\TextInput::make('total_guests')
+                Select::make('property')
+                    ->label('Property')
+                    ->searchable()
+                    ->getSearchResultsUsing(fn (string $search): array => ExpediaContent::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'property_id')->toArray())
+                    ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->name)
+                    ->required(),
+                Select::make('destination')
+                    ->searchable()
+                    ->getSearchResultsUsing(fn (string $search): array => ExpediaContent::where('city', 'like', "%{$search}%")->limit(20)->pluck('city', 'giata_TTIcode')->toArray())
+                    ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->city)
+                    ->required(),
+                DateTimePicker::make('travel_date')
+                    ->required(),
+                TextInput::make('days')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('room_guests')
+                TextInput::make('nights')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('number_rooms')
+                TextInput::make('rate_code')
+                    ->required()
+                    ->maxLength(191),
+                Select::make('room_type')
+                    ->searchable()
+                    ->getSearchResultsUsing(fn (string $search): array => ExpediaContent::where('rooms', 'like', "%{$search}%")->limit(20)->pluck('rooms', 'giata_TTIcode')->toArray())
+                    ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->rooms)
+                    ->required(),
+                TextInput::make('total_guests')
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('meal_plan')
+                TextInput::make('room_guests')
+                    ->required()
+                    ->numeric(),
+                TextInput::make('number_rooms')
+                    ->required()
+                    ->numeric(),
+                TextInput::make('meal_plan')
                     ->required()
                     ->maxLength(191),
-                Forms\Components\TextInput::make('rating')
+                TextInput::make('rating')
                     ->required()
                     ->maxLength(191),
+                //total price, net price, rate price
+                Select::make('price_type_to_apply')
+                    ->required()
+                    ->options([
+                        'total_price' => 'Guest',
+                        'net_price' => 'Per Room',
+                        'rate_price' => 'Per Night',
+                    ]),
+                Select::make('price_value_type_to_apply')
+                    ->required()
+                    ->options([
+                        'fixed' => 'Fixed',
+                        'percentage,' => 'Percentage',
+                    ]),
+
+                TextInput::make('price_value_to_apply')
+                    ->required()
+                    ->numeric(),
+                //show if fixed to price_value_type_to_apply
+                Select::make('price_type_to_apply')
+                    ->required()
+                    ->options([
+                        'guest' => 'Guest',
+                        'per_room' => 'Per Room',
+                        'per_night' => 'Per Night',
+                    ]),
             ])
             ->statePath('data')
             ->model(PricingRules::class);
@@ -82,7 +122,6 @@ class CreatePricingRules extends Component implements HasForms
 
     public function render(): View
     {
-       // print_r('dddddd');die;
         return view('livewire.pricing-rules.create-pricing-rules');
     }
 }

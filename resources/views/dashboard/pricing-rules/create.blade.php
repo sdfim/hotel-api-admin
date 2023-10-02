@@ -17,7 +17,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-span-9 xl:col-span-6">
+                    <div class="ml-1 mr-1 col-span-9 xl:col-span-6">
                         @livewire('pricing-rules.create-pricing-rules')
                     </div>
                     <form action="{{ route('pricing_rules.store') }}" method="POST" x-data="{ inputName: '{{ old('name') }}', submitButtonDisable: false }"

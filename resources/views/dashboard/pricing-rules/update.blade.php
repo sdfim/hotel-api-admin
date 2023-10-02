@@ -18,6 +18,9 @@
                             </div>
                         </div>
                     </div>
+                    <div class="ml-1 mr-1 col-span-9 xl:col-span-6">
+                        @livewire('pricing-rules.update-pricing-rules', ['pricingRule' => $pricingRule])
+                    </div>
                     <form action="{{ route('pricing_rules.update', $pricingRule->id) }}" method="POST"
                           x-data="{ inputName: '{{ old('name', $pricingRule->name) }}', submitButtonDisable: false }"
                           @submit="submitButtonDisable = true">

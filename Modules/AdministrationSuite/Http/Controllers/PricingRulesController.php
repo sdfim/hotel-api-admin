@@ -78,7 +78,7 @@ class PricingRulesController extends Controller
         $pricingRule = PricingRules::findOrFail($id);
         $suppliers = Suppliers::all();
 
-        return view('dashboard.pricing-rules.edit', compact('pricingRule', 'suppliers', 'text'));
+        return view('dashboard.pricing-rules.update', compact('pricingRule', 'suppliers', 'text'));
     }
 
     /**
