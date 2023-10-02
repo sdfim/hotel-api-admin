@@ -40,7 +40,7 @@ class PricingRulesController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create ()
+    public function create (): View
     {
         $text = $this->message;
         $suppliers = Suppliers::all()->pluck('name', 'id')->toArray();

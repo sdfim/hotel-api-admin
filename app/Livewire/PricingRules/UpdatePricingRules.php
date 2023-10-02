@@ -1,17 +1,16 @@
 <?php
 
-namespace App\Livewire\pricingRules;
+namespace App\Livewire\PricingRules;
 
 use App\Models\PricingRules;
-use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
 
 class UpdatePricingRules extends Component implements HasForms
 {
@@ -21,15 +20,13 @@ class UpdatePricingRules extends Component implements HasForms
 
     public PricingRules $record;
 
-    public function mount(PricingRules $pricingRule): void
+    public function mount (PricingRules $pricingRule): void
     {
-       // dd($pricingRule);
-        //$this->form->fill($pricingRule->attributes);
-        $this->record = $pricingRule; //PricingRules::find($request->route()->parameter('pricing_rule'));
+        $this->record = $pricingRule;
         $this->form->fill($this->record->attributesToArray());
     }
 
-    public function form(Form $form): Form
+    public function form (Form $form): Form
     {
         return $form
             ->schema([
@@ -79,14 +76,19 @@ class UpdatePricingRules extends Component implements HasForms
             ->model($this->record);
     }
 
-    public function edit(): void
+    public function edit (): void
     {
         $data = $this->form->getState();
 
         $this->record->update($data);
+
+        Notification::make()
+            ->title('Updated successfully')
+            ->success()
+            ->send();
     }
 
-    public function render(): View
+    public function render (): View
     {
         return view('livewire.pricing-rules.update-pricing-rules');
     }
