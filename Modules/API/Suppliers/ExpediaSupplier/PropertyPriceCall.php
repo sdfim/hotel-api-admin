@@ -83,14 +83,11 @@ class PropertyPriceCall
 	public function getPriceData(array $propertyIds = [])
 	{
 		$responses = [];
+		
 
 		foreach ($propertyIds as $propertyId) {
 			$this->propertyId = $propertyId;
 			$queryParameters = $this->queryParameters();
-
-			\Log::debug('ExpediaHotelApiHandler | price | step1 | getPriceData ',
-				['propertyId' => $propertyId, 'queryParameters' => $queryParameters]
-			);
 
 			try {
 				$promises[$propertyId] = $this->client->getAsync(self::PROPERTY_CONTENT_PATH, $queryParameters);
@@ -104,6 +101,8 @@ class PropertyPriceCall
 		try {
 			$responses = Promise\Utils::unwrap($promises);
 			$resolvedResponses = Promise\Utils::settle($promises)->wait();
+
+			\Log::debug('PropertyPriceCall resolvedResponses ' . count($resolvedResponses), ['resolvedResponses' => $resolvedResponses]);
 
 			foreach ($resolvedResponses as $propertyId => $response) {
 				if ($response['state'] === 'fulfilled') {
