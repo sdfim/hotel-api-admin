@@ -70,7 +70,12 @@ class RapidClient
 			'Authorization' => $this->generateAuthHeader()
 		];
 		$request = new Request('GET', $url, $headers);
-		return $this->client->sendAsync($request);
+		try {
+			$res = $this->client->sendAsync($request);
+		} catch (\Exception $e) {
+			\Log::error('Error while creating promise: ' . $e->getMessage());
+		}
 
+		return $res;
     }
 }
