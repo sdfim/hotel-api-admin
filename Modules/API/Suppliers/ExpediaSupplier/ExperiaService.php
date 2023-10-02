@@ -23,8 +23,12 @@ class ExperiaService
         $property['occupancy'] = $query['occupancy'] ?? ["2"];
 		$propertyIds = $queryIds ?? [];
 
+		\Log::debug('HotelApiHandler | price | step4 | getExpediaPriceByPropertyIds ' , ['client' => $client] );
+
         $propertyContentCall = new PropertyPriceCall($client, $property);
         $dataPrice = $propertyContentCall->getPriceData($propertyIds);
+
+		\Log::debug('HotelApiHandler | price | step5 | getExpediaPriceByPropertyIds ' , ['dataPrice' => $dataPrice] );
 
 		// TODO: Save Data to Redis for Inspector
         Cache::put('dataPriceAll', json_encode($dataPrice), 3600);
