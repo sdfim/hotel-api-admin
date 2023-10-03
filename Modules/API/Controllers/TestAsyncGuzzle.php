@@ -6,9 +6,28 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
 use Illuminate\Http\JsonResponse;
 use Modules\API\BaseController;
+use Modules\API\Suppliers\ExpediaSupplier\PropertyContentCall;
+use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 
 class TestAsyncGuzzle extends BaseController
 {
+
+	private array $testParams = [
+		"checkin" => "2023-12-10",
+		"checkout" => "2023-12-31",
+		"occupancy" => "2",
+		"property_id" => "12537922",
+		"rate_plan_count" => 1,
+		"language" => "en-US",
+		"country_code" => "US",
+		"currency" => "USD",
+		"sales_channel" => "agent_tool",
+		"sales_environment" => "hotel_package",
+		"rate_option" => "member",
+		"billing_terms" => "",
+		"payment_terms" => "BASE_DIR",
+		"partner_point_of_sale" => "B2B_EAC_BASE_DIR",
+	];
 
 	public function test() :JsonResponse
 	{
@@ -50,4 +69,53 @@ class TestAsyncGuzzle extends BaseController
 	}
 
 
+	public function testSync()
+	{
+		try {
+			$apiKey = env('EXPEDIA_RAPID_API_KEY');
+			$sharedSecret = env('EXPEDIA_RAPID_SHARED_SECRET');
+
+			$client = new RapidClient($apiKey, $sharedSecret);
+			$res = $client->get("v3/properties/availability", $this->testParams);
+
+			// $client = new RapidClient($apiKey, $sharedSecret);
+			// $property['language'] = "en-US";
+			// $property['supplySource'] = "expedia";
+			// $property['countryCodes'] = "PL";
+			// $property['categoryIdExcludes'] = null;
+			// $property['propertyRatingMmin'] = 4;
+			// $property['propertyRatingMmax'] = 5;
+	
+			// // dd($client, $language, $supplySource, $countryCodes, $categoryIdExcludes);
+	
+			// $propertyContentCall = new PropertyContentCall($client, $property);
+			\Log::info(json_encode($res->getBody()->getContents()));
+		} catch (\Exception $e) {
+			\Log::error("testSync exception: " . $e->getMessage().  ' ' . $e->getTraceAsString());
+		}
+	}
+
+	public function testAsync()
+	{
+		try {
+			$apiKey = env('EXPEDIA_RAPID_API_KEY');
+			$sharedSecret = env('EXPEDIA_RAPID_SHARED_SECRET');
+
+			$client = new RapidClient($apiKey, $sharedSecret);
+			$promises = ["12537922" => $client->getAsync("v3/properties/availability", $this->testParams)];
+
+			$resolvedResponses = Promise\Utils::settle($promises)->wait();
+
+			foreach ($resolvedResponses as $response) {
+				if ($response['state'] === 'fulfilled') {
+					$data = $response['value']->getBody()->getContents();
+					\Log::debug('PropertyPriceCall data ' . json_encode($data));
+				} else {
+					\Log::error('Promise failed: ' . $response['reason']->getMessage());
+				}
+			}
+		} catch (\Exception $e) {
+			\Log::error("testAsync exception: " . $e->getMessage().  ' ' . $e->getTraceAsString());
+		}
+	}
 }
