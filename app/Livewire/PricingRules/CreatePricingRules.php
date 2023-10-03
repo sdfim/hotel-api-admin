@@ -149,7 +149,7 @@ class CreatePricingRules extends Component implements HasForms
         return redirect()->route('pricing_rules.index');
     }
 
-    public function render(): Redirector
+    public function render(): View
     {
         return view('livewire.pricing-rules.create-pricing-rules');
     }
