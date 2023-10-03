@@ -3,8 +3,8 @@
 namespace App\Console\Commands\Expedia;
 
 use Illuminate\Console\Command;
-use Modules\API\ContentAPI\ExpediaSupplier\RapidClient;
-use Modules\API\ContentAPI\ExpediaSupplier\PropertyContentCall;
+use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
+use Modules\API\Suppliers\ExpediaSupplier\PropertyContentCall;
 use Illuminate\Support\Facades\Cache;
 
 class RapidPropertyContentCall extends Command

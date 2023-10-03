@@ -1,12 +1,11 @@
 <?php
 
-namespace Modules\API\ContentAPI\ExpediaSupplier\Requests;
+namespace Modules\API\Requests;
 
 use Modules\API\Validate\ApiRequest;
 use Illuminate\Support\Facades\Auth;
 
-
-class SearchRequest extends ApiRequest
+class DetailHotelRequest extends ApiRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,22 +23,13 @@ class SearchRequest extends ApiRequest
     public function rules (): array
     {
         return [
-            'checkin' => 'string',
-            'checkout' => 'string',
-            'destination' => ['required', 'string'],
-            'rating' => 'string',
-            'room1' => ['required', 'string'],
-            'room2' => 'string',
-            'room3' => 'string',
+            'property_id' => ['required', 'stringy'],
         ];
     }
 
-    public function validatedDate (): array
+	public function validatedDate (): array
     {
-        $search = parent::validated();
-        $search['type'] = 'search';
-
-        return $search;
+        return parent::validated();
     }
 
 }

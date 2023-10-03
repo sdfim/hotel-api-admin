@@ -1,1 +1,4 @@
-* * * * * www-data cd /var/www && /usr/local/bin/php artisan schedule:run
+SHELL=/bin/bash
+
+* * * * * root source /cronenv; su -m -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan schedule:run' >> /dev/null 2>&1
+
