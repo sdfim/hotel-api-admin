@@ -28,47 +28,54 @@ class PricingRulesTable extends Component implements HasForms, HasTable
         return $table
             ->query(PricingRules::query())
             ->columns([
-                TextColumn::make('supplier_id')
-                    ->numeric()
-                    ->sortable(),
+                TextColumn::make('suppliers.name')
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('property')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('destination')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('travel_date')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('days')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('nights')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('rate_code')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('room_type')
                     ->searchable()
-					->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('total_guests')
                     ->numeric()
                     ->sortable()
-					->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('room_guests')
                     ->numeric()
                     ->sortable()
-					->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('number_rooms')
                     ->numeric()
                     ->sortable()
-					->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('meal_plan')
                     ->searchable()
-					->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('rating')
                     ->searchable()
-					->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

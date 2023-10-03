@@ -20,6 +20,7 @@
 </head>
 
 <body data-mode="light" data-sidebar-size="lg">
+@livewire('notifications')
 <!-- topbar -->
 @include('layouts.topbar')
 <!-- sidebar -->
