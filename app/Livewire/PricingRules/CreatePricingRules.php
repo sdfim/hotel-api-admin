@@ -24,12 +24,12 @@ class CreatePricingRules extends Component implements HasForms
 
     public ?array $data = [];
 
-    public function mount(): void
+    public function mount (): void
     {
         $this->form->fill();
     }
 
-    public function form(Form $form): Form
+    public function form (Form $form): Form
     {
         return $form
             ->schema([
@@ -43,21 +43,17 @@ class CreatePricingRules extends Component implements HasForms
                 Select::make('property')
                     ->label('Property')
                     ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => ExpediaContent::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'property_id')->toArray())
-                    ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->name)
+                    ->getSearchResultsUsing(fn(string $search): array => ExpediaContent::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'property_id')->toArray())
+                    ->getOptionLabelUsing(fn($value): ?string => ExpediaContent::find($value)?->name)
                     ->afterStateUpdated(function (Get $get, Set $set) {
                         $set('room_type', '');
                         $destination = ExpediaContent::where('property_id', $get('property'))->pluck('city', 'giata_TTIcode')->toArray();
-                        $set('destination', ['0' => 'New Delhi']);
+                        $set('destination', ['New Deli']);
                     })
+                    ->live()
                     ->required(),
                 Select::make('destination')
-                    ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => ExpediaContent::where('city', 'like', "%{$search}%")->limit(20)->pluck('city', 'giata_TTIcode')->toArray())
-                    ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->city)
-                    ->afterStateUpdated(function (Set $set) {
-                        $set('room_type', '');
-                    })
+                    ->options([])
                     ->required(),
                 DateTimePicker::make('travel_date')
                     ->required(),
@@ -127,14 +123,14 @@ class CreatePricingRules extends Component implements HasForms
                         'per_room' => 'Per Room',
                         'per_night' => 'Per Night',
                     ])
-                    ->visible(fn (Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
-                    ->required(fn (Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
+                    ->visible(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
+                    ->required(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
             ])
             ->statePath('data')
             ->model(PricingRules::class);
     }
 
-    public function create(): Redirector
+    public function create (): Redirector
     {
         $data = $this->form->getState();
 
@@ -149,7 +145,7 @@ class CreatePricingRules extends Component implements HasForms
         return redirect()->route('pricing_rules.index');
     }
 
-    public function render(): View
+    public function render (): View
     {
         return view('livewire.pricing-rules.create-pricing-rules');
     }
