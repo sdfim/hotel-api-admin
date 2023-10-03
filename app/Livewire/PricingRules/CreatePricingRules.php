@@ -44,10 +44,20 @@ class CreatePricingRules extends Component implements HasForms
                     ->label('Property')
                     ->searchable()
                     ->getSearchResultsUsing(fn(string $search): array => ExpediaContent::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'property_id')->toArray())
+                    ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->name)
+                    ->afterStateUpdated(function (Get $get, Set $set) {
+                        $set('room_type', '');
+                        $destination = ExpediaContent::where('property_id', $get('property'))->pluck('city', 'giata_TTIcode')->toArray();
+                        $set('destination', ['0' => 'New Delhi']);
+                    })
                     ->required(),
                 Select::make('destination')
                     ->searchable()
                     ->getSearchResultsUsing(fn(string $search): array => ExpediaContent::where('city', 'like', "%{$search}%")->limit(20)->pluck('city', 'giata_TTIcode')->toArray())
+                    ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->city)
+                    ->afterStateUpdated(function (Set $set) {
+                        $set('room_type', '');
+                    })
                     ->required(),
                 DateTimePicker::make('travel_date')
                     ->required(),
@@ -63,7 +73,7 @@ class CreatePricingRules extends Component implements HasForms
                 Select::make('room_type')
                     ->options(function (Get $get, Set $set): array {
                         // reset room_type value each time to prevent storing room types for a previous selected property
-                        $set('room_type', '');
+//                        $set('room_type', '');
                         $options = [];
                         if($get('property')) {
                             $rooms = ExpediaContent::where('property_id', $get('property'))->first(['rooms']);
@@ -110,7 +120,7 @@ class CreatePricingRules extends Component implements HasForms
                 TextInput::make('price_value_to_apply')
                     ->required()
                     ->numeric(),
-                Select::make('price_type_to_apply')
+                Select::make('price_value_fixed_type_to_apply')
                     ->required()
                     ->options([
                         'guest' => 'Guest',

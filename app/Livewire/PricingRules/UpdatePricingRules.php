@@ -3,6 +3,8 @@
 namespace App\Livewire\PricingRules;
 
 use App\Models\PricingRules;
+use Filament\Actions\CreateAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -90,7 +92,7 @@ class UpdatePricingRules extends Component implements HasForms
                 TextInput::make('price_value_to_apply')
                     ->required()
                     ->numeric(),
-                Select::make('price_type_to_apply')
+                Select::make('price_value_fixed_type_to_apply')
                     ->required()
                     ->options([
                         'guest' => 'Guest',
