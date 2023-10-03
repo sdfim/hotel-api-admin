@@ -2,9 +2,9 @@
 
 namespace App\Livewire\PricingRules;
 
+use App\Models\ExpediaContent;
 use App\Models\PricingRules;
-use Filament\Actions\CreateAction;
-use Filament\Actions\EditAction;
+use App\Models\Suppliers;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -12,9 +12,11 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class UpdatePricingRules extends Component implements HasForms
 {
@@ -24,28 +26,42 @@ class UpdatePricingRules extends Component implements HasForms
 
     public PricingRules $record;
 
-    public function mount (PricingRules $pricingRule): void
+    public function mount(PricingRules $pricingRule): void
     {
         $this->record = $pricingRule;
         $this->form->fill($this->record->attributesToArray());
     }
 
-    public function form (Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('supplier_id')
-                    ->required()
-                    ->numeric(),
+                Select::make('supplier_id')
+                    ->label('Supplier')
+                    ->options(Suppliers::all()->pluck('name', 'id'))
+                    ->required(),
                 TextInput::make('name')
                     ->required()
                     ->maxLength(191),
-                TextInput::make('property')
-                    ->required()
-                    ->maxLength(191),
-                TextInput::make('destination')
-                    ->required()
-                    ->maxLength(191),
+                Select::make('property')
+                    ->label('Property')
+                    ->searchable()
+                    ->getSearchResultsUsing(fn (string $search): array => ExpediaContent::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'property_id')->toArray())
+                    ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->name)
+                    ->afterStateUpdated(function (Get $get, Set $set) {
+                        $set('room_type', '');
+                        $destination = ExpediaContent::where('property_id', $get('property'))->pluck('city', 'giata_TTIcode')->toArray();
+                        $set('destination', ['0' => 'New Delhi']);
+                    })
+                    ->required(),
+                Select::make('destination')
+                    ->searchable()
+                    ->getSearchResultsUsing(fn (string $search): array => ExpediaContent::where('city', 'like', "%{$search}%")->limit(20)->pluck('city', 'giata_TTIcode')->toArray())
+                    ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->city)
+                    ->afterStateUpdated(function (Set $set) {
+                        $set('room_type', '');
+                    })
+                    ->required(),
                 DateTimePicker::make('travel_date')
                     ->required(),
                 TextInput::make('days')
@@ -57,9 +73,22 @@ class UpdatePricingRules extends Component implements HasForms
                 TextInput::make('rate_code')
                     ->required()
                     ->maxLength(191),
-                TextInput::make('room_type')
-                    ->required()
-                    ->maxLength(191),
+                Select::make('room_type')
+                    ->options(function (Get $get, Set $set): array {
+                       $options = [];
+                        if ($get('property')) {
+                            $rooms = ExpediaContent::where('property_id', $get('property'))->first(['rooms']);
+
+                            if ($rooms) {
+                                foreach ($rooms->rooms as $id => $room) {
+                                    $options[$id] = $room['name'];
+                                }
+                            }
+                        }
+                        return $options;
+                    })
+                    ->searchable()
+                    ->required(),
                 TextInput::make('total_guests')
                     ->required()
                     ->numeric(),
@@ -99,14 +128,14 @@ class UpdatePricingRules extends Component implements HasForms
                         'per_room' => 'Per Room',
                         'per_night' => 'Per Night',
                     ])
-                    ->visible(fn(Get $get): string => $get('price_value_type_to_apply') === 'fixed_value')
-                    ->required(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
+                    ->visible(fn (Get $get): string => $get('price_value_type_to_apply') === 'fixed_value')
+                    ->required(fn (Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
             ])
             ->statePath('data')
             ->model($this->record);
     }
 
-    public function edit (): void
+    public function edit(): Redirector
     {
         $data = $this->form->getState();
 
@@ -116,9 +145,10 @@ class UpdatePricingRules extends Component implements HasForms
             ->title('Updated successfully')
             ->success()
             ->send();
+        return redirect()->route('pricing_rules.index');
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.pricing-rules.update-pricing-rules');
     }

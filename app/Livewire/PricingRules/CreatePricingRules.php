@@ -16,6 +16,7 @@ use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class CreatePricingRules extends Component implements HasForms
 {
@@ -23,19 +24,18 @@ class CreatePricingRules extends Component implements HasForms
 
     public ?array $data = [];
 
-    public function mount (): void
+    public function mount(): void
     {
         $this->form->fill();
     }
 
-    public function form (Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Select::make('supplier_id')
                     ->label('Supplier')
                     ->options(Suppliers::all()->pluck('name', 'id'))
-                    ->searchable()
                     ->required(),
                 TextInput::make('name')
                     ->required()
@@ -43,7 +43,7 @@ class CreatePricingRules extends Component implements HasForms
                 Select::make('property')
                     ->label('Property')
                     ->searchable()
-                    ->getSearchResultsUsing(fn(string $search): array => ExpediaContent::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'property_id')->toArray())
+                    ->getSearchResultsUsing(fn (string $search): array => ExpediaContent::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'property_id')->toArray())
                     ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->name)
                     ->afterStateUpdated(function (Get $get, Set $set) {
                         $set('room_type', '');
@@ -53,7 +53,7 @@ class CreatePricingRules extends Component implements HasForms
                     ->required(),
                 Select::make('destination')
                     ->searchable()
-                    ->getSearchResultsUsing(fn(string $search): array => ExpediaContent::where('city', 'like', "%{$search}%")->limit(20)->pluck('city', 'giata_TTIcode')->toArray())
+                    ->getSearchResultsUsing(fn (string $search): array => ExpediaContent::where('city', 'like', "%{$search}%")->limit(20)->pluck('city', 'giata_TTIcode')->toArray())
                     ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->city)
                     ->afterStateUpdated(function (Set $set) {
                         $set('room_type', '');
@@ -73,9 +73,9 @@ class CreatePricingRules extends Component implements HasForms
                 Select::make('room_type')
                     ->options(function (Get $get, Set $set): array {
                         // reset room_type value each time to prevent storing room types for a previous selected property
-//                        $set('room_type', '');
+                        //                        $set('room_type', '');
                         $options = [];
-                        if($get('property')) {
+                        if ($get('property')) {
                             $rooms = ExpediaContent::where('property_id', $get('property'))->first(['rooms']);
 
                             if ($rooms) {
@@ -127,14 +127,14 @@ class CreatePricingRules extends Component implements HasForms
                         'per_room' => 'Per Room',
                         'per_night' => 'Per Night',
                     ])
-                    ->visible(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
-                    ->required(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
+                    ->visible(fn (Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
+                    ->required(fn (Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
             ])
             ->statePath('data')
             ->model(PricingRules::class);
     }
 
-    public function create (): void
+    public function create(): Redirector
     {
         $data = $this->form->getState();
 
@@ -146,9 +146,10 @@ class CreatePricingRules extends Component implements HasForms
             ->title('Created successfully')
             ->success()
             ->send();
+        return redirect()->route('pricing_rules.index');
     }
 
-    public function render (): View
+    public function render(): Redirector
     {
         return view('livewire.pricing-rules.create-pricing-rules');
     }

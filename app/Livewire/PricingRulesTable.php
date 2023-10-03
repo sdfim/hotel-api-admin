@@ -28,8 +28,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
         return $table
             ->query(PricingRules::query())
             ->columns([
-                TextColumn::make('supplier_id')
-                    ->numeric()
+                TextColumn::make('suppliers.name')
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('name')
