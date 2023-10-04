@@ -3,6 +3,8 @@
 namespace App\Livewire\PricingRules;
 
 use App\Models\ExpediaContent;
+use App\Models\GiataProperty;
+use App\Models\MapperExpediaGiata;
 use App\Models\PricingRules;
 use App\Models\Suppliers;
 use Filament\Forms\Components\DateTimePicker;
@@ -43,22 +45,40 @@ class CreatePricingRules extends Component implements HasForms
                 Select::make('property')
                     ->label('Property')
                     ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => ExpediaContent::where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'property_id')->toArray())
-                    ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->name)
+                    ->getSearchResultsUsing(function (string $search, Set $set): array {
+                        $value = GiataProperty::select('name', 'code')
+                            ->where('name', 'like', "%{$search}%")->limit(20)->pluck('name', 'code')->toArray();
+                        return $value;
+                    })
+                    /* ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->name) */
+
                     ->afterStateUpdated(function (Get $get, Set $set) {
                         $set('room_type', '');
-                        $destination = ExpediaContent::where('property_id', $get('property'))->pluck('city', 'giata_TTIcode')->toArray();
-                        $set('destination', ['0' => 'New Delhi']);
+                        $giatsCity = GiataProperty::select('city')
+                            ->where('code', $get('property'))->first();
+                        $set('destination', $giatsCity ?  $giatsCity->city : '');
                     })
+                    ->live()
                     ->required(),
+
+                TextInput::make('destination')
+                    ->visible(fn (Get $get): bool => $get('property') !== null)
+                    ->required(fn (Get $get): bool => $get('property') !== null),
                 Select::make('destination')
+                    ->label('Destination')
                     ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => ExpediaContent::where('city', 'like', "%{$search}%")->limit(20)->pluck('city', 'giata_TTIcode')->toArray())
-                    ->getOptionLabelUsing(fn ($value): ?string => ExpediaContent::find($value)?->city)
-                    ->afterStateUpdated(function (Set $set) {
-                        $set('room_type', '');
+                    ->getSearchResultsUsing(function (string $search): array {
+                        $value = GiataProperty::select('city')
+                            ->where('city', 'like', "%{$search}%")->limit(20)->pluck('city', 'city')->toArray();
+                        return $value;
                     })
-                    ->required(),
+
+                    ->afterStateUpdated(function (Get $get, Set $set) {
+                        $set('propert', '');
+                    })
+                    ->visible(fn (Get $get): bool => $get('property') === null)
+                    ->required(fn (Get $get): bool => $get('property') === null),
+
                 DateTimePicker::make('travel_date')
                     ->required(),
                 TextInput::make('days')
@@ -70,11 +90,12 @@ class CreatePricingRules extends Component implements HasForms
                 TextInput::make('rate_code')
                     ->required()
                     ->maxLength(191),
-                Select::make('room_type')
+                TextInput::make('room_type')
+                    ->required()
+                    ->maxLength(191),
+                /* Select::make('room_type')
                     ->options(function (Get $get, Set $set): array {
-                        // reset room_type value each time to prevent storing room types for a previous selected property
-                        //                        $set('room_type', '');
-                        $options = [];
+                       $options = [];
                         if ($get('property')) {
                             $rooms = ExpediaContent::where('property_id', $get('property'))->first(['rooms']);
 
@@ -87,7 +108,7 @@ class CreatePricingRules extends Component implements HasForms
                         return $options;
                     })
                     ->searchable()
-                    ->required(),
+                    ->required(), */
                 TextInput::make('total_guests')
                     ->required()
                     ->numeric(),
@@ -149,7 +170,7 @@ class CreatePricingRules extends Component implements HasForms
         return redirect()->route('pricing_rules.index');
     }
 
-    public function render(): Redirector
+    public function render(): View
     {
         return view('livewire.pricing-rules.create-pricing-rules');
     }
