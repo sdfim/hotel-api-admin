@@ -91,4 +91,5 @@ class ExpediaContent extends Model
     {
 		return $this->hasMany(MapperExpediaGiata::class, 'expedia_id', 'property_id');
     }
+
 }
