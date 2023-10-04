@@ -14,6 +14,7 @@ use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
+use NunoMaduro\Collision\Adapters\Laravel\Inspector;
 
 class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterface
 {
@@ -34,11 +35,17 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 			$filters = Validator::make($request->all(), $rules)->validated();
 
             $expedia = new ExpediaContent();
-            $fields = $request->get('fullList') ? $expedia->getFullListFields() : $expedia->getShortListFields();
+
+			$expedia->with('mapperGiataExpedia')->where('mapper_giata_expedia.step', '=', 1)->limit(10);
+			dd($expedia->toArray());
+			
+			$fields = $request->get('fullList') ? $expedia->getFullListFields() : $expedia->getShortListFields();
 			$query = $expedia->select($fields);
 
             $searchBuilder = new HotelSearchBuilder($query);
             $results = $searchBuilder->applyFilters($filters)->get();
+
+			dd( $results);
 
 			$ids = collect($results)->pluck('property_id')->toArray();
             $results = $expedia->dtoDbToResponse($results, $fields);
@@ -87,7 +94,7 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 			} else {
 				# get PriceData from RapidAPI Expedia
 				$priceData = $this->experiaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
-				# add price to results
+				# add price to response
 				$output = [];
 				foreach ($preSearchData['results'] as $value) {
 					if (isset($priceData[$value->property_id])) {
@@ -102,7 +109,9 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 				Cache::put($key, $output, now()->addMinutes(120));
 			}
 
-            return $this->sendResponse(['count' => count($output), 'results' => $output], 'success');
+			// Inspector->save($output,
+
+            return $this->sendResponse(['count' => count($output), 'query' => $filters, 'results' => $output], 'success');
         } catch (\Exception $e) {
             \Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
             return $this->sendError(['error' => $e->getMessage()], 'falied');
