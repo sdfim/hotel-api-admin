@@ -3,9 +3,7 @@
 namespace App\Console\Commands\Expedia;
 
 use Illuminate\Console\Command;
-use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
-use Modules\API\Suppliers\ExpediaSupplier\PropertyContentCall;
-use Illuminate\Support\Facades\Cache;
+use Modules\API\Suppliers\ExpediaSupplier\PropertyCallFactory;
 
 class RapidPropertyContentCall extends Command
 {
@@ -23,15 +21,19 @@ class RapidPropertyContentCall extends Command
      */
     protected $description = 'RapidPropertyContentCall';
 
+	private PropertyCallFactory $rapidCallFactory;
+
+	public function __construct(PropertyCallFactory $rapidCallFactory) 
+	{
+		parent::__construct();
+		$this->rapidCallFactory = $rapidCallFactory;
+	}
+
     /**
      * Execute the console command.
      */
     public function handle ()
     {
-        $apiKey = env('EXPEDIA_RAPID_API_KEY');
-        $sharedSecret = env('EXPEDIA_RAPID_SHARED_SECRET');
-
-        $client = new RapidClient($apiKey, $sharedSecret);
         $property['language'] = "en-US";
         $property['supplySource'] = "expedia";
         $property['countryCodes'] = "PL";
@@ -39,21 +41,14 @@ class RapidPropertyContentCall extends Command
         $property['propertyRatingMmin'] = 4;
         $property['propertyRatingMmax'] = 5;
 
-        // dd($client, $language, $supplySource, $countryCodes, $categoryIdExcludes);
-
-        $propertyContentCall = new PropertyContentCall($client, $property);
+		$propertyContentCall = $this->rapidCallFactory->createPropertyContentCall($property);
 
         $stream = $propertyContentCall->stream();
         $size = $propertyContentCall->size();
 
-        // dump('$stream', $stream);
-        echo 'size = ' . json_encode($size);
-
-        Cache::put('stream', json_encode($stream), 3600);
-
-        $value = Cache::get('stream');
-
-        // dump('$value', json_decode($value));
-        \Log::debug('RapidPropertyContentCall', ['value' => json_decode($value)]);
+        \Log::debug('RapidPropertyContentCall', [
+			'stream' => $stream,
+			'size' => $size
+		]);
     }
 }

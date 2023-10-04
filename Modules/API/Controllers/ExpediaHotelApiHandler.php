@@ -17,6 +17,11 @@ use Illuminate\Support\Facades\Validator;
 
 class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterface
 {
+	private ExperiaService $experiaService;
+
+	public function __construct(ExperiaService $experiaService) {
+		$this->experiaService = $experiaService;
+	}
 	/**
 	 * @param Request $request
 	 * @return array|null
@@ -81,7 +86,7 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 				$output = Cache::get($key);
 			} else {
 				# get PriceData from RapidAPI Expedia
-				$priceData = ExperiaService::getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
+				$priceData = $this->experiaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
 				# add price to results
 				$output = [];
 				foreach ($preSearchData['results'] as $value) {

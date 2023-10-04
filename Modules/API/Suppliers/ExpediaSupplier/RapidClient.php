@@ -9,10 +9,6 @@ use GuzzleHttp\RequestOptions;
 
 class RapidClient
 {
-    // Base URL
-    // private const RAPID_BASE_URL = env('EXPEDIA_RAPID_BASE_URL');
-    private const RAPID_BASE_URL = "https://test.ean.com";
-
     // Headers
     private const GZIP = "gzip";
     private const AUTHORIZATION_HEADER = "EAN APIKey=%s,Signature=%s,timestamp=%s";
@@ -20,12 +16,14 @@ class RapidClient
     private $apiKey;
     private $sharedSecret;
     private $client;
+	private $rapidBaseUrl;
 
     public function __construct ($apiKey, $sharedSecret)
     {
         $this->apiKey = $apiKey;
         $this->sharedSecret = $sharedSecret;
         $this->client = new Client();
+		$this->rapidBaseUrl = env('EXPEDIA_RAPID_BASE_URL');
     }
 
     public function get ($path, $queryParameters)
@@ -35,7 +33,7 @@ class RapidClient
             $queryParams[$key] = $value;
         }
 
-        $url = self::RAPID_BASE_URL . '/' . $path . '?' . http_build_query($queryParams);
+        $url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
         $response = $this->client->request('GET', $url, [
             'headers' => [
@@ -63,7 +61,7 @@ class RapidClient
             $queryParams[$key] = $value;
         }
 
-        $url = self::RAPID_BASE_URL . '/' . $path . '?' . http_build_query($queryParams);
+        $url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
 		$headers = [
 			'Accept-Encoding' => self::GZIP,

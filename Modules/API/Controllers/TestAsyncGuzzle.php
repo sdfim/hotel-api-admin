@@ -6,11 +6,15 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
 use Illuminate\Http\JsonResponse;
 use Modules\API\BaseController;
-use Modules\API\Suppliers\ExpediaSupplier\PropertyContentCall;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 
 class TestAsyncGuzzle extends BaseController
 {
+	protected $rapidClient;
+
+	public function __construct(RapidClient $rapidClient) {
+		$this->rapidClient = $rapidClient;
+	}
 
 	private array $testParams = [
 		"checkin" => "2023-12-10",
@@ -71,24 +75,8 @@ class TestAsyncGuzzle extends BaseController
 
 	public function testSync()
 	{
-		try {
-			$apiKey = env('EXPEDIA_RAPID_API_KEY');
-			$sharedSecret = env('EXPEDIA_RAPID_SHARED_SECRET');
-
-			$client = new RapidClient($apiKey, $sharedSecret);
-			$res = $client->get("v3/properties/availability", $this->testParams);
-
-			// $client = new RapidClient($apiKey, $sharedSecret);
-			// $property['language'] = "en-US";
-			// $property['supplySource'] = "expedia";
-			// $property['countryCodes'] = "PL";
-			// $property['categoryIdExcludes'] = null;
-			// $property['propertyRatingMmin'] = 4;
-			// $property['propertyRatingMmax'] = 5;
-	
-			// // dd($client, $language, $supplySource, $countryCodes, $categoryIdExcludes);
-	
-			// $propertyContentCall = new PropertyContentCall($client, $property);
+		try {		
+			$res = $this->rapidClient->get("v3/properties/availability", $this->testParams);
 			\Log::info(json_encode($res->getBody()->getContents()));
 		} catch (\Exception $e) {
 			\Log::error("testSync exception: " . $e->getMessage().  ' ' . $e->getTraceAsString());
@@ -98,11 +86,7 @@ class TestAsyncGuzzle extends BaseController
 	public function testAsync()
 	{
 		try {
-			$apiKey = env('EXPEDIA_RAPID_API_KEY');
-			$sharedSecret = env('EXPEDIA_RAPID_SHARED_SECRET');
-
-			$client = new RapidClient($apiKey, $sharedSecret);
-			$promises = ["12537922" => $client->getAsync("v3/properties/availability", $this->testParams)];
+			$promises = ["12537922" => $this->rapidClient->getAsync("v3/properties/availability", $this->testParams)];
 
 			$resolvedResponses = Promise\Utils::settle($promises)->wait();
 

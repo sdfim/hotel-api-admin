@@ -2,14 +2,18 @@
 
 namespace Modules\API\Controllers;
 
-use Modules\API\Controllers\HotelApiHandler;
-use Modules\API\Controllers\FlightApiHandler;
-use Modules\API\Controllers\ComboApiHandler;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
 
 class RoteApiController extends Controller
 {
+	private ExperiaService $experiaService;
+
+	public function __construct(ExperiaService $experiaService) {
+		$this->experiaService = $experiaService;
+	}
+
 	private const DEFAULT_SUPPLIER = 'expedia';
 	private const TYPE_HOTEL = 'hotel';
 	private const TYPE_FLIGHT = 'flight';
@@ -30,20 +34,20 @@ class RoteApiController extends Controller
 		if (!self::isTypeValid($type)) return response()->json(['message' => 'Invalid type'], 400);
 		if (!self::isRouteValid($route)) return response()->json(['message' => 'Invalid route'], 400);
 
-		// TODO: Get supplier from DB use config Admin Panel
+		// TODO: [UJV-3] Get supplier from DB use config Admin Panel
 		$supplier = self::DEFAULT_SUPPLIER;
         $handlerClassName = "Modules\\API\\Controllers\\" . ucfirst($supplier) . ucfirst($type) . 'ApiHandler';
 		if (!class_exists($handlerClassName)) {
 			return response()->json(['message' => 'Handler class not found'], 400);
 		}
-		$dataHandler = new $handlerClassName();
 
-		// match ($type) {
-		// 	'hotel' => $dataHandler = new HotelApiHandler(),
-		// 	'flight' => $dataHandler = new FlightApiHandler(),
-		// 	'combo' => $dataHandler = new ComboApiHandler(),
-		// 	default => response()->json(['message' => 'Invalid type'], 400),
-		// };
+		// TODO: [UJV-1] use service containers in all handlers
+		// TODO: [UJV-2] need add Factory for all handlers by supplier and type
+		if ($handlerClassName == ExpediaHotelApiHandler::class) {
+			$dataHandler = new $handlerClassName($this->experiaService);
+		} else {
+			$dataHandler = new $handlerClassName();
+		}
 
 		return match ($route) {
 			'search' => $dataHandler->search($request),
