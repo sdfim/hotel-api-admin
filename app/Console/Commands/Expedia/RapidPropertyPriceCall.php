@@ -3,9 +3,7 @@
 namespace App\Console\Commands\Expedia;
 
 use Illuminate\Console\Command;
-use Modules\API\Suppliers\ExpediaSupplier\PropertyPriceCall;
-use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
-use Illuminate\Support\Facades\Cache;
+use Modules\API\Suppliers\ExpediaSupplier\PropertyCallFactory;
 
 class RapidPropertyPriceCall extends Command
 {
@@ -22,6 +20,15 @@ class RapidPropertyPriceCall extends Command
      * @var string
      */
     protected $description = 'RapidPropertyPriceCall';
+	protected $rapidClient;
+
+	private PropertyCallFactory $rapidCallFactory;
+
+	public function __construct(PropertyCallFactory $rapidCallFactory) 
+	{
+		parent::__construct();
+		$this->rapidCallFactory = $rapidCallFactory;
+	}
 
     /**
      * Execute the console command.
@@ -29,35 +36,19 @@ class RapidPropertyPriceCall extends Command
     public function handle ()
     {
 		$start_time = microtime(true);
-		
-        $apiKey = env('EXPEDIA_RAPID_API_KEY');
-        $sharedSecret = env('EXPEDIA_RAPID_SHARED_SECRET');
 
-        $client = new RapidClient($apiKey, $sharedSecret);
         $property['checkin'] = "2023-12-10";
         $property['checkout'] = "2023-12-31";
         $property['occupancy'] = ["2"];
-		$propertyIds = [
-			"12537922", 
-			"10231646",
-			"10215116",
-			"10630123",
-			"10948924",
-		];
+		$propertyIds = [ "12537922", "10231646", "10215116", "10630123", "10948924" ];
 
-        $propertyContentCall = new PropertyPriceCall($client, $property);
+		$propertyPriceCall = $this->rapidCallFactory->createPropertyPriceCall($property);
 
-        $dataPrice = $propertyContentCall->getPriceData($propertyIds);
+        $dataPrice = $propertyPriceCall->getPriceData($propertyIds);
 
-        Cache::put('dataPriceAll', json_encode($dataPrice), 3600);
+        \Log::debug('RapidPropertyPriceCall', ['value' => json_encode($dataPrice)]);
 
-        $value = Cache::get('dataPriceAll');
-
-        // dump('$value', json_decode($value));
-        \Log::debug('RapidPropertyPriceCall', ['value' => json_decode($value)]);
-
-		$end_time = microtime(true);
-        $execution_time = ($end_time - $start_time);
+        $execution_time = (microtime(true) - $start_time);
         $this->info('Import completed. ' . round($execution_time, 2) . " seconds");
     }
 }
