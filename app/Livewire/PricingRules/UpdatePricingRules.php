@@ -59,6 +59,9 @@ class UpdatePricingRules extends Component implements HasForms
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
                         ->where('name', 'like', "%{$search}%")->limit(30)->pluck('full_name', 'code')->toArray()
                     )
+                    ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
+                        DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
+                        ->where('code', $value)->first()->full_name)
                     ->afterStateUpdated(function (Get $get, Set $set) {
                         $set('destination', null);
                         $destination = GiataProperty::select('city')->where('code', $get('property'))->first();

@@ -18,8 +18,9 @@ return new class extends Migration {
                     table: 'channels',
                     indexName: 'pricing_rules__channel_id'
                 );
-            // TODO: we should remove ->default(null) when we clean up migrations and merge columns with different migrations for one table
+            // TODO: we should remove ->default(now()) when we clean up migrations and merge columns with different migrations for one table
             $table->dateTimeTz('rule_start_date')->default(now());
+            // TODO: we should remove ->default(now()) when we clean up migrations and merge columns with different migrations for one table
             $table->dateTimeTz('rule_expiration_date')->default(now());
         });
     }
