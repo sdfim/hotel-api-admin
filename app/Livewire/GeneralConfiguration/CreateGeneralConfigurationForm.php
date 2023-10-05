@@ -8,6 +8,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+use Illuminate\Http\RedirectResponse;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
 use Livewire\Features\SupportRedirects\Redirector;
@@ -79,7 +80,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
             ->model($this->getDynamicModel());
     }
 
-    public function save(): Redirector
+    public function save(): Redirector|RedirectResponse
     {
         $request = (object)$this->form->getState();
         $general_configuration = GeneralConfiguration::get();
