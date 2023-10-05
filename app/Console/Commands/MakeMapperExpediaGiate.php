@@ -53,7 +53,7 @@ class MakeMapperExpediaGiate extends Command
 			if ($giata) {
 				foreach ($giata as $giataItem) {
 					$this->info('Expedia: ' . $expedia['property_id'] . ' - ' . $expedia['name'] . ' - ' . $giataItem['code'] . ' - ' . $giataItem['name']);
-					$batch++;
+					$this->batch++;
 					$mapper[] = [
 						'expedia_id' => $expedia['property_id'],
 						'giata_id' => $giataItem['code'],
@@ -66,7 +66,6 @@ class MakeMapperExpediaGiate extends Command
 				$mapper = [];
 			}
 		}
-	
 
 		# step 2 and more: where name like name, latitude like latitude(2 point after dot), longitude like longitude(2 point after dot)
 		$arrExpedia = $this->fetchExpediaNeedMapping();
