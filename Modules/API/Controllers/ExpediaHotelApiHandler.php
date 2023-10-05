@@ -5,6 +5,7 @@ namespace Modules\API\Controllers;
 use Modules\API\BaseController;
 use App\Models\ExpediaContent;
 use App\Models\MapperExpediaGiata;
+use App\Models\Suppliers;
 use Modules\API\Controllers\ApiHandlerInterface;
 use Modules\API\Requests\SearchHotelRequest;
 use Modules\API\Requests\DetailHotelRequest;
@@ -125,7 +126,7 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 			\Log::debug('ExpediaHotelApiHandler | price | AsyncGetPrices: ' . $this->executionTime() . ' seconds');
 
 			# save data to Inspector
-			$supplier_id = 1;
+			$supplier_id = Suppliers::where('name', 'Expedia')->first()->id;
 			$inspector = $this->apiInspector->save($filters, $output, $supplier_id);
 			\Log::debug('ExpediaHotelApiHandler | price | save data to Inspector: ' . $this->executionTime() . ' seconds');
 
