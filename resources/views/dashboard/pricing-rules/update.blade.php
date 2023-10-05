@@ -19,7 +19,7 @@
                         </div>
                     </div>
                     <div class="ml-1 mr-1 col-span-9 xl:col-span-6">
-                        @livewire('pricing-rules.update-pricing-rules', ['pricingRule' => $pricingRule])
+                        @livewire('pricing-rules.update-pricing-rules')
                     </div>
                 </div>
             </div>
