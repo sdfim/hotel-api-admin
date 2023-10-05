@@ -33,7 +33,7 @@ class InspectorTable extends Component implements HasForms, HasTable
                 TextColumn::make('type')
                     //->sortable()
                     ->searchable(),
-                TextColumn::make('token.name')
+                TextColumn::make('token.id')
                     ->numeric()
                     ->searchable(),
                   //  ->sortable(),
@@ -41,8 +41,10 @@ class InspectorTable extends Component implements HasForms, HasTable
                     ->numeric()
                     ->searchable(),
                    // ->sortable(),
-                ViewColumn::make('response_path')->view('dashboard.inspector.column.response'),
+               
                 ViewColumn::make('request')->view('dashboard.inspector.column.request'),
+
+				ViewColumn::make('response_path')->view('dashboard.inspector.column.response'),
                 
                 TextColumn::make('created_at')
                     ->dateTime()

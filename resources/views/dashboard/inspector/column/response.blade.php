@@ -25,7 +25,7 @@
                                             <div class="modal-body">
                                                 Response:
                                                 @php
-                                                    $file = Storage::disk('local')->get($getRecord()->response_path);
+                                                    $file = Storage::get($getRecord()->response_path);
                                                 @endphp
                                                 <pre>{{json_encode(json_decode($file), JSON_PRETTY_PRINT) }}</pre>
                                             </div>
