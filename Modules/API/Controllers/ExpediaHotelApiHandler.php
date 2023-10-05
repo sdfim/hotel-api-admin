@@ -21,6 +21,7 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 {
 	private ExperiaService $experiaService;
 	private InspectorController $apiInspector;
+	protected $current_time;
 
 	public function __construct(ExperiaService $experiaService) {
 		$this->experiaService = $experiaService;
@@ -95,9 +96,11 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 			$priceRequest = new PriceHotelRequest();
 			$rules = $priceRequest->rules();
 			$filters = Validator::make($request->all(), $rules)->validated();
+			\Log::debug('ExpediaHotelApiHandler | price | Validator: ' . $this->executionTime() . ' seconds');
 
 			$preSearchData = $this->preSearchData ($request);
 			$filters = $preSearchData['filters'] ?? null;
+			\Log::debug('ExpediaHotelApiHandler | price | preSearchData: ' . $this->executionTime() . ' seconds');
 
 			$key = 'search:'.md5(json_encode($filters));
 			if (Cache::has($key)) {
@@ -113,17 +116,18 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 						if (count($prices_property)) {
 							$prices_property = (array)$prices_property[0];
 							$prices_property['giata_id'] = $value->giata_id;
-							\Log::debug('search' . count($prices_property), [$value->property_id => (array)$prices_property]);
 							$output[$value->property_id] = (object) array_merge(['content' => $value], ['price' => $prices_property]);
 						}
 					} 
 				}
 				Cache::put($key, $output, now()->addMinutes(120));
 			}
+			\Log::debug('ExpediaHotelApiHandler | price | AsyncGetPrices: ' . $this->executionTime() . ' seconds');
 
 			# save data to Inspector
 			$supplier_id = 1;
 			$inspector = $this->apiInspector->save($filters, $output, $supplier_id);
+			\Log::debug('ExpediaHotelApiHandler | price | save data to Inspector: ' . $this->executionTime() . ' seconds');
 
             return $this->sendResponse([
 				'count' => count($output), 
@@ -159,4 +163,13 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
             return $this->sendError(['error' => $e->getMessage()], 'falied');
         }
     }
+
+	private function executionTime ()
+    {
+        $execution_time = (microtime(true) - $this->current_time);
+        $this->current_time = microtime(true);
+
+        return $execution_time;
+    }
+
 }

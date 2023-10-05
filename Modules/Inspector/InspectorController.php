@@ -9,9 +9,14 @@ use App\Models\ApiInspector;
 use Illuminate\Support\Str;
 class InspectorController
 {
+
+	protected $current_time;
+
 	public function save($query, $content, $supplier_id , $type = 'search') : string|bool
 	{
 		try {
+			$this->current_time = microtime(true);
+			
 			$ch = new Channels;
 			$token_id = $ch->getTokenId(request()->bearerToken());
 			$query = json_encode($query);
@@ -21,8 +26,10 @@ class InspectorController
 
 			$inspector = ApiInspector::where('response_path', $path)->first();
 			if ($inspector) return $inspector->id;
+			\Log::debug('InspectorController search exist: ' . $this->executionTime() . ' seconds');
 
 			Storage::put($path, $content);
+			\Log::debug('InspectorController save to Storage: ' . $this->executionTime() . ' seconds');
 
 			$uuid = Str::uuid()->toString();
 
@@ -36,6 +43,7 @@ class InspectorController
 			];
 
 			$inspector = ApiInspector::create($data);
+			\Log::debug('InspectorController save to DB: ' . $this->executionTime() . ' seconds');
 
 			return $inspector ? $uuid : false;
 
@@ -60,4 +68,12 @@ class InspectorController
 	{
 		//
 	}
+
+	private function executionTime ()
+    {
+        $execution_time = (microtime(true) - $this->current_time);
+        $this->current_time = microtime(true);
+
+        return $execution_time;
+    }
 }

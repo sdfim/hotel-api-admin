@@ -21,7 +21,7 @@ class HotelSearchBuilder
             $this->query->where('rating', '>=', $filters['rating']);
         }
  
- 		// TODO: add ocuppancy filter
+ 		// TODO: [UJV-4] add ocuppancy filter
  		if (isset($filters['ocuppancy'])) {
  			$max_ocuppancy = 1;
  			foreach ($filters['ocuppancy'] as $value) {
