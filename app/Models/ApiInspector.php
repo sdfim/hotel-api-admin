@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-
+use Laravel\Sanctum\PersonalAccessToken;
 
 class ApiInspector extends Model
 {
@@ -29,6 +29,17 @@ class ApiInspector extends Model
         static::creating(function ($model) {
             $model->{$model->getKeyName()} = Str::uuid()->toString();
         });
+    }
+	
+
+    public function token ()
+    {
+        return $this->belongsTo(PersonalAccessToken::class);
+    }
+
+    public function supplier ()
+    {
+        return $this->belongsTo(Suppliers::class);
     }
 
 }

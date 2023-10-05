@@ -9,6 +9,6 @@ class InspectorController extends Controller
 {
     public function index ()
     {
-        return view('dashboard.inspector');
+        return view('dashboard.inspector.index');
     }
 }
