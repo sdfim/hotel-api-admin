@@ -14,6 +14,9 @@ use Modules\AdministrationSuite\Http\Controllers\ChannelsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Modules\AdministrationSuite\Http\Controllers\ExpediaController;
+use Modules\AdministrationSuite\Http\Controllers\GiataController;
+use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +55,9 @@ Route::prefix('admin')->group(function () {
         Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
         Route::resource('reservations', ReservationsController::class)->except(['delete', 'store', 'create']);
         Route::resource('weight', WeightController::class);
+        Route::resource('giata', GiataController::class)->except(['delete', 'store', 'create']);
+        Route::resource('expedia', ExpediaController::class)->except(['delete', 'store', 'create']);
+        Route::resource('mapping', MappingExpediaGiatasController::class)->except(['index', 'update', 'create']);
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');

@@ -9,6 +9,12 @@ use App\Models\ExpediaContent;
 class MapperExpediaGiata extends Model
 {
     use HasFactory;
+    protected $fillable = [
+        'expedia_id',
+        'giata_id',
+        'step',
+    ];
+    public $timestamps = false;
 	protected $connection;
 	public function __construct (array $attributes = [])
     {
