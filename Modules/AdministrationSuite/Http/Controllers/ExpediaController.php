@@ -13,13 +13,7 @@ class ExpediaController extends Controller
      */
     public function index():View
     {
-        //
-        $epx = ExpediaContent::where('property_id',1846741)->with('mapperGiataExpedia')->get();
-        dd($epx->);
-        // $expedia = ExpediaContent::leftJoin('mapper_expedia_giatas', 'expedia_contents.property_id', '=', 'mapper_expedia_giatas.expedia_id')->where('mapper_expedia_giatas.expedia_id',1846741)->limit(1)->get();
-        // dd($expedia);
         return view('dashboard.expedia.index');
-
     }
 
     /**

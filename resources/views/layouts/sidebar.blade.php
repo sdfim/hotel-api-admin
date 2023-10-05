@@ -94,20 +94,26 @@
                         <span data-key="t-log-viewer"> Weight</span>
                     </a>
                 </li>
-                
                 <li>
-                    <a href="{{ Route('giata.index') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-document-remove"></i>
-                        <span data-key="t-log-viewer"> Giata</span>
+                    <a href="javascript: void(0);" aria-expanded="false"
+                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-gear"></i>
+                        <span data-key="t-configuration">Mapping Augmentation</span>
                     </a>
-                </li>
-                <li>
-                    <a href="{{ Route('expedia.index') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-document-remove"></i>
-                        <span data-key="t-log-viewer"> Expedia</span>
-                    </a>
+                    <ul>
+                        <li>
+                            <a href="{{ Route('giata.index') }}"
+                            class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                               Giata
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ Route('expedia.index') }}"
+                            class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                Expedia
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
                 <!--
