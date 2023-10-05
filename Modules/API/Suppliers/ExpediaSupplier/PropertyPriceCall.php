@@ -83,6 +83,7 @@ class PropertyPriceCall
 	public function getPriceData(array $propertyIds = [])
 	{
 		$responses = [];
+		
 
 		foreach ($propertyIds as $propertyId) {
 			$this->propertyId = $propertyId;
@@ -95,14 +96,19 @@ class PropertyPriceCall
 			}
 		}
 
+		\Log::debug('PropertyPriceCall count ' . count($promises), ['promises' => $promises]);
+
 		try {
-			$responses = Promise\Utils::unwrap($promises);
+			// $responses = Promise\Utils::unwrap($promises);
+			$responses = [];
 			$resolvedResponses = Promise\Utils::settle($promises)->wait();
+
+			\Log::debug('PropertyPriceCall resolvedResponses ' . count($resolvedResponses), ['resolvedResponses' => $resolvedResponses]);
 
 			foreach ($resolvedResponses as $propertyId => $response) {
 				if ($response['state'] === 'fulfilled') {
 					$data = $response['value']->getBody()->getContents();
-					// \Log::debug('PropertyPriceCall property_id: ' . $propertyId . ' count ' . count(json_decode($data)));
+					\Log::debug('PropertyPriceCall property_id: ' . $propertyId . ' count ' . count(json_decode($data)));
 					$responses[$propertyId] = $data;
 				} else {
 					\Log::error('Promise for property_id ' . $propertyId . ' failed: ' . $response['reason']->getMessage());

@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\API\Controllers\RoteApiController;
+use Modules\API\Controllers\TestAsyncGuzzle;
+;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,3 +25,11 @@ Route::group(['middleware' => 'auth:sanctum'], function () {
 
 	Route::post('/price', [RoteApiController::class, 'handle'])->name('price');
 });
+
+Route::group(['middleware' => 'auth:sanctum'], function () {
+
+	Route::get('/test', [TestAsyncGuzzle::class, 'test']);
+	Route::get('/testSync', [TestAsyncGuzzle::class, 'testSync']);
+	Route::get('/testAsync', [TestAsyncGuzzle::class, 'testAsync']);
+});
+

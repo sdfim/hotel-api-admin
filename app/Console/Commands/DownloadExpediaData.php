@@ -25,6 +25,14 @@ class DownloadExpediaData extends Command
      */
     protected $description = 'Command description';
 
+	protected RapidClient $rapidClient;
+
+	public function __construct(RapidClient $rapidClient)
+	{
+		parent::__construct();
+		$this->rapidClient = $rapidClient;
+	}
+
     private const PROPERTY_CONTENT_PATH = "v3/files/properties/";
     private const BATCH_SIZE = 100;
     private const MIN_RATING = 4;
@@ -75,15 +83,11 @@ class DownloadExpediaData extends Command
 
     function getUrlArchive (): string
     {
-        $apiKey = env('EXPEDIA_RAPID_API_KEY');
-        $sharedSecret = env('EXPEDIA_RAPID_SHARED_SECRET');
-
-        $client = new RapidClient($apiKey, $sharedSecret);
         $queryParams = [
             'language' => 'en-US',
             'supply_source' => 'expedia',
         ];
-        $response = $client->get(self::PROPERTY_CONTENT_PATH . $this->type, $queryParams);
+        $response = $this->rapidClient->get(self::PROPERTY_CONTENT_PATH . $this->type, $queryParams);
 
         // Read the response to return.
         $propertyContents = $response->getBody()->getContents();

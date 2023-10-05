@@ -20,6 +20,7 @@
 </head>
 
 <body data-mode="light" data-sidebar-size="lg">
+@livewire('notifications')
 <!-- content -->
 @yield('content')
 <!-- rtl-ltr -->

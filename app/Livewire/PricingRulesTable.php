@@ -23,52 +23,63 @@ class PricingRulesTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
             ->query(PricingRules::query())
             ->columns([
-                TextColumn::make('supplier_id')
-                    ->numeric()
-                    ->sortable(),
+                TextColumn::make('suppliers.name')
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('name')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('property')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('destination')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('travel_date')
                     ->dateTime()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('days')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('nights')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('rate_code')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('room_type')
                     ->searchable()
-					->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('total_guests')
                     ->numeric()
                     ->sortable()
-					->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('room_guests')
                     ->numeric()
                     ->sortable()
-					->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('number_rooms')
                     ->numeric()
                     ->sortable()
-					->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('meal_plan')
                     ->searchable()
-					->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
                 TextColumn::make('rating')
                     ->searchable()
-					->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(),
+                TextColumn::make('price_type_to_apply'),
+                TextColumn::make('price_value_type_to_apply'),
+                TextColumn::make('price_value_to_apply'),
+                TextColumn::make('price_value_fixed_type_to_apply'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -84,14 +95,14 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(PricingRules $record): string => route('pricing_rules.show', $record))
+                        ->url(fn (PricingRules $record): string => route('pricing_rules.show', $record))
                         ->color('info'),
                     EditAction::make()
-                        ->url(fn(PricingRules $record): string => route('pricing_rules.edit', $record))
+                        ->url(fn (PricingRules $record): string => route('pricing_rules.edit', $record))
                         ->color('primary'),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(PricingRules $record) => $record->delete())
+                        ->action(fn (PricingRules $record) => $record->delete())
                         ->color('danger'),
                 ])
             ])
@@ -102,7 +113,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.pricing-rules-table');
     }
