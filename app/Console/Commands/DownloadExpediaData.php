@@ -7,7 +7,7 @@ use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use App\Models\ExpediaContent;
-
+use Modules\Inspector\ExceptionReportController;
 
 class DownloadExpediaData extends Command
 {
@@ -26,11 +26,13 @@ class DownloadExpediaData extends Command
     protected $description = 'Command description';
 
 	protected RapidClient $rapidClient;
+	protected $apiExceptionReport;
 
 	public function __construct(RapidClient $rapidClient)
 	{
 		parent::__construct();
 		$this->rapidClient = $rapidClient;
+		$this->apiExceptionReport = new ExceptionReportController();
 	}
 
     private const PROPERTY_CONTENT_PATH = "v3/files/properties/";
@@ -79,6 +81,8 @@ class DownloadExpediaData extends Command
             $this->info('parse json to db in ' . $this->executionStepTime() . ' seconds');
         }
 
+		$this->apiExceptionReport->save('DownloadExpediaData FullStep', '', 'Expedia', 'successful');
+
     }
 
     function getUrlArchive (): string
@@ -87,21 +91,22 @@ class DownloadExpediaData extends Command
             'language' => 'en-US',
             'supply_source' => 'expedia',
         ];
-        $response = $this->rapidClient->get(self::PROPERTY_CONTENT_PATH . $this->type, $queryParams);
+		try {
+			$response = $this->rapidClient->get(self::PROPERTY_CONTENT_PATH . $this->type, $queryParams);
 
-        // Read the response to return.
-        $propertyContents = $response->getBody()->getContents();
-        $url = json_decode($propertyContents, true)['href'];
-
+			// Read the response to return.
+			$propertyContents = $response->getBody()->getContents();
+			$url = json_decode($propertyContents, true)['href'];
+		} catch (\Exception $e) {
+			$this->apiExceptionReport->save('DownloadExpediaData getUrlArchive', $e->getMessage() .' | '. $e->getTraceAsString(), 'Expedia');
+		}
+        
         return $url;
     }
 
     function downloadArchive ($url): bool
     {
-        $start_time = microtime(true);
-
         try {
-            dump('start downloadAndExtractGz');
             \Log::debug('start downloadAndExtractGz', ['url' => $url, 'type' => $this->type]);
 
             $response = Http::timeout(3600)->get($url);
@@ -119,12 +124,15 @@ class DownloadExpediaData extends Command
 
             } else {
                 \Log::error('Error downloading gz file: ' . $response->status() . ' ' . $response->body());
+				$this->apiExceptionReport->save('DownloadExpediaData downloadAndExtractGz', $response->status() . ' | ' . $response->body(), 'Expedia');
+				return false;
             }
 
             return true;
 
         } catch (\Exception $e) {
             \Log::error('Error downloading gz file: ' . $e->getMessage());
+			$this->apiExceptionReport->save('DownloadExpediaData downloadAndExtractGz', $e->getMessage() . ' ' . $e->getTraceAsString(), 'Expedia');
             return false;
         }
     }
@@ -249,6 +257,7 @@ class DownloadExpediaData extends Command
                     ExpediaContent::insert($batchData);
                 } catch (\Exception $e) {
                     \Log::error('ImportJsonlData', ['error' => $e->getMessage()]);
+					$this->apiExceptionReport->save('DownloadExpediaData ImportJsonlData', $e->getMessage() . ' ' . $e->getTraceAsString(), 'Expedia');
                 }
                 $batchCount++;
                 $this->info('Data imported batchData: ' . $batchCount . ' count =  ' . count($batchData));
@@ -263,6 +272,8 @@ class DownloadExpediaData extends Command
                 ExpediaContent::insert($batchData);
             } catch (\Exception $e) {
                 \Log::error('ImportJsonlData', ['error' => $e->getMessage()]);
+				$this->apiExceptionReport->save('ImportJsonlData', $e->getMessage() . ' ' . $e->getTraceAsString(), 'Expedia');
+
             }
         }
 

@@ -7,16 +7,14 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Channels;
 use App\Models\ApiInspector;
 use Illuminate\Support\Str;
-class InspectorController
+use Modules\Inspector\BaseInspectorController;
+class InspectorController extends BaseInspectorController
 {
-
-	protected $current_time;
-
 	public function save($query, $content, $supplier_id , $type = 'search') : string|bool
 	{
 		try {
 			$this->current_time = microtime(true);
-			
+
 			$ch = new Channels;
 			$token_id = $ch->getTokenId(request()->bearerToken());
 			$query = json_encode($query);
@@ -69,11 +67,4 @@ class InspectorController
 		//
 	}
 
-	private function executionTime ()
-    {
-        $execution_time = (microtime(true) - $this->current_time);
-        $this->current_time = microtime(true);
-
-        return $execution_time;
-    }
 }
