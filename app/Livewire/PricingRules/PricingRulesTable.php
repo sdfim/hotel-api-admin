@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\PricingRules;
 
 use App\Models\PricingRules;
 use Filament\Actions\DeleteAction;
@@ -16,7 +16,6 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Builder;
 
 class PricingRulesTable extends Component implements HasForms, HasTable
 {
@@ -31,16 +30,33 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                 TextColumn::make('suppliers.name')
                     ->sortable()
                     ->toggleable(),
+                TextColumn::make('channels.name')
+                    ->label('Channel name')
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('name')
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('property')
+                    ->label('Property code')
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('giataProperties.name')
+                    ->label('Property name')
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('destination')
                     ->searchable()
                     ->toggleable(),
                 TextColumn::make('travel_date')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('rule_start_date')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('rule_expiration_date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
@@ -76,10 +92,14 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                 TextColumn::make('rating')
                     ->searchable()
                     ->toggleable(),
-                TextColumn::make('price_type_to_apply'),
-                TextColumn::make('price_value_type_to_apply'),
-                TextColumn::make('price_value_to_apply'),
-                TextColumn::make('price_value_fixed_type_to_apply'),
+                TextColumn::make('price_type_to_apply')
+                    ->toggleable(),
+                TextColumn::make('price_value_type_to_apply')
+                    ->toggleable(),
+                TextColumn::make('price_value_to_apply')
+                    ->toggleable(),
+                TextColumn::make('price_value_fixed_type_to_apply')
+                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
