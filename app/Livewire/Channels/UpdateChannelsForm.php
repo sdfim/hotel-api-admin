@@ -7,8 +7,10 @@ use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class UpdateChannelsForm extends Component implements HasForms
 {
@@ -18,8 +20,9 @@ class UpdateChannelsForm extends Component implements HasForms
 
     public Channels $record;
 
-    public function mount(): void
+    public function mount(Channels $channel): void
     {
+        $this->record = $channel;
         $this->form->fill($this->record->attributesToArray());
     }
 
@@ -27,9 +30,6 @@ class UpdateChannelsForm extends Component implements HasForms
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('token_id')
-                    ->required()
-                    ->numeric(),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(191),
@@ -41,11 +41,16 @@ class UpdateChannelsForm extends Component implements HasForms
             ->model($this->record);
     }
 
-    public function edit(): void
+    public function edit(): Redirector
     {
         $data = $this->form->getState();
-
         $this->record->update($data);
+
+        Notification::make()
+            ->title('Created successfully')
+            ->success()
+            ->send();
+        return redirect()->route('channels.index');
     }
 
     public function render(): View

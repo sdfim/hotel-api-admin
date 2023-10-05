@@ -7,14 +7,18 @@ use App\Models\GeneralConfiguration;
 
 class GeneralConfigurationController extends Controller
 {
-    public function index ()
+    public function index()
     {
+        $result = GeneralConfiguration::first();
+
+        $general_configuration = $result ? $result : new GeneralConfiguration();
+
         return view('dashboard.general-configuration', [
-            'general_configuration' => GeneralConfiguration::first(),
+            'general_configuration' => $general_configuration,
         ]);
     }
 
-    public function save (Request $request)
+    public function save(Request $request)
     {
         $general_configuration = GeneralConfiguration::get();
         if (count($general_configuration) == 0) {

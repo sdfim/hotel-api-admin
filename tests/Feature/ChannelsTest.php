@@ -31,17 +31,21 @@ class ChannelsTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /* public function testStore()
+    public function testStore()
     {
+        $this->auth();
+        $token = auth()->user()->createToken('New Channel Name');
         $response = $this->post('/admin/channels', [
+            'token_id' => $token->accessToken->id,
+            'access_token' => $token->plainTextToken,
             'name' => 'New Channel Name',
             'description' => $this->faker->sentence,
         ]);
 
-        $response->assertStatus(302); 
+        $response->assertStatus(302);
         $response->assertRedirect('/admin/channels');
         $this->assertDatabaseHas('channels', ['name' => 'New Channel Name']); // Check if the data is in the database
-    } */
+    }
 
     public function testUpdateChannel()
     {
@@ -79,7 +83,7 @@ class ChannelsTest extends TestCase
         $channels = Channels::factory()->create();
         $response = $this->get(route('channels.edit', $channels->id));
         $response->assertStatus(200);
-    }   
+    }
 
     public function testDestroy()
     {

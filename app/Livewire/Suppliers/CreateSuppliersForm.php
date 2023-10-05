@@ -7,8 +7,10 @@ use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class CreateSuppliersForm extends Component implements HasForms
 {
@@ -36,13 +38,18 @@ class CreateSuppliersForm extends Component implements HasForms
             ->model(Suppliers::class);
     }
 
-    public function create(): void
+    public function create(): Redirector
     {
         $data = $this->form->getState();
 
         $record = Suppliers::create($data);
 
         $this->form->model($record)->saveRelationships();
+        Notification::make()
+            ->title('Created successfully')
+            ->success()
+            ->send();
+        return redirect()->route('suppliers.index');
     }
 
     public function render(): View

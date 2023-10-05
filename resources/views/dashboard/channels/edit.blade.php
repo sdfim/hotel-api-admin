@@ -21,36 +21,9 @@
                             </div>
                         </div>
                     </div>
-
-                    <form action="{{ route('channels.update', $channel->id) }}" method="POST"
-                          x-data="{ inputName: '{{ old('name', $channel->name) }}', submitButtonDisable: false }"
-                          @submit="submitButtonDisable = true">
-                        @csrf
-                        @method('PUT')
-                        <div class="col-span-12 lg:col-span-6">
-                            <div class="mb-4">
-                                <x-label for="name" class="dark:text-gray-100" value="{{ __('Name') }}"/>
-                                <x-input id="name" name="name" value="{{ $channel->name }}" placeholder="Name"
-                                         type="text"
-                                         class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                         wire:model="state.name" autocomplete="name"/>
-                                <x-input-error for="name" class="mt-2"/>
-                            </div>
-                            <div class="mb-4">
-                                <x-label for="description" class="dark:text-gray-100" value="{{ __('Description') }}"/>
-                                <x-input id="description" name="description" value="{{ $channel->description }}"
-                                         placeholder="Description" type="text"
-                                         class="mt-1 block w-full dark:bg-zinc-700 dark:border-transparent dark:text-gray-100"
-                                         wire:model="state.description" autocomplete="description"/>
-                                <x-input-error for="description" class="mt-2"/>
-                            </div>
-                            <div class="mt-6">
-                                <x-button class="ml-4" x-bind:disabled="submitButtonDisable">
-                                    {{ __('Update') }}
-                                </x-button>
-                            </div>
-                        </div>
-                    </form>
+                    <div class="ml-1 mr-1 col-span-9 xl:col-span-6">
+                        @livewire('channels.update-channels-form', compact('channel'))
+                    </div>
                 </div>
             </div>
         </div>

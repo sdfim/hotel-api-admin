@@ -31,9 +31,7 @@ class ChannelsTable extends Component implements HasForms, HasTable
                     ->searchable(),
                 TextColumn::make('description')
                     ->searchable(),
-
-                TextColumn::make('token_id')
-                    ->numeric()
+                TextColumn::make('access_token')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()

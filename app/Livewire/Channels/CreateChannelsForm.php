@@ -7,8 +7,10 @@ use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
+use Livewire\Features\SupportRedirects\Redirector;
 
 class CreateChannelsForm extends Component implements HasForms
 {
@@ -25,9 +27,6 @@ class CreateChannelsForm extends Component implements HasForms
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('token_id')
-                    ->required()
-                    ->numeric(),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(191),
@@ -39,13 +38,21 @@ class CreateChannelsForm extends Component implements HasForms
             ->model(Channels::class);
     }
 
-    public function create(): void
+    public function create(): Redirector
     {
         $data = $this->form->getState();
-
+       // dd($data);
+        $token = auth()->user()->createToken($data['name']);
+        $data['token_id'] = $token->accessToken->id;
+        $data['access_token'] = $token->plainTextToken;
         $record = Channels::create($data);
 
         $this->form->model($record)->saveRelationships();
+        Notification::make()
+            ->title('Created successfully')
+            ->success()
+            ->send();
+        return redirect()->route('channels.index');
     }
 
     public function render(): View

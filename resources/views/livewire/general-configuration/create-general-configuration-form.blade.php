@@ -1,10 +1,17 @@
 <div>
-    <form wire:submit="create">
+    <form wire:submit="save">
         {{ $this->form }}
 
-        <button type="submit">
-            Submit
-        </button>
+        @if ($create)
+            <x-button class="mt-4">
+                {{ __('Update') }}
+            </x-button>
+        @else{
+            <x-button class="mt-4">
+                {{ __('Create') }}
+            </x-button>
+            }
+        @endif
     </form>
 
     <x-filament-actions::modals />
