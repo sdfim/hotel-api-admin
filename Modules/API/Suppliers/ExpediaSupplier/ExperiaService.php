@@ -2,10 +2,7 @@
 
 namespace Modules\API\Suppliers\ExpediaSupplier;
 
-use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
-use Modules\API\Suppliers\ExpediaSupplier\PropertyPriceCall;
 use Illuminate\Support\Facades\Cache;
-
 
 class ExperiaService
 {

@@ -14,7 +14,7 @@ class MakeMapperExpediaGiate extends Command
      *
      * @var string
      */
-    protected $signature = 'make-mapper-expedia-giate {startId}';
+    protected $signature = 'make-mapper-expedia-giate {startId} {stepStrategy}';
 
     /**
      * The console command description.
@@ -26,6 +26,7 @@ class MakeMapperExpediaGiate extends Command
 	private const BATCH_SIZE_ADVANCED = 10;
 	private $batch = 1;
 	private $startId = 1;
+	private $stepStrategy = 4;
 
     /**
      * Execute the console command.
@@ -33,6 +34,8 @@ class MakeMapperExpediaGiate extends Command
     public function handle()
     {	
 		$this->startId = $this->argument('startId'); // 1
+		$this->stepStrategy = $this->argument('stepStrategy');
+
 
 		$mapper = [];
 
@@ -128,6 +131,7 @@ class MakeMapperExpediaGiate extends Command
 			$start = microtime(true);
 			$mp = false;
 			foreach ($strategy as $step => $params) {
+				if ($step > $this->stepStrategy) continue;
 				$giata = $this->query($params);
 				if ($giata) {
 					$mapper = $this->addToMapper($mapper, $giata, $expedia, $step);
