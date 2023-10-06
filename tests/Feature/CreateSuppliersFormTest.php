@@ -2,22 +2,23 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\Channels\CreateChannelsForm;
+use App\Livewire\Suppliers\CreateSuppliersForm;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
 use Tests\TestCase;
 
-class CreateChannelsFormTest extends TestCase
+class CreateSuppliersFormTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
 
-    public function testCreateChannelsFormAndValidation()
+
+    public function testCreateSuppliersFormAndValidation()
     {
         $this->auth();
-        Livewire::test(CreateChannelsForm::class)
+        Livewire::test(CreateSuppliersForm::class)
             ->set('data', [
                 'name' => '',
                 'description' => '',
@@ -25,16 +26,16 @@ class CreateChannelsFormTest extends TestCase
             ->call('create')
             ->assertHasErrors(['data.name', 'data.description']);
 
-        Livewire::test(CreateChannelsForm::class)
+        Livewire::test(CreateSuppliersForm::class)
             ->set('data', [
-                'name' => 'Test Channel',
+                'name' => 'Test Suppliers',
                 'description' => 'Test Description',
             ])
             ->call('create')
-            ->assertRedirect(route('channels.index'));
+            ->assertRedirect(route('suppliers.index'));
 
-        $this->assertDatabaseHas('channels', [
-            'name' => 'Test Channel',
+        $this->assertDatabaseHas('suppliers', [
+            'name' => 'Test Suppliers',
             'description' => 'Test Description',
         ]);
     }
