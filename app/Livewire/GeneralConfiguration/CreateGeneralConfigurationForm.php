@@ -3,7 +3,8 @@
 namespace App\Livewire\GeneralConfiguration;
 
 use App\Models\GeneralConfiguration;
-use Filament\Forms;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -43,34 +44,34 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('time_supplier_requests')
+                TextInput::make('time_supplier_requests')
                     ->label('Time out on supplier requests')
                     ->minValue(0)
                     ->maxValue(999999999)
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('time_reservations_kept')
+                TextInput::make('time_reservations_kept')
                     ->label('Length of Time Reservations are kept are offloading')
                     ->minValue(0)
                     ->maxValue(999999999)
                     ->required()
                     ->numeric(),
-                Forms\Components\TextInput::make('currently_suppliers')
+                TextInput::make('currently_suppliers')
                     ->label('Which Suppliers are currently being searched for')
                     ->minLength(2)
                     ->maxLength(191)
                     ->required(),
-                Forms\Components\TextInput::make('time_inspector_retained')
+                TextInput::make('time_inspector_retained')
                     ->label('How Long Inspector Data is retained')
                     ->minValue(0)
                     ->maxValue(999999999)
                     ->required()
                     ->numeric(),
-                Forms\Components\DateTimePicker::make('star_ratings')
+                DateTimePicker::make('star_ratings')
                     ->label('What star ratings to be searched for on the system')
                     ->default('2019-08-19T13:45:00')
                     ->required(),
-                Forms\Components\DateTimePicker::make('stop_bookings')
+                DateTimePicker::make('stop_bookings')
                     ->label('Stop bookings with in a number of days / hours from time of search execution')
                     ->default('2019-08-19T13:45:00')
                     ->required(),
@@ -87,7 +88,6 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
 
         if (count($general_configuration) == 0) {
             $general_configuration_row = new GeneralConfiguration();
-            // dd($general_configuration_row);
             $general_configuration_row->time_supplier_requests = $request->time_supplier_requests;
             $general_configuration_row->time_reservations_kept = $request->time_reservations_kept;
             $general_configuration_row->currently_suppliers = $request->currently_suppliers;

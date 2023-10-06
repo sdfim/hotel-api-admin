@@ -6,11 +6,10 @@
             <x-button class="mt-4">
                 {{ __('Update') }}
             </x-button>
-        @else{
+        @else
             <x-button class="mt-4">
                 {{ __('Create') }}
             </x-button>
-            }
         @endif
     </form>
 
