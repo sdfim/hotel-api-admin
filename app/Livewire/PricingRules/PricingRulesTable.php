@@ -5,6 +5,7 @@ namespace App\Livewire\PricingRules;
 use App\Models\PricingRules;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
@@ -121,6 +122,18 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     DeleteAction::make()
                         ->requiresConfirmation()
                         ->action(fn(PricingRules $record) => $record->delete())
+                        ->successNotification(
+                            Notification::make()
+                                ->title('Successfully deleted')
+                                ->success()
+                                ->send()
+                        )
+                        ->failureNotification(
+                            Notification::make()
+                                ->title('Deletion error')
+                                ->danger()
+                                ->send()
+                        )
                 ])
             ])
             ->bulkActions([

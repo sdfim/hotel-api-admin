@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Suppliers;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
@@ -51,7 +52,19 @@ class SuppliersTable extends Component implements HasForms, HasTable
                         ->url(fn(Suppliers $record): string => route('suppliers.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(Suppliers $record) => $record->delete()),
+                        ->action(fn(Suppliers $record) => $record->delete())
+                        ->successNotification(
+                            Notification::make()
+                                ->title('Successfully deleted')
+                                ->success()
+                                ->send()
+                        )
+                        ->failureNotification(
+                            Notification::make()
+                                ->title('Deletion error')
+                                ->danger()
+                                ->send()
+                        )
                 ])
             ])
             ->bulkActions([

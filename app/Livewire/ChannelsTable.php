@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Channels;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
@@ -53,7 +54,19 @@ class ChannelsTable extends Component implements HasForms, HasTable
                         ->url(fn(Channels $record): string => route('channels.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(Channels $record) => $record->delete()),
+                        ->action(fn(Channels $record) => $record->delete())
+                        ->successNotification(
+                            Notification::make()
+                                ->title('Successfully deleted')
+                                ->success()
+                                ->send()
+                        )
+                        ->failureNotification(
+                            Notification::make()
+                                ->title('Deletion error')
+                                ->danger()
+                                ->send()
+                        )
                 ])
             ])
             ->bulkActions([

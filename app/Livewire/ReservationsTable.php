@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Reservations;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
@@ -78,7 +79,18 @@ class ReservationsTable extends Component implements HasForms, HasTable
                             $record->update(['canceled_at' => date('Y-m-d H:i:s')]);
                         })
                         ->icon('heroicon-s-x-circle')
-                        ->color('danger'),
+                        ->color('danger')
+                        ->successNotification(
+                            Notification::make()
+                                ->title('Successfully cancelled')
+                                ->success()
+                                ->send()
+                        )
+                        ->failureNotification(Notification::make()
+                            ->title('Cancellation error')
+                            ->danger()
+                            ->send()
+                        ),
                 ])->color('gray'),
             ])
             ->bulkActions([
