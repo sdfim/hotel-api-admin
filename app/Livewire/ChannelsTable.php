@@ -55,18 +55,6 @@ class ChannelsTable extends Component implements HasForms, HasTable
                     DeleteAction::make()
                         ->requiresConfirmation()
                         ->action(fn(Channels $record) => $record->delete())
-                        ->successNotification(
-                            Notification::make()
-                                ->title('Successfully deleted')
-                                ->success()
-                                ->send()
-                        )
-                        ->failureNotification(
-                            Notification::make()
-                                ->title('Deletion error')
-                                ->danger()
-                                ->send()
-                        )
                 ])
             ])
             ->bulkActions([

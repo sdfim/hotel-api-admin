@@ -80,17 +80,6 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         })
                         ->icon('heroicon-s-x-circle')
                         ->color('danger')
-                        ->successNotification(
-                            Notification::make()
-                                ->title('Successfully cancelled')
-                                ->success()
-                                ->send()
-                        )
-                        ->failureNotification(Notification::make()
-                            ->title('Cancellation error')
-                            ->danger()
-                            ->send()
-                        ),
                 ])->color('gray'),
             ])
             ->bulkActions([

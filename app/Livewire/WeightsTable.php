@@ -49,18 +49,6 @@ class WeightsTable extends Component implements HasForms, HasTable
                     DeleteAction::make()
                         ->requiresConfirmation()
                         ->action(fn(Weights $record) => $record->delete())
-                        ->successNotification(
-                            Notification::make()
-                                ->title('Successfully deleted')
-                                ->success()
-                                ->send()
-                        )
-                        ->failureNotification(
-                            Notification::make()
-                                ->title('Deletion error')
-                                ->danger()
-                                ->send()
-                        )
                 ])
             ])
             ->bulkActions([
