@@ -40,13 +40,13 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 			$filters = Validator::make($request->all(), $rules)->validated();
 
             $expedia = new ExpediaContent();
-			
+
 			$fields = $request->get('fullList') ? $expedia->getFullListFields() : $expedia->getShortListFields();
 			$query = $expedia->select($fields);
 
             $searchBuilder = new HotelSearchBuilder($query);
             $results = $searchBuilder->applyFilters($filters);
-			
+
 			# enricmant GIATA code
 			$selectList = ['mapper_expedia_giatas.giata_id'];
 			foreach ($fields as $field) {
@@ -119,21 +119,22 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 							$prices_property['giata_id'] = $value->giata_id;
 							$output[$value->property_id] = (object) array_merge(['content' => $value], ['price' => $prices_property]);
 						}
-					} 
+					}
 				}
 				Cache::put($key, $output, now()->addMinutes(120));
 			}
 			\Log::debug('ExpediaHotelApiHandler | price | AsyncGetPrices: ' . $this->executionTime() . ' seconds');
 
 			# save data to Inspector
+            // TODO: create Seeder to create default supplier record with Expedia
 			$supplier_id = Suppliers::where('name', 'Expedia')->first()->id;
 			$inspector = $this->apiInspector->save($filters, $output, $supplier_id);
 			\Log::debug('ExpediaHotelApiHandler | price | save data to Inspector: ' . $this->executionTime() . ' seconds');
 
             return $this->sendResponse([
-				'count' => count($output), 
+				'count' => count($output),
 				'inspector' => $inspector ?? '',
-				'query' => $filters, 
+				'query' => $filters,
 				'results' => $output,
 			], 'success');
         } catch (\Exception $e) {
