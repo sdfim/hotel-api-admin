@@ -2,11 +2,9 @@
 
 namespace Modules\Inspector;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Channels;
 use App\Models\ApiInspector;
-use Illuminate\Support\Str;
 use Modules\Inspector\BaseInspectorController;
 class InspectorController extends BaseInspectorController
 {
@@ -29,10 +27,8 @@ class InspectorController extends BaseInspectorController
 			Storage::put($path, $content);
 			\Log::debug('InspectorController save to Storage: ' . $this->executionTime() . ' seconds');
 
-			$uuid = Str::uuid()->toString();
 
 			$data = [
-				'id' => $uuid,
 				'token_id' => $token_id,
 				'supplier_id' => $supplier_id,
 				'type' => $type,
@@ -43,7 +39,7 @@ class InspectorController extends BaseInspectorController
 			$inspector = ApiInspector::create($data);
 			\Log::debug('InspectorController save to DB: ' . $this->executionTime() . ' seconds');
 
-			return $inspector ? $uuid : false;
+			return $inspector ? $inspector->id : false;
 
 		} catch (\Exception $e) {
             \Log::error('Error save ApiInspector: ' . $e->getMessage(). ' | ' . $e->getLine() . ' | ' . $e->getFile());
