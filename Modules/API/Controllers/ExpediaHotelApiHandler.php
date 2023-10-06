@@ -126,8 +126,7 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 			\Log::debug('ExpediaHotelApiHandler | price | AsyncGetPrices: ' . $this->executionTime() . ' seconds');
 
 			# save data to Inspector
-            // TODO: create Seeder to create default supplier record with Expedia
-			$supplier_id = Suppliers::where('name', 'Expedia')->first()->id;
+			$supplier_id = Suppliers::getExpediaId();
 			$inspector = $this->apiInspector->save($filters, $output, $supplier_id);
 			\Log::debug('ExpediaHotelApiHandler | price | save data to Inspector: ' . $this->executionTime() . ' seconds');
 
