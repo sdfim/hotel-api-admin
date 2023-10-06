@@ -22,17 +22,15 @@ class PricingRulesControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /* public function testCreatePricingRule()
+    public function testCreate()
     {
         $this->auth();
+        $response = $this->get(route('pricing_rules.create'));
 
-        $pricingRule = PricingRules::factory()->create();
-
-        $response = $this->get(route('pricing_rules.create', $pricingRule->id));
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertViewIs('dashboard.pricing-rules.create');
     }
-
-    public function testStorePricingRule()
+    public function testStore()
     {
         $this->auth();
 
@@ -52,14 +50,17 @@ class PricingRulesControllerTest extends TestCase
             'number_rooms' => 1,
             'meal_plan' => $this->faker->word,
             'rating' => $this->faker->word,
+            'price_type_to_apply' => $this->faker->word,
+            'price_value_type_to_apply' => $this->faker->word,
+            'price_value_to_apply' =>  2.5,
+            'price_value_fixed_type_to_apply' => $this->faker->word,
         ];
 
         $response = $this->post(route('pricing_rules.store'), $data);
-        $response->assertRedirect(route('pricing_rules.index'));
 
+        $response->assertStatus(302)
+            ->assertRedirect(route('pricing_rules.index'));
         $this->assertDatabaseHas('pricing_rules', $data);
-
-        $response->assertSessionHas('success', 'Pricing rule created successfully.');
     }
 
     public function testShow()
@@ -69,18 +70,24 @@ class PricingRulesControllerTest extends TestCase
         $pricingRule = PricingRules::factory()->create();
 
         $response = $this->get(route('pricing_rules.show', $pricingRule->id));
-        $response->assertStatus(200);
+
+        $response->assertStatus(200)
+            ->assertViewIs('dashboard.pricing-rules.show')
+            ->assertViewHas('pricingRule', $pricingRule);
     }
 
-    public function testEditPricingRule()
+    public function testEdit()
     {
         $this->auth();
+
         $pricingRule = PricingRules::factory()->create();
 
         $response = $this->get(route('pricing_rules.edit', $pricingRule->id));
-        $response->assertStatus(200);
-    }
 
+        $response->assertStatus(200)
+            ->assertViewIs('dashboard.pricing-rules.update');
+           // ->assertViewHas('pricingRule', $pricingRule);
+    }
     public function testUpdatePricingRule()
     {
         $this->auth();
@@ -121,9 +128,9 @@ class PricingRulesControllerTest extends TestCase
         $response = $this->delete(route('pricing_rules.destroy', [$pricingRule->id]));
         $response->assertStatus(302);
         $response->assertRedirect(route('pricing_rules.index'));
-        
+
         $this->assertDatabaseMissing('pricing_rules', ['id' => $pricingRule->id]);
-    } */
+    }
 
     public function auth()
     {

@@ -41,6 +41,11 @@ class PricingRulesFactory extends Factory
             'number_rooms' => 1,
             'meal_plan' => $this->faker->name(),
             'rating' => $this->faker->name(),
+            'price_type_to_apply' => $this->faker->word,
+            'price_value_type_to_apply' => $this->faker->word,
+            'price_value_to_apply' => 2.47,
+            'price_value_fixed_type_to_apply' => $this->faker->word,
+
         ];
     }
 }
