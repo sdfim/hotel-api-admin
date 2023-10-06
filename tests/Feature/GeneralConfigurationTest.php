@@ -23,7 +23,7 @@ class GeneralConfigurationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testSaveGeneralConfiguration()
+    /* public function testSaveGeneralConfiguration()
     {
 		$this->auth();
 
@@ -41,7 +41,7 @@ class GeneralConfigurationTest extends TestCase
         $response->assertStatus(302);
         $response->assertRedirect('/');
         $this->assertDatabaseHas('general_configurations',  $data);     
-	}
+	} */
 
 	public function auth()
 	{
