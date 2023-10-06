@@ -3,19 +3,19 @@
 namespace App\Livewire;
 
 use App\Models\Reservations;
-use Filament\Tables\Actions\ViewAction;
-use Livewire\Component;
-use Illuminate\Contracts\View\View;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
-use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Illuminate\View\View;
+use Livewire\Component;
 
 class ReservationsTable extends Component implements HasForms, HasTable
 {
@@ -27,8 +27,9 @@ class ReservationsTable extends Component implements HasForms, HasTable
         return $table
             ->query(Reservations::query()->whereNull('canceled_at'))
             ->columns([
-                ViewColumn::make('contains.name')->searchable()->view('components.datatable-contains-column'),
-
+                ViewColumn::make('contains.name')
+                    ->searchable()
+                    ->view('components.datatable-contains-column'),
                 TextColumn::make('channel.name')
                     ->numeric()
                     ->searchable()
@@ -70,8 +71,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Reservations $record): string => route('reservations.show', $record))
-                        ->color('info'),
+                        ->url(fn(Reservations $record): string => route('reservations.show', $record)),
                     Action::make('Cancel')
                         ->requiresConfirmation()
                         ->action(function (Reservations $record) {

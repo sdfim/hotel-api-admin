@@ -2,14 +2,15 @@
 
 namespace App\Livewire\Suppliers;
 
+use Livewire\Component;
 use App\Models\Suppliers;
-use Filament\Forms;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Livewire\Component;
-use Illuminate\Contracts\View\View;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use Livewire\Features\SupportRedirects\Redirector;
 
 class CreateSuppliersForm extends Component implements HasForms
@@ -18,19 +19,19 @@ class CreateSuppliersForm extends Component implements HasForms
 
     public ?array $data = [];
 
-    public function mount(): void
+    public function mount (): void
     {
         $this->form->fill();
     }
 
-    public function form(Form $form): Form
+    public function form (Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
+                TextInput::make('name')
                     ->required()
                     ->maxLength(191),
-                Forms\Components\TextInput::make('description')
+                TextInput::make('description')
                     ->required()
                     ->maxLength(191),
             ])
@@ -38,21 +39,23 @@ class CreateSuppliersForm extends Component implements HasForms
             ->model(Suppliers::class);
     }
 
-    public function create(): Redirector
+    public function create (): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
 
         $record = Suppliers::create($data);
 
         $this->form->model($record)->saveRelationships();
+
         Notification::make()
             ->title('Created successfully')
             ->success()
             ->send();
+
         return redirect()->route('suppliers.index');
     }
 
-    public function render(): View
+    public function render (): View
     {
         return view('livewire.suppliers.create-suppliers-form');
     }

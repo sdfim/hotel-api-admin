@@ -32,11 +32,11 @@ class TestCommand extends Command
         $currentTime = Carbon::now('UTC');
         $this->info('test-command successful, UTC: ' . $currentTime);
 
-		$expediaProperty = json_encode(ExpediaContent::select('name', 'property_id')->first());
-		$this->info('test-command successful, ujv_api, Expedia: ' . $expediaProperty);
+        $expediaProperty = json_encode(ExpediaContent::select('name', 'property_id')->first());
+        $this->info('test-command successful, ujv_api, Expedia: ' . $expediaProperty);
 
-		$userName = json_encode(User::select('name')->first());
-		$this->info('test-command successful, ujv, User: ' . $userName);
+        $userName = json_encode(User::select('name')->first());
+        $this->info('test-command successful, ujv, User: ' . $userName);
 
     }
 }

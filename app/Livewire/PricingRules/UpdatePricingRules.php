@@ -3,7 +3,6 @@
 namespace App\Livewire\PricingRules;
 
 use App\Models\Channels;
-use App\Models\ExpediaContent;
 use App\Models\GiataProperty;
 use App\Models\PricingRules;
 use App\Models\Suppliers;
@@ -16,12 +15,12 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
+use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
-use Illuminate\Contracts\View\View;
 use Livewire\Features\SupportRedirects\Redirector;
 
 class UpdatePricingRules extends Component implements HasForms
@@ -91,22 +90,6 @@ class UpdatePricingRules extends Component implements HasForms
                 TextInput::make('room_type')
                     ->required()
                     ->maxLength(191),
-                /*Select::make('room_type')
-                    ->options(function (Get $get, Set $set): array {
-                        $options = [];
-                        if ($get('property')) {
-                            $rooms = ExpediaContent::where('property_id', $get('property'))->first(['rooms']);
-
-                            if ($rooms) {
-                                foreach ($rooms->rooms as $id => $room) {
-                                    $options[$id] = $room['name'];
-                                }
-                            }
-                        }
-                        return $options;
-                    })
-                    ->searchable()
-                    ->required(),*/
                 TextInput::make('total_guests')
                     ->required()
                     ->numeric(),

@@ -6,16 +6,13 @@ use App\Models\ApiInspector;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
+use Illuminate\View\View;
 use Livewire\Component;
-use Illuminate\Contracts\View\View;
-use Filament\Forms\Components\TextInput;
-use Filament\Tables\Filters\Filter;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Columns\ViewColumn;
 
 class InspectorTable extends Component implements HasForms, HasTable
 {
@@ -28,24 +25,20 @@ class InspectorTable extends Component implements HasForms, HasTable
             ->query(ApiInspector::query())
             ->columns([
                 TextColumn::make('id')
-                    //->sortable()
                     ->searchable(),
                 TextColumn::make('type')
-                    //->sortable()
                     ->searchable(),
                 TextColumn::make('token.id')
                     ->numeric()
                     ->searchable(),
-                  //  ->sortable(),
                 TextColumn::make('supplier.name')
                     ->numeric()
                     ->searchable(),
-                   // ->sortable(),
-               
+
                 ViewColumn::make('request')->view('dashboard.inspector.column.request'),
 
-				ViewColumn::make('response_path')->view('dashboard.inspector.column.response'),
-                
+                ViewColumn::make('response_path')->view('dashboard.inspector.column.response'),
+
                 TextColumn::make('created_at')
                     ->dateTime()
             ])

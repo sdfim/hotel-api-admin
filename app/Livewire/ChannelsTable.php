@@ -3,19 +3,19 @@
 namespace App\Livewire;
 
 use App\Models\Channels;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Columns\TextColumn;
+use Illuminate\View\View;
 use Livewire\Component;
-use Illuminate\Contracts\View\View;
 
 class ChannelsTable extends Component implements HasForms, HasTable
 {
@@ -48,15 +48,12 @@ class ChannelsTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Channels $record): string => route('channels.show', $record))
-                        ->color('info'),
+                        ->url(fn(Channels $record): string => route('channels.show', $record)),
                     EditAction::make()
-                        ->url(fn(Channels $record): string => route('channels.edit', $record))
-                        ->color('primary'),
+                        ->url(fn(Channels $record): string => route('channels.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(Channels $record) => $record->delete())
-                        ->color('danger'),
+                        ->action(fn(Channels $record) => $record->delete()),
                 ])
             ])
             ->bulkActions([

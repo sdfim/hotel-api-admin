@@ -2,25 +2,24 @@
 
 namespace App\Livewire\PricingRules;
 
+use Livewire\Component;
 use App\Models\Channels;
-use App\Models\ExpediaContent;
 use App\Models\GiataProperty;
 use App\Models\PricingRules;
 use App\Models\Suppliers;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
+use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use Livewire\Component;
-use Illuminate\Contracts\View\View;
 use Livewire\Features\SupportRedirects\Redirector;
 
 class CreatePricingRules extends Component implements HasForms
@@ -87,22 +86,6 @@ class CreatePricingRules extends Component implements HasForms
                 TextInput::make('room_type')
                     ->required()
                     ->maxLength(191),
-                /*Select::make('room_type')
-                    ->options(function (Get $get): array {
-                        $options = [];
-                        if ($get('property')) {
-                            $rooms = ExpediaContent::where('property_id', $get('property'))->first(['rooms']);
-
-                            if ($rooms) {
-                                foreach ($rooms->rooms as $id => $room) {
-                                    $options[$id] = $room['name'];
-                                }
-                            }
-                        }
-                        return $options;
-                    })
-                    ->searchable()
-                    ->required(),*/
                 TextInput::make('total_guests')
                     ->required()
                     ->numeric(),

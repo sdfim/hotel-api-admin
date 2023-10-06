@@ -3,18 +3,19 @@
 namespace App\Livewire;
 
 use App\Models\Weights;
-use Illuminate\View\View;
-use Livewire\Component;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Illuminate\View\View;
+use Livewire\Component;
 
 class WeightsTable extends Component implements HasForms, HasTable
 {
@@ -26,12 +27,12 @@ class WeightsTable extends Component implements HasForms, HasTable
         return $table
             ->query(Weights::query())
             ->columns([
-                Tables\Columns\TextColumn::make('property')
+                TextColumn::make('property')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('supplier.name')
+                TextColumn::make('supplier.name')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('weight')
+                TextColumn::make('weight')
                     ->searchable()
                     ->sortable(),
             ])
@@ -41,19 +42,16 @@ class WeightsTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Weights $record): string => route('weight.show', $record))
-                        ->color('info'),
+                        ->url(fn(Weights $record): string => route('weight.show', $record)),
                     EditAction::make()
-                        ->url(fn(Weights $record): string => route('weight.edit', $record))
-                        ->color('primary'),
+                        ->url(fn(Weights $record): string => route('weight.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(Weights $record) => $record->delete())
-                        ->color('danger'),
+                        ->action(fn(Weights $record) => $record->delete()),
                 ])
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
+                BulkActionGroup::make([
                     //
                 ]),
             ]);

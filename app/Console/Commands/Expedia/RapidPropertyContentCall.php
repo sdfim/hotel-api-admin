@@ -21,13 +21,13 @@ class RapidPropertyContentCall extends Command
      */
     protected $description = 'RapidPropertyContentCall';
 
-	private PropertyCallFactory $rapidCallFactory;
+    private PropertyCallFactory $rapidCallFactory;
 
-	public function __construct(PropertyCallFactory $rapidCallFactory) 
-	{
-		parent::__construct();
-		$this->rapidCallFactory = $rapidCallFactory;
-	}
+    public function __construct (PropertyCallFactory $rapidCallFactory)
+    {
+        parent::__construct();
+        $this->rapidCallFactory = $rapidCallFactory;
+    }
 
     /**
      * Execute the console command.
@@ -41,14 +41,14 @@ class RapidPropertyContentCall extends Command
         $property['propertyRatingMmin'] = 4;
         $property['propertyRatingMmax'] = 5;
 
-		$propertyContentCall = $this->rapidCallFactory->createPropertyContentCall($property);
+        $propertyContentCall = $this->rapidCallFactory->createPropertyContentCall($property);
 
         $stream = $propertyContentCall->stream();
         $size = $propertyContentCall->size();
 
         \Log::debug('RapidPropertyContentCall', [
-			'stream' => $stream,
-			'size' => $size
-		]);
+            'stream' => $stream,
+            'size' => $size
+        ]);
     }
 }

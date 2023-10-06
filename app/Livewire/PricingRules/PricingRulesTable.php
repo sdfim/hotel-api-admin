@@ -3,26 +3,26 @@
 namespace App\Livewire\PricingRules;
 
 use App\Models\PricingRules;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\View\View;
 use Livewire\Component;
-use Illuminate\Contracts\View\View;
 
 class PricingRulesTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table(Table $table): Table
+    public function table (Table $table): Table
     {
         return $table
             ->query(PricingRules::query())
@@ -115,15 +115,12 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn (PricingRules $record): string => route('pricing_rules.show', $record))
-                        ->color('info'),
+                        ->url(fn(PricingRules $record): string => route('pricing_rules.show', $record)),
                     EditAction::make()
-                        ->url(fn (PricingRules $record): string => route('pricing_rules.edit', $record))
-                        ->color('primary'),
+                        ->url(fn(PricingRules $record): string => route('pricing_rules.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn (PricingRules $record) => $record->delete())
-                        ->color('danger'),
+                        ->action(fn(PricingRules $record) => $record->delete())
                 ])
             ])
             ->bulkActions([
@@ -133,8 +130,8 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render(): View
+    public function render (): View
     {
-        return view('livewire.pricing-rules-table');
+        return view('livewire.pricing-rules.pricing-rules-table');
     }
 }

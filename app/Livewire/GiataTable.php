@@ -3,19 +3,19 @@
 namespace App\Livewire;
 
 use App\Models\GiataProperty;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
-use Livewire\Component;
-use Illuminate\Contracts\View\View;
-use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Table;
+use Illuminate\View\View;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Tables\Columns\ViewColumn;
+use Livewire\Component;
 
 class GiataTable extends Component implements HasForms, HasTable
 {
@@ -28,66 +28,66 @@ class GiataTable extends Component implements HasForms, HasTable
             ->query(GiataProperty::query())
             ->columns([
                 TextColumn::make('code')
-                ->sortable()
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('name')
-                ->sortable()
+                    ->sortable()
                     ->searchable(),
                 TextColumn::make('city')
-                ->sortable()
+                    ->sortable()
                     ->searchable(),
                 ViewColumn::make('address')->view('dashboard.giata.column.address-field'),
-                ViewColumn::make('position')->view('dashboard.giata.column.position-field'),               
+                ViewColumn::make('position')->view('dashboard.giata.column.position-field'),
             ])
             ->filters([
                 Filter::make('name')
-                ->form([
-                    TextInput::make('name')
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when(
-                            $data['name'],
-                            fn (Builder $query, $name): Builder => $query->where('name', 'LIKE', '%'.$name.'%'),
-                        );
-                })->indicateUsing(function (array $data): ?string {
-                    if (! $data['name']) {
-                        return null;
-                    }
-                    return 'Name: ' . $data['name'];
-                }),
+                    ->form([
+                        TextInput::make('name')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['name'],
+                                fn(Builder $query, $name): Builder => $query->where('name', 'LIKE', '%' . $name . '%'),
+                            );
+                    })->indicateUsing(function (array $data): ?string {
+                        if (!$data['name']) {
+                            return null;
+                        }
+                        return 'Name: ' . $data['name'];
+                    }),
                 Filter::make('city')
-                ->form([
-                    TextInput::make('city')
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when(
-                            $data['city'],
-                            fn (Builder $query, $city): Builder => $query->where('city', 'LIKE', '%'.$city.'%'),
-                        );
-                })->indicateUsing(function (array $data): ?string {
-                    if (! $data['city']) {
-                        return null;
-                    }
-                    return 'City: ' . $data['city'];
-                }),
+                    ->form([
+                        TextInput::make('city')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['city'],
+                                fn(Builder $query, $city): Builder => $query->where('city', 'LIKE', '%' . $city . '%'),
+                            );
+                    })->indicateUsing(function (array $data): ?string {
+                        if (!$data['city']) {
+                            return null;
+                        }
+                        return 'City: ' . $data['city'];
+                    }),
                 Filter::make('address')
-                ->form([
-                    TextInput::make('address')
-                ])
-                ->query(function (Builder $query, array $data): Builder {
-                    return $query
-                        ->when(
-                            $data['address'],
-                            fn (Builder $query, $address): Builder => $query->where('address', 'LIKE', '%'.$address.'%'),
-                        );
-                })->indicateUsing(function (array $data): ?string {
-                    if (! $data['address']) {
-                        return null;
-                    }
-                    return 'Address: ' . $data['address'];
-                })
+                    ->form([
+                        TextInput::make('address')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['address'],
+                                fn(Builder $query, $address): Builder => $query->where('address', 'LIKE', '%' . $address . '%'),
+                            );
+                    })->indicateUsing(function (array $data): ?string {
+                        if (!$data['address']) {
+                            return null;
+                        }
+                        return 'Address: ' . $data['address'];
+                    })
             ])
             ->actions([
                 // ActionGroup::make([

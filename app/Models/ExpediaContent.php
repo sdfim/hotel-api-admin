@@ -46,36 +46,36 @@ class ExpediaContent extends Model
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
     }
 
-	public function getFullListFields () :array
-	{
-		return [
-			'property_id', 'name', 'address', 'ratings', 'location',
-			'category', 'business_model', 'checkin', 'checkout',
-			'fees', 'policies', 'attributes', 'amenities',
-			'onsite_payments', 'rates',
-			'images', 'rooms',
-			'dates', 'descriptions', 'themes', 'chain', 'brand',
-			'statistics', 'vacation_rental_details', 'airports',
-			'spoken_languages', 'all_inclusive', 'rooms_occupancy',
-			'total_occupancy', 'city', 'rating'
-		];
-	}
+    public function getFullListFields (): array
+    {
+        return [
+            'property_id', 'name', 'address', 'ratings', 'location',
+            'category', 'business_model', 'checkin', 'checkout',
+            'fees', 'policies', 'attributes', 'amenities',
+            'onsite_payments', 'rates',
+            'images', 'rooms',
+            'dates', 'descriptions', 'themes', 'chain', 'brand',
+            'statistics', 'vacation_rental_details', 'airports',
+            'spoken_languages', 'all_inclusive', 'rooms_occupancy',
+            'total_occupancy', 'city', 'rating'
+        ];
+    }
 
-	public function getShortListFields() :array
-	{
-		return [
-			'property_id', 'name', 'address', 'ratings', 'location',
-			'category', 'business_model',
-			'fees', 'policies', 'attributes', 'amenities',
-			'onsite_payments',
-			// 'rates',
-			'statistics', 'vacation_rental_details', 'airports',
-			'total_occupancy', 'city', 'rating', 'rooms_occupancy',
-		];
-	}
+    public function getShortListFields (): array
+    {
+        return [
+            'property_id', 'name', 'address', 'ratings', 'location',
+            'category', 'business_model',
+            'fees', 'policies', 'attributes', 'amenities',
+            'onsite_payments',
+            // 'rates',
+            'statistics', 'vacation_rental_details', 'airports',
+            'total_occupancy', 'city', 'rating', 'rooms_occupancy',
+        ];
+    }
 
-	public function dtoDbToResponse ($results, $fields)
-    {		
+    public function dtoDbToResponse ($results, $fields)
+    {
         return collect($results)->map(function ($item) use ($fields) {
             foreach ($fields as $key) {
                 if (!is_string($item->$key)) continue;
@@ -87,9 +87,9 @@ class ExpediaContent extends Model
         });
     }
 
-	public function mapperGiataExpedia()
+    public function mapperGiataExpedia ()
     {
-		return $this->hasMany(MapperExpediaGiata::class, 'expedia_id', 'property_id');
+        return $this->hasMany(MapperExpediaGiata::class, 'expedia_id', 'property_id');
     }
 
 }
