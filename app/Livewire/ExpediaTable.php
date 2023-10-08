@@ -12,6 +12,7 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\Checkbox;
 use Filament\Tables\Table;
 use Illuminate\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,6 +30,9 @@ class ExpediaTable extends Component implements HasForms, HasTable
         return $table
             ->query(ExpediaContent::query())
             ->columns([
+				TextColumn::make('id')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('property_id')
                     ->sortable()
                     ->searchable(),
@@ -37,13 +41,33 @@ class ExpediaTable extends Component implements HasForms, HasTable
                 TextColumn::make('city')
                     ->numeric()
                     ->sortable(),
+				TextColumn::make('phone')
+                    ->numeric()
+                    ->sortable(),
                 ViewColumn::make('address')->view('dashboard.expedia.column.address-field'),
                 ViewColumn::make('location')->view('dashboard.expedia.column.position-field'),
                 TextColumn::make('mapperGiataExpedia.giata_id')
                     ->label('Giata id'),
-                ViewColumn::make('id')->view('dashboard.expedia.column.add-giata'),
+                ViewColumn::make('edit')->view('dashboard.expedia.column.add-giata'),
             ])
             ->filters([
+				Filter::make('is_empty')
+					->form([
+						Checkbox::make('is_empty')
+							->label('Without Giata ID')
+					])
+					->query(function (Builder $query, array $data): Builder {
+						if ($data['is_empty']) {
+							return $query->with('mapperGiataExpedia')->whereDoesntHave('mapperGiataExpedia', function (Builder $query) {
+								$query->whereNotNull('giata_id');
+							});
+						} else return $query;
+					})->indicateUsing(function (array $data): ?string {
+						if (!$data['is_empty']) {
+							return null;
+						}
+						return 'Without Giata ID';
+					}),
                 Filter::make('name')
                     ->form([
                         TextInput::make('name')
