@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\MapperExpediaGiata;
+use App\Models\GiataProperty;
 
 class ExpediaContent extends Model
 {
@@ -91,5 +92,18 @@ class ExpediaContent extends Model
     {
         return $this->hasMany(MapperExpediaGiata::class, 'expedia_id', 'property_id');
     }
+
+	public function getIdsByDestinationGiata($city) : array
+	{
+		$ids = GiataProperty::where('city', $city)
+			->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
+			->select('mapper_expedia_giatas.expedia_id')
+			->whereNotNull('mapper_expedia_giatas.expedia_id')
+			->get()
+			->pluck('expedia_id')
+			->toArray();
+
+		return $ids;
+	}
 
 }

@@ -2,44 +2,33 @@
 
 namespace Modules\API\Controllers;
 
-use Modules\API\BaseController;
 use App\Models\ExpediaContent;
-use App\Models\MapperExpediaGiata;
-use App\Models\Suppliers;
-use Modules\API\Controllers\ApiHandlerInterface;
-use Modules\API\Requests\SearchHotelRequest;
-use Modules\API\Requests\DetailHotelRequest;
-use Modules\API\Requests\PriceHotelRequest;
+use App\Models\GiataProperty;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Validator;
-use Modules\Inspector\InspectorController;
 
-class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterface
+class ExpediaHotelApiHandler 
 {
 	private ExperiaService $experiaService;
-	private InspectorController $apiInspector;
 	protected $current_time;
 
 	public function __construct(ExperiaService $experiaService) {
 		$this->experiaService = $experiaService;
-		$this->apiInspector = new InspectorController();
 	}
 	/**
 	 * @param Request $request
 	 * @return array|null
 	 */
-	private function preSearchData (Request $request): array|null
+	private function preSearchData (Request $request, array $filters): array|null
     {
-		try {
-			$searchRequest = new SearchHotelRequest();
-			$rules = $searchRequest->rules();
-			$filters = Validator::make($request->all(), $rules)->validated();
 
+		try {
             $expedia = new ExpediaContent();
+			$filters['ids'] = $expedia->getIdsByDestinationGiata($filters['destination']);
 
 			$fields = $request->get('fullList') ? $expedia->getFullListFields() : $expedia->getShortListFields();
 			$query = $expedia->select($fields);
@@ -72,36 +61,24 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 
 	/**
      * @param Request $request
-     * @return JsonResponse
+     * @return array|null
      */
-    public function search (Request $request): JsonResponse
+    public function search (Request $request, array $filters): array|null
     {
-		try {
-			$preSearchData = $this->preSearchData ($request);
-			$results = $preSearchData['results'] ?? null;
-			$filters = $preSearchData['filters'] ?? null;
-			return $this->sendResponse(['count' => count($results), 'query' => $filters,  'results' => $results], 'success');
-        } catch (\Exception $e) {
-            \Log::error('ExpediaHotelApiHandler | search' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'falied');
-		}
+		$preSearchData = $this->preSearchData ($request, $filters);
+		return $preSearchData['results']->toArray() ?? null;
+
 	}
 
 	/**
      * @param Request $request
      * @return JsonResponse
      */
-    public function price (Request $request): JsonResponse
+    public function price (Request $request, array $filters): array|null
     {
 		try {
-			$priceRequest = new PriceHotelRequest();
-			$rules = $priceRequest->rules();
-			$filters = Validator::make($request->all(), $rules)->validated();
-			\Log::debug('ExpediaHotelApiHandler | price | Validator: ' . $this->executionTime() . ' seconds');
-
-			$preSearchData = $this->preSearchData ($request);
+			$preSearchData = $this->preSearchData ($request, $filters);
 			$filters = $preSearchData['filters'] ?? null;
-			\Log::debug('ExpediaHotelApiHandler | price | preSearchData: ' . $this->executionTime() . ' seconds');
 
 			$key = 'search:'.md5(json_encode($filters));
 			if (Cache::has($key)) {
@@ -116,61 +93,32 @@ class ExpediaHotelApiHandler extends BaseController implements ApiHandlerInterfa
 						$prices_property = json_decode($priceData[$value->property_id]);
 						if (count($prices_property)) {
 							$prices_property = (array)$prices_property[0];
-							$prices_property['giata_id'] = $value->giata_id;
-							$output[$value->property_id] = (object) array_merge(['content' => $value], ['price' => $prices_property]);
+							// $output[$value->property_id] = (object) array_merge(['content' => $value], ['price' => ['giata_id' => $value->giata_id] + $prices_property);
+							$output[$value->giata_id] = ['giata_id' => $value->giata_id] + $prices_property;
 						}
 					}
 				}
 				Cache::put($key, $output, now()->addMinutes(120));
 			}
-			\Log::debug('ExpediaHotelApiHandler | price | AsyncGetPrices: ' . $this->executionTime() . ' seconds');
 
-			# save data to Inspector
-			$supplier_id = Suppliers::getExpediaId();
-			$inspector = $this->apiInspector->save($filters, $output, $supplier_id);
-			\Log::debug('ExpediaHotelApiHandler | price | save data to Inspector: ' . $this->executionTime() . ' seconds');
+			return $output ?? null;
 
-            return $this->sendResponse([
-				'count' => count($output),
-				'inspector' => $inspector ?? '',
-				'query' => $filters,
-				'results' => $output,
-			], 'success');
         } catch (\Exception $e) {
             \Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'falied');
+            return null;
         }
     }
 
 	/**
      * @param Request $request
-     * @return JsonResponse
+     * @return object
      */
-    public function detail(Request $request): JsonResponse
+    public function detail(Request $request): object
     {
-        try {
-			// $detailRequest = new DetailHotelRequest();
-			// $rules = $detailRequest->rules();
-			// $validator = Validator::make($request->all(), $rules)->validated();
-
-            $expedia = new ExpediaContent();
-            $property_id = $request->get('property_id') ?? null;
-            $results = $expedia->where('property_id', $property_id)->get();
-            $results = $expedia->dtoDbToResponse($results, $expedia->getFullListFields());
-
-            return $this->sendResponse(['results' => $results], 'success');
-        } catch (\Exception $e) {
-            \Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'falied');
-        }
-    }
-
-	private function executionTime ()
-    {
-        $execution_time = (microtime(true) - $this->current_time);
-        $this->current_time = microtime(true);
-
-        return $execution_time;
+        $expedia = new ExpediaContent();
+        $property_id = $request->get('property_id') ?? null;
+        $results = $expedia->where('property_id', $property_id)->get();
+        return $expedia->dtoDbToResponse($results, $expedia->getFullListFields());
     }
 
 }

@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 
 interface ApiHandlerInterface
 {
-    public function search (Request $request): JsonResponse;
-    public function detail (Request $request): JsonResponse;
-    public function price (Request $request): JsonResponse;
+    public function search (Request $request, array $suppliers): JsonResponse;
+    public function detail (Request $request, array $suppliers): JsonResponse;
+    public function price (Request $request, array $suppliers): JsonResponse;
 }
