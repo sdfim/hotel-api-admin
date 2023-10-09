@@ -39,10 +39,10 @@ class PricingRulesControllerTest extends TestCase
             'name' => $this->faker->name,
             'property' => $this->faker->word,
             'destination' => $this->faker->word,
-            'travel_date' => now(), // Поточна дата і час
+            'travel_date' => now(),
             'days' => 7,
             'nights' => 5,
-            'supplier_id' => $supplier->id, // Використовуємо ID створеного постачальника
+            'supplier_id' => $supplier->id,
             'rate_code' => $this->faker->word,
             'room_type' => $this->faker->word,
             'total_guests' => 2,
@@ -86,7 +86,7 @@ class PricingRulesControllerTest extends TestCase
 
         $response->assertStatus(200)
             ->assertViewIs('dashboard.pricing-rules.update');
-           // ->assertViewHas('pricingRule', $pricingRule);
+        // ->assertViewHas('pricingRule', $pricingRule);
     }
     public function testUpdatePricingRule()
     {
@@ -99,10 +99,10 @@ class PricingRulesControllerTest extends TestCase
             'name' => 'Updated Pricing Rule Name',
             'property' => 'Updated Pricing Rule Property',
             'destination' => 'Updated Pricing Rule Destination',
-            'travel_date' => now(), // Поточна дата і час
+            'travel_date' => now(),
             'days' => 7,
             'nights' => 5,
-            'supplier_id' => $supplier->id, // Використовуємо ID створеного постачальника
+            'supplier_id' => $supplier->id,
             'rate_code' => 'dret1',
             'room_type' => 'vip',
             'total_guests' => 2,

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Channels;
 use App\Models\PricingRules;
 use App\Models\Suppliers;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -23,29 +24,32 @@ class PricingRulesFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition (): array
+    public function definition(): array
     {
         $supplier = Suppliers::factory()->create();
+        $channels = Channels::factory()->create();
         return [
-            'name' => $this->faker->name(),
-            'property' => $this->faker->name(),
-            'destination' => $this->faker->name(),
-            'travel_date' => now(), // Поточна дата і час
+            'name' => $this->faker->name,
+            'property' => $this->faker->word,
+            'destination' => $this->faker->word,
+            'travel_date' => date('Y-m-d H:i:s'),
             'days' => 7,
             'nights' => 5,
-            'supplier_id' => $supplier->id, // Використовуємо ID створеного постачальника
-            'rate_code' => $this->faker->name(),
-            'room_type' => $this->faker->name(),
+            'supplier_id' => $supplier->id,
+            'rate_code' => $this->faker->word,
+            'room_type' => $this->faker->word,
             'total_guests' => 2,
             'room_guests' => 2,
             'number_rooms' => 1,
-            'meal_plan' => $this->faker->name(),
-            'rating' => $this->faker->name(),
+            'meal_plan' => $this->faker->word,
+            'rating' => $this->faker->word,
             'price_type_to_apply' => $this->faker->word,
             'price_value_type_to_apply' => $this->faker->word,
-            'price_value_to_apply' => 2.47,
-            'price_value_fixed_type_to_apply' => $this->faker->word,
-
+            'price_value_to_apply' =>  2.5,
+            'price_value_fixed_type_to_apply' => null,
+            'channel_id' => $channels->id,
+            'rule_start_date' => date('Y-m-d H:i:s'),
+            'rule_expiration_date' => date('Y-m-d H:i:s')
         ];
     }
 }

@@ -1,0 +1,66 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Livewire\PricingRules\UpdatePricingRules;
+use App\Models\Channels;
+use App\Models\PricingRules;
+use App\Models\Suppliers;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Livewire\Livewire;
+use Tests\TestCase;
+
+class UpdatePricingRulesFormTest extends TestCase
+{
+    use RefreshDatabase;
+    use WithFaker;
+
+    public function testUpdatePricingRulesForm()
+    {
+        $this->auth();
+        $pricing_rules = PricingRules::factory()->create();
+        $supplier = Suppliers::factory()->create();
+        $channels = Channels::factory()->create();
+        // dd($pricing_rules);
+        Livewire::test(UpdatePricingRules::class, ['pricingRules' => $pricing_rules])
+            ->set('data.name', 'Updated Name')
+            ->set('data.property', $this->faker->word)
+            ->set('data.destination', $this->faker->word)
+            ->set('data.travel_date', date('Y-m-d H:i:s'))
+            ->set('data.days', 7)
+            ->set('data.nights', 5)
+            ->set('data.supplier_id', $supplier->id)
+            ->set('data.rate_code', $this->faker->word)
+            ->set('data.room_type', $this->faker->word)
+            ->set('data.total_guests', 2)
+            ->set('data.room_guests', 2)
+            ->set('data.number_rooms', 1)
+            ->set('data.meal_plan', $this->faker->word)
+            ->set('data.rating', $this->faker->word)
+            ->set('data.price_type_to_apply', $this->faker->word)
+            ->set('data.price_value_type_to_apply', $this->faker->word)
+            ->set('data.price_value_to_apply',  2.5)
+            ->set('data.price_value_fixed_type_to_apply', null)/* 
+            ->set('data.channel_id', $channels->id)
+            ->set('data.rule_start_date', date('Y-m-d H:i:s'))
+            ->set('data.rule_expiration_date', date('Y-m-d H:i:s')) */
+            ->call('edit')
+            ->assertRedirect(route('pricing_rules.index'));
+        $this->assertDatabaseHas('pricing_rules',  [
+            'id' => $pricing_rules->id,
+            'name' => 'Updated Name',
+        ]);
+    }
+
+    public function auth()
+    {
+        $user = User::factory()->create();
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+    }
+}
