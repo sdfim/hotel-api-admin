@@ -31,7 +31,7 @@ return new class extends Migration
 
 			$table->string('response_path')->unique();
 			
-			$table->string('client_response_path')->unique();
+			$table->string('client_response_path');
 
             $table->timestamps();
         });

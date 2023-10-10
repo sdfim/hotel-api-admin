@@ -13,6 +13,8 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
+use Illuminate\Support\HtmlString;
+
 
 class SearchInspectorTable extends Component implements HasForms, HasTable
 {
@@ -25,7 +27,8 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
             ->query(ApiSearchInspector::query())
             ->columns([
                 TextColumn::make('id')
-                    ->searchable(),
+                    ->searchable()
+					->label('Search ID'),
                 TextColumn::make('type')
                     ->searchable(),
                 TextColumn::make('token.id')
@@ -37,7 +40,12 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
 
                 ViewColumn::make('request')->view('dashboard.search-inspector.column.request'),
 
-                ViewColumn::make('response_path')->view('dashboard.search-inspector.column.response'),
+                ViewColumn::make('response_path')->view('dashboard.search-inspector.column.response')
+					->label('Response'),
+
+				ViewColumn::make('client_response_path')
+					->view('dashboard.search-inspector.column.client-response')
+					->label(new HtmlString('Clear <br />  Response')),
 
                 TextColumn::make('created_at')
                     ->dateTime()

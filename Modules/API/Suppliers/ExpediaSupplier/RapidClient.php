@@ -37,14 +37,29 @@ class RapidClient
 		$headers = [
 			'Authorization' => $this->generateAuthHeader(),
 			'Accept-Encoding' => self::GZIP,
-			// 'Customer-Ip' => '5.5.5.5',
-			// 'Accept' => 'application/json',
-			// 'Content-Type' => 'application/json',
-			// 'Test' => 'standard'
 		];
 
 		$request = new Request('GET', $url, $headers + $addHeaders);
 		$res = $this->client->sendAsync($request)->wait();
+
+		return $res;
+	}
+
+	public function delete($path, $queryParameters, $body, $addHeaders = [])
+	{
+		$queryParams = [];
+		foreach ($queryParameters as $key => $value) {
+			$queryParams[$key] = $value;
+		}
+		$url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+
+		$headers = [
+			'Authorization' => $this->generateAuthHeader(),
+			'Accept-Encoding' => self::GZIP,
+		];
+
+		$request = new Request('DELETE', $url, $headers + $addHeaders, $body);
+		$res = $this->client->send($request);
 
 		return $res;
 	}

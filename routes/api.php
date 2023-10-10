@@ -20,9 +20,9 @@ Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'content'], function (
 	Route::get('/detail', [RouteApiController::class, 'handle'])->name('detail');
 });
 
-Route::group(['middleware' => 'auth:sanctum'], function () {
+Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'pricing'], function () {
 
-	Route::post('/price', [RouteApiController::class, 'handle'])->name('price');
+	Route::post('/search', [RouteApiController::class, 'handle'])->name('price');
 });
 
 Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'booking'], function () {

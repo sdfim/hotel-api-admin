@@ -12,12 +12,9 @@ class ApiBookingInspector extends Model
 {
     use HasFactory;
 
-    public $incrementing = false;
-    protected $keyType = 'string';
-    protected $guarded = ['id'];
-
     protected $fillable = [
         'id',
+		'booking_id',
         'token_id',
         'search_id',
 		'supplier_id',
@@ -28,14 +25,6 @@ class ApiBookingInspector extends Model
 		'client_response_path'
     ];
 
-    protected static function booted (): void
-    {
-        static::creating(function ($model) {
-            $model->{$model->getKeyName()} = Str::uuid()->toString();
-        });
-    }
-
-
     public function token ()
     {
         return $this->belongsTo(PersonalAccessToken::class);
@@ -45,5 +34,43 @@ class ApiBookingInspector extends Model
     {
         return $this->belongsTo(Suppliers::class);
     }
+
+	public function getLinckDeleteItem($filters)
+	{
+		$booking_id = $filters['booking_id'];
+		$room_id = $filters['room_id'];
+
+		$inspector = ApiBookingInspector::where('type', 'add_item')
+			->where('sub_type', 'get_book')
+			->where('booking_id', $booking_id)
+			->first();
+
+		$json_response = json_decode(Storage::get($inspector->response_path));
+		$rooms = $json_response->rooms;
+
+		$linkDeleteItem = '';
+		foreach ($rooms as $room) {
+			if ($room->id == $room_id) {
+				$linkDeleteItem = $room->links->cancel->href;
+				break;
+			}
+		}
+
+		return $linkDeleteItem;
+	}
+
+	public function getItineraryId ($filters)
+	{
+		$booking_id = $filters['booking_id'];
+
+		$inspector = ApiBookingInspector::where('type', 'add_item')
+			->where('sub_type', 'get_book')
+			->where('booking_id', $booking_id)
+			->first();
+
+		$json_response = json_decode(Storage::get($inspector->response_path));
+
+		return $json_response->itinerary_id;
+	}
 
 }
