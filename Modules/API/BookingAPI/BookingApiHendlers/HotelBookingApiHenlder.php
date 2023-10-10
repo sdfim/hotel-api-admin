@@ -61,7 +61,22 @@ class HotelBookingApiHenlder extends BaseController // implements BookingApiHand
 	 */
 	public function removeItem (Request $request, string $supplier) : JsonResponse
 	{
+		// try {	
+			// TODO: add validation for request
+			$filters = $request->all();
 
+			$data = [];
+			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+				$data = $this->expedia->removeItem($request, $filters);
+			}
+			// TODO: Add other suppliers
+
+		// } catch (\Exception $e) {
+		// 	\Log::error('ExpediaHotelApiHandler | search' . $e->getMessage());
+		// 	return $this->sendError(['error' => $e->getMessage()], 'falied');
+		// }
+
+		return $this->sendResponse(['result' => $data], 'success');
 	}
 
 	/**

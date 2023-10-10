@@ -11,7 +11,7 @@
 				<div class="bg-white dark:bg-zinc-700">
 					<div class="flex items-center p-4 border-b rounded-t border-gray-50 dark:border-zinc-600">
 						<h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 ">
-							{{ $getRecord()->id }}
+							{{ $getRecord()->booking_id }}
 						</h3>
 						<button onClick="closeModal('{{ $getRecord()->id }}','response')"
 							class="inline-flex items-center px-2 py-1 text-sm text-gray-400 border-transparent rounded-lg btn hover:bg-gray-50/50 hover:text-gray-900 dark:text-gray-100 ltr:ml-auto rtl:mr-auto dark:hover:bg-zinc-600"

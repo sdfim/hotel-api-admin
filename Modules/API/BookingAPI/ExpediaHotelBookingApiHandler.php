@@ -2,20 +2,16 @@
 
 namespace Modules\API\BookingAPI;
 
-use Modules\API\BaseController;
 use App\Models\ApiSearchInspector;
-use Modules\API\Requests\SearchHotelRequest;
-use Modules\API\Requests\DetailHotelRequest;
-use Modules\API\Requests\PriceHotelRequest;
-use Illuminate\Http\JsonResponse;
+use App\Models\ApiBookingInspector;
 use Illuminate\Http\Request;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Modules\Inspector\BookingInspectorController;
+use Illuminate\Support\Str;
+
 
 class ExpediaHotelBookingApiHandler
 {
@@ -46,8 +42,9 @@ class ExpediaHotelBookingApiHandler
 		$dataResponse = json_decode($response->getBody()->getContents());
 
 		if (!$dataResponse) return [];
+		$booking_id = (string) Str::uuid();
 
-		$this->bookingInspector->save($filters, $dataResponse, 1, 'add_item', 'price_check');
+		$this->bookingInspector->save($booking_id, $filters, $dataResponse, 1, 'add_item', 'price_check');
 
 		$linckBookItineraries =  $dataResponse->links->book->href;
 
@@ -66,12 +63,10 @@ class ExpediaHotelBookingApiHandler
 		$dataResponse = json_decode($response->getBody()->getContents());
 
 		if (!$dataResponse) return [];
-		$this->bookingInspector->save($filters, $dataResponse, 1, 'add_item', 'post_book');
+		$this->bookingInspector->save($booking_id, $filters, $dataResponse, 1, 'add_item', 'post_book');
 
 		$itinerary_id = $dataResponse->itinerary_id;
 		$linckBookRetrieves =  $dataResponse->links->retrieve->href;
-
-		// dump($itinerary_id, $linckBookRetrieves);
 
 		# Booking POST query 
 		$props = $this->getPathParamsFromLink($linckBookRetrieves);
@@ -85,7 +80,7 @@ class ExpediaHotelBookingApiHandler
 		$dataResponse = json_decode($response->getBody()->getContents());
 
 		if (!$dataResponse) return [];
-		$this->bookingInspector->save($filters, $dataResponse, 1, 'add_item', 'get_book');
+		$this->bookingInspector->save($booking_id, $filters, $dataResponse, 1, 'add_item', 'get_book');
 
 		// dd($dataResponse);
 
@@ -106,8 +101,38 @@ class ExpediaHotelBookingApiHandler
 	 * @param Request $request
 	 * @return array|null
 	 */
-	public function removeItem(Request $request): array|null
+	public function removeItem(Request $request, array $filters): array|null
 	{
+		# step 1 Read Booking Inspector, Get linck  DELETE method from 'add_item | get_book'
+		$inspector = new ApiBookingInspector();
+		$linkDeleteItem = $inspector->getLinckDeleteItem($filters);
+
+		# Delete item DELETE method query 
+		$props = $this->getPathParamsFromLink($linkDeleteItem);
+
+		dump($props, $linkDeleteItem);
+
+		$bodyArr = [
+			'itinerary_id' => $inspector->getItineraryId($filters),
+			'room_id' => $filters['room_id']
+		];	
+		$body = json_encode($bodyArr);	
+
+		$addHeaders = [
+			'Customer-Ip' => '5.5.5.5',
+			'Accept' => 'application/json',
+			'Content-Type' => 'application/json',
+			'Test' => 'standard'
+		];
+		$response = $this->rapidClient->delete($props['path'], $props['paramToken'], $body, $addHeaders);
+		$dataResponse = json_decode($response->getBody()->getContents());
+
+		dd($dataResponse);
+
+		// if (!$dataResponse) return [];
+		// $this->bookingInspector->save($booking_id, $filters, $dataResponse, 1, 'add_item', 'get_book');
+
+		return (array)$dataResponse;
 	}
 
 	/**

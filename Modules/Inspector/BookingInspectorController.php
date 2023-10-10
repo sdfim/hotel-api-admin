@@ -8,7 +8,7 @@ use App\Models\ApiBookingInspector;
 use Modules\Inspector\BaseInspectorController;
 class BookingInspectorController extends BaseInspectorController
 {
-	public function save($query, $content, $supplier_id, $type = 'add_item', $subType = 'main') : string|bool
+	public function save($booking_id, $query, $content, $supplier_id, $type = 'add_item', $subType = 'main') : string|bool
 	{
 		try {
 			$this->current_time = microtime(true);
@@ -29,6 +29,7 @@ class BookingInspectorController extends BaseInspectorController
 			\Log::debug('BookingInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
 
 			$data = [
+				'booking_id' => $booking_id,
 				'token_id' => $token_id,
 				'supplier_id' => $supplier_id,
 				'search_id' => $earch_id,

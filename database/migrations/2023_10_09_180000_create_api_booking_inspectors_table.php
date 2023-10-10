@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('api_booking_inspectors', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
+
+			$table->uuid('booking_id');
 
 			$table->string('type');
 			$table->string('sub_type');
