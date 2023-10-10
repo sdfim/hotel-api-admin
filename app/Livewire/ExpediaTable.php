@@ -92,6 +92,42 @@ class ExpediaTable extends Component implements HasForms, HasTable
                         }
                         return 'Address: ' . $data['address'];
                     }),
+                // Filter::make('giata_id')
+                // ->form([
+                //     Checkbox::make('giata_id')
+                //     ->label('With Giata ID')
+
+                // ])
+                // ->query(function (Builder $query, array $data): Builder {
+                //     return $query
+                //         ->when(
+                //             $data['giata_id'],
+                //             fn (Builder $query, $giata_id): Builder => $query->leftJoin('mapper_expedia_giatas', 'expedia_contents.property_id', '=', 'mapper_expedia_giatas.expedia_id')->whereNotNull('mapper_expedia_giatas.giata_id'),
+                //         );
+                // })->indicateUsing(function (array $data): ?string {
+                //     if (! $data['giata_id']) {
+                //         return null;
+                //     }
+                //     return 'With Giata ID';
+                // }),
+                // Filter::make('property_id')
+                // ->label('Without Giata ID')
+                // ->form([
+                //     Checkbox::make('giata_id')
+
+                // ])
+                // ->query(function (Builder $query, array $data): Builder {
+                //     return $query
+                //         ->when(
+                //             $data['giata_id'],
+                //             fn (Builder $query, $giata_id): Builder => $query->leftJoin('mapper_expedia_giatas', 'expedia_contents.property_id', '=', 'mapper_expedia_giatas.expedia_id')->whereNull('mapper_expedia_giatas.giata_id'),
+                //         );
+                // })->indicateUsing(function (array $data): ?string {
+                //     if (! $data['giata_id']) {
+                //         return null;
+                //     }
+                //     return 'With Giata ID';
+                // }),
             ])
             ->actions([
                 //

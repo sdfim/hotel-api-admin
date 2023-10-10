@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\GeneralConfiguration;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -14,7 +14,6 @@ class CreateGeneralConfigurationFormTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    // Тест на створення нової загальної конфігурації
     public function testCanCreateGeneralConfiguration()
     {
         $this->auth();
@@ -26,16 +25,13 @@ class CreateGeneralConfigurationFormTest extends TestCase
             ->call('save')
             ->assertRedirect(route('general_configuration'));
 
-        // Перевірте, що нова загальна конфігурація створена в базі даних
         $this->assertDatabaseHas('general_configurations', $data);
     }
 
-    // Тест на оновлення існуючої загальної конфігурації
     public function testCanUpdateGeneralConfiguration()
     {
         $this->auth();
 
-        // Створюємо тестову загальну конфігурацію
         $general_configuration = GeneralConfiguration::factory()->create();
 
         $data = $this->generateTestData();
@@ -45,11 +41,9 @@ class CreateGeneralConfigurationFormTest extends TestCase
             ->call('save')
             ->assertRedirect(route('general_configuration'));
 
-        // Перевірте, що існуюча загальна конфігурація оновлена в базі даних
         $this->assertDatabaseHas('general_configurations', $data);
     }
 
-    // Генерує тестові дані для загальної конфігурації
     protected function generateTestData()
     {
         return [

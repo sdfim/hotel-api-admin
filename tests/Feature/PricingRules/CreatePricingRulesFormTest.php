@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\PricingRules;
 
 use App\Livewire\PricingRules\CreatePricingRules;
 use App\Models\Channels;
@@ -24,10 +24,38 @@ class CreatePricingRulesFormTest extends TestCase
             ->set('data', [
                 'name' => '',
                 'destination' => '',
-
+                'travel_date' => '',
+                'days' => '',
+                'nights' => '',
+                'supplier_id' => '',
+                'rate_code' => '',
+                'room_type' => '',
+                'total_guests' => '',
+                'room_guests' => '',
+                'meal_plan' => '',
+                'rating' => '',
+                'price_type_to_apply' => '',
+                'price_value_type_to_apply' => '',
+                'price_value_to_apply' =>  '',
             ])
             ->call('create')
-            ->assertHasErrors(['data.name', 'data.destination']);
+            ->assertHasErrors([
+                'data.name',
+                'data.destination',
+                'data.travel_date',
+                'data.days',
+                'data.nights',
+                'data.supplier_id',
+                'data.rate_code',
+                'data.room_type',
+                'data.total_guests',
+                'data.room_guests',
+                'data.meal_plan',
+                'data.rating',
+                'data.price_type_to_apply',
+                'data.price_value_type_to_apply',
+                'data.price_value_to_apply',
+            ]);
     }
     public function testCreatePricingRulesFormAndValidation()
     {

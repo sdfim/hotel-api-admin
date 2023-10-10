@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Channels;
 
 use App\Livewire\Channels\CreateChannelsForm;
 use App\Models\User;
