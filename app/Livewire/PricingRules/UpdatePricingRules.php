@@ -31,9 +31,9 @@ class UpdatePricingRules extends Component implements HasForms
 
     public PricingRules $record;
 
-    public function mount (Request $request): void
+    public function mount (PricingRules $pricingRules): void
     {
-        $this->record = PricingRules::findOrFail($request->route()->parameter('pricing_rule'));
+        $this->record = $pricingRules; //PricingRules::findOrFail($request->route()->parameter('pricing_rule'));
         $this->form->fill($this->record->attributesToArray());
     }
 
@@ -144,7 +144,7 @@ class UpdatePricingRules extends Component implements HasForms
             ->send();
     }
 
-    public function update (): RedirectResponse|Redirector
+    public function edit (): RedirectResponse|Redirector
     {
         $data = $this->form->getState();
 

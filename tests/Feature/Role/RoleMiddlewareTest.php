@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Http\Middleware;
+namespace Tests\Feature\Role;
 
 use App\Models\User;
 use Tests\TestCase;
@@ -27,14 +27,5 @@ class RoleMiddlewareTest extends TestCase
         $response = $this->get('/test-admin');
         $response->assertStatus(404);
     }
-
-    /** @test */
-   /*  public function it_allows_request_if_user_has_required_role_and_permission()
-    {
-        $user = User::factory()->create();
-        $this->actingAs($user, 'web');
-        $response = $this->get('/test-admin');
-        $response->assertStatus(200);
-        $response->assertSee('Admin Page');
-    } */
+   
 }
