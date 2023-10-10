@@ -48,7 +48,7 @@ class UpdateChannelsForm extends Component implements HasForms
         $this->record->update($data);
 
         Notification::make()
-            ->title('Created successfully')
+            ->title('Updated successfully')
             ->success()
             ->send();
         return redirect()->route('channels.index');

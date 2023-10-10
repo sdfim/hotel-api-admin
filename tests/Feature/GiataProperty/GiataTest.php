@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\GiataProperty;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
-class InspectorControllerTest extends TestCase
+class GiataTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
@@ -16,7 +16,7 @@ class InspectorControllerTest extends TestCase
     {
         $this->auth();
 
-        $response = $this->get('/admin/inspector');
+        $response = $this->get('/admin/giata');
 
         $response->assertStatus(200);
     }

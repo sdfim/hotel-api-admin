@@ -77,9 +77,8 @@ class PricingRulesController extends Controller
     public function edit(string $id): View
     {
         $text = $this->message;
-        $suppliers = Suppliers::all();
-
-        return view('dashboard.pricing-rules.update', compact('suppliers', 'text'));
+        $pricingRules = PricingRules::findOrFail($id);
+        return view('dashboard.pricing-rules.update', compact('pricingRules', 'text'));
     }
 
     /**

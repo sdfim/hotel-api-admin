@@ -1,5 +1,5 @@
 <div>
-    <form wire:submit="update">
+    <form wire:submit="edit">
         {{ $this->form }}
 
         <x-button class="mt-4">

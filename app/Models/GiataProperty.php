@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\MapperExpediaGiata;
+
 
 class GiataProperty extends Model
 {
@@ -40,4 +42,9 @@ class GiataProperty extends Model
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
     }
+
+	public function mapperExpediaGiata ()
+	{
+		return $this->hasOne(MapperExpediaGiata::class, 'giata_code', 'code');
+	}
 }

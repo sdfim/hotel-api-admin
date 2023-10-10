@@ -36,6 +36,7 @@ class GiataTable extends Component implements HasForms, HasTable
                 TextColumn::make('city')
                     ->sortable()
                     ->searchable(),
+				ViewColumn::make('phone')->view('dashboard.giata.column.phone-field'),
                 ViewColumn::make('address')->view('dashboard.giata.column.address-field'),
                 ViewColumn::make('position')->view('dashboard.giata.column.position-field'),
             ])
@@ -72,6 +73,22 @@ class GiataTable extends Component implements HasForms, HasTable
                         }
                         return 'City: ' . $data['city'];
                     }),
+				Filter::make('phone')
+                    ->form([
+                        TextInput::make('phone')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['phone'],
+                                fn(Builder $query, $phone): Builder => $query->where('phone', 'LIKE', '%' . $phone . '%'),
+                            );
+                    })->indicateUsing(function (array $data): ?string {
+                        if (!$data['phone']) {
+                            return null;
+                        }
+                        return 'Phone: ' . $data['phone'];
+                    }),
                 Filter::make('address')
                     ->form([
                         TextInput::make('address')
@@ -87,6 +104,38 @@ class GiataTable extends Component implements HasForms, HasTable
                             return null;
                         }
                         return 'Address: ' . $data['address'];
+                    }),
+				Filter::make('latitude')
+                    ->form([
+                        TextInput::make('latitude')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['latitude'],
+                                fn(Builder $query, $latitude): Builder => $query->where('position', 'LIKE', '%"' . $latitude . '%'),
+                            );
+                    })->indicateUsing(function (array $data): ?string {
+                        if (!$data['latitude']) {
+                            return null;
+                        }
+                        return 'Latitude: ' . $data['latitude'];
+                    }),
+				Filter::make('longitude')
+                    ->form([
+                        TextInput::make('longitude')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['longitude'],
+                                fn(Builder $query, $longitude): Builder => $query->where('position', 'LIKE', '%"' . $longitude . '%'),
+                            );
+                    })->indicateUsing(function (array $data): ?string {
+                        if (!$data['longitude']) {
+                            return null;
+                        }
+                        return 'Longitude: ' . $data['longitude'];
                     })
             ])
             ->actions([
