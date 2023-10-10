@@ -56,30 +56,27 @@ class ExpediaPricingRulesApplier
                 $priceValueToApply = (float)$pricingRule['price_value_to_apply'];
                 $priceTypeToApply = (string)$pricingRule['price_type_to_apply'];
 
+                // these values are calculated in the same way for all cases, therefore they are moved to the top from each closure
+                $result['total_tax'] += $totalRoomTax * $requiredRoomCount;
+                $result['total_fees'] += $totalRoomFees * $requiredRoomCount;
+
                 if ($priceValueTypeToApply === 'percentage') {
                     // in case when supplier is Expedia total_price and rate_price should be calculated the same way
                     if ($priceTypeToApply === 'total_price' || $priceTypeToApply === 'rate_price') {
                         /*if we increase the total_price by a certain percentage, then each of the indicators that affect
                         the total_price must also be increased by a given percentage, except for total_fees(it's a fixed value)*/
                         $result['total_price'] += ($inclusiveRoomTotal + (($inclusiveRoomTotal * $priceValueToApply) / 100)) * $requiredRoomCount;
-                        $result['total_tax'] += ($totalRoomTax + (($totalRoomTax * $priceValueToApply) / 100)) * $requiredRoomCount;
-                        $result['total_net'] += ($exclusiveRoomTotal + (($exclusiveRoomTotal * $priceValueToApply) / 100)) * $requiredRoomCount;
+                        $result['total_net'] += $exclusiveRoomTotal * $requiredRoomCount;
                     }
                     if ($priceTypeToApply === 'net_price') {
                         /*if we increase the net_price by a certain percentage, then the rest of indicators should
                         remain unchanged*/
                         $result['total_net'] += ($exclusiveRoomTotal + (($exclusiveRoomTotal * $priceValueToApply) / 100)) * $requiredRoomCount;
-                        $result['total_tax'] += $totalRoomTax * $requiredRoomCount;
                         $result['total_price'] += $result['total_net'] + $result['total_tax'] + $result['total_fees'];
                     }
-                    // the same calculation for both cases
-                    $result['total_fees'] += $totalRoomFees * $requiredRoomCount;
                 } else {
+                    // this value only available when $priceValueTypeToApply === 'fixed_value'
                     $priceValueFixedTypeToApply = (string)$pricingRule['price_value_fixed_type_to_apply'];
-
-                    // the same calculation for all cases
-                    $result['total_tax'] += $totalRoomTax * $requiredRoomCount;
-                    $result['total_fees'] += $totalRoomFees * $requiredRoomCount;
 
                     if ($priceTypeToApply === 'total_price' || $priceTypeToApply === 'rate_price') {
                         if ($priceValueFixedTypeToApply === 'per_guest') {
