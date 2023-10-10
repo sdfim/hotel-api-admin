@@ -16,7 +16,7 @@ use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
-use Modules\Inspector\InspectorController;
+use Modules\Inspector\SearchInspectorController;
 
 class FlightBookingApiHandler extends BaseController implements BookingApiHandlerInterface
 {

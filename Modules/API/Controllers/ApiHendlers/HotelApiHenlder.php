@@ -11,22 +11,21 @@ use Modules\API\Controllers\ExpediaHotelApiHandler;
 use Modules\API\Requests\SearchHotelRequest;
 use Illuminate\Support\Facades\Validator;
 use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
-use Modules\Inspector\InspectorController;
+use Modules\Inspector\SearchInspectorController;
 use Modules\API\Requests\PriceHotelRequest;
-
 
 
 class HotelApiHenlder extends BaseController implements ApiHandlerInterface
 {
 	private const SUPPLIER_NAME = 'Expedia';
 	private ExperiaService $experiaService;
-	private InspectorController $apiInspector;
+	private SearchInspectorController $apiInspector;
 	private ExpediaHotelApiHandler $expedia;
 
 	public function __construct(ExperiaService $experiaService) {
 		$this->experiaService = $experiaService;
 		$this->expedia = new ExpediaHotelApiHandler($this->experiaService);
-		$this->apiInspector = new InspectorController();
+		$this->apiInspector = new SearchInspectorController();
 	}
 	/*
 	 * @param Request $request
@@ -114,7 +113,7 @@ class HotelApiHenlder extends BaseController implements ApiHandlerInterface
 				];
 
 			# save data to Inspector
-			$inspector = $this->apiInspector->save($filters, $res, 1);
+			$inspector = $this->apiInspector->save($filters, $res, $supplierIds);
 
 			$res['inspector'] = $inspector;
 

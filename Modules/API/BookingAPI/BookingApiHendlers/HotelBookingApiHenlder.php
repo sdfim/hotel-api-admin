@@ -16,7 +16,7 @@ use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
-use Modules\Inspector\InspectorController;
+use Modules\Inspector\SearchInspectorController;
 use Modules\API\BookingAPI\ExpediaHotelBookingApiHandler;
 
 class HotelBookingApiHenlder extends BaseController // implements BookingApiHandlerInterface
@@ -27,7 +27,7 @@ class HotelBookingApiHenlder extends BaseController // implements BookingApiHand
 	private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
 	public function __construct(ExperiaService $experiaService) {
 		$this->experiaService = $experiaService;
-		$this->apiInspector = new InspectorController();
+		$this->apiInspector = new SearchInspectorController();
 		$this->expedia = new ExpediaHotelBookingApiHandler($this->experiaService);
 
 	}
@@ -42,11 +42,8 @@ class HotelBookingApiHenlder extends BaseController // implements BookingApiHand
 			$filters = $request->all();
 
 			$data = [];
-			$count = 0;
-
 			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
 				$data = $this->expedia->addItem($request, $filters);
-				$count += count($data);
 			}
 			// TODO: Add other suppliers
 

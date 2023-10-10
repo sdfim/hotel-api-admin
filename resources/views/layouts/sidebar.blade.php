@@ -38,12 +38,25 @@
                         <span data-key="t-reservations"> Reservations</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{{ Route('inspector') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-search"></i>
-                        <span data-key="t-inspector"> Inspector</span>
+
+				<li>
+                    <a href="javascript: void(0);" aria-expanded="false"
+                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-headset"></i>
+                        <span data-key="t-inspector">Inspectors</span>
                     </a>
+                    <ul>
+                        <li>
+                            <a href="{{ Route('search_inspector') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+							   Search Inspector</a>
+                        </li>
+                        <li>
+                            <a href="{{ Route('booking_inspector') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+							   Booking Inspector</a>
+                        </li>
+                    </ul>
                 </li>
                 <li>
                     <a href="{{ Route('content_loader_exceptions') }}"
@@ -52,12 +65,26 @@
                         <span data-key="t-content-loader-exception"> Content Loader Exceptions</span>
                     </a>
                 </li>
-                <li>
-                    <a href="{{ Route('property_mapping') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-disc"></i>
-                        <span data-key="t-property-mapping"> Property Mapping</span>
+				<li>
+                    <a href="javascript: void(0);" aria-expanded="false"
+                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-contract-2"></i>
+                        <span data-key="t-property-mapping">Property Mapping</span>
                     </a>
+                    <ul>
+                        <li>
+                            <a href="{{ Route('giata.index') }}"
+                            class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                               Giata
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ Route('expedia.index') }}"
+                            class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                Expedia
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 <li>
                     <a href="{{ Route('geography') }}"
@@ -94,28 +121,7 @@
                         <span data-key="t-log-viewer"> Weight</span>
                     </a>
                 </li>
-                <li>
-                    <a href="javascript: void(0);" aria-expanded="false"
-                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-gear"></i>
-                        <span data-key="t-configuration">Mapping Augmentation</span>
-                    </a>
-                    <ul>
-                        <li>
-                            <a href="{{ Route('giata.index') }}"
-                            class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                               Giata
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ Route('expedia.index') }}"
-                            class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                Expedia
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-
+                
                 <!--
 
                 <li>

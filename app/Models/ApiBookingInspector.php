@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\PersonalAccessToken;
+use Illuminate\Support\Facades\Storage;
 
-class ApiInspector extends Model
+class ApiBookingInspector extends Model
 {
     use HasFactory;
 
@@ -18,10 +19,13 @@ class ApiInspector extends Model
     protected $fillable = [
         'id',
         'token_id',
-        'supplier_id',
+        'search_id',
+		'supplier_id',
         'type',
+		'sub_type',
         'request',
-        'response_path'
+        'response_path',
+		'client_response_path'
     ];
 
     protected static function booted (): void

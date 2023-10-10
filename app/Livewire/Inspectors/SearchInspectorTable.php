@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Inspectors;
 
-use App\Models\ApiInspector;
+use App\Models\ApiSearchInspector;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -14,7 +14,7 @@ use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
 
-class InspectorTable extends Component implements HasForms, HasTable
+class SearchInspectorTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
@@ -22,7 +22,7 @@ class InspectorTable extends Component implements HasForms, HasTable
     public function table (Table $table): Table
     {
         return $table
-            ->query(ApiInspector::query())
+            ->query(ApiSearchInspector::query())
             ->columns([
                 TextColumn::make('id')
                     ->searchable(),
@@ -35,9 +35,9 @@ class InspectorTable extends Component implements HasForms, HasTable
                     ->numeric()
                     ->searchable(),
 
-                ViewColumn::make('request')->view('dashboard.inspector.column.request'),
+                ViewColumn::make('request')->view('dashboard.search-inspector.column.request'),
 
-                ViewColumn::make('response_path')->view('dashboard.inspector.column.response'),
+                ViewColumn::make('response_path')->view('dashboard.search-inspector.column.response'),
 
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -115,6 +115,6 @@ class InspectorTable extends Component implements HasForms, HasTable
 
     public function render (): View
     {
-        return view('livewire.inspector-table');
+        return view('livewire.inspectors.search-inspector-table');
     }
 }
