@@ -9,59 +9,82 @@ use GuzzleHttp\RequestOptions;
 
 class RapidClient
 {
-    // Headers
-    private const GZIP = "gzip";
-    private const AUTHORIZATION_HEADER = "EAN APIKey=%s,Signature=%s,timestamp=%s";
+	// Headers
+	private const GZIP = "gzip";
+	private const AUTHORIZATION_HEADER = "EAN APIKey=%s,Signature=%s,timestamp=%s";
 
-    private $apiKey;
-    private $sharedSecret;
-    private $client;
+	private $apiKey;
+	private $sharedSecret;
+	private $client;
 	private $rapidBaseUrl;
 
-    public function __construct ($apiKey, $sharedSecret)
-    {
-        $this->apiKey = $apiKey;
-        $this->sharedSecret = $sharedSecret;
-        $this->client = new Client();
+	public function __construct($apiKey, $sharedSecret)
+	{
+		$this->apiKey = $apiKey;
+		$this->sharedSecret = $sharedSecret;
+		$this->client = new Client(['debug' => fopen('./rapidClientDebug.log', 'w')]);
 		$this->rapidBaseUrl = env('EXPEDIA_RAPID_BASE_URL');
-    }
+	}
 
-    public function get ($path, $queryParameters)
-    {
-        $queryParams = [];
-        foreach ($queryParameters as $key => $value) {
-            $queryParams[$key] = $value;
-        }
+	public function get($path, $queryParameters, $addHeaders = [])
+	{
+		$queryParams = [];
+		foreach ($queryParameters as $key => $value) {
+			$queryParams[$key] = $value;
+		}
+		$url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
-        $url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+		$headers = [
+			'Authorization' => $this->generateAuthHeader(),
+			'Accept-Encoding' => self::GZIP,
+			// 'Customer-Ip' => '5.5.5.5',
+			// 'Accept' => 'application/json',
+			// 'Content-Type' => 'application/json',
+			// 'Test' => 'standard'
+		];
 
-        $response = $this->client->request('GET', $url, [
-            'headers' => [
-                'Accept-Encoding' => self::GZIP,
-                'Authorization' => $this->generateAuthHeader()
-            ]
-        ]);
+		$request = new Request('GET', $url, $headers + $addHeaders);
+		$res = $this->client->sendAsync($request)->wait();
 
-        return $response;
-    }
+		return $res;
+	}
 
-    private function generateAuthHeader ()
-    {
-        $timeStampInSeconds = strval(time());
-        $input = $this->apiKey . $this->sharedSecret . $timeStampInSeconds;
-        $signature = hash('sha512', $input);
+	public function post($path, $queryParameters, $body, $addHeaders = [])
+	{
+		$queryParams = [];
+		foreach ($queryParameters as $key => $value) {
+			$queryParams[$key] = $value;
+		}
+		$url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
-        return sprintf(self::AUTHORIZATION_HEADER, $this->apiKey, $signature, $timeStampInSeconds);
-    }
+		$headers = [
+			'Authorization' => $this->generateAuthHeader(),
+			'Accept-Encoding' => self::GZIP,
+		];
 
-	public function getAsync($path, $queryParameters) :promise
-    {		
-        $queryParams = [];
-        foreach ($queryParameters as $key => $value) {
-            $queryParams[$key] = $value;
-        }
+		$request = new Request('POST', $url, $headers + $addHeaders, $body);
+		$res = $this->client->sendAsync($request)->wait();
 
-        $url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+		return $res;
+	}
+
+	private function generateAuthHeader()
+	{
+		$timeStampInSeconds = strval(time());
+		$input = $this->apiKey . $this->sharedSecret . $timeStampInSeconds;
+		$signature = hash('sha512', $input);
+
+		return sprintf(self::AUTHORIZATION_HEADER, $this->apiKey, $signature, $timeStampInSeconds);
+	}
+
+	public function getAsync($path, $queryParameters): promise
+	{
+		$queryParams = [];
+		foreach ($queryParameters as $key => $value) {
+			$queryParams[$key] = $value;
+		}
+
+		$url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
 		$headers = [
 			'Accept-Encoding' => self::GZIP,
@@ -75,5 +98,6 @@ class RapidClient
 		}
 
 		return $res;
-    }
+	}
+
 }

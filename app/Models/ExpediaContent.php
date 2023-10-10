@@ -88,25 +88,22 @@ class ExpediaContent extends Model
         });
     }
 
-	public function getIdsByDestinationGiata (array $filters): array
-	{
-		$giata = GiataProperty::where('city', $filters['destination'])
-			->leftJoin('mapper_expedia_giatas', 'giata_properties.code', '=', 'mapper_expedia_giatas.giata_id')
-			->whereNotNull('mapper_expedia_giatas.expedia_id')
-			->select('mapper_expedia_giatas.expedia_id as expedia_id')
-			->get();
-
-		$ids = [];
-		foreach ($giata as $item) {
-			$ids[] = $item->expedia_id;
-		}
-
-		return $ids;
-	}
-
     public function mapperGiataExpedia ()
     {
         return $this->hasMany(MapperExpediaGiata::class, 'expedia_id', 'property_id');
     }
+
+	public function getIdsByDestinationGiata($city) : array
+	{
+		$ids = GiataProperty::where('city', $city)
+			->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
+			->select('mapper_expedia_giatas.expedia_id')
+			->whereNotNull('mapper_expedia_giatas.expedia_id')
+			->get()
+			->pluck('expedia_id')
+			->toArray();
+
+		return $ids;
+	}
 
 }
