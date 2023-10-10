@@ -26,7 +26,7 @@ class ExpediaContentFactory extends Factory
      */
     public function definition(): array
     {
-        
+
         return [
             'property_id' => $this->faker->numberBetween(1, 10000), // Пример значения для property_id
             'rating' => $this->faker->randomFloat(2, 1, 5), // Пример значения для rating
@@ -44,7 +44,7 @@ class ExpediaContentFactory extends Factory
             'checkout_time' => $this->faker->time,
             'address' => '{
                 "city": "New Delhi",
-                "line_1": "Plot No. 10, GMR Hospitality District",
+                "line_1": "Plot No. ' . $this->faker->numberBetween(1, 100) . ', GMR' . $this->faker->word . '",
                 "line_2": "Indira Gandhi International Airport",
                 "localized": {
                     "links": {
@@ -144,7 +144,7 @@ class ExpediaContentFactory extends Factory
             }',
             'supply_source' => $this->faker->word,
             'all_inclusive' => [""],
-        
+
         ];
     }
 }

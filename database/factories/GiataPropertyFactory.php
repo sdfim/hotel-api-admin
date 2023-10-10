@@ -34,6 +34,7 @@ class GiataPropertyFactory extends Factory
             'locale' => $this->faker->locale,
             'address' => '{
                 "CityName": "New Delhi",
+                "AddressLine":"Delhy No. ' . $this->faker->numberBetween(1, 100) . ', Viln ' . $this->faker->word . '",
                 "PostalCode": "110037",
                 "@attributes": {
                     "UseType": "7",

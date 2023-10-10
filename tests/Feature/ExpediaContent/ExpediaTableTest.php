@@ -15,16 +15,16 @@ class ExpediaTableTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testCanRenderCity(): void
+    public function testCanRenderPageAndRenderCityAndSearchName(): void
     {
         $this->auth();
         $expedia = ExpediaContent::factory()->count(10)->create();
         //'can render page'
         livewire::test(ExpediaTable::class)->assertSuccessful();
-        //'can render post titles'
+        //'can render city'
         livewire::test(ExpediaTable::class)
             ->assertCanRenderTableColumn('city');
-        //'can search posts by title'
+        //'can search by name'
         $name = $expedia->first()->name;
 
         livewire::test(ExpediaTable::class)
@@ -32,8 +32,7 @@ class ExpediaTableTest extends TestCase
             ->assertCanSeeTableRecords($expedia->where($this->faker->name, $name))
             ->assertCanNotSeeTableRecords($expedia->where($this->faker->name, '!=', $name));
     }
-
-    public function testCanFilterName()
+    public function testCanFilterByName()
     {
         $this->auth();
         $expedia = ExpediaContent::factory()->count(10)->create();
@@ -54,6 +53,18 @@ class ExpediaTableTest extends TestCase
             ->assertSee($cityToFilter)
             ->assertDontSee($cityToFilter1)
             ->assertDontSee($cityToFilter2);
+    }
+    public function testCanFilterByAddress()
+    {
+        $expedia = ExpediaContent::factory()->count(10)->create();
+        $addressToFilter = json_decode($expedia[0]->address)->line_1;
+        $addressToFilter1 = json_decode($expedia[1]->address)->line_1;
+        $addressToFilter2 = json_decode($expedia[2]->address)->line_1;
+        livewire::test(ExpediaTable::class)
+            ->filterTable('address', ['address' => $addressToFilter])
+            ->assertSee($addressToFilter)
+            ->assertDontSee($addressToFilter1)
+            ->assertDontSee($addressToFilter2);
     }
     public function auth()
     {

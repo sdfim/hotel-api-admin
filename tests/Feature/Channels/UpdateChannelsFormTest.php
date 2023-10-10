@@ -14,7 +14,6 @@ class UpdateChannelsFormTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
-
     
     public function testCanUpdateChannelData()
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Suppliers;
 
 use App\Livewire\Suppliers\UpdateSuppliersForm;
 use App\Models\Suppliers;
