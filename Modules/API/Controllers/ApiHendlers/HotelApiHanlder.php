@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
 use Modules\Inspector\SearchInspectorController;
 use Modules\API\Requests\PriceHotelRequest;
-
+use Modules\API\Suppliers\DTO\ExpediaHotelDto;
 
 class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 {
@@ -21,11 +21,13 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	private ExperiaService $experiaService;
 	private SearchInspectorController $apiInspector;
 	private ExpediaHotelApiHandler $expedia;
+	private ExpediaHotelDto $expediaDto;
 
 	public function __construct(ExperiaService $experiaService) {
 		$this->experiaService = $experiaService;
 		$this->expedia = new ExpediaHotelApiHandler($this->experiaService);
 		$this->apiInspector = new SearchInspectorController();
+		$this->expediaDto = new ExpediaHotelDto();
 	}
 	/*
 	 * @param Request $request
@@ -101,7 +103,11 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			foreach ($supplierIds as $supplier) {
 				$supplierName = Suppliers::find($supplier)->name;
 				if ($supplierName == self::SUPPLIER_NAME) {
-					$daraResponse[$supplierName] = $this->expedia->price($request, $filters);
+					$expediaResponse = $this->expedia->price($request, $filters);
+					if ($request->input('supplier_data') == 'true')
+						$daraResponse[$supplierName] = $expediaResponse;
+					else
+						$daraResponse[$supplierName] = $this->expediaDto->ExpediaToHotelResponse($expediaResponse, $filters);
 				}
 				// TODO: Add other suppliers
 			}
