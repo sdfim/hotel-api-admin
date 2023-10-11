@@ -114,7 +114,7 @@ class RapidClient
 		return sprintf(self::AUTHORIZATION_HEADER, $this->apiKey, $signature, $timeStampInSeconds);
 	}
 
-	public function getAsync($path, $queryParameters, $addHeaders): promise
+	public function getAsync($path, $queryParameters, $addHeaders=[]): promise
 	{
 		foreach (range(0, 10) as $i) $arrayReplace[] = '%5B'.$i.'%5D';
 		$http_build_query = http_build_query($queryParameters);

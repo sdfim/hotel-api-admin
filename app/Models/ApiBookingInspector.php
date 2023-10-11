@@ -129,7 +129,8 @@ class ApiBookingInspector extends Model
 					$query->where('type', 'add_item')
 						  ->where('sub_type', 'like', 'get_book' . '%');
 				})
-					  ->orWhere('type', 'retrieve_items');
+					  // ->orWhere('type', 'retrieve_items')
+					  ;
 			})
 			->get();
 		
