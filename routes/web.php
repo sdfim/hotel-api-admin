@@ -63,3 +63,5 @@ Route::prefix('admin')->group(function () {
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
     });
 });
+
+Route::get('/test-pricing-rules', [\Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier::class, 'test']);

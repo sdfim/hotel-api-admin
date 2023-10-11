@@ -104,7 +104,7 @@ class CreatePricingRules extends Component implements HasForms
                 Select::make('price_value_type_to_apply')
                     ->options([
                         'fixed_value' => 'Fixed Value',
-                        'percentage,' => 'Percentage',
+                        'percentage' => 'Percentage',
                     ])
                     ->required()
                     ->live(),
