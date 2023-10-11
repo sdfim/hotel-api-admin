@@ -4,5 +4,5 @@ namespace Modules\API\PricingRules;
 
 interface PricingRulesApplierInterface
 {
-    public function apply(array $expediaPricing): array;
+    public function apply(int $giataId, int $channelId, string $requestObject, string $pricingObject): array;
 }

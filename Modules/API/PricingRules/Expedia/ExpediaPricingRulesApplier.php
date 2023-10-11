@@ -3,8 +3,9 @@
 namespace Modules\API\PricingRules\Expedia;
 
 use App\Models\PricingRules;
+use Modules\API\PricingRules\PricingRulesApplierInterface;
 
-class ExpediaPricingRulesApplier
+class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
 {
 
     public function test(): array
