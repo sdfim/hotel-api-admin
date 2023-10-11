@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use Modules\Inspector\SearchInspectorController;
 use Modules\API\BookingAPI\ExpediaHotelBookingApiHandler;
+use Termwind\Components\Raw;
 
 class HotelBookingApiHanlder extends BaseController // implements BookingApiHandlerInterface
 {
@@ -43,12 +44,12 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 
 			$data = [];
 			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
-				$data = $this->expedia->addItem($request, $filters);
+				$data = $this->expedia->addItem($filters);
 			}
 			// TODO: Add other suppliers
 
 		} catch (\Exception $e) {
-			\Log::error('HotelBookingApiHanlder | addItem' . $e->getMessage());
+			\Log::error('HotelBookingApiHanlder | addItem ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'falied');
 		}
 
@@ -72,11 +73,13 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 			// TODO: Add other suppliers
 
 		} catch (\Exception $e) {
-			\Log::error('HotelBookingApiHanlder | removeItem' . $e->getMessage());
+			\Log::error('HotelBookingApiHanlder | removeItem ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'falied');
 		}
 
-		return $this->sendResponse(['result' => $data], 'success');
+		if (isset($data['error'])) return $this->sendError($data['error']);
+
+		return $this->sendResponse(['result' => $data['success']], 'success');
 	}
 
 	/**
@@ -96,7 +99,7 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 			// TODO: Add other suppliers
 
 		} catch (\Exception $e) {
-			\Log::error('HotelBookingApiHanlder | retrieveItems' . $e->getMessage());
+			\Log::error('HotelBookingApiHanlder | retrieveItems ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'falied');
 		}
 
@@ -110,6 +113,22 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 	 */
 	public function addPassengers (Request $request, string $supplier) : JsonResponse
 	{
+		try {	
+			// TODO: add validation for request
+			$filters = $request->all();
+
+			$data = [];
+			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+				$data = $this->expedia->addPassengers($filters);
+			}
+			// TODO: Add other suppliers
+
+		} catch (\Exception $e) {
+			\Log::error('HotelBookingApiHanlder | listBookings ' . $e->getMessage());
+			return $this->sendError(['error' => $e->getMessage()], 'falied');
+		}
+
+		return $this->sendResponse(['count' => count($data), 'result' => $data], 'success');
 
 	}
 
@@ -128,6 +147,22 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 	 */
 	public function listBookings (Request $request, string $supplier) : JsonResponse
 	{
+		try {	
+			// TODO: add validation for request
+			$filters = $request->all();
+
+			$data = [];
+			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+				$data = $this->expedia->listBookings();
+			}
+			// TODO: Add other suppliers
+
+		} catch (\Exception $e) {
+			\Log::error('HotelBookingApiHanlder | listBookings ' . $e->getMessage());
+			return $this->sendError(['error' => $e->getMessage()], 'falied');
+		}
+
+		return $this->sendResponse(['count' => count($data), 'result' => $data], 'success');
 
 	}
 
@@ -146,6 +181,24 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 	 */
 	public function cancelBooking (Request $request, string $supplier) : JsonResponse
 	{
+		try {	
+			// TODO: add validation for request
+			$filters = $request->all();
+
+			$data = [];
+			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+				$data = $this->expedia->cancelBooking($filters);
+			}
+			// TODO: Add other suppliers
+
+		} catch (\Exception $e) {
+			\Log::error('HotelBookingApiHanlder | removeItem ' . $e->getMessage());
+			return $this->sendError(['error' => $e->getMessage()], 'falied');
+		}
+
+		if (isset($data['error'])) return $this->sendError($data['error']);
+
+		return $this->sendResponse(['result' => $data['success']], 'success');
 
 	}
 

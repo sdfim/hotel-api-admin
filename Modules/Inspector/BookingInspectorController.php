@@ -8,7 +8,7 @@ use App\Models\ApiBookingInspector;
 use Modules\Inspector\BaseInspectorController;
 class BookingInspectorController extends BaseInspectorController
 {
-	public function save($booking_id, $query, $content, $supplier_id, $type = 'add_item', $subType = 'main') : string|bool
+	public function save($booking_id, $query, $content, $client_content, $supplier_id, $type = 'add_item', $subType = 'main') : string|bool
 	{
 		try {
 			$this->current_time = microtime(true);
@@ -18,15 +18,21 @@ class BookingInspectorController extends BaseInspectorController
 			$earch_id = $query['inspector'];
 			$query = json_encode($query);
 			$content = json_encode($content);
-			$hash = md5($query);
-			$path = $type . '/' . date("Y-m-d") . '/' . $subType . '/' . $hash.'.json';
+			$client_content = json_encode($client_content);
+			$hash = md5($query.$booking_id);
 
-			$bokking = ApiBookingInspector::where('response_path', $path)->first();
-			if ($bokking) return $bokking->id;
+			$path = $type . '/' . date("Y-m-d") . '/' . $subType . '/' . $hash.'.json';
+			$client_path = $type . '/' . date("Y-m-d") . '/' . $subType . '/' . $hash.'.client.json';
+
+			$booking = ApiBookingInspector::where('response_path', $path)->first();
+			if ($booking) return $booking->id;
 			\Log::debug('BookingInspectorController item exist: ' . $this->executionTime() . ' seconds');
 
 			Storage::put($path, $content);
 			\Log::debug('BookingInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
+
+			Storage::put($client_path, $client_content);
+			\Log::debug('BookingInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
 
 			$data = [
 				'booking_id' => $booking_id,
@@ -37,7 +43,7 @@ class BookingInspectorController extends BaseInspectorController
 				'sub_type' => $subType, 
 				'request' => $query,
 				'response_path' => $path,
-				'client_response_path' => '',
+				'client_response_path' => $client_path,
 			];
 
 			$bokking = ApiBookingInspector::create($data);
