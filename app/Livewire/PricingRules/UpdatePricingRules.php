@@ -116,14 +116,13 @@ class UpdatePricingRules extends Component implements HasForms
                     ->required()
                     ->options([
                         'fixed_value' => 'Fixed Value',
-                        'percentage,' => 'Percentage',
+                        'percentage' => 'Percentage',
                     ])
                     ->live(),
                 TextInput::make('price_value_to_apply')
                     ->required()
                     ->numeric(),
                 Select::make('price_value_fixed_type_to_apply')
-                    ->required()
                     ->options([
                         'per_guest' => 'Per Guest',
                         'per_room' => 'Per Room',
