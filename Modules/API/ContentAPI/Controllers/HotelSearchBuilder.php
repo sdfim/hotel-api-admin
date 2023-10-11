@@ -25,16 +25,16 @@ class HotelSearchBuilder
             $this->query->where('rating', '>=', $filters['rating']);
         }
  
- 		// TODO: [UJV-4] add ocuppancy filter
- 		if (isset($filters['ocuppancy'])) {
- 			$max_ocuppancy = 1;
- 			foreach ($filters['ocuppancy'] as $value) {
- 				$current_ocuppancy = $value['adults'] + ($value['children'] ?? 0);
- 				if ($current_ocuppancy > $max_ocuppancy) {
- 					$max_ocuppancy = $current_ocuppancy;
+ 		// TODO: [UJV-4] add occupancy filter
+ 		if (isset($filters['occupancy'])) {
+ 			$max_occupancy = 1;
+ 			foreach ($filters['occupancy'] as $value) {
+ 				$current_occupancy = $value['adults'] + ($value['children'] ?? 0);
+ 				if ($current_occupancy > $max_occupancy) {
+ 					$max_occupancy = $current_occupancy;
  				}
  			}
-             $this->query->where('total_occupancy', '>=', $max_ocuppancy);
+             $this->query->where('total_occupancy', '>=', $max_occupancy);
          }
 
         return $this->query;

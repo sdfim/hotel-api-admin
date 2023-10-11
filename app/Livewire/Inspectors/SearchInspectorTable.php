@@ -49,6 +49,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
 
                 TextColumn::make('created_at')
                     ->dateTime()
+					->sortable()
             ])
             ->filters([
                 // Filter::make('name')

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Suppliers;
 use Illuminate\Http\Request;
 use Modules\API\Controllers\RouteBookingApiStrategy;
-use Modules\API\BookingAPI\BookingApiHendlers\HotelBookingApiHenlder;
+use Modules\API\BookingAPI\BookingApiHendlers\HotelBookingApiHanlder;
 use Modules\API\BookingAPI\BookingApiHendlers\FlightBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHendlers\ComboBookingApiHandler;
 use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
@@ -53,7 +53,7 @@ class RouteBookingApiController extends Controller
 		// $dataHandler = $this->strategy->getHandler($supplier, $type);
 		
 		$dataHandler = match ($type) {
-			'hotel' => new HotelBookingApiHenlder($this->experiaService),
+			'hotel' => new HotelBookingApiHanlder($this->experiaService),
 			'flight' => new FlightBookingApiHandler(),
 			'combo' => new ComboBookingApiHandler(),
 			default => response()->json(['message' => 'Invalid route'], 400),

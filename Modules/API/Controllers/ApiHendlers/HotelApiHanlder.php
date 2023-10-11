@@ -15,7 +15,7 @@ use Modules\Inspector\SearchInspectorController;
 use Modules\API\Requests\PriceHotelRequest;
 
 
-class HotelApiHenlder extends BaseController implements ApiHandlerInterface
+class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 {
 	private const SUPPLIER_NAME = 'Expedia';
 	private ExperiaService $experiaService;

@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Validator;
 use Modules\Inspector\SearchInspectorController;
 use Modules\API\BookingAPI\ExpediaHotelBookingApiHandler;
 
-class HotelBookingApiHenlder extends BaseController // implements BookingApiHandlerInterface
+class HotelBookingApiHanlder extends BaseController // implements BookingApiHandlerInterface
 {
 	private $experiaService;
 	private $apiInspector;
@@ -48,7 +48,7 @@ class HotelBookingApiHenlder extends BaseController // implements BookingApiHand
 			// TODO: Add other suppliers
 
 		} catch (\Exception $e) {
-			\Log::error('ExpediaHotelApiHandler | search' . $e->getMessage());
+			\Log::error('HotelBookingApiHanlder | addItem' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'falied');
 		}
 
@@ -61,20 +61,20 @@ class HotelBookingApiHenlder extends BaseController // implements BookingApiHand
 	 */
 	public function removeItem (Request $request, string $supplier) : JsonResponse
 	{
-		// try {	
+		try {	
 			// TODO: add validation for request
 			$filters = $request->all();
 
 			$data = [];
 			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
-				$data = $this->expedia->removeItem($request, $filters);
+				$data = $this->expedia->removeItem($filters);
 			}
 			// TODO: Add other suppliers
 
-		// } catch (\Exception $e) {
-		// 	\Log::error('ExpediaHotelApiHandler | search' . $e->getMessage());
-		// 	return $this->sendError(['error' => $e->getMessage()], 'falied');
-		// }
+		} catch (\Exception $e) {
+			\Log::error('HotelBookingApiHanlder | removeItem' . $e->getMessage());
+			return $this->sendError(['error' => $e->getMessage()], 'falied');
+		}
 
 		return $this->sendResponse(['result' => $data], 'success');
 	}
@@ -85,6 +85,22 @@ class HotelBookingApiHenlder extends BaseController // implements BookingApiHand
 	 */
 	public function retrieveItems (Request $request, string $supplier) : JsonResponse
 	{
+		try {	
+			// TODO: add validation for request
+			$filters = $request->all();
+
+			$data = [];
+			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+				$data = $this->expedia->retrieveItems($filters);
+			}
+			// TODO: Add other suppliers
+
+		} catch (\Exception $e) {
+			\Log::error('HotelBookingApiHanlder | retrieveItems' . $e->getMessage());
+			return $this->sendError(['error' => $e->getMessage()], 'falied');
+		}
+
+		return $this->sendResponse(['result' => $data], 'success');
 
 	}
 	
