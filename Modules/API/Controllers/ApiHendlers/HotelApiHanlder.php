@@ -99,27 +99,34 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			$rules = $priceRequest->rules();
 			$filters = Validator::make($request->all(), $rules)->validated();
 
-			$daraResponse = [];
+			$dataResponse = [];
+			$clientResponse = [];
 			foreach ($supplierIds as $supplier) {
 				$supplierName = Suppliers::find($supplier)->name;
 				if ($supplierName == self::SUPPLIER_NAME) {
 					$expediaResponse = $this->expedia->price($request, $filters);
-					if ($request->input('supplier_data') == 'true')
-						$daraResponse[$supplierName] = $expediaResponse;
-					else
-						$daraResponse[$supplierName] = $this->expediaDto->ExpediaToHotelResponse($expediaResponse, $filters);
+					$dataResponse[$supplierName] = $expediaResponse;
+					$clientResponse[$supplierName] = $this->expediaDto->ExpediaToHotelResponse($expediaResponse, $filters);
 				}
 				// TODO: Add other suppliers
 			}
 
-			$res = [
-				'count' => count($daraResponse[self::SUPPLIER_NAME]), 
+			$content = [
+				'count' => count($dataResponse[self::SUPPLIER_NAME]), 
 				'query' => $filters, 
-				'results' => $daraResponse,
-				];
+				'results' => $dataResponse,
+			];
+			$clientContent = [
+				'count' => count($clientResponse[self::SUPPLIER_NAME]), 
+				'query' => $filters, 
+				'results' => $clientResponse,
+			];
 
 			# save data to Inspector
-			$inspector = $this->apiInspector->save($filters, $res, $supplierIds);
+			$inspector = $this->apiInspector->save($filters, $content, $clientContent,  $supplierIds);
+
+			if ($request->input('supplier_data') == 'true') $res = $content;
+			else $res = $clientContent;
 
 			$res['inspector'] = $inspector;
 
@@ -129,10 +136,5 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			return $this->sendError(['error' => $e->getMessage()], 'falied');
 		}
 
-	}
-
-	private function executionTime ()
-	{
-		return microtime(true) - $this->current_time;
 	}
 }
