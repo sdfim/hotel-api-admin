@@ -45,6 +45,28 @@ class RapidClient
 		return $res;
 	}
 
+	public function put($path, $queryParameters, $body, $addHeaders = [])
+	{
+		$queryParams = [];
+		foreach ($queryParameters as $key => $value) {
+			$queryParams[$key] = $value;
+		}
+		$url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+
+		$headers = [
+			'Authorization' => $this->generateAuthHeader(),
+			'Accept-Encoding' => self::GZIP,
+		];
+		$headers = $headers + $addHeaders;
+
+		// dd($headers, $body);
+
+		$request = new Request('PUT', $url, $headers, $body);
+		$res = $this->client->sendAsync($request)->wait();
+
+		return $res;
+	}
+
 	public function delete($path, $queryParameters, $body, $addHeaders = [])
 	{
 		$queryParams = [];
@@ -92,20 +114,19 @@ class RapidClient
 		return sprintf(self::AUTHORIZATION_HEADER, $this->apiKey, $signature, $timeStampInSeconds);
 	}
 
-	public function getAsync($path, $queryParameters): promise
+	public function getAsync($path, $queryParameters, $addHeaders=[]): promise
 	{
-		$queryParams = [];
-		foreach ($queryParameters as $key => $value) {
-			$queryParams[$key] = $value;
-		}
+		foreach (range(0, 10) as $i) $arrayReplace[] = '%5B'.$i.'%5D';
+		$http_build_query = http_build_query($queryParameters);
+		$http_query = str_replace($arrayReplace, '', $http_build_query);
 
-		$url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+		$url = $this->rapidBaseUrl . '/' . $path . '?' . $http_query;
 
 		$headers = [
 			'Accept-Encoding' => self::GZIP,
 			'Authorization' => $this->generateAuthHeader()
 		];
-		$request = new Request('GET', $url, $headers);
+		$request = new Request('GET', $url, $headers + $addHeaders);
 		try {
 			$res = $this->client->sendAsync($request);
 		} catch (\Exception $e) {

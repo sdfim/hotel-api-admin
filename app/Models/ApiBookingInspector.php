@@ -41,7 +41,7 @@ class ApiBookingInspector extends Model
 		$room_id = $filters['room_id'];
 
 		$inspector = ApiBookingInspector::where('type', 'add_item')
-			->where('sub_type', 'get_book')
+			->where('sub_type', 'like', 'retrieve' . '%')
 			->where('booking_id', $booking_id)
 			->first();
 
@@ -59,12 +59,36 @@ class ApiBookingInspector extends Model
 		return $linkDeleteItem;
 	}
 
+	public function getLinckPutMetod($filters)
+	{
+		$booking_id = $filters['booking_id'];
+		$room_id = $filters['room_id'];
+
+		$inspector = ApiBookingInspector::where('type', 'add_item')
+			->where('sub_type', 'like', 'retrieve' . '%')
+			->where('booking_id', $booking_id)
+			->first();
+
+		$json_response = json_decode(Storage::get($inspector->response_path));
+		$rooms = $json_response->rooms;
+
+		$linkPutMethod = '';
+		foreach ($rooms as $room) {
+			if ($room->id == $room_id) {
+				$linkPutMethod = $room->links->change->href;
+				break;
+			}
+		}
+
+		return $linkPutMethod;
+	}
+
 	public function getItineraryId ($filters)
 	{
 		$booking_id = $filters['booking_id'];
 
 		$inspector = ApiBookingInspector::where('type', 'add_item')
-			->where('sub_type', 'get_book')
+			->where('sub_type', 'like', 'retrieve' . '%')
 			->where('booking_id', $booking_id)
 			->first();
 
@@ -73,4 +97,54 @@ class ApiBookingInspector extends Model
 		return $json_response->itinerary_id;
 	}
 
+	public function getSearchId ($filters)
+	{
+		$booking_id = $filters['booking_id'];
+
+		$inspector = ApiBookingInspector::where('type', 'add_item')
+			->where('sub_type', 'like', 'retrieve' . '%')
+			->where('booking_id', $booking_id)
+			->first();
+
+		return $inspector->search_id;
+	}
+
+	public function getLinckRetrieveItem($booking_id)
+	{
+		$inspector = ApiBookingInspector::where('type', 'add_item')
+			->where('sub_type', 'like', 'create' . '%')
+			->where('booking_id', $booking_id)
+			->first();
+
+		$json_response = json_decode(Storage::get($inspector->response_path));
+
+		return $json_response->links->retrieve->href;
+	}
+
+	public function getAffiliateReferenceIdByCannel($cannel) 
+	{
+		$inspectors = ApiBookingInspector::where('token_id', $cannel)
+			->where(function ($query) {
+				$query->where(function ($query) {
+					$query->where('type', 'add_item')
+						  ->where('sub_type', 'like', 'retrieve' . '%');
+				})
+					  // ->orWhere('type', 'retrieve_items')
+					  ;
+			})
+			->get();
+		
+		$list = [];
+		foreach ($inspectors as $inspector) {
+			$json_response = json_decode(Storage::get($inspector->response_path));
+			if (isset($json_response->affiliate_reference_id)) {
+				$list[] = [
+					'affiliate_reference_id' => $json_response->affiliate_reference_id,
+					'email' => $json_response->email
+				];
+			}
+		}
+
+		return $list;
+	}
 }

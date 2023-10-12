@@ -36,12 +36,15 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     ->searchable()
 					->sortable(),
                 TextColumn::make('type')
-                    ->searchable(),
+                    ->searchable()
+					->label('Endpoint'),
 				TextColumn::make('sub_type')
-                    ->searchable(),
+                    ->searchable()
+					->label('Step'),
                 TextColumn::make('token.id')
                     ->numeric()
-                    ->searchable(),
+                    ->searchable()
+					->label('Channel'),
                 TextColumn::make('supplier.name')
                     ->numeric()
                     ->searchable(),

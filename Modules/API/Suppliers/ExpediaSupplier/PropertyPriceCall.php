@@ -131,7 +131,7 @@ class PropertyPriceCall
 		$queryParams[self::CURRENCY] = $this->currency;
 
 		foreach ($this->occupancy as $room) {
-			$queryParams[self::OCCUPANCY] = $room;
+			$queryParams[self::OCCUPANCY][] = $room['adults'] + ($room['children'] ?? 0);
 		}
 		$queryParams[self::RATE_PLAN_COUNT] = $this->ratePlanCount;
 		$queryParams[self::SALES_CHANNEL] = $this->salesChannel;

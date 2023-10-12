@@ -13,19 +13,21 @@ use Illuminate\Support\Facades\Validator;
 use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
 use Modules\Inspector\SearchInspectorController;
 use Modules\API\Requests\PriceHotelRequest;
+use Modules\API\Suppliers\DTO\ExpediaHotelDto;
 
-
-class HotelApiHenlder extends BaseController implements ApiHandlerInterface
+class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 {
 	private const SUPPLIER_NAME = 'Expedia';
 	private ExperiaService $experiaService;
 	private SearchInspectorController $apiInspector;
 	private ExpediaHotelApiHandler $expedia;
+	private ExpediaHotelDto $expediaDto;
 
 	public function __construct(ExperiaService $experiaService) {
 		$this->experiaService = $experiaService;
 		$this->expedia = new ExpediaHotelApiHandler($this->experiaService);
 		$this->apiInspector = new SearchInspectorController();
+		$this->expediaDto = new ExpediaHotelDto();
 	}
 	/*
 	 * @param Request $request
@@ -97,24 +99,36 @@ class HotelApiHenlder extends BaseController implements ApiHandlerInterface
 			$rules = $priceRequest->rules();
 			$filters = Validator::make($request->all(), $rules)->validated();
 
-			$daraResponse = [];
+			$dataResponse = [];
+			$clientResponse = [];
 			foreach ($supplierIds as $supplier) {
 				$supplierName = Suppliers::find($supplier)->name;
 				if ($supplierName == self::SUPPLIER_NAME) {
-					$daraResponse[$supplierName] = $this->expedia->price($request, $filters);
+					$expediaResponse = $this->expedia->price($request, $filters);
+					$dataResponse[$supplierName] = $expediaResponse;
+					$clientResponse[$supplierName] = $this->expediaDto->ExpediaToHotelResponse($expediaResponse, $filters);
 				}
 				// TODO: Add other suppliers
 			}
-			$res = [
-				'count' => count($daraResponse[self::SUPPLIER_NAME]), 
+
+			$content = [
+				'count' => count($dataResponse[self::SUPPLIER_NAME]), 
 				'query' => $filters, 
-				'results' => $daraResponse,
-				];
+				'results' => $dataResponse,
+			];
+			$clientContent = [
+				'count' => count($clientResponse[self::SUPPLIER_NAME]), 
+				'query' => $filters, 
+				'results' => $clientResponse,
+			];
 
 			# save data to Inspector
-			$inspector = $this->apiInspector->save($filters, $res, $supplierIds);
+			$search_id = $this->apiInspector->save($filters, $content, $clientContent,  $supplierIds);
 
-			$res['inspector'] = $inspector;
+			if ($request->input('supplier_data') == 'true') $res = $content;
+			else $res = $clientContent;
+
+			$res['search_id'] = $search_id;
 
 			return $this->sendResponse($res, 'success');
 		} catch (\Exception $e) {
@@ -122,10 +136,5 @@ class HotelApiHenlder extends BaseController implements ApiHandlerInterface
 			return $this->sendError(['error' => $e->getMessage()], 'falied');
 		}
 
-	}
-
-	private function executionTime ()
-	{
-		return microtime(true) - $this->current_time;
 	}
 }

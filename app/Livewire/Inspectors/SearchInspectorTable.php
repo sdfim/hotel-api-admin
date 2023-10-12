@@ -32,7 +32,8 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->searchable()
 					->label('Search ID'),
                 TextColumn::make('type')
-                    ->searchable(),
+                    ->searchable()
+					->label('Endpoint'),
                 TextColumn::make('token.id')
                     ->numeric()
                     ->searchable(),
@@ -55,6 +56,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                 ViewColumn::make('request')->view('dashboard.search-inspector.column.request'),
                 TextColumn::make('created_at')
                     ->dateTime()
+					->sortable()
             ])
             ->filters([
                 // Filter::make('name')

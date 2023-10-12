@@ -8,7 +8,7 @@ use App\Models\ApiSearchInspector;
 use Modules\Inspector\BaseInspectorController;
 class SearchInspectorController extends BaseInspectorController
 {
-	public function save($query, $content, $suppliers , $type = 'search') : string|bool
+	public function save($query, $content, $clientContent, $suppliers , $type = 'search') : string|bool
 	{
 		try {
 			$this->current_time = microtime(true);
@@ -17,8 +17,10 @@ class SearchInspectorController extends BaseInspectorController
 			$token_id = $ch->getTokenId(request()->bearerToken());
 			$query = json_encode($query);
 			$content = json_encode($content);
+			$clientContent = json_encode($clientContent);
 			$hash = md5($query);
 			$path = $type . '/' . date("Y-m-d") . '/' . $hash.'.json';
+			$client_path = $type . '/' . date("Y-m-d") . '/' . $hash.'.client.json';
 
 			$inspector = ApiSearchInspector::where('response_path', $path)->first();
 			if ($inspector) return $inspector->id;
@@ -27,6 +29,8 @@ class SearchInspectorController extends BaseInspectorController
 			Storage::put($path, $content);
 			\Log::debug('SearchInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
 
+			Storage::put($client_path, $clientContent);
+			\Log::debug('SearchInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
 
 			$data = [
 				'token_id' => $token_id,
@@ -34,7 +38,7 @@ class SearchInspectorController extends BaseInspectorController
 				'type' => $type,
 				'request' => $query,
 				'response_path' => $path,
-				'client_response_path' => '',
+				'client_response_path' => $client_path,
 			];
 
 			$inspector = ApiSearchInspector::create($data);
