@@ -47,12 +47,12 @@
                     </a>
                     <ul>
                         <li>
-                            <a href="{{ Route('search_inspector') }}"
+                            <a href="{{ Route('search-inspector.index') }}"
                                class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
 							   Search Inspector</a>
                         </li>
                         <li>
-                            <a href="{{ Route('booking_inspector') }}"
+                            <a href="{{ Route('booking-inspector.index') }}"
                                class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
 							   Booking Inspector</a>
                         </li>

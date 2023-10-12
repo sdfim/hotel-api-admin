@@ -50,8 +50,10 @@ Route::prefix('admin')->group(function () {
         Route::get('/content', [ContentController::class, 'index'])->name('content');
         Route::get('/general-configuration', [GeneralConfigurationController::class, 'index'])->name('general_configuration');
         Route::get('/geography', [GeographyController::class, 'index'])->name('geography');
-        Route::get('/search-inspector', [SearchInspectorController::class, 'index'])->name('search_inspector');
-		Route::get('/booking-inspector', [BookingInspectorController::class, 'index'])->name('booking_inspector');
+        
+        Route::resource('search-inspector', SearchInspectorController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
+        Route::resource('booking-inspector', BookingInspectorController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
+
         Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
         Route::resource('reservations', ReservationsController::class)->except(['delete', 'store', 'create']);
         Route::resource('weight', WeightController::class);

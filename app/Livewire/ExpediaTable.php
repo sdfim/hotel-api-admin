@@ -46,8 +46,34 @@ class ExpediaTable extends Component implements HasForms, HasTable
                     ->sortable(),
                 ViewColumn::make('address')->view('dashboard.expedia.column.address-field'),
                 ViewColumn::make('location')->view('dashboard.expedia.column.position-field'),
+                ViewColumn::make('mapperGiataExpedia')->label('Giata id')->view('dashboard.expedia.column.giata_id'),
                 TextColumn::make('mapperGiataExpedia.giata_id')
-                    ->label('Giata id'),
+                ->default('')
+                ->label('Type')
+                ->sortable()
+                ->formatStateUsing(function ($record) {
+                    if(count($record->mapperGiataExpedia) > 1){
+                        return 'Multivariate';
+                    }else if(count($record->mapperGiataExpedia) == 1){
+                        return 'Single';
+                    }
+                    return 'Empty';
+                    
+                }),
+				TextColumn::make('mapperGiataExpedia.step')
+                ->label('Version')
+                ->formatStateUsing(function ($record) {
+                    if(count($record->mapperGiataExpedia) > 1){
+                        return 'Autom';
+                    }
+                    if(count($record->mapperGiataExpedia) == 1){
+                        if($record->mapperGiataExpedia[0]->step == 100){
+                            return 'Manual';
+                        }else{
+                            return 'Auto';
+                        }
+                    }
+                }),
                 ViewColumn::make('edit')->view('dashboard.expedia.column.add-giata'),
             ])
             ->filters([
@@ -67,6 +93,23 @@ class ExpediaTable extends Component implements HasForms, HasTable
 							return null;
 						}
 						return 'Without Giata ID';
+					}),
+                Filter::make('is_multiple')
+					->form([
+						Checkbox::make('is_multiple')
+							->label('Multiple Giata ID')
+					])
+					->query(function (Builder $query, array $data): Builder {
+						if ($data['is_multiple']) {
+							return $query->with('mapperGiataExpedia')
+                            ->withCount('mapperGiataExpedia')
+                            ->has('mapperGiataExpedia', '>', 1);
+						} else return $query;
+					})->indicateUsing(function (array $data): ?string {
+						if (!$data['is_multiple']) {
+							return null;
+						}
+						return 'Multiple Giata ID';
 					}),
                 Filter::make('name')
                     ->form([

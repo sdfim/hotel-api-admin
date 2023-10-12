@@ -105,7 +105,6 @@ class HotelApiHenlder extends BaseController implements ApiHandlerInterface
 				}
 				// TODO: Add other suppliers
 			}
-
 			$res = [
 				'count' => count($daraResponse[self::SUPPLIER_NAME]), 
 				'query' => $filters, 
