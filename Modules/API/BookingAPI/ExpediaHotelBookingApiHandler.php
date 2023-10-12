@@ -94,9 +94,11 @@ class ExpediaHotelBookingApiHandler
 		if (!$dataResponse) return [];
 		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $clientDataResponse, 1, 'add_item', 'retrieve' . ($queryHold ? ':hold' : ''));
 
-		// dd($dataResponse);
+		$viewSupplierData = $filters['supplier_data'] ?? false;
+		if ($viewSupplierData) $res = (array)$dataResponse;
+		else $res = ['booking_id' => $booking_id, 'search_id' => $filters['search_id']];
 
-		return (array)$dataResponse;
+		return $res;
 	}
 
 	private function getPathParamsFromLink(string $link): array

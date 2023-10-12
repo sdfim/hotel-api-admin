@@ -20,7 +20,7 @@ class SearchInspectorController extends BaseInspectorController
 			$clientContent = json_encode($clientContent);
 			$hash = md5($query);
 			$path = $type . '/' . date("Y-m-d") . '/' . $hash.'.json';
-			$client_path = $type . '/' . date("Y-m-d") . '/' . $hash.'.client.json';
+			$client_path = $type . '/' . date("Y-m-d") . '/' . $hash.'_client.json';
 
 			$inspector = ApiSearchInspector::where('response_path', $path)->first();
 			if ($inspector) return $inspector->id;
