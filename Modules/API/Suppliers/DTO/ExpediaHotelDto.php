@@ -51,6 +51,8 @@ class ExpediaHotelDto
 
 	public function setRoomGroupsResponse(array $roomGroup, $query, $giataId) : array
 	{
+		// dd($roomGroup);
+
 		$ch = new Channels;
 		$channelId = $ch->getTokenId(request()->bearerToken());
 		$pricingRulesApplier = [];
@@ -64,14 +66,14 @@ class ExpediaHotelDto
 		$roomGroupsResponse->setTotalTax($pricingRulesApplier['total_tax'] ?? 0.0);
 		$roomGroupsResponse->setTotalFees($pricingRulesApplier['total_fees'] ?? 0.0);
 		$roomGroupsResponse->setTotalNet($pricingRulesApplier['total_net'] ?? 0.0);
-		$roomGroupsResponse->setCurrency($roomGroup['currency'] ?? '');
+		$roomGroupsResponse->setCurrency($pricingRulesApplier['сurrency'] ?? 'USD');
 		$roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
 		$roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');
 		$roomGroupsResponse->setNonRefundable($roomGroup['non_refundable'] ?? '');
 		$roomGroupsResponse->setMealPlan($roomGroup['meal_plan'] ?? '');
 		$roomGroupsResponse->setRateId(intval($roomGroup['rates'][0]->id) ?? null);
 		$roomGroupsResponse->setRateDescription($roomGroup['rate_description'] ?? '');
-		$roomGroupsResponse->setCancellationPolicies($roomGroup['cancellation_policies'] ?? '');
+		$roomGroupsResponse->setCancellationPolicies($roomGroup['rates'][0]->cancel_penalties ?? []);
 		$roomGroupsResponse->setOpaque($roomGroup['opaque'] ?? '');
 		$rooms = [];
 		foreach ($roomGroup['rates'] as $room) {

@@ -15,7 +15,7 @@ class RoomGroupsResponse
 	private string $meal_plan;
 	private int $rate_id;
 	private string $rate_description;
-	private string $cancellation_policies;
+	private array $cancellation_policies;
 	private bool $opaque;
 	private array $rooms;
 
@@ -129,12 +129,12 @@ class RoomGroupsResponse
 		return $this->rate_description;
 	}
 
-	public function setCancellationPolicies(string $cancellation_policies) : void
+	public function setCancellationPolicies(array $cancellation_policies) : void
 	{
 		$this->cancellation_policies = $cancellation_policies;
 	}
 
-	public function getCancellationPolicies() : string
+	public function getCancellationPolicies() : array
 	{
 		return $this->cancellation_policies;
 	}
