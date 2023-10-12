@@ -59,8 +59,6 @@ class RapidClient
 		];
 		$headers = $headers + $addHeaders;
 
-		// dd($headers, $body);
-
 		$request = new Request('PUT', $url, $headers, $body);
 		$res = $this->client->sendAsync($request)->wait();
 
