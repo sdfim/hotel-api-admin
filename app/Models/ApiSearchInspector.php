@@ -20,6 +20,7 @@ class ApiSearchInspector extends Model
         'id',
         'token_id',
         'suppliers',
+		'search_type',
         'type',
         'request',
         'response_path',
@@ -65,5 +66,10 @@ class ApiSearchInspector extends Model
 		}
 
 		return $linkPriceCheck;
+	}
+
+	public function geTypeBySearchId(string $search_id) : string{
+		$search = ApiSearchInspector::where('id', $search_id)->first();
+		return $search->search_type;
 	}
 }

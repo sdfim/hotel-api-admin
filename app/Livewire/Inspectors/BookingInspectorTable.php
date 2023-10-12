@@ -3,10 +3,6 @@
 namespace App\Livewire\Inspectors;
 
 use App\Models\ApiBookingInspector;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -18,6 +14,7 @@ use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
 use Illuminate\Support\HtmlString;
+use Filament\Tables\Actions\ViewAction;
 
 class BookingInspectorTable extends Component implements HasForms, HasTable
 {
@@ -54,14 +51,6 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
 
                 ViewColumn::make('request')->view('dashboard.booking-inspector.column.request'),
 
-                ViewColumn::make('response_path')
-					->view('dashboard.booking-inspector.column.response')
-					->label(new HtmlString('Supplier <br />  Response')),
-
-				ViewColumn::make('client_response_path')
-					->view('dashboard.booking-inspector.column.client-response')
-					->label(new HtmlString('UJV API <br />  Response')),
-
                 TextColumn::make('created_at')
                     ->dateTime()
 					->sortable()
@@ -70,6 +59,10 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
 
             ])
             ->actions([
+                ViewAction::make()
+                        ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
+                        ->label('View response')
+                        ->color('info'),
                 // ActionGroup::make([
                 //     ViewAction::make()
                 //         ->url(fn(Channels $record): string => route('channels.show', $record))

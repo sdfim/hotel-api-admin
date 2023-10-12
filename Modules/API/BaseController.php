@@ -19,6 +19,8 @@ class BaseController extends Controller
             'data' => $result,
         ];
 
+		if (empty($response['data'])) unset($response['data']);
+
         if ($message) {
             $response['message'] = $message;
         }
@@ -35,13 +37,14 @@ class BaseController extends Controller
     {
         $response = [
             'success' => false,
-            'message' => $error,
+            'error' => $error,
         ];
 
         if (!empty($errorMessages)) {
-            $response['data'] = $errorMessages;
+            $response['message'] = $errorMessages;
         }
 
         return response()->json($response, $code);
     }
+	
 }

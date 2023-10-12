@@ -3,6 +3,7 @@
 namespace App\Livewire\Inspectors;
 
 use App\Models\ApiSearchInspector;
+use App\Models\Suppliers;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -10,6 +11,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -34,22 +36,24 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
 					->label('Endpoint'),
                 TextColumn::make('token.id')
                     ->numeric()
-                    ->searchable()
-					->label('Channel'),
-                TextColumn::make('supplier.name')
-                    ->numeric()
-                    ->searchable()
-					->label('Suppliers'),
+                    ->searchable(),
+                TextColumn::make('suppliers')
+                ->formatStateUsing(function (ApiSearchInspector $record): string{
+                    $suppliers_name_string = '';
+                    $suppliers_array = explode(',',$record->suppliers);
+                    for($i = 0; $i < count($suppliers_array); $i++){
+                        $supplier = Suppliers::find($suppliers_array[$i]);
+                        if($i == (count($suppliers_array)-1)){
+                            $suppliers_name_string .= $supplier->name;
+                        }else{
+                            $suppliers_name_string .= $supplier->name . ', ';
+                        }
+                    }
+                    return $suppliers_name_string;
+                }),
+//                    ->searchable(),
 
                 ViewColumn::make('request')->view('dashboard.search-inspector.column.request'),
-
-                ViewColumn::make('response_path')->view('dashboard.search-inspector.column.response')
-					->label(new HtmlString('Suppliers <br />  Response')),
-
-				ViewColumn::make('client_response_path')
-					->view('dashboard.search-inspector.column.client-response')
-					->label(new HtmlString('UJV API <br />  Response')),
-
                 TextColumn::make('created_at')
                     ->dateTime()
 					->sortable()
@@ -105,18 +109,11 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                 // })
             ])
             ->actions([
-                // ActionGroup::make([
-                //     ViewAction::make()
-                //         ->url(fn(Channels $record): string => route('channels.show', $record))
-                //         ->color('info'),
-                //     EditAction::make()
-                //         ->url(fn(Channels $record): string => route('channels.edit', $record))
-                //         ->color('primary'),
-                //     DeleteAction::make()
-                //         ->requiresConfirmation()
-                //         ->action(fn(Channels $record) => $record->delete())
-                //         ->color('danger'),
-                // ])
+                ViewAction::make()
+                        ->url(fn(ApiSearchInspector $record): string => route('search-inspector.show', $record))
+                        ->label('View response')
+                        ->color('info'),
+                
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

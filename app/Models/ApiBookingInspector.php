@@ -18,6 +18,7 @@ class ApiBookingInspector extends Model
         'token_id',
         'search_id',
 		'supplier_id',
+		'search_type',
         'type',
 		'sub_type',
         'request',
@@ -146,5 +147,11 @@ class ApiBookingInspector extends Model
 		}
 
 		return $list;
+	}
+
+	public function geTypeSupplierByBookingId(string $booking_id) : array
+	{
+		$search = ApiBookingInspector::where('booking_id', $booking_id)->first();
+		return ['type' => $search->search_type, 'supplier' => $search->supplier->name];
 	}
 }

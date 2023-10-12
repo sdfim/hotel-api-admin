@@ -8,7 +8,7 @@ use App\Models\ApiSearchInspector;
 use Modules\Inspector\BaseInspectorController;
 class SearchInspectorController extends BaseInspectorController
 {
-	public function save($query, $content, $clientContent, $suppliers , $type = 'search') : string|bool
+	public function save($query, $content, $clientContent, $suppliers , $type = 'search', $search_type) : string|bool
 	{
 		try {
 			$this->current_time = microtime(true);
@@ -20,7 +20,7 @@ class SearchInspectorController extends BaseInspectorController
 			$clientContent = json_encode($clientContent);
 			$hash = md5($query);
 			$path = $type . '/' . date("Y-m-d") . '/' . $hash.'.json';
-			$client_path = $type . '/' . date("Y-m-d") . '/' . $hash.'.client.json';
+			$client_path = $type . '/' . date("Y-m-d") . '/' . $hash.'_client.json';
 
 			$inspector = ApiSearchInspector::where('response_path', $path)->first();
 			if ($inspector) return $inspector->id;
@@ -35,6 +35,7 @@ class SearchInspectorController extends BaseInspectorController
 			$data = [
 				'token_id' => $token_id,
 				'suppliers' => implode(',', $suppliers),
+				'search_type' => $search_type,
 				'type' => $type,
 				'request' => $query,
 				'response_path' => $path,

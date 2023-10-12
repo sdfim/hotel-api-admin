@@ -29,6 +29,7 @@ Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'booking'], function (
 	Route::post('/add-item',	[RouteBookingApiController::class, 'handle'])->name('addItem');
 	Route::post('/remove-item', 	[RouteBookingApiController::class, 'handle'])->name('removeItem');
 	Route::post('/retrieve-items', [RouteBookingApiController::class, 'handle'])->name('retrieveItems');
+	Route::post('/change-items', [RouteBookingApiController::class, 'handle'])->name('changeItems');
 	Route::post('/add-passengers', 	[RouteBookingApiController::class, 'handle'])->name('addPassengers');
 	Route::post('/book',			[RouteBookingApiController::class, 'handle'])->name('book');
 	Route::post('/list-bookings', 	[RouteBookingApiController::class, 'handle'])->name('listBookings');

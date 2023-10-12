@@ -42,13 +42,19 @@ class ExpediaHotelBookingApiHandler
 		# step 2 Get POST linck for booking
 		// TODO: need check if price chenged
 		$props = $this->getPathParamsFromLink($linkPriceCheck);
-		$response = $this->rapidClient->get($props['path'], $props['paramToken']);
-		$dataResponse = json_decode($response->getBody()->getContents());
+		try {
+			$response = $this->rapidClient->get($props['path'], $props['paramToken']);
+			$dataResponse = json_decode($response->getBody()->getContents());
+		} catch (\GuzzleHttp\Exception\RequestException $e) {
+			\Log::error('ExpediaHotelBookingApiHandler | addItem | price_check ' . $e->getResponse()->getBody());
+			$dataResponse = json_decode(''.$e->getResponse()->getBody());
+			return (array)$dataResponse;
+		}
 
 		if (!$dataResponse) return [];
 		$booking_id = (string) Str::uuid();
 
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, [], 1, 'add_item', 'price_check' . ($queryHold ? ':hold' : ''));
+		$this->bookingInspector->save($booking_id, $filters, $dataResponse, [], 1, 'add_item', 'price_check' . ($queryHold ? ':hold' : ''), 'hotel');
 
 		$linckBookItineraries =  $dataResponse->links->book->href;
 
@@ -67,12 +73,14 @@ class ExpediaHotelBookingApiHandler
 		try {
 			$response = $this->rapidClient->post($props['path'], $props['paramToken'], $body, $addHeaders);
 			$dataResponse = json_decode($response->getBody()->getContents());
-		} catch (\Exception $e) {
-			\Log::error('ExpediaHotelBookingApiHandler | addItem | Booking POST query ' . $e->getMessage());
+		} catch (\GuzzleHttp\Exception\RequestException $e) {
+			\Log::error('ExpediaHotelBookingApiHandler | addItem | create ' . $e->getResponse()->getBody());
+			$dataResponse = json_decode(''.$e->getResponse()->getBody());
+			return (array)$dataResponse;
 		}
 		
 		if (!$dataResponse) return [];
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, [], 1, 'add_item', 'create' . ($queryHold ? ':hold' : ''));
+		$this->bookingInspector->save($booking_id, $filters, $dataResponse, [], 1, 'add_item', 'create' . ($queryHold ? ':hold' : ''), 'hotel');
 
 		$itinerary_id = $dataResponse->itinerary_id;
 		$linckBookRetrieves =  $dataResponse->links->retrieve->href;
@@ -85,18 +93,26 @@ class ExpediaHotelBookingApiHandler
 			'Content-Type' => 'application/json',
 			'Test' => 'standard'
 		];
-		$response = $this->rapidClient->get($props['path'], $props['paramToken'], $addHeaders);
-		$dataResponse = json_decode($response->getBody()->getContents());
+		try {
+			$response = $this->rapidClient->get($props['path'], $props['paramToken'], $addHeaders);
+			$dataResponse = json_decode($response->getBody()->getContents());
+		} catch (\GuzzleHttp\Exception\RequestException $e) {
+			\Log::error('ExpediaHotelBookingApiHandler | addItem | create ' . $e->getResponse()->getBody());
+			$dataResponse = json_decode(''.$e->getResponse()->getBody());
+			return (array)$dataResponse;
+		}
 
 		// TODO: need create DTO for $clientDataResponse
 		$clientDataResponse = $dataResponse;
 
 		if (!$dataResponse) return [];
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $clientDataResponse, 1, 'add_item', 'retrieve' . ($queryHold ? ':hold' : ''));
+		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $clientDataResponse, 1, 'add_item', 'retrieve' . ($queryHold ? ':hold' : ''), 'hotel');
 
-		// dd($dataResponse);
+		$viewSupplierData = $filters['supplier_data'] ?? false;
+		if ($viewSupplierData) $res = (array)$dataResponse;
+		else $res = ['booking_id' => $booking_id, 'search_id' => $filters['search_id']];
 
-		return (array)$dataResponse;
+		return $res;
 	}
 
 	private function getPathParamsFromLink(string $link): array
@@ -144,14 +160,14 @@ class ExpediaHotelBookingApiHandler
 			$dataResponse = json_decode($response->getBody()->getContents());
 
 			if (!$dataResponse) $this->bookingInspector->save(
-				$booking_id, $filters, $dataResponse, ['success' => 'Room cancelled.'], 1, 'remove_item', 'true'
+				$booking_id, $filters, $dataResponse, ['success' => 'Room cancelled.'], 1, 'remove_item', 'true', 'hotel'
 			);
 			return ['success' => 'Room cancelled.'];
 		} catch (\Exception $e) {
 			$responseError = explode('response:', $e->getMessage());
 			$responseErrorArr = json_decode($responseError[1], true);
 			$this->bookingInspector->save(
-				$booking_id, $filters, $responseErrorArr, ['error' => 'Room is already cancelled.'], 1, 'remove_item', 'false'
+				$booking_id, $filters, $responseErrorArr, ['error' => 'Room is already cancelled.'], 1, 'remove_item', 'false', 'hotel'
 			);
 			return ['error' => $responseErrorArr['message']];
 		}
@@ -187,7 +203,7 @@ class ExpediaHotelBookingApiHandler
 		$clientDataResponse = $dataResponse;
 
 		if (!$dataResponse) return [];
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $clientDataResponse, 1, 'retrieve_items', '');
+		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $clientDataResponse, 1, 'retrieve_items', '', 'hotel');
 
 		// dd($dataResponse);
 
@@ -200,7 +216,16 @@ class ExpediaHotelBookingApiHandler
 	 */
 	public function addPassengers(array $filters): array|null
 	{
-		# step 1 Read Booking Inspector, Get linck  DELETE method from 'add_item | get_book'
+		
+	}
+
+	/**
+	 * @param Request $request
+	 * @return array|null
+	 */
+	public function changeItems(array $filters): array|null
+	{
+		# step 1 Read Booking Inspector, Get linck  PUT method from 'add_item | get_book'
 		$inspector = new ApiBookingInspector();
 		$linkPutMetod = $inspector->getLinckPutMetod($filters);
 		$search_id = $inspector->getSearchId($filters);
@@ -222,20 +247,13 @@ class ExpediaHotelBookingApiHandler
 		try {
 			$response = $this->rapidClient->put($props['path'], $props['paramToken'], $body, $addHeaders);
 			$dataResponse = json_decode($response->getBody()->getContents());
-		} catch (\Exception $e) {
-			\Log::error('ExpediaHotelBookingApiHandler | addPassengers | Booking PUT query ' . $e->getMessage());
+		} catch (\GuzzleHttp\Exception\RequestException $e) {
+			\Log::error('ExpediaHotelBookingApiHandler | addPassengers | Booking PUT query ' . $e->getResponse()->getBody());
+			$dataResponse = json_decode(''.$e->getResponse()->getBody());
 		}
-		
 
-		dd($props, $filters, $response);
-
-		// // TODO: need create DTO for $clientDataResponse
-		// $clientDataResponse = $dataResponse;
-
-		// if (!$dataResponse) return [];
-		// $this->bookingInspector->save($booking_id, $filters, $dataResponse, $clientDataResponse, 1, 'retrieve_items', '');
-
-		// dd($dataResponse);
+		if (!$dataResponse) return [];
+		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $dataResponse, 1, 'change_items', '', 'hotel');
 
 		return (array)$dataResponse;
 	}

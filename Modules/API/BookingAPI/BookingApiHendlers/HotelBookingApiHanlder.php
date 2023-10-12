@@ -7,6 +7,7 @@ use App\Models\ExpediaContent;
 use App\Models\MapperExpediaGiata;
 use App\Models\Suppliers;
 use Modules\API\BookingApi\BookingApiHandlerInterface;
+use Modules\API\Requests\BookingAddItemHotelRequest;
 use Modules\API\Requests\SearchHotelRequest;
 use Modules\API\Requests\DetailHotelRequest;
 use Modules\API\Requests\PriceHotelRequest;
@@ -39,8 +40,10 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 	public function addItem (Request $request, string $supplier) : JsonResponse
 	{
 		try {	
-			// TODO: add validation for request
-			$filters = $request->all();
+			$bookingAddItemRequest = new BookingAddItemHotelRequest();
+			$rules = $bookingAddItemRequest->rules();
+			$filters = Validator::make($request->all(), $rules)->validated();
+			$filters = array_merge($filters, $request->all());
 
 			$data = [];
 			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
@@ -53,7 +56,8 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 			return $this->sendError(['error' => $e->getMessage()], 'falied');
 		}
 
-		return $this->sendResponse(['result' => $data], 'success');
+		if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
+		return $this->sendResponse($data, 'success');
 	}
 
 	/**
@@ -129,6 +133,32 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 		}
 
 		return $this->sendResponse(['count' => count($data), 'result' => $data], 'success');
+
+	}
+
+	/**
+	 * @param Request $request
+	 * @return JsonResponse
+	 */
+	public function changeItems (Request $request, string $supplier) : JsonResponse
+	{
+		try {	
+			// TODO: add validation for request
+			$filters = $request->all();
+
+			$data = [];
+			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+				$data = $this->expedia->changeItems($filters);
+			}
+			// TODO: Add other suppliers
+
+		} catch (\Exception $e) {
+			\Log::error('HotelBookingApiHanlder | listBookings ' . $e->getMessage());
+			return $this->sendError(['error' => $e->getMessage()], 'falied');
+		}
+
+		if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
+		return $this->sendResponse($data, 'success');
 
 	}
 
