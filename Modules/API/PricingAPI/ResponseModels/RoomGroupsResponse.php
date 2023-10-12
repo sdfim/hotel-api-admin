@@ -13,7 +13,7 @@ class RoomGroupsResponse
 	private bool $pay_at_hotel;
 	private bool $non_refundable;
 	private string $meal_plan;
-	private string $rate_id;
+	private int $rate_id;
 	private string $rate_description;
 	private string $cancellation_policies;
 	private bool $opaque;
@@ -109,12 +109,12 @@ class RoomGroupsResponse
 		return $this->meal_plan;
 	}
 
-	public function setRateId(string $rate_id) : void
+	public function setRateId(int $rate_id) : void
 	{
 		$this->rate_id = $rate_id;
 	}
 
-	public function getRateId() : string
+	public function getRateId() : int
 	{
 		return $this->rate_id;
 	}

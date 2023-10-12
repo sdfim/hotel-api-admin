@@ -51,7 +51,6 @@ class ExpediaHotelDto
 
 	public function setRoomGroupsResponse(array $roomGroup, $query, $giataId) : array
 	{
-		// dd($roomGroup, $roomGroup['rates'], $roomGroup['rates'][0]->occupancy_pricing);
 		$ch = new Channels;
 		$channelId = $ch->getTokenId(request()->bearerToken());
 		$pricingRulesApplier = [];
@@ -70,26 +69,28 @@ class ExpediaHotelDto
 		$roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');
 		$roomGroupsResponse->setNonRefundable($roomGroup['non_refundable'] ?? '');
 		$roomGroupsResponse->setMealPlan($roomGroup['meal_plan'] ?? '');
-		$roomGroupsResponse->setRateId($roomGroup['rate_id'] ?? '');
+		$roomGroupsResponse->setRateId(intval($roomGroup['rates'][0]->id) ?? null);
 		$roomGroupsResponse->setRateDescription($roomGroup['rate_description'] ?? '');
 		$roomGroupsResponse->setCancellationPolicies($roomGroup['cancellation_policies'] ?? '');
 		$roomGroupsResponse->setOpaque($roomGroup['opaque'] ?? '');
 		$rooms = [];
 		foreach ($roomGroup['rates'] as $room) {
-			$rooms[] = $this->setRoomResponse((array)$room);
+			$rooms[] = $this->setRoomResponse((array)$room, $roomGroup);
 		}
 		$roomGroupsResponse->setRooms($rooms);
 
 		return $roomGroupsResponse->toArray();
 	}
 
-	public function setRoomResponse(array $room) : array
+	public function setRoomResponse(array $rate, array $roomGroup) : array
 	{
 		$roomResponse = new RoomResponse();
-		$roomResponse->setGiataRoomCode($room['giata_room_code'] ?? '');
-		$roomResponse->setGiataRoomName($room['giata_room_name'] ?? '');
-		$roomResponse->setSupplierRoomName($room['supplier_room_name'] ?? '');
-		$roomResponse->setPerDayRateBreakdown($room['per_day_rate_breakdown'] ?? '');
+		$roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
+		$roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
+		$roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
+		$roomResponse->setSupplierRoomName($roomGroup['room_name'] ?? '');
+		$roomResponse->setSupplierRoomCode(intval($roomGroup['id']) ?? null);
+		$roomResponse->setSupplierBedGroups(array_key_first((array)$rate['bed_groups']) ?? null);
 
 		return $roomResponse->toArray();
 	}

@@ -7,7 +7,29 @@ class RoomResponse
 	private string $giata_room_code;
 	private string $giata_room_name;
 	private string $supplier_room_name;
+	private int $supplier_room_code;
 	private string $per_day_rate_breakdown;
+	private int $supplier_bed_groups;
+
+	public function setSupplierBedGroups(int $supplier_bed_groups) : void
+	{
+		$this->supplier_bed_groups = $supplier_bed_groups;
+	}
+
+	public function getSupplierBedGroups() : int
+	{
+		return $this->supplier_bed_groups;
+	}
+
+	public function setSupplierRoomCode(int $supplier_room_code) : void
+	{
+		$this->supplier_room_code = $supplier_room_code;
+	}
+
+	public function getSupplierRoomCode() : int
+	{
+		return $this->supplier_room_code;
+	}
 
 	public function setGiataRoomCode(string $giata_room_code) : void
 	{
@@ -56,6 +78,8 @@ class RoomResponse
 			'giata_room_name' => $this->getGiataRoomName(),
 			'supplier_room_name' => $this->getSupplierRoomName(),
 			'per_day_rate_breakdown' => $this->getPerDayRateBreakdown(),
+			'supplier_room_code' => $this->getSupplierRoomCode(),
+			'supplier_bed_groups' => $this->getSupplierBedGroups()
 		];
 	}
 }
