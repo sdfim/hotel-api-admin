@@ -10,94 +10,215 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
 
     public function test(): array
     {
-        $giataId = 82024226;
+        $giataId = 78742866;
         $channelId = 1;
         $requestObject = '{
-            "checkin": "2023-11-10",
+            "checkin": "2023-11-11",
             "checkout": "2023-11-12",
             "destination": "New York",
             "rating": "4.5",
             "occupancy": [
                 {
-                    "adults": 4,
+                    "adults": 2,
                     "children": 1
                 },
                 {
                     "adults": 2
                 },
                 {
-                    "adults": 1
+                    "adults": 2
+                },
+                {
+                    "adults": 4
                 }
             ]
         }';
         $pricingObject = '{
-            "2": {
+            "4": {
                 "nightly": [
                     [
                         {
+                            "type": "extra_person_fee",
+                            "value": "60.00",
+                            "currency": "USD"
+                        },
+                        {
                             "type": "base_rate",
-                            "value": "709.00",
+                            "value": "471.20",
                             "currency": "USD"
                         },
                         {
                             "type": "tax_and_service_fee",
-                            "value": "108.07",
-                            "currency": "USD"
-                        }
-                    ],
-                    [
-                        {
-                            "type": "base_rate",
-                            "value": "709.00",
-                            "currency": "USD"
-                        },
-                        {
-                            "type": "tax_and_service_fee",
-                            "value": "108.07",
+                            "value": "85.85",
                             "currency": "USD"
                         }
                     ]
                 ],
                 "fees": {
-                    "mandatory_fee": {
-                        "billable_currency": {
-                            "value": "70.00",
+                    "resort_fee": {
+                        "request_currency": {
+                            "value": "34.42",
                             "currency": "USD"
                         },
-                        "request_currency": {
-                            "value": "70.00",
+                        "billable_currency": {
+                            "value": "34.42",
                             "currency": "USD"
                         }
                     }
                 },
                 "totals": {
-                    "inclusive": {
-                        "billable_currency": {
-                            "value": "1634.14",
+                    "property_fees": {
+                        "request_currency": {
+                            "value": "34.42",
                             "currency": "USD"
                         },
-                        "request_currency": {
-                            "value": "1634.14",
+                        "billable_currency": {
+                            "value": "34.42",
                             "currency": "USD"
                         }
                     },
                     "exclusive": {
-                        "billable_currency": {
-                            "value": "1418.00",
+                        "request_currency": {
+                            "value": "531.20",
                             "currency": "USD"
                         },
-                        "request_currency": {
-                            "value": "1418.00",
+                        "billable_currency": {
+                            "value": "531.20",
                             "currency": "USD"
                         }
                     },
-                    "property_fees": {
-                        "billable_currency": {
-                            "value": "70.00",
+                    "inclusive": {
+                        "request_currency": {
+                            "value": "617.05",
                             "currency": "USD"
                         },
+                        "billable_currency": {
+                            "value": "617.05",
+                            "currency": "USD"
+                        }
+                    }
+                }
+            },
+            "2": {
+                "nightly": [
+                    [
+                        {
+                            "type": "base_rate",
+                            "value": "471.20",
+                            "currency": "USD"
+                        },
+                        {
+                            "type": "tax_and_service_fee",
+                            "value": "77.00",
+                            "currency": "USD"
+                        }
+                    ]
+                ],
+                "fees": {
+                    "resort_fee": {
                         "request_currency": {
-                            "value": "70.00",
+                            "value": "34.42",
+                            "currency": "USD"
+                        },
+                        "billable_currency": {
+                            "value": "34.42",
+                            "currency": "USD"
+                        }
+                    }
+                },
+                "totals": {
+                    "property_fees": {
+                        "request_currency": {
+                            "value": "34.42",
+                            "currency": "USD"
+                        },
+                        "billable_currency": {
+                            "value": "34.42",
+                            "currency": "USD"
+                        }
+                    },
+                    "exclusive": {
+                        "request_currency": {
+                            "value": "471.20",
+                            "currency": "USD"
+                        },
+                        "billable_currency": {
+                            "value": "471.20",
+                            "currency": "USD"
+                        }
+                    },
+                    "inclusive": {
+                        "request_currency": {
+                            "value": "548.20",
+                            "currency": "USD"
+                        },
+                        "billable_currency": {
+                            "value": "548.20",
+                            "currency": "USD"
+                        }
+                    }
+                }
+            },
+            "3": {
+                "nightly": [
+                    [
+                        {
+                            "type": "extra_person_fee",
+                            "value": "30.00",
+                            "currency": "USD"
+                        },
+                        {
+                            "type": "base_rate",
+                            "value": "471.20",
+                            "currency": "USD"
+                        },
+                        {
+                            "type": "tax_and_service_fee",
+                            "value": "81.43",
+                            "currency": "USD"
+                        }
+                    ]
+                ],
+                "fees": {
+                    "resort_fee": {
+                        "request_currency": {
+                            "value": "34.42",
+                            "currency": "USD"
+                        },
+                        "billable_currency": {
+                            "value": "34.42",
+                            "currency": "USD"
+                        }
+                    }
+                },
+                "totals": {
+                    "property_fees": {
+                        "request_currency": {
+                            "value": "34.42",
+                            "currency": "USD"
+                        },
+                        "billable_currency": {
+                            "value": "34.42",
+                            "currency": "USD"
+                        }
+                    },
+                    "exclusive": {
+                        "request_currency": {
+                            "value": "501.20",
+                            "currency": "USD"
+                        },
+                        "billable_currency": {
+                            "value": "501.20",
+                            "currency": "USD"
+                        }
+                    },
+                    "inclusive": {
+                        "request_currency": {
+                            "value": "582.63",
+                            "currency": "USD"
+                        },
+                        "billable_currency": {
+                            "value": "582.63",
                             "currency": "USD"
                         }
                     }
@@ -112,114 +233,100 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      * @param int $giataId
      * @param int $channelId
      * @param string $requestObject
-     * @param string $pricingObject
+     * @param string $roomsPricingObject
      * @return array
      */
-    public function apply(int $giataId, int $channelId, string $requestObject, string $pricingObject): array
+    public function apply(int $giataId, int $channelId, string $requestObject, string $roomsPricingObject): array
     {
         $requestArray = json_decode($requestObject, true);
-        $pricingArray = json_decode($pricingObject, true)['2'];
-
-        $checkInDate = $requestArray['checkin'];
-        $checkOutDate = $requestArray['checkout'];
-        $rating = (float)$requestArray['rating'];
-        $requiredRoomCount = count($requestArray['occupancy']);
-        // total number of guests in all requested rooms
-        $totalNumberOfGuests = self::countTotalNumberOfGuests($requestArray['occupancy']);
-        $numberOfNights = count($pricingArray['nightly']);
-
-        // supplier_id=1(is Expedia by default from seeder)
-        $pricingRules = PricingRules::where('supplier_id', 1)
-            ->where('property', $giataId)
-            ->where('channel_id', $channelId)
-            ->where('nights', '>=', $numberOfNights)
-            ->where('total_guests', '>=', $totalNumberOfGuests)
-            ->where('number_rooms', '>=', $requiredRoomCount)
-            ->where('rating', '>=', $rating)
-            ->whereDate('rule_start_date', '<=', $checkInDate)
-            ->whereDate('rule_expiration_date', '>=', $checkOutDate)
-            ->get();
-
-        $inclusiveRoomTotal = (float)$pricingArray['totals']['inclusive']['billable_currency']['value'];
-        $exclusiveRoomTotal = (float)$pricingArray['totals']['exclusive']['billable_currency']['value'];
-        $totalRoomFees = (float)($pricingArray['totals']['property_fees']['billable_currency']['value'] ?? 0);
-        $totalRoomTaxes = ($inclusiveRoomTotal - $exclusiveRoomTotal) - $totalRoomFees;
+        $roomsPricingArray = json_decode($roomsPricingObject, true);
+        $firstRoomCapacityKey = array_key_first($roomsPricingArray);
 
         $result = [
             'total_price' => 0,
             'total_tax' => 0,
             'total_fees' => 0,
             'total_net' => 0,
-            'currency' => (string)$pricingArray['totals']['inclusive']['billable_currency']['currency']
+            'currency' => (string)($roomsPricingArray[$firstRoomCapacityKey]['totals']['inclusive']['billable_currency']['currency'] ?? 'USD')
         ];
 
-        if ($pricingRules->count() === 0) {
-            $result['total_price'] = round($inclusiveRoomTotal * $requiredRoomCount, 2);
-            $result['total_tax'] = round($totalRoomTaxes * $requiredRoomCount, 2);
-            $result['total_fees'] = round($totalRoomFees * $requiredRoomCount, 2);
-            $result['total_net'] = round($exclusiveRoomTotal * $requiredRoomCount, 2);
+        $numberOfNights = count($roomsPricingArray[$firstRoomCapacityKey]['nightly']);
+        $totalNumberOfGuestsInAllRooms = self::countTotalNumberOfGuestsInAllRooms($requestArray['occupancy']);
+        $requiredRoomCount = count($requestArray['occupancy']);
 
-            return $result;
-        }
+        // supplier_id=1(is Expedia by default from seeder)
+        $pricingRule = PricingRules::where('supplier_id', 1)
+            ->where('property', $giataId)
+            ->where('channel_id', $channelId)
+            ->where('nights', '>=', $numberOfNights)
+            ->where('total_guests', '>=', $totalNumberOfGuestsInAllRooms)
+            ->where('number_rooms', '>=', $requiredRoomCount)
+            ->where('rating', '>=', (float)$requestArray['rating'])
+            ->whereDate('rule_start_date', '<=', $requestArray['checkin'])
+            ->whereDate('rule_expiration_date', '>=', $requestArray['checkout'])
+            ->first();
 
-        // If $pricingRules->count > 0 then modifying $pricingArray
-        foreach ($pricingRules as $pricingRule) {
-            $priceValueTypeToApply = (string)$pricingRule['price_value_type_to_apply'];
-            $priceValueToApply = (float)$pricingRule['price_value_to_apply'];
-            $priceTypeToApply = (string)$pricingRule['price_type_to_apply'];
+        $priceValueTypeToApply = (string)($pricingRule['price_value_type_to_apply'] ?? '');
+        $priceValueToApply = (float)($pricingRule['price_value_to_apply'] ?? 0);
+        $priceTypeToApply = (string)($pricingRule['price_type_to_apply'] ?? '');
+        // this value only available when $priceValueTypeToApply === 'fixed_value'
+        $priceValueFixedTypeToApply = (string)($pricingRule['price_value_fixed_type_to_apply'] ?? '');
+
+        foreach ($requestArray['occupancy'] as $room) {
+            $totalNumberOfGuestsInRoom = (int)array_sum($room);
+            $inclusiveRoomTotal = (float)$roomsPricingArray[$totalNumberOfGuestsInRoom]['totals']['inclusive']['billable_currency']['value'];
+            $exclusiveRoomTotal = (float)$roomsPricingArray[$totalNumberOfGuestsInRoom]['totals']['exclusive']['billable_currency']['value'];
+            $totalRoomTaxes = ($inclusiveRoomTotal - $exclusiveRoomTotal);
+            $totalRoomFees = (float)($roomsPricingArray[$totalNumberOfGuestsInRoom]['totals']['property_fees']['billable_currency']['value'] ?? 0);
 
             // these values are calculated in the same way for all cases below, therefore they are moved to the top from each closure
-            $result['total_tax'] += $totalRoomTaxes * $requiredRoomCount;
-            $result['total_fees'] += $totalRoomFees * $requiredRoomCount;
+            $result['total_tax'] += $totalRoomTaxes;
+            $result['total_fees'] += $totalRoomFees;
 
-            if ($priceValueTypeToApply === 'percentage') {
-                // in case when supplier is Expedia total_price and rate_price should be calculated the same way
-                if ($priceTypeToApply === 'total_price' || $priceTypeToApply === 'rate_price') {
-                    /*if we increase the total_price by a certain percentage, then each of the indicators that affect
-                    the total_price must also be increased by a given percentage, except for total_fees(it's a fixed value)*/
-                    $result['total_price'] += ($inclusiveRoomTotal + (($inclusiveRoomTotal * $priceValueToApply) / 100)) * $requiredRoomCount;
-                    $result['total_net'] += $exclusiveRoomTotal * $requiredRoomCount;
-                }
-                if ($priceTypeToApply === 'net_price') {
-                    /*if we increase the net_price by a certain percentage, then the rest of indicators should
-                    remain unchanged*/
-                    $result['total_net'] += ($exclusiveRoomTotal + (($exclusiveRoomTotal * $priceValueToApply) / 100)) * $requiredRoomCount;
-                    $result['total_price'] += $result['total_net'] + $result['total_tax'] + $result['total_fees'];
+            if ($pricingRule) {
+                if ($priceValueTypeToApply === 'percentage') {
+                    if ($priceTypeToApply === 'total_price' || $priceTypeToApply === 'rate_price') {
+                        $result['total_price'] += $inclusiveRoomTotal + (($inclusiveRoomTotal * $priceValueToApply) / 100);
+                        $result['total_net'] += $exclusiveRoomTotal;
+                    }
+                    // in case when supplier is Expedia total_price and rate_price should be calculated the same way
+                    if ($priceTypeToApply === 'net_price') {
+                        $result['total_net'] += $exclusiveRoomTotal + (($exclusiveRoomTotal * $priceValueToApply) / 100);
+                        $result['total_price'] += $exclusiveRoomTotal + $totalRoomTaxes + $totalRoomFees;
+                    }
+                } else {
+                    if ($priceTypeToApply === 'total_price') {
+                        if ($priceValueFixedTypeToApply === 'per_guest') {
+                            $result['total_price'] += $inclusiveRoomTotal + ($totalNumberOfGuestsInRoom * $priceValueToApply);
+                        }
+                        if ($priceValueFixedTypeToApply === 'per_room') {
+                            $result['total_price'] += $inclusiveRoomTotal + $priceValueToApply;
+                        }
+                        if ($priceValueFixedTypeToApply === 'per_night') {
+                            $result['total_price'] += $inclusiveRoomTotal + ($numberOfNights * $priceValueToApply);
+                        }
+
+                        // the same calculation for all cases above
+                        $result['total_net'] += $exclusiveRoomTotal;
+                    }
+                    if ($priceTypeToApply === 'net_price' || $priceTypeToApply === 'rate_price') {
+                        if ($priceValueFixedTypeToApply === 'per_guest') {
+                            $result['total_net'] += $exclusiveRoomTotal + ($totalNumberOfGuestsInRoom * $priceValueToApply);
+                        }
+                        if ($priceValueFixedTypeToApply === 'per_room') {
+                            $result['total_net'] += $exclusiveRoomTotal + $priceValueToApply;
+                        }
+                        if ($priceValueFixedTypeToApply === 'per_night') {
+                            $result['total_net'] += $exclusiveRoomTotal + ($numberOfNights * $priceValueToApply);
+                        }
+
+                        // the same calculation for all cases above
+                        $result['total_price'] += $exclusiveRoomTotal + $totalRoomTaxes + $totalRoomFees;
+                    }
                 }
             } else {
-                // this value only available when $priceValueTypeToApply === 'fixed_value'
-                $priceValueFixedTypeToApply = (string)$pricingRule['price_value_fixed_type_to_apply'];
-
-                if ($priceTypeToApply === 'total_price' || $priceTypeToApply === 'rate_price') {
-                    $inclusiveRoomsTotal = $inclusiveRoomTotal * $requiredRoomCount;
-                    if ($priceValueFixedTypeToApply === 'per_guest') {
-                        $result['total_price'] += $inclusiveRoomsTotal + ($totalNumberOfGuests * $priceValueToApply);
-                    }
-                    if ($priceValueFixedTypeToApply === 'per_room') {
-                        $result['total_price'] += $inclusiveRoomsTotal + ($requiredRoomCount * $priceValueToApply);
-                    }
-                    if ($priceValueFixedTypeToApply === 'per_night') {
-                        $result['total_price'] += $inclusiveRoomsTotal + ($numberOfNights * $priceValueToApply);
-                    }
-
-                    // the same calculation for all cases above
-                    $result['total_net'] += $exclusiveRoomTotal * $requiredRoomCount;
-                }
-                if ($priceTypeToApply === 'net_price') {
-                    $exclusiveRoomsTotal = $exclusiveRoomTotal * $requiredRoomCount;
-                    if ($priceValueFixedTypeToApply === 'per_guest') {
-                        $result['total_net'] += $exclusiveRoomsTotal + ($totalNumberOfGuests * $priceValueToApply);
-                    }
-                    if ($priceValueFixedTypeToApply === 'per_room') {
-                        $result['total_net'] += $exclusiveRoomsTotal + ($requiredRoomCount * $priceValueToApply);
-                    }
-                    if ($priceValueFixedTypeToApply === 'per_night') {
-                        $result['total_net'] += $exclusiveRoomsTotal + ($numberOfNights * $priceValueToApply);
-                    }
-
-                    // the same calculation for all cases above
-                    $result['total_price'] += $result['total_net'] + $result['total_tax'] + $result['total_fees'];
-                }
+                $result['total_price'] += $inclusiveRoomTotal;
+                $result['total_net'] += $exclusiveRoomTotal;
             }
         }
 
@@ -235,7 +342,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      * @param array $rooms
      * @return int
      */
-    public static function countTotalNumberOfGuests(array $rooms): int
+    public static function countTotalNumberOfGuestsInAllRooms(array $rooms): int
     {
         $totalNumberOfGuests = 0;
 
@@ -246,5 +353,20 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         }
 
         return $totalNumberOfGuests;
+    }
+
+    public static function calculateTotalFeesTotalTaxesBasePrice(array $roomsPricing): array
+    {
+        $totalFees = 0;
+        $totalTaxes = 0;
+
+//        foreach ($) {
+//
+//        }
+
+        return [
+            'total_fees' => $totalFees,
+            'total_taxes' => $totalTaxes
+        ];
     }
 }
