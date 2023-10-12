@@ -21,6 +21,7 @@ class RouteBookingApiController extends Controller
 	private const TYPE_COMBO = 'combo';
 	private const ROUTE_ADD_ITEM = 'addItem';
 	private const ROUTE_REMOVE_ITEM = 'removeItem';
+	private const ROUTE_CHANGE_ITEMS = 'changeItems';
 	private const ROUTE_RETRIEVE_ITEMS = 'retrieveItems';
 	private const ROUTE_ADD_PASSENGERS = 'addPassengers';
 	private const ROUTE_BOOK = 'book';
@@ -63,9 +64,11 @@ class RouteBookingApiController extends Controller
 			'addItem' => $dataHandler->addItem($request, $supplier),
 			'removeItem' => $dataHandler->removeItem($request, $supplier),
 			'retrieveItems' => $dataHandler->retrieveItems($request, $supplier),
+			'changeItems' => $dataHandler->changeItems($request, $supplier),
+			'listBookings' => $dataHandler->listBookings($request, $supplier),
+
 			'addPassengers' => $dataHandler->addPassengers($request, $supplier),
 			'book' => $dataHandler->book($request, $supplier),
-			'listBookings' => $dataHandler->listBookings($request, $supplier),
 			'retrieveBooking' => $dataHandler->retrieveBooking($request, $supplier),
 			'cancelBooking' => $dataHandler->cancelBooking($request, $supplier),
 			default => response()->json(['message' => 'Invalid route'], 400),
@@ -83,6 +86,7 @@ class RouteBookingApiController extends Controller
 			self::ROUTE_ADD_ITEM,
 			self::ROUTE_REMOVE_ITEM,
 			self::ROUTE_RETRIEVE_ITEMS,
+			self::ROUTE_CHANGE_ITEMS,
 			self::ROUTE_ADD_PASSENGERS,
 			self::ROUTE_BOOK,
 			self::ROUTE_LIST_BOOKINGS,

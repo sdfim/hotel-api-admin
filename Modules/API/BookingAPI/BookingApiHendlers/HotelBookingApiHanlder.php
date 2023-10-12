@@ -136,6 +136,31 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 	 * @param Request $request
 	 * @return JsonResponse
 	 */
+	public function changeItems (Request $request, string $supplier) : JsonResponse
+	{
+		try {	
+			// TODO: add validation for request
+			$filters = $request->all();
+
+			$data = [];
+			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+				$data = $this->expedia->changeItems($filters);
+			}
+			// TODO: Add other suppliers
+
+		} catch (\Exception $e) {
+			\Log::error('HotelBookingApiHanlder | listBookings ' . $e->getMessage());
+			return $this->sendError(['error' => $e->getMessage()], 'falied');
+		}
+
+		return $this->sendResponse(['count' => count($data), 'result' => $data], 'success');
+
+	}
+
+	/**
+	 * @param Request $request
+	 * @return JsonResponse
+	 */
 	public function book (Request $request, string $supplier) : JsonResponse
 	{
 

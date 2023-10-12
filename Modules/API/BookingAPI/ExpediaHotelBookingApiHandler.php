@@ -202,7 +202,16 @@ class ExpediaHotelBookingApiHandler
 	 */
 	public function addPassengers(array $filters): array|null
 	{
-		# step 1 Read Booking Inspector, Get linck  DELETE method from 'add_item | get_book'
+		
+	}
+
+	/**
+	 * @param Request $request
+	 * @return array|null
+	 */
+	public function changeItems(array $filters): array|null
+	{
+		# step 1 Read Booking Inspector, Get linck  PUT method from 'add_item | get_book'
 		$inspector = new ApiBookingInspector();
 		$linkPutMetod = $inspector->getLinckPutMetod($filters);
 		$search_id = $inspector->getSearchId($filters);
@@ -220,6 +229,8 @@ class ExpediaHotelBookingApiHandler
 		
 		$bodyArr = $filters['query'];
 		$body = json_encode($bodyArr);
+
+		// dd($props, $filters, $body);
 
 		try {
 			$response = $this->rapidClient->put($props['path'], $props['paramToken'], $body, $addHeaders);
