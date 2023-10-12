@@ -142,7 +142,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
 
         $inclusiveRoomTotal = (float)$pricingArray['totals']['inclusive']['billable_currency']['value'];
         $exclusiveRoomTotal = (float)$pricingArray['totals']['exclusive']['billable_currency']['value'];
-        $totalRoomFees = (float)$pricingArray['totals']['property_fees']['billable_currency']['value'];
+        $totalRoomFees = (float)($pricingArray['totals']['property_fees']['billable_currency']['value'] ?? 0);
         $totalRoomTaxes = ($inclusiveRoomTotal - $exclusiveRoomTotal) - $totalRoomFees;
 
         $result = [
