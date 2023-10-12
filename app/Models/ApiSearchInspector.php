@@ -41,14 +41,14 @@ class ApiSearchInspector extends Model
 
 	public function getLinckPriceCheck ($filters) : string
 	{
-		$uuid = $filters['inspector'];
+		$uuid = $filters['search_id'];
 		$hotel_id = $filters['hotel_id']; // giata_id
 		$room_id = $filters['room_id']; // expedia
 		$rate_id = $filters['rate'] ?? ''; // expedia
 		$bed_groups = $filters['bed_groups'] ?? ''; // expedia
 
-		$inspector = ApiSearchInspector::where('id', $uuid)->first();
-		$json_response = json_decode(Storage::get($inspector->response_path));
+		$search_id = ApiSearchInspector::where('id', $uuid)->first();
+		$json_response = json_decode(Storage::get($search_id->response_path));
 		$rooms = $json_response->results->Expedia->$hotel_id->rooms;
 
 		$linkPriceCheck = '';

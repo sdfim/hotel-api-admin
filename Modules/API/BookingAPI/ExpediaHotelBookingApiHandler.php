@@ -34,7 +34,7 @@ class ExpediaHotelBookingApiHandler
 	 */
 	public function addItem(array $filters): array|null
 	{
-		$queryHold = $filters['query']['hold'] ? 'true' : 'false';
+		$queryHold = $filters['query']['hold'];
 		# step 1 Read Inspector, Get linck 'price_check'
 		$inspector = new ApiSearchInspector();
 		$linkPriceCheck = $inspector->getLinckPriceCheck($filters);
@@ -48,11 +48,11 @@ class ExpediaHotelBookingApiHandler
 		if (!$dataResponse) return [];
 		$booking_id = (string) Str::uuid();
 
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, [], 1, 'add_item', 'price_check hold:'. $queryHold);
+		$this->bookingInspector->save($booking_id, $filters, $dataResponse, [], 1, 'add_item', 'price_check' . ($queryHold ? ':hold' : ''));
 
 		$linckBookItineraries =  $dataResponse->links->book->href;
 
-		# Booking POST query 
+		# Booking POST query - Create Booking
 		// TODO: need check count of rooms. count(rooms) in current query == count(rooms) in serch query
 		$props = $this->getPathParamsFromLink($linckBookItineraries);
 		$bodyArr = $filters['query'];
@@ -72,12 +72,12 @@ class ExpediaHotelBookingApiHandler
 		}
 		
 		if (!$dataResponse) return [];
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, [], 1, 'add_item', 'post_book hold:' . $queryHold);
+		$this->bookingInspector->save($booking_id, $filters, $dataResponse, [], 1, 'add_item', 'create' . ($queryHold ? ':hold' : ''));
 
 		$itinerary_id = $dataResponse->itinerary_id;
 		$linckBookRetrieves =  $dataResponse->links->retrieve->href;
 
-		# Booking GET query 
+		# Booking GET query - Retrieve Booking
 		$props = $this->getPathParamsFromLink($linckBookRetrieves);
 		$addHeaders = [
 			'Customer-Ip' => '5.5.5.5',
@@ -92,7 +92,7 @@ class ExpediaHotelBookingApiHandler
 		$clientDataResponse = $dataResponse;
 
 		if (!$dataResponse) return [];
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $clientDataResponse, 1, 'add_item', 'get_book hold:'. $queryHold);
+		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $clientDataResponse, 1, 'add_item', 'retrieve' . ($queryHold ? ':hold' : ''));
 
 		// dd($dataResponse);
 
@@ -119,7 +119,7 @@ class ExpediaHotelBookingApiHandler
 		$inspector = new ApiBookingInspector();
 		$linkDeleteItem = $inspector->getLinckDeleteItem($filters);
 		$search_id = $inspector->getSearchId($filters);
-		$filters['inspector'] = $search_id;
+		$filters['search_id'] = $search_id;
 		$booking_id = $filters['booking_id'];
 
 		# Delete item DELETE method query 
@@ -170,7 +170,7 @@ class ExpediaHotelBookingApiHandler
 		$linkDeleteItem = $inspector->getLinckRetrieveItem($booking_id);
 
 		$search_id = $inspector->getSearchId($filters);
-		$filters['inspector'] = $search_id;
+		$filters['search_id'] = $search_id;
 
 		# Booking GET query 
 		$props = $this->getPathParamsFromLink($linkDeleteItem);
@@ -204,7 +204,7 @@ class ExpediaHotelBookingApiHandler
 		$inspector = new ApiBookingInspector();
 		$linkPutMetod = $inspector->getLinckPutMetod($filters);
 		$search_id = $inspector->getSearchId($filters);
-		$filters['inspector'] = $search_id;
+		$filters['search_id'] = $search_id;
 		$booking_id = $filters['booking_id'];
 
 		# Booking PUT query 

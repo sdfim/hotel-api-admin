@@ -15,7 +15,7 @@ class BookingInspectorController extends BaseInspectorController
 
 			$ch = new Channels;
 			$token_id = $ch->getTokenId(request()->bearerToken());
-			$earch_id = $query['inspector'];
+			$search_id = $query['search_id'];
 			$query = json_encode($query);
 			$content = json_encode($content);
 			$client_content = json_encode($client_content);
@@ -38,7 +38,7 @@ class BookingInspectorController extends BaseInspectorController
 				'booking_id' => $booking_id,
 				'token_id' => $token_id,
 				'supplier_id' => $supplier_id,
-				'search_id' => $earch_id,
+				'search_id' => $search_id,
 				'type' => $type,
 				'sub_type' => $subType, 
 				'request' => $query,

@@ -39,12 +39,15 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     ->searchable()
 					->sortable(),
                 TextColumn::make('type')
-                    ->searchable(),
+                    ->searchable()
+					->label('Endpoint'),
 				TextColumn::make('sub_type')
-                    ->searchable(),
+                    ->searchable()
+					->label('Step'),
                 TextColumn::make('token.id')
                     ->numeric()
-                    ->searchable(),
+                    ->searchable()
+					->label('Channel'),
                 TextColumn::make('supplier.name')
                     ->numeric()
                     ->searchable(),
@@ -53,11 +56,11 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
 
                 ViewColumn::make('response_path')
 					->view('dashboard.booking-inspector.column.response')
-					->label('Response'),
+					->label(new HtmlString('Supplier <br />  Response')),
 
 				ViewColumn::make('client_response_path')
 					->view('dashboard.booking-inspector.column.client-response')
-					->label(new HtmlString('Clear <br />  Response')),
+					->label(new HtmlString('UJV API <br />  Response')),
 
                 TextColumn::make('created_at')
                     ->dateTime()

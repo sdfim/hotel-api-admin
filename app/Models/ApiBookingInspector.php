@@ -41,7 +41,7 @@ class ApiBookingInspector extends Model
 		$room_id = $filters['room_id'];
 
 		$inspector = ApiBookingInspector::where('type', 'add_item')
-			->where('sub_type', 'like', 'get_book' . '%')
+			->where('sub_type', 'like', 'retrieve' . '%')
 			->where('booking_id', $booking_id)
 			->first();
 
@@ -65,7 +65,7 @@ class ApiBookingInspector extends Model
 		$room_id = $filters['room_id'];
 
 		$inspector = ApiBookingInspector::where('type', 'add_item')
-			->where('sub_type', 'like', 'get_book' . '%')
+			->where('sub_type', 'like', 'retrieve' . '%')
 			->where('booking_id', $booking_id)
 			->first();
 
@@ -88,7 +88,7 @@ class ApiBookingInspector extends Model
 		$booking_id = $filters['booking_id'];
 
 		$inspector = ApiBookingInspector::where('type', 'add_item')
-			->where('sub_type', 'like', 'get_book' . '%')
+			->where('sub_type', 'like', 'retrieve' . '%')
 			->where('booking_id', $booking_id)
 			->first();
 
@@ -102,7 +102,7 @@ class ApiBookingInspector extends Model
 		$booking_id = $filters['booking_id'];
 
 		$inspector = ApiBookingInspector::where('type', 'add_item')
-			->where('sub_type', 'like', 'get_book' . '%')
+			->where('sub_type', 'like', 'retrieve' . '%')
 			->where('booking_id', $booking_id)
 			->first();
 
@@ -112,7 +112,7 @@ class ApiBookingInspector extends Model
 	public function getLinckRetrieveItem($booking_id)
 	{
 		$inspector = ApiBookingInspector::where('type', 'add_item')
-			->where('sub_type', 'like', 'post_book' . '%')
+			->where('sub_type', 'like', 'create' . '%')
 			->where('booking_id', $booking_id)
 			->first();
 
@@ -127,7 +127,7 @@ class ApiBookingInspector extends Model
 			->where(function ($query) {
 				$query->where(function ($query) {
 					$query->where('type', 'add_item')
-						  ->where('sub_type', 'like', 'get_book' . '%');
+						  ->where('sub_type', 'like', 'retrieve' . '%');
 				})
 					  // ->orWhere('type', 'retrieve_items')
 					  ;

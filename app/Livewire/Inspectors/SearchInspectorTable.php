@@ -30,22 +30,25 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->searchable()
 					->label('Search ID'),
                 TextColumn::make('type')
-                    ->searchable(),
+                    ->searchable()
+					->label('Endpoint'),
                 TextColumn::make('token.id')
                     ->numeric()
-                    ->searchable(),
+                    ->searchable()
+					->label('Channel'),
                 TextColumn::make('supplier.name')
                     ->numeric()
-                    ->searchable(),
+                    ->searchable()
+					->label('Suppliers'),
 
                 ViewColumn::make('request')->view('dashboard.search-inspector.column.request'),
 
                 ViewColumn::make('response_path')->view('dashboard.search-inspector.column.response')
-					->label('Response'),
+					->label(new HtmlString('Suppliers <br />  Response')),
 
 				ViewColumn::make('client_response_path')
 					->view('dashboard.search-inspector.column.client-response')
-					->label(new HtmlString('Clear <br />  Response')),
+					->label(new HtmlString('UJV API <br />  Response')),
 
                 TextColumn::make('created_at')
                     ->dateTime()
