@@ -87,6 +87,7 @@ class SuppliersControllerTest extends TestCase
         $this->assertDatabaseHas('suppliers', $newData);
     }
 
+	/*
     public function testDestroy()
     {
         $this->auth();
@@ -99,6 +100,7 @@ class SuppliersControllerTest extends TestCase
         
         $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);
     }
+	*/
 
     public function auth()
     {

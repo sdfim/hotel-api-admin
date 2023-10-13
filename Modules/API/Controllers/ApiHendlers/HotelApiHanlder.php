@@ -126,7 +126,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			];
 
 			# save data to Inspector
-			$search_id = $this->apiInspector->save($search_id, $filters, $content, $clientContent, $supplierIds, 'search', 'hotel');
+			$this->apiInspector->save($search_id, $filters, $content, $clientContent, $supplierIds, 'search', 'hotel');
 
 			if ($request->input('supplier_data') == 'true') $res = $content;
 			else $res = $clientContent;
