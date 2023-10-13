@@ -143,19 +143,19 @@
     const collapseClient = document.querySelector('#collapse-client');
     const searchClient = document.querySelector('#search-client');
     let currentSearch_client;
-    expand.addEventListener('click', (e) => {
+    expandClient.addEventListener('click', (e) => {
         e.preventDefault();
-        viewer.expandAll();
+        viewerClient.expandAll();
     });
 
-    collapse.addEventListener('click', (e) => {
+    collapseClient.addEventListener('click', (e) => {
         e.preventDefault();
-        viewer.collapseAll();
+        viewerClient.collapseAll();
     });
-    search.addEventListener('input', () => {
-        currentSearch_client = viewer.search(search.value);
+    searchClient.addEventListener('input', () => {
+        currentSearch_client = viewerClient.search(searchClient.value);
     });
-    search.addEventListener('keyup', (e) => {
+    searchClient.addEventListener('keyup', (e) => {
         if (currentSearch_client && e.keyCode === 13) {
             currentSearch_client.next();
         }
