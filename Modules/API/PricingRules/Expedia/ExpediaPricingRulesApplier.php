@@ -244,7 +244,9 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      */
     public function apply(int $giataId, int $channelId, string $requestObject, string $roomsPricingObject): array
     {
+        // convert $requestObject to associative array
         $requestArray = json_decode($requestObject, true);
+        // convert $roomsPricingObject to associative array
         $roomsPricingArray = json_decode($roomsPricingObject, true);
         $firstRoomCapacityKey = array_key_first($roomsPricingArray);
 
@@ -281,6 +283,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         // this value only available when $priceValueTypeToApply === 'fixed_value'
         $priceValueFixedTypeToApply = (string)($pricingRule['price_value_fixed_type_to_apply'] ?? '');
 
+        // calculate pricing for each room from request
         foreach ($requestArray['occupancy'] as $room) {
             $totalNumberOfGuestsInRoom = (int)array_sum($room);
             $roomTotals = self::calculateRoomTotals($roomsPricingArray[$totalNumberOfGuestsInRoom]);
