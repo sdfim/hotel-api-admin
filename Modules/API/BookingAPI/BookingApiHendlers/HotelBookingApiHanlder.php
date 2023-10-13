@@ -39,6 +39,7 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 	 */
 	public function addItem (Request $request, string $supplier) : JsonResponse
 	{
+		$data = [];
 		try {	
 			$bookingAddItemRequest = new BookingAddItemHotelRequest();
 			$rules = $bookingAddItemRequest->rules();

@@ -17,6 +17,9 @@ class ExperiaService
         $property['checkin'] = $query['checkin'] ?? date("Y-m-d");
         $property['checkout'] = $query['checkout'] ?? date('Y-m-d', strtotime(date("Y-m-d") . ' +2 days'));
         $property['occupancy'] = $query['occupancy'] ?? ["2"];
+		if (isset($query['travel_purpose'])) {
+			$property['travel_purpose'] = $query['travel_purpose'];
+		}
 		$propertyIds = $queryIds ?? [];
 		
 		try {

@@ -14,6 +14,7 @@ use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
 use Modules\Inspector\SearchInspectorController;
 use Modules\API\Requests\PriceHotelRequest;
 use Modules\API\Suppliers\DTO\ExpediaHotelDto;
+use Illuminate\Support\Str;
 
 class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 {
@@ -99,6 +100,8 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			$rules = $priceRequest->rules();
 			$filters = Validator::make($request->all(), $rules)->validated();
 
+			$search_id = (string) Str::uuid();
+
 			$dataResponse = [];
 			$clientResponse = [];
 			foreach ($supplierIds as $supplier) {
@@ -106,7 +109,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 				if ($supplierName == self::SUPPLIER_NAME) {
 					$expediaResponse = $this->expedia->price($request, $filters);
 					$dataResponse[$supplierName] = $expediaResponse;
-					$clientResponse[$supplierName] = $this->expediaDto->ExpediaToHotelResponse($expediaResponse, $filters);
+					$clientResponse[$supplierName] = $this->expediaDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
 				}
 				// TODO: Add other suppliers
 			}
@@ -123,7 +126,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			];
 
 			# save data to Inspector
-			$search_id = $this->apiInspector->save($filters, $content, $clientContent, $supplierIds, 'search', 'hotel');
+			$search_id = $this->apiInspector->save($search_id, $filters, $content, $clientContent, $supplierIds, 'search', 'hotel');
 
 			if ($request->input('supplier_data') == 'true') $res = $content;
 			else $res = $clientContent;

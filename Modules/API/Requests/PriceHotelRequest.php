@@ -26,6 +26,7 @@ class PriceHotelRequest extends ApiRequest
             'checkin' => ['required', 'date_format:Y-m-d', 'after:today'],
             'checkout' => ['required', 'date_format:Y-m-d', 'after:checkin'],
             'destination' => ['required', 'string'],
+			'travel_purpose' => ['string'],
             'rating' => ['required', 'string'],
             'occupancy' => ['required', 'array'],
         ];

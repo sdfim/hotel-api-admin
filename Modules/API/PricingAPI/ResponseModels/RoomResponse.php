@@ -10,6 +10,17 @@ class RoomResponse
 	private int $supplier_room_code;
 	private string $per_day_rate_breakdown;
 	private int $supplier_bed_groups;
+	private array $links;
+
+	public function setLinks(array $links) : void
+	{
+		$this->links = $links;
+	}
+
+	public function getLinks() : array
+	{
+		return $this->links;
+	}
 
 	public function setSupplierBedGroups(int $supplier_bed_groups) : void
 	{
@@ -79,7 +90,8 @@ class RoomResponse
 			'supplier_room_name' => $this->getSupplierRoomName(),
 			'per_day_rate_breakdown' => $this->getPerDayRateBreakdown(),
 			'supplier_room_code' => $this->getSupplierRoomCode(),
-			'supplier_bed_groups' => $this->getSupplierBedGroups()
+			'supplier_bed_groups' => $this->getSupplierBedGroups(),
+			'links' => $this->getLinks(),
 		];
 	}
 }

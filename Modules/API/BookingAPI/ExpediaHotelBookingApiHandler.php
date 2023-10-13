@@ -102,15 +102,30 @@ class ExpediaHotelBookingApiHandler
 			return (array)$dataResponse;
 		}
 
-		// TODO: need create DTO for $clientDataResponse
-		$clientDataResponse = $dataResponse;
-
 		if (!$dataResponse) return [];
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $clientDataResponse, 1, 'add_item', 'retrieve' . ($queryHold ? ':hold' : ''), 'hotel');
 
 		$viewSupplierData = $filters['supplier_data'] ?? false;
 		if ($viewSupplierData) $res = (array)$dataResponse;
-		else $res = ['booking_id' => $booking_id, 'search_id' => $filters['search_id']];
+		else $res = [
+			'booking_id' => $booking_id, 
+			'search_id' => $filters['search_id'],
+			'links' => [
+				'remove' => [
+					'method' => 'DELETE',
+					'href'	=> '/api/booking/remove-item?booking_id=' . $booking_id . '&room_id=' . $filters['room_id'],
+				],
+				'change' => [
+					'method' => 'PUT',
+					'href'	=> '/api/booking/change-items?booking_id=' . $booking_id . '&room_id=' . $filters['room_id'],
+				],
+				'retrieve' => [
+					'method' => 'GET',
+					'href'	=> '/api/booking/retrieve-items?booking_id=' . $booking_id,
+				],
+			],
+		];
+
+		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $res, 1, 'add_item', 'retrieve' . ($queryHold ? ':hold' : ''), 'hotel');
 
 		return $res;
 	}

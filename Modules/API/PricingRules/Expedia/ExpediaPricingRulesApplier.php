@@ -226,7 +226,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
             }
         }';
 
-        return $this->apply($giataId, $channelId, $requestObject, $pricingObject);
+        return $this->apply($giataId, $channelId, json_decode($requestObject, true), json_decode($pricingObject, true));
     }
 
     /**
@@ -242,12 +242,8 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      *      currency: string
      *  }
      */
-    public function apply(int $giataId, int $channelId, string $requestObject, string $roomsPricingObject): array
+    public function apply(int $giataId, int $channelId, array $requestArray, array $roomsPricingArray): array
     {
-        // convert $requestObject to associative array
-        $requestArray = json_decode($requestObject, true);
-        // convert $roomsPricingObject to associative array
-        $roomsPricingArray = json_decode($roomsPricingObject, true);
         $firstRoomCapacityKey = array_key_first($roomsPricingArray);
 
         /**
