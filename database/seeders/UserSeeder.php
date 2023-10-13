@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Role;
 use App\Models\Permission;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
@@ -13,7 +12,7 @@ class UserSeeder extends Seeder
     /**
      * Run the database seeds.
      */
-    public function run (): void
+    public function run(): void
     {
         $admin_role = Role::where('slug', 'admin')->first();
         $createAdminPermission = Permission::where('slug', 'admin')->first();
@@ -45,6 +44,5 @@ class UserSeeder extends Seeder
         $user->save();
         $user->roles()->attach($user_role);
         $user->permissions()->attach($createUserPermission);
-
     }
 }

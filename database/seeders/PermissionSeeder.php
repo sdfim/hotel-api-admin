@@ -12,7 +12,7 @@ class PermissionSeeder extends Seeder
      *
      * @return void
      */
-    public function run ()
+    public function run(): void
     {
         $manageUser = new Permission();
         $manageUser->name = 'Admin';
