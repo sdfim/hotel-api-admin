@@ -7,6 +7,7 @@
     json-viewer {
         padding: 10px;
         margin-top: 10px;
+        word-wrap: break-word;
     }
 </style>
 <script src="https://unpkg.com/@alenaksu/json-viewer@2.0.0/dist/json-viewer.bundle.js"></script>
@@ -15,7 +16,7 @@
         <div class="card dark:bg-zinc-800 dark:border-zinc-600">
             <div class="card-body pb-0 flex">
 				<x-button-back route="{{ redirect()->getUrlGenerator()->previous() }}" text="Back"/>
-                <h6 class="mb-1 text-15 text-gray-700 dark:text-gray-100" >Booking Inspector</h6>
+                <h6 class="mb-1 text-15 text-gray-700 dark:text-gray-100 ml-4" >Booking Inspector</h6>
             </div>
             <div class="card-body">
                 <div class="relative overflow-x-auto">
@@ -45,7 +46,7 @@
 							</div>
 							<div class="mt-2">
 								<strong>Channel:</strong>
-								{{ $inspector->token_id }}
+								{{ $inspector->token->name }}
 							</div>
                         </div>
                     </div>
@@ -60,13 +61,53 @@
                             <a href="javascript:void(0);" data-tw-toggle="tab" data-tw-target="tab-pills-response"
                                 class="inline-block px-4 py-3 rounded-md active">Supplier Response</a>
                         </li>
+                        @if($inspector->client_response_path)
                         <li>
                             <a href="javascript:void(0);" data-tw-toggle="tab" data-tw-target="tab-pills-client-response"
                                 class="inline-block px-4 py-3 rounded-md dark:hover:text-white">UJV API Response</a>
                         </li>
-                        
+                        @endif
+                        <li>
+                        <button type="button"
+                                class="text-white px-4 py-3 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600 ml-2"
+                                data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">Request</button>
+                        </li>
                     </ul>
-
+                    <div class="relative z-50 hidden modal" id="modal-idmediummodal" aria-labelledby="modal-title"
+                            role="dialog" aria-modal="true">
+                        <div class="fixed inset-0 z-50 overflow-y-auto">
+                            <div class="absolute inset-0 transition-opacity bg-black bg-opacity-50 modal-overlay"></div>
+                            <div class="p-4 mx-auto animate-translate sm:max-w-md">
+                                <div
+                                    class="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl dark:bg-zinc-600">
+                                    <div class="bg-white dark:bg-zinc-700">
+                                        <div
+                                            class="flex items-center p-4 border-b rounded-t border-gray-50 dark:border-zinc-600">
+                                            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 ">
+                                                Response {{$inspector->id}}
+                                            </h3>
+                                            <button
+                                                class="inline-flex items-center px-2 py-1 text-sm text-gray-400 border-transparent rounded-lg btn hover:bg-gray-50/50 hover:text-gray-900 dark:text-gray-100 ltr:ml-auto rtl:mr-auto dark:hover:bg-zinc-600"
+                                                type="button" data-tw-dismiss="modal">
+                                                <i class="text-xl text-gray-500 mdi mdi-close dark:text-zinc-100/60"></i>
+                                            </button>
+                                        </div>
+                                        <div class="p-6 space-y-6 ltr:text-left rtl:text-right">
+                                            <pre>{{json_encode(json_decode($inspector->request), JSON_PRETTY_PRINT) }}</pre>
+                                        </div>
+                                        <!-- Modal footer -->
+                                        <div
+                                            class="flex items-center gap-3 p-5 space-x-2 border-t rounded-b border-gray-50 dark:border-zinc-600">
+                                           
+                                            <button type="button"
+                                                class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm btn dark:text-gray-100 hover:bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-gray-500/30 sm:mt-0 sm:w-auto sm:text-sm dark:bg-zinc-700 dark:border-zinc-600 dark:hover:bg-zinc-600 dark:focus:bg-zinc-600 dark:focus:ring-zinc-700 dark:focus:ring-gray-500/20"
+                                                data-tw-dismiss="modal">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="mt-5 tab-content">
                         <div class="block tab-pane" id="tab-pills-response">
                             <p class="mb-0 dark:text-gray-300">

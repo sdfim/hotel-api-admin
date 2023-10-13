@@ -24,7 +24,7 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
     public function table (Table $table): Table
     {
         return $table
-            ->query(ApiBookingInspector::query())
+            ->query(ApiBookingInspector::orderBy('created_at','DESC'))
             ->columns([
                 TextColumn::make('id')
                     ->searchable()

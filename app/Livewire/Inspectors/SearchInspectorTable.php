@@ -26,7 +26,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
     public function table (Table $table): Table
     {
         return $table
-            ->query(ApiSearchInspector::query())
+            ->query(ApiSearchInspector::orderBy('created_at','DESC'))
             ->columns([
                 TextColumn::make('id')
                     ->searchable()
