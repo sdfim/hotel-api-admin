@@ -244,8 +244,6 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      */
     public function apply(int $giataId, int $channelId, array $requestArray, array $roomsPricingArray): array
     {
-        $requestArray = json_decode($requestObject, true);
-        $roomsPricingArray = json_decode($roomsPricingObject, true);
         $firstRoomCapacityKey = array_key_first($roomsPricingArray);
 
         /**
