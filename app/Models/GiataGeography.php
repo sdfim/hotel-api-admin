@@ -9,10 +9,10 @@ class GiataGeography extends Model
 {
     use HasFactory;
 
-	protected $connection;
-	protected $table = 'giata_geographies';
+    protected $connection;
+    protected $table = 'giata_geographies';
 
-	public function __construct (array $attributes = [])
+    public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');

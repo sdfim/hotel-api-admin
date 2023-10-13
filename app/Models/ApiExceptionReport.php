@@ -22,7 +22,7 @@ class ApiExceptionReport extends Model
         'response_path'
     ];
 
-    protected static function booted (): void
+    protected static function booted(): void
     {
         static::creating(function ($model) {
             $model->{$model->getKeyName()} = Str::uuid()->toString();

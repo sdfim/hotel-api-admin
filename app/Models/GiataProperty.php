@@ -4,8 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\MapperExpediaGiata;
-
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class GiataProperty extends Model
 {
@@ -37,14 +36,14 @@ class GiataProperty extends Model
         'cross_references' => 'json',
     ];
 
-    public function __construct (array $attributes = [])
+    public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
     }
 
-	public function mapperExpediaGiata ()
-	{
-		return $this->hasOne(MapperExpediaGiata::class, 'giata_code', 'code');
-	}
+    public function mapperExpediaGiata(): HasOne
+    {
+        return $this->hasOne(MapperExpediaGiata::class, 'giata_code', 'code');
+    }
 }

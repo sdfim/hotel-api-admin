@@ -35,17 +35,17 @@ class PricingRules extends Model
         'rule_expiration_date'
     ];
 
-    public function suppliers (): BelongsTo
+    public function suppliers(): BelongsTo
     {
         return $this->belongsTo(Suppliers::class, 'supplier_id');
     }
 
-    public function giataProperties (): BelongsTo
+    public function giataProperties(): BelongsTo
     {
         return $this->belongsTo(GiataProperty::class, 'property', 'code');
     }
 
-    public function channels (): BelongsTo
+    public function channels(): BelongsTo
     {
         return $this->belongsTo(Channels::class, 'channel_id');
     }

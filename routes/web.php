@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Weights;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\ContentLoaderExceptionsController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;

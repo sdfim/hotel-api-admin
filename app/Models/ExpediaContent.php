@@ -4,8 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\MapperExpediaGiata;
-use App\Models\GiataProperty;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ExpediaContent extends Model
 {
@@ -41,13 +40,13 @@ class ExpediaContent extends Model
         'all_inclusive' => 'array',
     ];
 
-    public function __construct (array $attributes = [])
+    public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
     }
 
-    public function getFullListFields (): array
+    public function getFullListFields(): array
     {
         return [
             'property_id', 'name', 'address', 'ratings', 'location',
@@ -62,7 +61,7 @@ class ExpediaContent extends Model
         ];
     }
 
-    public function getShortListFields (): array
+    public function getShortListFields(): array
     {
         return [
             'property_id', 'name', 'address', 'ratings', 'location',
@@ -75,7 +74,7 @@ class ExpediaContent extends Model
         ];
     }
 
-    public function dtoDbToResponse ($results, $fields)
+    public function dtoDbToResponse($results, $fields)
     {
         return collect($results)->map(function ($item) use ($fields) {
             foreach ($fields as $key) {
@@ -88,22 +87,21 @@ class ExpediaContent extends Model
         });
     }
 
-    public function mapperGiataExpedia ()
+    public function mapperGiataExpedia(): HasMany
     {
         return $this->hasMany(MapperExpediaGiata::class, 'expedia_id', 'property_id');
     }
 
-	public function getIdsByDestinationGiata($city) : array
-	{
-		$ids = GiataProperty::where('city', $city)
-			->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
-			->select('mapper_expedia_giatas.expedia_id')
-			->whereNotNull('mapper_expedia_giatas.expedia_id')
-			->get()
-			->pluck('expedia_id')
-			->toArray();
+    public function getIdsByDestinationGiata($city): array
+    {
+        $ids = GiataProperty::where('city', $city)
+            ->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
+            ->select('mapper_expedia_giatas.expedia_id')
+            ->whereNotNull('mapper_expedia_giatas.expedia_id')
+            ->get()
+            ->pluck('expedia_id')
+            ->toArray();
 
-		return $ids;
-	}
-
+        return $ids;
+    }
 }

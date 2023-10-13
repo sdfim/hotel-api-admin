@@ -21,7 +21,6 @@ Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'content'], function (
 });
 
 Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'pricing'], function () {
-
 	Route::post('/search', [RouteApiController::class, 'handle'])->name('price');
 });
 

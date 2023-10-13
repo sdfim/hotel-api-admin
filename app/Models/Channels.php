@@ -16,7 +16,7 @@ class Channels extends Model
         'access_token'
     ];
 
-    public function getTokenId ($token)
+    public function getTokenId($token)
     {
         return Channels::where('access_token', 'like', '%' . $token)->first()->token_id ?? null;
     }
