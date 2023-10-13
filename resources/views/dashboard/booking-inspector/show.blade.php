@@ -77,7 +77,7 @@
                             role="dialog" aria-modal="true">
                         <div class="fixed inset-0 z-50 overflow-y-auto">
                             <div class="absolute inset-0 transition-opacity bg-black bg-opacity-50 modal-overlay"></div>
-                            <div class="p-4 mx-auto animate-translate sm:max-w-md">
+                            <div class="p-4 mx-auto animate-translate max-w-3xl">
                                 <div
                                     class="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl dark:bg-zinc-600">
                                     <div class="bg-white dark:bg-zinc-700">
@@ -93,7 +93,7 @@
                                             </button>
                                         </div>
                                         <div class="p-6 space-y-6 ltr:text-left rtl:text-right">
-                                            <pre>{{json_encode(json_decode($inspector->request), JSON_PRETTY_PRINT) }}</pre>
+                                            <pre style="font-size: 0.8em;">{{json_encode(json_decode($inspector->request), JSON_PRETTY_PRINT) }}</pre>
                                         </div>
                                         <!-- Modal footer -->
                                         <div

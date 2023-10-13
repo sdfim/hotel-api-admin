@@ -12,7 +12,6 @@
     }
 </style>
 <script src="https://unpkg.com/@alenaksu/json-viewer@2.0.0/dist/json-viewer.bundle.js"></script>
-{{Route::currentRouteName()}}
     <div class="col-span-12 xl:col-span-6">
         <div class="card dark:bg-zinc-800 dark:border-zinc-600">
             <div class="card-body pb-0 flex">
@@ -86,7 +85,7 @@
                             role="dialog" aria-modal="true">
                         <div class="fixed inset-0 z-50 overflow-y-auto">
                             <div class="absolute inset-0 transition-opacity bg-black bg-opacity-50 modal-overlay"></div>
-                            <div class="p-4 mx-auto animate-translate sm:max-w-md">
+                            <div class="p-4 mx-auto animate-translate sm:max-w-xl">
                                 <div
                                     class="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl dark:bg-zinc-600">
                                     <div class="bg-white dark:bg-zinc-700">
