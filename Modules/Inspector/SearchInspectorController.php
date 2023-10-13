@@ -8,7 +8,7 @@ use App\Models\ApiSearchInspector;
 use Modules\Inspector\BaseInspectorController;
 class SearchInspectorController extends BaseInspectorController
 {
-	public function save($query, $content, $clientContent, $suppliers , $type = 'search', $search_type) : string|bool
+	public function save($search_id, $query, $content, $clientContent, $suppliers , $type = 'search', $search_type) : string|bool
 	{
 		try {
 			$this->current_time = microtime(true);
@@ -33,6 +33,7 @@ class SearchInspectorController extends BaseInspectorController
 			\Log::debug('SearchInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
 
 			$data = [
+				'search_id' => $search_id,
 				'token_id' => $token_id,
 				'suppliers' => implode(',', $suppliers),
 				'search_type' => $search_type,

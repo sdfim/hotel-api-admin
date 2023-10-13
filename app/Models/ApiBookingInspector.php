@@ -12,6 +12,8 @@ class ApiBookingInspector extends Model
 {
     use HasFactory;
 
+	protected $table = 'api_booking_inspector';
+
     protected $fillable = [
         'id',
 		'booking_id',

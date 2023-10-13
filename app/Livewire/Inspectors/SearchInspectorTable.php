@@ -29,6 +29,8 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
             ->query(ApiSearchInspector::query())
             ->columns([
                 TextColumn::make('id')
+                    ->searchable(),
+				TextColumn::make('search_id')
                     ->searchable()
 					->label('Search ID'),
                 TextColumn::make('type')

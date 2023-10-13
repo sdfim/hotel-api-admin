@@ -226,7 +226,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
             }
         }';
 
-        return $this->apply($giataId, $channelId, $requestObject, $pricingObject);
+        return $this->apply($giataId, $channelId, json_decode($requestObject, true), json_decode($pricingObject, true));
     }
 
     /**
@@ -236,10 +236,8 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      * @param string $roomsPricingObject
      * @return array
      */
-    public function apply(int $giataId, int $channelId, string $requestObject, string $roomsPricingObject): array
+    public function apply(int $giataId, int $channelId, array $requestArray, array $roomsPricingArray): array
     {
-        $requestArray = json_decode($requestObject, true);
-        $roomsPricingArray = json_decode($roomsPricingObject, true);
         $firstRoomCapacityKey = array_key_first($roomsPricingArray);
 
         $result = [
@@ -274,6 +272,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
 
         foreach ($requestArray['occupancy'] as $room) {
             $totalNumberOfGuestsInRoom = (int)array_sum($room);
+			
             $inclusiveRoomTotal = (float)$roomsPricingArray[$totalNumberOfGuestsInRoom]['totals']['inclusive']['billable_currency']['value'];
             $exclusiveRoomTotal = (float)$roomsPricingArray[$totalNumberOfGuestsInRoom]['totals']['exclusive']['billable_currency']['value'];
             $totalRoomTaxes = ($inclusiveRoomTotal - $exclusiveRoomTotal);

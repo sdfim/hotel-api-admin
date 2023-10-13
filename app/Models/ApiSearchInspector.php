@@ -11,13 +11,11 @@ use Illuminate\Support\Facades\Storage;
 class ApiSearchInspector extends Model
 {
     use HasFactory;
-
-    public $incrementing = false;
-    protected $keyType = 'string';
-    protected $guarded = ['id'];
+	protected $table = 'api_search_inspector';
 
     protected $fillable = [
         'id',
+		'search_id',
         'token_id',
         'suppliers',
 		'search_type',
@@ -27,14 +25,6 @@ class ApiSearchInspector extends Model
 		'client_response_path'
     ];
 
-    protected static function booted (): void
-    {
-        static::creating(function ($model) {
-            $model->{$model->getKeyName()} = Str::uuid()->toString();
-        });
-    }
-
-
     public function token ()
     {
         return $this->belongsTo(PersonalAccessToken::class);
@@ -42,13 +32,13 @@ class ApiSearchInspector extends Model
 
 	public function getLinckPriceCheck ($filters) : string
 	{
-		$uuid = $filters['search_id'];
+		$search_id = $filters['search_id'];
 		$hotel_id = $filters['hotel_id']; // giata_id
 		$room_id = $filters['room_id']; // expedia
 		$rate_id = $filters['rate'] ?? ''; // expedia
 		$bed_groups = $filters['bed_groups'] ?? ''; // expedia
 
-		$search_id = ApiSearchInspector::where('id', $uuid)->first();
+		$search_id = ApiSearchInspector::where('search_id', $search_id)->first();
 		$json_response = json_decode(Storage::get($search_id->response_path));
 		$rooms = $json_response->results->Expedia->$hotel_id->rooms;
 
@@ -69,7 +59,7 @@ class ApiSearchInspector extends Model
 	}
 
 	public function geTypeBySearchId(string $search_id) : string{
-		$search = ApiSearchInspector::where('id', $search_id)->first();
+		$search = ApiSearchInspector::where('search_id', $search_id)->first();
 		return $search->search_type;
 	}
 }
