@@ -50,7 +50,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/content', [ContentController::class, 'index'])->name('content');
         Route::get('/general-configuration', [GeneralConfigurationController::class, 'index'])->name('general_configuration');
         Route::get('/geography', [GeographyController::class, 'index'])->name('geography');
-        
+
         Route::resource('search-inspector', SearchInspectorController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
         Route::resource('booking-inspector', BookingInspectorController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
 
@@ -65,5 +65,3 @@ Route::prefix('admin')->group(function () {
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
     });
 });
-
-Route::get('/test-pricing-rules', [\Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier::class, 'test']);
