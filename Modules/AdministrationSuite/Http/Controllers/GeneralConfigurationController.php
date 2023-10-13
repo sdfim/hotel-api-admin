@@ -2,12 +2,12 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\GeneralConfiguration;
+use Illuminate\View\View;
 
 class GeneralConfigurationController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $result = GeneralConfiguration::first();
 

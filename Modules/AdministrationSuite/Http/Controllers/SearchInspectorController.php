@@ -2,17 +2,17 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\ApiSearchInspector;
+use Illuminate\View\View;
 
 class SearchInspectorController extends Controller
 {
-    private $message = ['show' => 'Show Response'];
+    private array $message = ['show' => 'Show Response'];
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View
     {
         return view('dashboard.search-inspector.index');
     }
@@ -20,7 +20,7 @@ class SearchInspectorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id): View
     {
         $text = $this->message;
         $inspector = ApiSearchInspector::findOrFail($id);

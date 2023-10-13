@@ -7,12 +7,12 @@ use Illuminate\View\View;
 
 class ReservationsController extends Controller
 {
-    private $message = ['create' => 'Add New Reservations', 'edit' => 'Edit Reservations', 'show' => 'Show Reservations'];
+    private array $message = ['create' => 'Add New Reservations', 'edit' => 'Edit Reservations', 'show' => 'Show Reservations'];
 
     /**
      * Display a listing of the resource.
      */
-    public function index (): View
+    public function index(): View
     {
         $reservations = Reservations::with(['channel', 'contains'])->get();
         return view('dashboard.reservations.index', [
@@ -23,7 +23,7 @@ class ReservationsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show (string $id): View
+    public function show(string $id): View
     {
         $text = $this->message;
         $reservation = Reservations::with(['channel', 'contains'])->findOrFail($id);

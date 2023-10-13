@@ -10,8 +10,8 @@ use Illuminate\Http\Request;
 
 class WeightController extends Controller
 {
-    private $message = ['create' => 'Add New Weight', 'edit' => 'Edit Weight', 'show' => 'Show Weight'];
-    private $validate = [
+    private array $message = ['create' => 'Add New Weight', 'edit' => 'Edit Weight', 'show' => 'Show Weight'];
+    private array $validate = [
         'property' => 'bail|required|integer',
         'supplier_id' => 'bail|nullable|integer',
         'weight' => 'bail|required|integer',

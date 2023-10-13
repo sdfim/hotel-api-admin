@@ -13,7 +13,6 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
-use Illuminate\Support\HtmlString;
 use Filament\Tables\Actions\ViewAction;
 
 class BookingInspectorTable extends Component implements HasForms, HasTable

@@ -13,5 +13,5 @@
         @endif
     </form>
 
-    <x-filament-actions::modals />
+    <x-filament-actions::modals/>
 </div>

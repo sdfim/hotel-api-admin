@@ -17,7 +17,6 @@ use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -33,7 +32,7 @@ class UpdatePricingRules extends Component implements HasForms
 
     public function mount (PricingRules $pricingRules): void
     {
-        $this->record = $pricingRules; //PricingRules::findOrFail($request->route()->parameter('pricing_rule'));
+        $this->record = $pricingRules;
         $this->form->fill($this->record->attributesToArray());
     }
 

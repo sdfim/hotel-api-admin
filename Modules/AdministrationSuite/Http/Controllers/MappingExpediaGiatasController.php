@@ -11,26 +11,26 @@ class MappingExpediaGiatasController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $expedia_id = $request->get('expedia_id');
         $giata_id = $request->get('giata_id');
         $giata_last_id = $request->get('giata_last_id');
-        $mapper = MapperExpediaGiata::where('expedia_id',$expedia_id)->where('giata_id', $giata_last_id)->first();
-        if($mapper){
+        $mapper = MapperExpediaGiata::where('expedia_id', $expedia_id)->where('giata_id', $giata_last_id)->first();
+        if ($mapper) {
             $mapper->update(['giata_id' => $giata_id, 'step' => 100]);
-        }else{
-                
+        } else {
+
             MapperExpediaGiata::create([
-                'expedia_id' =>  intval($expedia_id),
-                'giata_id' =>  $giata_id,
+                'expedia_id' => intval($expedia_id),
+                'giata_id' => $giata_id,
                 'step' => 100
             ]);
         }
         return redirect()->back()->with('success', 'Mapping update successfully');
     }
 
-   
+
     /**
      * Remove the specified resource from storage.
      */

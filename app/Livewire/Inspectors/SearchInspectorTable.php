@@ -15,8 +15,6 @@ use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
-use Illuminate\Support\HtmlString;
-
 
 class SearchInspectorTable extends Component implements HasForms, HasTable
 {
@@ -115,7 +113,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                         ->url(fn(ApiSearchInspector $record): string => route('search-inspector.show', $record))
                         ->label('View response')
                         ->color('info'),
-                
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

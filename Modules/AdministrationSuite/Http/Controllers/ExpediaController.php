@@ -3,8 +3,6 @@
 namespace Modules\AdministrationSuite\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\Request;
-use App\Models\ExpediaContent;
 
 class ExpediaController extends Controller
 {

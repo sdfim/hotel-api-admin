@@ -39,7 +39,7 @@
                     </a>
                 </li>
 
-				<li class="@if(Route::currentRouteName() == 'booking-inspector.show' || Route::currentRouteName() == 'search-inspector.show') mm-active @endif">
+                <li class="@if(Route::currentRouteName() == 'booking-inspector.show' || Route::currentRouteName() == 'search-inspector.show') mm-active @endif">
                     <a href="javascript: void(0);" aria-expanded="false"
                        class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-headset"></i>
@@ -49,12 +49,12 @@
                         <li>
                             <a href="{{ Route('search-inspector.index') }}"
                                class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
-							   Search Inspector</a>
+                                Search Inspector</a>
                         </li>
                         <li>
                             <a href="{{ Route('booking-inspector.index') }}"
                                class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
-							   Booking Inspector</a>
+                                Booking Inspector</a>
                         </li>
                     </ul>
                 </li>
@@ -65,7 +65,7 @@
                         <span data-key="t-content-loader-exception"> Content Loader Exceptions</span>
                     </a>
                 </li>
-				<li>
+                <li>
                     <a href="javascript: void(0);" aria-expanded="false"
                        class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-contract-2"></i>
@@ -74,13 +74,13 @@
                     <ul>
                         <li>
                             <a href="{{ Route('giata.index') }}"
-                            class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                               Giata
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                Giata
                             </a>
                         </li>
                         <li>
                             <a href="{{ Route('expedia.index') }}"
-                            class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                 Expedia
                             </a>
                         </li>
@@ -121,7 +121,7 @@
                         <span data-key="t-log-viewer"> Weight</span>
                     </a>
                 </li>
-                
+
                 <!--
 
                 <li>

@@ -8,6 +8,7 @@
             --tw-bg-opacity: 0.5 !important;
             background-color: rgb(0 0 0 / var(--tw-bg-opacity)) !important;
         }
+
         .modal-body {
             position: relative;
             -webkit-box-flex: 1;
@@ -16,6 +17,7 @@
             padding: 1rem;
             text-wrap: wrap;
         }
+
         .form-control {
             display: block;
             width: 100%;
@@ -31,15 +33,15 @@
             -moz-appearance: none;
             appearance: none;
             border-radius: 0.25rem;
-            -webkit-transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
-            transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
-            transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
-            transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+            -webkit-transition: border-color .15s ease-in-out, -webkit-box-shadow .15s ease-in-out;
+            transition: border-color .15s ease-in-out, -webkit-box-shadow .15s ease-in-out;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out, -webkit-box-shadow .15s ease-in-out;
         }
     </style>
     <!-- -->
     <x-page-title title="Expedia" pagetitle="index"/>
-    
+
     <div class="grid grid-cols-12 gap-5">
         <div class="col-span-12">
             <div class="card dark:bg-zinc-800 dark:border-zinc-600">
@@ -51,26 +53,27 @@
     </div>
 @endsection
 @section('js')
-<script>
-    function openModal(id){
-        const el = document.querySelector('#modal-idlargemodal-'+id);
-        el.classList.remove("hidden");
-        el.classList.add("opened-modal-block");
-    }
-    function closeModal(id){
-        const el = document.querySelector('#modal-idlargemodal-'+id);
-        el.classList.add("hidden");
-        el.classList.remove("opened-modal-block");
-    }
-
-    document.addEventListener( 'click', (e) => {
-        const div = document.querySelector('.opened-modal-block');
-        if(e.srcElement.classList.contains('modal-overlay') && div){
-            div.classList.add("hidden");
-            div.classList.remove("opened-modal-block");
+    <script>
+        function openModal(id) {
+            const el = document.querySelector('#modal-idlargemodal-' + id);
+            el.classList.remove("hidden");
+            el.classList.add("opened-modal-block");
         }
-    })
-    
-    
-</script>
+
+        function closeModal(id) {
+            const el = document.querySelector('#modal-idlargemodal-' + id);
+            el.classList.add("hidden");
+            el.classList.remove("opened-modal-block");
+        }
+
+        document.addEventListener('click', (e) => {
+            const div = document.querySelector('.opened-modal-block');
+            if (e.srcElement.classList.contains('modal-overlay') && div) {
+                div.classList.add("hidden");
+                div.classList.remove("opened-modal-block");
+            }
+        })
+
+
+    </script>
 @endsection

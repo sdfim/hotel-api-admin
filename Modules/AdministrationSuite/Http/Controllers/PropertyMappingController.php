@@ -2,12 +2,11 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-
-use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class PropertyMappingController extends Controller
 {
-    public function index ()
+    public function index (): View
     {
         return view('dashboard.property-mapping');
     }

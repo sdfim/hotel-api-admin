@@ -123,7 +123,6 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         return $result;
     }
 
-
     /**
      * @param array $rooms
      * @return int

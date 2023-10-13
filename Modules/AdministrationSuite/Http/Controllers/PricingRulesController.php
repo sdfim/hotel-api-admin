@@ -2,8 +2,6 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use App\Models\ExpediaContent;
-use App\Models\GiataProperty;
 use App\Models\PricingRules;
 use App\Models\Suppliers;
 use Illuminate\Http\RedirectResponse;
@@ -12,9 +10,9 @@ use Illuminate\Http\Request;
 
 class PricingRulesController extends Controller
 {
-    private $message = ['create' => 'Add New Pricing Rules', 'edit' => 'Edit Pricing Rules', 'show' => 'Show Pricing Rules'];
+    private array $message = ['create' => 'Add New Pricing Rules', 'edit' => 'Edit Pricing Rules', 'show' => 'Show Pricing Rules'];
 
-    private $validate = [
+    private array $validate = [
         'name' => 'bail|required|string|max:190',
         'property' => 'bail|required|string|max:190',
         'destination' => 'bail|required|string|max:190',

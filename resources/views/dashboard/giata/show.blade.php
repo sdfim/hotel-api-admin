@@ -22,7 +22,7 @@
                         </div>
                     </div>
                     <div class="mt-10 sm:mt-0">
-                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="form-group">
                                 <strong>Code:</strong>
                                 {{ $giata->code }}
@@ -91,11 +91,11 @@
                     </div>
                     <x-section-border/>
                 </div>
-                
+
             </div>
         </div>
     </div>
 @endsection
 @section('scripts')
-   
+
 @endsection
