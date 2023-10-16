@@ -32,20 +32,27 @@ class ExpediaTable extends Component implements HasForms, HasTable
             ->columns([
 				TextColumn::make('id')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('property_id')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('name')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('city')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 				TextColumn::make('phone')
                     ->numeric()
-                    ->sortable(),
-                ViewColumn::make('address')->view('dashboard.expedia.column.address-field'),
-                ViewColumn::make('location')->view('dashboard.expedia.column.position-field'),
+                    ->sortable()
+                    ->toggleable(),
+                ViewColumn::make('address')->view('dashboard.expedia.column.address-field')
+                ->toggleable(),
+                ViewColumn::make('location')->view('dashboard.expedia.column.position-field')
+                ->toggleable(),
                 ViewColumn::make('mapperGiataExpedia')->label('Giata id')->view('dashboard.expedia.column.giata_id'),
                 TextColumn::make('mapperGiataExpedia.giata_id')
                 ->default('')
@@ -59,7 +66,8 @@ class ExpediaTable extends Component implements HasForms, HasTable
                     }
                     return 'Empty';
                     
-                }),
+                })
+                ->toggleable(),
 				TextColumn::make('mapperGiataExpedia.step')
                 ->label('Version')
                 ->formatStateUsing(function ($record) {
@@ -73,8 +81,9 @@ class ExpediaTable extends Component implements HasForms, HasTable
                             return 'Auto';
                         }
                     }
-                }),
-                ViewColumn::make('edit')->view('dashboard.expedia.column.add-giata'),
+                })
+                ->toggleable(),
+                ViewColumn::make('edit')->view('dashboard.expedia.column.add-giata')->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
 				Filter::make('is_empty')
