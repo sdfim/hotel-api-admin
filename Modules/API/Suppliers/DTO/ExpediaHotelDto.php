@@ -42,8 +42,9 @@ class ExpediaHotelDto
 		$hotelResponse->setLowestPricedRoomGroup($propertyGroup['lowest_priced_room_group'] ?? '');
 		$hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
 		$hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
-		$hotelResponse->setNonRefundableRates($propertyGroup['non_refundable_rates'] ?? '');
-		$hotelResponse->setRefundableRates($propertyGroup['refundable_rates'] ?? '');
+		$countRefundableRates = $this->fetchCountRefundableRates($propertyGroup);
+		$hotelResponse->setNonRefundableRates($countRefundableRates['non_refundable_rates'] ?? '');
+		$hotelResponse->setRefundableRates($countRefundableRates['refundable_rates'] ?? '');
 		$roomGroups = [];
 		foreach ($propertyGroup['rooms'] as $roomGroup) {
 			$roomGroups[] = $this->setRoomGroupsResponse((array)$roomGroup, $propertyGroup);
@@ -51,6 +52,24 @@ class ExpediaHotelDto
 		$hotelResponse->setRoomGroups($roomGroups);
 
 		return $hotelResponse->toArray();
+	}
+
+	private function fetchCountRefundableRates($propertyGroup) : array
+	{
+		$refundableRates = [];
+		$nonRefundableRates = [];
+		foreach ($propertyGroup['rooms'] as $roomGroup) {
+			foreach ($roomGroup->rates as $rate) {
+				if ($rate->refundable) {
+					$refundableRates[] = $rate->id;
+				} else {
+					$nonRefundableRates[] = $rate->id;
+				}
+				// dd($rate, $refundableRates, $nonRefundableRates);
+			}
+		}
+
+		return ['refundable_rates' => implode(',', $refundableRates), 'non_refundable_rates' => implode(',', $nonRefundableRates)];
 	}
 
 	public function setRoomGroupsResponse(array $roomGroup, $propertyGroup) : array
@@ -74,7 +93,7 @@ class ExpediaHotelDto
 		$roomGroupsResponse->setCurrency($pricingRulesApplier['сurrency'] ?? 'USD');
 		$roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
 		$roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');
-		$roomGroupsResponse->setNonRefundable($roomGroup['non_refundable'] ?? '');
+		$roomGroupsResponse->setNonRefundable($roomGroup['rates'][0]->refundable ? false : true);
 		$roomGroupsResponse->setMealPlan($roomGroup['meal_plan'] ?? '');
 		$roomGroupsResponse->setRateId(intval($roomGroup['rates'][0]->id) ?? null);
 		$roomGroupsResponse->setRateDescription($roomGroup['rate_description'] ?? '');
@@ -91,8 +110,6 @@ class ExpediaHotelDto
 
 	public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup) : array
 	{
-//{{url local}}api/booking/add-item?search_id=5b79fb5b-fbb1-41c6-a380-420d79d0cee4&supplier=Expedia&hotel_id=82024226&room_id=200986544&rate=276363367&bed_groups=37321
-
 		$link = 'api/booking/add-item?';
 		$link .= 'search_id=' . $this->search_id;
 		$link .= '&supplier=Expedia';

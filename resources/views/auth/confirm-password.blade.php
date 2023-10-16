@@ -82,7 +82,7 @@
                                         document.write(new Date().getFullYear())
                                     </script>
                                     UJV . Crafted with <i class="mdi mdi-heart text-red-400"></i>
-                                    by Smarty
+                                    by UJVAPI
                                 </p>
                             </div>
                         </div>
