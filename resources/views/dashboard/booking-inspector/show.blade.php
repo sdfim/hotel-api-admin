@@ -48,15 +48,21 @@
                                 <strong>Channel:</strong>
                                 {{ $inspector->token->name }}
                             </div>
+                            <div class="mt-2">
+                                <button type="button"
+                                    class="text-white px-4 py-3 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
+                                    data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">Request
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="mt-10 sm:mt-0">
-
+                        
                     </div>
                     <x-section-border/>
                 </div>
-                <div class="nav-tabs tab-pill">
-                    <ul class="flex flex-wrap w-full text-sm font-medium text-center text-gray-500 nav">
+                <div class="nav-tabs border-tab">
+                    <ul class="flex flex-wrap w-full text-sm font-medium text-center text-gray-500 border-b border-gray-100 nav dark:border-gray-700 dark:text-gray-400">
                         <li>
                             <a href="javascript:void(0);" data-tw-toggle="tab" data-tw-target="tab-pills-response"
                                class="inline-block px-4 py-3 rounded-md active">Supplier Response</a>
@@ -68,12 +74,6 @@
                                    class="inline-block px-4 py-3 rounded-md dark:hover:text-white">UJV API Response</a>
                             </li>
                         @endif
-                        <li>
-                            <button type="button"
-                                    class="text-white px-4 py-3 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600 ml-2"
-                                    data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">Request
-                            </button>
-                        </li>
                     </ul>
                     <div class="relative z-50 hidden modal" id="modal-idmediummodal" aria-labelledby="modal-title"
                          role="dialog" aria-modal="true">
