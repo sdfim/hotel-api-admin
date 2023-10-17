@@ -219,14 +219,17 @@ class MakeMapperExpediaGiate extends Command
 		return $mapper;
 	}
 
-	private function fetchExpediaNeedMapping(): array
+	private function fetchExpediaNeedMapping()
 	{
-		$existingMapper = MapperExpediaGiata::select('expedia_id')->distinct()->get()->toArray();
-		return ExpediaContent::select('id', 'property_id', 'name', 'latitude', 'longitude', 'phone', 'city', 'state_province_name', 'postal_code')
-			->where('id', '>=', $this->startId)
-			->where('id', '<=', $this->endId)
-			->whereNotIn('property_id', $existingMapper)
-			->get()
-			->toArray();
+		$query = ExpediaContent::select('expedia_contents.id', 'property_id', 'name', 'latitude', 'longitude', 'phone', 'city', 'state_province_name', 'postal_code')
+			->leftJoin('mapper_expedia_giatas', 'expedia_contents.property_id', '=', 'mapper_expedia_giatas.expedia_id')
+			->whereNull('mapper_expedia_giatas.giata_id')
+			->where('expedia_contents.id', '>=', $this->startId)
+			->where('expedia_contents.id', '<=', $this->endId)
+			->cursor();
+
+		foreach ($query as $row) {
+			yield $row;
+		}
 	}
 }
