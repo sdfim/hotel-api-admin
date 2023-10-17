@@ -15,8 +15,12 @@ class ExceptionReportController extends BaseInspectorController
 		try {
 			$this->current_time = microtime(true);
 			
-			$name = $task . '_' . Carbon::now()->toDateTimeString();
-			$path = 'report_' . $type. '/' . $name;
+			$hash = md5($task);
+			
+			if ($content == '') $content = json_encode($task);
+			else $content = json_encode($content);
+
+			$path = 'report_' . $type. '/' . date("Y-m-d") . '/' . $hash.'.json';
 
 			Storage::put($path, $content);
 			\Log::debug('ExceptionReportController save to Storage: ' . $this->executionTime() . ' seconds');
@@ -27,7 +31,7 @@ class ExceptionReportController extends BaseInspectorController
 				'id' => $uuid,
 				'supplier_id' => $supplier_id,
 				'type' => $type,
-				'request' => $task,
+				'request' => json_encode($task),
 				'response_path' => $path
 			];
 
