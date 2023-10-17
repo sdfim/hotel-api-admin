@@ -219,7 +219,7 @@ class MakeMapperExpediaGiate extends Command
 		return $mapper;
 	}
 
-	private function fetchExpediaNeedMapping()
+	private function fetchExpediaNeedMapping() : iterable
 	{
 		$query = ExpediaContent::select('expedia_contents.id', 'property_id', 'name', 'latitude', 'longitude', 'phone', 'city', 'state_province_name', 'postal_code')
 			->leftJoin('mapper_expedia_giatas', 'expedia_contents.property_id', '=', 'mapper_expedia_giatas.expedia_id')

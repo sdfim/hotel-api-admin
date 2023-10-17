@@ -58,6 +58,7 @@ class DownloadExpediaData extends Command
             $url = $this->getUrlArchive();
             $this->info('url from expedia ' . $url . ' in ' . $this->executionStepTime() . ' seconds');
         }
+		$this->apiExceptionReport->save('DownloadExpediaData Step:1 get url', '', 'Expedia', 'successful');
 
         if ($this->step <= 2) {
             # download file from url and save to storage
@@ -68,18 +69,24 @@ class DownloadExpediaData extends Command
                 $this->error('Failed to download or extract the zip file.');
             }
         }
+		$this->apiExceptionReport->save('DownloadExpediaData Step:2 download file', '', 'Expedia', 'successful');
+
 
         if ($this->step <= 3) {
             # unzip file
             $this->unzipFile();
             $this->info('unzip file in ' . $this->executionStepTime() . ' seconds');
         }
+		$this->apiExceptionReport->save('DownloadExpediaData Step:3 unzip file', '', 'Expedia', 'successful');
+
 
         if ($this->step <= 4) {
             # parse json to db
             $this->parseJsonToDb();
             $this->info('parse json to db in ' . $this->executionStepTime() . ' seconds');
         }
+		$this->apiExceptionReport->save('DownloadExpediaData Step:4 parse jsonl', '', 'Expedia', 'successful');
+
 
         $this->apiExceptionReport->save('DownloadExpediaData FullStep', '', 'Expedia', 'successful');
 
