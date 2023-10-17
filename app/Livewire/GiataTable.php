@@ -37,6 +37,9 @@ class GiataTable extends Component implements HasForms, HasTable
                 TextColumn::make('city')
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('locale')
+                    ->sortable()
+                    ->searchable(),
 				ViewColumn::make('phone')->view('dashboard.giata.column.phone-field'),
                 ViewColumn::make('address')->view('dashboard.giata.column.address-field'),
                 ViewColumn::make('position')->view('dashboard.giata.column.position-field'),
@@ -73,6 +76,22 @@ class GiataTable extends Component implements HasForms, HasTable
                             return null;
                         }
                         return 'City: ' . $data['city'];
+                    }),
+                Filter::make('locale')
+                    ->form([
+                        TextInput::make('locale')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['locale'],
+                                fn(Builder $query, $city): Builder => $query->where('locale', 'LIKE', '%' . $city . '%'),
+                            );
+                    })->indicateUsing(function (array $data): ?string {
+                        if (!$data['locale']) {
+                            return null;
+                        }
+                        return 'Locale: ' . $data['locale'];
                     }),
 				Filter::make('phone')
                     ->form([
