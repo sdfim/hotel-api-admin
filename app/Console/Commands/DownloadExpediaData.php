@@ -53,14 +53,14 @@ class DownloadExpediaData extends Command
         $this->type = $this->argument('type'); // content
         $this->step = $this->argument('step'); // 1, 2, 3, 4
 
-        if ($this->step <= 1) {
+        if (str_contains($this->step, 1)) {
             # get url from expedia
             $url = $this->getUrlArchive();
             $this->info('url from expedia ' . $url . ' in ' . $this->executionStepTime() . ' seconds');
         }
 		$this->apiExceptionReport->save('DownloadExpediaData Step:1 get url', '', 'Expedia', 'successful');
 
-        if ($this->step <= 2) {
+		if (str_contains($this->step, 2)) {
             # download file from url and save to storage
             $success = $this->downloadArchive($url);
             if ($success) {
@@ -72,7 +72,7 @@ class DownloadExpediaData extends Command
 		$this->apiExceptionReport->save('DownloadExpediaData Step:2 download file', '', 'Expedia', 'successful');
 
 
-        if ($this->step <= 3) {
+		if (str_contains($this->step, 3)) {
             # unzip file
             $this->unzipFile();
             $this->info('unzip file in ' . $this->executionStepTime() . ' seconds');
@@ -80,7 +80,7 @@ class DownloadExpediaData extends Command
 		$this->apiExceptionReport->save('DownloadExpediaData Step:3 unzip file', '', 'Expedia', 'successful');
 
 
-        if ($this->step <= 4) {
+		if (str_contains($this->step, 4)) {
             # parse json to db
             $this->parseJsonToDb();
             $this->info('parse json to db in ' . $this->executionStepTime() . ' seconds');

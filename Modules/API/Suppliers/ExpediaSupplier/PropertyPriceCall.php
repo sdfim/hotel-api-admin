@@ -70,7 +70,8 @@ class PropertyPriceCall
 
 		$this->occupancy = $property['occupancy'];
 
-		$this->ratePlanCount = $property['rate_plan_count'] ?? 1;
+		// $this->ratePlanCount = $property['rate_plan_count'] ?? 1;
+		$this->ratePlanCount = $property['rate_plan_count'] ?? 10;
 		
 		// SHOP parameters for Standalone Rates:
 		$this->partnerPointSale = $property['partner_point_of_sale'] ?? "B2B_EAC_SA_MOD_DIR";
