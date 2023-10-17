@@ -71,13 +71,22 @@ class PropertyPriceCall
 		$this->occupancy = $property['occupancy'];
 
 		$this->ratePlanCount = $property['rate_plan_count'] ?? 1;
-		$this->salesChannel = $property['sales_channel'] ?? "agent_tool";
-		$this->salesEnvironment = $property['sales_environment'] ?? "hotel_package";
-
-		$this->rateOption = $property['rate_option'] ?? "member";
+		
+		// SHOP parameters for Standalone Rates:
+		$this->partnerPointSale = $property['partner_point_of_sale'] ?? "B2B_EAC_SA_MOD_DIR";
 		$this->billingTerms = $property['billing_terms'] ?? "";
-		$this->paymentTerms = $property['payment_terms'] ?? "BASE_DIR";
-		$this->partnerPointSale = $property['partner_point_of_sale'] ?? "B2B_EAC_BASE_DIR";
+		$this->paymentTerms = $property['payment_terms'] ?? "SA";
+		$this->salesChannel = $property['sales_channel'] ?? "agent_tool";
+		$this->rateOption = $property['rate_option'] ?? "member";
+		$this->salesEnvironment = $property['sales_environment'] ?? "hotel_only";
+
+		// // SHOP parameters for Package Rates:
+		// $this->partnerPointSale = $property['partner_point_of_sale'] ?? "B2B_EAC_BASE_DIR";
+		// $this->billingTerms = $property['billing_terms'] ?? "";
+		// $this->paymentTerms = $property['payment_terms'] ?? "BASE_DIR";
+		// $this->salesChannel = $property['sales_channel'] ?? "agent_tool";
+		// $this->rateOption = $property['rate_option'] ?? "member";
+		// $this->salesEnvironment = $property['sales_environment'] ?? "hotel_package";
 	}
 
 	public function getPriceData(array $propertyIds = [])
