@@ -42,7 +42,8 @@ class DownloadExpediaData extends Command
         parent::__construct();
         $this->rapidClient = $rapidClient;
         $this->apiExceptionReport = new ExceptionReportController();
-		$this->expedia_id = Suppliers::where('name', 'Expedia')->get()->first()->id;
+		// TODO: get expedia_id from suppliers table
+		$this->expedia_id = 1;
     }
 		
     /**
@@ -50,7 +51,6 @@ class DownloadExpediaData extends Command
      */
     public function handle ()
     {
-
         $this->type = $this->argument('type'); // content
         $this->step = $this->argument('step'); // 1, 2, 3, 4
 
