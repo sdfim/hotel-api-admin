@@ -54,6 +54,5 @@
 @filamentScripts
 @vite(['resources/js/app.js'])
 @yield('js')
-<script src="https:://unpkg.com/alpinejs" defer></script>
 </body>
 </html>
