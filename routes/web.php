@@ -1,5 +1,6 @@
 <?php
 
+use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\ContentLoaderExceptionsController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
@@ -31,7 +32,7 @@ use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
 
 Route::get('/', function () {
     if (!Auth::check()) {
-        return redirect('/login');
+        return redirect('/admin/login');
     } else {
         return redirect('/admin/reservations');
     }

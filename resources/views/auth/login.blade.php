@@ -216,6 +216,4 @@
     <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js') }}"></script>
 
     <script src="{{ URL::asset('build/js/pages/login.init.js') }}"></script>
-
-    @vite(['resources/js/app.js'])
 @endsection
