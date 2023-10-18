@@ -12,8 +12,6 @@ class GiataProperty extends Model
 
     protected $connection;
 
-    protected $table = 'giata_properties';
-
     protected $fillable = [
         'code',
         'last_updated',
@@ -40,6 +38,7 @@ class GiataProperty extends Model
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
+        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_properties';
     }
 
     public function mapperExpediaGiata(): HasOne

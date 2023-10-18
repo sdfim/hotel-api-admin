@@ -14,6 +14,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -22,17 +23,19 @@ class PricingRulesTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
             ->query(PricingRules::query())
             ->columns([
                 TextColumn::make('suppliers.name')
                     ->sortable()
+                    ->searchable()
                     ->toggleable(),
                 TextColumn::make('channels.name')
                     ->label('Channel name')
                     ->sortable()
+                    ->searchable()
                     ->toggleable(),
                 TextColumn::make('name')
                     ->searchable()
@@ -43,7 +46,6 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->toggleable(),
                 TextColumn::make('giataProperties.name')
                     ->label('Property name')
-                    ->searchable()
                     ->toggleable(),
                 TextColumn::make('destination')
                     ->searchable()
@@ -130,7 +132,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.pricing-rules.pricing-rules-table');
     }
