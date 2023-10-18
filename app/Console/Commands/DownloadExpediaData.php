@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Http;
 use App\Models\ExpediaContent;
 use App\Models\Suppliers;
 use Modules\Inspector\ExceptionReportController;
+use Carbon\Carbon;
 
 class DownloadExpediaData extends Command
 {
@@ -157,7 +158,7 @@ class DownloadExpediaData extends Command
 
     function parseJsonToDb (): void
     {
-        ExpediaContent::truncate();
+        // ExpediaContent::truncate();
 
         $filePath = storage_path() . '/app/expedia_' . $this->type;
 
@@ -287,6 +288,8 @@ class DownloadExpediaData extends Command
 
             }
         }
+
+		ExpediaContent::where('created_at', '<', Carbon::now())->delete();
 
         fclose($file);
         $end_time = microtime(true);
