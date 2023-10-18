@@ -25,7 +25,7 @@ class ExpediaTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $this->post('/login', [
+        $this->post(route('login'), [
             'email' => $user->email,
             'password' => 'password',
         ]);

@@ -144,6 +144,7 @@ class DownloadExpediaData extends Command
 
         } catch (\Exception $e) {
             \Log::error('Error downloading gz file: ' . $e->getMessage());
+			$this->error('Error downloading gz file:  ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
             $this->apiExceptionReport->save('DownloadExpediaData downloadAndExtractGz', $e->getMessage() . ' ' . $e->getTraceAsString(), $this->expedia_id);
             return false;
         }
@@ -158,7 +159,8 @@ class DownloadExpediaData extends Command
 
     function parseJsonToDb (): void
     {
-        // ExpediaContent::truncate();
+        ExpediaContent::query()->delete();
+		DB::update("ALTER TABLE {expedia_contents} AUTO_INCREMENT = 1;");
 
         $filePath = storage_path() . '/app/expedia_' . $this->type;
 
