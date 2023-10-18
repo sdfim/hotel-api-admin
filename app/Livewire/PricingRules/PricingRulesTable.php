@@ -46,6 +46,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->toggleable(),
                 TextColumn::make('giataProperties.name')
                     ->label('Property name')
+                    ->searchable()
                     ->toggleable(),
                 TextColumn::make('destination')
                     ->searchable()

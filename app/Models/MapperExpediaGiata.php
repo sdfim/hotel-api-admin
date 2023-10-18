@@ -22,7 +22,7 @@ class MapperExpediaGiata extends Model
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
-        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api'). '.' .'mapper_expedia_giatas';
+        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'mapper_expedia_giatas';
     }
 
     public function expedia(): HasOne

@@ -15,6 +15,6 @@ class GiataGeography extends Model
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
-        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api'). '.' .'giata_geographies';
+        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_geographies';
     }
 }

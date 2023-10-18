@@ -44,7 +44,7 @@ class ExpediaContent extends Model
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
-        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api'). '.' .'giata_properties';
+        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'expedia_contents';
     }
 
     public function getFullListFields(): array
