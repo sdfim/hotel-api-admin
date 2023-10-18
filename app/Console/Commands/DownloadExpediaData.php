@@ -55,6 +55,11 @@ class DownloadExpediaData extends Command
         $this->type = $this->argument('type'); // content
         $this->step = $this->argument('step'); // 1, 2, 3, 4
 
+		$output = shell_exec('df -h');
+        $this->info('DownloadExpediaData df -h: ' . $output);
+		$output = shell_exec('free -h');
+        $this->info('DownloadExpediaData free -h: ' . $output);
+
         if (str_contains($this->step, 1)) {
             # get url from expedia
             $url = $this->getUrlArchive();
@@ -129,8 +134,8 @@ class DownloadExpediaData extends Command
                 $this->info('downloadAndExtractGz step 1 ' . $url . ' in ' . $this->executionTime() . ' seconds');
                 \Log::debug('downloadAndExtractGz step 1', ['fileName' => $fileName, 'execution_time' => $this->executionTime()]);
 
-                Storage::put($fileName, $fileContents);
-				// file_put_contents(storage_path().'/app/'.$fileName, $fileContents);
+                // Storage::put($fileName, $fileContents);
+				file_put_contents(storage_path().'/app/'.$fileName, $fileContents);
                 $this->info('downloadAndExtractGz step 2 ' . $url . ' in ' . $this->executionTime() . ' seconds');
                 \Log::debug('downloadAndExtractGz step 2', ['fileName' => $fileName, 'execution_time' => $this->executionTime()]);
 
