@@ -15,11 +15,11 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'admin', 'admin/*', 'login', 'logout'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'admin/*'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://ddwlx1ki3fks2.cloudfront.net'],
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
