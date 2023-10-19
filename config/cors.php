@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['https://ddwlx1ki3fks2.cloudfront.net'],
 
     'allowed_origins_patterns' => [],
 
