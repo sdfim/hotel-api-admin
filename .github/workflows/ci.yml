@@ -47,7 +47,7 @@ jobs:
 
       - name: Install additional PHP extensions
         run: |
-          apt-get install -y php8.2-xdebug
+          apt-get update && apt-get install -y php8.2-xdebug
           php -m | grep xdebug
           sudo service php8.2-fpm restart
           echo "zend_extension=\"xdebug.so\"" | sudo tee -a /etc/php/8.2/cli/php.ini
