@@ -31,26 +31,35 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
             ->query(ApiExceptionReport::orderBy('created_at','DESC'))
             ->columns([
                 TextColumn::make('id'),
-                TextColumn::make('type')
-                ->sortable(),
+				TextColumn::make('report_id')
+                	->sortable(),
+                TextColumn::make('level')
+                	->sortable(),
                 TextColumn::make('supplier.name')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('created_at')
+                
+                TextColumn::make('action')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('request')
+				TextColumn::make('description')
                     ->sortable()
                     ->searchable(),
-                ViewColumn::make('response_path')->view('dashboard.content-loader-exceptions.column.request'),
-
+                ViewColumn::make('response_path')
+					->view('dashboard.content-loader-exceptions.column.request')
+					->label('Response'),
+				TextColumn::make('created_at')
+					->sortable()
+					->searchable(),
             ])
             ->filters([
                 //
-                SelectFilter::make('type')
+                SelectFilter::make('level')
                 ->options([
                     'Debug' => 'Debug',
                     'Error' => 'Error',
+					'Warning' => 'Warning',
+					'success' => 'Success',
                 ])
             ])
             ->actions([
