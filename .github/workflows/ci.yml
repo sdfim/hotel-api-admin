@@ -1,9 +1,9 @@
 name: Laravel
 on:
   push:
-    branches: ["master", "dev", "new_general_github_workflow_mysql"]
+    branches: ["master", "dev"]
   pull_request:
-    branches: ["master", "dev", "new_general_github_workflow_mysql"]
+    branches: ["master", "dev"]
 
 jobs:
   laravel-phpunit:
