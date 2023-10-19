@@ -17,6 +17,8 @@ use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
 use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Filters\SelectFilter;
+
 
 class ApiExceptionReportsTable extends Component implements HasForms, HasTable
 {
@@ -37,26 +39,25 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
                 TextColumn::make('created_at')
                     ->sortable()
                     ->searchable(),
-                ViewColumn::make('request')->view('dashboard.content-loader-exceptions.column.request'),
+                TextColumn::make('request')
+                    ->sortable()
+                    ->searchable(),
+                ViewColumn::make('response_path')->view('dashboard.content-loader-exceptions.column.request'),
 
             ])
             ->filters([
                 //
+                SelectFilter::make('type')
+                ->options([
+                    'Debug' => 'Debug',
+                    'Error' => 'Error',
+                ])
             ])
             ->actions([
-                ViewAction::make()
-                        ->url(fn(ApiExceptionReport $record): string => route('content-loader-exceptions.show', $record))
-                        ->label('View response')
-                        ->color('info'),
-                // ActionGroup::make([
-                //     ViewAction::make()
-                //         ->url(fn(Weights $record): string => route('weight.show', $record)),
-                //     EditAction::make()
-                //         ->url(fn(Weights $record): string => route('weight.edit', $record)),
-                //     DeleteAction::make()
-                //         ->requiresConfirmation()
-                //         ->action(fn(Weights $record) => $record->delete())
-                // ])
+                // ViewAction::make()
+                //         ->url(fn(ApiExceptionReport $record): string => route('content-loader-exceptions.show', $record))
+                //         ->label('View response')
+                //         ->color('info'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([

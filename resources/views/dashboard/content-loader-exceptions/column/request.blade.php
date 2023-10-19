@@ -1,18 +1,29 @@
-<button type="button" onClick="openModal('{{ $getRecord()->id }}','request')"
+@php
+    $file_response = Storage::get($getRecord()->response_path);
+    if($file_response == ''){
+        $file_response = json_encode([]);
+    }
+@endphp
+<button type="button" onClick="openModal('{{ $getRecord()->id }}','request', {{$file_response}})"
         class="text-white bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
         data-tw-target="#modal-idlargemodal-{{ $getRecord()->id }}-request">JSON
 </button>
+<style>
+json-viewer{
+    padding: 10px;
+}
+</style>
 <div class="relative z-50 hidden modal" id="modal-idlargemodal-{{ $getRecord()->id }}-request"
      aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 z-50 overflow-y-auto">
         <div class="absolute inset-0 transition-opacity bg-black bg-opacity-50 modal-overlay"></div>
-        <div class="p-4 mx-auto animate-translate sm:max-w-xl">
+        <div class="p-4 mx-auto animate-translate sm:max-w-xxl">
             <div
                 class="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl dark:bg-zinc-600">
                 <div class="bg-white dark:bg-zinc-700">
                     <div class="flex items-center p-4 border-b rounded-t border-gray-50 dark:border-zinc-600">
                         <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 ">
-                            {{ $getRecord()->booking_id }}
+                            {{ $getRecord()->id }}
                         </h3>
                         <button onClick="closeModal('{{ $getRecord()->id }}','request')"
                                 class="inline-flex items-center px-2 py-1 text-sm text-gray-400 border-transparent rounded-lg btn hover:bg-gray-50/50 hover:text-gray-900 dark:text-gray-100 ltr:ml-auto rtl:mr-auto dark:hover:bg-zinc-600"
@@ -22,7 +33,21 @@
                     </div>
                     <div class="modal-body">
                         Request:
-                        <pre>{{json_encode(json_decode($getRecord()->request), JSON_PRETTY_PRINT) }}</pre>
+                        
+                        <div id="actions-toolbar">
+                            <button
+                                class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
+                                id="expand-response-{{$getRecord()->id}}">Expand All
+                            </button>
+                            <button
+                                class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
+                                id="collapse-response-{{$getRecord()->id}}">Collapse All
+                            </button>
+                            <input
+                                class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                id="search-response-{{$getRecord()->id}}" placeholder="search"></input>
+                        </div>
+                        <json-viewer id="json-response-{{$getRecord()->id}}" style="font-size:0.8em"></json-viewer>
                     </div>
                     <!-- Modal footer -->
                     <div
