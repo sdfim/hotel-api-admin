@@ -49,9 +49,6 @@ jobs:
         run: |
           apt-get update
           apt-get install -y php8.2-xdebug
-#          php -m | grep xdebug
-#          service php8.2-fpm restart
-#          echo "zend_extension=\"xdebug.so\"" | sudo tee -a /etc/php/8.2/cli/php.ini
           echo "xdebug.mode=develop,debug,coverage" | tee -a /etc/php/8.2/cli/php.ini
           echo "xdebug.coverage_enable=1" | tee -a /etc/php/8.2/cli/php.ini
 
