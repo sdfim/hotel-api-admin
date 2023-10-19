@@ -38,13 +38,23 @@ jobs:
       - name: Install Dependencies
         run: composer install
 
+      - name: Set up MySQL
+        run: sudo /etc/init.d/mysql start
+
+
       - name: Create Database and User
+        env:
+          DB_DATABASE1: ujv
+          DB_DATABASE2: ujv_api
+          DB_ROOT_USER: root
+          DB_ROOT_PASSWORD: mysqlpasswdroot
+          DB_USER: admin
         run: |
-          mysql -u root -pmysqlpasswdroot -e "CREATE DATABASE IF NOT EXISTS ujv;"
-          mysql -u root -pmysqlpasswdroot -e "CREATE DATABASE IF NOT EXISTS ujv_api;"
-          mysql -u root -pmysqlpasswdroot -e "GRANT ALL PRIVILEGES ON ujv.* TO 'admin'@'%';"
-          mysql -u root -pmysqlpasswdroot -e "GRANT ALL PRIVILEGES ON ujv_api.* TO 'admin'@'%';"
-          mysql -u root -pmysqlpasswdroot -e "FLUSH PRIVILEGES;"
+          mysql -u${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE1 }};"
+          mysql -u${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE2 }};"
+          mysql -u${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "GRANT ALL PRIVILEGES ON ${{ env.DB_DATABASE1 }}.* TO '${{ env.DB_USER }}'@'%';"
+          mysql -u${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "GRANT ALL PRIVILEGES ON ${{ env.DB_DATABASE2 }}.* TO '${{ env.DB_USER }}'@'%';"
+          mysql -u${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "FLUSH PRIVILEGES;"
 
       - name: Generate key
         run: php artisan key:generate
