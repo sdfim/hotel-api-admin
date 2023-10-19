@@ -45,6 +45,10 @@ jobs:
           cp .env.ci .env
           php artisan key:generate
 
+      - name: Check PHP version
+        run: |
+          which php
+
       - name: Create Databases And Grant All Privileges
         run: |
           mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE_1 }};"
