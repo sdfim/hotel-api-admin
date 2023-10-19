@@ -68,8 +68,7 @@ class ExpediaContent extends Model
             'property_id', 'name', 'address', 'ratings', 'location',
             'category', 'business_model',
             'fees', 'policies', 'attributes', 'amenities',
-            'onsite_payments',
-            // 'rates',
+            'onsite_payments', 'images',
             'statistics', 'vacation_rental_details', 'airports',
             'total_occupancy', 'city', 'rating', 'rooms_occupancy',
         ];
@@ -104,5 +103,17 @@ class ExpediaContent extends Model
             ->toArray();
 
         return $ids;
+    }
+
+	public function getExpediaIdByGiataId($giata_id): int
+    {
+        $expedia = ExpediaContent::leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.expedia_id', '=', 'expedia_contents.property_id')
+			->leftJoin('giata_properties', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
+            ->select('mapper_expedia_giatas.expedia_id')
+            ->where('mapper_expedia_giatas.giata_id', $giata_id)
+            ->get()
+			->first();
+
+        return $expedia->expedia_id;
     }
 }
