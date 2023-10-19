@@ -34,7 +34,14 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
 				TextColumn::make('report_id')
                 	->sortable(),
                 TextColumn::make('level')
-                	->sortable(),
+                	->sortable()
+					->badge()
+					->color(fn (string $state): string => match ($state) {
+						'error' => 'danger',
+						'warning' => 'warning',
+						'success' => 'success',
+						default => 'gray',
+					}),
                 TextColumn::make('supplier.name')
                     ->sortable()
                     ->searchable(),

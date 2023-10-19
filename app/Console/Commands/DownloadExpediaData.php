@@ -159,7 +159,7 @@ class DownloadExpediaData extends Command
 
         } catch (\Exception $e) {
 			$this->error('Error downloading gz file:  ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
-			$this->saveErrorReport('DownloadExpediaData', 'download And Extract Gz', json_encode([
+			$this->saveErrorReport('DownloadExpediaData', 'Step:2 download File Gz', json_encode([
 				'getMessage' => $e->getMessage(), 
 				'getTraceAsString' => $e->getTraceAsString(),
 			]));
@@ -176,7 +176,7 @@ class DownloadExpediaData extends Command
 			return true;
 		} catch (\Exception $e) {
 			$this->error('Error unzip file:  ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
-			$this->saveErrorReport('DownloadExpediaData', 'unzip File', json_encode([
+			$this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip File', json_encode([
 				'getMessage' => $e->getMessage(),
 				'getTraceAsString' => $e->getTraceAsString(),
 			]));
@@ -316,7 +316,7 @@ class DownloadExpediaData extends Command
                 ExpediaContent::insert($batchData);
             } catch (\Exception $e) {
                 $this->error('ImportJsonlData error' .  $e->getMessage());
-				$this->saveErrorReport('DownloadExpediaData', 'Import Json lData', json_encode([
+				$this->saveErrorReport('DownloadExpediaData', 'Step:4 Import Json to Data', json_encode([
 					'getMessage' => $e->getMessage(), 
 					'getTraceAsString' => $e->getTraceAsString(),
 				]));
