@@ -25,6 +25,9 @@ class ExpediaHotelApiHandler
 	 */
 	private function preSearchData (Request $request, array $filters): array|null
     {
+		$resultsPerPage = $request->get('results_per_page') ?? 50;
+		$page = $request->get('page') ?? 1;
+		$rating = $request->get('rating') ?? 4;
 
 		try {
             $expedia = new ExpediaContent();
@@ -43,31 +46,38 @@ class ExpediaHotelApiHandler
 			}
 			$results->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.expedia_id', '=', 'expedia_contents.property_id')
 				->whereNotNull('mapper_expedia_giatas.expedia_id')
+				->where('expedia_contents.rating', '>=', $rating)
 				->select($selectList);
 
-			$results = $results->get();
+			$count = $results->count('expedia_id');
+
+			$results = $results->offset($resultsPerPage * ($page - 1))
+				->limit($resultsPerPage)
+				->get();
 
 			$ids = collect($results)->pluck('property_id')->toArray();
 
             $results = $expedia->dtoDbToResponse($results, $fields);
 
+			
 		} catch (\Exception $e) {
             \Log::error('ExpediaHotelApiHandler | preSearchData' . $e->getMessage());
             return null;
         }
 
-		return ['ids' => $ids ?? 0, 'results' => $results ?? null, 'filters' => $filters ?? null];
+		return ['ids' => $ids ?? 0, 'results' => $results ?? null, 'filters' => $filters ?? null, 'count' => $count ?? 0];
 	}
 
 	/**
      * @param Request $request
      * @return array|null
      */
-    public function search (Request $request, array $filters): array|null
+    public function search (Request $request, array $filters): array
     {
 		$preSearchData = $this->preSearchData ($request, $filters);
-		return $preSearchData['results']->toArray() ?? null;
+		$results = $preSearchData['results']->toArray() ?? [];
 
+		return ['results' => $results, 'count' => $preSearchData['count']];
 	}
 
 	/**
@@ -116,8 +126,13 @@ class ExpediaHotelApiHandler
     public function detail(Request $request): object
     {
         $expedia = new ExpediaContent();
-        $property_id = $request->get('property_id') ?? null;
-        $results = $expedia->where('property_id', $property_id)->get();
+
+		$expedia_id = $expedia->getExpediaIdByGiataId($request->get('property_id'));
+		
+        // $expedia_id = $request->get('property_id') ?? null;
+
+        $results = $expedia->where('property_id', $expedia_id)->get();
+		
         return $expedia->dtoDbToResponse($results, $expedia->getFullListFields());
     }
 

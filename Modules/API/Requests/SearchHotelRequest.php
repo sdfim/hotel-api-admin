@@ -24,11 +24,10 @@ class SearchHotelRequest extends ApiRequest
     public function rules (): array
     {
         return [
-            'checkin' => ['required', 'date_format:Y-m-d', 'after:today'],
-            'checkout' => ['required', 'date_format:Y-m-d', 'after:checkin'],
             'destination' => ['required', 'string'],
-            'rating' => ['required', 'string'],
-            'occuppancy' => ['required', 'array'],
+            'rating' => [ 'numeric'],
+			'page' => [ 'integer'],
+			'results_per_page' => [ 'integer'],
         ];
     }
 

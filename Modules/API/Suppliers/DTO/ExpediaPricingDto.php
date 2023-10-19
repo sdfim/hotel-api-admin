@@ -8,7 +8,7 @@ use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 use App\Models\Channels;
 
-class ExpediaHotelDto
+class ExpediaPricingDto
 {
 	private ExpediaPricingRulesApplier $pricingRulesApplier;
 	private array $query;
@@ -83,7 +83,7 @@ class ExpediaHotelDto
 		try {
 			$pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $channelId, $this->query, $rg);
 		} catch (\Exception $e) {
-			\Log::error('ExpediaHotelDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
+			\Log::error('ExpediaPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
 		}
 		$roomGroupsResponse = new RoomGroupsResponse();
 		$roomGroupsResponse->setTotalPrice($pricingRulesApplier['total_price'] ?? 0.0);
