@@ -46,13 +46,13 @@ Route::prefix('admin')->group(function () {
             'suppliers' => SuppliersController::class,
         ]);
 
-        Route::get('/content-loader-exceptions', [ContentLoaderExceptionsController::class, 'index'])->name('content_loader_exceptions');
         Route::get('/content', [ContentController::class, 'index'])->name('content');
         Route::get('/general-configuration', [GeneralConfigurationController::class, 'index'])->name('general_configuration');
         Route::get('/geography', [GeographyController::class, 'index'])->name('geography');
 
         Route::resource('search-inspector', SearchInspectorController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
         Route::resource('booking-inspector', BookingInspectorController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
+        Route::resource('content-loader-exceptions', ContentLoaderExceptionsController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
 
         Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
         Route::resource('reservations', ReservationsController::class)->except(['delete', 'store', 'create']);

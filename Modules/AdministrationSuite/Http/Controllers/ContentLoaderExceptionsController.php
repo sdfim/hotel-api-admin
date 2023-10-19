@@ -6,8 +6,12 @@ use Illuminate\View\View;
 
 class ContentLoaderExceptionsController extends Controller
 {
-    public function index (): View
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index():View
     {
-        return view('dashboard.content-loader-exceptions');
+        return view('dashboard.content-loader-exceptions.index');
     }
 }

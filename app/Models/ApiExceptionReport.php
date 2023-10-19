@@ -5,27 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ApiExceptionReport extends Model
 {
     use HasFactory;
 
-    public $incrementing = false;
-    protected $keyType = 'string';
-    protected $guarded = ['id'];
-
     protected $fillable = [
         'id',
-        'supplier_id',
-        'type',
-        'request',
+		'report_id',
+        'level',
+		'supplier_id',
+		'action',
+		'description',
         'response_path'
     ];
 
-    protected static function booted(): void
+    public function supplier(): BelongsTo
     {
-        static::creating(function ($model) {
-            $model->{$model->getKeyName()} = Str::uuid()->toString();
-        });
+        return $this->belongsTo(Suppliers::class);
     }
 }
