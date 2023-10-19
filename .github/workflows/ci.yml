@@ -48,6 +48,7 @@ jobs:
       - name: Check PHP version
         run: |
           which php
+          /usr/bin/php --ini
 
       - name: Create Databases And Grant All Privileges
         run: |
