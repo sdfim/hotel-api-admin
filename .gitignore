@@ -5,9 +5,11 @@
 /public/storage
 /storage/*.key
 /vendor
+/resources/libs
 .env
 .env.backup
 .env.production
+.env.testing
 .phpunit.result.cache
 Homestead.json
 Homestead.yaml
@@ -17,3 +19,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+start
+coverage
+public/rapidClientDebug.log

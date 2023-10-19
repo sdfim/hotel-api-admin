@@ -1,0 +1,2 @@
+export $(/usr/bin/strings /proc/1/environ | /usr/bin/grep -v '\s')
+

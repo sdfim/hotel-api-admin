@@ -14,7 +14,10 @@
     </testsuites>
     <source>
         <include>
-            <directory>app</directory>
+            <directory>app/Providers</directory>
+			<directory>app/Actions</directory>
+            <directory>app/Livewire</directory>
+            <directory>Modules/AdministrationSuite</directory>
         </include>
     </source>
     <php>

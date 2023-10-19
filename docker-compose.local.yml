@@ -1,0 +1,97 @@
+version: '3'
+services:
+  ujv-api:
+    build:
+      context: .
+      dockerfile: local.Dockerfile
+    container_name: ujv-api
+    restart: unless-stopped
+    environment:
+      REDIS_HOST: redis
+      WEB_DOCUMENT_ROOT: /app/public
+      WEB_DOCUMENT_INDEX: index.php
+      PHP_POST_MAX_SIZE: 100M
+      PHP_UPLOAD_MAX_FILESIZE: 100M
+      php.opcache.enable_cli: 1
+      php.variables_order: EGPCS
+      SERVICE_NGINX_CLIENT_MAX_BODY_SIZE: 100M
+    ports:
+      - "80:80"
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    tty: true
+    working_dir: /app
+    volumes:
+      - ./:/app
+    #      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/php.ini
+    networks:
+      - ujv-network
+    depends_on:
+      - mysql
+      - redis
+
+  redis:
+    image: redis
+    container_name: ujv_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - ujv-network
+    volumes:
+      - 'ujv-redis:/data'
+    healthcheck:
+      test:
+        - CMD
+        - redis-cli
+        - ping
+      retries: 3
+      timeout: 5s
+
+  mysql:
+    image: mysql:8.0.33
+    container_name: ujv_db
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: mysqlpasswdroot
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: mysqlsecretpasswd
+    networks:
+      - ujv-network
+    volumes:
+      - 'ujv-mysql:/var/lib/mysql'
+      - './docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql'
+      - './docker/mysql/copy-tables-structure-to-another-db:/opt/copy-tables-structure-to-another-db.sh'
+      - './docker/mysql/copy-tables-structure-with-data-to-another-db:/opt/copy-tables-structure-with-data-to-another-db'
+    healthcheck:
+      test:
+        - CMD
+        - mysqladmin
+        - ping
+        - '-pmysqlsecretpasswd'
+      retries: 3
+      timeout: 5s
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-container
+    ports:
+      - "8081:80"
+    environment:
+      - PMA_ARBITRARY=1
+    networks:
+      - ujv-network
+    depends_on:
+      - mysql
+
+networks:
+  ujv-network:
+    driver: bridge
+
+volumes:
+  ujv-mysql:
+    driver: local
+  ujv-redis:
+    driver: local
