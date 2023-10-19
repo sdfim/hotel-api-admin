@@ -10,6 +10,8 @@ use App\Models\ExpediaContent;
 use App\Models\Suppliers;
 use Modules\Inspector\ExceptionReportController;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
+
 
 class DownloadExpediaData extends Command
 {
@@ -37,6 +39,13 @@ class DownloadExpediaData extends Command
     protected $current_time;
     protected $step_current_time;
 	protected $expedia_id;
+	protected $report_id;
+
+	/**
+	 * Create a new command instance.
+	 *
+	 * @return void
+	 */
 
 	public function __construct (RapidClient $rapidClient)
     {
@@ -54,6 +63,7 @@ class DownloadExpediaData extends Command
     {
         $this->type = $this->argument('type'); // content
         $this->step = $this->argument('step'); // 1, 2, 3, 4
+		$this->report_id = Str::uuid()->toString();
 
 		$output = shell_exec('df -h');
         $this->info('DownloadExpediaData df -h: ' . $output);
@@ -65,7 +75,7 @@ class DownloadExpediaData extends Command
             $url = $this->getUrlArchive();
             $this->info('url from expedia ' . $url . ' in ' . $this->executionStepTime() . ' seconds');
 
-			$this->apiExceptionReport->save('DownloadExpediaData Step:1 get url', '', $this->expedia_id, 'successful');
+			$this->saveSuccessReport('DownloadExpediaData', 'Step:1 get url', json_encode(['url' => $url]));
         }
 	
 		if (str_contains($this->step, 2)) {
@@ -77,7 +87,7 @@ class DownloadExpediaData extends Command
                 $this->error('Failed to download or extract the zip file.');
             }
 
-			$this->apiExceptionReport->save('DownloadExpediaData Step:2 download file', '', $this->expedia_id, 'successful');
+			$this->saveSuccessReport('DownloadExpediaData', 'Step:2 download file', '');
         }
 
 
@@ -86,7 +96,7 @@ class DownloadExpediaData extends Command
             $this->unzipFile();
             $this->info('unzip file in ' . $this->executionStepTime() . ' seconds');
 
-			$this->apiExceptionReport->save('DownloadExpediaData Step:3 unzip file', '', $this->expedia_id, 'successful');
+			$this->saveSuccessReport('DownloadExpediaData', 'Step:3 unzip file', '');
         }
 
 		if (str_contains($this->step, 4)) {
@@ -94,10 +104,8 @@ class DownloadExpediaData extends Command
             $this->parseJsonToDb();
             $this->info('parse json to db in ' . $this->executionStepTime() . ' seconds');
 
-			$this->apiExceptionReport->save('DownloadExpediaData Step:4 parse jsonl', '', $this->expedia_id, 'successful');
+			$this->saveSuccessReport('DownloadExpediaData', 'Step:4 parse jsonl', '');
         }
-
-        $this->apiExceptionReport->save('DownloadExpediaData FullStep', '', $this->expedia_id, 'successful');
 
     }
 
@@ -114,7 +122,10 @@ class DownloadExpediaData extends Command
             $propertyContents = $response->getBody()->getContents();
             $url = json_decode($propertyContents, true)['href'];
         } catch (\Exception $e) {
-            $this->apiExceptionReport->save('DownloadExpediaData getUrlArchive', $e->getMessage() . ' | ' . $e->getTraceAsString(), $this->expedia_id);
+			$this->saveErrorReport('DownloadExpediaData', 'getUrlArchive', json_encode([
+				'getMessage' => $e->getMessage(), 
+				'getTraceAsString' => $e->getTraceAsString(),
+			]));
         }
 
         return $url;
@@ -141,7 +152,10 @@ class DownloadExpediaData extends Command
 
             } else {
                 \Log::error('Error downloading gz file: ' . $response->status() . ' ' . $response->body());
-                $this->apiExceptionReport->save('DownloadExpediaData downloadAndExtractGz', $response->status() . ' | ' . $response->body(), $this->expedia_id);
+				$this->saveErrorReport('DownloadExpediaData', 'downloadAndExtractGz', json_encode([
+					'response-status' =>  $response->status(), 
+					'response-body' => $response->body(),
+				]));
                 return false;
             }
 
@@ -150,7 +164,10 @@ class DownloadExpediaData extends Command
         } catch (\Exception $e) {
             \Log::error('Error downloading gz file: ' . $e->getMessage());
 			$this->error('Error downloading gz file:  ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
-            $this->apiExceptionReport->save('DownloadExpediaData downloadAndExtractGz', $e->getMessage() . ' ' . $e->getTraceAsString(), $this->expedia_id);
+			$this->saveErrorReport('DownloadExpediaData', 'download And Extract Gz', json_encode([
+				'getMessage' => $e->getMessage(), 
+				'getTraceAsString' => $e->getTraceAsString(),
+			]));
             return false;
         }
     }
@@ -276,7 +293,10 @@ class DownloadExpediaData extends Command
                     ExpediaContent::insert($batchData);
                 } catch (\Exception $e) {
                     \Log::error('ImportJsonlData', ['error' => $e->getMessage()]);
-                    $this->apiExceptionReport->save('DownloadExpediaData ImportJsonlData', $e->getMessage() . ' ' . $e->getTraceAsString(), $this->expedia_id);
+					$this->saveErrorReport('DownloadExpediaData', 'Import Json lData', json_encode([
+						'getMessage' => $e->getMessage(), 
+						'getTraceAsString' => $e->getTraceAsString(),
+					]));
                 }
                 $batchCount++;
                 $this->info('Data imported batchData: ' . $batchCount . ' count =  ' . count($batchData));
@@ -291,8 +311,10 @@ class DownloadExpediaData extends Command
                 ExpediaContent::insert($batchData);
             } catch (\Exception $e) {
                 \Log::error('ImportJsonlData', ['error' => $e->getMessage()]);
-                $this->apiExceptionReport->save('ImportJsonlData', $e->getMessage() . ' ' . $e->getTraceAsString(), $this->expedia_id);
-
+				$this->saveErrorReport('DownloadExpediaData', 'Import Json lData', json_encode([
+					'getMessage' => $e->getMessage(), 
+					'getTraceAsString' => $e->getTraceAsString(),
+				]));
             }
         }
 
@@ -320,5 +342,28 @@ class DownloadExpediaData extends Command
 
         return $execution_time;
     }
+
+	private function saveSuccessReport(string $action, string $description, string $content) : void
+	{
+		$this->saveReport($action, $description, $content, 'success');
+	}
+
+	private function saveErrorReport(string $action, string $description, string $content) : void
+	{
+		$this->saveReport($action, $description, $content);
+	}
+
+	private function saveReport(string $action, string $description, string $content, string $level = 'error') : void
+	{
+		$this->apiExceptionReport
+			->save(
+				$this->report_id,
+				$level,
+				$this->expedia_id,
+				$action,
+				$description,
+				$content
+			);
+	}
 
 }

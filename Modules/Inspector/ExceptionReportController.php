@@ -10,17 +10,14 @@ use Modules\Inspector\BaseInspectorController;
 
 class ExceptionReportController extends BaseInspectorController
 {
-	public function save($task, $content, $supplier_id , $type = 'error') : string|bool
+	public function save($uuid, $level, $supplier_id, $action, $description, $content) : string|bool
 	{
 		try {
 			$this->current_time = microtime(true);
-			
-			$hash = md5($task);
-			
-			if ($content == '') $content = json_encode($task);
-			else $content = json_encode($content);
+			$hash = md5($description);
+			$content = json_encode($content);
 
-			$path = 'report_' . $type. '/' . date("Y-m-d") . '/' . $hash.'.json';
+			$path = 'exception_report_' . $level. '/' . date("Y-m-d") . '/' . $hash.'.json';
 
 			Storage::put($path, $content);
 			\Log::debug('ExceptionReportController save to Storage: ' . $this->executionTime() . ' seconds');
@@ -28,10 +25,11 @@ class ExceptionReportController extends BaseInspectorController
 			$uuid = Str::uuid()->toString();
 
 			$data = [
-				'id' => $uuid,
+				'report_id' => $uuid,
+				'level' => $level, // 'error', 'warning', 'info
 				'supplier_id' => $supplier_id,
-				'type' => $type,
-				'request' => json_encode($task),
+				'action' => $action,
+				'description' => $description,
 				'response_path' => $path
 			];
 

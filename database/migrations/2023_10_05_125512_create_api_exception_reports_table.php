@@ -12,9 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('api_exception_reports', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->id();
 
-			$table->string('type');
+			$table->uuid('report_id');
+
+			$table->string('level');
 
 			$table->unsignedBigInteger('supplier_id');
 			$table->foreign('supplier_id')
@@ -23,7 +25,8 @@ return new class extends Migration
 				->onUpdate('cascade')
                 ->onDelete('cascade');
 
-			$table->json('request');
+			$table->string('action');
+			$table->string('description');
 
 			$table->string('response_path')->unique();
 
