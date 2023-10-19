@@ -65,10 +65,10 @@ class DownloadExpediaData extends Command
         $this->step = $this->argument('step'); // 1, 2, 3, 4
 		$this->report_id = Str::uuid()->toString();
 
-		$output = shell_exec('df -h');
-        $this->info('DownloadExpediaData df -h: ' . $output);
-		$output = shell_exec('free -h');
-        $this->info('DownloadExpediaData free -h: ' . $output);
+		// $output = shell_exec('df -h');
+        // $this->info('DownloadExpediaData df -h: ' . $output);
+		// $output = shell_exec('free -h');
+        // $this->info('DownloadExpediaData free -h: ' . $output);
 
         if (str_contains($this->step, 1)) {
             # get url from expedia
@@ -86,8 +86,6 @@ class DownloadExpediaData extends Command
             } else {
                 $this->error('Failed to download or extract the zip file.');
             }
-
-			$this->saveSuccessReport('DownloadExpediaData', 'Step:2 download file', '');
         }
 
 
@@ -95,8 +93,6 @@ class DownloadExpediaData extends Command
             # unzip file
             $this->unzipFile();
             $this->info('unzip file in ' . $this->executionStepTime() . ' seconds');
-
-			$this->saveSuccessReport('DownloadExpediaData', 'Step:3 unzip file', '');
         }
 
 		if (str_contains($this->step, 4)) {
@@ -134,8 +130,6 @@ class DownloadExpediaData extends Command
     function downloadArchive ($url): bool
     {
         try {
-            \Log::debug('start downloadAndExtractGz', ['url' => $url, 'type' => $this->type]);
-
             $response = Http::timeout(3600)->get($url);
 
             if ($response->successful()) {
@@ -143,15 +137,17 @@ class DownloadExpediaData extends Command
                 $fileName = 'expedia_' . $this->type . '.gz';
 
                 $this->info('downloadAndExtractGz step 1 ' . $url . ' in ' . $this->executionTime() . ' seconds');
-                \Log::debug('downloadAndExtractGz step 1', ['fileName' => $fileName, 'execution_time' => $this->executionTime()]);
 
                 // Storage::put($fileName, $fileContents);
 				file_put_contents(storage_path().'/app/'.$fileName, $fileContents);
-                $this->info('downloadAndExtractGz step 2 ' . $url . ' in ' . $this->executionTime() . ' seconds');
-                \Log::debug('downloadAndExtractGz step 2', ['fileName' => $fileName, 'execution_time' => $this->executionTime()]);
 
+                $this->info('downloadAndExtractGz step 2 ' . $url . ' in ' . $this->executionTime() . ' seconds');
+
+				$this->saveSuccessReport('DownloadExpediaData', 'Step:2 download file', json_encode([
+					'fileName' => $fileName, 
+					'execution_time' => $this->executionTime()
+				]));
             } else {
-                \Log::error('Error downloading gz file: ' . $response->status() . ' ' . $response->body());
 				$this->saveErrorReport('DownloadExpediaData', 'downloadAndExtractGz', json_encode([
 					'response-status' =>  $response->status(), 
 					'response-body' => $response->body(),
@@ -162,7 +158,6 @@ class DownloadExpediaData extends Command
             return true;
 
         } catch (\Exception $e) {
-            \Log::error('Error downloading gz file: ' . $e->getMessage());
 			$this->error('Error downloading gz file:  ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
 			$this->saveErrorReport('DownloadExpediaData', 'download And Extract Gz', json_encode([
 				'getMessage' => $e->getMessage(), 
@@ -172,11 +167,21 @@ class DownloadExpediaData extends Command
         }
     }
 
-    function unzipFile (): void
+    function unzipFile (): bool
     {
-        $absolutePath = storage_path();
-        $output = shell_exec('gunzip ' . $absolutePath . '/app/expedia_' . $this->type . '.gz');
-        \Log::debug('downloadAndExtractGz step 3 gunzip', ['absolutePath' => $absolutePath, 'output' => $output]);
+		try {
+			$absolutePath = storage_path();
+			$output = shell_exec('gunzip ' . $absolutePath . '/app/expedia_' . $this->type . '.gz');
+			$this->saveSuccessReport('DownloadExpediaData', 'Step:3 unzip file', '');
+			return true;
+		} catch (\Exception $e) {
+			$this->error('Error unzip file:  ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+			$this->saveErrorReport('DownloadExpediaData', 'unzip File', json_encode([
+				'getMessage' => $e->getMessage(),
+				'getTraceAsString' => $e->getTraceAsString(),
+			]));
+			return false;
+		}       
     }
 
     function parseJsonToDb (): void
@@ -292,7 +297,7 @@ class DownloadExpediaData extends Command
                 try {
                     ExpediaContent::insert($batchData);
                 } catch (\Exception $e) {
-                    \Log::error('ImportJsonlData', ['error' => $e->getMessage()]);
+					$this->error('ImportJsonlData error' .  $e->getMessage());
 					$this->saveErrorReport('DownloadExpediaData', 'Import Json lData', json_encode([
 						'getMessage' => $e->getMessage(), 
 						'getTraceAsString' => $e->getTraceAsString(),
@@ -310,7 +315,7 @@ class DownloadExpediaData extends Command
             try {
                 ExpediaContent::insert($batchData);
             } catch (\Exception $e) {
-                \Log::error('ImportJsonlData', ['error' => $e->getMessage()]);
+                $this->error('ImportJsonlData error' .  $e->getMessage());
 				$this->saveErrorReport('DownloadExpediaData', 'Import Json lData', json_encode([
 					'getMessage' => $e->getMessage(), 
 					'getTraceAsString' => $e->getTraceAsString(),
