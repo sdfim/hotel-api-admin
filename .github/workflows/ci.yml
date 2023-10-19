@@ -46,11 +46,11 @@ jobs:
 
       - name: Create Databases And Grant All Privileges
         run: |
-          mysql -u${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE_1 }};"
-          mysql -u${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE_2 }};"
-          mysql -u${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "GRANT ALL PRIVILEGES ON ${{ env.DB_DATABASE_1 }}.* TO '${{ env.DB_DATABASE_USER }}'@'%';"
-          mysql -u${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "GRANT ALL PRIVILEGES ON ${{ env.DB_DATABASE_2 }}.* TO '${{ env.DB_DATABASE_USER }}'@'%';"
-          mysql -u${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "FLUSH PRIVILEGES;"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE_1 }};"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE_2 }};"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "GRANT ALL PRIVILEGES ON ${{ env.DB_DATABASE_1 }}.* TO '${{ env.DB_DATABASE_USER }}'@'%';"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "GRANT ALL PRIVILEGES ON ${{ env.DB_DATABASE_2 }}.* TO '${{ env.DB_DATABASE_USER }}'@'%';"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -e "FLUSH PRIVILEGES;"
 
       - name: Run Database Migrations With Seeding
         run: php artisan migrate --seed
