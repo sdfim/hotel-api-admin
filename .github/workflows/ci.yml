@@ -45,6 +45,14 @@ jobs:
           cp .env.ci .env
           php artisan key:generate
 
+      - name: Install additional PHP extensions
+        run: |
+          apt-get install -y php8.2-xdebug
+          php -m | grep xdebug
+          sudo service php8.2-fpm restart
+          echo "zend_extension=\"xdebug.so\"" | sudo tee -a /etc/php/8.2/cli/php.ini
+          echo "xdebug.mode=develop,debug,coverage" | sudo tee -a /etc/php/8.2/cli/php.ini
+
       - name: Check PHP version
         run: |
           which php
