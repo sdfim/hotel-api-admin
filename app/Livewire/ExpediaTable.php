@@ -30,31 +30,34 @@ class ExpediaTable extends Component implements HasForms, HasTable
         return $table
             ->query(ExpediaContent::query())
             ->columns([
-				TextColumn::make('id')
-                    ->sortable()
-                    ->searchable()
-                    ->toggleable(),
                 TextColumn::make('property_id')
                     ->sortable()
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable(),
                 TextColumn::make('name')
                     ->sortable()
+                    ->searchable(isIndividual: true)
                     ->toggleable(),
                 TextColumn::make('city')
                     ->numeric()
                     ->sortable()
+                    ->searchable(isIndividual: true)
                     ->toggleable(),
 				TextColumn::make('phone')
                     ->numeric()
+                    ->searchable(isIndividual: true)
                     ->sortable()
                     ->toggleable(),
                 ViewColumn::make('address')->view('dashboard.expedia.column.address-field')
+                ->searchable(isIndividual: true)
                 ->toggleable(),
                 ViewColumn::make('location')->view('dashboard.expedia.column.position-field')
+                ->searchable(isIndividual: true)
                 ->toggleable(),
-                ViewColumn::make('mapperGiataExpedia')->label('Giata id')->view('dashboard.expedia.column.giata_id'),
-                TextColumn::make('mapperGiataExpedia.giata_id')
+                ViewColumn::make('mapperGiataExpedia.giata_id')->label('Giata id')->view('dashboard.expedia.column.giata_id')
+                ->searchable(isIndividual: true),
+                TextColumn::make('mapperGiataExpedia.property_id')
+                ->searchable(isIndividual: true)
                 ->default('')
                 ->label('Type')
                 ->sortable()
@@ -65,10 +68,10 @@ class ExpediaTable extends Component implements HasForms, HasTable
                         return 'Single';
                     }
                     return 'Empty';
-                    
                 })
                 ->toggleable(),
 				TextColumn::make('mapperGiataExpedia.step')
+                ->searchable(isIndividual: true)
                 ->label('Version')
                 ->formatStateUsing(function ($record) {
                     if(count($record->mapperGiataExpedia) > 1){
@@ -120,54 +123,54 @@ class ExpediaTable extends Component implements HasForms, HasTable
 						}
 						return 'Multiple Giata ID';
 					}),
-                Filter::make('name')
-                    ->form([
-                        TextInput::make('name')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['name'],
-                                fn(Builder $query, $name): Builder => $query->where('name', 'LIKE', '%' . $name . '%'),
-                            );
-                    })->indicateUsing(function (array $data): ?string {
-                        if (!$data['name']) {
-                            return null;
-                        }
-                        return 'Name: ' . $data['name'];
-                    }),
-                Filter::make('city')
-                    ->form([
-                        TextInput::make('city')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['city'],
-                                fn(Builder $query, $city): Builder => $query->where('city', $city),
-                            );
-                    })->indicateUsing(function (array $data): ?string {
-                        if (!$data['city']) {
-                            return null;
-                        }
-                        return 'City: ' . $data['city'];
-                    }),
-                Filter::make('address')
-                    ->form([
-                        TextInput::make('address')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['address'],
-                                fn(Builder $query, $address): Builder => $query->where('address', 'LIKE', '%' . $address . '%'),
-                            );
-                    })->indicateUsing(function (array $data): ?string {
-                        if (!$data['address']) {
-                            return null;
-                        }
-                        return 'Address: ' . $data['address'];
-                    }),
+                // Filter::make('name')
+                //     ->form([
+                //         TextInput::make('name')
+                //     ])
+                //     ->query(function (Builder $query, array $data): Builder {
+                //         return $query
+                //             ->when(
+                //                 $data['name'],
+                //                 fn(Builder $query, $name): Builder => $query->where('name', 'LIKE', '%' . $name . '%'),
+                //             );
+                //     })->indicateUsing(function (array $data): ?string {
+                //         if (!$data['name']) {
+                //             return null;
+                //         }
+                //         return 'Name: ' . $data['name'];
+                //     }),
+                // Filter::make('city')
+                //     ->form([
+                //         TextInput::make('city')
+                //     ])
+                //     ->query(function (Builder $query, array $data): Builder {
+                //         return $query
+                //             ->when(
+                //                 $data['city'],
+                //                 fn(Builder $query, $city): Builder => $query->where('city', $city),
+                //             );
+                //     })->indicateUsing(function (array $data): ?string {
+                //         if (!$data['city']) {
+                //             return null;
+                //         }
+                //         return 'City: ' . $data['city'];
+                //     }),
+                // Filter::make('address')
+                //     ->form([
+                //         TextInput::make('address')
+                //     ])
+                //     ->query(function (Builder $query, array $data): Builder {
+                //         return $query
+                //             ->when(
+                //                 $data['address'],
+                //                 fn(Builder $query, $address): Builder => $query->where('address', 'LIKE', '%' . $address . '%'),
+                //             );
+                //     })->indicateUsing(function (array $data): ?string {
+                //         if (!$data['address']) {
+                //             return null;
+                //         }
+                //         return 'Address: ' . $data['address'];
+                //     }),
                 // Filter::make('giata_id')
                 // ->form([
                 //     Checkbox::make('giata_id')

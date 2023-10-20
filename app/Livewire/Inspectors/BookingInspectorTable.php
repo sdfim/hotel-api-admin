@@ -27,31 +27,39 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
             ->columns([
                 TextColumn::make('id')
                     ->searchable()
+                    ->toggleable()
 					->sortable(),
 				TextColumn::make('search_id')
                     ->searchable()
+                    ->toggleable()
 					->sortable(),
 				TextColumn::make('booking_id')
                     ->searchable()
+                    ->toggleable()
 					->sortable(),
                 TextColumn::make('type')
                     ->searchable()
+                    ->toggleable()
 					->label('Endpoint'),
 				TextColumn::make('sub_type')
                     ->searchable()
+                    ->toggleable()
 					->label('Step'),
                 TextColumn::make('token.id')
                     ->numeric()
                     ->searchable()
+                    ->toggleable()
 					->label('Channel'),
                 TextColumn::make('supplier.name')
                     ->numeric()
+                    ->toggleable()
                     ->searchable(),
 
-                ViewColumn::make('request')->view('dashboard.booking-inspector.column.request'),
+                ViewColumn::make('request')->toggleable()->view('dashboard.booking-inspector.column.request'),
 
                 TextColumn::make('created_at')
                     ->dateTime()
+                    ->toggleable()
 					->sortable()
             ])
             ->filters([
