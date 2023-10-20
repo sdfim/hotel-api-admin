@@ -10,7 +10,17 @@ class Reservations extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['date_offload', 'date_travel', 'passenger_surname', 'contains_id', 'channel_id', 'total_cost', 'canceled_at', 'created_at', 'updated_at'];
+    protected $fillable = [
+		'date_offload', 
+		'date_travel', 
+		'passenger_surname', 
+		'contains_id', 
+		'channel_id', 
+		'total_cost', 
+		'canceled_at', 
+		'created_at', 
+		'updated_at'
+	];
 
     public function channel(): BelongsTo
     {
