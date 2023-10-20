@@ -21,48 +21,48 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
-            ->query(ApiSearchInspector::orderBy('created_at','DESC'))
+            ->query(ApiSearchInspector::orderBy('created_at', 'DESC'))
             ->columns([
                 TextColumn::make('id')
                     ->searchable()
                     ->toggleable(),
-				TextColumn::make('search_id')
+                TextColumn::make('search_id')
                     ->searchable()
                     ->toggleable()
-					->label('Search ID'),
+                    ->label('Search ID'),
                 TextColumn::make('type')
                     ->searchable()
                     ->toggleable()
-					->label('Endpoint'),
+                    ->label('Endpoint'),
                 TextColumn::make('token.id')
                     ->numeric()
                     ->toggleable()
                     ->searchable(),
                 TextColumn::make('suppliers')
-                ->toggleable()
-                ->formatStateUsing(function (ApiSearchInspector $record): string{
-                    $suppliers_name_string = '';
-                    $suppliers_array = explode(',',$record->suppliers);
-                    for($i = 0; $i < count($suppliers_array); $i++){
-                        $supplier = Suppliers::find($suppliers_array[$i]);
-                        if($i == (count($suppliers_array)-1)){
-                            $suppliers_name_string .= $supplier->name;
-                        }else{
-                            $suppliers_name_string .= $supplier->name . ', ';
+                    ->toggleable()
+                    ->formatStateUsing(function (ApiSearchInspector $record): string {
+                        $suppliers_name_string = '';
+                        $suppliers_array = explode(',', $record->suppliers);
+                        for ($i = 0; $i < count($suppliers_array); $i++) {
+                            $supplier = Suppliers::find($suppliers_array[$i]);
+                            if ($i == (count($suppliers_array) - 1)) {
+                                $suppliers_name_string .= $supplier->name;
+                            } else {
+                                $suppliers_name_string .= $supplier->name . ', ';
+                            }
                         }
-                    }
-                    return $suppliers_name_string;
-                }),
+                        return $suppliers_name_string;
+                    }),
 //                    ->searchable(),
 
                 ViewColumn::make('request')->toggleable()->view('dashboard.search-inspector.column.request'),
                 TextColumn::make('created_at')
                     ->toggleable()
                     ->dateTime()
-					->sortable()
+                    ->sortable()
             ])
             ->filters([
                 // Filter::make('name')
@@ -116,9 +116,9 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
             ])
             ->actions([
                 ViewAction::make()
-                        ->url(fn(ApiSearchInspector $record): string => route('search-inspector.show', $record))
-                        ->label('View response')
-                        ->color('info'),
+                    ->url(fn(ApiSearchInspector $record): string => route('search-inspector.show', $record))
+                    ->label('View response')
+                    ->color('info'),
 
             ])
             ->bulkActions([
@@ -128,7 +128,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.inspectors.search-inspector-table');
     }

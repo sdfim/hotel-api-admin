@@ -23,7 +23,7 @@ class ExpediaTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    public function table(Table $table): Table
     {
         ini_set('memory_limit', '1586M');
 
@@ -43,86 +43,86 @@ class ExpediaTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->searchable(isIndividual: true)
                     ->toggleable(),
-				TextColumn::make('phone')
+                TextColumn::make('phone')
                     ->numeric()
                     ->searchable(isIndividual: true)
                     ->sortable()
                     ->toggleable(),
                 ViewColumn::make('address')->view('dashboard.expedia.column.address-field')
-                ->searchable(isIndividual: true)
-                ->toggleable(),
+                    ->searchable(isIndividual: true)
+                    ->toggleable(),
                 ViewColumn::make('location')->view('dashboard.expedia.column.position-field')
-                ->searchable(isIndividual: true)
-                ->toggleable(),
+                    ->searchable(isIndividual: true)
+                    ->toggleable(),
                 ViewColumn::make('mapperGiataExpedia.giata_id')->label('Giata id')->view('dashboard.expedia.column.giata_id')
-                ->searchable(isIndividual: true),
+                    ->searchable(isIndividual: true),
                 TextColumn::make('mapperGiataExpedia.property_id')
-                ->searchable(isIndividual: true)
-                ->default('')
-                ->label('Type')
-                ->sortable()
-                ->formatStateUsing(function ($record) {
-                    if(count($record->mapperGiataExpedia) > 1){
-                        return 'Multivariate';
-                    }else if(count($record->mapperGiataExpedia) == 1){
-                        return 'Single';
-                    }
-                    return 'Empty';
-                })
-                ->toggleable(),
-				TextColumn::make('mapperGiataExpedia.step')
-                ->searchable(isIndividual: true)
-                ->label('Version')
-                ->formatStateUsing(function ($record) {
-                    if(count($record->mapperGiataExpedia) > 1){
-                        return 'Autom';
-                    }
-                    if(count($record->mapperGiataExpedia) == 1){
-                        if($record->mapperGiataExpedia[0]->step == 100){
-                            return 'Manual';
-                        }else{
-                            return 'Auto';
+                    ->searchable(isIndividual: true)
+                    ->default('')
+                    ->label('Type')
+                    ->sortable()
+                    ->formatStateUsing(function ($record) {
+                        if (count($record->mapperGiataExpedia) > 1) {
+                            return 'Multivariate';
+                        } else if (count($record->mapperGiataExpedia) == 1) {
+                            return 'Single';
                         }
-                    }
-                })
-                ->toggleable(),
+                        return 'Empty';
+                    })
+                    ->toggleable(),
+                TextColumn::make('mapperGiataExpedia.step')
+                    ->searchable(isIndividual: true)
+                    ->label('Version')
+                    ->formatStateUsing(function ($record) {
+                        if (count($record->mapperGiataExpedia) > 1) {
+                            return 'Autom';
+                        }
+                        if (count($record->mapperGiataExpedia) == 1) {
+                            if ($record->mapperGiataExpedia[0]->step == 100) {
+                                return 'Manual';
+                            } else {
+                                return 'Auto';
+                            }
+                        }
+                    })
+                    ->toggleable(),
                 ViewColumn::make('edit')->view('dashboard.expedia.column.add-giata')->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
-				Filter::make('is_empty')
-					->form([
-						Checkbox::make('is_empty')
-							->label('Without Giata ID')
-					])
-					->query(function (Builder $query, array $data): Builder {
-						if ($data['is_empty']) {
-							return $query->with('mapperGiataExpedia')->whereDoesntHave('mapperGiataExpedia', function (Builder $query) {
-								$query->whereNotNull('giata_id');
-							});
-						} else return $query;
-					})->indicateUsing(function (array $data): ?string {
-						if (!$data['is_empty']) {
-							return null;
-						}
-						return 'Without Giata ID';
-					}),
+                Filter::make('is_empty')
+                    ->form([
+                        Checkbox::make('is_empty')
+                            ->label('Without Giata ID')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['is_empty']) {
+                            return $query->with('mapperGiataExpedia')->whereDoesntHave('mapperGiataExpedia', function (Builder $query) {
+                                $query->whereNotNull('giata_id');
+                            });
+                        } else return $query;
+                    })->indicateUsing(function (array $data): ?string {
+                        if (!$data['is_empty']) {
+                            return null;
+                        }
+                        return 'Without Giata ID';
+                    }),
                 Filter::make('is_multiple')
-					->form([
-						Checkbox::make('is_multiple')
-							->label('Multiple Giata ID')
-					])
-					->query(function (Builder $query, array $data): Builder {
-						if ($data['is_multiple']) {
-							return $query->with('mapperGiataExpedia')
-                            ->withCount('mapperGiataExpedia')
-                            ->has('mapperGiataExpedia', '>', 1);
-						} else return $query;
-					})->indicateUsing(function (array $data): ?string {
-						if (!$data['is_multiple']) {
-							return null;
-						}
-						return 'Multiple Giata ID';
-					}),
+                    ->form([
+                        Checkbox::make('is_multiple')
+                            ->label('Multiple Giata ID')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        if ($data['is_multiple']) {
+                            return $query->with('mapperGiataExpedia')
+                                ->withCount('mapperGiataExpedia')
+                                ->has('mapperGiataExpedia', '>', 1);
+                        } else return $query;
+                    })->indicateUsing(function (array $data): ?string {
+                        if (!$data['is_multiple']) {
+                            return null;
+                        }
+                        return 'Multiple Giata ID';
+                    }),
                 // Filter::make('name')
                 //     ->form([
                 //         TextInput::make('name')
@@ -218,7 +218,7 @@ class ExpediaTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.expedia-table');
     }

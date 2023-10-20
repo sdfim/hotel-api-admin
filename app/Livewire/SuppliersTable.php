@@ -22,7 +22,7 @@ class SuppliersTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
             ->query(Suppliers::query())
@@ -61,7 +61,7 @@ class SuppliersTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.suppliers-table');
     }

@@ -30,13 +30,13 @@ class UpdatePricingRules extends Component implements HasForms
 
     public PricingRules $record;
 
-    public function mount (PricingRules $pricingRules): void
+    public function mount(PricingRules $pricingRules): void
     {
         $this->record = $pricingRules;
         $this->form->fill($this->record->attributesToArray());
     }
 
-    public function form (Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -134,7 +134,7 @@ class UpdatePricingRules extends Component implements HasForms
             ->model($this->record);
     }
 
-    protected function onValidationError (ValidationException $exception): void
+    protected function onValidationError(ValidationException $exception): void
     {
         Notification::make()
             ->title($exception->getMessage())
@@ -142,7 +142,7 @@ class UpdatePricingRules extends Component implements HasForms
             ->send();
     }
 
-    public function edit (): RedirectResponse|Redirector
+    public function edit(): RedirectResponse|Redirector
     {
         $data = $this->form->getState();
 
@@ -156,7 +156,7 @@ class UpdatePricingRules extends Component implements HasForms
         return redirect()->route('pricing_rules.index');
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.pricing-rules.update-pricing-rules');
     }

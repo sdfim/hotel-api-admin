@@ -20,36 +20,36 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
-            ->query(ApiBookingInspector::orderBy('created_at','DESC'))
+            ->query(ApiBookingInspector::orderBy('created_at', 'DESC'))
             ->columns([
                 TextColumn::make('id')
                     ->searchable()
                     ->toggleable()
-					->sortable(),
-				TextColumn::make('search_id')
+                    ->sortable(),
+                TextColumn::make('search_id')
                     ->searchable()
                     ->toggleable()
-					->sortable(),
-				TextColumn::make('booking_id')
+                    ->sortable(),
+                TextColumn::make('booking_id')
                     ->searchable()
                     ->toggleable()
-					->sortable(),
+                    ->sortable(),
                 TextColumn::make('type')
                     ->searchable()
                     ->toggleable()
-					->label('Endpoint'),
-				TextColumn::make('sub_type')
+                    ->label('Endpoint'),
+                TextColumn::make('sub_type')
                     ->searchable()
                     ->toggleable()
-					->label('Step'),
+                    ->label('Step'),
                 TextColumn::make('token.id')
                     ->numeric()
                     ->searchable()
                     ->toggleable()
-					->label('Channel'),
+                    ->label('Channel'),
                 TextColumn::make('supplier.name')
                     ->numeric()
                     ->toggleable()
@@ -60,16 +60,16 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->toggleable()
-					->sortable()
+                    ->sortable()
             ])
             ->filters([
 
             ])
             ->actions([
                 ViewAction::make()
-                        ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
-                        ->label('View response')
-                        ->color('info'),
+                    ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
+                    ->label('View response')
+                    ->color('info'),
                 // ActionGroup::make([
                 //     ViewAction::make()
                 //         ->url(fn(Channels $record): string => route('channels.show', $record))
@@ -90,7 +90,7 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.inspectors.booking-inspector-table');
     }

@@ -22,7 +22,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
             ->query(Reservations::query()->whereNull('canceled_at'))
@@ -88,7 +88,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.reservations-table');
     }

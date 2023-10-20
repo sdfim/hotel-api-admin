@@ -19,12 +19,12 @@ class CreateSuppliersForm extends Component implements HasForms
 
     public ?array $data = [];
 
-    public function mount (): void
+    public function mount(): void
     {
         $this->form->fill();
     }
 
-    public function form (Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -39,7 +39,7 @@ class CreateSuppliersForm extends Component implements HasForms
             ->model(Suppliers::class);
     }
 
-    public function create (): Redirector|RedirectResponse
+    public function create(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
 
@@ -55,7 +55,7 @@ class CreateSuppliersForm extends Component implements HasForms
         return redirect()->route('suppliers.index');
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.suppliers.create-suppliers-form');
     }

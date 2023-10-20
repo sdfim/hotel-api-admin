@@ -21,13 +21,13 @@ class UpdateSuppliersForm extends Component implements HasForms
 
     public Suppliers $record;
 
-    public function mount (Suppliers $suppliers): void
+    public function mount(Suppliers $suppliers): void
     {
         $this->record = $suppliers;
         $this->form->fill($this->record->attributesToArray());
     }
 
-    public function form (Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -42,7 +42,7 @@ class UpdateSuppliersForm extends Component implements HasForms
             ->model($this->record);
     }
 
-    public function edit (): Redirector|RedirectResponse
+    public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
 
@@ -56,7 +56,7 @@ class UpdateSuppliersForm extends Component implements HasForms
         return redirect()->route('suppliers.index');
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.suppliers.update-suppliers-form');
     }

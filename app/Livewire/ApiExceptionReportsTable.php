@@ -25,49 +25,49 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
     use InteractsWithTable;
     use InteractsWithForms;
 
-    public function table (Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
-            ->query(ApiExceptionReport::orderBy('created_at','DESC'))
+            ->query(ApiExceptionReport::orderBy('created_at', 'DESC'))
             ->columns([
                 TextColumn::make('id'),
-				TextColumn::make('report_id')
-                	->sortable(),
+                TextColumn::make('report_id')
+                    ->sortable(),
                 TextColumn::make('level')
-                	->sortable()
-					->badge()
-					->color(fn (string $state): string => match ($state) {
-						'error' => 'danger',
-						'warning' => 'warning',
-						'success' => 'success',
-						default => 'gray',
-					}),
+                    ->sortable()
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'error' => 'danger',
+                        'warning' => 'warning',
+                        'success' => 'success',
+                        default => 'gray',
+                    }),
                 TextColumn::make('supplier.name')
                     ->sortable()
                     ->searchable(),
-                
+
                 TextColumn::make('action')
                     ->sortable()
                     ->searchable(),
-				TextColumn::make('description')
+                TextColumn::make('description')
                     ->sortable()
                     ->searchable(),
                 ViewColumn::make('response_path')
-					->view('dashboard.content-loader-exceptions.column.request')
-					->label('Response'),
-				TextColumn::make('created_at')
-					->sortable()
-					->searchable(),
+                    ->view('dashboard.content-loader-exceptions.column.request')
+                    ->label('Response'),
+                TextColumn::make('created_at')
+                    ->sortable()
+                    ->searchable(),
             ])
             ->filters([
                 //
                 SelectFilter::make('level')
-                ->options([
-                    'Debug' => 'Debug',
-                    'Error' => 'Error',
-					'Warning' => 'Warning',
-					'success' => 'Success',
-                ])
+                    ->options([
+                        'Debug' => 'Debug',
+                        'Error' => 'Error',
+                        'Warning' => 'Warning',
+                        'success' => 'Success',
+                    ])
             ])
             ->actions([
                 // ViewAction::make()
@@ -82,7 +82,7 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.api-exception-reports-table');
     }

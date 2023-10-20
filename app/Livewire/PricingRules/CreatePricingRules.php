@@ -28,12 +28,12 @@ class CreatePricingRules extends Component implements HasForms
 
     public ?array $data = [];
 
-    public function mount (): void
+    public function mount(): void
     {
         $this->form->fill();
     }
 
-    public function form (Form $form): Form
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -131,7 +131,7 @@ class CreatePricingRules extends Component implements HasForms
             ->model(PricingRules::class);
     }
 
-    protected function onValidationError (ValidationException $exception): void
+    protected function onValidationError(ValidationException $exception): void
     {
         Notification::make()
             ->title($exception->getMessage())
@@ -139,7 +139,7 @@ class CreatePricingRules extends Component implements HasForms
             ->send();
     }
 
-    public function create (): RedirectResponse|Redirector
+    public function create(): RedirectResponse|Redirector
     {
         $data = $this->form->getState();
 
@@ -155,7 +155,7 @@ class CreatePricingRules extends Component implements HasForms
         return redirect()->route('pricing_rules.index');
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.pricing-rules.create-pricing-rules');
     }

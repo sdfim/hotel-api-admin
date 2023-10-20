@@ -23,7 +23,7 @@ class GiataTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
             ->query(GiataProperty::query())
@@ -44,7 +44,7 @@ class GiataTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-				ViewColumn::make('phone')->toggleable()->view('dashboard.giata.column.phone-field')->searchable(isIndividual: true),
+                ViewColumn::make('phone')->toggleable()->view('dashboard.giata.column.phone-field')->searchable(isIndividual: true),
                 ViewColumn::make('address')->toggleable()->view('dashboard.giata.column.address-field')->searchable(isIndividual: true),
                 ViewColumn::make('position')->toggleable()->view('dashboard.giata.column.position-field')->searchable(isIndividual: true),
             ])
@@ -97,7 +97,7 @@ class GiataTable extends Component implements HasForms, HasTable
                         }
                         return 'Locale: ' . $data['locale'];
                     }),
-				Filter::make('phone')
+                Filter::make('phone')
                     ->form([
                         TextInput::make('phone')
                     ])
@@ -129,7 +129,7 @@ class GiataTable extends Component implements HasForms, HasTable
                         }
                         return 'Address: ' . $data['address'];
                     }),
-				Filter::make('latitude')
+                Filter::make('latitude')
                     ->form([
                         TextInput::make('latitude')
                     ])
@@ -145,7 +145,7 @@ class GiataTable extends Component implements HasForms, HasTable
                         }
                         return 'Latitude: ' . $data['latitude'];
                     }),
-				Filter::make('longitude')
+                Filter::make('longitude')
                     ->form([
                         TextInput::make('longitude')
                     ])
@@ -164,8 +164,8 @@ class GiataTable extends Component implements HasForms, HasTable
             ])
             ->actions([
                 ViewAction::make()
-                        ->url(fn(GiataProperty $record): string => route('giata.show', $record->code))
-                        ->color('info'),
+                    ->url(fn(GiataProperty $record): string => route('giata.show', $record->code))
+                    ->color('info'),
                 // ActionGroup::make([
                 //     ViewAction::make()
                 //         ->url(fn(Channels $record): string => route('channels.show', $record))
@@ -186,7 +186,7 @@ class GiataTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.giata-table');
     }

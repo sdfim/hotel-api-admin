@@ -25,7 +25,7 @@ class GiataGeographyTable extends Component implements HasForms, HasTable
     use InteractsWithTable;
     use InteractsWithForms;
 
-    public function table (Table $table): Table
+    public function table(Table $table): Table
     {
         return $table
             ->query(GiataGeography::query())
@@ -118,7 +118,7 @@ class GiataGeographyTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    public function render (): View
+    public function render(): View
     {
         return view('livewire.giata-geography-table');
     }
