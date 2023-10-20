@@ -11,6 +11,7 @@
 <style>
 json-viewer{
     padding: 10px;
+    text-wrap: wrap;
 }
 </style>
 <div class="relative z-50 hidden modal" id="modal-idlargemodal-{{ $getRecord()->report_id }}-request"
