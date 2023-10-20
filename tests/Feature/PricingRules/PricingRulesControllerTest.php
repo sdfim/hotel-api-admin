@@ -22,14 +22,14 @@ class PricingRulesControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    // public function testCreate()
-    // {
-    //     $this->auth();
-    //     $response = $this->get(route('pricing_rules.create'));
+    public function testCreate()
+    {
+        // $this->auth();
+        // $response = $this->get(route('pricing_rules.create'));
 
-    //     $response->assertStatus(200)
-    //         ->assertViewIs('dashboard.pricing-rules.create');
-    // }
+        // $response->assertStatus(200)
+        //     ->assertViewIs('dashboard.pricing-rules.create');
+    }
     public function testStore()
     {
         $this->auth();
@@ -63,31 +63,31 @@ class PricingRulesControllerTest extends TestCase
         $this->assertDatabaseHas('pricing_rules', $data);
     }
 
-    // public function testShow()
-    // {
-    //     $this->auth();
+    public function testShow()
+    {
+        // $this->auth();
 
-    //     $pricingRule = PricingRules::factory()->create();
+        // $pricingRule = PricingRules::factory()->create();
 
-    //     $response = $this->get(route('pricing_rules.show', $pricingRule->id));
+        // $response = $this->get(route('pricing_rules.show', $pricingRule->id));
 
-    //     $response->assertStatus(200)
-    //         ->assertViewIs('dashboard.pricing-rules.show')
-    //         ->assertViewHas('pricingRule', $pricingRule);
-    // }
+        // $response->assertStatus(200)
+        //     ->assertViewIs('dashboard.pricing-rules.show')
+        //     ->assertViewHas('pricingRule', $pricingRule);
+    }
 
-    // public function testEdit()
-    // {
-    //     $this->auth();
+    public function testEdit()
+    {
+        // $this->auth();
 
-    //     $pricingRule = PricingRules::factory()->create();
+        // $pricingRule = PricingRules::factory()->create();
 
-    //     $response = $this->get(route('pricing_rules.edit', $pricingRule->id));
+        // $response = $this->get(route('pricing_rules.edit', $pricingRule->id));
 
-    //     $response->assertStatus(200)
-    //         ->assertViewIs('dashboard.pricing-rules.update');
-    //     // ->assertViewHas('pricingRule', $pricingRule);
-    // }
+        // $response->assertStatus(200)
+        //     ->assertViewIs('dashboard.pricing-rules.update');
+        // // ->assertViewHas('pricingRule', $pricingRule);
+    }
     public function testUpdatePricingRule()
     {
         $this->auth();
