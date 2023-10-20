@@ -13,6 +13,7 @@
     <link rel="shortcut icon" href="{{ URL::asset('build/images/favicon.ico') }}"/>
     <!-- css -->
     <!-- Styles -->
+    @livewireStyles
     @filamentStyles
     @vite(['resources/css/app.css'])
     @include('layouts.head-css')
@@ -27,6 +28,7 @@
 <!-- script -->
 @include('layouts.vendor-scripts')
 <!-- Scripts -->
+@livewireScripts
 @filamentScripts
 @vite(['resources/js/app.js'])
 </body>
