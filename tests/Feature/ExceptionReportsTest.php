@@ -2,16 +2,11 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
 
 class ExceptionReportsTest extends TestCase
 {
-    /**
-     * A basic feature test example.
-     */
     public function test_example(): void
     {
         $this->auth();
@@ -20,7 +15,7 @@ class ExceptionReportsTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function auth()
+    public function auth(): void
     {
         $user = User::factory()->create();
 

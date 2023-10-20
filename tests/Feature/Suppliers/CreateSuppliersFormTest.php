@@ -14,8 +14,7 @@ class CreateSuppliersFormTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-
-    public function testCreateSuppliersFormAndValidation()
+    public function test_validation_of_supplier_form_as_well_as_new_supplier_creating(): void
     {
         $this->auth();
         Livewire::test(CreateSuppliersForm::class)
@@ -40,7 +39,7 @@ class CreateSuppliersFormTest extends TestCase
         ]);
     }
 
-    public function auth()
+    public function auth(): void
     {
         $user = User::factory()->create();
 

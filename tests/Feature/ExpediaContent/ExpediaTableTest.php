@@ -15,7 +15,7 @@ class ExpediaTableTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testCanRenderPageAndRenderCityAndSearchName(): void
+    public function test_expedia_table_is_rendering_as_well_as_city_with_search_name(): void
     {
         // $this->auth();
         // $expedia = ExpediaContent::factory()->count(10)->create();
@@ -32,7 +32,8 @@ class ExpediaTableTest extends TestCase
         //     ->assertCanSeeTableRecords($expedia->where($this->faker->name, $name))
         //     ->assertCanNotSeeTableRecords($expedia->where($this->faker->name, '!=', $name));
     }
-    public function testCanFilterByName()
+
+    public function test_possibility_of_filtering_by_name(): void
     {
         // $this->auth();
         // $expedia = ExpediaContent::factory()->count(10)->create();
@@ -42,7 +43,8 @@ class ExpediaTableTest extends TestCase
         //     ->assertSee($nameToFilter)
         //     ->assertDontSee($expedia->where('name', '!=', $nameToFilter)->pluck('name')->all());
     }
-    public function testCanFilterByCity()
+
+    public function test_possibility_of_filtering_by_city(): void
     {
         // $expedia = ExpediaContent::factory()->count(10)->create();
         // $cityToFilter = $expedia[0]->city;
@@ -54,7 +56,8 @@ class ExpediaTableTest extends TestCase
         //     ->assertDontSee($cityToFilter1)
         //     ->assertDontSee($cityToFilter2);
     }
-    public function testCanFilterByAddress()
+
+    public function test_possibility_of_filtering_by_address(): void
     {
         // $expedia = ExpediaContent::factory()->count(10)->create();
         // $addressToFilter = json_decode($expedia[0]->address)->line_1;
@@ -66,7 +69,8 @@ class ExpediaTableTest extends TestCase
         //     ->assertDontSee($addressToFilter1)
         //     ->assertDontSee($addressToFilter2);
     }
-    public function auth()
+
+    public function auth(): void
     {
         $user = User::factory()->create();
 

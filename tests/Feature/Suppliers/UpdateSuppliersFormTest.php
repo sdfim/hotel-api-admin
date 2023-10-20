@@ -16,7 +16,7 @@ class UpdateSuppliersFormTest extends TestCase
     use WithFaker;
 
 
-    public function testCanUpdateSuppliersData()
+    public function test_possibility_of_updating_an_existing_supplier(): void
     {
         $this->auth();
         $suppliers = Suppliers::factory()->create();
@@ -33,7 +33,7 @@ class UpdateSuppliersFormTest extends TestCase
         ]);
     }
 
-    public function auth()
+    public function auth(): void
     {
         $user = User::factory()->create();
 

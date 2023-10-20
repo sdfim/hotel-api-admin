@@ -12,7 +12,7 @@ class GiataTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testIndex(): void
+    public function test_giata_table_index_is_opening(): void
     {
         $this->auth();
 
@@ -21,7 +21,7 @@ class GiataTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function auth()
+    public function auth(): void
     {
         $user = User::factory()->create();
 

@@ -14,9 +14,10 @@ class CreateChannelsFormTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testCreateChannelsFormAndValidation()
+    public function test_validation_of_channel_form_and_storing_new_channel(): void
     {
         $this->auth();
+
         Livewire::test(CreateChannelsForm::class)
             ->set('data', [
                 'name' => '',
@@ -39,7 +40,7 @@ class CreateChannelsFormTest extends TestCase
         ]);
     }
 
-    public function auth()
+    public function auth(): void
     {
         $user = User::factory()->create();
 
