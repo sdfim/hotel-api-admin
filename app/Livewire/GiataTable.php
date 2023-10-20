@@ -30,19 +30,23 @@ class GiataTable extends Component implements HasForms, HasTable
             ->columns([
                 TextColumn::make('code')
                     ->sortable()
-                    ->searchable(),
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
                 TextColumn::make('name')
                     ->sortable()
-                    ->searchable(),
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
                 TextColumn::make('city')
                     ->sortable()
-                    ->searchable(),
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
                 TextColumn::make('locale')
                     ->sortable()
-                    ->searchable(),
-				ViewColumn::make('phone')->view('dashboard.giata.column.phone-field'),
-                ViewColumn::make('address')->view('dashboard.giata.column.address-field'),
-                ViewColumn::make('position')->view('dashboard.giata.column.position-field'),
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
+				ViewColumn::make('phone')->toggleable()->view('dashboard.giata.column.phone-field')->searchable(isIndividual: true),
+                ViewColumn::make('address')->toggleable()->view('dashboard.giata.column.address-field')->searchable(isIndividual: true),
+                ViewColumn::make('position')->toggleable()->view('dashboard.giata.column.position-field')->searchable(isIndividual: true),
             ])
             ->filters([
                 Filter::make('name')

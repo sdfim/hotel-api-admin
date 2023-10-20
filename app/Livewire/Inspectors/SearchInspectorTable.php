@@ -27,17 +27,22 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
             ->query(ApiSearchInspector::orderBy('created_at','DESC'))
             ->columns([
                 TextColumn::make('id')
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 				TextColumn::make('search_id')
                     ->searchable()
+                    ->toggleable()
 					->label('Search ID'),
                 TextColumn::make('type')
                     ->searchable()
+                    ->toggleable()
 					->label('Endpoint'),
                 TextColumn::make('token.id')
                     ->numeric()
+                    ->toggleable()
                     ->searchable(),
                 TextColumn::make('suppliers')
+                ->toggleable()
                 ->formatStateUsing(function (ApiSearchInspector $record): string{
                     $suppliers_name_string = '';
                     $suppliers_array = explode(',',$record->suppliers);
@@ -53,8 +58,9 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                 }),
 //                    ->searchable(),
 
-                ViewColumn::make('request')->view('dashboard.search-inspector.column.request'),
+                ViewColumn::make('request')->toggleable()->view('dashboard.search-inspector.column.request'),
                 TextColumn::make('created_at')
+                    ->toggleable()
                     ->dateTime()
 					->sortable()
             ])
