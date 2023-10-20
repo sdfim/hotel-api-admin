@@ -16,6 +16,10 @@ class CreatePricingRulesFormTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_validation_of_pricing_rules_form_during_creation(): void
     {
         $this->auth();
@@ -58,6 +62,10 @@ class CreatePricingRulesFormTest extends TestCase
             ]);
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_pricing_rules_form_validation_and_possibility_of_creating_new_pricing_rule(): void
     {
         $this->auth();
@@ -96,6 +104,9 @@ class CreatePricingRulesFormTest extends TestCase
         $this->assertDatabaseHas('pricing_rules', $data);
     }
 
+    /**
+     * @return void
+     */
     public function auth(): void
     {
         $user = User::factory()->create();

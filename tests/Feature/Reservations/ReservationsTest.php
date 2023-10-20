@@ -16,6 +16,10 @@ class ReservationsTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_reservation_index_is_opening(): void
     {
         $this->auth();
@@ -25,16 +29,10 @@ class ReservationsTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function auth(): void
-    {
-        $user = User::factory()->create();
-
-        $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-    }
-
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_showing_an_existing_reservation_record(): void
     {
         $this->auth();
@@ -52,5 +50,18 @@ class ReservationsTest extends TestCase
         $response->assertSee($reservations->created_at);
         $response->assertSee($reservations->updated_at);
         $response->assertStatus(200);
+    }
+
+    /**
+     * @return void
+     */
+    public function auth(): void
+    {
+        $user = User::factory()->create();
+
+        $this->post(route('login'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
     }
 }

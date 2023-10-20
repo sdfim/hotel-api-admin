@@ -13,6 +13,10 @@ class SuppliersControllerTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_suppliers_index_is_opening(): void
     {
         $this->auth();
@@ -21,6 +25,10 @@ class SuppliersControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_creating_supplier(): void
     {
         $this->auth();
@@ -31,6 +39,10 @@ class SuppliersControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_storing_supplier(): void
     {
         $this->auth();
@@ -48,6 +60,10 @@ class SuppliersControllerTest extends TestCase
         $response->assertSessionHas('success', 'Suppliers created successfully.');
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_showing_an_existing_supplier(): void
     {
         $this->auth();
@@ -61,6 +77,10 @@ class SuppliersControllerTest extends TestCase
 
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_editing_an_existing_supplier(): void
     {
         $this->auth();
@@ -70,6 +90,10 @@ class SuppliersControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_updating_an_existing_supplier(): void
     {
         $this->auth();
@@ -88,6 +112,10 @@ class SuppliersControllerTest extends TestCase
     }
 
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_destroying_an_existing_supplier(): void
     {
         /*$this->auth();
@@ -99,9 +127,13 @@ class SuppliersControllerTest extends TestCase
         $response->assertRedirect(route('suppliers.index'));
 
         $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);*/
+        $this->markTestSkipped('Need to fix or remove this test');
     }
 
 
+    /**
+     * @return void
+     */
     public function auth(): void
     {
         $user = User::factory()->create();

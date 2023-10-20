@@ -7,6 +7,10 @@ use App\Models\User;
 
 class ExceptionReportsTest extends TestCase
 {
+    /**
+     * @test
+     * @return void
+     */
     public function test_example(): void
     {
         $this->auth();
@@ -15,6 +19,9 @@ class ExceptionReportsTest extends TestCase
         $response->assertStatus(200);
     }
 
+    /**
+     * @return void
+     */
     public function auth(): void
     {
         $user = User::factory()->create();

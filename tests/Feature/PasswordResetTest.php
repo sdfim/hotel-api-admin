@@ -13,6 +13,10 @@ class PasswordResetTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_reset_password_link_screen_can_be_rendered(): void
     {
         if (!Features::enabled(Features::resetPasswords())) {
@@ -24,6 +28,10 @@ class PasswordResetTest extends TestCase
         $response->assertStatus(200);
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_reset_password_link_can_be_requested(): void
     {
         if (!Features::enabled(Features::resetPasswords())) {
@@ -41,6 +49,10 @@ class PasswordResetTest extends TestCase
         Notification::assertSentTo($user, ResetPassword::class);
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_reset_password_screen_can_be_rendered(): void
     {
         if (!Features::enabled(Features::resetPasswords())) {
@@ -64,6 +76,10 @@ class PasswordResetTest extends TestCase
         });
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_password_can_be_reset_with_valid_token(): void
     {
         if (!Features::enabled(Features::resetPasswords())) {

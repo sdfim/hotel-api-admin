@@ -15,6 +15,10 @@ class CreateAndUpdateGeneralConfigurationFormTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_inserting_into_general_configuration(): void
     {
         $this->auth();
@@ -29,6 +33,10 @@ class CreateAndUpdateGeneralConfigurationFormTest extends TestCase
         $this->assertDatabaseHas('general_configurations', $data);
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_updating_of_general_configuration(): void
     {
         $this->auth();
@@ -45,6 +53,9 @@ class CreateAndUpdateGeneralConfigurationFormTest extends TestCase
         $this->assertDatabaseHas('general_configurations', $data);
     }
 
+    /**
+     * @return array
+     */
     protected function generate_test_data(): array
     {
         return [
@@ -57,6 +68,9 @@ class CreateAndUpdateGeneralConfigurationFormTest extends TestCase
         ];
     }
 
+    /**
+     * @return void
+     */
     public function auth(): void
     {
         $user = User::factory()->create();

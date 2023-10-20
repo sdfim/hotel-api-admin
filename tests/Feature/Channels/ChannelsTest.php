@@ -13,6 +13,10 @@ class ChannelsTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_channels_index_is_opening(): void
     {
         $this->auth();
@@ -22,6 +26,10 @@ class ChannelsTest extends TestCase
         $response->assertStatus(200);
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_creating_channel(): void
     {
         $this->auth();
@@ -31,6 +39,10 @@ class ChannelsTest extends TestCase
         $response->assertStatus(200);
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_storing_new_channel(): void
     {
         $this->auth();
@@ -47,6 +59,10 @@ class ChannelsTest extends TestCase
         $this->assertDatabaseHas('channels', ['name' => 'New Channel Name']); // Check if the data is in the database
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_updating_new_channel(): void
     {
         $this->auth();
@@ -64,6 +80,10 @@ class ChannelsTest extends TestCase
         $response->assertSessionHas('success', 'Channels created successfully.');
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_editing_an_existing_channel(): void
     {
         $this->auth();
@@ -73,6 +93,10 @@ class ChannelsTest extends TestCase
         $response->assertStatus(200);
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_showing_an_existing_channel(): void
     {
         $this->auth();
@@ -85,6 +109,10 @@ class ChannelsTest extends TestCase
         $response->assertSee($channel->description);
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_destroying_an_existing_channel(): void
     {
         $this->auth();
@@ -98,6 +126,9 @@ class ChannelsTest extends TestCase
         $this->assertDatabaseMissing('channels', ['id' => $channel->id]);
     }
 
+    /**
+     * @return void
+     */
     public function auth(): void
     {
         $user = User::factory()->create();

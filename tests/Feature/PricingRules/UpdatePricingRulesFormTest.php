@@ -16,6 +16,10 @@ class UpdatePricingRulesFormTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_updating_an_existing_pricing_rule(): void
     {
         $this->auth();
@@ -48,6 +52,9 @@ class UpdatePricingRulesFormTest extends TestCase
         ]);
     }
 
+    /**
+     * @return void
+     */
     public function auth(): void
     {
         $user = User::factory()->create();

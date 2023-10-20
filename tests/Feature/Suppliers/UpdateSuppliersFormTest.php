@@ -15,7 +15,10 @@ class UpdateSuppliersFormTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_updating_an_existing_supplier(): void
     {
         $this->auth();
@@ -33,6 +36,9 @@ class UpdateSuppliersFormTest extends TestCase
         ]);
     }
 
+    /**
+     * @return void
+     */
     public function auth(): void
     {
         $user = User::factory()->create();

@@ -14,6 +14,10 @@ class CreateSuppliersFormTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_validation_of_supplier_form_as_well_as_new_supplier_creating(): void
     {
         $this->auth();
@@ -39,6 +43,9 @@ class CreateSuppliersFormTest extends TestCase
         ]);
     }
 
+    /**
+     * @return void
+     */
     public function auth(): void
     {
         $user = User::factory()->create();

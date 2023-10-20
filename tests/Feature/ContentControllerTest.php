@@ -12,6 +12,10 @@ class ContentControllerTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_admin_index_is_opening(): void
     {
         $this->auth();
@@ -21,6 +25,9 @@ class ContentControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
+    /**
+     * @return void
+     */
     public function auth(): void
     {
         $user = User::factory()->create();

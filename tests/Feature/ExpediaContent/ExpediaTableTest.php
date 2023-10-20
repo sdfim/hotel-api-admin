@@ -15,6 +15,10 @@ class ExpediaTableTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_expedia_table_is_rendering_as_well_as_city_with_search_name(): void
     {
         // $this->auth();
@@ -31,8 +35,13 @@ class ExpediaTableTest extends TestCase
         //     ->searchTable($name)
         //     ->assertCanSeeTableRecords($expedia->where($this->faker->name, $name))
         //     ->assertCanNotSeeTableRecords($expedia->where($this->faker->name, '!=', $name));
+        $this->markTestSkipped('Need to fix this test');
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_filtering_by_name(): void
     {
         // $this->auth();
@@ -42,8 +51,13 @@ class ExpediaTableTest extends TestCase
         //     ->filterTable('name', ['name' => $nameToFilter])
         //     ->assertSee($nameToFilter)
         //     ->assertDontSee($expedia->where('name', '!=', $nameToFilter)->pluck('name')->all());
+        $this->markTestSkipped('Need to fix this test');
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_filtering_by_city(): void
     {
         // $expedia = ExpediaContent::factory()->count(10)->create();
@@ -55,8 +69,13 @@ class ExpediaTableTest extends TestCase
         //     ->assertSee($cityToFilter)
         //     ->assertDontSee($cityToFilter1)
         //     ->assertDontSee($cityToFilter2);
+        $this->markTestSkipped('Need to fix this test');
     }
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_possibility_of_filtering_by_address(): void
     {
         // $expedia = ExpediaContent::factory()->count(10)->create();
@@ -68,8 +87,12 @@ class ExpediaTableTest extends TestCase
         //     ->assertSee($addressToFilter)
         //     ->assertDontSee($addressToFilter1)
         //     ->assertDontSee($addressToFilter2);
+        $this->markTestSkipped('Need to fix this test');
     }
 
+    /**
+     * @return void
+     */
     public function auth(): void
     {
         $user = User::factory()->create();
