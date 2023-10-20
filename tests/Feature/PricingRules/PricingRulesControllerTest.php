@@ -79,15 +79,15 @@ class PricingRulesControllerTest extends TestCase
 
     public function test_possibility_of_editing__an_existing_pricing_rule(): void
     {
-        // $this->auth();
-
-        // $pricingRule = PricingRules::factory()->create();
-
-        // $response = $this->get(route('pricing_rules.edit', $pricingRule->id));
-
-        // $response->assertStatus(200)
-        //     ->assertViewIs('dashboard.pricing-rules.update');
-        // // ->assertViewHas('pricingRule', $pricingRule);
+//        $this->auth();
+//
+//        $pricingRule = PricingRules::factory()->create();
+//
+//        $response = $this->get(route('pricing_rules.edit', $pricingRule->id));
+//
+//        $response->assertStatus(200)
+//            ->assertViewIs('dashboard.pricing-rules.update')
+//            ->assertViewHas('pricingRule', $pricingRule);
     }
 
     public function test_possibility_of_updating_an_existing_pricing_rule(): void
