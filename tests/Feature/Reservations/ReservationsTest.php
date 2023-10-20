@@ -16,9 +16,6 @@ class ReservationsTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    /**
-     * A basic feature test example.
-     */
     public function test_reservation_index_is_opening(): void
     {
         $this->auth();
