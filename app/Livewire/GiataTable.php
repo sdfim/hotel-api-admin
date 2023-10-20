@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\GiataProperty;
+use Exception;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -23,6 +24,11 @@ class GiataTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    /**
+     * @param Table $table
+     * @return Table
+     * @throws Exception
+     */
     public function table(Table $table): Table
     {
         return $table
@@ -166,26 +172,15 @@ class GiataTable extends Component implements HasForms, HasTable
                 ViewAction::make()
                     ->url(fn(GiataProperty $record): string => route('giata.show', $record->code))
                     ->color('info'),
-                // ActionGroup::make([
-                //     ViewAction::make()
-                //         ->url(fn(Channels $record): string => route('channels.show', $record))
-                //         ->color('info'),
-                //     EditAction::make()
-                //         ->url(fn(Channels $record): string => route('channels.edit', $record))
-                //         ->color('primary'),
-                //     DeleteAction::make()
-                //         ->requiresConfirmation()
-                //         ->action(fn(Channels $record) => $record->delete())
-                //         ->color('danger'),
-                // ])
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //
-                ]),
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 
+    /**
+     * @return View
+     */
     public function render(): View
     {
         return view('livewire.giata-table');

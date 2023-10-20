@@ -20,6 +20,10 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    /**
+     * @param Table $table
+     * @return Table
+     */
     public function table(Table $table): Table
     {
         return $table
@@ -69,27 +73,16 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 ViewAction::make()
                     ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
                     ->label('View response')
-                    ->color('info'),
-                // ActionGroup::make([
-                //     ViewAction::make()
-                //         ->url(fn(Channels $record): string => route('channels.show', $record))
-                //         ->color('info'),
-                //     EditAction::make()
-                //         ->url(fn(Channels $record): string => route('channels.edit', $record))
-                //         ->color('primary'),
-                //     DeleteAction::make()
-                //         ->requiresConfirmation()
-                //         ->action(fn(Channels $record) => $record->delete())
-                //         ->color('danger'),
-                // ])
+                    ->color('info')
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //
-                ]),
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 
+    /**
+     * @return View
+     */
     public function render(): View
     {
         return view('livewire.inspectors.booking-inspector-table');

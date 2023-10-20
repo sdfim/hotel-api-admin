@@ -13,6 +13,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -21,6 +22,10 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    /**
+     * @param Table $table
+     * @return Table
+     */
     public function table(Table $table): Table
     {
         return $table
@@ -48,72 +53,21 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                         $suppliers_array = explode(',', $record->suppliers);
                         for ($i = 0; $i < count($suppliers_array); $i++) {
                             $supplier = Suppliers::find($suppliers_array[$i]);
-                            if ($i == (count($suppliers_array) - 1)) {
-                                $suppliers_name_string .= $supplier->name;
-                            } else {
-                                $suppliers_name_string .= $supplier->name . ', ';
-                            }
+                            $suppliers_name_string .= $supplier->name . ', ';
                         }
-                        return $suppliers_name_string;
+                        // remove all spaces and commas from the end of the line if present
+                        return rtrim($suppliers_name_string, " ,");
+                    })
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereIn('suppliers', explode(',', $search));
                     }),
-//                    ->searchable(),
-
                 ViewColumn::make('request')->toggleable()->view('dashboard.search-inspector.column.request'),
                 TextColumn::make('created_at')
                     ->toggleable()
                     ->dateTime()
                     ->sortable()
             ])
-            ->filters([
-                // Filter::make('name')
-                // ->form([
-                //     TextInput::make('name')
-                // ])
-                // ->query(function (Builder $query, array $data): Builder {
-                //     return $query
-                //         ->when(
-                //             $data['name'],
-                //             fn (Builder $query, $name): Builder => $query->where('name', 'LIKE', '%'.$name.'%'),
-                //         );
-                // })->indicateUsing(function (array $data): ?string {
-                //     if (! $data['name']) {
-                //         return null;
-                //     }
-                //     return 'Name: ' . $data['name'];
-                // }),
-                // Filter::make('city')
-                // ->form([
-                //     TextInput::make('city')
-                // ])
-                // ->query(function (Builder $query, array $data): Builder {
-                //     return $query
-                //         ->when(
-                //             $data['city'],
-                //             fn (Builder $query, $city): Builder => $query->where('city', 'LIKE', '%'.$city.'%'),
-                //         );
-                // })->indicateUsing(function (array $data): ?string {
-                //     if (! $data['city']) {
-                //         return null;
-                //     }
-                //     return 'City: ' . $data['city'];
-                // }),
-                // Filter::make('address')
-                // ->form([
-                //     TextInput::make('address')
-                // ])
-                // ->query(function (Builder $query, array $data): Builder {
-                //     return $query
-                //         ->when(
-                //             $data['address'],
-                //             fn (Builder $query, $address): Builder => $query->where('address', 'LIKE', '%'.$address.'%'),
-                //         );
-                // })->indicateUsing(function (array $data): ?string {
-                //     if (! $data['address']) {
-                //         return null;
-                //     }
-                //     return 'Address: ' . $data['address'];
-                // })
-            ])
+            ->filters([])
             ->actions([
                 ViewAction::make()
                     ->url(fn(ApiSearchInspector $record): string => route('search-inspector.show', $record))
@@ -122,12 +76,13 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
 
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //
-                ]),
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 
+    /**
+     * @return View
+     */
     public function render(): View
     {
         return view('livewire.inspectors.search-inspector-table');

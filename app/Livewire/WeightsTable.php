@@ -22,6 +22,10 @@ class WeightsTable extends Component implements HasForms, HasTable
     use InteractsWithTable;
     use InteractsWithForms;
 
+    /**
+     * @param Table $table
+     * @return Table
+     */
     public function table(Table $table): Table
     {
         return $table
@@ -51,12 +55,13 @@ class WeightsTable extends Component implements HasForms, HasTable
                 ])
             ])
             ->bulkActions([
-                BulkActionGroup::make([
-                    //
-                ]),
+                BulkActionGroup::make([]),
             ]);
     }
 
+    /**
+     * @return View
+     */
     public function render(): View
     {
         return view('livewire.weights-table');

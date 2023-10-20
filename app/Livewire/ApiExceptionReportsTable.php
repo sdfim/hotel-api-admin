@@ -3,13 +3,10 @@
 namespace App\Livewire;
 
 use App\Models\ApiExceptionReport;
+use Exception;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -19,12 +16,16 @@ use Livewire\Component;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
 
-
 class ApiExceptionReportsTable extends Component implements HasForms, HasTable
 {
     use InteractsWithTable;
     use InteractsWithForms;
 
+    /**
+     * @param Table $table
+     * @return Table
+     * @throws Exception
+     */
     public function table(Table $table): Table
     {
         return $table
@@ -60,7 +61,6 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
                     ->searchable(),
             ])
             ->filters([
-                //
                 SelectFilter::make('level')
                     ->options([
                         'Debug' => 'Debug',
@@ -69,19 +69,15 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
                         'success' => 'Success',
                     ])
             ])
-            ->actions([
-                // ViewAction::make()
-                //         ->url(fn(ApiExceptionReport $record): string => route('content-loader-exceptions.show', $record))
-                //         ->label('View response')
-                //         ->color('info'),
-            ])
+            ->actions([])
             ->bulkActions([
-                BulkActionGroup::make([
-                    //
-                ]),
+                BulkActionGroup::make([]),
             ]);
     }
 
+    /**
+     * @return View
+     */
     public function render(): View
     {
         return view('livewire.api-exception-reports-table');

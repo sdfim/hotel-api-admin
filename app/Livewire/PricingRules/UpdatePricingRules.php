@@ -26,16 +26,30 @@ class UpdatePricingRules extends Component implements HasForms
 {
     use InteractsWithForms;
 
+    /**
+     * @var array|null
+     */
     public ?array $data = [];
 
+    /**
+     * @var PricingRules
+     */
     public PricingRules $record;
 
+    /**
+     * @param PricingRules $pricingRules
+     * @return void
+     */
     public function mount(PricingRules $pricingRules): void
     {
         $this->record = $pricingRules;
         $this->form->fill($this->record->attributesToArray());
     }
 
+    /**
+     * @param Form $form
+     * @return Form
+     */
     public function form(Form $form): Form
     {
         return $form
@@ -55,7 +69,7 @@ class UpdatePricingRules extends Component implements HasForms
                     ->searchable()
                     ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
-                        ->where('name', 'like', "%{$search}%")->limit(30)->pluck('full_name', 'code')->toArray()
+                        ->where('name', 'like', "%$search%")->limit(30)->pluck('full_name', 'code')->toArray()
                     )
                     ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
@@ -134,6 +148,10 @@ class UpdatePricingRules extends Component implements HasForms
             ->model($this->record);
     }
 
+    /**
+     * @param ValidationException $exception
+     * @return void
+     */
     protected function onValidationError(ValidationException $exception): void
     {
         Notification::make()
@@ -142,6 +160,9 @@ class UpdatePricingRules extends Component implements HasForms
             ->send();
     }
 
+    /**
+     * @return RedirectResponse|Redirector
+     */
     public function edit(): RedirectResponse|Redirector
     {
         $data = $this->form->getState();
@@ -156,6 +177,9 @@ class UpdatePricingRules extends Component implements HasForms
         return redirect()->route('pricing_rules.index');
     }
 
+    /**
+     * @return View
+     */
     public function render(): View
     {
         return view('livewire.pricing-rules.update-pricing-rules');
