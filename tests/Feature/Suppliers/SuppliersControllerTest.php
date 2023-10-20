@@ -90,15 +90,15 @@ class SuppliersControllerTest extends TestCase
 
     public function test_possibility_of_destroying_an_existing_supplier(): void
     {
-//        $this->auth();
-//
-//        $suppliers = Suppliers::factory()->create();
-//
-//        $response = $this->delete(route('suppliers.destroy', [$suppliers->id]));
-//        $response->assertStatus(302);
-//        $response->assertRedirect(route('suppliers.index'));
-//
-//        $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);
+        /*$this->auth();
+
+        $suppliers = Suppliers::factory()->create();
+
+        $response = $this->delete(route('suppliers.destroy', [$suppliers->id]));
+        $response->assertStatus(302);
+        $response->assertRedirect(route('suppliers.index'));
+
+        $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);*/
     }
 
 
