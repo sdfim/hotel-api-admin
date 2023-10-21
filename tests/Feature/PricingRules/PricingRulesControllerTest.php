@@ -14,7 +14,11 @@ class PricingRulesControllerTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testIndexPricingRule(): void
+    /**
+     * @test
+     * @return void
+     */
+    public function test_pricing_rules_index_is_opening(): void
     {
         $this->auth();
 
@@ -22,15 +26,25 @@ class PricingRulesControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    // public function testCreate()
-    // {
-    //     $this->auth();
-    //     $response = $this->get(route('pricing_rules.create'));
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_creating_pricing_rule(): void
+    {
+        // $this->auth();
+        // $response = $this->get(route('pricing_rules.create'));
 
-    //     $response->assertStatus(200)
-    //         ->assertViewIs('dashboard.pricing-rules.create');
-    // }
-    public function testStore()
+        // $response->assertStatus(200)
+        //     ->assertViewIs('dashboard.pricing-rules.create');
+        $this->markTestSkipped('Need to fix or remove this test');
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_storing_new_pricing_rule(): void
     {
         $this->auth();
 
@@ -52,7 +66,7 @@ class PricingRulesControllerTest extends TestCase
             'rating' => $this->faker->word,
             'price_type_to_apply' => $this->faker->word,
             'price_value_type_to_apply' => $this->faker->word,
-            'price_value_to_apply' =>  2.5,
+            'price_value_to_apply' => 2.5,
             'price_value_fixed_type_to_apply' => $this->faker->word,
         ];
 
@@ -63,32 +77,47 @@ class PricingRulesControllerTest extends TestCase
         $this->assertDatabaseHas('pricing_rules', $data);
     }
 
-    // public function testShow()
-    // {
-    //     $this->auth();
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_showing_an_existing_pricing_rule(): void
+    {
+        // $this->auth();
 
-    //     $pricingRule = PricingRules::factory()->create();
+        // $pricingRule = PricingRules::factory()->create();
 
-    //     $response = $this->get(route('pricing_rules.show', $pricingRule->id));
+        // $response = $this->get(route('pricing_rules.show', $pricingRule->id));
 
-    //     $response->assertStatus(200)
-    //         ->assertViewIs('dashboard.pricing-rules.show')
-    //         ->assertViewHas('pricingRule', $pricingRule);
-    // }
+        // $response->assertStatus(200)
+        //     ->assertViewIs('dashboard.pricing-rules.show')
+        //     ->assertViewHas('pricingRule', $pricingRule);
+        $this->markTestSkipped('Need to fix or remove this test');
+    }
 
-    // public function testEdit()
-    // {
-    //     $this->auth();
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_editing__an_existing_pricing_rule(): void
+    {
+//        $this->auth();
+//
+//        $pricingRule = PricingRules::factory()->create();
+//
+//        $response = $this->get(route('pricing_rules.edit', $pricingRule->id));
+//
+//        $response->assertStatus(200)
+//            ->assertViewIs('dashboard.pricing-rules.update')
+//            ->assertViewHas('pricingRule', $pricingRule);
+        $this->markTestSkipped('Need to fix or remove this test');
+    }
 
-    //     $pricingRule = PricingRules::factory()->create();
-
-    //     $response = $this->get(route('pricing_rules.edit', $pricingRule->id));
-
-    //     $response->assertStatus(200)
-    //         ->assertViewIs('dashboard.pricing-rules.update');
-    //     // ->assertViewHas('pricingRule', $pricingRule);
-    // }
-    public function testUpdatePricingRule()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_updating_an_existing_pricing_rule(): void
     {
         $this->auth();
 
@@ -119,7 +148,11 @@ class PricingRulesControllerTest extends TestCase
         $this->assertDatabaseHas('pricing_rules', $newData);
     }
 
-    public function testDestroyPricingRule()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_destroying_an_existing_pricing_rule(): void
     {
         $this->auth();
 
@@ -132,7 +165,10 @@ class PricingRulesControllerTest extends TestCase
         $this->assertDatabaseMissing('pricing_rules', ['id' => $pricingRule->id]);
     }
 
-    public function auth()
+    /**
+     * @return void
+     */
+    public function auth(): void
     {
         $user = User::factory()->create();
 

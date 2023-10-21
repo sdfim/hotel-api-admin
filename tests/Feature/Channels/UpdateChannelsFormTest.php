@@ -14,8 +14,12 @@ class UpdateChannelsFormTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
-    
-    public function testCanUpdateChannelData()
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_validation_of_channel_form_and_updating_an_existing_channel(): void
     {
         $this->auth();
         $channel = Channels::factory()->create();
@@ -33,7 +37,10 @@ class UpdateChannelsFormTest extends TestCase
         ]);
     }
 
-    public function auth()
+    /**
+     * @return void
+     */
+    public function auth(): void
     {
         $user = User::factory()->create();
 

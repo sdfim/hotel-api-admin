@@ -26,14 +26,24 @@ class CreatePricingRules extends Component implements HasForms
 {
     use InteractsWithForms;
 
+    /**
+     * @var array|null
+     */
     public ?array $data = [];
 
-    public function mount (): void
+    /**
+     * @return void
+     */
+    public function mount(): void
     {
         $this->form->fill();
     }
 
-    public function form (Form $form): Form
+    /**
+     * @param Form $form
+     * @return Form
+     */
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -52,7 +62,7 @@ class CreatePricingRules extends Component implements HasForms
                     ->searchable()
                     ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
-                        ->where('name', 'like', "%{$search}%")->limit(30)->pluck('full_name', 'code')->toArray()
+                        ->where('name', 'like', "%$search%")->limit(30)->pluck('full_name', 'code')->toArray()
                     )
                     ->afterStateUpdated(function (Get $get, Set $set) {
                         $set('destination', null);
@@ -131,7 +141,11 @@ class CreatePricingRules extends Component implements HasForms
             ->model(PricingRules::class);
     }
 
-    protected function onValidationError (ValidationException $exception): void
+    /**
+     * @param ValidationException $exception
+     * @return void
+     */
+    protected function onValidationError(ValidationException $exception): void
     {
         Notification::make()
             ->title($exception->getMessage())
@@ -139,7 +153,10 @@ class CreatePricingRules extends Component implements HasForms
             ->send();
     }
 
-    public function create (): RedirectResponse|Redirector
+    /**
+     * @return RedirectResponse|Redirector
+     */
+    public function create(): RedirectResponse|Redirector
     {
         $data = $this->form->getState();
 
@@ -155,7 +172,10 @@ class CreatePricingRules extends Component implements HasForms
         return redirect()->route('pricing_rules.index');
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.pricing-rules.create-pricing-rules');
     }

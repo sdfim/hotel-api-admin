@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\GiataProperty;
+use Exception;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -23,26 +24,35 @@ class GiataTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    /**
+     * @param Table $table
+     * @return Table
+     * @throws Exception
+     */
+    public function table(Table $table): Table
     {
         return $table
             ->query(GiataProperty::query())
             ->columns([
                 TextColumn::make('code')
                     ->sortable()
-                    ->searchable(),
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
                 TextColumn::make('name')
                     ->sortable()
-                    ->searchable(),
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
                 TextColumn::make('city')
                     ->sortable()
-                    ->searchable(),
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
                 TextColumn::make('locale')
                     ->sortable()
-                    ->searchable(),
-				ViewColumn::make('phone')->view('dashboard.giata.column.phone-field'),
-                ViewColumn::make('address')->view('dashboard.giata.column.address-field'),
-                ViewColumn::make('position')->view('dashboard.giata.column.position-field'),
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
+                ViewColumn::make('phone')->toggleable()->view('dashboard.giata.column.phone-field')->searchable(isIndividual: true),
+                ViewColumn::make('address')->toggleable()->view('dashboard.giata.column.address-field')->searchable(isIndividual: true),
+                ViewColumn::make('position')->toggleable()->view('dashboard.giata.column.position-field')->searchable(isIndividual: true),
             ])
             ->filters([
                 Filter::make('name')
@@ -93,7 +103,7 @@ class GiataTable extends Component implements HasForms, HasTable
                         }
                         return 'Locale: ' . $data['locale'];
                     }),
-				Filter::make('phone')
+                Filter::make('phone')
                     ->form([
                         TextInput::make('phone')
                     ])
@@ -125,7 +135,7 @@ class GiataTable extends Component implements HasForms, HasTable
                         }
                         return 'Address: ' . $data['address'];
                     }),
-				Filter::make('latitude')
+                Filter::make('latitude')
                     ->form([
                         TextInput::make('latitude')
                     ])
@@ -141,7 +151,7 @@ class GiataTable extends Component implements HasForms, HasTable
                         }
                         return 'Latitude: ' . $data['latitude'];
                     }),
-				Filter::make('longitude')
+                Filter::make('longitude')
                     ->form([
                         TextInput::make('longitude')
                     ])
@@ -160,29 +170,18 @@ class GiataTable extends Component implements HasForms, HasTable
             ])
             ->actions([
                 ViewAction::make()
-                        ->url(fn(GiataProperty $record): string => route('giata.show', $record->code))
-                        ->color('info'),
-                // ActionGroup::make([
-                //     ViewAction::make()
-                //         ->url(fn(Channels $record): string => route('channels.show', $record))
-                //         ->color('info'),
-                //     EditAction::make()
-                //         ->url(fn(Channels $record): string => route('channels.edit', $record))
-                //         ->color('primary'),
-                //     DeleteAction::make()
-                //         ->requiresConfirmation()
-                //         ->action(fn(Channels $record) => $record->delete())
-                //         ->color('danger'),
-                // ])
+                    ->url(fn(GiataProperty $record): string => route('giata.show', $record->code))
+                    ->color('info'),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //
-                ]),
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.giata-table');
     }

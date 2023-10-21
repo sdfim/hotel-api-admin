@@ -20,69 +20,70 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    /**
+     * @param Table $table
+     * @return Table
+     */
+    public function table(Table $table): Table
     {
         return $table
-            ->query(ApiBookingInspector::orderBy('created_at','DESC'))
+            ->query(ApiBookingInspector::orderBy('created_at', 'DESC'))
             ->columns([
                 TextColumn::make('id')
                     ->searchable()
-					->sortable(),
-				TextColumn::make('search_id')
+                    ->toggleable()
+                    ->sortable(),
+                TextColumn::make('search_id')
                     ->searchable()
-					->sortable(),
-				TextColumn::make('booking_id')
+                    ->toggleable()
+                    ->sortable(),
+                TextColumn::make('booking_id')
                     ->searchable()
-					->sortable(),
+                    ->toggleable()
+                    ->sortable(),
                 TextColumn::make('type')
                     ->searchable()
-					->label('Endpoint'),
-				TextColumn::make('sub_type')
+                    ->toggleable()
+                    ->label('Endpoint'),
+                TextColumn::make('sub_type')
                     ->searchable()
-					->label('Step'),
+                    ->toggleable()
+                    ->label('Step'),
                 TextColumn::make('token.id')
                     ->numeric()
                     ->searchable()
-					->label('Channel'),
+                    ->toggleable()
+                    ->label('Channel'),
                 TextColumn::make('supplier.name')
                     ->numeric()
+                    ->toggleable()
                     ->searchable(),
 
-                ViewColumn::make('request')->view('dashboard.booking-inspector.column.request'),
+                ViewColumn::make('request')->toggleable()->view('dashboard.booking-inspector.column.request'),
 
                 TextColumn::make('created_at')
                     ->dateTime()
-					->sortable()
+                    ->toggleable()
+                    ->sortable()
             ])
             ->filters([
 
             ])
             ->actions([
                 ViewAction::make()
-                        ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
-                        ->label('View response')
-                        ->color('info'),
-                // ActionGroup::make([
-                //     ViewAction::make()
-                //         ->url(fn(Channels $record): string => route('channels.show', $record))
-                //         ->color('info'),
-                //     EditAction::make()
-                //         ->url(fn(Channels $record): string => route('channels.edit', $record))
-                //         ->color('primary'),
-                //     DeleteAction::make()
-                //         ->requiresConfirmation()
-                //         ->action(fn(Channels $record) => $record->delete())
-                //         ->color('danger'),
-                // ])
+                    ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
+                    ->label('View response')
+                    ->color('info')
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //
-                ]),
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.inspectors.booking-inspector-table');
     }

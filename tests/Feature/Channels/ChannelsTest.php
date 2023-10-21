@@ -13,7 +13,11 @@ class ChannelsTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testIndex(): void
+    /**
+     * @test
+     * @return void
+     */
+    public function test_channels_index_is_opening(): void
     {
         $this->auth();
 
@@ -22,7 +26,11 @@ class ChannelsTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testCreate()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_creating_channel(): void
     {
         $this->auth();
         $channels = Channels::factory()->create();
@@ -31,7 +39,11 @@ class ChannelsTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testStore()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_storing_new_channel(): void
     {
         $this->auth();
         $token = auth()->user()->createToken('New Channel Name');
@@ -47,7 +59,11 @@ class ChannelsTest extends TestCase
         $this->assertDatabaseHas('channels', ['name' => 'New Channel Name']); // Check if the data is in the database
     }
 
-    public function testUpdateChannel()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_updating_new_channel(): void
     {
         $this->auth();
 
@@ -64,7 +80,24 @@ class ChannelsTest extends TestCase
         $response->assertSessionHas('success', 'Channels created successfully.');
     }
 
-    public function testShow()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_editing_an_existing_channel(): void
+    {
+        $this->auth();
+
+        $channels = Channels::factory()->create();
+        $response = $this->get(route('channels.edit', $channels->id));
+        $response->assertStatus(200);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_showing_an_existing_channel(): void
     {
         $this->auth();
 
@@ -76,29 +109,27 @@ class ChannelsTest extends TestCase
         $response->assertSee($channel->description);
     }
 
-    public function testEdit()
-    {
-        $this->auth();
-
-        $channels = Channels::factory()->create();
-        $response = $this->get(route('channels.edit', $channels->id));
-        $response->assertStatus(200);
-    }
-
-    public function testDestroy()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_destroying_an_existing_channel(): void
     {
         $this->auth();
 
         $channel = Channels::factory()->create();
 
-        $response = $this->delete("/admin/channels/{$channel->id}");
+        $response = $this->delete("/admin/channels/$channel->id");
 
         $response->assertStatus(302);
         $response->assertRedirect('/admin/channels');
         $this->assertDatabaseMissing('channels', ['id' => $channel->id]);
     }
 
-    public function auth()
+    /**
+     * @return void
+     */
+    public function auth(): void
     {
         $user = User::factory()->create();
 

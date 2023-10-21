@@ -22,7 +22,11 @@ class ChannelsTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    /**
+     * @param Table $table
+     * @return Table
+     */
+    public function table(Table $table): Table
     {
         return $table
             ->query(Channels::query())
@@ -42,9 +46,7 @@ class ChannelsTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
@@ -57,13 +59,14 @@ class ChannelsTable extends Component implements HasForms, HasTable
                 ])
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //
-                ]),
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.channels-table');
     }

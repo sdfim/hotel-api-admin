@@ -3,12 +3,12 @@
 namespace Modules\AdministrationSuite\Http\Controllers;
 
 use App\Models\Suppliers;
-use App\Models\Weights;
+use App\Models\PropertyWeighting;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
-class WeightController extends Controller
+class PropertyWeightingController extends Controller
 {
     private array $message = ['create' => 'Add New Weight', 'edit' => 'Edit Weight', 'show' => 'Show Weight'];
     private array $validate = [
@@ -47,7 +47,7 @@ class WeightController extends Controller
     public function store (Request $request): RedirectResponse
     {
         $request->validate($this->validate);
-        Weights::create($request->all());
+        PropertyWeighting::create($request->all());
 
         return redirect()->route('weight.index')->with('success', 'Weight created successfully.');
     }
@@ -58,7 +58,7 @@ class WeightController extends Controller
     public function show (string $id): View
     {
         $text = $this->message;
-        $weight = Weights::findOrFail($id);
+        $weight = PropertyWeighting::findOrFail($id);
 
         return view('dashboard.weight.show', compact('weight', 'text'));
     }
@@ -68,7 +68,7 @@ class WeightController extends Controller
      */
     public function edit (string $id): View
     {
-        $weight = Weights::findOrFail($id);
+        $weight = PropertyWeighting::findOrFail($id);
         $suppliers = Suppliers::all();
         $array_suppliers = ['' => 'Select supplier'];
         foreach ($suppliers as $supplier) {
@@ -82,7 +82,7 @@ class WeightController extends Controller
      */
     public function update (Request $request, string $id): RedirectResponse
     {
-        $suppliers = Weights::findOrFail($id);
+        $suppliers = PropertyWeighting::findOrFail($id);
         $request->validate($this->validate);
         $suppliers->update($request->all());
 
@@ -95,7 +95,7 @@ class WeightController extends Controller
      */
     public function destroy (string $id): RedirectResponse
     {
-        $suppliers = Weights::findOrFail($id);
+        $suppliers = PropertyWeighting::findOrFail($id);
         $suppliers->delete();
 
         return redirect()->route('weight.index')

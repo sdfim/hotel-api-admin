@@ -12,7 +12,11 @@ class GeographyControllerTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testIndex(): void
+    /**
+     * @test
+     * @return void
+     */
+    public function test_admin_geography_index_is_opening(): void
     {
         $this->auth();
 
@@ -21,7 +25,10 @@ class GeographyControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function auth()
+    /**
+     * @return void
+     */
+    public function auth(): void
     {
         $user = User::factory()->create();
 

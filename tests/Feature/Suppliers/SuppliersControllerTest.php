@@ -13,7 +13,11 @@ class SuppliersControllerTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testIndex(): void
+    /**
+     * @test
+     * @return void
+     */
+    public function test_suppliers_index_is_opening(): void
     {
         $this->auth();
 
@@ -21,7 +25,11 @@ class SuppliersControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testCreate()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_creating_supplier(): void
     {
         $this->auth();
 
@@ -31,7 +39,11 @@ class SuppliersControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testStore()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_storing_supplier(): void
     {
         $this->auth();
 
@@ -42,13 +54,17 @@ class SuppliersControllerTest extends TestCase
 
         $response = $this->post(route('suppliers.store'), $data);
         $response->assertRedirect(route('suppliers.index'));
-       
+
         $this->assertDatabaseHas('suppliers', $data);
-       
+
         $response->assertSessionHas('success', 'Suppliers created successfully.');
     }
 
-    public function testShow()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_showing_an_existing_supplier(): void
     {
         $this->auth();
 
@@ -56,12 +72,16 @@ class SuppliersControllerTest extends TestCase
 
         $response = $this->get(route('suppliers.show', $suppliers->id));
         $response->assertStatus(200);
-		$response->assertSee($suppliers->name);
-		$response->assertSee($suppliers->description);
+        $response->assertSee($suppliers->name);
+        $response->assertSee($suppliers->description);
 
     }
 
-    public function testEdit()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_editing_an_existing_supplier(): void
     {
         $this->auth();
 
@@ -70,7 +90,11 @@ class SuppliersControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function testUpdate()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_updating_an_existing_supplier(): void
     {
         $this->auth();
 
@@ -87,22 +111,30 @@ class SuppliersControllerTest extends TestCase
         $this->assertDatabaseHas('suppliers', $newData);
     }
 
-	/*
-    public function testDestroy()
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_destroying_an_existing_supplier(): void
     {
-        $this->auth();
+        /*$this->auth();
 
         $suppliers = Suppliers::factory()->create();
 
         $response = $this->delete(route('suppliers.destroy', [$suppliers->id]));
         $response->assertStatus(302);
         $response->assertRedirect(route('suppliers.index'));
-        
-        $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);
-    }
-	*/
 
-    public function auth()
+        $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);*/
+        $this->markTestSkipped('Need to fix or remove this test');
+    }
+
+
+    /**
+     * @return void
+     */
+    public function auth(): void
     {
         $user = User::factory()->create();
 

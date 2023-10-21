@@ -15,7 +15,11 @@ class GiataTableTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testCanRenderPageAndRenderCityAndSearchName(): void
+    /**
+     * @test
+     * @return void
+     */
+    public function test_giata_table_is_rendering_as_well_as_city_with_search_name(): void
     {
         $this->auth();
         $giata = GiataProperty::factory()->count(10)->create();
@@ -33,7 +37,11 @@ class GiataTableTest extends TestCase
             ->assertDontSee($name1);
     }
 
-    public function testCanFilterByName()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_filtering_by_name(): void
     {
         $giata = GiataProperty::factory()->count(10)->create();
         $nameToFilter = $giata[0]->name;
@@ -46,7 +54,11 @@ class GiataTableTest extends TestCase
             ->assertDontSee($nameToFilter2);
     }
 
-    public function testCanFilterByCity()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_filtering_by_city(): void
     {
         $giata = GiataProperty::factory()->count(10)->create();
         $cityToFilter = $giata[0]->city;
@@ -59,7 +71,11 @@ class GiataTableTest extends TestCase
             ->assertDontSee($cityToFilter2);
     }
 
-    public function testCanFilterByAddress()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_filtering_by_address(): void
     {
         $giata = GiataProperty::factory()->count(10)->create();
         $addressToFilter = json_decode($giata[0]['address'])->AddressLine;
@@ -73,7 +89,10 @@ class GiataTableTest extends TestCase
             ->assertDontSee($addressToFilter2);
     }
 
-    public function auth()
+    /**
+     * @return void
+     */
+    public function auth(): void
     {
         $user = User::factory()->create();
 

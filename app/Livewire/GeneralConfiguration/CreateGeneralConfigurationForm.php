@@ -18,11 +18,23 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
 {
     use InteractsWithForms;
 
+    /**
+     * @var array|null
+     */
     public ?array $data = [];
+    /**
+     * @var bool
+     */
     public bool $create = true;
+    /**
+     * @var GeneralConfiguration
+     */
     public GeneralConfiguration $record;
 
-    public function getDynamicModel ()
+    /**
+     * @return GeneralConfiguration|string
+     */
+    public function getDynamicModel(): string|GeneralConfiguration
     {
         if ($this->create) {
             return $this->record;
@@ -31,7 +43,11 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
         }
     }
 
-    public function mount (?GeneralConfiguration $general_configuration): void
+    /**
+     * @param GeneralConfiguration|null $general_configuration
+     * @return void
+     */
+    public function mount(?GeneralConfiguration $general_configuration): void
     {
         if (!empty($general_configuration->toArray())) {
             $this->record = $general_configuration;
@@ -42,7 +58,11 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
         }
     }
 
-    public function form (Form $form): Form
+    /**
+     * @param Form $form
+     * @return Form
+     */
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -82,7 +102,10 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
             ->model($this->getDynamicModel());
     }
 
-    public function save (): Redirector|RedirectResponse
+    /**
+     * @return Redirector|RedirectResponse
+     */
+    public function save(): Redirector|RedirectResponse
     {
         $request = (object)$this->form->getState();
         $general_configuration = GeneralConfiguration::get();
@@ -116,7 +139,10 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
         return redirect()->route('general_configuration');
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.general-configuration.create-general-configuration-form');
     }

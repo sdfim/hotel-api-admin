@@ -9,16 +9,21 @@ use Livewire\Livewire;
 use Tests\TestCase;
 use App\Livewire\GeneralConfiguration\CreateGeneralConfigurationForm;
 use App\Models\GeneralConfiguration;
+
 class CreateGeneralConfigurationFormTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
 
-    public function testCanCreateGeneralConfiguration()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_inserting_into_general_configuration()
     {
         $this->auth();
 
-        $data = $this->generateTestData();
+        $data = $this->generate_test_data();
 
         Livewire::test(CreateGeneralConfigurationForm::class)
             ->set('data', $data)
@@ -28,13 +33,17 @@ class CreateGeneralConfigurationFormTest extends TestCase
         $this->assertDatabaseHas('general_configurations', $data);
     }
 
-    public function testCanUpdateGeneralConfiguration()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_updating_of_general_configuration()
     {
         $this->auth();
 
         $general_configuration = GeneralConfiguration::factory()->create();
 
-        $data = $this->generateTestData();
+        $data = $this->generate_test_data();
 
         Livewire::test(CreateGeneralConfigurationForm::class, ['general_configuration' => $general_configuration])
             ->set('data', $data)
@@ -44,7 +53,10 @@ class CreateGeneralConfigurationFormTest extends TestCase
         $this->assertDatabaseHas('general_configurations', $data);
     }
 
-    protected function generateTestData()
+    /**
+     * @return array
+     */
+    protected function generate_test_data(): array
     {
         return [
             'time_supplier_requests' => $this->faker->randomNumber(),
@@ -54,9 +66,12 @@ class CreateGeneralConfigurationFormTest extends TestCase
             'star_ratings' => now(),
             'stop_bookings' => now(),
         ];
-    } 
+    }
 
-    public function auth()
+    /**
+     * @return void
+     */
+    public function auth(): void
     {
         $user = User::factory()->create();
 

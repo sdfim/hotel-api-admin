@@ -16,7 +16,11 @@ class UpdatePricingRulesFormTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testUpdatePricingRulesForm()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_updating_an_existing_pricing_rule(): void
     {
         $this->auth();
         $pricing_rules = PricingRules::factory()->create();
@@ -38,17 +42,20 @@ class UpdatePricingRulesFormTest extends TestCase
             ->set('data.rating', $this->faker->word)
             ->set('data.price_type_to_apply', $this->faker->word)
             ->set('data.price_value_type_to_apply', $this->faker->word)
-            ->set('data.price_value_to_apply',  2.5)
-            ->set('data.price_value_fixed_type_to_apply', null)
+            ->set('data.price_value_to_apply', 2.5)
+            ->set('data.price_value_fixed_type_to_apply')
             ->call('edit')
             ->assertRedirect(route('pricing_rules.index'));
-        $this->assertDatabaseHas('pricing_rules',  [
+        $this->assertDatabaseHas('pricing_rules', [
             'id' => $pricing_rules->id,
             'name' => 'Updated Name',
         ]);
     }
 
-    public function auth()
+    /**
+     * @return void
+     */
+    public function auth(): void
     {
         $user = User::factory()->create();
 

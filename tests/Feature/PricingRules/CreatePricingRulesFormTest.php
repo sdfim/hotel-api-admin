@@ -16,7 +16,11 @@ class CreatePricingRulesFormTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testPricingRulesFormValidation()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_validation_of_pricing_rules_form_during_creation(): void
     {
         $this->auth();
 
@@ -36,7 +40,7 @@ class CreatePricingRulesFormTest extends TestCase
                 'rating' => '',
                 'price_type_to_apply' => '',
                 'price_value_type_to_apply' => '',
-                'price_value_to_apply' =>  '',
+                'price_value_to_apply' => '',
             ])
             ->call('create')
             ->assertHasErrors([
@@ -57,7 +61,12 @@ class CreatePricingRulesFormTest extends TestCase
                 'data.price_value_to_apply',
             ]);
     }
-    public function testCreatePricingRulesFormAndValidation()
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_pricing_rules_form_validation_and_possibility_of_creating_new_pricing_rule(): void
     {
         $this->auth();
 
@@ -80,7 +89,7 @@ class CreatePricingRulesFormTest extends TestCase
             'rating' => $this->faker->word,
             'price_type_to_apply' => $this->faker->word,
             'price_value_type_to_apply' => $this->faker->word,
-            'price_value_to_apply' =>  2.5,
+            'price_value_to_apply' => 2.5,
             'price_value_fixed_type_to_apply' => null,
             'channel_id' => $channels->id,
             'rule_start_date' => date('Y-m-d H:i:s'),
@@ -95,7 +104,10 @@ class CreatePricingRulesFormTest extends TestCase
         $this->assertDatabaseHas('pricing_rules', $data);
     }
 
-    public function auth()
+    /**
+     * @return void
+     */
+    public function auth(): void
     {
         $user = User::factory()->create();
 

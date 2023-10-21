@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\Weights;
+use App\Models\PropertyWeighting;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
@@ -22,10 +22,14 @@ class WeightsTable extends Component implements HasForms, HasTable
     use InteractsWithTable;
     use InteractsWithForms;
 
-    public function table (Table $table): Table
+    /**
+     * @param Table $table
+     * @return Table
+     */
+    public function table(Table $table): Table
     {
         return $table
-            ->query(Weights::query())
+            ->query(PropertyWeighting::query())
             ->columns([
                 TextColumn::make('property')
                     ->sortable(),
@@ -42,22 +46,23 @@ class WeightsTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Weights $record): string => route('weight.show', $record)),
+                        ->url(fn(PropertyWeighting $record): string => route('weight.show', $record)),
                     EditAction::make()
-                        ->url(fn(Weights $record): string => route('weight.edit', $record)),
+                        ->url(fn(PropertyWeighting $record): string => route('weight.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(Weights $record) => $record->delete())
+                        ->action(fn(PropertyWeighting $record) => $record->delete())
                 ])
             ])
             ->bulkActions([
-                BulkActionGroup::make([
-                    //
-                ]),
+                BulkActionGroup::make([]),
             ]);
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.weights-table');
     }

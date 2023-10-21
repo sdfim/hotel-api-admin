@@ -10,26 +10,32 @@ use App\Models\User;
 
 class GeneralConfigurationTest extends TestCase
 {
-
     use RefreshDatabase;
-	use WithFaker;
+    use WithFaker;
 
-    public function testIndexGeneralConfiguration()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_general_configuration_index_is_opening(): void
     {
-		$this->auth();
+        $this->auth();
 
         $response = $this->get('/admin/general-configuration');
 
         $response->assertStatus(200);
     }
 
-	public function auth()
-	{
-		$user = User::factory()->create();
+    /**
+     * @return void
+     */
+    public function auth(): void
+    {
+        $user = User::factory()->create();
 
-		$this->post(route('login'), [
-			'email' => $user->email,
-			'password' => 'password',
-		]);
-	}
+        $this->post(route('login'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+    }
 }
