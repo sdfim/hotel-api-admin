@@ -31,7 +31,6 @@ WORKDIR /var/www/html
 RUN chown -R www-data:www-data /var/www/html
 RUN mv .env.example .env
 RUN php artisan key:generate
-RUN php artisan queue:work --tries=3 --timeout=90
 
 EXPOSE 80
 
