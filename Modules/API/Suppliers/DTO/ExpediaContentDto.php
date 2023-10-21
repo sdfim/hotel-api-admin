@@ -17,8 +17,16 @@ class ExpediaContentDto
 			$amenities = $hotel['amenities'] ?? [];
 			$hotelResponse = new ContentSearchResponse();
 
+			$images = [];
+			$countImages = 0;
+			foreach ($hotel['images'] as $image) {
+				if ($countImages == 5) break;
+				$images[] = $image['links']['350px']['href'];
+				$countImages++;
+			}
+
 			$hotelResponse->setGiataHotelCode($hotel['giata_id']);
-			$hotelResponse->setImages($hotel['images'] ?? []);
+			$hotelResponse->setImages($images);
 			$hotelResponse->setDescription($hotel['description'] ?? '');
 			$hotelResponse->setHotelName($hotel['name']);
 			$hotelResponse->setDistance($hotel['distance'] ?? '');
