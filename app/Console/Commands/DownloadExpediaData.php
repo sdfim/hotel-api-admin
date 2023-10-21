@@ -11,6 +11,7 @@ use App\Models\Suppliers;
 use Modules\Inspector\ExceptionReportController;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Process;
 
 
 class DownloadExpediaData extends Command
@@ -65,10 +66,10 @@ class DownloadExpediaData extends Command
         $this->step = $this->argument('step'); // 1, 2, 3, 4
 		$this->report_id = Str::uuid()->toString();
 
-		$output = shell_exec('df -h');
-        $this->info('DownloadExpediaData df -h: ' . $output);
-		$output = shell_exec('free -h');
-        $this->info('DownloadExpediaData free -h: ' . $output);
+		$result = Process::run('df -h')->output();
+        $this->info('DownloadExpediaData df -h: ' . $result);
+		$result = Process::run('free -h')->output();
+        $this->info('DownloadExpediaData free -h: ' . $result);
 
         if (str_contains($this->step, 1)) {
             # get url from expedia
@@ -171,9 +172,31 @@ class DownloadExpediaData extends Command
     {
 		try {
 			$absolutePath = storage_path();
-			$output = shell_exec('gunzip ' . $absolutePath . '/app/expedia_' . $this->type . '.gz');
-			$this->saveSuccessReport('DownloadExpediaData', 'Step:3 unzip file', '');
-			return true;
+			// $output = shell_exec('gunzip -c -t ' . $absolutePath . '/app/expedia_' . $this->type . '.gz');
+
+			if (!Storage::exists('expedia_' . $this->type . '.gz')) {
+				$this->error('Error unzip file:  ' . json_encode(['error' => 'File not found']));
+				$this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
+					'error' => 'File not found', 
+				]));
+				return false;
+			}
+			
+			$result = Process::run('gunzip -c -t ' . $absolutePath . '/app/expedia_' . $this->type . '.gz');
+
+			if ($result->successful()) {
+				$this->saveSuccessReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
+					'output' => $result, 
+				]));
+				$this->info('Error unzip file:  ' . json_encode(['result' => $result]));
+				return true;
+			} else {
+				$this->error('Error unzip file:  ' . json_encode(['result' => $result]));
+				$this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
+					'getMessage' => $result, 
+				]));
+				return false;
+			}
 		} catch (\Exception $e) {
 			$this->error('Error unzip file:  ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
 			$this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip File', json_encode([
@@ -181,7 +204,8 @@ class DownloadExpediaData extends Command
 				'getTraceAsString' => $e->getTraceAsString(),
 			]));
 			return false;
-		}       
+		}   
+		
     }
 
     function parseJsonToDb (): void
