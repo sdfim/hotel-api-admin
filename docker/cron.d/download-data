@@ -7,7 +7,3 @@ SHELL=/bin/bash
 15 12 * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan download-expedia-data content 123' > /proc/1/fd/1 2>>/proc/1/fd/2
 
 10 * * * * root source /cronenv; su -m -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan test-command' > /proc/1/fd/1 2>>/proc/1/fd/2
-
-30 15 * * * root /bin/bash -c '/usr/bin/s3fs -f ujv-apprunner-mnt-dev /var/www/storage_fusemnt -o iam_role=auto -o allow_other' > /proc/1/fd/1 2>>/proc/1/fd/2
-35 15 * * * root source /cronenv; su -m -s /bin/bash www-data -c 'cd /var/www; ls -lah storage_fusemnt; echo test >> storage_fusemnt/test_fusemnt' > /proc/1/fd/1 2>>/proc/1/fd/2
-
