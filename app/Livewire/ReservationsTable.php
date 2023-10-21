@@ -32,31 +32,31 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ->query(Reservations::query()->whereNull('canceled_at')->orderBy('created_at','DESC'))
             ->columns([
                 ViewColumn::make('reservation_contains')
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->view('components.datatable-contains-column'),
                 TextColumn::make('channel.name')
                     ->numeric()
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->sortable(),
                 TextColumn::make('date_offload')
                     ->default('N\A')
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->sortable(),
                 TextColumn::make('date_travel')
                     ->dateTime()
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->sortable(),
                 TextColumn::make('passenger_surname')
-                    ->searchable(),
+                    ->searchable(isIndividual: true),
                 TextColumn::make('total_cost')
                     ->numeric()
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->money('USD')
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')
                     ->dateTime()
