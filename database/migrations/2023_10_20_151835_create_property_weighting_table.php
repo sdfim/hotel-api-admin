@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->foreignId('supplier_id')
 				->nullable()
                 ->constrained(
-                    table: 'contains',
+                    table: 'suppliers',
                     indexName: 'property_weighting__supplier_id'
                 );
             $table->timestamps();

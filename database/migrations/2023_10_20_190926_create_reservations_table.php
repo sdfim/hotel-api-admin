@@ -15,17 +15,14 @@ return new class extends Migration {
             $table->dateTimeTz('date_offload')->nullable();
             $table->dateTimeTz('date_travel');
             $table->string('passenger_surname');
-            $table->foreignId('contains_id')
-                ->constrained(
-                    table: 'contains',
-                    indexName: 'contains__contains_id'
-                );
+            $table->json('reservation_contains');
             $table->foreignId('channel_id')
                 ->constrained(
                     table: 'channels',
                     indexName: 'channels__channel_id'
                 );
             $table->float('total_cost', 8, 2);
+			$table->dateTimeTz('canceled_at')->nullable();
             $table->timestamps();
         });
     }

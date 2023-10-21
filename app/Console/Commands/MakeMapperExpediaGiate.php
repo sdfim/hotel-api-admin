@@ -87,21 +87,12 @@ class MakeMapperExpediaGiate extends Command
 			}
 			$expediaNameStart = implode(' ', $expediaNameArr);
 
-			// $latitude =   	 bcdiv($expedia['latitude'], 1, 2);
-			// $longitude =  	bcdiv($expedia['longitude'], 1, 2);
-			// $latitude0 =  	 bcdiv($expedia['latitude'], 1, 0);
-			// $longitude0 = 	bcdiv($expedia['longitude'], 1, 0);
-			// $latitude1 =  	 bcdiv($expedia['latitude'], 1, 1);
-			// $longitude1 = 	bcdiv($expedia['longitude'], 1, 1);
-
-			$latitude = number_format($expedia['latitude'], 2, '.', '');
-			$longitude = number_format($expedia['longitude'], 2, '.', '');
-
-			$latitude0 = number_format($expedia['latitude'], 0, '.', '');
-			$longitude0 = number_format($expedia['longitude'], 0, '.', '');
-
-			$latitude1 = number_format($expedia['latitude'], 1, '.', '');
-			$longitude1 = number_format($expedia['longitude'], 1, '.', '');	
+			$latitude =   	 bcdiv($expedia['latitude'], 1, 2);
+			$longitude =  	bcdiv($expedia['longitude'], 1, 2);
+			$latitude0 =  	 bcdiv($expedia['latitude'], 1, 0);
+			$longitude0 = 	bcdiv($expedia['longitude'], 1, 0);
+			$latitude1 =  	 bcdiv($expedia['latitude'], 1, 1);
+			$longitude1 = 	bcdiv($expedia['longitude'], 1, 1);
 
 			$phone = str_replace('-', '', $expedia['phone']);
 			$postCode = str_replace('-', '', $expedia['postal_code']);

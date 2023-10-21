@@ -14,4 +14,6 @@ npm i && npm run build
 
 php artisan key:generate
 
+php artisan queue:work
+
 apache2-foreground

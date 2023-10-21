@@ -116,4 +116,14 @@ class ExpediaContent extends Model
 
         return $expedia->expedia_id;
     }
+
+	public function getHotelNameByHotelId($hotel_id): string
+	{
+		$expedia = ExpediaContent::where('property_id', $hotel_id)
+			->select('name')
+			->get()
+			->first();
+
+		return $expedia->name;
+	}
 }
