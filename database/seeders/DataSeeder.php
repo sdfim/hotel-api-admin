@@ -12,19 +12,6 @@ class DataSeeder extends Seeder
      */
     public function run(): void
     {
-        $contain = new Contains();
-        $contain->name = 'Flight';
-        $contain->description = 'test contain flight';
-        $contain->save();
-
-        $contain = new Contains();
-        $contain->name = 'Hotel';
-        $contain->description = 'test contain hotel';
-        $contain->save();
-
-        $contain = new Contains();
-        $contain->name = 'Transfer';
-        $contain->description = 'test contain transfer';
-        $contain->save();
+        //
     }
 }
