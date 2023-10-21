@@ -64,4 +64,33 @@ class ApiSearchInspector extends Model
         $search = ApiSearchInspector::where('search_id', $search_id)->first();
         return $search->search_type;
     }
+
+	public function getReservationsDataBySearchId($filters): array
+    {
+        $search_id = $filters['search_id'];
+        $hotel_id = $filters['hotel_id']; // giata_id
+        $room_id = $filters['room_id']; // expedia
+
+        $search_id = ApiSearchInspector::where('search_id', $search_id)->first();
+        $json_response = json_decode(Storage::get($search_id->client_response_path));
+
+        $hotels = $json_response->results->Expedia;
+
+		$price = [];
+		foreach ($hotels as $hotel) {
+			if ($hotel->giata_hotel_id != $hotel_id) continue;
+			$hotel_id = $hotel->supplier_hotel_id;
+			foreach ($hotel->room_groups as $room) {
+				$price = [
+					'total_price' => $room->total_price,
+					'total_tax' => $room->total_tax,
+					'total_fees' => $room->total_fees,
+					'total_net' => $room->total_net,
+					'currency' => $room->currency,
+				];
+			}
+		}
+
+        return ['query' => $json_response->query, 'price' => $price, 'supplier_hotel_id' => $hotel_id];
+    }
 }

@@ -25,9 +25,9 @@ class ReservationsTable extends Component implements HasForms, HasTable
     public function table (Table $table): Table
     {
         return $table
-            ->query(Reservations::query()->whereNull('canceled_at'))
+            ->query(Reservations::query()->whereNull('canceled_at')->orderBy('created_at','DESC'))
             ->columns([
-                ViewColumn::make('contains.name')
+                ViewColumn::make('reservation_contains')
                     ->searchable()
                     ->view('components.datatable-contains-column'),
                 TextColumn::make('channel.name')

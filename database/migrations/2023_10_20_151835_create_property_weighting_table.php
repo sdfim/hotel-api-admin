@@ -10,10 +10,16 @@ return new class extends Migration {
      */
     public function up (): void
     {
-        Schema::create('contains', function (Blueprint $table) {
+        Schema::create('property_weighting', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('description');
+			$table->integer('property');
+            $table->integer('weight');
+            $table->foreignId('supplier_id')
+				->nullable()
+                ->constrained(
+                    table: 'suppliers',
+                    indexName: 'property_weighting__supplier_id'
+                );
             $table->timestamps();
         });
     }
@@ -23,6 +29,6 @@ return new class extends Migration {
      */
     public function down (): void
     {
-        Schema::dropIfExists('contains');
+        Schema::dropIfExists('property_weighting');
     }
 };

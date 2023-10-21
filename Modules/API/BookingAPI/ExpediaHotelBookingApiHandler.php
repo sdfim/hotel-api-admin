@@ -2,6 +2,7 @@
 
 namespace Modules\API\BookingAPI;
 
+use App\Jobs\SaveBookingInspector;
 use App\Models\ApiSearchInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\Channels;
@@ -13,6 +14,8 @@ use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Modules\Inspector\BookingInspectorController;
 use Illuminate\Support\Str;
 use GuzzleHttp\Promise;
+use Modules\API\Suppliers\ExpediaSupplier\ExpediaTools;
+use Illuminate\Support\Facades\Queue;
 
 
 class ExpediaHotelBookingApiHandler
@@ -54,7 +57,16 @@ class ExpediaHotelBookingApiHandler
 		if (!$dataResponse) return [];
 		$booking_id = (string) Str::uuid();
 
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, [], 1, 'add_item', 'price_check' . ($queryHold ? ':hold' : ''), 'hotel');
+		SaveBookingInspector::dispatch([
+			$booking_id, 
+			$filters, 
+			$dataResponse, 
+			[],
+			1, 
+			'add_item', 
+			'price_check' . ($queryHold ? ':hold' : ''), 
+			'hotel'
+		]);
 
 		$linckBookItineraries =  $dataResponse->links->book->href;
 
@@ -80,7 +92,16 @@ class ExpediaHotelBookingApiHandler
 		}
 		
 		if (!$dataResponse) return [];
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, [], 1, 'add_item', 'create' . ($queryHold ? ':hold' : ''), 'hotel');
+		SaveBookingInspector::dispatch([
+			$booking_id, 
+			$filters, 
+			$dataResponse, 
+			[],
+			1, 
+			'add_item', 
+			'create' . ($queryHold ? ':hold' : ''), 
+			'hotel'
+		]);
 
 		$itinerary_id = $dataResponse->itinerary_id;
 		$linckBookRetrieves =  $dataResponse->links->retrieve->href;
@@ -125,7 +146,16 @@ class ExpediaHotelBookingApiHandler
 			],
 		];
 
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $res, 1, 'add_item', 'retrieve' . ($queryHold ? ':hold' : ''), 'hotel');
+		SaveBookingInspector::dispatch([
+			$booking_id, 
+			$filters, 
+			$dataResponse, 
+			$res, 
+			1, 
+			'add_item', 
+			'retrieve' . ($queryHold ? ':hold' : ''), 
+			'hotel'
+		]);
 
 		return $res;
 	}
@@ -174,16 +204,33 @@ class ExpediaHotelBookingApiHandler
 			$response = $this->rapidClient->delete($props['path'], $props['paramToken'], $body, $addHeaders);
 			$dataResponse = json_decode($response->getBody()->getContents());
 
-			if (!$dataResponse) $this->bookingInspector->save(
-				$booking_id, $filters, $dataResponse, ['success' => 'Room cancelled.'], 1, 'remove_item', 'true', 'hotel'
-			);
+			if (!$dataResponse) {
+				SaveBookingInspector::dispatch([
+					$booking_id, 
+					$filters, 
+					$dataResponse, 
+					['success' => 'Room cancelled.'], 
+					1, 
+					'remove_item', 
+					'true',
+					'hotel'
+				]);
+			}
+			
 			return ['success' => 'Room cancelled.'];
 		} catch (\Exception $e) {
 			$responseError = explode('response:', $e->getMessage());
 			$responseErrorArr = json_decode($responseError[1], true);
-			$this->bookingInspector->save(
-				$booking_id, $filters, $responseErrorArr, ['error' => 'Room is already cancelled.'], 1, 'remove_item', 'false', 'hotel'
-			);
+			SaveBookingInspector::dispatch([
+				$booking_id, 
+				$filters, 
+				$responseErrorArr, 
+				['error' => 'Room is already cancelled.'], 
+				1, 
+				'remove_item', 
+				'false',
+				'hotel'
+			]);
 			return ['error' => $responseErrorArr['message']];
 		}
 	}
@@ -218,9 +265,16 @@ class ExpediaHotelBookingApiHandler
 		$clientDataResponse = $dataResponse;
 
 		if (!$dataResponse) return [];
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $clientDataResponse, 1, 'retrieve_items', '', 'hotel');
-
-		// dd($dataResponse);
+		SaveBookingInspector::dispatch([
+			$booking_id, 
+			$filters, 
+			$dataResponse, 
+			$clientDataResponse, 
+			1, 
+			'retrieve_items', 
+			'',
+			'hotel'
+		]);
 
 		return (array)$dataResponse;
 	}
@@ -268,7 +322,16 @@ class ExpediaHotelBookingApiHandler
 		}
 
 		if (!$dataResponse) return [];
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $dataResponse, 1, 'change_items', '', 'hotel');
+		SaveBookingInspector::dispatch([
+			$booking_id, 
+			$filters, 
+			$dataResponse, 
+			$dataResponse, 
+			1, 
+			'change_items', 
+			'',
+			'hotel'
+		]);
 
 		return (array)$dataResponse;
 	}

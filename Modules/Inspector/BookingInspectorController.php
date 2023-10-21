@@ -8,7 +8,7 @@ use App\Models\ApiBookingInspector;
 use Modules\Inspector\BaseInspectorController;
 class BookingInspectorController extends BaseInspectorController
 {
-	public function save($booking_id, $query, $content, $client_content, $supplier_id, $type = 'add_item', $subType = 'main', $search_type) : string|bool
+	public function save($booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type) : string|bool
 	{
 		try {
 			$this->current_time = microtime(true);

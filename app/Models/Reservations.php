@@ -14,7 +14,7 @@ class Reservations extends Model
 		'date_offload', 
 		'date_travel', 
 		'passenger_surname', 
-		'contains_id', 
+		'reservation_contains', 
 		'channel_id', 
 		'total_cost', 
 		'canceled_at', 
