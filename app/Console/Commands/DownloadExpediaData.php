@@ -39,8 +39,10 @@ class DownloadExpediaData extends Command
     private $step;
     protected $current_time;
     protected $step_current_time;
+	protected $current_time_report;
 	protected $expedia_id;
 	protected $report_id;
+	private const S3mount = '/var/www/storage_fusemnt';
 
 	/**
 	 * Create a new command instance.
@@ -66,6 +68,8 @@ class DownloadExpediaData extends Command
         $this->step = $this->argument('step'); // 1, 2, 3, 4
 		$this->report_id = Str::uuid()->toString();
 
+		$this->executionTimeReport();
+
 		$result = Process::run('df -h')->output();
         $this->info('DownloadExpediaData df -h: ' . $result);
 		$result = Process::run('free -h')->output();
@@ -76,38 +80,35 @@ class DownloadExpediaData extends Command
             $url = $this->getUrlArchive();
             $this->info('url from expedia ' . $url . ' in ' . $this->executionStepTime() . ' seconds');
 
-			$this->saveSuccessReport('DownloadExpediaData', 'Step:1 get url', json_encode(['url' => $url]));
+			$this->saveSuccessReport('DownloadExpediaData', 'Step:1 get url', json_encode([
+				'url' => $url,
+				'execution_time' => $this->executionTimeReport() . ' sec',
+			]));
         }
 	
 		if (str_contains($this->step, 2)) {
             # download file from url and save to storage
-            $success = $this->downloadArchive($url);
-            if ($success) {
-                $this->info('gz file downloaded.  in ' . $this->executionStepTime() . ' seconds');
-            } else {
-                $this->error('Failed to download or extract the zip file.');
-            }
+			$this->downloadArchive($url);
         }
-
 
 		if (str_contains($this->step, 3)) {
             # unzip file
             $this->unzipFile();
-            $this->info('unzip file in ' . $this->executionStepTime() . ' seconds');
         }
 
 		if (str_contains($this->step, 4)) {
             # parse json to db
             $this->parseJsonToDb();
-            $this->info('parse json to db in ' . $this->executionStepTime() . ' seconds');
-
-			$this->saveSuccessReport('DownloadExpediaData', 'Step:4 parse jsonl', '');
         }
-
     }
 
+	/*
+	 * Get url from expedia
+	 * @return string
+	 * */
     function getUrlArchive (): string
     {
+		$this->executionTimeReport();
         $queryParams = [
             'language' => 'en-US',
             'supply_source' => 'expedia',
@@ -115,21 +116,28 @@ class DownloadExpediaData extends Command
         try {
             $response = $this->rapidClient->get(self::PROPERTY_CONTENT_PATH . $this->type, $queryParams);
 
-            // Read the response to return.
             $propertyContents = $response->getBody()->getContents();
             $url = json_decode($propertyContents, true)['href'];
         } catch (\Exception $e) {
 			$this->saveErrorReport('DownloadExpediaData', 'getUrlArchive', json_encode([
 				'getMessage' => $e->getMessage(), 
 				'getTraceAsString' => $e->getTraceAsString(),
+				'execution_time' => $this->executionTimeReport() . ' sec',
 			]));
         }
 
         return $url;
     }
 
-    function downloadArchive ($url): bool
+	/*
+	 * Download file from url and save to storage
+	 * @param string $url
+	 * @return void
+	 * */
+    function downloadArchive ($url): void
     {
+		$this->executionTimeReport();
+		$this->executionStepTime();
         try {
             $response = Http::timeout(3600)->get($url);
 
@@ -137,83 +145,102 @@ class DownloadExpediaData extends Command
                 $fileContents = $response->body();
                 $fileName = 'expedia_' . $this->type . '.gz';
 
-                $this->info('downloadAndExtractGz step 1 ' . $url . ' in ' . $this->executionTime() . ' seconds');
-
-                Storage::put($fileName, $fileContents);
+                // Storage::put($fileName, $fileContents);
 				// file_put_contents(storage_path().'/app/'.$fileName, $fileContents);
+				file_put_contents(self::S3mount . '/' . $fileName, $fileContents);
 
-                $this->info('downloadAndExtractGz step 2 ' . $url . ' in ' . $this->executionTime() . ' seconds');
+                $this->info('Step:2 download file ' . $url . ' in ' . $this->executionStepTime() . ' seconds');
 
 				$this->saveSuccessReport('DownloadExpediaData', 'Step:2 download file', json_encode([
+					'path' => self::S3mount,
 					'fileName' => $fileName, 
-					'execution_time' => $this->executionTime()
+					'execution_time' => $this->executionTimeReport() . ' sec',
 				]));
             } else {
-				$this->saveErrorReport('DownloadExpediaData', 'downloadAndExtractGz', json_encode([
+				$this->saveErrorReport('DownloadExpediaData', 'Step:2 download file', json_encode([
 					'response-status' =>  $response->status(), 
 					'response-body' => $response->body(),
+					'path' => self::S3mount,
+					'execution_time' => $this->executionTimeReport() . ' sec',
 				]));
-                return false;
+				$this->error('Error downloading gz file:  ' . json_encode([
+					'response-status' =>  $response->status(),
+					'response-body' => $response->body(),
+					'path' => self::S3mount,
+					'execution_time' => $this->executionStepTime() . ' sec',
+				]));
             }
-
-            return true;
 
         } catch (\Exception $e) {
 			$this->error('Error downloading gz file:  ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
 			$this->saveErrorReport('DownloadExpediaData', 'Step:2 download File Gz', json_encode([
 				'getMessage' => $e->getMessage(), 
 				'getTraceAsString' => $e->getTraceAsString(),
+				'execution_time' => $this->executionTimeReport() . ' sec',
 			]));
-            return false;
         }
     }
 
-    function unzipFile (): bool
+	/*
+	 * Unzip file
+	 * @return void
+	 * */
+    function unzipFile (): void
     {
+		$this->executionTimeReport();
+		$this->executionStepTime();
 		try {
-			$absolutePath = storage_path();
-			// $output = shell_exec('gunzip -c -t ' . $absolutePath . '/app/expedia_' . $this->type . '.gz');
-
-			if (!Storage::exists('expedia_' . $this->type . '.gz')) {
-				$this->error('Error unzip file:  ' . json_encode(['error' => 'File not found']));
-				$this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
-					'error' => 'File not found', 
-				]));
-				return false;
-			}
+			$archive = self::S3mount . '/expedia_' . $this->type . '.gz';
+			$result = Process::timeout(3600)->run('gunzip -f ' . $archive);
 			
-			$result = Process::run('gunzip -c -t ' . $absolutePath . '/app/expedia_' . $this->type . '.gz');
-
 			if ($result->successful()) {
 				$this->saveSuccessReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
-					'output' => $result, 
+					'archive' => $archive,
+					'result' => $result, 
+					'execution_time' => $this->executionTimeReport() . ' sec',
 				]));
-				$this->info('Error unzip file:  ' . json_encode(['result' => $result]));
-				return true;
+				$this->info('DownloadExpediaData Step:3 unzip file: ' . json_encode([
+					'archive' => $archive,
+					'result' => $result,
+					'execution_time' => $this->executionStepTime() . ' sec',
+				]));
 			} else {
-				$this->error('Error unzip file:  ' . json_encode(['result' => $result]));
-				$this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
-					'getMessage' => $result, 
+				$this->error('Error DownloadExpediaData Step:3 unzip file:  ' . json_encode([
+					'result' => $result->throw(),
+					'execution_time' => $this->executionStepTime() . ' sec',
 				]));
-				return false;
+				$this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
+					'getMessage' => $result->throw(), 
+					'execution_time' => $this->executionTimeReport() . ' sec',
+				]));
 			}
 		} catch (\Exception $e) {
 			$this->error('Error unzip file:  ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
 			$this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip File', json_encode([
 				'getMessage' => $e->getMessage(),
 				'getTraceAsString' => $e->getTraceAsString(),
+				'execution_time' => $this->executionTimeReport() . ' sec',
 			]));
-			return false;
 		}   
 		
     }
 
+	/*
+	 * Parse json to db
+	 * @return void
+	 * */
     function parseJsonToDb (): void
     {
+		$this->executionTimeReport();
+		$this->executionStepTime();
+
+		// Delete all existing data
         ExpediaContent::query()->delete();
 		// DB::update("ALTER TABLE {expedia_contents} AUTO_INCREMENT = 1;");
 
-        $filePath = storage_path() . '/app/expedia_' . $this->type;
+        // $filePath = storage_path() . '/app/expedia_' . $this->type;
+
+		$filePath = self::S3mount . '/expedia_' . $this->type;
 
         // Open the JSONL file for reading
         $file = fopen($filePath, 'r');
@@ -240,7 +267,6 @@ class DownloadExpediaData extends Command
             'postal_code', 'country_code', 'latitude', 'longitude', 'category_name',
             'checkin_time', 'checkout_time', 'total_occupancy',
         ];
-        $start_time = microtime(true);
 
         while (($line = fgets($file)) !== false) {
             // Parse JSON from each line
@@ -325,6 +351,7 @@ class DownloadExpediaData extends Command
 					$this->saveErrorReport('DownloadExpediaData', 'Import Json lData', json_encode([
 						'getMessage' => $e->getMessage(), 
 						'getTraceAsString' => $e->getTraceAsString(),
+						'execution_time' => $this->executionTimeReport() . ' sec',
 					]));
                 }
                 $batchCount++;
@@ -343,6 +370,7 @@ class DownloadExpediaData extends Command
 				$this->saveErrorReport('DownloadExpediaData', 'Step:4 Import Json to Data', json_encode([
 					'getMessage' => $e->getMessage(), 
 					'getTraceAsString' => $e->getTraceAsString(),
+					'execution_time' => $this->executionTimeReport() . ' sec',
 				]));
             }
         }
@@ -350,9 +378,12 @@ class DownloadExpediaData extends Command
 		ExpediaContent::where('created_at', '<', Carbon::now())->delete();
 
         fclose($file);
-        $end_time = microtime(true);
-        $execution_time = ($end_time - $start_time);
-        $this->info('Import completed. ' . round($execution_time, 2) . " seconds");
+
+        $this->info('Import completed. ' . $this->executionStepTime() . " seconds");
+
+		$this->saveSuccessReport ('DownloadExpediaData', 'Step:4 Import Json to Data', json_encode([
+			'execution_time' => $this->executionTimeReport() . ' sec',
+		]));
 
     }
 
@@ -366,8 +397,16 @@ class DownloadExpediaData extends Command
 
     private function executionStepTime ()
     {
-        $execution_time = (microtime(true) - $this->current_time);
+        $execution_time = round((microtime(true) - $this->current_time), 3);
         $this->step_current_time = microtime(true);
+
+        return $execution_time;
+    }
+
+	private function executionTimeReport ()
+    {
+        $execution_time = round((microtime(true) - $this->current_time_report), 3);
+        $this->current_time_report = microtime(true);
 
         return $execution_time;
     }
