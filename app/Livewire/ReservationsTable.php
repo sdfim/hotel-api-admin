@@ -29,7 +29,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(Reservation::query()->whereNull('canceled_at')->orderBy('created_at','DESC'))
+            ->query(Reservation::query()->whereNull('canceled_at')->orderBy('created_at', 'DESC'))
             ->columns([
                 ViewColumn::make('reservation_contains')
                     ->searchable(isIndividual: true)
