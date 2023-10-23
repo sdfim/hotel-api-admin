@@ -3,7 +3,7 @@
 namespace App\Livewire\GeneralConfiguration;
 
 use App\Models\GeneralConfiguration;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -77,7 +77,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->required(),
 				Select::make('currently_suppliers')
 					->label('Which Suppliers are currently being searched for')
-                    ->options(Suppliers::all()->pluck('name', 'id'))
+                    ->options(Supplier::all()->pluck('name', 'id'))
 					->multiple()
                     ->required(),
                 TextInput::make('time_reservations_kept')
