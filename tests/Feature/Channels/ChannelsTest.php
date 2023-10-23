@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Channels;
 
-use App\Models\Channels;
+use App\Models\Channel;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -33,7 +33,7 @@ class ChannelsTest extends TestCase
     public function test_possibility_of_creating_channel(): void
     {
         $this->auth();
-        $channels = Channels::factory()->create();
+        $channels = Channel::factory()->create();
 
         $response = $this->get(route('channels.create', $channels->id));
         $response->assertStatus(200);
@@ -88,7 +88,7 @@ class ChannelsTest extends TestCase
     {
         $this->auth();
 
-        $channels = Channels::factory()->create();
+        $channels = Channel::factory()->create();
         $response = $this->get(route('channels.edit', $channels->id));
         $response->assertStatus(200);
     }
@@ -101,7 +101,7 @@ class ChannelsTest extends TestCase
     {
         $this->auth();
 
-        $channel = Channels::factory()->create();
+        $channel = Channel::factory()->create();
 
         $response = $this->get(route('channels.show', $channel->id));
         $response->assertStatus(200);
@@ -117,7 +117,7 @@ class ChannelsTest extends TestCase
     {
         $this->auth();
 
-        $channel = Channels::factory()->create();
+        $channel = Channel::factory()->create();
 
         $response = $this->delete("/admin/channels/$channel->id");
 

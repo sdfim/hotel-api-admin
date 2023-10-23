@@ -5,7 +5,7 @@ namespace Tests\Feature\PricingRules;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use App\Models\PricingRules;
+use App\Models\PricingRule;
 use App\Models\Supplier;
 use App\Models\User;
 
@@ -121,7 +121,7 @@ class PricingRulesControllerTest extends TestCase
     {
         $this->auth();
 
-        $pricingRule = PricingRules::factory()->create();
+        $pricingRule = PricingRule::factory()->create();
         $supplier = Supplier::factory()->create();
 
         $newData = [
@@ -156,7 +156,7 @@ class PricingRulesControllerTest extends TestCase
     {
         $this->auth();
 
-        $pricingRule = PricingRules::factory()->create();
+        $pricingRule = PricingRule::factory()->create();
 
         $response = $this->delete(route('pricing_rules.destroy', [$pricingRule->id]));
         $response->assertStatus(302);

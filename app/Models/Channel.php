@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Channels extends Model
+class Channel extends Model
 {
     use HasFactory;
 
@@ -18,7 +18,7 @@ class Channels extends Model
 
     public function getTokenId($token)
     {
-        return Channels::where('access_token', 'like', '%' . $token)->first()->token_id ?? null;
+        return Channel::where('access_token', 'like', '%' . $token)->first()->token_id ?? null;
     }
 }
 

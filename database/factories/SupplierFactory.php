@@ -2,21 +2,20 @@
 
 namespace Database\Factories;
 
-use App\Models\Contains;
-
+use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Contains>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Suppliers>
  */
-class ContainsFactory extends Factory
+class SupplierFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Contains::class;
+    protected $model = Supplier::class;
 
     /**
      * Define the model's default state.
@@ -26,8 +25,8 @@ class ContainsFactory extends Factory
     public function definition (): array
     {
         return [
-            'name' => 'Flight',
-            'description' => 'Test description',
+            'name' => $this->faker->name(),
+            'description' => $this->faker->name(),
         ];
     }
 }

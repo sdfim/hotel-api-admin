@@ -24,7 +24,7 @@ class Reservation extends Model
 
     public function channel(): BelongsTo
     {
-        return $this->belongsTo(Channels::class);
+        return $this->belongsTo(Channel::class);
     }
 
     public function contains(): BelongsTo

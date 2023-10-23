@@ -2,7 +2,7 @@
 
 namespace App\Livewire\PricingRules;
 
-use App\Models\PricingRules;
+use App\Models\PricingRule;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -29,7 +29,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(PricingRules::query())
+            ->query(PricingRule::query())
             ->columns([
                 TextColumn::make('suppliers.name')
                     ->sortable()
@@ -119,12 +119,12 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(PricingRules $record): string => route('pricing_rules.show', $record)),
+                        ->url(fn(PricingRule $record): string => route('pricing_rules.show', $record)),
                     EditAction::make()
-                        ->url(fn(PricingRules $record): string => route('pricing_rules.edit', $record)),
+                        ->url(fn(PricingRule $record): string => route('pricing_rules.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(PricingRules $record) => $record->delete())
+                        ->action(fn(PricingRule $record) => $record->delete())
                 ])
             ])
             ->bulkActions([

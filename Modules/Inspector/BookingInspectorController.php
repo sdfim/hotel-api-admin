@@ -3,7 +3,7 @@
 namespace Modules\Inspector;
 
 use Illuminate\Support\Facades\Storage;
-use App\Models\Channels;
+use App\Models\Channel;
 use App\Models\ApiBookingInspector;
 use Modules\Inspector\BaseInspectorController;
 class BookingInspectorController extends BaseInspectorController
@@ -13,7 +13,7 @@ class BookingInspectorController extends BaseInspectorController
 		try {
 			$this->current_time = microtime(true);
 
-			$ch = new Channels;
+			$ch = new Channel;
 			$token_id = $ch->getTokenId(request()->bearerToken());
 			$search_id = $query['search_id'];
 			$query = json_encode($query);
@@ -41,7 +41,7 @@ class BookingInspectorController extends BaseInspectorController
 				'search_id' => $search_id,
 				'search_type' => $search_type,
 				'type' => $type,
-				'sub_type' => $subType, 
+				'sub_type' => $subType,
 				'request' => $query,
 				'response_path' => $path,
 				'client_response_path' => $client_path,
@@ -54,7 +54,7 @@ class BookingInspectorController extends BaseInspectorController
 
 		} catch (\Exception $e) {
             \Log::error('Error save ApiSearchInspector: ' . $e->getMessage(). ' | ' . $e->getLine() . ' | ' . $e->getFile());
-			
+
 			return false;
 		}
 	}

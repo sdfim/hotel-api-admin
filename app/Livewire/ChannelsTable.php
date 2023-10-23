@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\Channels;
+use App\Models\Channel;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -29,7 +29,7 @@ class ChannelsTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(Channels::query())
+            ->query(Channel::query())
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
@@ -50,12 +50,12 @@ class ChannelsTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Channels $record): string => route('channels.show', $record)),
+                        ->url(fn(Channel $record): string => route('channels.show', $record)),
                     EditAction::make()
-                        ->url(fn(Channels $record): string => route('channels.edit', $record)),
+                        ->url(fn(Channel $record): string => route('channels.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(Channels $record) => $record->delete())
+                        ->action(fn(Channel $record) => $record->delete())
                 ])
             ])
             ->bulkActions([

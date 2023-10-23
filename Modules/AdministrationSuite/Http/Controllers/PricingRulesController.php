@@ -2,7 +2,7 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use App\Models\PricingRules;
+use App\Models\PricingRule;
 use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -53,7 +53,7 @@ class PricingRulesController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate($this->validate);
-        PricingRules::create($request->all());
+        PricingRule::create($request->all());
 
         return redirect()->route('pricing_rules.index')->with('success', 'Pricing rule created successfully.');
     }
@@ -64,7 +64,7 @@ class PricingRulesController extends Controller
     public function show(string $id): View
     {
         $text = $this->message;
-        $pricingRule = PricingRules::findOrFail($id);
+        $pricingRule = PricingRule::findOrFail($id);
 
         return view('dashboard.pricing-rules.show', compact('pricingRule', 'text'));
     }
@@ -75,7 +75,7 @@ class PricingRulesController extends Controller
     public function edit(string $id): View
     {
         $text = $this->message;
-        $pricingRules = PricingRules::findOrFail($id);
+        $pricingRules = PricingRule::findOrFail($id);
         return view('dashboard.pricing-rules.update', compact('pricingRules', 'text'));
     }
 
@@ -84,7 +84,7 @@ class PricingRulesController extends Controller
      */
     public function update(Request $request, string $id): RedirectResponse
     {
-        $pricingRules = PricingRules::findOrFail($id);
+        $pricingRules = PricingRule::findOrFail($id);
         $request->validate($this->validate);
         $pricingRules->update($request->all());
 
@@ -97,7 +97,7 @@ class PricingRulesController extends Controller
      */
     public function destroy(string $id): RedirectResponse
     {
-        $pricingRules = PricingRules::findOrFail($id);
+        $pricingRules = PricingRule::findOrFail($id);
         $pricingRules->delete();
 
         return redirect()->route('pricing_rules.index')

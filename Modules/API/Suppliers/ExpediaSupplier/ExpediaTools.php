@@ -2,7 +2,7 @@
 
 namespace Modules\API\Suppliers\ExpediaSupplier;
 
-use App\Models\Channels;
+use App\Models\Channel;
 use Illuminate\Support\Facades\Cache;
 use App\Models\Reservation;
 use App\Models\ApiSearchInspector;
@@ -15,7 +15,7 @@ class ExpediaTools
 	private $expedia;
 	public function __construct() {
 		$this->apiInspector = new ApiSearchInspector();
-		$this->channel = new Channels();
+		$this->channel = new Channel();
 		$this->expedia = new ExpediaContent();
 	}
 
@@ -23,7 +23,7 @@ class ExpediaTools
 	{
 		try {
 			$token_id = $this->channel->getTokenId(request()->bearerToken());
-			$channel_id = Channels::where('token_id', $token_id)->first()->id;
+			$channel_id = Channel::where('token_id', $token_id)->first()->id;
 
 			$reservationsData = $this->apiInspector->getReservationsDataBySearchId($filters);
 

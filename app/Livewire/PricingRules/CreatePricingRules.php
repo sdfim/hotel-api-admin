@@ -3,9 +3,9 @@
 namespace App\Livewire\PricingRules;
 
 use Livewire\Component;
-use App\Models\Channels;
+use App\Models\Channel;
 use App\Models\GiataProperty;
-use App\Models\PricingRules;
+use App\Models\PricingRule;
 use App\Models\Supplier;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -53,7 +53,7 @@ class CreatePricingRules extends Component implements HasForms
                     ->required(),
                 Select::make('channel_id')
                     ->label('Channel')
-                    ->options(Channels::all()->pluck('name', 'id'))
+                    ->options(Channel::all()->pluck('name', 'id'))
                     ->required(),
                 TextInput::make('name')
                     ->required()
@@ -138,7 +138,7 @@ class CreatePricingRules extends Component implements HasForms
                     ->required(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
             ])
             ->statePath('data')
-            ->model(PricingRules::class);
+            ->model(PricingRule::class);
     }
 
     /**
@@ -160,7 +160,7 @@ class CreatePricingRules extends Component implements HasForms
     {
         $data = $this->form->getState();
 
-        $record = PricingRules::create($data);
+        $record = PricingRule::create($data);
 
         $this->form->model($record)->saveRelationships();
 

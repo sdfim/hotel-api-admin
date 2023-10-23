@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class PricingRules extends Model
+class PricingRule extends Model
 {
     use HasFactory;
 
@@ -47,6 +47,6 @@ class PricingRules extends Model
 
     public function channels(): BelongsTo
     {
-        return $this->belongsTo(Channels::class, 'channel_id');
+        return $this->belongsTo(Channel::class, 'channel_id');
     }
 }

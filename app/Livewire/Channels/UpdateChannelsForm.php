@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Channels;
 
-use App\Models\Channels;
+use App\Models\Channel;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -23,15 +23,15 @@ class UpdateChannelsForm extends Component implements HasForms
     public ?array $data = [];
 
     /**
-     * @var Channels
+     * @var Channel
      */
-    public Channels $record;
+    public Channel $record;
 
     /**
-     * @param Channels $channel
+     * @param Channel $channel
      * @return void
      */
-    public function mount(Channels $channel): void
+    public function mount(Channel $channel): void
     {
         $this->record = $channel;
         $this->form->fill($this->record->attributesToArray());

@@ -6,7 +6,7 @@ use Modules\API\PricingAPI\ResponseModels\HotelResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
-use App\Models\Channels;
+use App\Models\Channel;
 
 class ExpediaPricingDto
 {
@@ -41,7 +41,7 @@ class ExpediaPricingDto
 		$hotelResponse->setSupplierHotelId($propertyGroup['property_id']);
 		$hotelResponse->setDestination($this->query['destination']);
 		$hotelResponse->setMealPlansAvailable($propertyGroup['meal_plans_available'] ?? '');
-		
+
 		$hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
 		$hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
 		$countRefundableRates = $this->fetchCountRefundableRates($propertyGroup);
@@ -79,7 +79,7 @@ class ExpediaPricingDto
 	public function setRoomGroupsResponse(array $roomGroup, $propertyGroup) : array
 	{
 		$giataId = $propertyGroup['property_id'];
-		$ch = new Channels;
+		$ch = new Channel;
 		$channelId = $ch->getTokenId(request()->bearerToken());
 		$pricingRulesApplier = [];
 		// stdclass to array
@@ -88,7 +88,7 @@ class ExpediaPricingDto
 			$pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $channelId, $this->query, $rg);
 			if ($pricingRulesApplier['total_price'] > 0 && $pricingRulesApplier['total_price'] < $this->lowest_priced_room_group) {
 				$this->lowest_priced_room_group = $pricingRulesApplier['total_price'];
-			} 
+			}
 		} catch (\Exception $e) {
 			\Log::error('ExpediaPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
 		}

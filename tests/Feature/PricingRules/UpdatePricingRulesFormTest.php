@@ -3,7 +3,7 @@
 namespace Tests\Feature\PricingRules;
 
 use App\Livewire\PricingRules\UpdatePricingRules;
-use App\Models\PricingRules;
+use App\Models\PricingRule;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -23,7 +23,7 @@ class UpdatePricingRulesFormTest extends TestCase
     public function test_possibility_of_updating_an_existing_pricing_rule(): void
     {
         $this->auth();
-        $pricing_rules = PricingRules::factory()->create();
+        $pricing_rules = PricingRule::factory()->create();
         $supplier = Supplier::factory()->create();
         Livewire::test(UpdatePricingRules::class, ['pricingRules' => $pricing_rules])
             ->set('data.name', 'Updated Name')

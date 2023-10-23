@@ -2,20 +2,20 @@
 
 namespace Database\Factories;
 
-use App\Models\Supplier;
+use App\Models\Channel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Suppliers>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Channels>
  */
-class SuppliersFactory extends Factory
+class ChannelFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = Supplier::class;
+    protected $model = Channel::class;
 
     /**
      * Define the model's default state.
@@ -24,7 +24,10 @@ class SuppliersFactory extends Factory
      */
     public function definition (): array
     {
+        $token = auth()->user()->createToken('name');
         return [
+            'token_id' => $token->accessToken->id,
+            'access_token' => $token->plainTextToken,
             'name' => $this->faker->name(),
             'description' => $this->faker->name(),
         ];

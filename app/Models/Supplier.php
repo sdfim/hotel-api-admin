@@ -14,7 +14,7 @@ class Supplier extends Model
 
     public function pricingRules(): HasMany
     {
-        return $this->hasMany(PricingRules::class);
+        return $this->hasMany(PricingRule::class);
     }
 
     public static function getExpediaId()

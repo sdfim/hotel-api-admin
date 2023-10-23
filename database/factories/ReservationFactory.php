@@ -8,7 +8,7 @@ use App\Models\Reservation;
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Reservations>
  */
-class ReservationsFactory extends Factory
+class ReservationFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.

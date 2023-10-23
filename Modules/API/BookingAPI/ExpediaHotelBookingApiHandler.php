@@ -5,7 +5,7 @@ namespace Modules\API\BookingAPI;
 use App\Jobs\SaveBookingInspector;
 use App\Models\ApiSearchInspector;
 use App\Models\ApiBookingInspector;
-use App\Models\Channels;
+use App\Models\Channel;
 use Illuminate\Http\Request;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
@@ -58,13 +58,13 @@ class ExpediaHotelBookingApiHandler
 		$booking_id = (string) Str::uuid();
 
 		SaveBookingInspector::dispatch([
-			$booking_id, 
-			$filters, 
-			$dataResponse, 
+			$booking_id,
+			$filters,
+			$dataResponse,
 			[],
-			1, 
-			'add_item', 
-			'price_check' . ($queryHold ? ':hold' : ''), 
+			1,
+			'add_item',
+			'price_check' . ($queryHold ? ':hold' : ''),
 			'hotel'
 		]);
 
@@ -90,16 +90,16 @@ class ExpediaHotelBookingApiHandler
 			$dataResponse = json_decode(''.$e->getResponse()->getBody());
 			return (array)$dataResponse;
 		}
-		
+
 		if (!$dataResponse) return [];
 		SaveBookingInspector::dispatch([
-			$booking_id, 
-			$filters, 
-			$dataResponse, 
+			$booking_id,
+			$filters,
+			$dataResponse,
 			[],
-			1, 
-			'add_item', 
-			'create' . ($queryHold ? ':hold' : ''), 
+			1,
+			'add_item',
+			'create' . ($queryHold ? ':hold' : ''),
 			'hotel'
 		]);
 
@@ -128,7 +128,7 @@ class ExpediaHotelBookingApiHandler
 		$viewSupplierData = $filters['supplier_data'] ?? false;
 		if ($viewSupplierData) $res = (array)$dataResponse;
 		else $res = [
-			'booking_id' => $booking_id, 
+			'booking_id' => $booking_id,
 			'search_id' => $filters['search_id'],
 			'links' => [
 				'remove' => [
@@ -147,13 +147,13 @@ class ExpediaHotelBookingApiHandler
 		];
 
 		SaveBookingInspector::dispatch([
-			$booking_id, 
-			$filters, 
-			$dataResponse, 
-			$res, 
-			1, 
-			'add_item', 
-			'retrieve' . ($queryHold ? ':hold' : ''), 
+			$booking_id,
+			$filters,
+			$dataResponse,
+			$res,
+			1,
+			'add_item',
+			'retrieve' . ($queryHold ? ':hold' : ''),
 			'hotel'
 		]);
 
@@ -183,7 +183,7 @@ class ExpediaHotelBookingApiHandler
 		$filters['search_id'] = $search_id;
 		$booking_id = $filters['booking_id'];
 
-		# Delete item DELETE method query 
+		# Delete item DELETE method query
 		$props = $this->getPathParamsFromLink($linkDeleteItem);
 
 		// dump($props, $linkDeleteItem);
@@ -206,28 +206,28 @@ class ExpediaHotelBookingApiHandler
 
 			if (!$dataResponse) {
 				SaveBookingInspector::dispatch([
-					$booking_id, 
-					$filters, 
-					$dataResponse, 
-					['success' => 'Room cancelled.'], 
-					1, 
-					'remove_item', 
+					$booking_id,
+					$filters,
+					$dataResponse,
+					['success' => 'Room cancelled.'],
+					1,
+					'remove_item',
 					'true',
 					'hotel'
 				]);
 			}
-			
+
 			return ['success' => 'Room cancelled.'];
 		} catch (\Exception $e) {
 			$responseError = explode('response:', $e->getMessage());
 			$responseErrorArr = json_decode($responseError[1], true);
 			SaveBookingInspector::dispatch([
-				$booking_id, 
-				$filters, 
-				$responseErrorArr, 
-				['error' => 'Room is already cancelled.'], 
-				1, 
-				'remove_item', 
+				$booking_id,
+				$filters,
+				$responseErrorArr,
+				['error' => 'Room is already cancelled.'],
+				1,
+				'remove_item',
 				'false',
 				'hotel'
 			]);
@@ -242,7 +242,7 @@ class ExpediaHotelBookingApiHandler
 	public function retrieveItems(array $filters): array|null
 	{
 		$booking_id = $filters['booking_id'];
-		
+
 		# step 1 Read Booking Inspector, Get linck  GET method from 'add_item | post_book'
 		$inspector = new ApiBookingInspector();
 		$linkDeleteItem = $inspector->getLinckRetrieveItem($booking_id);
@@ -250,7 +250,7 @@ class ExpediaHotelBookingApiHandler
 		$search_id = $inspector->getSearchId($filters);
 		$filters['search_id'] = $search_id;
 
-		# Booking GET query 
+		# Booking GET query
 		$props = $this->getPathParamsFromLink($linkDeleteItem);
 		$addHeaders = [
 			'Customer-Ip' => '5.5.5.5',
@@ -266,12 +266,12 @@ class ExpediaHotelBookingApiHandler
 
 		if (!$dataResponse) return [];
 		SaveBookingInspector::dispatch([
-			$booking_id, 
-			$filters, 
-			$dataResponse, 
-			$clientDataResponse, 
-			1, 
-			'retrieve_items', 
+			$booking_id,
+			$filters,
+			$dataResponse,
+			$clientDataResponse,
+			1,
+			'retrieve_items',
 			'',
 			'hotel'
 		]);
@@ -285,7 +285,7 @@ class ExpediaHotelBookingApiHandler
 	 */
 	public function addPassengers(array $filters): array|null
 	{
-		
+
 	}
 
 	/**
@@ -301,7 +301,7 @@ class ExpediaHotelBookingApiHandler
 		$filters['search_id'] = $search_id;
 		$booking_id = $filters['booking_id'];
 
-		# Booking PUT query 
+		# Booking PUT query
 		$props = $this->getPathParamsFromLink($linkPutMetod);
 		$addHeaders = [
 			'Customer-Ip' => '5.5.5.5',
@@ -309,7 +309,7 @@ class ExpediaHotelBookingApiHandler
 			'Content-Type' => 'application/json',
 			'Test' => 'standard'
 		];
-		
+
 		$bodyArr = $filters['query'];
 		$body = json_encode($bodyArr);
 
@@ -323,12 +323,12 @@ class ExpediaHotelBookingApiHandler
 
 		if (!$dataResponse) return [];
 		SaveBookingInspector::dispatch([
-			$booking_id, 
-			$filters, 
-			$dataResponse, 
-			$dataResponse, 
-			1, 
-			'change_items', 
+			$booking_id,
+			$filters,
+			$dataResponse,
+			$dataResponse,
+			1,
+			'change_items',
 			'',
 			'hotel'
 		]);
@@ -349,8 +349,8 @@ class ExpediaHotelBookingApiHandler
 	 * @return array|null
 	 */
 	public function listBookings(): array|null
-	{	
-		$ch = new Channels;
+	{
+		$ch = new Channel;
 		$token_id = $ch->getTokenId(request()->bearerToken());
 
 		# step 1 Read Booking Inspector, Get linck  GET method from 'add_item | post_book'
@@ -400,6 +400,6 @@ class ExpediaHotelBookingApiHandler
 	 */
 	public function cancelBooking(array $filters): array|null
 	{
-		
+
 	}
 }

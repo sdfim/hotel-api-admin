@@ -8,7 +8,7 @@ use Tests\TestCase;
 use App\Models\User;
 use App\Models\Reservation;
 use App\Models\Contains;
-use App\Models\Channels;
+use App\Models\Channel;
 
 
 class ReservationsTest extends TestCase

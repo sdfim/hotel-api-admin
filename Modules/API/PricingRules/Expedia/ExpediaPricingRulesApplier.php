@@ -2,7 +2,7 @@
 
 namespace Modules\API\PricingRules\Expedia;
 
-use App\Models\PricingRules;
+use App\Models\PricingRule;
 use Modules\API\PricingRules\PricingRulesApplierInterface;
 
 class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
@@ -40,7 +40,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         $requiredRoomCount = count($requestArray['occupancy']);
 
         // supplier_id=1(is Expedia by default from seeder)
-        $pricingRule = PricingRules::where('supplier_id', 1)
+        $pricingRule = PricingRule::where('supplier_id', 1)
             ->where('property', $giataId)
             ->where('channel_id', $channelId)
             ->where('nights', '>=', $numberOfNights)

@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Channels;
 
-use App\Models\Channels;
+use App\Models\Channel;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -46,7 +46,7 @@ class CreateChannelsForm extends Component implements HasForms
                     ->maxLength(191),
             ])
             ->statePath('data')
-            ->model(Channels::class);
+            ->model(Channel::class);
     }
 
     /**
@@ -58,7 +58,7 @@ class CreateChannelsForm extends Component implements HasForms
         $token = auth()->user()->createToken($data['name']);
         $data['token_id'] = $token->accessToken->id;
         $data['access_token'] = $token->plainTextToken;
-        $record = Channels::create($data);
+        $record = Channel::create($data);
 
         $this->form->model($record)->saveRelationships();
 

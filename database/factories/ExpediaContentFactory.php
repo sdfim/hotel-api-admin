@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\Channels;
+use App\Models\Channel;
 use App\Models\ExpediaContent;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;

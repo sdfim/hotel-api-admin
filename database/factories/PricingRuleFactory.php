@@ -2,22 +2,22 @@
 
 namespace Database\Factories;
 
-use App\Models\Channels;
-use App\Models\PricingRules;
+use App\Models\Channel;
+use App\Models\PricingRule;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PricingRules>
  */
-class PricingRulesFactory extends Factory
+class PricingRuleFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = PricingRules::class;
+    protected $model = PricingRule::class;
 
     /**
      * Define the model's default state.
@@ -27,7 +27,7 @@ class PricingRulesFactory extends Factory
     public function definition(): array
     {
         $supplier = Supplier::factory()->create();
-        $channels = Channels::factory()->create();
+        $channels = Channel::factory()->create();
         return [
             'name' => $this->faker->name,
             'property' => $this->faker->word,

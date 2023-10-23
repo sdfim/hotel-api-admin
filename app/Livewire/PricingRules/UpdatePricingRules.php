@@ -2,9 +2,9 @@
 
 namespace App\Livewire\PricingRules;
 
-use App\Models\Channels;
+use App\Models\Channel;
 use App\Models\GiataProperty;
-use App\Models\PricingRules;
+use App\Models\PricingRule;
 use App\Models\Supplier;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
@@ -32,15 +32,15 @@ class UpdatePricingRules extends Component implements HasForms
     public ?array $data = [];
 
     /**
-     * @var PricingRules
+     * @var PricingRule
      */
-    public PricingRules $record;
+    public PricingRule $record;
 
     /**
-     * @param PricingRules $pricingRules
+     * @param PricingRule $pricingRules
      * @return void
      */
-    public function mount(PricingRules $pricingRules): void
+    public function mount(PricingRule $pricingRules): void
     {
         $this->record = $pricingRules;
         $this->form->fill($this->record->attributesToArray());
@@ -60,7 +60,7 @@ class UpdatePricingRules extends Component implements HasForms
                     ->required(),
                 Select::make('channel_id')
                     ->label('Channel')
-                    ->options(Channels::all()->pluck('name', 'id'))
+                    ->options(Channel::all()->pluck('name', 'id'))
                     ->required(),
                 TextInput::make('name')
                     ->required()

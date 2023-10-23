@@ -3,7 +3,7 @@
 namespace Modules\Inspector;
 
 use Illuminate\Support\Facades\Storage;
-use App\Models\Channels;
+use App\Models\Channel;
 use App\Models\ApiSearchInspector;
 use Modules\Inspector\BaseInspectorController;
 class SearchInspectorController extends BaseInspectorController
@@ -13,7 +13,7 @@ class SearchInspectorController extends BaseInspectorController
 		try {
 			$this->current_time = microtime(true);
 
-			$ch = new Channels;
+			$ch = new Channel;
 			$token_id = $ch->getTokenId(request()->bearerToken());
 			$query = json_encode($query);
 			$content = json_encode($content);
@@ -50,7 +50,7 @@ class SearchInspectorController extends BaseInspectorController
 
 		} catch (\Exception $e) {
             \Log::error('Error save ApiSearchInspector: ' . $e->getMessage(). ' | ' . $e->getLine() . ' | ' . $e->getFile());
-			
+
 			return false;
 		}
 	}
