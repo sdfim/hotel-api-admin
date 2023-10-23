@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('General channels') }}
+    {{ __('General Channels') }}
 @endsection
 @section('content')
     <!-- -->

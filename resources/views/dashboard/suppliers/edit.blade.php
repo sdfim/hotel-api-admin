@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Suppliers') }}
+    {{ __('Edit Supplier') }}
 @endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6">

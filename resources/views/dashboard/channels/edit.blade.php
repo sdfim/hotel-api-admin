@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('General channels') }}
+    {{ __('Edit Channel') }}
 @endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6">

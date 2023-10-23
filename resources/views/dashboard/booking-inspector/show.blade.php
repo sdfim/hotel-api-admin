@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Response clear') }}
+    {{ __('Clear Response') }}
 @endsection
 @section('content')
     <style>

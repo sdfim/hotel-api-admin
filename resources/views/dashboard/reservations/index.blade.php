@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Reservation') }}
+    {{ __('Reservations List') }}
 @endsection
 @section('content')
     <!-- -->

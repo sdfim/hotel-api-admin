@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Property Weighting') }}
+    {{ __('Property Weighting Details') }}
 @endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6">
