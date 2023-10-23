@@ -13,10 +13,12 @@ class ExpediaPricingDto
 	private ExpediaPricingRulesApplier $pricingRulesApplier;
 	private array $query;
 	private string $search_id;
+	private float $lowest_priced_room_group;
 
 	public function __construct()
 	{
 		$this->pricingRulesApplier = new ExpediaPricingRulesApplier();
+		$this->lowest_priced_room_group = 100000;
 	}
 
 	public function ExpediaToHotelResponse(array $supplierResponse, array $query, string $search_id) : array
@@ -39,7 +41,7 @@ class ExpediaPricingDto
 		$hotelResponse->setSupplierHotelId($propertyGroup['property_id']);
 		$hotelResponse->setDestination($this->query['destination']);
 		$hotelResponse->setMealPlansAvailable($propertyGroup['meal_plans_available'] ?? '');
-		$hotelResponse->setLowestPricedRoomGroup($propertyGroup['lowest_priced_room_group'] ?? '');
+		
 		$hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
 		$hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
 		$countRefundableRates = $this->fetchCountRefundableRates($propertyGroup);
@@ -50,6 +52,8 @@ class ExpediaPricingDto
 			$roomGroups[] = $this->setRoomGroupsResponse((array)$roomGroup, $propertyGroup);
 		}
 		$hotelResponse->setRoomGroups($roomGroups);
+
+		$hotelResponse->setLowestPricedRoomGroup($this->lowest_priced_room_group != 100000 ? $this->lowest_priced_room_group : '');
 
 		return $hotelResponse->toArray();
 	}
@@ -82,6 +86,9 @@ class ExpediaPricingDto
 		$rg = json_decode(json_encode($roomGroup['rates'][0]->occupancy_pricing), true);
 		try {
 			$pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $channelId, $this->query, $rg);
+			if ($pricingRulesApplier['total_price'] > 0 && $pricingRulesApplier['total_price'] < $this->lowest_priced_room_group) {
+				$this->lowest_priced_room_group = $pricingRulesApplier['total_price'];
+			} 
 		} catch (\Exception $e) {
 			\Log::error('ExpediaPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
 		}
