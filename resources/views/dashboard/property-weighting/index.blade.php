@@ -4,7 +4,7 @@
 @endsection
 @section('content')
     <!-- -->
-    <x-page-title title="Suppliers" pagetitle="index"/>
+    <x-page-title title="Property Weighting" pagetitle="index"/>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="mt-6 mb-6">
@@ -18,7 +18,7 @@
         <div class="col-span-12">
             <div class="card dark:bg-zinc-800 dark:border-zinc-600">
                 <div class="card-body relative overflow-x-auto">
-                    @livewire('weights-table')
+                    @livewire('property-weighting.property-weighting-table')
                 </div>
             </div>
         </div>

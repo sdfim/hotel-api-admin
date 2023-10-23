@@ -18,9 +18,14 @@ class PropertyWeighting extends Model
         'updated_at'
     ];
 
-    public function supplier(): BelongsTo
+    public function suppliers(): BelongsTo
     {
-        return $this->belongsTo(Suppliers::class);
+        return $this->belongsTo(Suppliers::class, 'supplier_id');
+    }
+
+    public function giataProperties(): BelongsTo
+    {
+        return $this->belongsTo(GiataProperty::class, 'property', 'code');
     }
 
 }

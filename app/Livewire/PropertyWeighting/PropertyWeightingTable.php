@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\PropertyWeighting;
 
 use App\Models\PropertyWeighting;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -17,7 +17,7 @@ use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
 
-class WeightsTable extends Component implements HasForms, HasTable
+class PropertyWeightingTable extends Component implements HasForms, HasTable
 {
     use InteractsWithTable;
     use InteractsWithForms;
@@ -32,13 +32,21 @@ class WeightsTable extends Component implements HasForms, HasTable
             ->query(PropertyWeighting::query())
             ->columns([
                 TextColumn::make('property')
-                    ->sortable(),
-                TextColumn::make('supplier.name')
+                    ->label('Property code')
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('giataProperties.name')
+                    ->label('Property name')
+                    ->searchable()
+                    ->toggleable(),
+                TextColumn::make('suppliers.name')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('weight')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
                 //
@@ -64,6 +72,6 @@ class WeightsTable extends Component implements HasForms, HasTable
      */
     public function render(): View
     {
-        return view('livewire.weights-table');
+        return view('livewire.property-weighting.property-weighting-table');
     }
 }
