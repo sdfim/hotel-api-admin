@@ -117,7 +117,7 @@ class ExpediaContent extends Model
         return $expedia->expedia_id;
     }
 
-	public function getHotelNameByHotelId($hotel_id): string
+	public function getHotelNameByHotelId(int $hotel_id): string
 	{
 		$expedia = ExpediaContent::where('property_id', $hotel_id)
 			->select('name')
@@ -125,5 +125,23 @@ class ExpediaContent extends Model
 			->first();
 
 		return $expedia->name;
+	}
+
+	public function getHotelImagesByHotelId(int $hotel_id): array
+	{
+		$expedia = ExpediaContent::where('property_id', $hotel_id)
+			->select('images')
+			->get()
+			->first();
+
+		$images = [];
+		$countImages = 0;
+		foreach ($expedia->images as $image) {
+			if ($countImages == 5) break;
+			$images[] = $image['links']['350px']['href'];
+			$countImages++;
+		}
+
+		return $images;
 	}
 }
