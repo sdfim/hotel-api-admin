@@ -10,14 +10,28 @@ class MapperExpediaGiata extends Model
 {
     use HasFactory;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'expedia_id',
         'giata_id',
         'step',
     ];
+
+    /**
+     * @var bool
+     */
     public $timestamps = false;
+
+    /**
+     * @var mixed
+     */
     protected $connection;
 
+    /**
+     * @param array $attributes
+     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -25,6 +39,9 @@ class MapperExpediaGiata extends Model
         $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'mapper_expedia_giatas';
     }
 
+    /**
+     * @return HasOne
+     */
     public function expedia(): HasOne
     {
         return $this->hasOne(ExpediaContent::class, 'property_id', 'expedia_id');

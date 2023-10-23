@@ -9,6 +9,9 @@ class Channel extends Model
 {
     use HasFactory;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'name',
         'description',
@@ -16,7 +19,11 @@ class Channel extends Model
         'access_token'
     ];
 
-    public function getTokenId($token)
+    /**
+     * @param $token
+     * @return int|null
+     */
+    public function getTokenId($token): int|null
     {
         return Channel::where('access_token', 'like', '%' . $token)->first()->token_id ?? null;
     }

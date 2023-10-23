@@ -178,7 +178,7 @@ class ExpediaHotelBookingApiHandler
 	{
 		# step 1 Read Booking Inspector, Get linck  DELETE method from 'add_item | get_book'
 		$inspector = new ApiBookingInspector();
-		$linkDeleteItem = $inspector->getLinckDeleteItem($filters);
+		$linkDeleteItem = $inspector->getLinkDeleteItem($filters);
 		$search_id = $inspector->getSearchId($filters);
 		$filters['search_id'] = $search_id;
 		$booking_id = $filters['booking_id'];
@@ -245,7 +245,7 @@ class ExpediaHotelBookingApiHandler
 
 		# step 1 Read Booking Inspector, Get linck  GET method from 'add_item | post_book'
 		$inspector = new ApiBookingInspector();
-		$linkDeleteItem = $inspector->getLinckRetrieveItem($booking_id);
+		$linkDeleteItem = $inspector->getLinkRetrieveItem($booking_id);
 
 		$search_id = $inspector->getSearchId($filters);
 		$filters['search_id'] = $search_id;
@@ -296,7 +296,7 @@ class ExpediaHotelBookingApiHandler
 	{
 		# step 1 Read Booking Inspector, Get linck  PUT method from 'add_item | get_book'
 		$inspector = new ApiBookingInspector();
-		$linkPutMetod = $inspector->getLinckPutMetod($filters);
+		$linkPutMetod = $inspector->getLinkPutMethod($filters);
 		$search_id = $inspector->getSearchId($filters);
 		$filters['search_id'] = $search_id;
 		$booking_id = $filters['booking_id'];
@@ -355,7 +355,7 @@ class ExpediaHotelBookingApiHandler
 
 		# step 1 Read Booking Inspector, Get linck  GET method from 'add_item | post_book'
 		$inspector = new ApiBookingInspector();
-		$list = $inspector->getAffiliateReferenceIdByCannel($token_id);
+		$list = $inspector->getAffiliateReferenceIdByChannel($token_id);
 		$path = '/v3/itineraries';
 		$addHeaders = [
 			'Customer-Ip' => '5.5.5.5',

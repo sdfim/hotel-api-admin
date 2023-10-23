@@ -10,6 +10,9 @@ class PricingRule extends Model
 {
     use HasFactory;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'name',
         'property',
@@ -35,16 +38,25 @@ class PricingRule extends Model
         'rule_expiration_date'
     ];
 
+    /**
+     * @return BelongsTo
+     */
     public function suppliers(): BelongsTo
     {
         return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
+    /**
+     * @return BelongsTo
+     */
     public function giataProperties(): BelongsTo
     {
         return $this->belongsTo(GiataProperty::class, 'property', 'code');
     }
 
+    /**
+     * @return BelongsTo
+     */
     public function channels(): BelongsTo
     {
         return $this->belongsTo(Channel::class, 'channel_id');

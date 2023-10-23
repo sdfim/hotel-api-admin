@@ -12,8 +12,14 @@ class ApiBookingInspector extends Model
 {
     use HasFactory;
 
+    /**
+     * @var string
+     */
     protected $table = 'api_booking_inspector';
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'id',
         'booking_id',
@@ -28,17 +34,27 @@ class ApiBookingInspector extends Model
         'client_response_path'
     ];
 
+    /**
+     * @return BelongsTo
+     */
     public function token(): BelongsTo
     {
         return $this->belongsTo(PersonalAccessToken::class);
     }
 
+    /**
+     * @return BelongsTo
+     */
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
     }
 
-    public function getLinckDeleteItem($filters): string|null
+    /**
+     * @param $filters
+     * @return string|null
+     */
+    public function getLinkDeleteItem($filters): string|null
     {
         $booking_id = $filters['booking_id'];
         $room_id = $filters['room_id'];
@@ -62,7 +78,11 @@ class ApiBookingInspector extends Model
         return $linkDeleteItem;
     }
 
-    public function getLinckPutMetod($filters): string|null
+    /**
+     * @param $filters
+     * @return string|null
+     */
+    public function getLinkPutMethod($filters): string|null
     {
         $booking_id = $filters['booking_id'];
         $room_id = $filters['room_id'];
@@ -86,7 +106,11 @@ class ApiBookingInspector extends Model
         return $linkPutMethod;
     }
 
-    public function getItineraryId($filters)
+    /**
+     * @param $filters
+     * @return string|null
+     */
+    public function getItineraryId($filters): null|string
     {
         $booking_id = $filters['booking_id'];
 
@@ -100,7 +124,11 @@ class ApiBookingInspector extends Model
         return $json_response->itinerary_id;
     }
 
-    public function getSearchId($filters)
+    /**
+     * @param $filters
+     * @return string|null
+     */
+    public function getSearchId($filters): null|string
     {
         $booking_id = $filters['booking_id'];
 
@@ -112,7 +140,11 @@ class ApiBookingInspector extends Model
         return $inspector->search_id;
     }
 
-    public function getLinckRetrieveItem($booking_id): string|null
+    /**
+     * @param $booking_id
+     * @return string|null
+     */
+    public function getLinkRetrieveItem($booking_id): string|null
     {
         $inspector = ApiBookingInspector::where('type', 'add_item')
             ->where('sub_type', 'like', 'create' . '%')
@@ -124,9 +156,13 @@ class ApiBookingInspector extends Model
         return $json_response->links->retrieve->href;
     }
 
-    public function getAffiliateReferenceIdByCannel($cannel): array|null
+    /**
+     * @param $channel
+     * @return array|null
+     */
+    public function getAffiliateReferenceIdByChannel($channel): array|null
     {
-        $inspectors = ApiBookingInspector::where('token_id', $cannel)
+        $inspectors = ApiBookingInspector::where('token_id', $channel)
             ->where(function ($query) {
                 $query->where(function ($query) {
                     $query->where('type', 'add_item')
@@ -150,6 +186,10 @@ class ApiBookingInspector extends Model
         return $list;
     }
 
+    /**
+     * @param string $booking_id
+     * @return array
+     */
     public function geTypeSupplierByBookingId(string $booking_id): array
     {
         $search = ApiBookingInspector::where('booking_id', $booking_id)->first();

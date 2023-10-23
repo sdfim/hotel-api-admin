@@ -5,13 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 class ExpediaContent extends Model
 {
     use HasFactory;
 
+    /**
+     * @var mixed
+     */
     protected $connection;
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'address' => 'array',
         'ratings' => 'array',
@@ -40,6 +47,9 @@ class ExpediaContent extends Model
         'all_inclusive' => 'array',
     ];
 
+    /**
+     * @param array $attributes
+     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -47,6 +57,9 @@ class ExpediaContent extends Model
         $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'expedia_contents';
     }
 
+    /**
+     * @return string[]
+     */
     public function getFullListFields(): array
     {
         return [
@@ -62,6 +75,9 @@ class ExpediaContent extends Model
         ];
     }
 
+    /**
+     * @return string[]
+     */
     public function getShortListFields(): array
     {
         return [
@@ -74,7 +90,12 @@ class ExpediaContent extends Model
         ];
     }
 
-    public function dtoDbToResponse($results, $fields)
+    /**
+     * @param $results
+     * @param $fields
+     * @return Collection
+     */
+    public function dtoDbToResponse($results, $fields): Collection
     {
         return collect($results)->map(function ($item) use ($fields) {
             foreach ($fields as $key) {
@@ -87,61 +108,78 @@ class ExpediaContent extends Model
         });
     }
 
+    /**
+     * @return HasMany
+     */
     public function mapperGiataExpedia(): HasMany
     {
         return $this->hasMany(MapperExpediaGiata::class, 'expedia_id', 'property_id');
     }
 
+    /**
+     * @param $city
+     * @return array
+     */
     public function getIdsByDestinationGiata($city): array
     {
-        $ids = GiataProperty::where('city', $city)
+        return GiataProperty::where('city', $city)
             ->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
             ->select('mapper_expedia_giatas.expedia_id')
             ->whereNotNull('mapper_expedia_giatas.expedia_id')
             ->get()
             ->pluck('expedia_id')
             ->toArray();
-
-        return $ids;
     }
 
-	public function getExpediaIdByGiataId($giata_id): int
+    /**
+     * @param $giata_id
+     * @return int
+     */
+    public function getExpediaIdByGiataId($giata_id): int
     {
         $expedia = ExpediaContent::leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.expedia_id', '=', 'expedia_contents.property_id')
-			->leftJoin('giata_properties', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
+            ->leftJoin('giata_properties', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
             ->select('mapper_expedia_giatas.expedia_id')
             ->where('mapper_expedia_giatas.giata_id', $giata_id)
             ->get()
-			->first();
+            ->first();
 
         return $expedia->expedia_id;
     }
 
-	public function getHotelNameByHotelId(int $hotel_id): string
-	{
-		$expedia = ExpediaContent::where('property_id', $hotel_id)
-			->select('name')
-			->get()
-			->first();
+    /**
+     * @param int $hotel_id
+     * @return string
+     */
+    public function getHotelNameByHotelId(int $hotel_id): string
+    {
+        $expedia = ExpediaContent::where('property_id', $hotel_id)
+            ->select('name')
+            ->get()
+            ->first();
 
-		return $expedia->name;
-	}
+        return $expedia->name;
+    }
 
-	public function getHotelImagesByHotelId(int $hotel_id): array
-	{
-		$expedia = ExpediaContent::where('property_id', $hotel_id)
-			->select('images')
-			->get()
-			->first();
+    /**
+     * @param int $hotel_id
+     * @return array
+     */
+    public function getHotelImagesByHotelId(int $hotel_id): array
+    {
+        $expedia = ExpediaContent::where('property_id', $hotel_id)
+            ->select('images')
+            ->get()
+            ->first();
 
-		$images = [];
-		$countImages = 0;
-		foreach ($expedia->images as $image) {
-			if ($countImages == 5) break;
-			$images[] = $image['links']['350px']['href'];
-			$countImages++;
-		}
+        $images = [];
+        $countImages = 0;
+        foreach ($expedia->images as $image) {
+            if ($countImages == 5) break;
+            $images[] = $image['links']['350px']['href'];
+            $countImages++;
+        }
 
-		return $images;
-	}
+        return $images;
+    }
 }

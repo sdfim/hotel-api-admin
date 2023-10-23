@@ -10,25 +10,26 @@ class Reservation extends Model
 {
     use HasFactory;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
-		'date_offload',
-		'date_travel',
-		'passenger_surname',
-		'reservation_contains',
-		'channel_id',
-		'total_cost',
-		'canceled_at',
-		'created_at',
-		'updated_at'
-	];
+        'date_offload',
+        'date_travel',
+        'passenger_surname',
+        'reservation_contains',
+        'channel_id',
+        'total_cost',
+        'canceled_at',
+        'created_at',
+        'updated_at'
+    ];
 
+    /**
+     * @return BelongsTo
+     */
     public function channel(): BelongsTo
     {
         return $this->belongsTo(Channel::class);
-    }
-
-    public function contains(): BelongsTo
-    {
-        return $this->belongsTo(Contains::class);
     }
 }

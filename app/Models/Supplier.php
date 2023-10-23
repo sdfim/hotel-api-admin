@@ -10,14 +10,27 @@ class Supplier extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id', 'name', 'description'];
+    /**
+     * @var string[]
+     */
+    protected $fillable = [
+        'id',
+        'name',
+        'description'
+    ];
 
+    /**
+     * @return HasMany
+     */
     public function pricingRules(): HasMany
     {
         return $this->hasMany(PricingRule::class);
     }
 
-    public static function getExpediaId()
+    /**
+     * @return int|string|null
+     */
+    public static function getExpediaId(): int|string|null
     {
         return Supplier::where('name', 'Expedia')->first()->id;
     }

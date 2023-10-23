@@ -12,8 +12,14 @@ class ApiSearchInspector extends Model
 {
     use HasFactory;
 
+    /**
+     * @var string
+     */
     protected $table = 'api_search_inspector';
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'id',
         'search_id',
@@ -26,11 +32,18 @@ class ApiSearchInspector extends Model
         'client_response_path'
     ];
 
+    /**
+     * @return BelongsTo
+     */
     public function token(): BelongsTo
     {
         return $this->belongsTo(PersonalAccessToken::class);
     }
 
+    /**
+     * @param $filters
+     * @return string
+     */
     public function getLinckPriceCheck($filters): string
     {
         $search_id = $filters['search_id'];
@@ -59,13 +72,21 @@ class ApiSearchInspector extends Model
         return $linkPriceCheck;
     }
 
+    /**
+     * @param string $search_id
+     * @return string
+     */
     public function geTypeBySearchId(string $search_id): string
     {
         $search = ApiSearchInspector::where('search_id', $search_id)->first();
         return $search->search_type;
     }
 
-	public function getReservationsDataBySearchId($filters): array
+    /**
+     * @param $filters
+     * @return array
+     */
+    public function getReservationsDataBySearchId($filters): array
     {
         $search_id = $filters['search_id'];
         $hotel_id = $filters['hotel_id']; // giata_id
@@ -76,20 +97,20 @@ class ApiSearchInspector extends Model
 
         $hotels = $json_response->results->Expedia;
 
-		$price = [];
-		foreach ($hotels as $hotel) {
-			if ($hotel->giata_hotel_id != $hotel_id) continue;
-			$hotel_id = $hotel->supplier_hotel_id;
-			foreach ($hotel->room_groups as $room) {
-				$price = [
-					'total_price' => $room->total_price,
-					'total_tax' => $room->total_tax,
-					'total_fees' => $room->total_fees,
-					'total_net' => $room->total_net,
-					'currency' => $room->currency,
-				];
-			}
-		}
+        $price = [];
+        foreach ($hotels as $hotel) {
+            if ($hotel->giata_hotel_id != $hotel_id) continue;
+            $hotel_id = $hotel->supplier_hotel_id;
+            foreach ($hotel->room_groups as $room) {
+                $price = [
+                    'total_price' => $room->total_price,
+                    'total_tax' => $room->total_tax,
+                    'total_fees' => $room->total_fees,
+                    'total_net' => $room->total_net,
+                    'currency' => $room->currency,
+                ];
+            }
+        }
 
         return ['query' => $json_response->query, 'price' => $price, 'supplier_hotel_id' => $hotel_id];
     }

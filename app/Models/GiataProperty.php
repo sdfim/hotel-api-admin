@@ -10,8 +10,14 @@ class GiataProperty extends Model
 {
     use HasFactory;
 
+    /**
+     * @var mixed
+     */
     protected $connection;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'code',
         'last_updated',
@@ -26,6 +32,9 @@ class GiataProperty extends Model
         'cross_references',
     ];
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'chain' => 'json',
         'address' => 'json',
@@ -34,6 +43,9 @@ class GiataProperty extends Model
         'cross_references' => 'json',
     ];
 
+    /**
+     * @param array $attributes
+     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -41,6 +53,9 @@ class GiataProperty extends Model
         $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_properties';
     }
 
+    /**
+     * @return HasOne
+     */
     public function mapperExpediaGiata(): HasOne
     {
         return $this->hasOne(MapperExpediaGiata::class, 'giata_code', 'code');
