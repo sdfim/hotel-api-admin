@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class GeneralConfiguration extends Model
 {
     use HasFactory;
+
+	protected $casts = [
+        'currently_suppliers' => 'array',
+    ];
 }
