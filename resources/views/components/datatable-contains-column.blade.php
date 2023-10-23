@@ -1,15 +1,15 @@
 @php
-	$field = json_decode($getState(), true);
-	$tooltip = '';
-	$content = '';
-	if (is_array($field)) {
-		foreach ($field as $key => $value) {
-			$tooltip .= $key . ': ' . $value .' <br>';
-			if ($key == 'booking_id') {
-				$content .= $key . ': ' . $value .' <br>';
-			}
-		}
-	}
+    $field = json_decode($getState(), true);
+    $tooltip = '';
+    $content = '';
+    if (is_array($field)) {
+        foreach ($field as $key => $value) {
+            $tooltip .= $key . ': ' . $value .' <br>';
+            if ($key == 'booking_id') {
+                $content .= $key . ': ' . $value .' <br>';
+            }
+        }
+    }
 @endphp
 
 <div x-data="{ show: false }">

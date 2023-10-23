@@ -88,16 +88,16 @@
                             <div class="absolute inset-0 transition-opacity bg-black bg-opacity-50 modal-overlay"></div>
                             <div class="p-4 mx-auto animate-translate sm:max-w-xl">
                                 <div
-                                        class="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl dark:bg-zinc-600">
+                                    class="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl dark:bg-zinc-600">
                                     <div class="bg-white dark:bg-zinc-700">
                                         <div
-                                                class="flex items-center p-4 border-b rounded-t border-gray-50 dark:border-zinc-600">
+                                            class="flex items-center p-4 border-b rounded-t border-gray-50 dark:border-zinc-600">
                                             <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 ">
                                                 Response {{$inspector->id}}
                                             </h3>
                                             <button
-                                                    class="inline-flex items-center px-2 py-1 text-sm text-gray-400 border-transparent rounded-lg btn hover:bg-gray-50/50 hover:text-gray-900 dark:text-gray-100 ltr:ml-auto rtl:mr-auto dark:hover:bg-zinc-600"
-                                                    type="button" data-tw-dismiss="modal">
+                                                class="inline-flex items-center px-2 py-1 text-sm text-gray-400 border-transparent rounded-lg btn hover:bg-gray-50/50 hover:text-gray-900 dark:text-gray-100 ltr:ml-auto rtl:mr-auto dark:hover:bg-zinc-600"
+                                                type="button" data-tw-dismiss="modal">
                                                 <i class="text-xl text-gray-500 mdi mdi-close dark:text-zinc-100/60"></i>
                                             </button>
                                         </div>
@@ -106,7 +106,7 @@
                                         </div>
                                         <!-- Modal footer -->
                                         <div
-                                                class="flex items-center gap-3 p-5 space-x-2 border-t rounded-b border-gray-50 dark:border-zinc-600">
+                                            class="flex items-center gap-3 p-5 space-x-2 border-t rounded-b border-gray-50 dark:border-zinc-600">
 
                                             <button type="button"
                                                     class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm btn dark:text-gray-100 hover:bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-gray-500/30 sm:mt-0 sm:w-auto sm:text-sm dark:bg-zinc-700 dark:border-zinc-600 dark:hover:bg-zinc-600 dark:focus:bg-zinc-600 dark:focus:ring-zinc-700 dark:focus:ring-gray-500/20"
@@ -129,16 +129,16 @@
                             @endphp
                             <div id="actions-toolbar">
                                 <button
-                                        class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
-                                        id="expand-response">Expand All
+                                    class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
+                                    id="expand-response">Expand All
                                 </button>
                                 <button
-                                        class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
-                                        id="collapse-response">Collapse All
+                                    class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
+                                    id="collapse-response">Collapse All
                                 </button>
                                 <input
-                                        class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
-                                        id="search-response" placeholder="search"></input>
+                                    class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                    id="search-response" placeholder="search"></input>
                             </div>
                             <json-viewer id="json-response" style="font-size:0.8em"></json-viewer>
                             </p>
@@ -153,16 +153,16 @@
                             @endphp
                             <div id="actions-toolbar">
                                 <button
-                                        class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
-                                        id="expand-client">Expand All
+                                    class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
+                                    id="expand-client">Expand All
                                 </button>
                                 <button
-                                        class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
-                                        id="collapse-client">Collapse All
+                                    class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
+                                    id="collapse-client">Collapse All
                                 </button>
                                 <input
-                                        class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
-                                        id="search-client" placeholder="search"></input>
+                                    class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                    id="search-client" placeholder="search"></input>
                             </div>
                             <json-viewer id="json-client" style="font-size:0.8em"></json-viewer>
                             </p>

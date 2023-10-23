@@ -33,13 +33,13 @@
     </div>
 @endsection
 @section('js')
-<script src="{{ URL::asset('build/js/json-viewer.js') }}"></script>
+    <script src="{{ URL::asset('build/js/json-viewer.js') }}"></script>
     <script>
         function openModal(id, type, json) {
             const el = document.querySelector('#modal-idlargemodal-' + id + '-' + type);
             el.classList.remove("hidden");
             el.classList.add("opened-modal-block");
-            insertJSON(id,json);
+            insertJSON(id, json);
         }
 
         function closeModal(id, type) {
@@ -56,12 +56,12 @@
             }
         })
 
-        function insertJSON(id,json){
-            document.querySelector('#json-response-'+id).data = json;
-            const viewer = document.querySelector('#json-response-'+id);
-            const expand = document.querySelector('#expand-response-'+id);
-            const collapse = document.querySelector('#collapse-response-'+id);
-            const search = document.querySelector('#search-response-'+id);
+        function insertJSON(id, json) {
+            document.querySelector('#json-response-' + id).data = json;
+            const viewer = document.querySelector('#json-response-' + id);
+            const expand = document.querySelector('#expand-response-' + id);
+            const collapse = document.querySelector('#collapse-response-' + id);
+            const search = document.querySelector('#search-response-' + id);
             let currentSearch_response;
             expand.addEventListener('click', (e) => {
                 e.preventDefault();

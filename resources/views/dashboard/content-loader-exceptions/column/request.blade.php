@@ -9,10 +9,10 @@
         data-tw-target="#modal-idlargemodal-{{ $getRecord()->report_id }}-request">JSON
 </button>
 <style>
-json-viewer{
-    padding: 10px;
-    text-wrap: wrap;
-}
+    json-viewer {
+        padding: 10px;
+        text-wrap: wrap;
+    }
 </style>
 <div class="relative z-50 hidden modal" id="modal-idlargemodal-{{ $getRecord()->report_id }}-request"
      aria-labelledby="modal-title" role="dialog" aria-modal="true">
@@ -33,7 +33,7 @@ json-viewer{
                         </button>
                     </div>
                     <div class="modal-body">
-                        Request:                        
+                        Request:
                         <div id="actions-toolbar">
                             <button
                                 class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
@@ -48,7 +48,7 @@ json-viewer{
                                 id="search-response-{{$getRecord()->report_id}}" placeholder="search"></input>
                         </div>
                         <json-viewer id="json-response-{{$getRecord()->report_id}}" style="font-size:0.8em">
-						</json-viewer>
+                        </json-viewer>
                     </div>
                     <!-- Modal footer -->
                     <div

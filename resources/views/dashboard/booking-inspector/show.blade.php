@@ -49,14 +49,14 @@
                             </div>
                             <div class="mt-2">
                                 <button type="button"
-                                    class="text-white px-4 py-3 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
-                                    data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">Request
+                                        class="text-white px-4 py-3 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
+                                        data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">Request
                                 </button>
                             </div>
                         </div>
                     </div>
                     <div class="mt-10 sm:mt-0">
-                        
+
                     </div>
                     <x-section-border/>
                 </div>
@@ -114,12 +114,12 @@
                     <div class="mt-5 tab-content">
                         <div class="block tab-pane" id="tab-pills-response">
                             <p class="mb-0 dark:text-gray-300">
-                                @php
-                                    $file_response = Storage::get($inspector->response_path);
-                                    if($file_response == ''){
-                                        $file_response = json_encode([]);
-                                    }
-                                @endphp
+                            @php
+                                $file_response = Storage::get($inspector->response_path);
+                                if($file_response == ''){
+                                    $file_response = json_encode([]);
+                                }
+                            @endphp
                             <div id="actions-toolbar">
                                 <button
                                     class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
@@ -138,12 +138,12 @@
                         </div>
                         <div class="hidden tab-pane" id="tab-pills-client-response">
                             <p class="mb-0 dark:text-gray-300">
-                                @php
-                                    $file_client_response = Storage::get($inspector->client_response_path);
-                                    if($file_client_response == ''){
-                                        $file_client_response = json_encode([]);
-                                    }
-                                @endphp
+                            @php
+                                $file_client_response = Storage::get($inspector->client_response_path);
+                                if($file_client_response == ''){
+                                    $file_client_response = json_encode([]);
+                                }
+                            @endphp
                             <div id="actions-toolbar">
                                 <button
                                     class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
@@ -167,7 +167,7 @@
     </div>
 @endsection
 @section('scripts')
-<script src="{{ URL::asset('build/js/json-viewer.js') }}"></script>
+    <script src="{{ URL::asset('build/js/json-viewer.js') }}"></script>
     <script src="{{ URL::asset('build/js/pages/nav&tabs.js') }}"></script>
 
     <script type="module">
