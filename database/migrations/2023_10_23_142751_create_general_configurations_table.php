@@ -14,14 +14,9 @@ return new class extends Migration {
             $table->id();
             $table->integer('time_supplier_requests');
             $table->integer('time_reservations_kept');
-            $table->string('currently_suppliers');
-            // $table->foreignId('channel_id')
-            // 	->constrained(
-            // 		table: 'channels',
-            // 		indexName: 'general_configurations__channel_id'
-            // 	);
+            $table->json('currently_suppliers');
             $table->integer('time_inspector_retained');
-            $table->dateTimeTz('star_ratings');
+            $table->float('star_ratings', 4, 2);
             $table->dateTimeTz('stop_bookings');
             $table->timestamps();
         });

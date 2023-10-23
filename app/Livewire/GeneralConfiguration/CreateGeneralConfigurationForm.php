@@ -3,16 +3,19 @@
 namespace App\Livewire\GeneralConfiguration;
 
 use App\Models\GeneralConfiguration;
+use App\Models\Suppliers;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+use Filament\Forms\Components\Select;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
+
 
 class CreateGeneralConfigurationForm extends Component implements HasForms
 {
@@ -67,31 +70,34 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
         return $form
             ->schema([
                 TextInput::make('time_supplier_requests')
-                    ->label('Time out on supplier requests')
+                    ->label('Time out on supplier requests, second')
                     ->numeric()
-                    ->minValue(0)
-                    ->maxValue(999999999)
+                    ->minValue(3)
+                    ->maxValue(120)
+                    ->required(),
+				Select::make('currently_suppliers')
+					->label('Which Suppliers are currently being searched for')
+                    ->options(Suppliers::all()->pluck('name', 'id'))
+					->multiple()
                     ->required(),
                 TextInput::make('time_reservations_kept')
-                    ->label('Length of Time Reservations are kept are offloading')
+                    ->label('Length of Time Reservations are kept are offloading, days')
                     ->numeric()
-                    ->minValue(0)
-                    ->maxValue(999999999)
-                    ->required(),
-                TextInput::make('currently_suppliers')
-                    ->label('Which Suppliers are currently being searched for')
-                    ->minLength(2)
-                    ->maxLength(191)
+                    ->minValue(7)
+                    ->maxValue(365)
                     ->required(),
                 TextInput::make('time_inspector_retained')
-                    ->label('How Long Inspector Data is retained')
+                    ->label('How Long Inspector Data is retained, days')
                     ->numeric()
-                    ->minValue(0)
-                    ->maxValue(999999999)
+                    ->minValue(60)
+                    ->maxValue(365)
                     ->required(),
-                DateTimePicker::make('star_ratings')
-                    ->label('What star ratings to be searched for on the system')
-                    ->default(now())
+				TextInput::make('star_ratings')
+                    ->label('What star ratings to be searched for on the system, 0 ... 5.5')
+                    ->numeric()
+					->step(0.5)
+                    ->minValue(0.0)
+                    ->maxValue(5.5)
                     ->required(),
                 DateTimePicker::make('stop_bookings')
                     ->label('Stop bookings with in a number of days / hours from time of search execution')
