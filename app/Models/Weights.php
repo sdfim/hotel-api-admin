@@ -10,11 +10,18 @@ class Weights extends Model
 {
     use HasFactory;
 
+    protected $table = 'weights';
+
     protected $fillable = ['property', 'supplier_id', 'weight', 'created_at', 'updated_at'];
 
-    public function supplier(): BelongsTo
+    public function suppliers(): BelongsTo
     {
-        return $this->belongsTo(Suppliers::class);
+        return $this->belongsTo(Suppliers::class, 'supplier_id');
+    }
+
+    public function giataProperties(): BelongsTo
+    {
+        return $this->belongsTo(GiataProperty::class, 'property', 'code');
     }
 
 }

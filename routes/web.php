@@ -10,7 +10,7 @@ use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
 use Modules\AdministrationSuite\Http\Controllers\PropertyMappingController;
 use Modules\AdministrationSuite\Http\Controllers\ReservationsController;
-use Modules\AdministrationSuite\Http\Controllers\WeightController;
+use Modules\AdministrationSuite\Http\Controllers\PropertyWeightingController;
 use Modules\AdministrationSuite\Http\Controllers\ChannelsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Illuminate\Support\Facades\Route;
@@ -56,7 +56,7 @@ Route::prefix('admin')->group(function () {
 
         Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
         Route::resource('reservations', ReservationsController::class)->except(['delete', 'store', 'create']);
-        Route::resource('weight', WeightController::class);
+        Route::resource('weight', PropertyWeightingController::class);
         Route::resource('giata', GiataController::class)->except(['delete', 'store', 'create']);
         Route::resource('expedia', ExpediaController::class)->except(['delete', 'store', 'create']);
         Route::resource('mapping', MappingExpediaGiatasController::class)->except(['index', 'update', 'create']);
