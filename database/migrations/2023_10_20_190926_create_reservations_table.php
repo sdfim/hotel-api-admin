@@ -8,7 +8,7 @@ return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up (): void
+    public function up(): void
     {
         Schema::create('reservations', function (Blueprint $table) {
             $table->id();
@@ -22,7 +22,7 @@ return new class extends Migration {
                     indexName: 'channels__channel_id'
                 );
             $table->float('total_cost', 8, 2);
-			$table->dateTimeTz('canceled_at')->nullable();
+            $table->dateTimeTz('canceled_at')->nullable();
             $table->timestamps();
         });
     }
@@ -30,7 +30,7 @@ return new class extends Migration {
     /**
      * Reverse the migrations.
      */
-    public function down (): void
+    public function down(): void
     {
         Schema::dropIfExists('reservations');
     }

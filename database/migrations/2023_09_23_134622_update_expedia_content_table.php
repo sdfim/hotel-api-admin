@@ -8,7 +8,7 @@ return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up (): void
+    public function up(): void
     {
         if (!Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->hasTable('expedia_contents')) {
             Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->create('expedia_contents', function (Blueprint $table) {
@@ -70,7 +70,7 @@ return new class extends Migration {
     /**
      * Reverse the migrations.
      */
-    public function down (): void
+    public function down(): void
     {
         Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->dropIfExists('expedia_contents');
     }

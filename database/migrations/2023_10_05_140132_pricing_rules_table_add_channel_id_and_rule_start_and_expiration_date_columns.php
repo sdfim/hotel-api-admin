@@ -8,7 +8,7 @@ return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up (): void
+    public function up(): void
     {
         Schema::table('pricing_rules', function (Blueprint $table) {
             $table->foreignId('channel_id')
@@ -28,7 +28,7 @@ return new class extends Migration {
     /**
      * Reverse the migrations.
      */
-    public function down (): void
+    public function down(): void
     {
         Schema::table('pricing_rules', function (Blueprint $table) {
             $table->dropForeign('pricing_rules__channel_id');

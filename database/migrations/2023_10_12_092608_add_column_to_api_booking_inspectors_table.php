@@ -8,7 +8,7 @@ return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up (): void
+    public function up(): void
     {
         Schema::table('api_booking_inspectors', function (Blueprint $table) {
             $table->string('search_type')->nullable()->after('booking_id');
@@ -18,7 +18,7 @@ return new class extends Migration {
     /**
      * Reverse the migrations.
      */
-    public function down (): void
+    public function down(): void
     {
         Schema::table('api_booking_inspectors', function (Blueprint $table) {
             $table->dropColumn('search_type');

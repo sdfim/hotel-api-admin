@@ -22,7 +22,7 @@ class ChannelFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition (): array
+    public function definition(): array
     {
         $token = auth()->user()->createToken('name');
         return [

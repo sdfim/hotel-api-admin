@@ -8,7 +8,7 @@ return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up (): void
+    public function up(): void
     {
         if (!Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->hasTable('giata_properties')) {
             Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->create('giata_properties', function (Blueprint $table) {
@@ -32,7 +32,7 @@ return new class extends Migration {
     /**
      * Reverse the migrations.
      */
-    public function down (): void
+    public function down(): void
     {
         Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->dropIfExists('giata_properties');
     }

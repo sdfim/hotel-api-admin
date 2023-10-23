@@ -45,7 +45,7 @@ class PricingRuleFactory extends Factory
             'rating' => $this->faker->word,
             'price_type_to_apply' => $this->faker->word,
             'price_value_type_to_apply' => $this->faker->word,
-            'price_value_to_apply' =>  2.5,
+            'price_value_to_apply' => 2.5,
             'price_value_fixed_type_to_apply' => null,
             'channel_id' => $channels->id,
             'rule_start_date' => date('Y-m-d H:i:s'),
