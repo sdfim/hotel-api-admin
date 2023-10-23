@@ -3,7 +3,7 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Reservations;
+use App\Models\Reservation;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Reservations>
@@ -15,7 +15,7 @@ class ReservationsFactory extends Factory
      *
      * @var string
      */
-    protected $model = Reservations::class;
+    protected $model = Reservation::class;
 
 
     /**

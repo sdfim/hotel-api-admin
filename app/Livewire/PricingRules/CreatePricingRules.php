@@ -6,7 +6,7 @@ use Livewire\Component;
 use App\Models\Channels;
 use App\Models\GiataProperty;
 use App\Models\PricingRules;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -49,7 +49,7 @@ class CreatePricingRules extends Component implements HasForms
             ->schema([
                 Select::make('supplier_id')
                     ->label('Supplier')
-                    ->options(Suppliers::all()->pluck('name', 'id'))
+                    ->options(Supplier::all()->pluck('name', 'id'))
                     ->required(),
                 Select::make('channel_id')
                     ->label('Channel')

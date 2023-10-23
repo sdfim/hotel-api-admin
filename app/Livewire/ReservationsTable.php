@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\Reservations;
+use App\Models\Reservation;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -29,7 +29,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(Reservations::query()->whereNull('canceled_at')->orderBy('created_at','DESC'))
+            ->query(Reservation::query()->whereNull('canceled_at')->orderBy('created_at','DESC'))
             ->columns([
                 ViewColumn::make('reservation_contains')
                     ->searchable(isIndividual: true)
@@ -73,10 +73,10 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Reservations $record): string => route('reservations.show', $record)),
+                        ->url(fn(Reservation $record): string => route('reservations.show', $record)),
                     Action::make('Cancel')
                         ->requiresConfirmation()
-                        ->action(function (Reservations $record) {
+                        ->action(function (Reservation $record) {
                             $record->update(['canceled_at' => date('Y-m-d H:i:s')]);
                         })
                         ->icon('heroicon-s-x-circle')

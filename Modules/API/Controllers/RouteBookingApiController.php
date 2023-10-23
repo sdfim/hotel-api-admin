@@ -3,7 +3,7 @@
 namespace Modules\API\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Modules\API\Controllers\RouteBookingApiStrategy;
 use Modules\API\BookingAPI\BookingApiHendlers\HotelBookingApiHanlder;
@@ -51,12 +51,12 @@ class RouteBookingApiController extends Controller
 	 * @return mixed
 	 */
 	public function handle(Request $request): mixed
-	{	
+	{
 		$this->determinant($request);
 		if (!self::isTypeValid($this->type)) return response()->json(['message' => 'Invalid type'], 400);
 		if (!self::isRouteValid($this->route)) return response()->json(['message' => 'Invalid route'], 400);
 		if (is_null($this->supplier)) return response()->json(['message' => 'Invalid supplier'], 400);
-		
+
 		$dataHandler = match ($this->type) {
 			'hotel' => new HotelBookingApiHanlder($this->experiaService),
 			'flight' => new FlightBookingApiHandler(),
@@ -93,7 +93,7 @@ class RouteBookingApiController extends Controller
 			$this->type = $bi['type'];
 			$this->supplier = $bi['supplier'];
 		}
-		
+
 		$this->route = \Route::currentRouteName();
 
 	}

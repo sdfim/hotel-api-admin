@@ -4,7 +4,7 @@ namespace Tests\Feature\PricingRules;
 
 use App\Livewire\PricingRules\CreatePricingRules;
 use App\Models\Channels;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -70,7 +70,7 @@ class CreatePricingRulesFormTest extends TestCase
     {
         $this->auth();
 
-        $supplier = Suppliers::factory()->create();
+        $supplier = Supplier::factory()->create();
         $channels = Channels::factory()->create();
         $data = [
             'name' => $this->faker->name,

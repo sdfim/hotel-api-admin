@@ -7,7 +7,7 @@ use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use App\Models\ExpediaContent;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Modules\Inspector\ExceptionReportController;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
@@ -58,7 +58,7 @@ class DownloadExpediaData extends Command
 		// TODO: get expedia_id from suppliers table
 		$this->expedia_id = 1;
     }
-		
+
     /**
      * Execute the console command.
      */
@@ -85,7 +85,7 @@ class DownloadExpediaData extends Command
 				'execution_time' => $this->executionTimeReport() . ' sec',
 			]));
         }
-	
+
 		if (str_contains($this->step, 2)) {
             # download file from url and save to storage
 			$this->downloadArchive($url);
@@ -120,7 +120,7 @@ class DownloadExpediaData extends Command
             $url = json_decode($propertyContents, true)['href'];
         } catch (\Exception $e) {
 			$this->saveErrorReport('DownloadExpediaData', 'getUrlArchive', json_encode([
-				'getMessage' => $e->getMessage(), 
+				'getMessage' => $e->getMessage(),
 				'getTraceAsString' => $e->getTraceAsString(),
 				'execution_time' => $this->executionTimeReport() . ' sec',
 			]));
@@ -153,12 +153,12 @@ class DownloadExpediaData extends Command
 
 				$this->saveSuccessReport('DownloadExpediaData', 'Step:2 download file', json_encode([
 					'path' => self::S3mount,
-					'fileName' => $fileName, 
+					'fileName' => $fileName,
 					'execution_time' => $this->executionTimeReport() . ' sec',
 				]));
             } else {
 				$this->saveErrorReport('DownloadExpediaData', 'Step:2 download file', json_encode([
-					'response-status' =>  $response->status(), 
+					'response-status' =>  $response->status(),
 					'response-body' => $response->body(),
 					'path' => self::S3mount,
 					'execution_time' => $this->executionTimeReport() . ' sec',
@@ -174,7 +174,7 @@ class DownloadExpediaData extends Command
         } catch (\Exception $e) {
 			$this->error('Error downloading gz file:  ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
 			$this->saveErrorReport('DownloadExpediaData', 'Step:2 download File Gz', json_encode([
-				'getMessage' => $e->getMessage(), 
+				'getMessage' => $e->getMessage(),
 				'getTraceAsString' => $e->getTraceAsString(),
 				'execution_time' => $this->executionTimeReport() . ' sec',
 			]));
@@ -192,11 +192,11 @@ class DownloadExpediaData extends Command
 		try {
 			$archive = self::S3mount . '/expedia_' . $this->type . '.gz';
 			$result = Process::timeout(3600)->run('gunzip -f ' . $archive);
-			
+
 			if ($result->successful()) {
 				$this->saveSuccessReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
 					'archive' => $archive,
-					'result' => $result, 
+					'result' => $result,
 					'execution_time' => $this->executionTimeReport() . ' sec',
 				]));
 				$this->info('DownloadExpediaData Step:3 unzip file: ' . json_encode([
@@ -210,7 +210,7 @@ class DownloadExpediaData extends Command
 					'execution_time' => $this->executionStepTime() . ' sec',
 				]));
 				$this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
-					'getMessage' => $result->throw(), 
+					'getMessage' => $result->throw(),
 					'execution_time' => $this->executionTimeReport() . ' sec',
 				]));
 			}
@@ -221,8 +221,8 @@ class DownloadExpediaData extends Command
 				'getTraceAsString' => $e->getTraceAsString(),
 				'execution_time' => $this->executionTimeReport() . ' sec',
 			]));
-		}   
-		
+		}
+
     }
 
 	/*
@@ -349,7 +349,7 @@ class DownloadExpediaData extends Command
                 } catch (\Exception $e) {
 					$this->error('ImportJsonlData error' .  $e->getMessage());
 					$this->saveErrorReport('DownloadExpediaData', 'Import Json lData', json_encode([
-						'getMessage' => $e->getMessage(), 
+						'getMessage' => $e->getMessage(),
 						'getTraceAsString' => $e->getTraceAsString(),
 						'execution_time' => $this->executionTimeReport() . ' sec',
 					]));
@@ -368,7 +368,7 @@ class DownloadExpediaData extends Command
             } catch (\Exception $e) {
                 $this->error('ImportJsonlData error' .  $e->getMessage());
 				$this->saveErrorReport('DownloadExpediaData', 'Step:4 Import Json to Data', json_encode([
-					'getMessage' => $e->getMessage(), 
+					'getMessage' => $e->getMessage(),
 					'getTraceAsString' => $e->getTraceAsString(),
 					'execution_time' => $this->executionTimeReport() . ' sec',
 				]));

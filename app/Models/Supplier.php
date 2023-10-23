@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Suppliers extends Model
+class Supplier extends Model
 {
     use HasFactory;
 
@@ -19,7 +19,7 @@ class Suppliers extends Model
 
     public static function getExpediaId()
     {
-        return Suppliers::where('name', 'Expedia')->first()->id;
+        return Supplier::where('name', 'Expedia')->first()->id;
     }
 
 }

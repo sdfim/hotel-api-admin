@@ -3,7 +3,7 @@
 namespace Modules\API\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Modules\API\Controllers\RouteApiStrategy;
 use Modules\API\Controllers\ApiHendlers\HotelApiHanlder;
@@ -44,7 +44,7 @@ class RouteApiController extends Controller
 
 		// TODO: [UJV-3] Get supplier from DB use config Admin Panel
 		$expedia = self::DEFAULT_SUPPLIER;
-		$expediaId = Suppliers::where('name', $expedia)->first()->id;
+		$expediaId = Supplier::where('name', $expedia)->first()->id;
 		$suppliersIds = [$expediaId];
 
 		// $dataHandler = $this->strategy->getHandler($supplier, $type);

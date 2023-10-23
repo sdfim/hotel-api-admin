@@ -35,7 +35,7 @@ class ApiBookingInspector extends Model
 
     public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Suppliers::class);
+        return $this->belongsTo(Supplier::class);
     }
 
     public function getLinckDeleteItem($filters): string|null

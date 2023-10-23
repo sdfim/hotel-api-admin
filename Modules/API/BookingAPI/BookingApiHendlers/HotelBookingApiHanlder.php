@@ -5,7 +5,7 @@ namespace Modules\API\BookingAPI\BookingApiHendlers;
 use Modules\API\BaseController;
 use App\Models\ExpediaContent;
 use App\Models\MapperExpediaGiata;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Modules\API\BookingApi\BookingApiHandlerInterface;
 use Modules\API\Requests\BookingAddItemHotelRequest;
 use Modules\API\Requests\SearchHotelRequest;
@@ -40,7 +40,7 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 	public function addItem (Request $request, string $supplier) : JsonResponse
 	{
 		$data = [];
-		try {	
+		try {
 			$bookingAddItemRequest = new BookingAddItemHotelRequest();
 			$rules = $bookingAddItemRequest->rules();
 			$filters = Validator::make($request->all(), $rules)->validated();
@@ -67,7 +67,7 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 	 */
 	public function removeItem (Request $request, string $supplier) : JsonResponse
 	{
-		try {	
+		try {
 			// TODO: add validation for request
 			$filters = $request->all();
 
@@ -93,7 +93,7 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 	 */
 	public function retrieveItems (Request $request, string $supplier) : JsonResponse
 	{
-		try {	
+		try {
 			// TODO: add validation for request
 			$filters = $request->all();
 
@@ -111,14 +111,14 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 		return $this->sendResponse(['result' => $data], 'success');
 
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @return JsonResponse
 	 */
 	public function addPassengers (Request $request, string $supplier) : JsonResponse
 	{
-		try {	
+		try {
 			// TODO: add validation for request
 			$filters = $request->all();
 
@@ -143,7 +143,7 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 	 */
 	public function changeItems (Request $request, string $supplier) : JsonResponse
 	{
-		try {	
+		try {
 			// TODO: add validation for request
 			$filters = $request->all();
 
@@ -171,14 +171,14 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 	{
 
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @return JsonResponse
 	 */
 	public function listBookings (Request $request, string $supplier) : JsonResponse
 	{
-		try {	
+		try {
 			// TODO: add validation for request
 			$filters = $request->all();
 
@@ -205,14 +205,14 @@ class HotelBookingApiHanlder extends BaseController // implements BookingApiHand
 	{
 
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @return JsonResponse
 	 */
 	public function cancelBooking (Request $request, string $supplier) : JsonResponse
 	{
-		try {	
+		try {
 			// TODO: add validation for request
 			$filters = $request->all();
 

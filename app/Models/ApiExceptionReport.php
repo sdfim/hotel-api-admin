@@ -23,6 +23,6 @@ class ApiExceptionReport extends Model
 
     public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Suppliers::class);
+        return $this->belongsTo(Supplier::class);
     }
 }

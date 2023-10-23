@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up (): void
     {
-        Schema::create('property_weighting', function (Blueprint $table) {
+        Schema::create('property_weightings', function (Blueprint $table) {
             $table->id();
 			$table->integer('property');
             $table->integer('weight');
@@ -18,7 +18,7 @@ return new class extends Migration {
 				->nullable()
                 ->constrained(
                     table: 'suppliers',
-                    indexName: 'property_weighting__supplier_id'
+                    indexName: 'property_weightings__supplier_id'
                 );
             $table->timestamps();
         });
@@ -29,6 +29,6 @@ return new class extends Migration {
      */
     public function down (): void
     {
-        Schema::dropIfExists('property_weighting');
+        Schema::dropIfExists('property_weightings');
     }
 };

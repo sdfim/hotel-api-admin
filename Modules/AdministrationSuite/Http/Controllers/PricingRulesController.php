@@ -3,7 +3,7 @@
 namespace Modules\AdministrationSuite\Http\Controllers;
 
 use App\Models\PricingRules;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
@@ -43,7 +43,7 @@ class PricingRulesController extends Controller
     public function create(): View
     {
         $text = $this->message;
-        $suppliers = Suppliers::all()->pluck('name', 'id')->toArray();
+        $suppliers = Supplier::all()->pluck('name', 'id')->toArray();
         return view('dashboard.pricing-rules.create', compact('suppliers', 'text'));
     }
 

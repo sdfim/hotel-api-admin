@@ -4,7 +4,7 @@ namespace Tests\Feature\PricingRules;
 
 use App\Livewire\PricingRules\UpdatePricingRules;
 use App\Models\PricingRules;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -24,7 +24,7 @@ class UpdatePricingRulesFormTest extends TestCase
     {
         $this->auth();
         $pricing_rules = PricingRules::factory()->create();
-        $supplier = Suppliers::factory()->create();
+        $supplier = Supplier::factory()->create();
         Livewire::test(UpdatePricingRules::class, ['pricingRules' => $pricing_rules])
             ->set('data.name', 'Updated Name')
             ->set('data.property', $this->faker->word)

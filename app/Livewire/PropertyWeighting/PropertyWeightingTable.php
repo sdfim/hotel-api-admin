@@ -39,7 +39,7 @@ class PropertyWeightingTable extends Component implements HasForms, HasTable
                     ->label('Property name')
                     ->searchable()
                     ->toggleable(),
-                TextColumn::make('suppliers.name')
+                TextColumn::make('supplier.name')
                     ->sortable()
                     ->searchable()
                     ->toggleable(),
@@ -48,9 +48,7 @@ class PropertyWeightingTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable(),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()

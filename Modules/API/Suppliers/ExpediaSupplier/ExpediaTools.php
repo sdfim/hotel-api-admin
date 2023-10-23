@@ -4,7 +4,7 @@ namespace Modules\API\Suppliers\ExpediaSupplier;
 
 use App\Models\Channels;
 use Illuminate\Support\Facades\Cache;
-use App\Models\Reservations;
+use App\Models\Reservation;
 use App\Models\ApiSearchInspector;
 use App\Models\ExpediaContent;
 
@@ -33,7 +33,7 @@ class ExpediaTools
 			$hotelName = $this->expedia->getHotelNameByHotelId($reservationsData['supplier_hotel_id']);
 			$hotelImages = $this->expedia->getHotelImagesByHotelId($reservationsData['supplier_hotel_id']);
 
-			$reservation = new Reservations();
+			$reservation = new Reservation();
 			$reservation->date_offload = null;
 			$reservation->date_travel = date("Y-m-d", strtotime($checkin));
 			$reservation->passenger_surname = $filters['query']['rooms'][0]['family_name'];
@@ -55,6 +55,6 @@ class ExpediaTools
 		} catch (\Exception $e) {
 			\Log::error('ExpediaTools | saveAddItemToReservations' . $e->getMessage());
 		}
-		
+
 	}
 }

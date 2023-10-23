@@ -5,7 +5,7 @@ use Modules\API\Controllers\ApiHandlerInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\API\BaseController;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Modules\API\Controllers\ExpediaHotelApiHandler;
 use Modules\API\Requests\SearchHotelRequest;
 use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
@@ -17,7 +17,7 @@ class FlightApiHandler extends BaseController implements ApiHandlerInterface
 	private const SUPPLIER_NAME = 'Expedia';
 
 	public function search(Request $request, array $supplierIds) : JsonResponse
-	{	
+	{
 
 	}
 

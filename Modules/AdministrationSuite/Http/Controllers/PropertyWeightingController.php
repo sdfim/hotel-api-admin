@@ -2,99 +2,50 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use App\Models\Suppliers;
-use App\Models\Weights;
+use App\Models\PropertyWeighting;
 use Illuminate\Contracts\View\View;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class PropertyWeightingController extends Controller
 {
+    /**
+     * @var array|string[]
+     */
     private array $message = ['create' => 'Add New Weight', 'edit' => 'Edit Weight', 'show' => 'Show Weight'];
-    private array $validate = [
-        'property' => 'bail|required|integer',
-        'supplier_id' => 'bail|nullable|integer',
-        'weight' => 'bail|required|integer',
-    ];
 
     /**
-     * Display a listing of the resource.
+     * Display a listing of the property weightings.
      */
-    public function index (): View
+    public function index(): View
     {
         return view('dashboard.property-weighting.index');
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new property weighting.
      */
-    public function create (): View
+    public function create(): View
     {
-        $suppliers = Suppliers::all();
-        $array_suppliers = ['' => 'Select supplier'];
-        foreach ($suppliers as $supplier) {
-            $array_suppliers += [$supplier->id => $supplier->name];
-        }
-
-        return view('dashboard.property-weighting.create', [
-            'suppliers' => $array_suppliers, 'text' => $this->message
-        ]);
+        return view('dashboard.property-weighting.create', ['text' => $this->message]);
     }
 
-    // /**
-    //  * Store a newly created resource in storage.
-    //  */
-    // public function store (Request $request): RedirectResponse
-    // {
-    //     $request->validate($this->validate);
-    //     Weights::create($request->all());
-
-    //     return redirect()->route('weight.index')->with('success', 'Weight created successfully.');
-    // }
-
     /**
-     * Display the specified resource.
+     * Display the specified property weighting.
      */
-    public function show (string $id): View
+    public function show(string $id): View
     {
         $text = $this->message;
-        $weight = Weights::findOrFail($id);
+        $propertyWeighting = PropertyWeighting::findOrFail($id);
 
-        return view('dashboard.property-weighting.show', compact('weight', 'text'));
+        return view('dashboard.property-weighting.show', compact(['propertyWeighting', 'text']));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified property weighting.
      */
-    public function edit (string $id): View
+    public function edit(string $id): View
     {
         $text = $this->message;
-        $weight = Weights::findOrFail($id);
-        return view('dashboard.property-weighting.update', compact(['weight', 'text']));
-    }
-
-    // /**
-    //  * Update the specified resource in storage.
-    //  */
-    // public function update (Request $request, string $id): RedirectResponse
-    // {
-    //     $suppliers = Weights::findOrFail($id);
-    //     $request->validate($this->validate);
-    //     $suppliers->update($request->all());
-
-    //     return redirect()->route('weight.index')
-    //         ->with('success', 'Weight updated successfully');
-    // }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy (string $id): RedirectResponse
-    {
-        $suppliers = Weights::findOrFail($id);
-        $suppliers->delete();
-
-        return redirect()->route('weight.index')
-            ->with('success', 'Weight deleted successfully');
+        $propertyWeighting = PropertyWeighting::findOrFail($id);
+        return view('dashboard.property-weighting.update', compact(['propertyWeighting', 'text']));
     }
 }

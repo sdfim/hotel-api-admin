@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Weight') }}
+    {{ __('Property Weightings') }}
 @endsection
 @section('content')
     <!-- -->
@@ -9,7 +9,7 @@
         <div class="col-lg-12 margin-tb">
             <div class="mt-6 mb-6">
                 <a class="btn text-violet-500 hover:text-white border-violet-500 hover:bg-violet-600 hover:border-violet-600 focus:bg-violet-600 focus:text-white focus:border-violet-600 focus:ring focus:ring-violet-500/30 active:bg-violet-600 active:border-violet-600"
-                   href="{{ route('weight.create') }}"> <i class="bx bx-plus block text-lg"></i></a>
+                   href="{{ route('property-weighting.create') }}"> <i class="bx bx-plus block text-lg"></i></a>
             </div>
 
         </div>

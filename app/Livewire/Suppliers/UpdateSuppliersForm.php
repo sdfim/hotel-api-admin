@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Suppliers;
 
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -23,15 +23,15 @@ class UpdateSuppliersForm extends Component implements HasForms
     public ?array $data = [];
 
     /**
-     * @var Suppliers
+     * @var Supplier
      */
-    public Suppliers $record;
+    public Supplier $record;
 
     /**
-     * @param Suppliers $suppliers
+     * @param Supplier $suppliers
      * @return void
      */
-    public function mount(Suppliers $suppliers): void
+    public function mount(Supplier $suppliers): void
     {
         $this->record = $suppliers;
         $this->form->fill($this->record->attributesToArray());

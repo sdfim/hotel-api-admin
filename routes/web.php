@@ -1,6 +1,5 @@
 <?php
 
-use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\ContentLoaderExceptionsController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
@@ -41,10 +40,8 @@ Route::get('/', function () {
 Route::prefix('admin')->group(function () {
     Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
         Route::resource('channels', ChannelsController::class);
-        Route::resources([
-            'pricing_rules' => PricingRulesController::class,
-            'suppliers' => SuppliersController::class,
-        ]);
+        Route::resource('pricing_rules', PricingRulesController::class);
+        Route::resource('suppliers', SuppliersController::class);
 
         Route::get('/content', [ContentController::class, 'index'])->name('content');
         Route::get('/general-configuration', [GeneralConfigurationController::class, 'index'])->name('general_configuration');
@@ -56,7 +53,7 @@ Route::prefix('admin')->group(function () {
 
         Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
         Route::resource('reservations', ReservationsController::class)->except(['delete', 'store', 'create']);
-        Route::resource('weight', PropertyWeightingController::class);
+        Route::resource('property-weighting', PropertyWeightingController::class)->only(['index', 'create', 'show', 'edit']);
         Route::resource('giata', GiataController::class)->except(['delete', 'store', 'create']);
         Route::resource('expedia', ExpediaController::class)->except(['delete', 'store', 'create']);
         Route::resource('mapping', MappingExpediaGiatasController::class)->except(['index', 'update', 'create']);

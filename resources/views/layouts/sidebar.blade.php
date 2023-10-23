@@ -115,10 +115,10 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ Route('weight.index') }}"
+                    <a href="{{ Route('property-weighting.index') }}"
                        class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-document-remove"></i>
-                        <span data-key="t-log-viewer"> Property weighting</span>
+                        <span data-key="t-log-viewer"> Property Weighting</span>
                     </a>
                 </li>
 

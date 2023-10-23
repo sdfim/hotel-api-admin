@@ -3,7 +3,7 @@
 namespace App\Livewire\Inspectors;
 
 use App\Models\ApiSearchInspector;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -52,7 +52,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                         $suppliers_name_string = '';
                         $suppliers_array = explode(',', $record->suppliers);
                         for ($i = 0; $i < count($suppliers_array); $i++) {
-                            $supplier = Suppliers::find($suppliers_array[$i]);
+                            $supplier = Supplier::find($suppliers_array[$i]);
                             $suppliers_name_string .= $supplier->name . ', ';
                         }
                         // remove all spaces and commas from the end of the line if present

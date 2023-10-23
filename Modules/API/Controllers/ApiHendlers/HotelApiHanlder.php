@@ -6,7 +6,7 @@ use Modules\API\Controllers\ApiHandlerInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\API\BaseController;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Modules\API\Controllers\ExpediaHotelApiHandler;
 use Modules\API\Requests\SearchHotelRequest;
 use Illuminate\Support\Facades\Validator;
@@ -41,16 +41,16 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 * @return JsonResponse
 	 */
 	public function search(Request $request, array $supplierIds) : JsonResponse
-	{	
+	{
 		try {
 			$searchRequest = new SearchHotelRequest();
 			$rules = $searchRequest->rules();
 			$filters = Validator::make($request->all(), $rules)->validated();
-			
+
 			$dataResponse = [];
 			$count = 0;
 			foreach ($supplierIds as $supplier) {
-				$supplierName = Suppliers::find($supplier)->name;
+				$supplierName = Supplier::find($supplier)->name;
 				if ($supplierName == self::SUPPLIER_NAME) {
 					$supplierData = $this->expedia->search($request, $filters);
 					$data = $supplierData['results'];
@@ -62,13 +62,13 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			}
 
 			$content = [
-				'count' => $count, 
-				'query' => $filters, 
+				'count' => $count,
+				'query' => $filters,
 				'results' => $dataResponse,
 			];
 			$clientContent = [
-				'count' => $count, 
-				'query' => $filters, 
+				'count' => $count,
+				'query' => $filters,
 				'results' => $clientResponse,
 			];
 
@@ -97,7 +97,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 			$dataResponse = [];
 			foreach ($supplierIds as $supplier) {
-				$supplierName = Suppliers::find($supplier)->name;
+				$supplierName = Supplier::find($supplier)->name;
 				if ($supplierName == self::SUPPLIER_NAME) {
 					$data = $this->expedia->detail($request);
 					$dataResponse[$supplierName] = $data;
@@ -133,7 +133,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			$dataResponse = [];
 			$clientResponse = [];
 			foreach ($supplierIds as $supplier) {
-				$supplierName = Suppliers::find($supplier)->name;
+				$supplierName = Supplier::find($supplier)->name;
 				if ($supplierName == self::SUPPLIER_NAME) {
 					$expediaResponse = $this->expedia->price($request, $filters);
 					$dataResponse[$supplierName] = $expediaResponse;
@@ -143,13 +143,13 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			}
 
 			$content = [
-				'count' => count($dataResponse[self::SUPPLIER_NAME]), 
-				'query' => $filters, 
+				'count' => count($dataResponse[self::SUPPLIER_NAME]),
+				'query' => $filters,
 				'results' => $dataResponse,
 			];
 			$clientContent = [
-				'count' => count($clientResponse[self::SUPPLIER_NAME]), 
-				'query' => $filters, 
+				'count' => count($clientResponse[self::SUPPLIER_NAME]),
+				'query' => $filters,
 				'results' => $clientResponse,
 			];
 

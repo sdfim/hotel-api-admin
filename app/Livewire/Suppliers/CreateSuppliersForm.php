@@ -3,7 +3,7 @@
 namespace App\Livewire\Suppliers;
 
 use Livewire\Component;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -46,7 +46,7 @@ class CreateSuppliersForm extends Component implements HasForms
                     ->maxLength(191),
             ])
             ->statePath('data')
-            ->model(Suppliers::class);
+            ->model(Supplier::class);
     }
 
     /**
@@ -56,7 +56,7 @@ class CreateSuppliersForm extends Component implements HasForms
     {
         $data = $this->form->getState();
 
-        $record = Suppliers::create($data);
+        $record = Supplier::create($data);
 
         $this->form->model($record)->saveRelationships();
 

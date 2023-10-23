@@ -6,19 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Reservations extends Model
+class Reservation extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-		'date_offload', 
-		'date_travel', 
-		'passenger_surname', 
-		'reservation_contains', 
-		'channel_id', 
-		'total_cost', 
-		'canceled_at', 
-		'created_at', 
+		'date_offload',
+		'date_travel',
+		'passenger_surname',
+		'reservation_contains',
+		'channel_id',
+		'total_cost',
+		'canceled_at',
+		'created_at',
 		'updated_at'
 	];
 

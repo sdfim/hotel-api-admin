@@ -2,7 +2,7 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
@@ -30,7 +30,7 @@ class SuppliersController extends Controller
     public function create(): View
     {
         $text = $this->message;
-        $suppliers = Suppliers::all();
+        $suppliers = Supplier::all();
         return view('dashboard.suppliers.create', compact('suppliers', 'text'));
     }
 
@@ -40,7 +40,7 @@ class SuppliersController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate($this->validate);
-        Suppliers::create($request->all());
+        Supplier::create($request->all());
 
         return redirect()->route('suppliers.index')->with('success', 'Suppliers created successfully.');
     }
@@ -51,7 +51,7 @@ class SuppliersController extends Controller
     public function show(string $id): View
     {
         $text = $this->message;
-        $suppliers = Suppliers::findOrFail($id);
+        $suppliers = Supplier::findOrFail($id);
 
         return view('dashboard.suppliers.show', compact('suppliers', 'text'));
     }
@@ -62,7 +62,7 @@ class SuppliersController extends Controller
     public function edit(string $id): View
     {
         $text = $this->message;
-        $suppliers = Suppliers::findOrFail($id);
+        $suppliers = Supplier::findOrFail($id);
 
         return view('dashboard.suppliers.edit', compact('suppliers', 'text'));
     }
@@ -72,7 +72,7 @@ class SuppliersController extends Controller
      */
     public function update(Request $request, string $id): RedirectResponse
     {
-        $suppliers = Suppliers::findOrFail($id);
+        $suppliers = Supplier::findOrFail($id);
         $request->validate($this->validate);
         $suppliers->update($request->all());
 
@@ -85,7 +85,7 @@ class SuppliersController extends Controller
      */
     public function destroy(string $id): RedirectResponse
     {
-        $suppliers = Suppliers::findOrFail($id);
+        $suppliers = Supplier::findOrFail($id);
         $suppliers->delete();
 
         return redirect()->route('suppliers.index')

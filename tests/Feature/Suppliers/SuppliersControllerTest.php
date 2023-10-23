@@ -5,7 +5,7 @@ namespace Tests\Feature\Suppliers;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use App\Models\User;
 
 class SuppliersControllerTest extends TestCase
@@ -33,7 +33,7 @@ class SuppliersControllerTest extends TestCase
     {
         $this->auth();
 
-        $suppliers = Suppliers::factory()->create();
+        $suppliers = Supplier::factory()->create();
 
         $response = $this->get(route('suppliers.create', $suppliers->id));
         $response->assertStatus(200);
@@ -68,7 +68,7 @@ class SuppliersControllerTest extends TestCase
     {
         $this->auth();
 
-        $suppliers = Suppliers::factory()->create();
+        $suppliers = Supplier::factory()->create();
 
         $response = $this->get(route('suppliers.show', $suppliers->id));
         $response->assertStatus(200);
@@ -85,7 +85,7 @@ class SuppliersControllerTest extends TestCase
     {
         $this->auth();
 
-        $suppliers = Suppliers::factory()->create();
+        $suppliers = Supplier::factory()->create();
         $response = $this->get(route('suppliers.edit', $suppliers->id));
         $response->assertStatus(200);
     }
@@ -98,7 +98,7 @@ class SuppliersControllerTest extends TestCase
     {
         $this->auth();
 
-        $suppliers = Suppliers::factory()->create();
+        $suppliers = Supplier::factory()->create();
         $newData = [
             'name' => $this->faker->name,
             'description' => $this->faker->word,

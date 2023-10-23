@@ -14,7 +14,7 @@
                                 <h2 x-data="{ message: '{{ $text['edit'] }}' }" x-text="message"></h2>
                             </div>
                             <div class="mt-6 mb-6">
-                                <x-button-back route="{{ route('weight.index') }}" text="Back"/>
+                                <x-button-back route="{{ route('property-weighting.index') }}" text="Back"/>
                             </div>
                         </div>
                     </div>

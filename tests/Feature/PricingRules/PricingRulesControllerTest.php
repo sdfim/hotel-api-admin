@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\PricingRules;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use App\Models\User;
 
 class PricingRulesControllerTest extends TestCase
@@ -48,7 +48,7 @@ class PricingRulesControllerTest extends TestCase
     {
         $this->auth();
 
-        $supplier = Suppliers::factory()->create();
+        $supplier = Supplier::factory()->create();
         $data = [
             'name' => $this->faker->name,
             'property' => $this->faker->word,
@@ -122,7 +122,7 @@ class PricingRulesControllerTest extends TestCase
         $this->auth();
 
         $pricingRule = PricingRules::factory()->create();
-        $supplier = Suppliers::factory()->create();
+        $supplier = Supplier::factory()->create();
 
         $newData = [
             'name' => 'Updated Pricing Rule Name',

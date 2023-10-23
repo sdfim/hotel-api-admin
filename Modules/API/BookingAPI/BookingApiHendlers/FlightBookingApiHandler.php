@@ -5,7 +5,7 @@ namespace Modules\API\BookingAPI\BookingApiHendlers;
 use Modules\API\BaseController;
 use App\Models\ExpediaContent;
 use App\Models\MapperExpediaGiata;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Modules\API\BookingAPI\BookingApiHandlerInterface;
 use Modules\API\Requests\SearchHotelRequest;
 use Modules\API\Requests\DetailHotelRequest;
@@ -46,7 +46,7 @@ class FlightBookingApiHandler extends BaseController implements BookingApiHandle
 	{
 
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @return JsonResponse
@@ -64,7 +64,7 @@ class FlightBookingApiHandler extends BaseController implements BookingApiHandle
 	{
 
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @return JsonResponse
@@ -82,7 +82,7 @@ class FlightBookingApiHandler extends BaseController implements BookingApiHandle
 	{
 
 	}
-	
+
 	/**
 	 * @param Request $request
 	 * @return JsonResponse

@@ -37,7 +37,7 @@ class PricingRules extends Model
 
     public function suppliers(): BelongsTo
     {
-        return $this->belongsTo(Suppliers::class, 'supplier_id');
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
     public function giataProperties(): BelongsTo

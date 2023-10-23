@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Channels;
 use App\Models\PricingRules;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -26,7 +26,7 @@ class PricingRulesFactory extends Factory
      */
     public function definition(): array
     {
-        $supplier = Suppliers::factory()->create();
+        $supplier = Supplier::factory()->create();
         $channels = Channels::factory()->create();
         return [
             'name' => $this->faker->name,

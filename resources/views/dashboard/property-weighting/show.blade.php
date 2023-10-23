@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Weight') }}
+    {{ __('Property Weighting') }}
 @endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6">
@@ -17,33 +17,33 @@
                                 <h2 x-data="{ message: '{{ $text['show'] }}' }" x-text="message"></h2>
                             </div>
                             <div class="mt-6 mb-6">
-                                <x-button-back route="{{ route('weight.index') }}" text="Back"/>
+                                <x-button-back route="{{ route('property-weighting.index') }}" text="Back"/>
                             </div>
                         </div>
                     </div>
                     <div class="mt-10 sm:mt-0">
                         <strong>Property:</strong>
-                        {{ $weight->property }}
+                        {{ $propertyWeighting->property }}
                     </div>
                     <x-section-border/>
                     <div class="mt-10 sm:mt-0">
                         <strong>Supplier:</strong>
-                        {{ $weight->supplier->name ?? __('Supplier not specified')}}
+                        {{ $propertyWeighting->supplier->name ?? __('Supplier not specified')}}
                     </div>
                     <x-section-border/>
                     <div class="mt-10 sm:mt-0">
                         <strong>Weight:</strong>
-                        {{ $weight->weight }}
+                        {{ $propertyWeighting->weight }}
                     </div>
                     <x-section-border/>
                     <div class="mt-10 sm:mt-0">
                         <strong>Created:</strong>
-                        {{ $weight->created_at }}
+                        {{ $propertyWeighting->created_at }}
                     </div>
                     <x-section-border/>
                     <div class="mt-10 sm:mt-0">
                         <strong>Update:</strong>
-                        {{ $weight->updated_at }}
+                        {{ $propertyWeighting->updated_at }}
                     </div>
                     <x-section-border/>
                 </div>

@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\User;
-use App\Models\Reservations;
+use App\Models\Reservation;
 use App\Models\Contains;
 use App\Models\Channels;
 

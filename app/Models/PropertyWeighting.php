@@ -10,6 +10,9 @@ class PropertyWeighting extends Model
 {
     use HasFactory;
 
+    /**
+     * @var string[]
+     */
     protected $fillable = [
         'property',
         'supplier_id',
@@ -18,11 +21,17 @@ class PropertyWeighting extends Model
         'updated_at'
     ];
 
-    public function suppliers(): BelongsTo
+    /**
+     * @return BelongsTo
+     */
+    public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Suppliers::class, 'supplier_id');
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
+    /**
+     * @return BelongsTo
+     */
     public function giataProperties(): BelongsTo
     {
         return $this->belongsTo(GiataProperty::class, 'property', 'code');
