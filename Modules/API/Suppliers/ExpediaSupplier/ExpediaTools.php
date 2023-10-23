@@ -31,6 +31,7 @@ class ExpediaTools
 
 			$hotel_id = $filters['hotel_id'];
 			$hotelName = $this->expedia->getHotelNameByHotelId($reservationsData['supplier_hotel_id']);
+			$hotelImages = $this->expedia->getHotelImagesByHotelId($reservationsData['supplier_hotel_id']);
 
 			$reservation = new Reservations();
 			$reservation->date_offload = null;
@@ -42,6 +43,7 @@ class ExpediaTools
 				'booking_id' => $booking_id,
 				'hotel_id' => $hotel_id,
 				'hotel_name' => $hotelName,
+				'hotel_images' => json_encode($hotelImages),
 			]);
 			$reservation->channel_id = $channel_id;
 
