@@ -25,12 +25,12 @@ class GeneralConfigurationFactory extends Factory
     public function definition(): array
     {
         return [
-            'time_supplier_requests' => $this->faker->numberBetween(30, 120),
-            'time_reservations_kept' => $this->faker->numberBetween(15, 60),
-            'currently_suppliers' => $this->faker->numberBetween(5, 20),
-            'time_inspector_retained' => $this->faker->numberBetween(5, 20),
-            'star_ratings' => date('Y-m-d H:i:s'),
-            'stop_bookings' => date('Y-m-d H:i:s'),
+            'time_supplier_requests' => $this->faker->numberBetween(3, 120),
+            'time_reservations_kept' => $this->faker->numberBetween(7, 365),
+            'currently_suppliers' => json_encode(['1']),
+            'time_inspector_retained' => $this->faker->numberBetween(60, 365),
+            'star_ratings' => $this->faker->numberBetween(0, 5.5),
+            'stop_bookings' => $this->faker->numberBetween(1, 365),
         ];
     }
 }

@@ -21,16 +21,16 @@ class CreateAndUpdateGeneralConfigurationFormTest extends TestCase
      */
     public function test_possibility_of_inserting_into_general_configuration(): void
     {
-        // $this->auth();
+        $this->auth();
 
-        // $data = $this->generate_test_data();
+        $data = $this->generate_test_data();
 
-        // Livewire::test(CreateGeneralConfigurationForm::class)
-        //     ->set('data', $data)
-        //     ->call('save')
-        //     ->assertRedirect(route('general_configuration'));
+        Livewire::test(CreateGeneralConfigurationForm::class)
+            ->set('data', $data)
+            ->call('save')
+            ->assertRedirect(route('general_configuration'));
 
-        // $this->assertDatabaseHas('general_configurations', $data);
+        $this->assertDatabaseHas('general_configurations', $data);
     }
 
     /**
@@ -39,18 +39,18 @@ class CreateAndUpdateGeneralConfigurationFormTest extends TestCase
      */
     public function test_possibility_of_updating_of_general_configuration(): void
     {
-        // $this->auth();
+        $this->auth();
 
-        // $general_configuration = GeneralConfiguration::factory()->create();
+        $general_configuration = GeneralConfiguration::factory()->create();
 
-        // $data = $this->generate_test_data();
+        $data = $this->generate_test_data();
 
-        // Livewire::test(CreateGeneralConfigurationForm::class, ['general_configuration' => $general_configuration])
-        //     ->set('data', $data)
-        //     ->call('save')
-        //     ->assertRedirect(route('general_configuration'));
+        Livewire::test(CreateGeneralConfigurationForm::class, ['general_configuration' => $general_configuration])
+            ->set('data', $data)
+            ->call('save')
+            ->assertRedirect(route('general_configuration'));
 
-        // $this->assertDatabaseHas('general_configurations', $data);
+        $this->assertDatabaseHas('general_configurations', $data);
     }
 
     /**
@@ -59,12 +59,12 @@ class CreateAndUpdateGeneralConfigurationFormTest extends TestCase
     protected function generate_test_data(): array
     {
         return [
-            'time_supplier_requests' => $this->faker->randomNumber(),
-            'time_reservations_kept' => $this->faker->randomNumber(),
-            'currently_suppliers' => $this->faker->sentence(),
-            'time_inspector_retained' => $this->faker->randomNumber(),
-            'star_ratings' => now(),
-            'stop_bookings' => now(),
+			'time_supplier_requests' => 3,
+            'time_reservations_kept' => 7,
+            'currently_suppliers' => json_encode(['1']),
+            'time_inspector_retained' => 60,
+            'star_ratings' => 4,
+            'stop_bookings' => 1,
         ];
     }
 

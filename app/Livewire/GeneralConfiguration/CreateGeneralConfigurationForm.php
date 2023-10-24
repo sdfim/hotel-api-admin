@@ -4,7 +4,6 @@ namespace App\Livewire\GeneralConfiguration;
 
 use App\Models\GeneralConfiguration;
 use App\Models\Supplier;
-use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -118,7 +117,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
         $request = (object)$this->form->getState();
         $general_configuration = GeneralConfiguration::get();
 
-        if (count($general_configuration) == 0) {
+        if (count($general_configuration) === 0) {
             $general_configuration_row = new GeneralConfiguration();
             $general_configuration_row->time_supplier_requests = $request->time_supplier_requests;
             $general_configuration_row->time_reservations_kept = $request->time_reservations_kept;
