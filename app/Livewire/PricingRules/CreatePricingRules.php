@@ -48,6 +48,7 @@ class CreatePricingRules extends Component implements HasForms
         return $form
             ->columns([
                 'sm' => 1,
+                'md' => 2,
                 'xl' => 3,
                 '2xl' => 3,
             ])
