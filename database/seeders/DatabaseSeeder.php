@@ -16,7 +16,8 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             UserSeeder::class,
             GeneralConfigurationSeeder::class,
-            SupplierExpediaSeeder::class
+            SupplierExpediaSeeder::class,
+			PropertyWeightingSeeder::class,
         ]);
     }
 }
