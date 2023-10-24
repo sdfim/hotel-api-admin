@@ -19,8 +19,17 @@ class ExpediaHotelApiHandler
      * @var float|string
      */
     protected float|string $current_time;
+    /**
+     *
+     */
     private const RESULT_PER_PAGE = 1000;
+    /**
+     *
+     */
     private const PAGE = 1;
+    /**
+     *
+     */
     private const RATING = 4;
 
     /**
