@@ -51,6 +51,8 @@ class UserFactory extends Factory
 
     /**
      * Indicate that the user should have a personal team.
+     * @param callable|null $callback
+     * @return static
      */
     public function withPersonalTeam(callable $callback = null): static
     {

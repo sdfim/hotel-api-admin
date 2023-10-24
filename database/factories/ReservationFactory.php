@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Reservation;
 
@@ -27,11 +28,11 @@ class ReservationFactory extends Factory
     {
         return [
             'date_offload' => null,
-            'date_travel' => \Carbon\Carbon::now()->subDays(30),
+            'date_travel' => Carbon::now()->subDays(30),
             'passenger_surname' => 'Passengersing',
             'total_cost' => 1240,
-            'created_at' => \Carbon\Carbon::now(),
-            'updated_at' => \Carbon\Carbon::now(),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ];
     }
 }
