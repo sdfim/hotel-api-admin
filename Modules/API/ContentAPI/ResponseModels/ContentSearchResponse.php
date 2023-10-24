@@ -4,129 +4,242 @@ namespace Modules\API\ContentAPI\ResponseModels;
 
 class ContentSearchResponse
 {
-	private int $giata_hotel_code;
-	private array $images;
-	private string $description;
-	private string $hotel_name;
-	private string $distance;
-	private string $latitude;
-	private string $longitude;
-	private string $rating;
-	private array $amenities;
-	private string $giata_destination;
-	private string $user_rating;
+    /**
+     * @var int
+     */
+    private int $giata_hotel_code;
+    /**
+     * @var array
+     */
+    private array $images;
+    /**
+     * @var string
+     */
+    private string $description;
+    /**
+     * @var string
+     */
+    private string $hotel_name;
+    /**
+     * @var string
+     */
+    private string $distance;
+    /**
+     * @var string
+     */
+    private string $latitude;
+    /**
+     * @var string
+     */
+    private string $longitude;
+    /**
+     * @var string
+     */
+    private string $rating;
+    /**
+     * @var array
+     */
+    private array $amenities;
+    /**
+     * @var string
+     */
+    private string $giata_destination;
+    /**
+     * @var string
+     */
+    private string $user_rating;
 
-	public function setUserRating(string $user_rating) : void
+    /**
+     * @param string $user_rating
+     * @return void
+     */
+    public function setUserRating(string $user_rating) : void
 	{
 		$this->user_rating = $user_rating;
 	}
 
-	public function getUserRating() : string
+    /**
+     * @return string
+     */
+    public function getUserRating() : string
 	{
 		return $this->user_rating;
 	}
 
-	public function setGiataDestination(string $giata_destination) : void
+    /**
+     * @param string $giata_destination
+     * @return void
+     */
+    public function setGiataDestination(string $giata_destination) : void
 	{
 		$this->giata_destination = $giata_destination;
 	}
 
-	public function getGiataDestination() : string
+    /**
+     * @return string
+     */
+    public function getGiataDestination() : string
 	{
 		return $this->giata_destination;
 	}
 
-	public function setAmenities(array $amenities) : void
+    /**
+     * @param array $amenities
+     * @return void
+     */
+    public function setAmenities(array $amenities) : void
 	{
 		$this->amenities = $amenities;
 	}
 
-	public function getAmenities() : array
+    /**
+     * @return array
+     */
+    public function getAmenities() : array
 	{
 		return $this->amenities;
 	}
 
-	public function setRating(string $rating) : void
+    /**
+     * @param string $rating
+     * @return void
+     */
+    public function setRating(string $rating) : void
 	{
 		$this->rating = $rating;
 	}
 
-	public function getRating() : string
+    /**
+     * @return string
+     */
+    public function getRating() : string
 	{
 		return $this->rating;
 	}
 
-	public function setLongitude(string $longitude) : void
+    /**
+     * @param string $longitude
+     * @return void
+     */
+    public function setLongitude(string $longitude) : void
 	{
 		$this->longitude = $longitude;
 	}
 
-	public function getLongitude() : string
+    /**
+     * @return string
+     */
+    public function getLongitude() : string
 	{
 		return $this->longitude;
 	}
 
-	public function setLatitude(string $latitude) : void
+    /**
+     * @param string $latitude
+     * @return void
+     */
+    public function setLatitude(string $latitude) : void
 	{
 		$this->latitude = $latitude;
 	}
 
-	public function getLatitude() : string
+    /**
+     * @return string
+     */
+    public function getLatitude() : string
 	{
 		return $this->latitude;
 	}
 
-	public function setDistance(string $distance) : void
+    /**
+     * @param string $distance
+     * @return void
+     */
+    public function setDistance(string $distance) : void
 	{
 		$this->distance = $distance;
 	}
 
-	public function getDistance() : string
+    /**
+     * @return string
+     */
+    public function getDistance() : string
 	{
 		return $this->distance;
 	}
 
-	public function setHotelName(string $hotel_name) : void
+    /**
+     * @param string $hotel_name
+     * @return void
+     */
+    public function setHotelName(string $hotel_name) : void
 	{
 		$this->hotel_name = $hotel_name;
 	}
 
-	public function getHotelName() : string
+    /**
+     * @return string
+     */
+    public function getHotelName() : string
 	{
 		return $this->hotel_name;
 	}
 
-	public function setDescription(string $description) : void
+    /**
+     * @param string $description
+     * @return void
+     */
+    public function setDescription(string $description) : void
 	{
 		$this->description = $description;
 	}
 
-	public function getDescription() : string
+    /**
+     * @return string
+     */
+    public function getDescription() : string
 	{
 		return $this->description;
 	}
 
-	public function setImages(array $images) : void
+    /**
+     * @param array $images
+     * @return void
+     */
+    public function setImages(array $images) : void
 	{
 		$this->images = $images;
 	}
 
-	public function getImages() : array
+    /**
+     * @return array
+     */
+    public function getImages() : array
 	{
 		return $this->images;
 	}
 
-	public function setGiataHotelCode(int $giata_hotel_code) : void
+    /**
+     * @param int $giata_hotel_code
+     * @return void
+     */
+    public function setGiataHotelCode(int $giata_hotel_code) : void
 	{
 		$this->giata_hotel_code = $giata_hotel_code;
 	}
 
-	public function getGiataHotelCode() : int
+    /**
+     * @return int
+     */
+    public function getGiataHotelCode() : int
 	{
 		return $this->giata_hotel_code;
 	}
 
-	public function toArray() : array
+    /**
+     * @return array
+     */
+    public function toArray() : array
 	{
 		return [
 			'giata_hotel_code' => $this->getGiataHotelCode(),
@@ -141,6 +254,5 @@ class ContentSearchResponse
 			'giata_destination' => $this->getGiataDestination(),
 			'user_rating' => $this->getUserRating(),
 		];
-	}	
-
+	}
 }
