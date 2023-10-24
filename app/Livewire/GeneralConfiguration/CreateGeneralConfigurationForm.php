@@ -66,6 +66,11 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
     public function form(Form $form): Form
     {
         return $form
+            ->columns([
+                'sm' => 1,
+                'xl' => 2,
+                '2xl' => 2,
+            ])
             ->schema([
                 TextInput::make('time_supplier_requests')
                     ->label('Supplier requests timeout, seconds')
