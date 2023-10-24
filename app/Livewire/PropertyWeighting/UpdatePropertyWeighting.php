@@ -54,7 +54,11 @@ class UpdatePropertyWeighting extends Component implements HasForms
                     ->searchable()
                     ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
-                        ->where('name', 'like', "%$search%")->limit(30)->pluck('full_name', 'code')->toArray()
+                        ->where('name', 'like', "%$search%")
+						->orWhere('code', $search)
+						->limit(30)
+						->pluck('full_name', 'code')
+						->toArray()
                     )
                     ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
@@ -67,6 +71,7 @@ class UpdatePropertyWeighting extends Component implements HasForms
                     ->options(Supplier::all()->pluck('name', 'id')),
                 TextInput::make('weight')
                     ->label('Weight')
+					->type('number')
                     ->required()
                     ->maxLength(12),
             ])

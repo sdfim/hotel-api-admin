@@ -18,6 +18,7 @@ use Modules\API\Suppliers\DTO\ExpediaPricingDto;
 use Modules\API\Suppliers\DTO\ExpediaContentDto;
 use Modules\API\Suppliers\DTO\ExpediaContentDetailDto;
 use Illuminate\Support\Str;
+use Modules\API\PropertyWeighting\EnrichmentWeight;
 
 class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 {
@@ -28,6 +29,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	private ExpediaPricingDto $expediaPricingDto;
 	private ExpediaContentDto $expediaContentDto;
 	private ExpediaContentDetailDto $expediaContentDetailDto;
+	private EnrichmentWeight $propsWeight;
 
 	public function __construct(ExperiaService $experiaService) {
 		$this->experiaService = $experiaService;
@@ -36,6 +38,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 		$this->expediaPricingDto = new ExpediaPricingDto();
 		$this->expediaContentDto = new ExpediaContentDto();
 		$this->expediaContentDetailDto = new ExpediaContentDetailDto();
+		$this->propsWeight = new EnrichmentWeight();
 	}
 	/*
 	 * @param Request $request
@@ -61,6 +64,9 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 				}
 				// TODO: Add other suppliers
 			}
+
+			# enrichment Property Weighting
+			$clientResponse = $this->propsWeight->enrichmentContent($clientResponse, 'hotel');
 
 			$content = [
 				'count' => $count,
@@ -142,6 +148,9 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 				}
 				// TODO: Add other suppliers
 			}
+
+			# enrichment Property Weighting
+			$clientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
 
 			$content = [
 				'count' => count($dataResponse[self::SUPPLIER_NAME]),
