@@ -32,6 +32,7 @@ class GiataTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
+            ->paginated([5, 10, 25, 50])
             ->query(GiataProperty::query())
             ->columns([
                 TextColumn::make('code')

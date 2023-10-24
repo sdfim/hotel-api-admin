@@ -33,6 +33,7 @@ class ExpediaTable extends Component implements HasForms, HasTable
         ini_set('memory_limit', '1586M');
 
         return $table
+            ->paginated([5, 10, 25, 50])
             ->query(ExpediaContent::query())
             ->columns([
                 TextColumn::make('property_id')

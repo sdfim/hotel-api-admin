@@ -29,6 +29,7 @@ class ChannelsTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
+            ->paginated([5, 10, 25, 50])
             ->query(Channel::query())
             ->columns([
                 TextColumn::make('name')
