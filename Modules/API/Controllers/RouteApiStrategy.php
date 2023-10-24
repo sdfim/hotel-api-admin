@@ -2,6 +2,7 @@
 
 namespace Modules\API\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 
 class RouteApiStrategy
@@ -22,9 +23,9 @@ class RouteApiStrategy
     /**
      * @param $supplier
      * @param $type
-     * @return \Illuminate\Http\JsonResponse|mixed
+     * @return mixed
      */
-    public function getHandler($supplier, $type)
+    public function getHandler($supplier, $type): mixed
     {
         $supplier = ucfirst($supplier);
         $type = ucfirst($type);

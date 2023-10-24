@@ -22,9 +22,9 @@ class RouteBookingApiStrategy
     /**
      * @param $supplier
      * @param $type
-     * @return \Illuminate\Http\JsonResponse|mixed
+     * @return mixed
      */
-    public function getHandler($supplier, $type)
+    public function getHandler($supplier, $type): mixed
     {
         $supplier = ucfirst($supplier);
         $type = ucfirst($type);

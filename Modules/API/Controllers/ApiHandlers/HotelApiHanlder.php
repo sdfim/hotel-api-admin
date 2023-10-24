@@ -59,7 +59,8 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
     /**
      * @param ExpediaService $expediaService
      */
-    public function __construct(ExpediaService $expediaService) {
+    public function __construct(ExpediaService $expediaService)
+    {
         $this->expediaService = $expediaService;
         $this->expedia = new ExpediaHotelApiHandler($this->expediaService);
         $this->apiInspector = new SearchInspectorController();
@@ -77,7 +78,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
      * @param array $suppliers
      * @return JsonResponse
      */
-    public function search(Request $request, array $suppliers) : JsonResponse
+    public function search(Request $request, array $suppliers): JsonResponse
     {
         try {
             $searchRequest = new SearchHotelRequest();
@@ -92,7 +93,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
                     $supplierData = $this->expedia->search($request, $filters);
                     $data = $supplierData['results'];
                     $count += $supplierData['count'];
-                    $dataResponse[$supplierName] =  $data;
+                    $dataResponse[$supplierName] = $data;
                     $clientResponse[$supplierName] = $this->expediaContentDto->ExpediaToContentSearchResponse($data);
                 }
                 // TODO: Add other suppliers
@@ -133,7 +134,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
      * @param array $suppliers
      * @return JsonResponse
      */
-    public function detail(Request $request, array $suppliers) : JsonResponse
+    public function detail(Request $request, array $suppliers): JsonResponse
     {
         try {
             // $detailRequest = new DetailHotelRequest();
@@ -171,14 +172,14 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
      * @param array $suppliers
      * @return JsonResponse
      */
-    public function price(Request $request, array $suppliers) : JsonResponse
+    public function price(Request $request, array $suppliers): JsonResponse
     {
-        try{
+        try {
             $priceRequest = new PriceHotelRequest();
             $rules = $priceRequest->rules();
             $filters = Validator::make($request->all(), $rules)->validated();
 
-            $search_id = (string) Str::uuid();
+            $search_id = (string)Str::uuid();
 
             $dataResponse = [];
             $clientResponse = [];

@@ -7,6 +7,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
+use Illuminate\Support\Facades\Cache;
 
 class ExpediaHotelApiHandler
 {
