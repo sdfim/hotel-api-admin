@@ -99,9 +99,11 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->minValue(0.0)
                     ->maxValue(5.5)
                     ->required(),
-                DateTimePicker::make('stop_bookings')
-                    ->label('Stop bookings with in a number of days / hours from time of search execution')
-                    ->default(now())
+				TextInput::make('stop_bookings')
+                    ->label('Stop bookings with in a number of hours from time of search execution, days')
+                    ->numeric()
+                    ->minValue(1)
+                    ->maxValue(365)
                     ->required(),
             ])
             ->statePath('data')

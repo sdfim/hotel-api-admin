@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->json('currently_suppliers');
             $table->integer('time_inspector_retained');
             $table->float('star_ratings', 4, 2);
-            $table->dateTimeTz('stop_bookings');
+            $table->integer('stop_bookings');
             $table->timestamps();
         });
     }
