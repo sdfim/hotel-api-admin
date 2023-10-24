@@ -41,7 +41,7 @@ class ExpediaContentDetailDto
 		$hotelResponse->setHotelFees($supplierResponse->fees ?? []);
 		$hotelResponse->setPolicies($supplierResponse->policies ?? []);
 		$hotelResponse->setDescriptions($supplierResponse->descriptions ?? []);
-		$hotelResponse->setAdress($supplierResponse->address ? $address : '');
+		$hotelResponse->setAddress($supplierResponse->address ? $address : '');
 
 		$rooms = [];
 		foreach ($supplierResponse->rooms as $room) {
