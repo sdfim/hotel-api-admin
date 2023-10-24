@@ -3,7 +3,6 @@
 namespace Modules\API\Controllers\ApiHandlers;
 
 use App\Jobs\SaveSearchInspector;
-use Exception;
 use Modules\API\Controllers\ApiHandlerInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,57 +18,33 @@ use Modules\API\Suppliers\DTO\ExpediaPricingDto;
 use Modules\API\Suppliers\DTO\ExpediaContentDto;
 use Modules\API\Suppliers\DTO\ExpediaContentDetailDto;
 use Illuminate\Support\Str;
+use Modules\API\PropertyWeighting\EnrichmentWeight;
 
 class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 {
-    /**
-     *
-     */
     private const SUPPLIER_NAME = 'Expedia';
-    /**
-     * @var ExpediaService
-     */
     private ExpediaService $expediaService;
-    /**
-     * @var SearchInspectorController
-     */
     private SearchInspectorController $apiInspector;
-    /**
-     * @var ExpediaHotelApiHandler
-     */
     private ExpediaHotelApiHandler $expedia;
-    /**
-     * @var ExpediaPricingDto
-     */
     private ExpediaPricingDto $expediaPricingDto;
-    /**
-     * @var ExpediaContentDto
-     */
     private ExpediaContentDto $expediaContentDto;
-    /**
-     * @var ExpediaContentDetailDto
-     */
     private ExpediaContentDetailDto $expediaContentDetailDto;
+    private EnrichmentWeight $propsWeight;
 
-    /**
-     * @param ExpediaService $expediaService
-     */
-    public function __construct(ExpediaService $expediaService)
-    {
+    public function __construct(ExpediaService $expediaService) {
         $this->expediaService = $expediaService;
         $this->expedia = new ExpediaHotelApiHandler($this->expediaService);
         $this->apiInspector = new SearchInspectorController();
         $this->expediaPricingDto = new ExpediaPricingDto();
         $this->expediaContentDto = new ExpediaContentDto();
         $this->expediaContentDetailDto = new ExpediaContentDetailDto();
+        $this->propsWeight = new EnrichmentWeight();
     }
-
-    /**
+    /*
      * @param Request $request
-     * @param array $suppliers
      * @return JsonResponse
      */
-    public function search(Request $request, array $suppliers): JsonResponse
+    public function search(Request $request, array $suppliers) : JsonResponse
     {
         try {
             $searchRequest = new SearchHotelRequest();
@@ -84,11 +59,14 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
                     $supplierData = $this->expedia->search($request, $filters);
                     $data = $supplierData['results'];
                     $count += $supplierData['count'];
-                    $dataResponse[$supplierName] = $data;
+                    $dataResponse[$supplierName] =  $data;
                     $clientResponse[$supplierName] = $this->expediaContentDto->ExpediaToContentSearchResponse($data);
                 }
                 // TODO: Add other suppliers
             }
+
+            # enrichment Property Weighting
+            $clientResponse = $this->propsWeight->enrichmentContent($clientResponse, 'hotel');
 
             $content = [
                 'count' => $count,
@@ -106,19 +84,18 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
             return $this->sendResponse($res, 'success');
 
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             \Log::error('ExpediaHotelApiHandler | search' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
+            return $this->sendError(['error' => $e->getMessage()], 'falied');
         }
 
     }
 
-    /**
+    /*
      * @param Request $request
-     * @param array $suppliers
      * @return JsonResponse
      */
-    public function detail(Request $request, array $suppliers): JsonResponse
+    public function detail(Request $request, array $supplierIds) : JsonResponse
     {
         try {
             // $detailRequest = new DetailHotelRequest();
@@ -126,7 +103,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
             // $validator = Validator::make($request->all(), $rules)->validated();
 
             $dataResponse = [];
-            foreach ($suppliers as $supplier) {
+            foreach ($supplierIds as $supplier) {
                 $supplierName = Supplier::find($supplier)->name;
                 if ($supplierName == self::SUPPLIER_NAME) {
                     $data = $this->expedia->detail($request);
@@ -140,30 +117,29 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
             else $results = $clientResponse;
 
             return $this->sendResponse(['results' => $results], 'success');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             \Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
+            return $this->sendError(['error' => $e->getMessage()], 'falied');
         }
 
     }
 
-    /**
+    /*
      * @param Request $request
-     * @param array $suppliers
      * @return JsonResponse
      */
-    public function price(Request $request, array $suppliers): JsonResponse
+    public function price(Request $request, array $supplierIds) : JsonResponse
     {
-        try {
+        try{
             $priceRequest = new PriceHotelRequest();
             $rules = $priceRequest->rules();
             $filters = Validator::make($request->all(), $rules)->validated();
 
-            $search_id = (string)Str::uuid();
+            $search_id = (string) Str::uuid();
 
             $dataResponse = [];
             $clientResponse = [];
-            foreach ($suppliers as $supplier) {
+            foreach ($supplierIds as $supplier) {
                 $supplierName = Supplier::find($supplier)->name;
                 if ($supplierName == self::SUPPLIER_NAME) {
                     $expediaResponse = $this->expedia->price($request, $filters);
@@ -172,6 +148,9 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
                 }
                 // TODO: Add other suppliers
             }
+
+            # enrichment Property Weighting
+            $clientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
 
             $content = [
                 'count' => count($dataResponse[self::SUPPLIER_NAME]),
@@ -190,7 +169,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
                 $filters,
                 $content,
                 $clientContent,
-                $suppliers,
+                $supplierIds,
                 'search',
                 'hotel'
             ]);
@@ -201,9 +180,9 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
             $res['search_id'] = $search_id;
 
             return $this->sendResponse($res, 'success');
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             \Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
+            return $this->sendError(['error' => $e->getMessage()], 'falied');
         }
 
     }

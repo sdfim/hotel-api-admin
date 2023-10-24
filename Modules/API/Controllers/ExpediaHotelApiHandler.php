@@ -3,13 +3,10 @@
 namespace Modules\API\Controllers;
 
 use App\Models\ExpediaContent;
-use App\Models\GiataProperty;
-use Illuminate\Http\JsonResponse;
+use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
-use Illuminate\Support\Facades\Cache;
 
 class ExpediaHotelApiHandler
 {
@@ -22,14 +19,9 @@ class ExpediaHotelApiHandler
      * @var float|string
      */
     protected float|string $current_time;
-	private const RESULT_PER_PAGE = 1000;
-	private const PAGE = 1;
-	private const RATING = 4;
-
-
-	private ExpediaService $experiaService;
-
-	protected $current_time;
+    private const RESULT_PER_PAGE = 1000;
+    private const PAGE = 1;
+    private const RATING = 4;
 
     /**
      * @param ExpediaService $expediaService
@@ -46,9 +38,9 @@ class ExpediaHotelApiHandler
      */
     private function preSearchData(Request $request, array $filters): array|null
     {
-		$resultsPerPage = $request->get('results_per_page') ?? self::RESULT_PER_PAGE;
-		$page = $request->get('page') ?? self::PAGE;
-		$rating = $request->get('rating') ?? self::RATING;
+        $resultsPerPage = $request->get('results_per_page') ?? self::RESULT_PER_PAGE;
+        $page = $request->get('page') ?? self::PAGE;
+        $rating = $request->get('rating') ?? self::RATING;
 
         try {
             $expedia = new ExpediaContent();
@@ -60,21 +52,21 @@ class ExpediaHotelApiHandler
             $searchBuilder = new HotelSearchBuilder($query);
             $results = $searchBuilder->applyFilters($filters);
 
-			# enrichment GIATA code
-			$selectList = ['mapper_expedia_giatas.giata_id'];
-			foreach ($fields as $field) {
-				$selectList[] =  'expedia_contents.'.$field;
-			}
-			$results->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.expedia_id', '=', 'expedia_contents.property_id')
-				->whereNotNull('mapper_expedia_giatas.expedia_id')
-				->where('expedia_contents.rating', '>=', $rating)
-				->select($selectList);
+            # enrichment GIATA code
+            $selectList = ['mapper_expedia_giatas.giata_id'];
+            foreach ($fields as $field) {
+                $selectList[] = 'expedia_contents.' . $field;
+            }
+            $results->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.expedia_id', '=', 'expedia_contents.property_id')
+                ->whereNotNull('mapper_expedia_giatas.expedia_id')
+                ->where('expedia_contents.rating', '>=', $rating)
+                ->select($selectList);
 
             $count = $results->count('expedia_id');
 
-			$results = $results->offset($resultsPerPage * ($page - 1))
-				->limit($resultsPerPage)
-				->cursor();
+            $results = $results->offset($resultsPerPage * ($page - 1))
+                ->limit($resultsPerPage)
+                ->cursor();
 
             $ids = collect($results)->pluck('property_id')->toArray();
 
@@ -113,28 +105,28 @@ class ExpediaHotelApiHandler
             $preSearchData = $this->preSearchData($request, $filters);
             $filters = $preSearchData['filters'] ?? null;
 
-			\Log::debug('ExpediaHotelApiHandler ', ['results' => $preSearchData['results']]);
+            \Log::debug('ExpediaHotelApiHandler ', ['results' => $preSearchData['results']]);
 
-			// $key = 'search:'.md5(json_encode($filters));
-			// if (Cache::has($key)) {
-			// 	$output = Cache::get($key);
-			// } else {
-				# get PriceData from RapidAPI Expedia
-				$priceData = $this->experiaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
-				# add price to response
-				$output = [];
-				foreach ($preSearchData['results'] as $value) {
-					if (isset($priceData[$value->property_id])) {
-						$prices_property = json_decode($priceData[$value->property_id]);
-						if (count($prices_property)) {
-							$prices_property = (array)$prices_property[0];
-							// $output[$value->property_id] = (object) array_merge(['content' => $value], ['price' => ['giata_id' => $value->giata_id] + $prices_property);
-							$output[$value->giata_id] = ['giata_id' => $value->giata_id] + $prices_property;
-						}
-					}
-				}
-			// 	Cache::put($key, $output, now()->addMinutes(120));
-			// }
+            // $key = 'search:'.md5(json_encode($filters));
+            // if (Cache::has($key)) {
+            // 	$output = Cache::get($key);
+            // } else {
+            # get PriceData from RapidAPI Expedia
+            $priceData = $this->experiaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
+            # add price to response
+            $output = [];
+            foreach ($preSearchData['results'] as $value) {
+                if (isset($priceData[$value->property_id])) {
+                    $prices_property = json_decode($priceData[$value->property_id]);
+                    if (count($prices_property)) {
+                        $prices_property = (array)$prices_property[0];
+                        // $output[$value->property_id] = (object) array_merge(['content' => $value], ['price' => ['giata_id' => $value->giata_id] + $prices_property);
+                        $output[$value->giata_id] = ['giata_id' => $value->giata_id] + $prices_property;
+                    }
+                }
+            }
+            // 	Cache::put($key, $output, now()->addMinutes(120));
+            // }
 
             return $output ?? null;
 
@@ -160,5 +152,4 @@ class ExpediaHotelApiHandler
 
         return $expedia->dtoDbToResponse($results, $expedia->getFullListFields());
     }
-
 }
