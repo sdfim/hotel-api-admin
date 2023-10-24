@@ -22,6 +22,17 @@ class ContentDetailResponse
 	private array $policies;
 	private array $descriptions;
 	private array $rooms;
+	private string $adress;
+
+	public function setAdress(string $adress) : void
+	{
+		$this->adress = $adress;
+	}
+
+	public function getAdress() : string
+	{
+		return $this->adress;
+	}
 
 	public function setRooms(array $rooms) : void
 	{
@@ -223,6 +234,7 @@ class ContentDetailResponse
 			'hotel_fees' => $this->getHotelFees(),
 			'policies' => $this->getPolicies(),
 			'descriptions' => $this->getDescriptions(),
+			'adress' => $this->getAdress(),
 			'rooms' => $this->getRooms(),
 		];
 	}

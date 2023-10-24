@@ -17,6 +17,10 @@ class ExpediaContentDetailDto
 			$hotelImages[] = $image['links']['350px']['href'];
 		}
 
+		$address = $supplierResponse->address['line_1'] . ', ' . 
+			$supplierResponse->address['city'] . ' - ' . 
+			$supplierResponse->address['postal_code'];
+
 		$hotelResponse = new ContentDetailResponse();
 		$hotelResponse->setGiataHotelCode($giata_id);
 		$hotelResponse->setImages($hotelImages);
@@ -37,6 +41,7 @@ class ExpediaContentDetailDto
 		$hotelResponse->setHotelFees($supplierResponse->fees ?? []);
 		$hotelResponse->setPolicies($supplierResponse->policies ?? []);
 		$hotelResponse->setDescriptions($supplierResponse->descriptions ?? []);
+		$hotelResponse->setAdress($supplierResponse->address ? $address : '');
 
 		$rooms = [];
 		foreach ($supplierResponse->rooms as $room) {
