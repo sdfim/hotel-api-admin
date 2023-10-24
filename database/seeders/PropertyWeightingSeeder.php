@@ -18,8 +18,11 @@ class PropertyWeightingSeeder extends Seeder
     {
         $giataIds = GiataProperty::where('city', 'New York')->get()->pluck('code')->toArray();	
 
+		$issetIds = PropertyWeighting::whereIn('property', $giataIds)->get()->pluck('property')->toArray();
+
 		$data = [];
 		foreach ($giataIds as $key => $giataId) {
+			if (in_array($giataId, $issetIds)) continue;
 			$weight['property'] = $giataId;
 			$weight['weight'] = rand(1, 10000);
 			if ($key % 2 == 0)  $weight['supplier_id'] = 1;
