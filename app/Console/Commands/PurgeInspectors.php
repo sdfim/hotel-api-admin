@@ -31,14 +31,9 @@ class PurgeInspectors extends Command
         # delete by day config (time_inspector_retained)
 		$kept_days = GeneralConfiguration::first()->time_inspector_retained;
 		$kept_date = date('Y-m-d H:i:s', strtotime('-' . $kept_days . ' days'));
+		
+		ApiBookingInspector::where('created_at', '<', $kept_date)->delete();
 
-		$bookingInspector = ApiBookingInspector::where('created_at', '<', $kept_date)->get();
-		foreach ($bookingInspector as $inspector) {
-			$inspector->delete();
-		}
-		$searchInspector = ApiSearchInspector::where('created_at', '<', $kept_date)->get();
-		foreach ($searchInspector as $inspector ) {
-			$inspector->delete();
-		}
+		ApiSearchInspector::where('created_at', '<', $kept_date)->delete();
     }
 }

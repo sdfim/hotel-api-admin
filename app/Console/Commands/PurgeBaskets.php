@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\GeneralConfiguration;
-use App\Models\Reservations;
+use App\Models\Reservation;
 
 class PurgeBaskets extends Command
 {
@@ -34,29 +34,13 @@ class PurgeBaskets extends Command
 		that will be set within the Administration Suite.
 		*/		
 
-		# delete by date_travel > 3 months
-		// TODO: check STATUS is BOOKED
-		$three_months = date('Y-m-d H:i:s', strtotime('-3 months'));
-		$reservations = Reservations::where('date_travel', '<', $three_months)
-			// ->where('status', '=', 'BOOKED')
-			->get();
-		foreach ($reservations as $reservation) {
-			$reservation->delete();
-		}
-
-		# delete by day config (time_reservations_kept)
-		$kept_days = GeneralConfiguration::first()->time_reservations_kept;
+		# delete by day config (time_Reservation_kept)
+		$kept_days = GeneralConfiguration::first()->time_Reservation_kept;
 		$kept_date = date('Y-m-d H:i:s', strtotime('-' . $kept_days . ' days'));
-		$reservations = Reservations::where('date_travel', '<', $kept_date)->get();
-		foreach ($reservations as $reservation) {
-			$reservation->delete();
-		}
+		Reservation::where('date_travel', '<', $kept_date)->delete();
 
-		# if is Offload Date delete by offload date | Offload Date - дата снятия резерва
-		$offload_date = date('Y-m-d H:i:s');
-		$reservations = Reservations::where('date_offload', '<', $offload_date)->get();
-		foreach ($reservations as $reservation) {
-			$reservation->delete();
-		}
+		# if is Offload Date delete by offload date three_months
+		$three_months = date('Y-m-d H:i:s', strtotime('-3 months'));
+		Reservation::where('date_offload', '<', $three_months)->delete();
     }
 }
