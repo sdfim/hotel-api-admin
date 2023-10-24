@@ -2,6 +2,7 @@
 
 namespace Modules\API\Controllers\ApiHendlers;
 
+use App\Jobs\SaveSearchInspector;
 use Modules\API\Controllers\ApiHandlerInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -137,7 +138,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 				if ($supplierName == self::SUPPLIER_NAME) {
 					$expediaResponse = $this->expedia->price($request, $filters);
 					$dataResponse[$supplierName] = $expediaResponse;
-					$clientResponse[$supplierName] = $this->expediaPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
+					$clientResponse[$supplierName] = $this->expediaPricingDto->ExpediaToHotelResponse((array)$expediaResponse, $filters, $search_id);
 				}
 				// TODO: Add other suppliers
 			}
@@ -154,7 +155,15 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			];
 
 			# save data to Inspector
-			$this->apiInspector->save($search_id, $filters, $content, $clientContent, $supplierIds, 'search', 'hotel');
+			SaveSearchInspector::dispatch([
+				$search_id, 
+				$filters, 
+				$content, 
+				$clientContent, 
+				$supplierIds, 
+				'search', 
+				'hotel'
+			]);
 
 			if ($request->input('supplier_data') == 'true') $res = $content;
 			else $res = $clientContent;
