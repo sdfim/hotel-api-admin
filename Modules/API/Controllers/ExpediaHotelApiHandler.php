@@ -13,34 +13,49 @@ use Illuminate\Support\Facades\Cache;
 
 class ExpediaHotelApiHandler
 {
+    /**
+     * @var ExpediaService
+     */
+    private ExpediaService $expediaService;
+
+    /**
+     * @var float|string
+     */
+    protected float|string $current_time;
 	private const RESULT_PER_PAGE = 1000;
 	private const PAGE = 1;
 	private const RATING = 4;
-	
+
 
 	private ExpediaService $experiaService;
 
 	protected $current_time;
 
-	public function __construct(ExpediaService $experiaService) {
-		$this->experiaService = $experiaService;
-	}
-	/**
-	 * @param Request $request
-	 * @return array|null
-	 */
-	private function preSearchData (Request $request, array $filters): array|null
+    /**
+     * @param ExpediaService $expediaService
+     */
+    public function __construct(ExpediaService $expediaService)
+    {
+        $this->expediaService = $expediaService;
+    }
+
+    /**
+     * @param Request $request
+     * @param array $filters
+     * @return array|null
+     */
+    private function preSearchData(Request $request, array $filters): array|null
     {
 		$resultsPerPage = $request->get('results_per_page') ?? self::RESULT_PER_PAGE;
 		$page = $request->get('page') ?? self::PAGE;
 		$rating = $request->get('rating') ?? self::RATING;
 
-		try {
+        try {
             $expedia = new ExpediaContent();
-			$filters['ids'] = $expedia->getIdsByDestinationGiata($filters['destination']);
+            $filters['ids'] = $expedia->getIdsByDestinationGiata($filters['destination']);
 
-			$fields = $request->get('fullList') ? $expedia->getFullListFields() : $expedia->getShortListFields();
-			$query = $expedia->select($fields);
+            $fields = $request->get('fullList') ? $expedia->getFullListFields() : $expedia->getShortListFields();
+            $query = $expedia->select($fields);
 
             $searchBuilder = new HotelSearchBuilder($query);
             $results = $searchBuilder->applyFilters($filters);
@@ -55,46 +70,48 @@ class ExpediaHotelApiHandler
 				->where('expedia_contents.rating', '>=', $rating)
 				->select($selectList);
 
-			$count = $results->count('expedia_id');
+            $count = $results->count('expedia_id');
 
 			$results = $results->offset($resultsPerPage * ($page - 1))
 				->limit($resultsPerPage)
 				->cursor();
 
-			$ids = collect($results)->pluck('property_id')->toArray();
+            $ids = collect($results)->pluck('property_id')->toArray();
 
             $results = $expedia->dtoDbToResponse($results, $fields);
 
 
-		} catch (\Exception $e) {
+        } catch (Exception $e) {
             \Log::error('ExpediaHotelApiHandler | preSearchData' . $e->getMessage());
             return null;
         }
 
-		return ['ids' => $ids ?? 0, 'results' => $results ?? null, 'filters' => $filters ?? null, 'count' => $count ?? 0];
-	}
+        return ['ids' => $ids ?? 0, 'results' => $results, 'filters' => $filters ?? null, 'count' => $count ?? 0];
+    }
 
-	/**
+    /**
      * @param Request $request
+     * @param array $filters
+     * @return array
+     */
+    public function search(Request $request, array $filters): array
+    {
+        $preSearchData = $this->preSearchData($request, $filters);
+        $results = $preSearchData['results']->toArray() ?? [];
+
+        return ['results' => $results, 'count' => $preSearchData['count']];
+    }
+
+    /**
+     * @param Request $request
+     * @param array $filters
      * @return array|null
      */
-    public function search (Request $request, array $filters): array
+    public function price(Request $request, array $filters): array|null
     {
-		$preSearchData = $this->preSearchData ($request, $filters);
-		$results = $preSearchData['results']->toArray() ?? [];
-
-		return ['results' => $results, 'count' => $preSearchData['count']];
-	}
-
-	/**
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function price (Request $request, array $filters): array|null
-    {
-		try {
-			$preSearchData = $this->preSearchData ($request, $filters);
-			$filters = $preSearchData['filters'] ?? null;
+        try {
+            $preSearchData = $this->preSearchData($request, $filters);
+            $filters = $preSearchData['filters'] ?? null;
 
 			\Log::debug('ExpediaHotelApiHandler ', ['results' => $preSearchData['results']]);
 
@@ -119,15 +136,15 @@ class ExpediaHotelApiHandler
 			// 	Cache::put($key, $output, now()->addMinutes(120));
 			// }
 
-			return $output ?? null;
+            return $output ?? null;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             \Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
             return null;
         }
     }
 
-	/**
+    /**
      * @param Request $request
      * @return object
      */
@@ -135,7 +152,7 @@ class ExpediaHotelApiHandler
     {
         $expedia = new ExpediaContent();
 
-		$expedia_id = $expedia->getExpediaIdByGiataId($request->get('property_id'));
+        $expedia_id = $expedia->getExpediaIdByGiataId($request->get('property_id'));
 
         // $expedia_id = $request->get('property_id') ?? null;
 

@@ -1,0 +1,46 @@
+<?php
+
+namespace Modules\API\Controllers\ApiHandlers;
+
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Modules\API\BaseController;
+use Modules\API\Controllers\ApiHandlerInterface;
+
+class ComboApiHandler extends BaseController implements ApiHandlerInterface
+{
+    /**
+     *
+     */
+    private const SUPPLIER_NAME = 'Expedia';
+
+    /**
+     * @param Request $request
+     * @param array $suppliers
+     * @return JsonResponse
+     */
+    public function search(Request $request, array $suppliers): JsonResponse
+    {
+
+    }
+
+    /**
+     * @param Request $request
+     * @param array $suppliers
+     * @return JsonResponse
+     */
+    public function detail(Request $request, array $suppliers): JsonResponse
+    {
+
+    }
+
+    /**
+     * @param Request $request
+     * @param array $suppliers
+     * @return JsonResponse
+     */
+    public function price(Request $request, array $suppliers): JsonResponse
+    {
+
+    }
+}
