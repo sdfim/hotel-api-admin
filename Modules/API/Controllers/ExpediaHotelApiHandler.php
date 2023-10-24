@@ -121,7 +121,7 @@ class ExpediaHotelApiHandler
             // 	$output = Cache::get($key);
             // } else {
             # get PriceData from RapidAPI Expedia
-            $priceData = $this->experiaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
+            $priceData = $this->expediaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
             # add price to response
             $output = [];
             foreach ($preSearchData['results'] as $value) {
