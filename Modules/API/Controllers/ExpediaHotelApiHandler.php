@@ -18,7 +18,7 @@ class ExpediaHotelApiHandler
 	private const RATING = 4;
 	
 
-	private ExperiaService $experiaService;
+	private ExpediaService $experiaService;
 
 	protected $current_time;
 
