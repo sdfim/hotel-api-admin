@@ -8,15 +8,15 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
-use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
+use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Illuminate\Support\Facades\Cache;
 
-class ExpediaHotelApiHandler 
+class ExpediaHotelApiHandler
 {
-	private ExperiaService $experiaService;
+	private ExpediaService $experiaService;
 	protected $current_time;
 
-	public function __construct(ExperiaService $experiaService) {
+	public function __construct(ExpediaService $experiaService) {
 		$this->experiaService = $experiaService;
 	}
 	/**
@@ -59,7 +59,7 @@ class ExpediaHotelApiHandler
 
             $results = $expedia->dtoDbToResponse($results, $fields);
 
-			
+
 		} catch (\Exception $e) {
             \Log::error('ExpediaHotelApiHandler | preSearchData' . $e->getMessage());
             return null;
@@ -128,11 +128,11 @@ class ExpediaHotelApiHandler
         $expedia = new ExpediaContent();
 
 		$expedia_id = $expedia->getExpediaIdByGiataId($request->get('property_id'));
-		
+
         // $expedia_id = $request->get('property_id') ?? null;
 
         $results = $expedia->where('property_id', $expedia_id)->get();
-		
+
         return $expedia->dtoDbToResponse($results, $expedia->getFullListFields());
     }
 

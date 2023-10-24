@@ -5,7 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Modules\API\Controllers\ExpediaHotelApiHandler;
-use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
+use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Suppliers\ExpediaSupplier\PropertyCallFactory;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 
@@ -27,18 +27,18 @@ class AppServiceProvider extends ServiceProvider
             return new PropertyCallFactory($rapidClient);
         });
 
-        $this->app->singleton(ExperiaService::class, function ($app) {
+        $this->app->singleton(ExpediaService::class, function ($app) {
             $propertyCallFactory = $app->make(PropertyCallFactory::class);
-            return new ExperiaService($propertyCallFactory);
+            return new ExpediaService($propertyCallFactory);
         });
 
 		$this->app->singleton(RouteApiController::class, function($app) {
-			$experiaService = $app->make(ExperiaService::class);
+			$experiaService = $app->make(ExpediaService::class);
 			return new ExpediaHotelApiHandler($experiaService);
 		});
 
 		$this->app->singleton(HotelApiHanlder::class, function($app) {
-			$experiaService = $app->make(ExperiaService::class);
+			$experiaService = $app->make(ExpediaService::class);
 			return new ExpediaHotelApiHandler($experiaService);
 		});
     }

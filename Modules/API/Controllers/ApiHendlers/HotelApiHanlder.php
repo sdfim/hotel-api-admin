@@ -11,7 +11,7 @@ use App\Models\Supplier;
 use Modules\API\Controllers\ExpediaHotelApiHandler;
 use Modules\API\Requests\SearchHotelRequest;
 use Illuminate\Support\Facades\Validator;
-use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
+use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\Inspector\SearchInspectorController;
 use Modules\API\Requests\PriceHotelRequest;
 use Modules\API\Suppliers\DTO\ExpediaPricingDto;
@@ -22,14 +22,14 @@ use Illuminate\Support\Str;
 class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 {
 	private const SUPPLIER_NAME = 'Expedia';
-	private ExperiaService $experiaService;
+	private ExpediaService $experiaService;
 	private SearchInspectorController $apiInspector;
 	private ExpediaHotelApiHandler $expedia;
 	private ExpediaPricingDto $expediaPricingDto;
 	private ExpediaContentDto $expediaContentDto;
 	private ExpediaContentDetailDto $expediaContentDetailDto;
 
-	public function __construct(ExperiaService $experiaService) {
+	public function __construct(ExpediaService $experiaService) {
 		$this->experiaService = $experiaService;
 		$this->expedia = new ExpediaHotelApiHandler($this->experiaService);
 		$this->apiInspector = new SearchInspectorController();
@@ -156,12 +156,12 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 			# save data to Inspector
 			SaveSearchInspector::dispatch([
-				$search_id, 
-				$filters, 
-				$content, 
-				$clientContent, 
-				$supplierIds, 
-				'search', 
+				$search_id,
+				$filters,
+				$content,
+				$clientContent,
+				$supplierIds,
+				'search',
 				'hotel'
 			]);
 
