@@ -46,6 +46,11 @@ class CreatePricingRules extends Component implements HasForms
     public function form(Form $form): Form
     {
         return $form
+            ->columns([
+                'sm' => 1,
+                'xl' => 3,
+                '2xl' => 3,
+            ])
             ->schema([
                 Select::make('supplier_id')
                     ->label('Supplier')
