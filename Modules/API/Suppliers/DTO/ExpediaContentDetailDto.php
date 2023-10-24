@@ -16,6 +16,7 @@ class ExpediaContentDetailDto
 		foreach ($supplierResponse->images as $image) {
 			$hotelImages[] = $image['links']['350px']['href'];
 		}
+		$viewAmenities = request()->get('category_amenities') === 'true' ? true : false;
 
 		$address = $supplierResponse->address['line_1'] . ', ' . 
 			$supplierResponse->address['city'] . ' - ' . 
@@ -30,9 +31,13 @@ class ExpediaContentDetailDto
 		$hotelResponse->setLatitude($supplierResponse->location['coordinates']['latitude']);
 		$hotelResponse->setLongitude($supplierResponse->location['coordinates']['longitude']);
 		$hotelResponse->setRating($supplierResponse->rating);
-		$hotelResponse->setAmenities($supplierResponse->amenities ? array_map(function ($amenity) {
+		if ($viewAmenities) {
+			$hotelResponse->setAmenities($supplierResponse->amenities ?? []);
+		} else {
+			$hotelResponse->setAmenities($supplierResponse->amenities ? array_map(function ($amenity) {
 				return $amenity['name'];
 			}, $supplierResponse->amenities) : []);
+		}
 		$hotelResponse->setGiataDestination($supplierResponse->city ?? '');
 		$hotelResponse->setUserRating($supplierResponse->rating ?? '');
 		$hotelResponse->setSpecialInstructions($supplierResponse->room ?? []);
@@ -45,8 +50,6 @@ class ExpediaContentDetailDto
 
 		$rooms = [];
 		foreach ($supplierResponse->rooms as $room) {
-
-			// dd($room['images']);
 			$amenities = $room['amenities'] ?? [];
 			$images = [];
 			foreach ($room['images'] as $image) {
@@ -55,9 +58,13 @@ class ExpediaContentDetailDto
 			$roomResponse = new ContentDetailRoomsResponse();
 			$roomResponse->setSupplierRoomId($room['id']);
 			$roomResponse->setSupplierRoomName($room['name']);
-			$roomResponse->setAmenities($room['amenities'] ? array_map(function ($amenity) {
-				return $amenity['name'];
-			}, $amenities) : []);
+			if ($viewAmenities) {
+				$roomResponse->setAmenities($room['amenities'] ?? []);
+			} else {
+				$roomResponse->setAmenities($room['amenities'] ? array_map(function ($amenity) {
+					return $amenity['name'];
+				}, $amenities) : []);
+			}
 			$roomResponse->setImages($images);
 			$roomResponse->setDescriptions($room['descriptions'] ? $room['descriptions']['overview'] : '');
 			$rooms[] = $roomResponse->toArray();

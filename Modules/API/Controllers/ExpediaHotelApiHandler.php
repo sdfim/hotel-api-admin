@@ -13,7 +13,13 @@ use Illuminate\Support\Facades\Cache;
 
 class ExpediaHotelApiHandler
 {
-	private ExpediaService $experiaService;
+	private const RESULT_PER_PAGE = 1000;
+	private const PAGE = 1;
+	private const RATING = 4;
+	
+
+	private ExperiaService $experiaService;
+
 	protected $current_time;
 
 	public function __construct(ExpediaService $experiaService) {
@@ -25,9 +31,9 @@ class ExpediaHotelApiHandler
 	 */
 	private function preSearchData (Request $request, array $filters): array|null
     {
-		$resultsPerPage = $request->get('results_per_page') ?? 50;
-		$page = $request->get('page') ?? 1;
-		$rating = $request->get('rating') ?? 4;
+		$resultsPerPage = $request->get('results_per_page') ?? self::RESULT_PER_PAGE;
+		$page = $request->get('page') ?? self::PAGE;
+		$rating = $request->get('rating') ?? self::RATING;
 
 		try {
             $expedia = new ExpediaContent();
@@ -39,7 +45,7 @@ class ExpediaHotelApiHandler
             $searchBuilder = new HotelSearchBuilder($query);
             $results = $searchBuilder->applyFilters($filters);
 
-			# enricmant GIATA code
+			# enrichment GIATA code
 			$selectList = ['mapper_expedia_giatas.giata_id'];
 			foreach ($fields as $field) {
 				$selectList[] =  'expedia_contents.'.$field;
@@ -53,7 +59,7 @@ class ExpediaHotelApiHandler
 
 			$results = $results->offset($resultsPerPage * ($page - 1))
 				->limit($resultsPerPage)
-				->get();
+				->cursor();
 
 			$ids = collect($results)->pluck('property_id')->toArray();
 
@@ -90,10 +96,12 @@ class ExpediaHotelApiHandler
 			$preSearchData = $this->preSearchData ($request, $filters);
 			$filters = $preSearchData['filters'] ?? null;
 
-			$key = 'search:'.md5(json_encode($filters));
-			if (Cache::has($key)) {
-				$output = Cache::get($key);
-			} else {
+			\Log::debug('ExpediaHotelApiHandler ', ['results' => $preSearchData['results']]);
+
+			// $key = 'search:'.md5(json_encode($filters));
+			// if (Cache::has($key)) {
+			// 	$output = Cache::get($key);
+			// } else {
 				# get PriceData from RapidAPI Expedia
 				$priceData = $this->experiaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
 				# add price to response
@@ -108,8 +116,8 @@ class ExpediaHotelApiHandler
 						}
 					}
 				}
-				Cache::put($key, $output, now()->addMinutes(120));
-			}
+			// 	Cache::put($key, $output, now()->addMinutes(120));
+			// }
 
 			return $output ?? null;
 
