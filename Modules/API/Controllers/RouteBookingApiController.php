@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Modules\API\Controllers\RouteBookingApiStrategy;
-use Modules\API\BookingAPI\BookingApiHendlers\HotelBookingApiHanlder;
-use Modules\API\BookingAPI\BookingApiHendlers\FlightBookingApiHandler;
-use Modules\API\BookingAPI\BookingApiHendlers\ComboBookingApiHandler;
-use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
+use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
+use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
+use Modules\API\BookingAPI\BookingApiHandlers\ComboBookingApiHandler;
+use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiSearchInspector;
 
@@ -28,7 +28,7 @@ class RouteBookingApiController extends Controller
 	private const ROUTE_LIST_BOOKINGS = 'listBookings';
 	private const ROUTE_RETRIEVE_BOOKING = 'retrieveBooking';
 	private const ROUTE_CANCEL_BOOKING = 'cancelBooking';
-	private ExperiaService $experiaService;
+	private ExpediaService $experiaService;
 	private RouteBookingApiStrategy $strategy;
 	private ApiBookingInspector $bookingInspector;
 	private ApiSearchInspector $searchInspector;
@@ -36,7 +36,7 @@ class RouteBookingApiController extends Controller
 	private string|null $supplier;
 	private string|null $route;
 
-	public function __construct(RouteBookingApiStrategy $strategy, ExperiaService $experiaService) {
+	public function __construct(RouteBookingApiStrategy $strategy, ExpediaService $experiaService) {
 		$this->strategy = $strategy;
 		$this->experiaService = $experiaService;
 		$this->bookingInspector = new ApiBookingInspector();
@@ -58,7 +58,7 @@ class RouteBookingApiController extends Controller
 		if (is_null($this->supplier)) return response()->json(['message' => 'Invalid supplier'], 400);
 
 		$dataHandler = match ($this->type) {
-			'hotel' => new HotelBookingApiHanlder($this->experiaService),
+			'hotel' => new HotelBookingApiHandler($this->experiaService),
 			'flight' => new FlightBookingApiHandler(),
 			'combo' => new ComboBookingApiHandler(),
 			default => response()->json(['message' => 'Invalid route'], 400),

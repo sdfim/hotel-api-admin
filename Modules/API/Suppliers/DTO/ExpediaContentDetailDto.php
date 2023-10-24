@@ -18,6 +18,10 @@ class ExpediaContentDetailDto
 		}
 		$viewAmenities = request()->get('category_amenities') === 'true' ? true : false;
 
+		$address = $supplierResponse->address['line_1'] . ', ' . 
+			$supplierResponse->address['city'] . ' - ' . 
+			$supplierResponse->address['postal_code'];
+
 		$hotelResponse = new ContentDetailResponse();
 		$hotelResponse->setGiataHotelCode($giata_id);
 		$hotelResponse->setImages($hotelImages);
@@ -42,6 +46,7 @@ class ExpediaContentDetailDto
 		$hotelResponse->setHotelFees($supplierResponse->fees ?? []);
 		$hotelResponse->setPolicies($supplierResponse->policies ?? []);
 		$hotelResponse->setDescriptions($supplierResponse->descriptions ?? []);
+		$hotelResponse->setAddress($supplierResponse->address ? $address : '');
 
 		$rooms = [];
 		foreach ($supplierResponse->rooms as $room) {

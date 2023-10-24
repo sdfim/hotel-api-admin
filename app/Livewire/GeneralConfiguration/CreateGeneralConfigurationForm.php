@@ -15,7 +15,6 @@ use Illuminate\Http\RedirectResponse;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 
-
 class CreateGeneralConfigurationForm extends Component implements HasForms
 {
     use InteractsWithForms;
@@ -67,17 +66,22 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
     public function form(Form $form): Form
     {
         return $form
+            ->columns([
+                'sm' => 1,
+                'xl' => 2,
+                '2xl' => 2,
+            ])
             ->schema([
                 TextInput::make('time_supplier_requests')
-                    ->label('Time out on supplier requests, second')
+                    ->label('Supplier requests timeout, seconds')
                     ->numeric()
                     ->minValue(3)
                     ->maxValue(120)
                     ->required(),
-				Select::make('currently_suppliers')
-					->label('Which Suppliers are currently being searched for')
+                Select::make('currently_suppliers')
+                    ->label('Include these suppliers in the search')
+                    ->multiple()
                     ->options(Supplier::all()->pluck('name', 'id'))
-					->multiple()
                     ->required(),
                 TextInput::make('time_reservations_kept')
                     ->label('Length of Time Reservations are kept are offloading, days')
@@ -91,14 +95,14 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->minValue(60)
                     ->maxValue(365)
                     ->required(),
-				TextInput::make('star_ratings')
+                TextInput::make('star_ratings')
                     ->label('What star ratings to be searched for on the system, 0 ... 5.5')
                     ->numeric()
-					->step(0.5)
+                    ->step(0.5)
                     ->minValue(0.0)
                     ->maxValue(5.5)
                     ->required(),
-				TextInput::make('stop_bookings')
+                TextInput::make('stop_bookings')
                     ->label('Stop bookings with in a number of hours from time of search execution, days')
                     ->numeric()
                     ->minValue(1)

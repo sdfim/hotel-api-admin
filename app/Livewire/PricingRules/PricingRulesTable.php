@@ -29,6 +29,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
+            ->paginated([5, 10, 25, 50])
             ->query(PricingRule::query())
             ->columns([
                 TextColumn::make('suppliers.name')

@@ -25,6 +25,7 @@ class GiataGeographyTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
+            ->paginated([5, 10, 25, 50])
             ->query(GiataGeography::query())
             ->columns([
                 TextColumn::make('id')

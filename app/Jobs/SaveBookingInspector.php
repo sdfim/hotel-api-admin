@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,17 +14,29 @@ class SaveBookingInspector implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-	private $expediaTools;
-	private $bookingInspector;
-	private $dataQueue;
+    /**
+     * @var ExpediaTools
+     */
+    private ExpediaTools $expediaTools;
+
+    /**
+     * @var BookingInspectorController
+     */
+    private BookingInspectorController $bookingInspector;
+
+    /**
+     * @var array
+     */
+    private array $dataQueue;
+
     /**
      * Create a new job instance.
      */
     public function __construct($dataQueue)
     {
-		$this->expediaTools = new ExpediaTools();
-		$this->bookingInspector = new BookingInspectorController();
-		$this->dataQueue = $dataQueue;
+        $this->expediaTools = new ExpediaTools();
+        $this->bookingInspector = new BookingInspectorController();
+        $this->dataQueue = $dataQueue;
     }
 
     /**
@@ -33,10 +44,10 @@ class SaveBookingInspector implements ShouldQueue
      */
     public function handle(): void
     {
-		[$booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type] = $this->dataQueue;
+        [$booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type] = $this->dataQueue;
 
-		$this->bookingInspector->save($booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type);
-		
-		if ($type == 'add_item' && $subType == 'retrieve') $this->expediaTools->saveAddItemToReservations($booking_id, $query);
+        $this->bookingInspector->save($booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type);
+
+        if ($type == 'add_item' && $subType == 'retrieve') $this->expediaTools->saveAddItemToReservations($booking_id, $query);
     }
 }

@@ -8,7 +8,7 @@ use Modules\API\BaseController;
 use App\Models\Supplier;
 use Modules\API\Controllers\ExpediaHotelApiHandler;
 use Modules\API\Requests\SearchHotelRequest;
-use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
+use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Illuminate\Support\Facades\Validator;
 
 

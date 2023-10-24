@@ -29,6 +29,7 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
+            ->paginated([5, 10, 25, 50])
             ->query(ApiExceptionReport::orderBy('created_at', 'DESC'))
             ->columns([
                 TextColumn::make('id'),

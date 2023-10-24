@@ -2,17 +2,17 @@
 
 namespace Modules\API\Controllers;
 
-use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
+use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 
 class RouteBookingApiStrategy
 {
-	private ExperiaService $experiaService;
+	private ExpediaService $experiaService;
 
-	public function __construct(ExperiaService $experiaService) {
+	public function __construct(ExpediaService $experiaService) {
 		$this->experiaService = $experiaService;
 	}
 
-	public function getHandler($supplier, $type) 
+	public function getHandler($supplier, $type)
 	{
 		$supplier = ucfirst($supplier);
 		$type = ucfirst($type);

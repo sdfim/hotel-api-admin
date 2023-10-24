@@ -9,7 +9,7 @@ use Modules\API\Controllers\RouteApiStrategy;
 use Modules\API\Controllers\ApiHendlers\HotelApiHanlder;
 use Modules\API\Controllers\ApiHendlers\FlightApiHandler;
 use Modules\API\Controllers\ApiHendlers\ComboApiHandler;
-use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
+use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 
 class RouteApiController extends Controller
 {
@@ -23,9 +23,9 @@ class RouteApiController extends Controller
 	private const ROUTE_DETAIL = 'detail';
 	private const ROUTE_PRICE = 'price';
 	private RouteApiStrategy $strategy;
-	private ExperiaService $experiaService;
+	private ExpediaService $experiaService;
 
-	public function __construct(RouteApiStrategy $strategy, ExperiaService $experiaService) {
+	public function __construct(RouteApiStrategy $strategy, ExpediaService $experiaService) {
 		$this->strategy = $strategy;
 		$this->experiaService = $experiaService;
 	}
