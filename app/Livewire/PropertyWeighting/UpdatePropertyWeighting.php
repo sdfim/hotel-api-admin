@@ -36,9 +36,9 @@ class UpdatePropertyWeighting extends Component implements HasForms
      * @param PropertyWeighting $weight
      * @return void
      */
-    public function mount(PropertyWeighting $weight): void
+    public function mount(PropertyWeighting $propertyWeighting): void
     {
-        $this->record = $weight;
+        $this->record = $propertyWeighting;
         $this->form->fill($this->record->attributesToArray());
     }
 
@@ -64,8 +64,7 @@ class UpdatePropertyWeighting extends Component implements HasForms
                     ->unique(ignorable: $this->record),
                 Select::make('supplier_id')
                     ->label('Supplier')
-                    ->options(Supplier::all()->pluck('name', 'id'))
-                    ->required(),
+                    ->options(Supplier::all()->pluck('name', 'id')),
                 TextInput::make('weight')
                     ->label('Weight')
                     ->required()
@@ -101,7 +100,7 @@ class UpdatePropertyWeighting extends Component implements HasForms
             ->success()
             ->send();
 
-        return redirect()->route('weight.index');
+        return redirect()->route('property-weighting.index');
     }
 
     /**

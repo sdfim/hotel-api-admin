@@ -52,9 +52,9 @@ class PropertyWeightingTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(PropertyWeighting $record): string => route('weight.show', $record)),
+                        ->url(fn(PropertyWeighting $record): string => route('property-weighting.show', $record)),
                     EditAction::make()
-                        ->url(fn(PropertyWeighting $record): string => route('weight.edit', $record)),
+                        ->url(fn(PropertyWeighting $record): string => route('property-weighting.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
                         ->action(fn(PropertyWeighting $record) => $record->delete())

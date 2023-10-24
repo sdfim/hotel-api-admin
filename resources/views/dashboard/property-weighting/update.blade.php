@@ -22,7 +22,7 @@
                         </div>
                     </div>
                     <div class="mx-1 py-1 col-span-9 xl:col-span-6">
-                        @livewire('property-weighting.update-property-weighting', compact('weight'))
+                        @livewire('property-weighting.update-property-weighting', compact('propertyWeighting'))
                     </div>
                 </div>
             </div>

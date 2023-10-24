@@ -54,9 +54,7 @@ class CreatePropertyWeighting extends Component implements HasForms
                     ->unique(),
                 Select::make('supplier_id')
                     ->label('Supplier')
-                    ->options(Supplier::all()->pluck('name', 'id'))
-                    ->required(),
-
+                    ->options(Supplier::all()->pluck('name', 'id')),
                 TextInput::make('weight')
                     ->label('Weight')
                     ->required()
@@ -95,7 +93,7 @@ class CreatePropertyWeighting extends Component implements HasForms
             ->success()
             ->send();
 
-        return redirect()->route('weight.index');
+        return redirect()->route('property-weighting.index');
     }
 
     /**
