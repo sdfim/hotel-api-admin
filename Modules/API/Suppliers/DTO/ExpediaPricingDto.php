@@ -14,11 +14,15 @@ class ExpediaPricingDto
 	private array $query;
 	private string $search_id;
 	private float $lowest_priced_room_group;
+	private float $current_time;
+	private float $total_time;
 
 	public function __construct()
 	{
 		$this->pricingRulesApplier = new ExpediaPricingRulesApplier();
 		$this->lowest_priced_room_group = 100000;
+		$this->current_time = microtime(true);
+		$this->total_time = 0.0;
 	}
 
 	public function ExpediaToHotelResponse(array $supplierResponse, array $query, string $search_id) : array
@@ -29,6 +33,7 @@ class ExpediaPricingDto
 		foreach ($supplierResponse as $propertyGroup) {
 			$hotelResponse[] = $this->setHotelResponse($propertyGroup);
 		}
+		\Log::info('ExpediaPricingDto | enrichmentPricingRules - ' . $this->total_time . 's');
 
 		return $hotelResponse;
 	}
@@ -85,7 +90,10 @@ class ExpediaPricingDto
 		// stdclass to array
 		$rg = json_decode(json_encode($roomGroup['rates'][0]->occupancy_pricing), true);
 		try {
+			$this->executionTime();
 			$pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $channelId, $this->query, $rg);
+			$this->total_time += $this->executionTime();
+			
 			if ($pricingRulesApplier['total_price'] > 0 && $pricingRulesApplier['total_price'] < $this->lowest_priced_room_group) {
 				$this->lowest_priced_room_group = $pricingRulesApplier['total_price'];
 			}
@@ -141,5 +149,13 @@ class ExpediaPricingDto
 
 		return $roomResponse->toArray();
 	}
+
+	private function executionTime ()
+    {
+        $execution_time = round((microtime(true) - $this->current_time), 3);
+        $this->current_time = microtime(true);
+
+        return $execution_time;
+    }
 
 }

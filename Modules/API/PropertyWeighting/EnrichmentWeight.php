@@ -28,7 +28,7 @@ class EnrichmentWeight
 			}
 		}
 
-		\Log::info('EnrichmentWeight::enrichmentContent() - ' . $this->executionTime() . 's');
+		\Log::info('EnrichmentWeight | enrichmentContent  - ' . $this->executionTime() . 's');
 
 		return $clientResponse;
 	}
@@ -60,7 +60,7 @@ class EnrichmentWeight
 			}
 		}
 
-		\Log::info('EnrichmentWeight::enrichmentPricing() - ' . $this->executionTime() . 's');
+		\Log::info('EnrichmentWeight | enrichmentPricing - ' . $this->executionTime() . 's');
 
 		return $clientResponse;
 	}

@@ -115,8 +115,6 @@ class ExpediaHotelApiHandler
             $preSearchData = $this->preSearchData($request, $filters);
             $filters = $preSearchData['filters'] ?? null;
 
-            \Log::debug('ExpediaHotelApiHandler ', ['results' => $preSearchData['results']]);
-
             // $key = 'search:'.md5(json_encode($filters));
             // if (Cache::has($key)) {
             // 	$output = Cache::get($key);
