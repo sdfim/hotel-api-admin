@@ -9,7 +9,12 @@ class EnrichmentWeight
     /**
      * @var float|string
      */
-    protected float|string $current_time;
+    protected float $current_time;
+
+	public function __construct()
+	{
+		$this->current_time = microtime(true);
+	}
 
     /**
      * @param array $clientResponse
