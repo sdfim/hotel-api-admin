@@ -169,7 +169,7 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
         }
 
         if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
-        return $this->sendResponse($data, 'success');
+        return $this->sendResponse($data ?? [], 'success');
     }
 
     /**

@@ -41,7 +41,7 @@ class ExpediaHotelBookingApiHandler
     {
         $this->expediaService = $expediaService;
         $this->bookingInspector = new BookingInspectorController();
-        $this->rapidClient = new RapidClient(env('EXPEDIA_RAPID_API_KEY'), env('EXPEDIA_RAPID_SHARED_SECRET'));
+        $this->rapidClient = new RapidClient();
     }
 
     /**

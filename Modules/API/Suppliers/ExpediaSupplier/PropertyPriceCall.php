@@ -146,11 +146,6 @@ class PropertyPriceCall
     private mixed $partnerPointSale;
 
     /**
-     * @var
-     */
-    private $token;
-
-    /**
      * @param $client
      * @param $property
      */

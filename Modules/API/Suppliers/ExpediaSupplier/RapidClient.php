@@ -11,11 +11,16 @@ use Psr\Http\Message\ResponseInterface;
 
 class RapidClient
 {
-    // Headers
-    /**
-     *
-     */
     private const GZIP = "gzip";
+
+	private const API_KEY = "13jhb72476h1ufkl4vce08a5ob";
+
+	private const SHARED_SECRET = "20rf37o3nv5uo";
+
+	# Test endpoint: https://test.ean.com
+	# Production endpoint: https://api.ean.com
+	private const BASE_URL = "https://test.ean.com";
+
     /**
      *
      */
@@ -38,25 +43,27 @@ class RapidClient
      */
     private string|null $rapidBaseUrl;
 
+
+
     /**
      * @param $apiKey
      * @param $sharedSecret
      */
-    public function __construct($apiKey, $sharedSecret)
+    public function __construct()
     {
-        $this->apiKey = $apiKey;
-        $this->sharedSecret = $sharedSecret;
+        $this->apiKey = self::API_KEY;
+        $this->sharedSecret = self::SHARED_SECRET;
+		$this->rapidBaseUrl = self::BASE_URL;
         $this->client = new Client(['debug' => fopen('./rapidClientDebug.log', 'w')]);
-        $this->rapidBaseUrl = env('EXPEDIA_RAPID_BASE_URL');
     }
 
     /**
-     * @param $path
-     * @param $queryParameters
+     * @param string $path
+     * @param array $queryParameters
      * @param array $addHeaders
      * @return mixed
      */
-    public function get($path, $queryParameters, array $addHeaders = []): mixed
+    public function get(string $path, array $queryParameters, array $addHeaders = []): mixed
     {
         $queryParams = [];
         foreach ($queryParameters as $key => $value) {
@@ -74,13 +81,13 @@ class RapidClient
     }
 
     /**
-     * @param $path
-     * @param $queryParameters
-     * @param $body
+     * @param string $path
+     * @param array $queryParameters
+     * @param string $body
      * @param array $addHeaders
      * @return mixed
      */
-    public function put($path, $queryParameters, $body, array $addHeaders = []): mixed
+    public function put(string $path, array $queryParameters, string $body, array $addHeaders = []): mixed
     {
         $queryParams = [];
         foreach ($queryParameters as $key => $value) {
@@ -95,18 +102,22 @@ class RapidClient
         $headers = $headers + $addHeaders;
 
         $request = new Request('PUT', $url, $headers, $body);
-        return $this->client->sendAsync($request)->wait();
+		$res = $this->client->sendAsync($request)->wait();
+
+		dd($request, $res);
+
+        return $res;
     }
 
     /**
-     * @param $path
-     * @param $queryParameters
-     * @param $body
+     * @param string $path
+     * @param array $queryParameters
+     * @param string $body
      * @param array $addHeaders
      * @return ResponseInterface
      * @throws GuzzleException
      */
-    public function delete($path, $queryParameters, $body, array $addHeaders = []): ResponseInterface
+    public function delete(string $path, array $queryParameters, string $body, array $addHeaders = []): ResponseInterface
     {
         $queryParams = [];
         foreach ($queryParameters as $key => $value) {
@@ -124,13 +135,13 @@ class RapidClient
     }
 
     /**
-     * @param $path
-     * @param $queryParameters
-     * @param $body
+     * @param string $path
+     * @param array $queryParameters
+     * @param string $body
      * @param array $addHeaders
      * @return mixed
      */
-    public function post($path, $queryParameters, $body, array $addHeaders = []): mixed
+    public function post(string $path, array $queryParameters, string $body, array $addHeaders = []): mixed
     {
         $queryParams = [];
         foreach ($queryParameters as $key => $value) {
@@ -148,24 +159,12 @@ class RapidClient
     }
 
     /**
-     * @return string
-     */
-    private function generateAuthHeader(): string
-    {
-        $timeStampInSeconds = strval(time());
-        $input = $this->apiKey . $this->sharedSecret . $timeStampInSeconds;
-        $signature = hash('sha512', $input);
-
-        return sprintf(self::AUTHORIZATION_HEADER, $this->apiKey, $signature, $timeStampInSeconds);
-    }
-
-    /**
-     * @param $path
-     * @param $queryParameters
+     * @param string $path
+     * @param array $queryParameters
      * @param array $addHeaders
      * @return promise
      */
-    public function getAsync($path, $queryParameters, array $addHeaders = []): promise
+    public function getAsync(string $path, array $queryParameters, array $addHeaders = []): promise
     {
         foreach (range(0, 10) as $i) $arrayReplace[] = '%5B' . $i . '%5D';
         $http_build_query = http_build_query($queryParameters);
@@ -185,5 +184,17 @@ class RapidClient
         }
 
         return $res;
+    }
+
+	/**
+     * @return string
+     */
+    private function generateAuthHeader(): string
+    {
+        $timeStampInSeconds = strval(time());
+        $input = $this->apiKey . $this->sharedSecret . $timeStampInSeconds;
+        $signature = hash('sha512', $input);
+
+        return sprintf(self::AUTHORIZATION_HEADER, $this->apiKey, $signature, $timeStampInSeconds);
     }
 }

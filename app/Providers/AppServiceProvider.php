@@ -16,10 +16,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register (): void
     {
-        $this->app->singleton(RapidClient::class, function ($app) {
-            $apiKey = env('EXPEDIA_RAPID_API_KEY');
-            $sharedSecret = env('EXPEDIA_RAPID_SHARED_SECRET');
-            return new RapidClient($apiKey, $sharedSecret);
+        $this->app->singleton(RapidClient::class, function () {
+            return new RapidClient();
         });
 
         $this->app->singleton(PropertyCallFactory::class, function ($app) {

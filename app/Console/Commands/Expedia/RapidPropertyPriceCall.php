@@ -39,7 +39,7 @@ class RapidPropertyPriceCall extends Command
 
         $property['checkin'] = "2023-12-10";
         $property['checkout'] = "2023-12-31";
-        $property['occupancy'] = ["2"];
+        $property['occupancy'][] = ["adults" => "2"];
         $propertyIds = ["12537922", "10231646", "10215116", "10630123", "10948924"];
 
         $propertyPriceCall = $this->rapidCallFactory->createPropertyPriceCall($property);
