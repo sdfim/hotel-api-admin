@@ -18,10 +18,10 @@ class PricingRule extends Model
         'property',
         'destination',
         'travel_date',
-        'datetime',
+        'supplier_id',
+        'channel_id',
         'days',
         'nights',
-        'supplier_id',
         'rate_code',
         'room_type',
         'total_guests',
@@ -33,9 +33,8 @@ class PricingRule extends Model
         'price_value_type_to_apply',
         'price_value_to_apply',
         'price_value_fixed_type_to_apply',
-        'channel_id',
         'rule_start_date',
-        'rule_expiration_date'
+        'rule_expiration_date',
     ];
 
     /**
