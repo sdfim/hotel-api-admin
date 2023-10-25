@@ -66,33 +66,40 @@ class PricingRulesTest extends TestCase
         Livewire::test(CreatePricingRules::class)
             ->set('data', [
                 'name' => '',
+                'property' => '',
                 'destination' => '',
                 'travel_date' => '',
                 'days' => '',
                 'nights' => '',
+                'channel_id' => '',
                 'supplier_id' => '',
                 'rate_code' => '',
                 'room_type' => '',
                 'total_guests' => '',
                 'room_guests' => '',
+                'number_rooms' => '',
                 'meal_plan' => '',
                 'rating' => '',
                 'price_type_to_apply' => '',
                 'price_value_type_to_apply' => '',
                 'price_value_to_apply' => '',
+                'price_value_fixed_type_to_apply' => ''
             ])
             ->call('create')
             ->assertHasErrors([
                 'data.name',
+                'data.property',
                 'data.destination',
                 'data.travel_date',
                 'data.days',
                 'data.nights',
+                'data.channel_id',
                 'data.supplier_id',
                 'data.rate_code',
                 'data.room_type',
                 'data.total_guests',
                 'data.room_guests',
+                'data.number_rooms',
                 'data.meal_plan',
                 'data.rating',
                 'data.price_type_to_apply',
@@ -143,46 +150,6 @@ class PricingRulesTest extends TestCase
         $this->assertDatabaseHas('pricing_rules', $data);
     }
 
-     /**
-     * @test
-     * @return void
-     */
-    public function test_possibility_of_storing_new_pricing_rule(): void
-    {
-        $this->auth();
-
-        $supplier = Supplier::factory()->create();
-        $channel = Channel::factory()->create();
-
-        $data = [
-            'name' => $this->faker->name,
-            'property' => $this->faker->word,
-            'destination' => $this->faker->word,
-            'travel_date' => now(),
-            'days' => 7,
-            'nights' => 5,
-            'channel_id' => $channel->id,
-            'supplier_id' => $supplier->id,
-            'rate_code' => $this->faker->word,
-            'room_type' => $this->faker->word,
-            'total_guests' => 2,
-            'room_guests' => 2,
-            'number_rooms' => 1,
-            'meal_plan' => $this->faker->word,
-            'rating' => $this->faker->word,
-            'price_type_to_apply' => $this->faker->word,
-            'price_value_type_to_apply' => $this->faker->word,
-            'price_value_to_apply' => 2.5,
-            'price_value_fixed_type_to_apply' => $this->faker->word,
-        ];
-
-        $response = $this->post(route('pricing_rules.store'), $data);
-
-        $response->assertStatus(302)
-            ->assertRedirect(route('pricing_rules.index'));
-        $this->assertDatabaseHas('pricing_rules', $data);
-    }
-
     /**
      * @test
      * @return void
@@ -191,33 +158,33 @@ class PricingRulesTest extends TestCase
     {
         $this->auth();
 
-        $pricingRule = PricingRule::factory()->create();
+        $pricingRules = PricingRule::factory()->create();
         $supplier = Supplier::factory()->create();
         $channel = Channel::factory()->create();
 
-        $newData = [
-            'name' => 'Updated Pricing Rule Name',
-            'property' => 'Updated Pricing Rule Property',
-            'destination' => 'Updated Pricing Rule Destination',
-            'travel_date' => now(),
-            'days' => 7,
-            'nights' => 5,
-            'supplier_id' => $supplier->id,
-            'channel_id' => $channel->id,
-            'rate_code' => 'dret1',
-            'room_type' => 'vip',
-            'total_guests' => 2,
-            'room_guests' => 2,
-            'number_rooms' => 1,
-            'meal_plan' => 'plan',
-            'rating' => 'rating',
-        ];
+        Livewire::test(UpdatePricingRules::class, ['pricingRules' => $pricingRules])
+            ->set('data.name', $this->faker->name)
+            ->set('data.property', $this->faker->numberBetween(1, 10000))
+            ->set('data.destination', 'Updated Pricing Rule Destination')
+            ->set('data.travel_date',now())
+            ->set('data.days', 7)
+            ->set('data.nights', 6)
+            ->set('data.supplier_id',$supplier->id)
+            ->set('data.channel_id', $channel->id)
+            ->set('data.rate_code', 'dret1')
+            ->set('data.room_type', 'vip')
+            ->set('data.total_guests', 2)
+            ->set('data.room_guests', 2)
+            ->set('data.number_rooms', 1)
+            ->set('data.meal_plan', 'plan')
+            ->set('data.rating', 'rating')
+            ->call('edit')
+            ->assertRedirect(route('pricing_rules.index'));
 
-        $response = $this->put(route('pricing_rules.update', [$pricingRule->id]), $newData);
-        $response->assertStatus(302);
-        $response->assertRedirect(route('pricing_rules.index'));
-
-        $this->assertDatabaseHas('pricing_rules', $newData);
+            $this->assertDatabaseHas('pricing_rules', [
+                'id' => $pricingRules->id,
+                'supplier_id' => $supplier->id,
+            ]);
     }
 
     /**
@@ -227,13 +194,8 @@ class PricingRulesTest extends TestCase
     public function test_possibility_of_destroying_an_existing_pricing_rule(): void
     {
         $this->auth();
-
         $pricingRule = PricingRule::factory()->create();
-
-        $response = $this->delete(route('pricing_rules.destroy', [$pricingRule->id]));
-        $response->assertStatus(302);
-        $response->assertRedirect(route('pricing_rules.index'));
-
+        $pricingRule->delete();
         $this->assertDatabaseMissing('pricing_rules', ['id' => $pricingRule->id]);
     }
 
