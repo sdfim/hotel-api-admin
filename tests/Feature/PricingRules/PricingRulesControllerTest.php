@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\PricingRules;
 
+use App\Models\Channel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -49,6 +50,8 @@ class PricingRulesControllerTest extends TestCase
         $this->auth();
 
         $supplier = Supplier::factory()->create();
+        $channel = Channel::factory()->create();
+
         $data = [
             'name' => $this->faker->name,
             'property' => $this->faker->word,
@@ -56,6 +59,7 @@ class PricingRulesControllerTest extends TestCase
             'travel_date' => now(),
             'days' => 7,
             'nights' => 5,
+            'channel_id' => $channel->id,
             'supplier_id' => $supplier->id,
             'rate_code' => $this->faker->word,
             'room_type' => $this->faker->word,
@@ -123,6 +127,7 @@ class PricingRulesControllerTest extends TestCase
 
         $pricingRule = PricingRule::factory()->create();
         $supplier = Supplier::factory()->create();
+        $channel = Channel::factory()->create();
 
         $newData = [
             'name' => 'Updated Pricing Rule Name',
@@ -132,6 +137,7 @@ class PricingRulesControllerTest extends TestCase
             'days' => 7,
             'nights' => 5,
             'supplier_id' => $supplier->id,
+            'channel_id' => $channel->id,
             'rate_code' => 'dret1',
             'room_type' => 'vip',
             'total_guests' => 2,
