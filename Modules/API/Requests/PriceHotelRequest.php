@@ -2,6 +2,7 @@
 
 namespace Modules\API\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Modules\API\Validate\ApiRequest;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,7 +11,7 @@ class PriceHotelRequest extends ApiRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-    public function authorize (): bool
+    public function authorize(): bool
     {
         return Auth::check();
     }
@@ -18,23 +19,25 @@ class PriceHotelRequest extends ApiRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
-    public function rules (): array
+    public function rules(): array
     {
         return [
             'checkin' => ['required', 'date_format:Y-m-d', 'after:today'],
             'checkout' => ['required', 'date_format:Y-m-d', 'after:checkin'],
             'destination' => ['required', 'string'],
-			'travel_purpose' => ['string'],
+            'travel_purpose' => ['string'],
             'rating' => ['required', 'string'],
             'occupancy' => ['required', 'array'],
         ];
     }
 
-    public function validatedDate (): array
+    /**
+     * @return array
+     */
+    public function validatedDate(): array
     {
         return parent::validated();
     }
-
 }
