@@ -42,7 +42,7 @@ class DownloadExpediaData extends Command
 	protected $current_time_report;
 	protected $expedia_id;
 	protected $report_id;
-	private const S3mount = '/var/www/storage_fusemnt';
+	protected string $savePath;
 
 	/**
 	 * Create a new command instance.
@@ -57,6 +57,10 @@ class DownloadExpediaData extends Command
         $this->apiExceptionReport = new ExceptionReportController();
 		// TODO: get expedia_id from suppliers table
 		$this->expedia_id = 1;
+		$this->current_time = microtime(true);
+		$this->step_current_time = microtime(true);
+		$this->current_time_report = microtime(true);
+		$this->savePath = storage_path() . '/app/expedia';
     }
 
     /**
@@ -145,14 +149,12 @@ class DownloadExpediaData extends Command
                 $fileContents = $response->body();
                 $fileName = 'expedia_' . $this->type . '.gz';
 
-                // Storage::put($fileName, $fileContents);
-				// file_put_contents(storage_path().'/app/'.$fileName, $fileContents);
-				file_put_contents(self::S3mount . '/' . $fileName, $fileContents);
+				file_put_contents($this->savePath . '/' . $fileName, $fileContents);
 
                 $this->info('Step:2 download file ' . $url . ' in ' . $this->executionStepTime() . ' seconds');
 
 				$this->saveSuccessReport('DownloadExpediaData', 'Step:2 download file', json_encode([
-					'path' => self::S3mount,
+					'path' => $this->savePath,
 					'fileName' => $fileName,
 					'execution_time' => $this->executionTimeReport() . ' sec',
 				]));
@@ -160,13 +162,13 @@ class DownloadExpediaData extends Command
 				$this->saveErrorReport('DownloadExpediaData', 'Step:2 download file', json_encode([
 					'response-status' =>  $response->status(),
 					'response-body' => $response->body(),
-					'path' => self::S3mount,
+					'path' => $this->savePath,
 					'execution_time' => $this->executionTimeReport() . ' sec',
 				]));
 				$this->error('Error downloading gz file:  ' . json_encode([
 					'response-status' =>  $response->status(),
 					'response-body' => $response->body(),
-					'path' => self::S3mount,
+					'path' => $this->savePath,
 					'execution_time' => $this->executionStepTime() . ' sec',
 				]));
             }
@@ -190,7 +192,7 @@ class DownloadExpediaData extends Command
 		$this->executionTimeReport();
 		$this->executionStepTime();
 		try {
-			$archive = self::S3mount . '/expedia_' . $this->type . '.gz';
+			$archive = $this->savePath . '/expedia_' . $this->type . '.gz';
 			$result = Process::timeout(3600)->run('gunzip -f ' . $archive);
 
 			if ($result->successful()) {
@@ -236,11 +238,8 @@ class DownloadExpediaData extends Command
 
 		// Delete all existing data
         ExpediaContent::query()->delete();
-		// DB::update("ALTER TABLE {expedia_contents} AUTO_INCREMENT = 1;");
 
-        // $filePath = storage_path() . '/app/expedia_' . $this->type;
-
-		$filePath = self::S3mount . '/expedia_' . $this->type;
+		$filePath = $this->savePath . '/expedia_' . $this->type;
 
         // Open the JSONL file for reading
         $file = fopen($filePath, 'r');
@@ -250,7 +249,7 @@ class DownloadExpediaData extends Command
             return;
         }
 
-        $batchSize = self::BATCH_SIZE; // Set your desired batch size
+        $batchSize = self::BATCH_SIZE; 
         $batchData = [];
         $batchCount = 0;
         $arr_json = [
@@ -286,8 +285,12 @@ class DownloadExpediaData extends Command
 
             $is_write = true;
 
+			$propertyIds = [];
             foreach ($data as $key => $value) {
 
+				if ($key == 'property_id') {
+					$propertyIds[] = $value;
+				}
                 if ($key == 'ratings') {
                     $output['rating'] = $value['property']['rating'] ?? 0;
                 }
@@ -345,6 +348,7 @@ class DownloadExpediaData extends Command
             // Check if we have accumulated enough data to insert as a batch
             if (count($batchData) >= $batchSize) {
                 try {
+					ExpediaContent::whereIn('property_id', $propertyIds)->delete();
                     ExpediaContent::insert($batchData);
                 } catch (\Exception $e) {
 					$this->error('ImportJsonlData error' .  $e->getMessage());
@@ -364,6 +368,7 @@ class DownloadExpediaData extends Command
         // Insert any remaining data as the last batch
         if (!empty($batchData)) {
             try {
+				ExpediaContent::whereIn('property_id', $propertyIds)->delete();
                 ExpediaContent::insert($batchData);
             } catch (\Exception $e) {
                 $this->error('ImportJsonlData error' .  $e->getMessage());
