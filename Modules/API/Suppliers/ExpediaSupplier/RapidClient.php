@@ -22,21 +22,21 @@ class RapidClient
     private const AUTHORIZATION_HEADER = "EAN APIKey=%s,Signature=%s,timestamp=%s";
 
     /**
-     * @var string
+     * @var string|null
      */
-    private string $apiKey;
+    private string|null $apiKey;
     /**
-     * @var string
+     * @var string|null
      */
-    private string $sharedSecret;
+    private string|null $sharedSecret;
     /**
      * @var Client
      */
     private Client $client;
     /**
-     * @var string|mixed
+     * @var string|null
      */
-    private string $rapidBaseUrl;
+    private string|null $rapidBaseUrl;
 
     /**
      * @param $apiKey
