@@ -1,12 +1,16 @@
 <?php
 
-namespace Tests\Feature\Channels;
+namespace Tests\Feature;
 
-use App\Models\Channel;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
+use App\Models\Channel;
+use App\Models\User;
+use Livewire\Livewire;
+use App\Livewire\Channels\UpdateChannelsForm;
+use App\Livewire\Channels\CreateChannelsForm;
+
 
 class ChannelsTest extends TestCase
 {
@@ -125,6 +129,59 @@ class ChannelsTest extends TestCase
         $response->assertRedirect('/admin/channels');
         $this->assertDatabaseMissing('channels', ['id' => $channel->id]);
     }
+    
+    /**
+     * @test
+     * @return void
+     */
+    public function test_validation_of_channel_form_and_updating_an_existing_channel(): void
+    {
+        $this->auth();
+        $channel = Channel::factory()->create();
+
+        Livewire::test(UpdateChannelsForm::class, ['channel' => $channel])
+            ->set('data.name', 'Updated Channel Name')
+            ->set('data.description', 'Updated Channel Description')
+            ->call('edit')
+            ->assertRedirect(route('channels.index'));
+
+        $this->assertDatabaseHas('channels', [
+            'id' => $channel->id,
+            'name' => 'Updated Channel Name',
+            'description' => 'Updated Channel Description',
+        ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_validation_of_channel_form_and_storing_new_channel(): void
+    {
+        $this->auth();
+
+        Livewire::test(CreateChannelsForm::class)
+            ->set('data', [
+                'name' => '',
+                'description' => '',
+            ])
+            ->call('create')
+            ->assertHasErrors(['data.name', 'data.description']);
+
+        Livewire::test(CreateChannelsForm::class)
+            ->set('data', [
+                'name' => 'Test Channel',
+                'description' => 'Test Description',
+            ])
+            ->call('create')
+            ->assertRedirect(route('channels.index'));
+
+        $this->assertDatabaseHas('channels', [
+            'name' => 'Test Channel',
+            'description' => 'Test Description',
+        ]);
+    }
+
 
     /**
      * @return void

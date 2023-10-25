@@ -1,19 +1,32 @@
 <?php
 
-namespace Tests\Feature\GeneralConfiguration;
+namespace Tests\Feature;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Livewire\Livewire;
 use Tests\TestCase;
 use App\Livewire\GeneralConfiguration\CreateGeneralConfigurationForm;
 use App\Models\GeneralConfiguration;
+use Livewire\Livewire;
+use App\Models\User;
 
-class CreateAndUpdateGeneralConfigurationFormTest extends TestCase
+class GeneralConfigurationTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_general_configuration_index_is_opening(): void
+    {
+        $this->auth();
+
+        $response = $this->get('/admin/general-configuration');
+
+        $response->assertStatus(200);
+    }
 
     /**
      * @test
@@ -68,6 +81,7 @@ class CreateAndUpdateGeneralConfigurationFormTest extends TestCase
         ];
     }
 
+    
     /**
      * @return void
      */
