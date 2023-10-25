@@ -42,7 +42,7 @@
                 <li class="@if(Route::currentRouteName() == 'booking-inspector.show' || Route::currentRouteName() == 'search-inspector.show') mm-active @endif">
                     <a href="javascript: void(0);" aria-expanded="false"
                        class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-headset"></i>
+                        <i class="dripicons-archive"></i>
                         <span data-key="t-inspector">Inspectors</span>
                     </a>
                     <ul>
@@ -61,14 +61,14 @@
                 <li class="@if(Route::currentRouteName() == 'content-loader-exceptions.show') mm-active @endif">
                     <a href="{{ Route('content-loader-exceptions.index') }}"
                        class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-meter"></i>
-                        <span data-key="t-content-loader-exception"> Content Loader Exceptions</span>
+                        <i class="dripicons-graph-line"></i>
+                        <span data-key="t-content-loader-exception"> Content Loader Issues</span>
                     </a>
                 </li>
                 <li>
                     <a href="javascript: void(0);" aria-expanded="false"
                        class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-contract-2"></i>
+                        <i class="dripicons-map"></i>
                         <span data-key="t-property-mapping">Property Mapping</span>
                     </a>
                     <ul>
@@ -93,18 +93,25 @@
                         <span data-key="t-geography"> Geography</span>
                     </a>
                 </li>
-                <li>
+                {{--<li>
                     <a href="{{ Route('content') }}"
                        class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-blog"></i>
                         <span data-key="t-content"> Content</span>
                     </a>
-                </li>
+                </li>--}}
                 <li>
                     <a href="{{ Route('pricing_rules.index') }}"
                        class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-blog"></i>
+                        <i class="dripicons-network-3"></i>
                         <span data-key="t-pricing-rules"> Pricing Rule</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ Route('property-weighting.index') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-weight"></i>
+                        <span data-key="t-log-viewer"> Property Weighting</span>
                     </a>
                 </li>
                 <li>
@@ -112,13 +119,6 @@
                        class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-document-remove"></i>
                         <span data-key="t-log-viewer"> Log Viewer</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ Route('property-weighting.index') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-document-remove"></i>
-                        <span data-key="t-log-viewer"> Property Weighting</span>
                     </a>
                 </li>
 
