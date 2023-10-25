@@ -12,6 +12,9 @@ use Modules\Inspector\ExceptionReportController;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Process;
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Stream;
+
 
 
 class DownloadExpediaData extends Command
@@ -143,25 +146,23 @@ class DownloadExpediaData extends Command
 		$this->executionTimeReport();
 		$this->executionStepTime();
 		try {
-			$response = Http::timeout(3600)->get($url);
+			$client = new Client(['timeout' => 3600]);
+			$response = $client->get($url);
 
-			if ($response->successful()) {
+			$fileName = 'expedia_' . $this->type . '.gz';
 
-				$fileName = 'expedia_' . $this->type . '.gz';
-
-				// $fileContents = $response->body();
-				// file_put_contents($this->savePath . '/' . $fileName, $fileContents);
-
-				$stream = $response->getBody()->getContents();
+			if ($response->getStatusCode() === 200) {
+				$stream = $response->getBody();
 				$file = fopen($this->savePath . '/' . $fileName, 'w');
 
-				if ($file !== false) {
-					fwrite($file, $stream);
-					
-					fclose($file);
-					fclose($stream);
+				if ($file) {
+					while (!$stream->eof()) {
+						fwrite($file, $stream->read(1024));
+					}
 
-					$this->info('Step:2 download file ' . $url . ' in ' . $this->executionStepTime() . ' seconds');
+					fclose($file);
+
+					$this->info('Step:2 download file ' . $fileName . ' in ' . $this->executionStepTime() . ' seconds');
 
 					$this->saveSuccessReport('DownloadExpediaData', 'Step:2 download file', json_encode([
 						'path' => $this->savePath,
@@ -184,7 +185,7 @@ class DownloadExpediaData extends Command
 		}
 	}
 
-	private function errorStep2($response) :void
+	private function errorStep2($response): void
 	{
 		$this->error('Error downloading gz file:  ' . json_encode([
 			'response-status' =>  $response->status(),
@@ -398,6 +399,7 @@ class DownloadExpediaData extends Command
 		ExpediaContent::where('created_at', '<', Carbon::now())->delete();
 
 		fclose($file);
+		unlink($filePath);
 
 		$this->info('Import completed. ' . $this->executionStepTime() . " seconds");
 
