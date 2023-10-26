@@ -14,6 +14,7 @@ class GiataProperty extends Model
      * @var mixed
      */
     protected $connection;
+	protected $primaryKey = 'code';
 
     /**
      * @var string[]

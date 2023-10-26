@@ -12,8 +12,7 @@ return new class extends Migration {
     {
         if (!Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->hasTable('expedia_contents')) {
             Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->create('expedia_contents', function (Blueprint $table) {
-                $table->id();
-                $table->integer('property_id')->index();
+                $table->integer('property_id')->index()->unique();
                 $table->float('rating')->index()->default(0);
                 $table->string('name');
                 $table->unsignedBigInteger('giata_TTIcode')->default(0)->index();

@@ -15,6 +15,7 @@ class ExpediaContent extends Model
      * @var mixed
      */
     protected $connection;
+	protected $primaryKey = 'property_id';
 
     /**
      * @var string[]

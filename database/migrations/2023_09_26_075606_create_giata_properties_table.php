@@ -12,8 +12,7 @@ return new class extends Migration {
     {
         if (!Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->hasTable('giata_properties')) {
             Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->create('giata_properties', function (Blueprint $table) {
-                $table->id();
-                $table->integer('code')->index();
+                $table->integer('code')->index()->unique;
                 $table->timestamp('last_updated');
                 $table->string('name')->default('');
                 $table->json('chain')->nullable();
