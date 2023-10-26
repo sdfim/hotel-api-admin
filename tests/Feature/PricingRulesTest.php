@@ -83,7 +83,9 @@ class PricingRulesTest extends TestCase
                 'price_type_to_apply' => '',
                 'price_value_type_to_apply' => '',
                 'price_value_to_apply' => '',
-                'price_value_fixed_type_to_apply' => ''
+                'price_value_fixed_type_to_apply' => '',
+                'rule_start_date' => '',
+                'rule_expiration_date' => '',
             ])
             ->call('create')
             ->assertHasErrors([
@@ -105,6 +107,8 @@ class PricingRulesTest extends TestCase
                 'data.price_type_to_apply',
                 'data.price_value_type_to_apply',
                 'data.price_value_to_apply',
+                'data.rule_start_date',
+                'data.rule_expiration_date',
             ]);
     }
 
@@ -118,6 +122,8 @@ class PricingRulesTest extends TestCase
 
         $supplier = Supplier::factory()->create();
         $channels = Channel::factory()->create();
+        $today = now();
+
         $data = [
             'name' => $this->faker->name,
             'property' => $this->faker->word,
@@ -138,8 +144,8 @@ class PricingRulesTest extends TestCase
             'price_value_to_apply' => 2.5,
             'price_value_fixed_type_to_apply' => null,
             'channel_id' => $channels->id,
-            'rule_start_date' => date('Y-m-d H:i:s'),
-            'rule_expiration_date' => date('Y-m-d H:i:s')
+            'rule_start_date' => $today,
+            'rule_expiration_date' => $today->copy()->addDays(rand(30, 60)),
         ];
 
         Livewire::test(CreatePricingRules::class)
@@ -178,6 +184,8 @@ class PricingRulesTest extends TestCase
             ->set('data.number_rooms', 1)
             ->set('data.meal_plan', 'plan')
             ->set('data.rating', 'rating')
+            ->set('rule_start_date', '12.12.2024')
+            ->set('rule_expiration_date', '29.12.2024')
             ->call('edit')
             ->assertRedirect(route('pricing_rules.index'));
 
