@@ -61,9 +61,11 @@ class ExpediaContentDetailDto
         foreach ($supplierResponse->rooms as $room) {
             $amenities = $room['amenities'] ?? [];
             $images = [];
-            foreach ($room['images'] as $image) {
-                $images[] = $image['links']['350px']['href'];
-            }
+			if (isset($room['images'])) {
+				foreach ($room['images'] as $image) {
+					$images[] = $image['links']['350px']['href'];
+				}
+			}
             $roomResponse = new ContentDetailRoomsResponse();
             $roomResponse->setSupplierRoomId($room['id']);
             $roomResponse->setSupplierRoomName($room['name']);

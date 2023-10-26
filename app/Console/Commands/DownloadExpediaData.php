@@ -294,10 +294,7 @@ class DownloadExpediaData extends Command
         $this->executionTimeReport();
         $this->executionStepTime();
 
-        // Delete all existing data
-        ExpediaContent::query()->delete();
-
-        $filePath = $this->savePath . '/expedia_' . $this->type;
+		$filePath = $this->savePath . '/expedia_' . $this->type;
 
         // Open the JSONL file for reading
         $file = fopen($filePath, 'r');
@@ -325,9 +322,10 @@ class DownloadExpediaData extends Command
             'checkin_time', 'checkout_time', 'total_occupancy',
         ];
 
-        while (($line = fgets($file)) !== false) {
-            // Parse JSON from each line
-            $data = json_decode($line, true);
+		$propertyIds = [];
+		while (($line = fgets($file)) !== false) {
+			// Parse JSON from each line
+			$data = json_decode($line, true);
 
             $output = [];
             foreach ($arr_json as $key) {
@@ -343,8 +341,7 @@ class DownloadExpediaData extends Command
 
             $is_write = true;
 
-            $propertyIds = [];
-            foreach ($data as $key => $value) {
+			foreach ($data as $key => $value) {
 
                 if ($key == 'property_id') {
                     $propertyIds[] = $value;
@@ -403,24 +400,25 @@ class DownloadExpediaData extends Command
 
             if ($is_write) $batchData[] = $output;
 
-            // Check if we have accumulated enough data to insert as a batch
-            if (count($batchData) >= $batchSize) {
-                try {
-                    ExpediaContent::whereIn('property_id', $propertyIds)->delete();
-                    ExpediaContent::insert($batchData);
-                } catch (Exception $e) {
-                    $this->error('ImportJsonlData error' . $e->getMessage());
-                    $this->saveErrorReport('DownloadExpediaData', 'Import Json lData', json_encode([
-                        'getMessage' => $e->getMessage(),
-                        'getTraceAsString' => $e->getTraceAsString(),
-                        'execution_time' => $this->executionTimeReport() . ' sec',
-                    ]));
-                }
-                $batchCount++;
-                $this->info('Data imported batchData: ' . $batchCount . ' count =  ' . count($batchData));
-                $batchData = [];
-            }
-        }
+			// Check if we have accumulated enough data to insert as a batch
+			if (count($batchData) >= $batchSize) {
+				try {
+					ExpediaContent::whereIn('property_id', $propertyIds)->delete();
+					$propertyIds = [];
+					ExpediaContent::insert($batchData);
+				} catch (Exception $e) {
+					$this->error('ImportJsonlData error' . $e->getMessage());
+					$this->saveErrorReport('DownloadExpediaData', 'Import Json lData', json_encode([
+						'getMessage' => $e->getMessage(),
+						'getTraceAsString' => $e->getTraceAsString(),
+						'execution_time' => $this->executionTimeReport() . ' sec',
+					]));
+				}
+				$batchCount++;
+				$this->info('Data imported batchData: ' . $batchCount . ' count =  ' . count($batchData));
+				$batchData = [];
+			}
+		}
 
         // Insert any remaining data as the last batch
         if (!empty($batchData)) {
