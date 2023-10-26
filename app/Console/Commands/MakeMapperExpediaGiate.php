@@ -131,53 +131,53 @@ class MakeMapperExpediaGiate extends Command
             }
 
             $strategy = [
-                // '2' => [
-                // 	'position' => '%"' . $latitude . '%',
-                // 	'position ' => '%"' . $longitude . '%',
-                // 	'name' => $nameHotel . '%',
-                // ],
-                // '3' => [
-                //     'position' => '%"' . $latitude . '%',
-                //     'position ' => '%"' . $longitude . '%',
-                //     'name' => $expediaNameStart . '%',
-                //     'phone' => '%' . $phone . '%',
-                // ],
-                // '4' => [
-                //     'position' => '%"' . $latitude . '%',
-                //     'position ' => '%"' . $longitude . '%',
-                //     'phone' => '%' . $phone . '%',
-                //     'address' => '%' . $postCode . '%',
-                // ],
-                // '5' => [
-                // 	'position' => '%"' . $latitude0 . '%',
-                // 	'position ' => '%"' . $longitude0 . '%',
-                // 	'name' =>  $expedia['name'],
-                // 	'city' =>  $expedia['city'],
-                // ],
-                // '6' => [
-                // 	'position' => '%"' . $latitude . '%',
-                // 	'position ' => '%"' . $longitude . '%',
-                // 	'name' => trim(str_replace('Hotel', '', $nameHotel)) . '%',
-                // ],
-                // '7' => [
-                // 	'position' => '%"' . $latitude1 . '%',
-                // 	'position ' => '%"' . $longitude0 . '%',
-                // 	'name' => $expediaName12 . '%',
-                // 	'city' =>  $expedia['city'],
-                // ],
-                // '8' => [
-                // 	'position' => '%"' . $latitude1 . '%',
-                // 	'position ' => '%"' . $longitude0 . '%',
-                // 	'name' => '%' . $expediaName23 . '%',
-                // 	'city' =>  $expedia['city'],
-                // ],
-                // '9' => [
-                //     'position' => '%"' . $latitude1 . '%',
-                //     'position ' => '%"' . $longitude0 . '%',
-                //     'name' => '%' . $expediaName1 . '%',
-                //     'city' => $expedia['city'],
-                //     'phone' => '%' . $phone . '%',
-                // ],
+                '2' => [
+                	'position' => '%"' . $latitude . '%',
+                	'position ' => '%"' . $longitude . '%',
+                	'name' => $nameHotel . '%',
+                ],
+                '3' => [
+                    'position' => '%"' . $latitude . '%',
+                    'position ' => '%"' . $longitude . '%',
+                    'name' => $expediaNameStart . '%',
+                    'phone' => '%' . $phone . '%',
+                ],
+                '4' => [
+                    'position' => '%"' . $latitude . '%',
+                    'position ' => '%"' . $longitude . '%',
+                    'phone' => '%' . $phone . '%',
+                    'address' => '%' . $postCode . '%',
+                ],
+                '5' => [
+                	'position' => '%"' . $latitude0 . '%',
+                	'position ' => '%"' . $longitude0 . '%',
+                	'name' =>  $expedia['name'],
+                	'city' =>  $expedia['city'],
+                ],
+                '6' => [
+                	'position' => '%"' . $latitude . '%',
+                	'position ' => '%"' . $longitude . '%',
+                	'name' => trim(str_replace('Hotel', '', $nameHotel)) . '%',
+                ],
+                '7' => [
+                	'position' => '%"' . $latitude1 . '%',
+                	'position ' => '%"' . $longitude0 . '%',
+                	'name' => $expediaName12 . '%',
+                	'city' =>  $expedia['city'],
+                ],
+                '8' => [
+                	'position' => '%"' . $latitude1 . '%',
+                	'position ' => '%"' . $longitude0 . '%',
+                	'name' => '%' . $expediaName23 . '%',
+                	'city' =>  $expedia['city'],
+                ],
+                '9' => [
+                    'position' => '%"' . $latitude1 . '%',
+                    'position ' => '%"' . $longitude0 . '%',
+                    'name' => '%' . $expediaName1 . '%',
+                    'city' => $expedia['city'],
+                    'phone' => '%' . $phone . '%',
+                ],
             ];
 
             $start = microtime(true);

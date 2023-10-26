@@ -14,12 +14,13 @@ return new class extends Migration {
 
         if (!Schema::connection($connection)->hasTable('mapper_expedia_giatas')) {
             Schema::connection($connection)->create('mapper_expedia_giatas', function (Blueprint $table) use ($connection) {
-                $table->id();
                 $table->integer('expedia_id');
                 $table->integer('giata_id');
 
                 $table->foreign('giata_id')->references('code')->on(env('SECOND_DB_DATABASE', 'ujv_api') . '.giata_properties')->onDelete('cascade')->onUpdate('cascade');
-                $table->foreign('expedia_id')->references('property_id')->on(env('SECOND_DB_DATABASE', 'ujv_api') . '.expedia_contents')->onDelete('cascade')->onUpdate('cascade');
+                $table->foreign('expedia_id')->references('property_id')->on(env('SECOND_DB_DATABASE', 'ujv_api') . '.expedia_contents')->onDelete('no action')->onUpdate('cascade');
+
+				$table->unique(['expedia_id', 'giata_id']);
 
                 $table->integer('step');
             });
