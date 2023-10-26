@@ -435,8 +435,6 @@ class DownloadExpediaData extends Command
             }
         }
 
-        ExpediaContent::where('created_at', '<', Carbon::now())->delete();
-
         fclose($file);
         unlink($filePath);
 

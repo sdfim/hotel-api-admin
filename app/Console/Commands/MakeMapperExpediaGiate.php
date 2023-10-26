@@ -178,8 +178,6 @@ class MakeMapperExpediaGiate extends Command
                     'city' => $expedia['city'],
                     'phone' => '%' . $phone . '%',
                 ],
-
-                // ],
             ];
 
             $start = microtime(true);
