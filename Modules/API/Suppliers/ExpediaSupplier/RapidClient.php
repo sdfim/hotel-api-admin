@@ -13,17 +13,14 @@ class RapidClient
 {
     private const GZIP = "gzip";
 
-	private const API_KEY = "13jhb72476h1ufkl4vce08a5ob";
+    private const API_KEY = "13jhb72476h1ufkl4vce08a5ob";
 
-	private const SHARED_SECRET = "20rf37o3nv5uo";
+    private const SHARED_SECRET = "20rf37o3nv5uo";
 
-	# Test endpoint: https://test.ean.com
-	# Production endpoint: https://api.ean.com
-	private const BASE_URL = "https://test.ean.com";
+    # Test endpoint: https://test.ean.com
+    # Production endpoint: https://api.ean.com
+    private const BASE_URL = "https://test.ean.com";
 
-    /**
-     *
-     */
     private const AUTHORIZATION_HEADER = "EAN APIKey=%s,Signature=%s,timestamp=%s";
 
     /**
@@ -44,16 +41,11 @@ class RapidClient
     private string|null $rapidBaseUrl;
 
 
-
-    /**
-     * @param $apiKey
-     * @param $sharedSecret
-     */
     public function __construct()
     {
         $this->apiKey = self::API_KEY;
         $this->sharedSecret = self::SHARED_SECRET;
-		$this->rapidBaseUrl = self::BASE_URL;
+        $this->rapidBaseUrl = self::BASE_URL;
         $this->client = new Client(['debug' => fopen('./rapidClientDebug.log', 'w')]);
     }
 
@@ -102,11 +94,7 @@ class RapidClient
         $headers = $headers + $addHeaders;
 
         $request = new Request('PUT', $url, $headers, $body);
-		$res = $this->client->sendAsync($request)->wait();
-
-		dd($request, $res);
-
-        return $res;
+        return $this->client->sendAsync($request)->wait();
     }
 
     /**
@@ -186,7 +174,7 @@ class RapidClient
         return $res;
     }
 
-	/**
+    /**
      * @return string
      */
     private function generateAuthHeader(): string
