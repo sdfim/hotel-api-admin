@@ -23,10 +23,11 @@ class PurgePricingRules extends Command
 
     /**
      * Execute the console command.
+     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $now = date('Y-m-d H:i:s');
-		PricingRule::where('rule_expiration_date', '<', $now)->delete();
+        PricingRule::where('rule_expiration_date', '<', $now)->delete();
     }
 }

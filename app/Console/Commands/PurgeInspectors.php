@@ -25,15 +25,16 @@ class PurgeInspectors extends Command
 
     /**
      * Execute the console command.
+     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         # delete by day config (time_inspector_retained)
-		$kept_days = GeneralConfiguration::first()->time_inspector_retained;
-		$kept_date = date('Y-m-d H:i:s', strtotime('-' . $kept_days . ' days'));
-		
-		ApiBookingInspector::where('created_at', '<', $kept_date)->delete();
+        $kept_days = GeneralConfiguration::first()->time_inspector_retained;
+        $kept_date = date('Y-m-d H:i:s', strtotime('-' . $kept_days . ' days'));
 
-		ApiSearchInspector::where('created_at', '<', $kept_date)->delete();
+        ApiBookingInspector::where('created_at', '<', $kept_date)->delete();
+
+        ApiSearchInspector::where('created_at', '<', $kept_date)->delete();
     }
 }

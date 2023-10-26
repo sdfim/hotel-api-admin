@@ -26,8 +26,9 @@ class TestCommand extends Command
 
     /**
      * Execute the console command.
+     * @return void
      */
-    public function handle ()
+    public function handle(): void
     {
         $currentTime = Carbon::now('UTC');
         $this->info('test-command successful, UTC: ' . $currentTime);
@@ -37,6 +38,5 @@ class TestCommand extends Command
 
         $userName = json_encode(User::select('name')->first());
         $this->info('test-command successful, ujv, User: ' . $userName);
-
     }
 }

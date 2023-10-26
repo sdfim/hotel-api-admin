@@ -2,27 +2,41 @@
 
 namespace App\Console\Commands;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
 use App\Models\GiataProperty;
-use SimpleXMLElement;
 use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Support\Arr;
-
 
 class DownloadGiataData extends Command
 {
+    /**
+     * @var string
+     */
     protected $signature = 'download-giata-data';
-    protected $description = 'Import XML data from a URL, wrtite to DB';
-    protected $current_time;
 
-    public function __construct ()
+    /**
+     * @var string
+     */
+    protected $description = 'Import XML data from a URL, wrtite to DB';
+
+    /**
+     * @var float|string
+     */
+    protected float|string $current_time;
+
+    /**
+     *
+     */
+    public function __construct()
     {
         parent::__construct();
     }
 
-
-    public function handle ()
+    /**
+     * @return void
+     */
+    public function handle(): void
     {
         GiataProperty::truncate();
 
@@ -63,13 +77,16 @@ class DownloadGiataData extends Command
                 } else {
                     $this->error('Error importing XML data. HTTP status code: ' . $response->getStatusCode());
                 }
-            } catch (Exception $e) {
+            } catch (Exception|GuzzleException $e) {
                 $this->error('Error importing XML data: ' . $e->getMessage());
             }
         }
     }
 
-    private function executionTime ()
+    /**
+     * @return float|string
+     */
+    private function executionTime(): float|string
     {
         $execution_time = (microtime(true) - $this->current_time);
         $this->current_time = microtime(true);
@@ -77,7 +94,11 @@ class DownloadGiataData extends Command
         return $execution_time;
     }
 
-    private function parseXMLToDb ($text)
+    /**
+     * @param string $text
+     * @return false|string
+     */
+    private function parseXMLToDb(string $text): false|string
     {
         $xmlContent = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $text);
         try {
@@ -115,7 +136,7 @@ class DownloadGiataData extends Command
 
         try {
             GiataProperty::insert($batchData);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             \Log::error('ImportJsonlData', ['error' => $e->getMessage()]);
             return false;
         }

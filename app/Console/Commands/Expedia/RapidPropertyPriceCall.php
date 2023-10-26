@@ -20,11 +20,10 @@ class RapidPropertyPriceCall extends Command
      * @var string
      */
     protected $description = 'RapidPropertyPriceCall';
-    protected $rapidClient;
 
     private PropertyCallFactory $rapidCallFactory;
 
-    public function __construct (PropertyCallFactory $rapidCallFactory)
+    public function __construct(PropertyCallFactory $rapidCallFactory)
     {
         parent::__construct();
         $this->rapidCallFactory = $rapidCallFactory;
@@ -33,7 +32,7 @@ class RapidPropertyPriceCall extends Command
     /**
      * Execute the console command.
      */
-    public function handle ()
+    public function handle(): void
     {
         $start_time = microtime(true);
 
