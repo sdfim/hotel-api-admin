@@ -10,8 +10,14 @@ use Illuminate\Http\Request;
 
 class PricingRulesController extends Controller
 {
+    /**
+     * @var array|string[]
+     */
     private array $message = ['create' => 'Add New Pricing Rules', 'edit' => 'Edit Pricing Rules', 'show' => 'Show Pricing Rules'];
 
+    /**
+     * @var array|string[]
+     */
     private array $validate = [
         'name' => 'bail|required|string|max:190',
         'property' => 'bail|required|string|max:190',

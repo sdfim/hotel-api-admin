@@ -6,7 +6,10 @@ use Illuminate\View\View;
 
 class PropertyMappingController extends Controller
 {
-    public function index (): View
+    /**
+     * @return View
+     */
+    public function index(): View
     {
         return view('dashboard.property-mapping');
     }

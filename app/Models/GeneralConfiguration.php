@@ -9,7 +9,7 @@ class GeneralConfiguration extends Model
 {
     use HasFactory;
 
-	protected $casts = [
+    protected $casts = [
         'currently_suppliers' => 'array',
     ];
 }

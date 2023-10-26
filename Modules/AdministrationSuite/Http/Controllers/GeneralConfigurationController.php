@@ -7,11 +7,14 @@ use Illuminate\View\View;
 
 class GeneralConfigurationController extends Controller
 {
+    /**
+     * @return View
+     */
     public function index(): View
     {
         $result = GeneralConfiguration::first();
 
-        $general_configuration = $result ? $result : new GeneralConfiguration();
+        $general_configuration = $result ?: new GeneralConfiguration();
 
         return view('dashboard.general-configuration', [
             'general_configuration' => $general_configuration,

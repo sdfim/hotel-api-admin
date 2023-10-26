@@ -35,12 +35,12 @@ class Supplier extends Model
         return Supplier::where('name', 'Expedia')->first()->id;
     }
 
-	 /**
+    /**
+     * @param string $supplierName
      * @return int|string|null
      */
     public static function getSupplierId(string $supplierName): int|string|null
     {
         return Supplier::where('name', $supplierName)->first()->id;
     }
-
 }

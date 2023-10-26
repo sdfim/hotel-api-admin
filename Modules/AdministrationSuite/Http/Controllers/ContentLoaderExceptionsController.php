@@ -9,8 +9,9 @@ class ContentLoaderExceptionsController extends Controller
 
     /**
      * Display a listing of the resource.
+     * @return View
      */
-    public function index():View
+    public function index(): View
     {
         return view('dashboard.content-loader-exceptions.index');
     }

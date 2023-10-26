@@ -7,6 +7,9 @@ use Illuminate\View\View;
 
 class ReservationsController extends Controller
 {
+    /**
+     * @var array|string[]
+     */
     private array $message = ['create' => 'Add New Reservations', 'edit' => 'Edit Reservations', 'show' => 'Show Reservations'];
 
     /**

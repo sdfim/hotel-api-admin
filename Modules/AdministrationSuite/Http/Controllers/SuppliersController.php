@@ -9,8 +9,14 @@ use Illuminate\Http\Request;
 
 class SuppliersController extends Controller
 {
+    /**
+     * @var array|string[]
+     */
     private array $message = ['create' => 'Add New Suppliers', 'edit' => 'Edit Suppliers', 'show' => 'Show Suppliers'];
 
+    /**
+     * @var array|string[]
+     */
     private array $validate = [
         'name' => 'bail|required|string|max:190',
         'description' => 'bail|required|string|max:190'

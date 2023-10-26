@@ -10,6 +10,9 @@ use Illuminate\View\View;
 class ChannelsController extends Controller
 {
 
+    /**
+     * @var array|string[]
+     */
     private array $message = ['create' => 'Add New Channel', 'edit' => 'Edit Channel', 'show' => 'Show Channel'];
 
     /**
