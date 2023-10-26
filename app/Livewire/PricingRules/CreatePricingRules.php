@@ -91,31 +91,26 @@ class CreatePricingRules extends Component implements HasForms
                     ->required()
                     ->default(now()),
                 TextInput::make('days')
-                    ->required()
                     ->numeric(),
                 TextInput::make('nights')
                     ->required()
                     ->numeric(),
-                TextInput::make('rate_code')
-                    ->required()
-                    ->maxLength(191),
-                TextInput::make('room_type')
+                TextInput::make('rating')
                     ->required()
                     ->maxLength(191),
                 TextInput::make('total_guests')
                     ->required()
                     ->numeric(),
-                TextInput::make('room_guests')
-                    ->required()
-                    ->numeric(),
                 TextInput::make('number_rooms')
                     ->required()
                     ->numeric(),
-                TextInput::make('meal_plan')
-                    ->required()
+                TextInput::make('room_guests')
+                    ->numeric(),
+                TextInput::make('rate_code')
                     ->maxLength(191),
-                TextInput::make('rating')
-                    ->required()
+                TextInput::make('room_type')
+                    ->maxLength(191),
+                TextInput::make('meal_plan')
                     ->maxLength(191),
                 Select::make('price_value_type_to_apply')
                     ->options([
