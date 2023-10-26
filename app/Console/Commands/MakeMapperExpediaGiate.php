@@ -59,36 +59,36 @@ class MakeMapperExpediaGiate extends Command
 
         $mapper = [];
 
-        // # step 1: where name = name, latitude like latitude(2 point after dot), longitude like longitude(2 point after dot)
-        // $this->batch = 1;
-        // $arrExpedia = $this->fetchExpediaNeedMapping();
+        # step 1: where name = name, latitude like latitude(2 point after dot), longitude like longitude(2 point after dot)
+        $this->batch = 1;
+        $arrExpedia = $this->fetchExpediaNeedMapping();
 
-        // foreach ($arrExpedia as $expedia) {
+        foreach ($arrExpedia as $expedia) {
 
-        //     $latitude = round($expedia['latitude'], 2);
-        //     $longitude = round($expedia['longitude'], 2);
+            $latitude = round($expedia['latitude'], 2);
+            $longitude = round($expedia['longitude'], 2);
 
-        //     $giata = GiataProperty::where('name', $expedia['name'])
-        //         ->where('position', 'like', '%"' . $latitude . '%')
-        //         ->where('position', 'like', '%"' . $longitude . '%')
-        //         ->get()
-        //         ->toArray();
-        //     if ($giata) {
-        //         foreach ($giata as $giataItem) {
-        //             $this->info('Expedia: ' . $expedia['property_id'] . ' - ' . $expedia['name'] . ' - ' . $giataItem['code'] . ' - ' . $giataItem['name']);
-        //             $this->batch++;
-        //             $mapper[] = [
-        //                 'expedia_id' => $expedia['property_id'],
-        //                 'giata_id' => $giataItem['code'],
-        //                 'step' => 1,
-        //             ];
-        //         }
-        //     }
-        //     if ($this->batch % self::BATCH_SIZE == 0) {
-        //         MapperExpediaGiata::insertOrIgnore($mapper);
-        //         $mapper = [];
-        //     }
-        // }
+            $giata = GiataProperty::where('name', $expedia['name'])
+                ->where('position', 'like', '%"' . $latitude . '%')
+                ->where('position', 'like', '%"' . $longitude . '%')
+                ->get()
+                ->toArray();
+            if ($giata) {
+                foreach ($giata as $giataItem) {
+                    $this->info('Expedia: ' . $expedia['property_id'] . ' - ' . $expedia['name'] . ' - ' . $giataItem['code'] . ' - ' . $giataItem['name']);
+                    $this->batch++;
+                    $mapper[] = [
+                        'expedia_id' => $expedia['property_id'],
+                        'giata_id' => $giataItem['code'],
+                        'step' => 1,
+                    ];
+                }
+            }
+            if ($this->batch % self::BATCH_SIZE == 0) {
+                MapperExpediaGiata::insertOrIgnore($mapper);
+                $mapper = [];
+            }
+        }
 
         # step 2 and more: where name like name, latitude like latitude(2 point after dot), longitude like longitude(2 point after dot)
         $arrExpedia = $this->fetchExpediaNeedMapping();
@@ -171,13 +171,13 @@ class MakeMapperExpediaGiate extends Command
                 // 	'name' => '%' . $expediaName23 . '%',
                 // 	'city' =>  $expedia['city'],
                 // ],
-                '9' => [
-                    'position' => '%"' . $latitude1 . '%',
-                    'position ' => '%"' . $longitude0 . '%',
-                    'name' => '%' . $expediaName1 . '%',
-                    'city' => $expedia['city'],
-                    'phone' => '%' . $phone . '%',
-                ],
+                // '9' => [
+                //     'position' => '%"' . $latitude1 . '%',
+                //     'position ' => '%"' . $longitude0 . '%',
+                //     'name' => '%' . $expediaName1 . '%',
+                //     'city' => $expedia['city'],
+                //     'phone' => '%' . $phone . '%',
+                // ],
             ];
 
             $start = microtime(true);
