@@ -404,7 +404,6 @@ class DownloadExpediaData extends Command
 			if (count($batchData) >= $batchSize) {
 				try {
 					ExpediaContent::whereIn('property_id', $propertyIds)->delete();
-					$propertyIds = [];
 					ExpediaContent::insert($batchData);
 				} catch (Exception $e) {
 					$this->error('ImportJsonlData error' . $e->getMessage());
@@ -417,6 +416,7 @@ class DownloadExpediaData extends Command
 				$batchCount++;
 				$this->info('Data imported batchData: ' . $batchCount . ' count =  ' . count($batchData));
 				$batchData = [];
+				$propertyIds = [];
 			}
 		}
 
