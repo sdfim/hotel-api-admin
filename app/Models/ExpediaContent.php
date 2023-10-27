@@ -183,4 +183,22 @@ class ExpediaContent extends Model
 
         return $images;
     }
+
+	/**
+	 * @param $minMaxCoordinate
+	 * @return array
+	 */
+	public function getIdsByCoordinate(array $minMaxCoordinate): array
+	{
+	
+		return GiataProperty::where('giata_properties.latitude', '>', $minMaxCoordinate['min_latitude'])
+			->where('giata_properties.latitude', '<', $minMaxCoordinate['max_latitude'])
+			->where('giata_properties.longitude', '>', $minMaxCoordinate['min_longitude'])
+			->where('giata_properties.longitude', '<', $minMaxCoordinate['max_longitude'])
+            ->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
+            ->select('mapper_expedia_giatas.expedia_id')
+            ->whereNotNull('mapper_expedia_giatas.expedia_id')
+            ->pluck('expedia_id')
+            ->toArray();
+	}
 }

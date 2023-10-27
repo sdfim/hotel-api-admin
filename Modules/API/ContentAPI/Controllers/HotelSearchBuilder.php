@@ -25,10 +25,6 @@ class HotelSearchBuilder
      */
     public function applyFilters(array $filters): Builder
     {
-        // if (isset($filters['destination'])) {
-        //     $this->query->where('city', '=', $filters['destination']);
-        // }
-
         if (isset($filters['ids'])) {
             $this->query->whereIn('property_id', $filters['ids']);
         }

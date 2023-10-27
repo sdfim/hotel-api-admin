@@ -21,6 +21,8 @@ return new class extends Migration {
                 $table->json('address');
                 $table->json('phone')->nullable();
                 $table->json('position')->nullable();
+				$table->float('latitude')->nullable()->index();
+				$table->float('longitude')->nullable()->index();
                 $table->json('url')->nullable();
                 $table->json('cross_references');
                 $table->timestamps();

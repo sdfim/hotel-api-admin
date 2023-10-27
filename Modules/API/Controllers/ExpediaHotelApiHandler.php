@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Illuminate\Support\Facades\Cache;
+use Modules\API\Tools\Geography;
 
 class ExpediaHotelApiHandler
 {
@@ -54,7 +55,14 @@ class ExpediaHotelApiHandler
 
         try {
             $expedia = new ExpediaContent();
-            $filters['ids'] = $expedia->getIdsByDestinationGiata($filters['destination']);
+
+			if (isset($filters['destination'])) {
+            	$filters['ids'] = $expedia->getIdsByDestinationGiata($filters['destination']);
+			} else {
+				$geography = new Geography();
+				$minMaxCoordinate = $geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);				
+				$filters['ids'] = $expedia->getIdsByCoordinate($minMaxCoordinate);
+			}
 
             $fields = $request->get('fullList') ? $expedia->getFullListFields() : $expedia->getShortListFields();
             $query = $expedia->select($fields);

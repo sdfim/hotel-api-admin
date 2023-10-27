@@ -28,6 +28,9 @@ class SearchHotelRequest extends ApiRequest
             'rating' => ['numeric'],
             'page' => ['integer'],
             'results_per_page' => ['integer'],
+			'latitude' => ['numeric'],
+			'longitude' => ['numeric'],
+			'radius' => ['numeric'],
         ];
     }
 
