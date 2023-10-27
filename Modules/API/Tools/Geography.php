@@ -12,24 +12,19 @@ class Geography
 	 */
 	function calculateBoundingBox(float $latitude, float $longitude, float $radius) : array
 	{
-		$earthRadius = 6371; // Радиус Земли в километрах
+		$earthRadius = 6371;
 	
-		// Переводим радиус из километров в радианы
 		$radiusInRadians = $radius / $earthRadius;
 	
-		// Переводим широту и долготу в радианы
 		$latitude = deg2rad($latitude);
 		$longitude = deg2rad($longitude);
 	
-		// Вычисляем минимальную и максимальную широту
 		$minLatitude = $latitude - $radiusInRadians;
 		$maxLatitude = $latitude + $radiusInRadians;
 	
-		// Вычисляем минимальную и максимальную долготу
 		$minLongitude = $longitude - $radiusInRadians;
 		$maxLongitude = $longitude + $radiusInRadians;
 	
-		// Переводим результаты обратно из радиан в градусы
 		$minLatitude = rad2deg($minLatitude);
 		$maxLatitude = rad2deg($maxLatitude);
 		$minLongitude = rad2deg($minLongitude);
@@ -44,18 +39,3 @@ class Geography
 	}
 	
 }
-
-// // Пример использования
-// $centerLatitude = 40.7128; // Центральная широта (например, Нью-Йорк)
-// $centerLongitude = -74.0060; // Центральная долгота
-// $searchRadius = 10; // Радиус поиска в километрах
-
-// $boundingBox = $this->calculateBoundingBox($centerLatitude, $centerLongitude, $searchRadius);
-
-// // Вывод результатов
-// echo "Минимальная широта: " . $boundingBox['min_latitude'] . "<br>";
-// echo "Максимальная широта: " . $boundingBox['max_latitude'] . "<br>";
-// echo "Минимальная долгота: " . $boundingBox['min_longitude'] . "<br>";
-// echo "Максимальная долгота: " . $boundingBox['max_longitude'] . "<br>";
-
-

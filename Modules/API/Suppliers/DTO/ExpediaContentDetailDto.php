@@ -23,7 +23,7 @@ class ExpediaContentDetailDto
 
         $hotelImages = [];
         foreach ($supplierResponse->images as $image) {
-            $hotelImages[] = $image['links']['350px']['href'];
+            $hotelImages[] = $image['links']['1000px']['href'];
         }
         $viewAmenities = request()->get('category_amenities') === 'true';
 

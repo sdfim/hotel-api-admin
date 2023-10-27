@@ -18,6 +18,7 @@ use Modules\API\Controllers\RouteBookingApiController;
 Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'content'], function () {
 	Route::post('/search', [RouteApiController::class, 'handle'])->name('search');
 	Route::get('/detail', [RouteApiController::class, 'handle'])->name('detail');
+	Route::get('/destinations', [RouteApiController::class, 'destinations'])->name('destinations');
 });
 
 Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'pricing'], function () {

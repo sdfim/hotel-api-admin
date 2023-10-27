@@ -16,6 +16,9 @@ use GuzzleHttp\Client;
 
 class DownloadExpediaData extends Command
 {
+
+	use BaseTrait;
+
     /**
      * The name and signature of the console command.
      *
@@ -60,19 +63,6 @@ class DownloadExpediaData extends Command
     private string|null $step;
 
     /**
-     * @var string|float
-     */
-    protected string|float $current_time;
-    /**
-     * @var string|float
-     */
-    protected string|float $step_current_time;
-    /**
-     * @var string|float
-     */
-    protected string|float $current_time_report;
-
-    /**
      * @var int
      */
     protected int $expedia_id;
@@ -97,9 +87,9 @@ class DownloadExpediaData extends Command
         $this->apiExceptionReport = new ExceptionReportController();
         // TODO: get expedia_id from suppliers table
         $this->expedia_id = 1;
-        $this->current_time = microtime(true);
-        $this->step_current_time = microtime(true);
-        $this->current_time_report = microtime(true);
+        $this->current_time['main'] = microtime(true);
+        $this->current_time['step'] = microtime(true);
+        $this->current_time['report'] = microtime(true);
         $this->savePath = storage_path() . '/app';
     }
 
@@ -113,7 +103,7 @@ class DownloadExpediaData extends Command
         $this->step = $this->argument('step'); // 1, 2, 3, 4
         $this->report_id = Str::uuid()->toString();
 
-        $this->executionTimeReport();
+        $this->executionTime('report');
 
         $result = Process::run('df -h')->output();
         $this->info('DownloadExpediaData df -h: ' . $result);
@@ -123,11 +113,11 @@ class DownloadExpediaData extends Command
         if (str_contains($this->step, 1)) {
             # get url from expedia
             $url = $this->getUrlArchive();
-            $this->info('url from expedia ' . $url . ' in ' . $this->executionStepTime() . ' seconds');
+            $this->info('url from expedia ' . $url . ' in ' . $this->executionTime('step') . ' seconds');
 
             $this->saveSuccessReport('DownloadExpediaData', 'Step:1 get url', json_encode([
                 'url' => $url,
-                'execution_time' => $this->executionTimeReport() . ' sec',
+                'execution_time' => $this->executionTime('report') . ' sec',
             ]));
         }
 
@@ -153,7 +143,7 @@ class DownloadExpediaData extends Command
      */
     function getUrlArchive(): string
     {
-        $this->executionTimeReport();
+        $this->executionTime('report');
         $queryParams = [
             'language' => 'en-US',
             'supply_source' => 'expedia',
@@ -167,7 +157,7 @@ class DownloadExpediaData extends Command
             $this->saveErrorReport('DownloadExpediaData', 'getUrlArchive', json_encode([
                 'getMessage' => $e->getMessage(),
                 'getTraceAsString' => $e->getTraceAsString(),
-                'execution_time' => $this->executionTimeReport() . ' sec',
+                'execution_time' => $this->executionTime('report') . ' sec',
             ]));
         }
 
@@ -181,8 +171,8 @@ class DownloadExpediaData extends Command
      */
     function downloadArchive(string $url): void
     {
-        $this->executionTimeReport();
-        $this->executionStepTime();
+        $this->executionTime('report');
+        $this->executionTime('step');
         try {
             $client = new Client(['timeout' => 3600]);
             $response = $client->get($url);
@@ -200,12 +190,12 @@ class DownloadExpediaData extends Command
 
                     fclose($file);
 
-                    $this->info('Step:2 download file ' . $fileName . ' in ' . $this->executionStepTime() . ' seconds');
+                    $this->info('Step:2 download file ' . $fileName . ' in ' . $this->executionTime('step') . ' seconds');
 
                     $this->saveSuccessReport('DownloadExpediaData', 'Step:2 download file', json_encode([
                         'path' => $this->savePath,
                         'fileName' => $fileName,
-                        'execution_time' => $this->executionTimeReport() . ' sec',
+                        'execution_time' => $this->executionTime('report') . ' sec',
                     ]));
                 } else {
                     $this->errorStep2($response);
@@ -218,7 +208,7 @@ class DownloadExpediaData extends Command
             $this->saveErrorReport('DownloadExpediaData', 'Step:2 download File Gz', json_encode([
                 'getMessage' => $e->getMessage(),
                 'getTraceAsString' => $e->getTraceAsString(),
-                'execution_time' => $this->executionTimeReport() . ' sec',
+                'execution_time' => $this->executionTime('report') . ' sec',
             ]));
         }
     }
@@ -233,13 +223,13 @@ class DownloadExpediaData extends Command
                 'response-status' => $response->status(),
                 'response-body' => $response->body(),
                 'path' => $this->savePath,
-                'execution_time' => $this->executionStepTime() . ' sec',
+                'execution_time' => $this->executionTime('step') . ' sec',
             ]));
         $this->saveErrorReport('DownloadExpediaData', 'Step:2 download file', json_encode([
             'response-status' => $response->status(),
             'response-body' => $response->body(),
             'path' => $this->savePath,
-            'execution_time' => $this->executionTimeReport() . ' sec',
+            'execution_time' => $this->executionTime('report') . ' sec',
         ]));
     }
 
@@ -249,8 +239,8 @@ class DownloadExpediaData extends Command
      */
     function unzipFile(): void
     {
-        $this->executionTimeReport();
-        $this->executionStepTime();
+        $this->executionTime('report');
+        $this->executionTime('step');
         try {
             $archive = $this->savePath . '/expedia_' . $this->type . '.gz';
             $result = Process::timeout(3600)->run('gunzip -f ' . $archive);
@@ -259,21 +249,21 @@ class DownloadExpediaData extends Command
                 $this->saveSuccessReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
                     'archive' => $archive,
                     'result' => $result,
-                    'execution_time' => $this->executionTimeReport() . ' sec',
+                    'execution_time' => $this->executionTime('report') . ' sec',
                 ]));
                 $this->info('DownloadExpediaData Step:3 unzip file: ' . json_encode([
                         'archive' => $archive,
                         'result' => $result,
-                        'execution_time' => $this->executionStepTime() . ' sec',
+                        'execution_time' => $this->executionTime('step') . ' sec',
                     ]));
             } else {
                 $this->error('Error DownloadExpediaData Step:3 unzip file:  ' . json_encode([
                         'result' => $result->throw(),
-                        'execution_time' => $this->executionStepTime() . ' sec',
+                        'execution_time' => $this->executionTime('step') . ' sec',
                     ]));
                 $this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
                     'getMessage' => $result->throw(),
-                    'execution_time' => $this->executionTimeReport() . ' sec',
+                    'execution_time' => $this->executionTime('report') . ' sec',
                 ]));
             }
         } catch (Exception $e) {
@@ -281,7 +271,7 @@ class DownloadExpediaData extends Command
             $this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip File', json_encode([
                 'getMessage' => $e->getMessage(),
                 'getTraceAsString' => $e->getTraceAsString(),
-                'execution_time' => $this->executionTimeReport() . ' sec',
+                'execution_time' => $this->executionTime('report') . ' sec',
             ]));
         }
     }
@@ -292,8 +282,8 @@ class DownloadExpediaData extends Command
      */
     function parseJsonToDb(): void
     {
-        $this->executionTimeReport();
-        $this->executionStepTime();
+        $this->executionTime('report');
+        $this->executionTime('step');
 
 		$filePath = $this->savePath . '/expedia_' . $this->type;
 
@@ -416,7 +406,7 @@ class DownloadExpediaData extends Command
 						'getTraceAsString' => $e->getTraceAsString(),
 						'batch' => $batchCount,
 						'countBatch' => count($batchData),
-						'execution_time' => $this->executionTimeReport() . ' sec',
+						'execution_time' => $this->executionTime('report') . ' sec',
 					]));
 				}
 				$batchCount++;
@@ -439,7 +429,7 @@ class DownloadExpediaData extends Command
                 $this->saveErrorReport('DownloadExpediaData', 'Step:4 Import Json to Data', json_encode([
                     'getMessage' => $e->getMessage(),
                     'getTraceAsString' => $e->getTraceAsString(),
-                    'execution_time' => $this->executionTimeReport() . ' sec',
+                    'execution_time' => $this->executionTime('report') . ' sec',
                 ]));
             }
         }
@@ -448,47 +438,14 @@ class DownloadExpediaData extends Command
 
 		if (env('APP_URL') !== 'http://localhost:8008') unlink($filePath);
 
-        $this->info('Import completed. ' . $this->executionStepTime() . " seconds");
+        $this->info('Import completed. ' . $this->executionTime('step') . " seconds");
 
         $this->saveSuccessReport('DownloadExpediaData', 'Step:4 Import Json to Data', json_encode([
-            'execution_time' => $this->executionTimeReport() . ' sec',
+            'execution_time' => $this->executionTime('report') . ' sec',
         ]));
     }
 
-    /**
-     * @return string|float
-     */
-    private function executionTime(): string|float
-    {
-        $execution_time = (microtime(true) - $this->current_time);
-        $this->current_time = microtime(true);
-
-        return $execution_time;
-    }
-
-    /**
-     * @return string|float
-     */
-    private function executionStepTime(): string|float
-    {
-        $execution_time = round((microtime(true) - $this->current_time), 3);
-        $this->step_current_time = microtime(true);
-
-        return $execution_time;
-    }
-
-    /**
-     * @return string|float
-     */
-    private function executionTimeReport(): string|float
-    {
-        $execution_time = round((microtime(true) - $this->current_time_report), 3);
-        $this->current_time_report = microtime(true);
-
-        return $execution_time;
-    }
-
-    /**
+	/**
      * @param string $action
      * @param string $description
      * @param string $content

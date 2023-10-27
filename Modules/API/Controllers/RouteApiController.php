@@ -3,7 +3,10 @@
 namespace Modules\API\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\GiataProperty;
 use App\Models\Supplier;
+use Illuminate\Database\Eloquent\Casts\Json;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Modules\API\Controllers\ApiHandlers\HotelApiHanlder;
@@ -83,16 +86,42 @@ class RouteApiController extends Controller
             'hotel' => new HotelApiHanlder($this->expediaService),
             'flight' => new FlightApiHandler(),
             'combo' => new ComboApiHandler(),
-            default => response()->json(['message' => 'Invalid route'], 400),
+            default => response()->json(['error' => 'Invalid route'], 400),
         };
 
         return match ($route) {
             'search' => $dataHandler->search($request, $suppliersIds),
             'detail' => $dataHandler->detail($request, $suppliersIds),
             'price' => $dataHandler->price($request, $suppliersIds),
-            default => response()->json(['message' => 'Invalid route'], 400),
+            default => response()->json(['error' => 'Invalid route'], 400),
         };
     }
+
+	public function destinations(Request $request): JsonResponse
+    {
+		if (empty($request->get('city'))) {
+			return response()->json(['error' => 'Invalid city'], 400);
+		}
+		if (strlen($request->get('city')) < 3) {
+			return response()->json(['error' => 'Invalid city, string must be 3 characters or more'], 400);
+		}
+
+		$destinations = GiataProperty::where('city', 'like', $request->get('city').'%')
+			->select('city')
+			->distinct()
+			->limit(25)
+			->get()
+			->pluck('city')
+			->toArray();
+		$response = [
+            'success' => true,
+            'data' => $destinations,
+        ];
+		$res = response()->json($response);
+
+        return $res;
+
+	}
 
     /**
      * @param $value

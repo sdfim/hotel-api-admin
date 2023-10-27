@@ -190,7 +190,6 @@ class ExpediaContent extends Model
 	 */
 	public function getIdsByCoordinate(array $minMaxCoordinate): array
 	{
-	
 		return GiataProperty::where('giata_properties.latitude', '>', $minMaxCoordinate['min_latitude'])
 			->where('giata_properties.latitude', '<', $minMaxCoordinate['max_latitude'])
 			->where('giata_properties.longitude', '>', $minMaxCoordinate['min_longitude'])

@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use App\Models\GiataProperty;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\DB;
 
 class DownloadGiataData extends Command
 {
@@ -81,6 +82,12 @@ class DownloadGiataData extends Command
                 $this->error('Error importing XML data: ' . $e->getMessage());
             }
         }
+
+		DB::table('giata_properties')
+		->update([
+			'latitude' => DB::raw("JSON_UNQUOTE(JSON_EXTRACT(position, '$.\"@attributes\".Latitude'))"),
+			'longitude' => DB::raw("JSON_UNQUOTE(JSON_EXTRACT(position, '$.\"@attributes\".Longitude'))"),
+    ]);
     }
 
     /**
