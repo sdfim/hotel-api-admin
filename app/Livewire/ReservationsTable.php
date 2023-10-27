@@ -16,8 +16,6 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
-use Illuminate\Database\Eloquent\Model;
-use Filament\Tables\Columns\ImageColumn;
 
 class ReservationsTable extends Component implements HasForms, HasTable
 {
@@ -35,40 +33,25 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ->query(Reservation::query()->whereNull('canceled_at')->orderBy('created_at', 'DESC'))
             ->columns([
                 TextColumn::make('reservation_contains')
-                ->state(function (Model $record) {
-                    $field = json_decode($record->reservation_contains, true);
-                    $content = '';
-                    if (is_array($field)) {
-                        foreach ($field as $key => $value) {
-                            if ($key == 'booking_id') {
-                                $content .= $key . ': ' . $value ;
+                    ->state(function (Reservation $record) {
+                        $field = json_decode($record->reservation_contains, true);
+                        if (is_array($field)) {
+                            return "booking_id: {$field['booking_id']}";
+                        }
+                        return '';
+                    })
+                    ->tooltip(function (Reservation $record) {
+                        $field = json_decode($record->reservation_contains, true);
+                        $tooltip = '';
+                        if (is_array($field)) {
+                            foreach ($field as $key => $value) {
+                                if ($key !== 'hotel_images') $tooltip .= "$key: $value;";
                             }
                         }
-                    }
-                    return $content;
-                })
-                ->tooltip(function (Model $record){
-                    $field = json_decode($record->reservation_contains, true);
-                    $tooltip = '';
-                    if (is_array($field)) {
-                        foreach ($field as $key => $value) {
-                            $tooltip .= $key . ': ' . $value . "<br>";
-                        }
-                    }
-                    return $tooltip;
-                }),
-                // ImageColumn::make('reservation_contains.hotel_images')
-                // ->state(function (Model $record) {
-                //     $field = json_decode($record->reservation_contains, true);
-                //     if(isset($field['hotel_images'])){
-                //         return json_decode($field['hotel_images']);
-                //     }else{
-                //         return '';
-                //     }
-                // })
-                // ->circular()
-                // ->stacked(),
-                ViewColumn::make('reservation_contains.hotel_images')->view('dashboard.reservations.column.hotel-images'),
+                        return htmlentities($tooltip);
+                    }),
+                ViewColumn::make('reservation_contains.hotel_images')
+                    ->view('dashboard.reservations.column.hotel-images'),
                 TextColumn::make('channel.name')
                     ->numeric()
                     ->searchable(isIndividual: true)
