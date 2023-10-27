@@ -51,7 +51,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         return htmlentities($tooltip);
                     }),
                 ViewColumn::make('reservation_contains.hotel_images')
-                    ->view('dashboard.reservations.column.hotel-images'),
+                    ->view('dashboard.reservations.column.hotel-images', ['limit' => 5]),
                 TextColumn::make('channel.name')
                     ->numeric()
                     ->searchable(isIndividual: true)
