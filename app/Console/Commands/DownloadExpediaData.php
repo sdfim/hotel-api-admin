@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Illuminate\Support\Facades\DB;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
@@ -403,13 +404,18 @@ class DownloadExpediaData extends Command
 			// Check if we have accumulated enough data to insert as a batch
 			if (count($batchData) >= $batchSize) {
 				try {
+					DB::beginTransaction();
 					ExpediaContent::whereIn('property_id', $propertyIds)->delete();
 					ExpediaContent::insert($batchData);
+					DB::commit(); 
 				} catch (Exception $e) {
+					DB::rollBack();
 					$this->error('ImportJsonlData error' . $e->getMessage());
 					$this->saveErrorReport('DownloadExpediaData', 'Import Json lData', json_encode([
 						'getMessage' => $e->getMessage(),
 						'getTraceAsString' => $e->getTraceAsString(),
+						'batch' => $batchCount,
+						'countBatch' => count($batchData),
 						'execution_time' => $this->executionTimeReport() . ' sec',
 					]));
 				}
@@ -423,9 +429,12 @@ class DownloadExpediaData extends Command
         // Insert any remaining data as the last batch
         if (!empty($batchData)) {
             try {
+				DB::beginTransaction();
                 ExpediaContent::whereIn('property_id', $propertyIds)->delete();
                 ExpediaContent::insert($batchData);
+				DB::commit(); 
             } catch (Exception $e) {
+				DB::rollBack();
                 $this->error('ImportJsonlData error' . $e->getMessage());
                 $this->saveErrorReport('DownloadExpediaData', 'Step:4 Import Json to Data', json_encode([
                     'getMessage' => $e->getMessage(),
@@ -436,7 +445,8 @@ class DownloadExpediaData extends Command
         }
 
         fclose($file);
-        unlink($filePath);
+
+		if (env('APP_URL') !== 'http://localhost:8008') unlink($filePath);
 
         $this->info('Import completed. ' . $this->executionStepTime() . " seconds");
 
