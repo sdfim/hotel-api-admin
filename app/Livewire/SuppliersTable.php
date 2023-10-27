@@ -69,6 +69,6 @@ class SuppliersTable extends Component implements HasForms, HasTable
      */
     public function render(): View
     {
-        return view('livewire.suppliers-table');
+        return view('livewire.suppliers.suppliers-table');
     }
 }

@@ -49,16 +49,6 @@
                         </div>
                         <div class="col-xs-12 col-sm-12 col-md-12">
                             <div class="form-group">
-                                <strong>Contains:</strong>
-                                <br>
-                                <ul class="ml-15">
-                                    <li><strong>Name:</strong> {{ $reservation->contains->name}}</li>
-                                    <li><strong>Description:</strong> {{ $reservation->contains->description}}</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-xs-12 col-sm-12 col-md-12">
-                            <div class="form-group">
                                 <strong>Channel:</strong>
                                 <br>
                                 <ul class="ml-15">

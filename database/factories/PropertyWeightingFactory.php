@@ -2,14 +2,22 @@
 
 namespace Database\Factories;
 
-use App\Models\GiataProperty;
+use App\Models\PropertyWeighting;
+use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PropertyWeighting>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PricingRules>
  */
 class PropertyWeightingFactory extends Factory
 {
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = PropertyWeighting::class;
+
     /**
      * Define the model's default state.
      *
@@ -17,12 +25,11 @@ class PropertyWeightingFactory extends Factory
      */
     public function definition(): array
     {
-		$giataIds = GiataProperty::where('city', 'New York')->get()->pluck('code')->toArray();	
-
+        $supplier = Supplier::factory()->create();
         return [
-            'property' => $this->faker->randomElement($giataIds),
-			'supplier_id' => 1,
-			'weight' => $this->faker->numberBetween(1, 10000),
+            'property' => $this->faker->numberBetween(1, 10000),
+            'weight' => 1,
+            'supplier_id' => $supplier->id,
         ];
     }
 }

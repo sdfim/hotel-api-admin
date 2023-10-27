@@ -1,17 +1,49 @@
 <?php
 
-namespace Tests\Feature\Suppliers;
+namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Supplier;
 use App\Models\User;
+use App\Livewire\Suppliers\CreateSuppliersForm;
+use Livewire\Livewire;
+use App\Livewire\Suppliers\UpdateSuppliersForm;
 
-class SuppliersControllerTest extends TestCase
+class SuppliersTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_validation_of_supplier_form_as_well_as_new_supplier_creating(): void
+    {
+        $this->auth();
+        Livewire::test(CreateSuppliersForm::class)
+            ->set('data', [
+                'name' => '',
+                'description' => '',
+            ])
+            ->call('create')
+            ->assertHasErrors(['data.name', 'data.description']);
+
+        Livewire::test(CreateSuppliersForm::class)
+            ->set('data', [
+                'name' => 'Test Suppliers',
+                'description' => 'Test Description',
+            ])
+            ->call('create')
+            ->assertRedirect(route('suppliers.index'));
+
+        $this->assertDatabaseHas('suppliers', [
+            'name' => 'Test Suppliers',
+            'description' => 'Test Description',
+        ]);
+    }
 
     /**
      * @test
@@ -90,27 +122,6 @@ class SuppliersControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function test_possibility_of_updating_an_existing_supplier(): void
-    {
-        $this->auth();
-
-        $suppliers = Supplier::factory()->create();
-        $newData = [
-            'name' => $this->faker->name,
-            'description' => $this->faker->word,
-        ];
-
-        $response = $this->put(route('suppliers.update', [$suppliers->id]), $newData);
-        $response->assertStatus(302);
-        $response->assertRedirect(route('suppliers.index'));
-
-        $this->assertDatabaseHas('suppliers', $newData);
-    }
-
 
     /**
      * @test
@@ -118,18 +129,32 @@ class SuppliersControllerTest extends TestCase
      */
     public function test_possibility_of_destroying_an_existing_supplier(): void
     {
-        /*$this->auth();
-
-        $suppliers = Suppliers::factory()->create();
-
-        $response = $this->delete(route('suppliers.destroy', [$suppliers->id]));
-        $response->assertStatus(302);
-        $response->assertRedirect(route('suppliers.index'));
-
-        $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);*/
-        $this->markTestSkipped('Need to fix or remove this test');
+        $this->auth();
+        $suppliers = Supplier::factory()->create();
+        $suppliers->delete();
+        $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);
     }
 
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_updating_an_existing_supplier(): void
+    {
+        $this->auth();
+        $suppliers = Supplier::factory()->create();
+        Livewire::test(UpdateSuppliersForm::class, ['suppliers' => $suppliers])
+            ->set('data.name', 'Updated Supplier Name')
+            ->set('data.description', 'Updated Supplier Description')
+            ->call('edit')
+            ->assertRedirect(route('suppliers.index'));
+
+        $this->assertDatabaseHas('suppliers', [
+            'id' => $suppliers->id,
+            'name' => 'Updated Supplier Name',
+            'description' => 'Updated Supplier Description',
+        ]);
+    }
 
     /**
      * @return void

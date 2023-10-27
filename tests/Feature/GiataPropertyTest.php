@@ -1,19 +1,33 @@
 <?php
 
-namespace Tests\Feature\GiataProperty;
+namespace Tests\Feature;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
 use App\Livewire\GiataTable;
 use App\Models\GiataProperty;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
-use Tests\TestCase;
 
-class GiataTableTest extends TestCase
+
+class GiataPropertyTest extends TestCase
 {
     use RefreshDatabase;
     use WithFaker;
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_giata_table_index_is_opening(): void
+    {
+        $this->auth();
+
+        $response = $this->get('/admin/giata');
+
+        $response->assertStatus(200);
+    }
 
     /**
      * @test

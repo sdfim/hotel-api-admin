@@ -1,0 +1,94 @@
+<?php
+
+namespace Tests\Feature;
+
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Tests\TestCase;
+use App\Livewire\ExpediaTable;
+use App\Models\ExpediaContent;
+use Livewire\Livewire;
+use App\Models\User;
+
+class ExpediaContentTest extends TestCase
+{
+    use RefreshDatabase;
+    use WithFaker;
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_expedia_table_index_is_opening(): void
+    {
+        $this->auth();
+
+        $response = $this->get('/admin/expedia');
+
+        $response->assertStatus(200);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_expedia_table_is_rendering_as_well_as_city_with_search_name(): void
+    {
+        $this->auth();
+        $expedia = ExpediaContent::factory()->count(10)->create();
+        //'can render page'
+        livewire::test(ExpediaTable::class)->assertSuccessful();
+        //'can render city'
+        livewire::test(ExpediaTable::class)
+            ->assertCanRenderTableColumn('city');
+        //'can search by name'
+        $name = $expedia->first()->name;
+        livewire::test(ExpediaTable::class)
+            ->searchTable($name)
+            ->assertCanSeeTableRecords($expedia->where($this->faker->name, $name))
+            ->assertCanNotSeeTableRecords($expedia->where('name', '!=', $name));
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_filtering_by_name(): void
+    {
+        $this->auth();
+        $expedia = ExpediaContent::factory()->count(10)->create();
+        $nameToFilter = $expedia->first()->name;
+        livewire::test(ExpediaTable::class)
+            ->searchTable('name', $nameToFilter)
+            ->assertCanSeeTableRecords($expedia->where($this->faker->name, $nameToFilter))
+            ->assertCanNotSeeTableRecords($expedia->where('name', '!=', $nameToFilter));
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_filtering_by_city(): void
+    {
+        $expedia = ExpediaContent::factory()->count(10)->create();
+        $cityToFilter = $expedia[0]->city;
+        $cityToFilter1 = $expedia[1]->city;
+        livewire::test(ExpediaTable::class)
+            ->searchTable('city', $cityToFilter)
+            ->assertCanSeeTableRecords($expedia->where($this->faker->city, $cityToFilter))
+            ->assertCanNotSeeTableRecords($expedia->where('city', '!=', $cityToFilter1));
+    }
+
+    /**
+     * @return void
+     */
+    public function auth(): void
+    {
+        $user = User::factory()->create();
+
+        $this->post(route('login'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+    }
+}
