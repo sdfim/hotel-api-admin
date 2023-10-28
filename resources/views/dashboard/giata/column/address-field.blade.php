@@ -2,9 +2,9 @@
     $field = $getState();
     $address = '';
     if(isset($field['AddressLine'])){
-        $address = $field['AddressLine'];
+		$address = \Modules\API\Tools\StringTool::lineBreak($field['AddressLine']);
     }
 @endphp
 <div>
-    {{$address}}
+    {!! $address !!}
 </div>

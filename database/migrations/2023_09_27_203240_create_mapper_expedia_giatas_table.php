@@ -20,8 +20,6 @@ return new class extends Migration {
                 $table->integer('expedia_id');
                 $table->integer('giata_id');
 
-                $table->foreign('giata_id')->references('code')->on(env('SECOND_DB_DATABASE', 'ujv_api') . '.giata_properties')->onDelete('cascade');
-
                 $table->integer('step');
             });
         }

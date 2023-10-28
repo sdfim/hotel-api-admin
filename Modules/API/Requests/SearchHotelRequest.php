@@ -24,7 +24,11 @@ class SearchHotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'destination' => ['required', 'string'],
+            'destination' => ['required', function ($attribute, $value, $fail) {
+				if (!is_string($value) && !is_int($value)) {
+					$fail('The destination must be a string or an integer.');
+				}
+			}],
             'rating' => ['numeric'],
             'page' => ['integer'],
             'results_per_page' => ['integer'],

@@ -39,11 +39,16 @@ class GiataTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('name')
+				ViewColumn::make('name')
+					->toggleable()
+					->sortable()
+					->searchable(isIndividual: true)
+					->view('dashboard.giata.column.name-field'),
+                TextColumn::make('city')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('city')
+				TextColumn::make('city_id')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
@@ -51,123 +56,22 @@ class GiataTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                ViewColumn::make('phone')->toggleable()->view('dashboard.giata.column.phone-field')->searchable(isIndividual: true),
-                ViewColumn::make('address')->toggleable()->view('dashboard.giata.column.address-field')->searchable(isIndividual: true),
-                ViewColumn::make('position')->toggleable()->view('dashboard.giata.column.position-field')->searchable(isIndividual: true),
-            ])
-            ->filters([
-                Filter::make('name')
-                    ->form([
-                        TextInput::make('name')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['name'],
-                                fn(Builder $query, $name): Builder => $query->where('name', 'LIKE', '%' . $name . '%'),
-                            );
-                    })->indicateUsing(function (array $data): ?string {
-                        if (!$data['name']) {
-                            return null;
-                        }
-                        return 'Name: ' . $data['name'];
-                    }),
-                Filter::make('city')
-                    ->form([
-                        TextInput::make('city')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['city'],
-                                fn(Builder $query, $city): Builder => $query->where('city', 'LIKE', '%' . $city . '%'),
-                            );
-                    })->indicateUsing(function (array $data): ?string {
-                        if (!$data['city']) {
-                            return null;
-                        }
-                        return 'City: ' . $data['city'];
-                    }),
-                Filter::make('locale')
-                    ->form([
-                        TextInput::make('locale')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['locale'],
-                                fn(Builder $query, $city): Builder => $query->where('locale', 'LIKE', '%' . $city . '%'),
-                            );
-                    })->indicateUsing(function (array $data): ?string {
-                        if (!$data['locale']) {
-                            return null;
-                        }
-                        return 'Locale: ' . $data['locale'];
-                    }),
-                Filter::make('phone')
-                    ->form([
-                        TextInput::make('phone')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['phone'],
-                                fn(Builder $query, $phone): Builder => $query->where('phone', 'LIKE', '%' . $phone . '%'),
-                            );
-                    })->indicateUsing(function (array $data): ?string {
-                        if (!$data['phone']) {
-                            return null;
-                        }
-                        return 'Phone: ' . $data['phone'];
-                    }),
-                Filter::make('address')
-                    ->form([
-                        TextInput::make('address')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['address'],
-                                fn(Builder $query, $address): Builder => $query->where('address', 'LIKE', '%' . $address . '%'),
-                            );
-                    })->indicateUsing(function (array $data): ?string {
-                        if (!$data['address']) {
-                            return null;
-                        }
-                        return 'Address: ' . $data['address'];
-                    }),
-                Filter::make('latitude')
-                    ->form([
-                        TextInput::make('latitude')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['latitude'],
-                                fn(Builder $query, $latitude): Builder => $query->where('position', 'LIKE', '%"' . $latitude . '%'),
-                            );
-                    })->indicateUsing(function (array $data): ?string {
-                        if (!$data['latitude']) {
-                            return null;
-                        }
-                        return 'Latitude: ' . $data['latitude'];
-                    }),
-                Filter::make('longitude')
-                    ->form([
-                        TextInput::make('longitude')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['longitude'],
-                                fn(Builder $query, $longitude): Builder => $query->where('position', 'LIKE', '%"' . $longitude . '%'),
-                            );
-                    })->indicateUsing(function (array $data): ?string {
-                        if (!$data['longitude']) {
-                            return null;
-                        }
-                        return 'Longitude: ' . $data['longitude'];
-                    })
+				TextColumn::make('latitude')
+                    ->sortable()
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
+				TextColumn::make('longitude')
+                    ->sortable()
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
+                ViewColumn::make('phone')
+					->toggleable()
+					->view('dashboard.giata.column.phone-field')
+					->searchable(isIndividual: true),
+                ViewColumn::make('address')
+					->toggleable()
+					->view('dashboard.giata.column.address-field')
+					->searchable(isIndividual: true),
             ])
             ->actions([
                 ViewAction::make()

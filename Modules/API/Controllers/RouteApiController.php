@@ -82,8 +82,6 @@ class RouteApiController extends Controller
         $expediaId = Supplier::where('name', $expedia)->first()->id;
         $suppliersIds = [$expediaId];
 
-        // $dataHandler = $this->strategy->getHandler($supplier, $type);
-
         $dataHandler = match ($type) {
             'hotel' => new HotelApiHanlder($this->expediaService),
             'flight' => new FlightApiHandler(),
@@ -109,12 +107,12 @@ class RouteApiController extends Controller
 		}
 
 		$destinations = GiataGeography::
-			select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_name as city')
+			select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_id')
 			->where('city_name', 'like', '%'.$request->get('city').'%')
 			->limit(35)
 			->orderBy('city_name', 'asc')
 			->get()
-			->pluck('city','full_name')
+			->pluck('city_id','full_name')
 			->toArray();
 
 		$response = [

@@ -9,10 +9,10 @@ use Illuminate\Console\Command;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use App\Models\ExpediaContent;
 use Modules\Inspector\ExceptionReportController;
-use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Process;
 use GuzzleHttp\Client;
+use App\Models\GeneralConfiguration;
 
 class DownloadExpediaData extends Command
 {
@@ -387,7 +387,11 @@ class DownloadExpediaData extends Command
                 $output[$key] = $value;
             }
 
-            if ($output['rating'] < self::MIN_RATING) $is_write = false;
+			$ratingConfig = GeneralConfiguration::latest()->first()->star_ratings;
+
+			$rating = $ratingConfig ?? self::MIN_RATING ?? 4;
+
+            if ($output['rating'] < $rating) $is_write = false;
 
             if ($is_write) $batchData[] = $output;
 

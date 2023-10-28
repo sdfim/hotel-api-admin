@@ -54,6 +54,11 @@ class ExpediaTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->sortable()
                     ->toggleable(),
+				TextColumn::make('rating')
+                    ->numeric()
+                    ->searchable(isIndividual: true)
+                    ->sortable()
+                    ->toggleable(),
                 ViewColumn::make('address')->view('dashboard.expedia.column.address-field')
                     ->searchable(isIndividual: true)
                     ->toggleable(),

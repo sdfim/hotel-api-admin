@@ -121,10 +121,12 @@ class ExpediaContent extends Model
      * @param $city
      * @return array
      */
-    public function getIdsByDestinationGiata($city): array
+    public function getIdsByDestinationGiata(string $input): array
     {
-        return GiataProperty::where('city', $city)
-            ->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
+		if ( is_numeric($input))  $query = GiataProperty::where('city_id', $input);
+		else $query = GiataProperty::where('city', $input);
+		
+        return $query->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
             ->select('mapper_expedia_giatas.expedia_id')
             ->whereNotNull('mapper_expedia_giatas.expedia_id')
             ->get()
