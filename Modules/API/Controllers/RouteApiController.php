@@ -4,10 +4,12 @@ namespace Modules\API\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\GiataProperty;
+use App\Models\GiataGeography;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Modules\API\Controllers\ApiHandlers\HotelApiHanlder;
 use Modules\API\Controllers\ApiHandlers\FlightApiHandler;
@@ -106,13 +108,15 @@ class RouteApiController extends Controller
 			return response()->json(['error' => 'Invalid city, string must be 3 characters or more'], 400);
 		}
 
-		$destinations = GiataProperty::where('city', 'like', $request->get('city').'%')
-			->select('city')
-			->distinct()
-			->limit(25)
+		$destinations = GiataGeography::
+			select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_name as city')
+			->where('city_name', 'like', '%'.$request->get('city').'%')
+			->limit(35)
+			->orderBy('city_name', 'asc')
 			->get()
-			->pluck('city')
+			->pluck('city','full_name')
 			->toArray();
+
 		$response = [
             'success' => true,
             'data' => $destinations,
