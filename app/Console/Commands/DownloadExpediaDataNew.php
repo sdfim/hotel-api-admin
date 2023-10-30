@@ -388,6 +388,7 @@ class DownloadExpediaDataNew extends Command
 			$ratingConfig = GeneralConfiguration::latest()->first()->star_ratings;
 
 			$rating = $ratingConfig ?? self::MIN_RATING ?? 4;
+			$rating = 0;
 
             if ($output['rating'] < $rating) $is_write = false;
 
