@@ -196,24 +196,27 @@ select{
    @apply text-violet-500;
 }
 
-@keyframes vibrate {
+@keyframes draw-attention {
     0% {
-        transform: translateX(0);
+        transform: scale(1);
     }
-    25% {
-        transform: translateX(-2px);
+    20% {
+        transform: scale(1.1);
     }
-    50% {
-        transform: translateX(2px);
+    40% {
+        transform: scale(0.9);
     }
-    75% {
-        transform: translateX(-2px);
+    60% {
+        transform: scale(1.05);
+    }
+    80% {
+        transform: scale(0.95);
     }
     100% {
-        transform: translateX(2px);
+        transform: scale(1);
     }
 }
-.animate-vibrate {
-    animation: vibrate 0.3s ease 3;
-}
 
+.animate-draw-attention {
+    animation: draw-attention 0.8s ease 1; /* Adjust the duration (1s) and cycles (3) as needed */
+}

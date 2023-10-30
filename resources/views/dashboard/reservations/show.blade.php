@@ -60,7 +60,7 @@
                                 <div class="w-80 flex flex-wrap">
                                     @foreach($images as $imageNumber => $image)
                                         <a href="{{ $image }}" class="reservation-show-glightbox mr-1 mb-1">
-                                            <img class="w-24 h-24 cursor-pointer animate-vibrate"
+                                            <img class="w-24 h-24 cursor-pointer animate-draw-attention"
                                                  src="{{ $image }}" alt="Image {{ $imageNumber }}">
                                         </a>
                                     @endforeach
