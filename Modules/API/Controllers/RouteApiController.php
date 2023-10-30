@@ -108,7 +108,7 @@ class RouteApiController extends Controller
 
 		$destinations = GiataGeography::
 			select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_id')
-			->where('city_name', 'like', '%'.$request->get('city').'%')
+			->where('city_name', 'like', $request->get('city').'%')
 			->limit(35)
 			->orderBy('city_name', 'asc')
 			->get()

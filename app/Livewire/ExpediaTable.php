@@ -30,39 +30,45 @@ class ExpediaTable extends Component implements HasForms, HasTable
      */
     public function table(Table $table): Table
     {
-        ini_set('memory_limit', '1586M');
-
         return $table
-            ->paginated([5, 10, 25, 50])
-            ->query(ExpediaContent::query())
+            ->paginated([5, 10])
+            ->query(ExpediaContent::query()->orderBy('rating', 'desc'))
             ->columns([
                 TextColumn::make('property_id')
                     ->sortable()
                     ->searchable(isIndividual: true)
                     ->toggleable(),
-                TextColumn::make('name')
-                    ->sortable()
+				ViewColumn::make('name')
+					->toggleable()
+					->sortable()
+					->searchable(isIndividual: true)
+					->view('dashboard.expedia.column.name-field'),
+				TextColumn::make('rating')
+                    ->numeric()
                     ->searchable(isIndividual: true)
+                    ->sortable()
                     ->toggleable(),
                 TextColumn::make('city')
                     ->numeric()
                     ->sortable()
                     ->searchable(isIndividual: true)
                     ->toggleable(),
-                TextColumn::make('phone')
+				TextColumn::make('latitude')
                     ->numeric()
                     ->searchable(isIndividual: true)
                     ->sortable()
                     ->toggleable(),
-				TextColumn::make('rating')
+				TextColumn::make('longitude')
+                    ->numeric()
+                    ->searchable(isIndividual: true)
+                    ->sortable()
+                    ->toggleable(),
+				TextColumn::make('phone')
                     ->numeric()
                     ->searchable(isIndividual: true)
                     ->sortable()
                     ->toggleable(),
                 ViewColumn::make('address')->view('dashboard.expedia.column.address-field')
-                    ->searchable(isIndividual: true)
-                    ->toggleable(),
-                ViewColumn::make('location')->view('dashboard.expedia.column.position-field')
                     ->searchable(isIndividual: true)
                     ->toggleable(),
                 ViewColumn::make('mapperGiataExpedia.giata_id')->label('Giata id')->view('dashboard.expedia.column.giata_id')

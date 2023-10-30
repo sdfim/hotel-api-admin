@@ -77,45 +77,46 @@ class MakeMapperExpediaGiate extends Command
 
 			foreach ($arrExpedia as $expedia) {
 
-				$latitude = bcdiv($expedia['latitude'], 1, 4);
-				$longitude = bcdiv($expedia['longitude'], 1, 4);
+				// $this->comment($expedia['property_id'] . ' ' . $expedia['longitude']);
 
-				$this->comment($expedia['property_id'] . ' ' . $expedia['name'] . ' | ' . 'latitude: ' . $latitude . ' | longitude: ' . $longitude);
+				$latitude = bcdiv($expedia['latitude'], 1, 2);
+				$longitude = bcdiv($expedia['longitude'], 1, 2);
+				$mapper_address = $expedia['address']['line_1'];
+
+				// $this->comment($expedia['property_id'] . ' ' . $expedia['name'] . ' | ' . 'latitude: ' . $latitude . ' | longitude: ' . $longitude);
+
+				$this->comment($expedia['property_id'] . ' ' . $mapper_address . ' | ' . 'latitude: ' . $latitude . ' | longitude: ' . $longitude);
 				
 				if ($expedia['property_id'] < 1664) continue;
 
 				$cityNmae = str_replace(['@', "'"], '', $expedia['city']);
-
-				$giata = DB::table('ujv_api.giata_properties')
-				->whereRaw("MATCH(name) AGAINST('".$cityNmae."' IN BOOLEAN MODE)")
-				->where('latitude', 'LIKE', $latitude . '%')
-				->where('longitude', 'LIKE', $longitude . '%')
-				->get()->toArray();
 			
-				// $giata = GiataProperty::where('name', $expedia['name'])
-				// 	->where('position', 'like', $latitude . '%')
-				// 	->where('position', 'like', $longitude . '%')
-				// 	->get()
-				// 	->toArray();
+				$giata = GiataProperty::where('mapper_address', $mapper_address)
+					->where('latitude', 'like', $latitude . '%')
+					->where('longitude', 'like', $longitude . '%')
+					->get()
+					->toArray();
 
 				if ($giata) {
 					foreach ($giata as $giataItem) {
 						$this->info('Expedia: ' . $expedia['property_id'] . ' - ' . $expedia['name'] . ' - ' . $giataItem['code'] . ' - ' . $giataItem['name']);
 						$this->batch++;
+						$this->batchReport++;
 						$mapper[] = [
 							'expedia_id' => $expedia['property_id'],
 							'giata_id' => $giataItem['code'],
-							'step' => 1,
+							'step' => 10,
 						];
 						$mapperReport[] = [
 							'expedia_id' => $expedia['property_id'],
 							'giata_id' => $giata[0]['code'],
-							'step' => 1,
+							'step' => 10,
 							'status' => 'success',
 							'created_at' => date('Y-m-d H:i:s'),
 						];
 					}
 				}
+				else {}
 				if ($this->batch % self::BATCH_SIZE == 0) {
 					MapperExpediaGiata::insertOrIgnore($mapper);
 					$mapper = [];
@@ -162,8 +163,6 @@ class MakeMapperExpediaGiate extends Command
 
 				$phone = str_replace('-', '', $expedia['phone']);
 				$postCode = str_replace('-', '', $expedia['postal_code']);
-				$state = $expedia['state_province_name'];
-				$city = $expedia['city'];
 
 				$expediaName12 = $expediaName23 = $expediaName1 = 'DDDDDDDDDDDDDDDDDDDDD';
 
@@ -341,10 +340,10 @@ class MakeMapperExpediaGiate extends Command
 	 */
 	private function fetchExpediaNeedMapping(): iterable
 	{
-		$query = ExpediaContent::select('property_id', 'name', 'latitude', 'longitude', 'phone', 'city', 'state_province_name', 'postal_code')
-			->leftJoin('mapper_expedia_giatas', 'expedia_contents.property_id', '=', 'mapper_expedia_giatas.expedia_id')
+		$query = ExpediaContent::select('property_id', 'name', 'latitude', 'longitude', 'phone', 'city', 'address')
+			->leftJoin('mapper_expedia_giatas', 'expedia_content_main.property_id', '=', 'mapper_expedia_giatas.expedia_id')
 			->whereNull('mapper_expedia_giatas.giata_id')
-			->leftJoin('report_mapper_expedia_giata', 'report_mapper_expedia_giata.expedia_id', '=', 'expedia_contents.property_id')
+			->leftJoin('report_mapper_expedia_giata', 'report_mapper_expedia_giata.expedia_id', '=', 'expedia_content_main.property_id')
 			->whereNull('report_mapper_expedia_giata.expedia_id')
 			->cursor();
 

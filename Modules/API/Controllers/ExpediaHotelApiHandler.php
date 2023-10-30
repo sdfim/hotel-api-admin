@@ -65,20 +65,21 @@ class ExpediaHotelApiHandler
 			}
 
             $fields = $request->get('fullList') ? $expedia->getFullListFields() : $expedia->getShortListFields();
-            $query = $expedia->select($fields);
+            $query = $expedia->select();
 
             $searchBuilder = new HotelSearchBuilder($query);
             $results = $searchBuilder->applyFilters($filters);
 
-            # enrichment GIATA code
-            $selectList = ['mapper_expedia_giatas.giata_id'];
-            foreach ($fields as $field) {
-                $selectList[] = 'expedia_contents.' . $field;
-            }
-            $results->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.expedia_id', '=', 'expedia_contents.property_id')
-                ->whereNotNull('mapper_expedia_giatas.expedia_id')
-                ->where('expedia_contents.rating', '>=', $rating)
-                ->select($selectList);
+			$results->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
+				->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.expedia_id', '=', 'expedia_content_main.property_id')
+			    ->whereNotNull('mapper_expedia_giatas.expedia_id')
+				->select(
+					'expedia_content_main.*', 
+					'expedia_content_slave.images as images', 
+					'expedia_content_slave.amenities as amenities', 
+					'mapper_expedia_giatas.expedia_id',
+					'mapper_expedia_giatas.giata_id'
+				);
 
             $count = $results->count('expedia_id');
 
@@ -164,7 +165,9 @@ class ExpediaHotelApiHandler
 
         // $expedia_id = $request->get('property_id') ?? null;
 
-        $results = $expedia->where('property_id', $expedia_id)->get();
+        $results = $expedia
+			->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
+			->where('property_id', $expedia_id)->get();
 
         return $expedia->dtoDbToResponse($results, $expedia->getFullListFields());
     }

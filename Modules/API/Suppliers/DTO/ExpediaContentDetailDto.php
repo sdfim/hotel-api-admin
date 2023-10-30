@@ -23,7 +23,7 @@ class ExpediaContentDetailDto
 
         $hotelImages = [];
         foreach ($supplierResponse->images as $image) {
-            $hotelImages[] = $image['links']['1000px']['href'];
+            $hotelImages[] = $image->links->{'1000px'}->href;
         }
         $viewAmenities = request()->get('category_amenities') === 'true';
 
@@ -40,44 +40,45 @@ class ExpediaContentDetailDto
         $hotelResponse->setLatitude($supplierResponse->location['coordinates']['latitude']);
         $hotelResponse->setLongitude($supplierResponse->location['coordinates']['longitude']);
         $hotelResponse->setRating($supplierResponse->rating);
+		$amenities = $supplierResponse->amenities ? json_decode(json_encode($supplierResponse->amenities), true) : [];
         if ($viewAmenities) {
-            $hotelResponse->setAmenities($supplierResponse->amenities ?? []);
+            $hotelResponse->setAmenities($amenities);
         } else {
-            $hotelResponse->setAmenities($supplierResponse->amenities ? array_map(function ($amenity) {
+            $hotelResponse->setAmenities(array_map(function ($amenity) {
                 return $amenity['name'];
-            }, $supplierResponse->amenities) : []);
+            }, $amenities));
         }
         $hotelResponse->setGiataDestination($supplierResponse->city ?? '');
         $hotelResponse->setUserRating($supplierResponse->rating ?? '');
         $hotelResponse->setSpecialInstructions($supplierResponse->room ?? []);
         $hotelResponse->setCheckInTime($supplierResponse->checkin_time ?? '');
         $hotelResponse->setCheckOutTime($supplierResponse->checkout_time ?? '');
-        $hotelResponse->setHotelFees($supplierResponse->fees ?? []);
-        $hotelResponse->setPolicies($supplierResponse->policies ?? []);
-        $hotelResponse->setDescriptions($supplierResponse->descriptions ?? []);
+        $hotelResponse->setHotelFees($supplierResponse->fees ? json_decode(json_encode($supplierResponse->fees), true) : []);
+        $hotelResponse->setPolicies($supplierResponse->policies ? json_decode(json_encode($supplierResponse->policies), true) : []);
+        $hotelResponse->setDescriptions($supplierResponse->descriptions ? json_decode(json_encode($supplierResponse->descriptions), true) : []);
         $hotelResponse->setAddress($supplierResponse->address ? $address : '');
 
         $rooms = [];
         foreach ($supplierResponse->rooms as $room) {
-            $amenities = $room['amenities'] ?? [];
+            $amenities = $room->amenities ? json_decode(json_encode($room->amenities), true) : [];
             $images = [];
-			if (isset($room['images'])) {
-				foreach ($room['images'] as $image) {
-					$images[] = $image['links']['350px']['href'];
+			if (isset($room->images)) {
+				foreach ($room->images as $image) {
+					$images[] = $image->links->{'350px'}->href;
 				}
 			}
             $roomResponse = new ContentDetailRoomsResponse();
-            $roomResponse->setSupplierRoomId($room['id']);
-            $roomResponse->setSupplierRoomName($room['name']);
+            $roomResponse->setSupplierRoomId($room->id);
+            $roomResponse->setSupplierRoomName($room->name);
             if ($viewAmenities) {
-                $roomResponse->setAmenities($room['amenities'] ?? []);
+                $roomResponse->setAmenities($amenities ?? []);
             } else {
-                $roomResponse->setAmenities($room['amenities'] ? array_map(function ($amenity) {
+                $roomResponse->setAmenities(array_map(function ($amenity) {
                     return $amenity['name'];
-                }, $amenities) : []);
+                }, $amenities));
             }
             $roomResponse->setImages($images);
-            $roomResponse->setDescriptions($room['descriptions'] ? $room['descriptions']['overview'] : '');
+            $roomResponse->setDescriptions($room->descriptions ? $room->descriptions->overview : '');
             $rooms[] = $roomResponse->toArray();
         }
         $hotelResponse->setRooms($rooms);

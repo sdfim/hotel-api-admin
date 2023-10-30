@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 
 class ExpediaContent extends Model
@@ -16,6 +17,21 @@ class ExpediaContent extends Model
      */
     protected $connection;
 	protected $primaryKey = 'property_id';
+	# protected const TABLE = 'expedia_contents';
+	protected const TABLE = 'expedia_content_main';
+
+	/**
+     * @var string[]
+     */
+    protected $fillable = [
+        'property_id', 
+		'name',
+		'address', 
+		'ratings', 
+		'location',
+		'latitude',
+		'longitude',
+    ];
 
     /**
      * @var string[]
@@ -24,28 +40,6 @@ class ExpediaContent extends Model
         'address' => 'array',
         'ratings' => 'array',
         'location' => 'array',
-        'category' => 'array',
-        'business_model' => 'array',
-        'checkin' => 'array',
-        'checkout' => 'array',
-        'fees' => 'array',
-        'policies' => 'array',
-        'attributes' => 'array',
-        'amenities' => 'array',
-        'images' => 'array',
-        'onsite_payments' => 'array',
-        'rooms' => 'array',
-        'rates' => 'array',
-        'dates' => 'array',
-        'descriptions' => 'array',
-        'themes' => 'array',
-        'chain' => 'array',
-        'brand' => 'array',
-        'statistics' => 'array',
-        'vacation_rental_details' => 'array',
-        'airports' => 'array',
-        'spoken_languages' => 'array',
-        'all_inclusive' => 'array',
     ];
 
     /**
@@ -55,7 +49,7 @@ class ExpediaContent extends Model
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
-        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'expedia_contents';
+        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . self::TABLE;
     }
 
     /**
@@ -82,12 +76,7 @@ class ExpediaContent extends Model
     public function getShortListFields(): array
     {
         return [
-            'property_id', 'name', 'address', 'ratings', 'location',
-            'category', 'business_model',
-            'fees', 'policies', 'attributes', 'amenities',
-            'onsite_payments', 'images',
-            'statistics', 'vacation_rental_details', 'airports',
-            'total_occupancy', 'city', 'rating', 'rooms_occupancy',
+            'property_id', 'name', 'images', 'location', 'amenities', 'rating',
         ];
     }
 
@@ -105,6 +94,7 @@ class ExpediaContent extends Model
                     $item->$key = json_decode($item->$key);
                 }
             }
+
             return $item;
         });
     }
@@ -115,6 +105,11 @@ class ExpediaContent extends Model
     public function mapperGiataExpedia(): HasMany
     {
         return $this->hasMany(MapperExpediaGiata::class, 'expedia_id', 'property_id');
+    }
+
+	public function expediaSlave(): HasOne
+    {
+        return $this->hasOne(ExpediaContentSlave::class, 'expedia_property_id', 'property_id');
     }
 
     /**
@@ -140,7 +135,7 @@ class ExpediaContent extends Model
      */
     public function getExpediaIdByGiataId($giata_id): int
     {
-        $expedia = ExpediaContent::leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.expedia_id', '=', 'expedia_contents.property_id')
+        $expedia = ExpediaContent::leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.expedia_id', '=', self::TABLE . '.property_id')
             ->leftJoin('giata_properties', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
             ->select('mapper_expedia_giatas.expedia_id')
             ->where('mapper_expedia_giatas.giata_id', $giata_id)
