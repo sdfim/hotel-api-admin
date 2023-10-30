@@ -14,4 +14,4 @@ SHELL=/bin/bash
 10 * * * * root source /cronenv; su -m -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan test-command' > /proc/1/fd/1 2>>/proc/1/fd/2
 
 
-30 11 * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan download-expedia-data-new content 1234' > /proc/1/fd/1 2>>/proc/1/fd/2
+30 13 * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan download-expedia-data-new content 1234' > /proc/1/fd/1 2>>/proc/1/fd/2

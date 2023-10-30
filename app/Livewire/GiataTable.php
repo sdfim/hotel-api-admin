@@ -38,7 +38,10 @@ class GiataTable extends Component implements HasForms, HasTable
                 TextColumn::make('code')
                     ->sortable()
                     ->toggleable()
-                    ->searchable(isIndividual: true),
+                    ->searchable(isIndividual: true, query: function (Builder $query, string $search): Builder {
+						return $query
+							->where('code', $search);
+					}),
 				ViewColumn::make('name')
 					->toggleable()
 					->sortable()

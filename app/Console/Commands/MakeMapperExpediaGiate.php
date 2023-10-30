@@ -129,16 +129,16 @@ class MakeMapperExpediaGiate extends Command
 			}
 		}
 
-
 		# step 2 and more: where name like name, latitude like latitude(2 point after dot), longitude like longitude(2 point after dot)
-		if ((str_contains($this->stepStrategy, 2)) ||
-			(str_contains($this->stepStrategy, 3)) ||
-			(str_contains($this->stepStrategy, 5)) ||
-			(str_contains($this->stepStrategy, 6)) ||
-			(str_contains($this->stepStrategy, 7)) ||
-			(str_contains($this->stepStrategy, 8)) ||
-			(str_contains($this->stepStrategy, 9))
-		) {
+		if (str_contains($this->stepStrategy, 2) ||
+			str_contains($this->stepStrategy, 3) ||
+			str_contains($this->stepStrategy, 4) ||
+			str_contains($this->stepStrategy, 5) ||
+			str_contains($this->stepStrategy, 6) ||
+			str_contains($this->stepStrategy, 7) ||
+			str_contains($this->stepStrategy, 8) ||
+			str_contains($this->stepStrategy, 9)
+		) {			
 			$arrExpedia = $this->fetchExpediaNeedMapping();
 
 			foreach ($arrExpedia as $expedia) {
@@ -186,18 +186,18 @@ class MakeMapperExpediaGiate extends Command
 						'latitude' => $latitude . '%',
 						'longitude ' => $longitude . '%',
 						'name' => $expediaNameStart . '%',
-						'phone' => '%' . $phone . '%',
+						'mapper_phone_number' => '%' . $phone . '%',
 					],
 					'4' => [
 						'latitude' => $latitude . '%',
 						'longitude ' => $longitude . '%',
-						'phone' => '%' . $phone . '%',
-						'address' => '%' . $postCode . '%',
+						'mapper_phone_number' => '%' . $phone . '%',
+						'mapper_postal_code' => '%' . $postCode . '%',
 					],
 					'5' => [
 						'latitude' => $latitude0 . '%',
 						'longitude ' => $longitude0 . '%',
-						'name' =>  $expedia['name'],
+						'name' =>  $nameHotel,
 						'city' =>  $expedia['city'],
 					],
 					'6' => [
@@ -222,7 +222,7 @@ class MakeMapperExpediaGiate extends Command
 						'longitude ' => $longitude0 . '%',
 						'name' => '%' . $expediaName1 . '%',
 						'city' => $expedia['city'],
-						'phone' => '%' . $phone . '%',
+						'mapper_phone_number' => '%' . $phone . '%',
 					],
 				];
 
