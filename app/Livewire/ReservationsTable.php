@@ -45,12 +45,13 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         $tooltip = '';
                         if (is_array($field)) {
                             foreach ($field as $key => $value) {
-                                if ($key !== 'hotel_images') $tooltip .= "$key: $value;";
+                                if ($key !== 'hotel_images') $tooltip .= "$key: $value | ";
                             }
                         }
-                        return htmlentities($tooltip);
+                        return rtrim($tooltip, ' |');
                     }),
                 ViewColumn::make('reservation_contains.hotel_images')
+                    ->label('Hotel images')
                     ->view('dashboard.reservations.column.hotel-images', ['limit' => 5]),
                 TextColumn::make('channel.name')
                     ->numeric()

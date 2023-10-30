@@ -59,9 +59,7 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     ->numeric()
                     ->toggleable()
                     ->searchable(),
-
                 ViewColumn::make('request')->toggleable()->view('dashboard.booking-inspector.column.request'),
-
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->toggleable()
