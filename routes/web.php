@@ -56,6 +56,7 @@ Route::prefix('admin')->group(function () {
         Route::resource('property-weighting', PropertyWeightingController::class)->only(['index', 'create', 'show', 'edit']);
         Route::resource('giata', GiataController::class)->except(['delete', 'store', 'create']);
         Route::resource('expedia', ExpediaController::class)->except(['delete', 'store', 'create']);
+		Route::get('/expedia-charts', [ExpediaController::class, 'charts'])->name('expedia_charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->except(['index', 'update', 'create']);
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);

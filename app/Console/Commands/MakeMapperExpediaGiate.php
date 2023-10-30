@@ -186,17 +186,17 @@ class MakeMapperExpediaGiate extends Command
 						'latitude' => $latitude . '%',
 						'longitude ' => $longitude . '%',
 						'name' => $expediaNameStart . '%',
-						'mapper_phone_number' => '%' . $phone . '%',
+						'mapper_phone_number' => $phone,
 					],
 					'4' => [
 						'latitude' => $latitude . '%',
 						'longitude ' => $longitude . '%',
-						'mapper_phone_number' => '%' . $phone . '%',
-						'mapper_postal_code' => '%' . $postCode . '%',
+						'mapper_phone_number' => $phone,
+						'mapper_postal_code' => $postCode . '%',
 					],
 					'5' => [
-						'latitude' => $latitude0 . '%',
-						'longitude ' => $longitude0 . '%',
+						'latitude' => $latitude1 . '%',
+						'longitude ' => $longitude1 . '%',
 						'name' =>  $nameHotel,
 						'city' =>  $expedia['city'],
 					],
@@ -205,25 +205,25 @@ class MakeMapperExpediaGiate extends Command
 						'longitude ' => $longitude . '%',
 						'name' => trim(str_replace('Hotel', '', $nameHotel)) . '%',
 					],
-					'7' => [
-						'latitude' => $latitude1 . '%',
-						'longitude ' => $longitude0 . '%',
-						'name' => $expediaName12 . '%',
-						'city' =>  $expedia['city'],
-					],
-					'8' => [
-						'latitude' => $latitude1 . '%',
-						'longitude ' => $longitude0 . '%',
-						'name' => '%' . $expediaName23 . '%',
-						'city' =>  $expedia['city'],
-					],
-					'9' => [
-						'latitude' => $latitude1 . '%',
-						'longitude ' => $longitude0 . '%',
-						'name' => '%' . $expediaName1 . '%',
-						'city' => $expedia['city'],
-						'mapper_phone_number' => '%' . $phone . '%',
-					],
+					// '7' => [
+					// 	'latitude' => $latitude . '%',
+					// 	'longitude ' => $longitude . '%',
+					// 	'name' => $expediaName12 . '%',
+					// 	'city' =>  $expedia['city'],
+					// ],
+					// '8' => [
+					// 	'latitude' => $latitude1 . '%',
+					// 	'longitude ' => $longitude0 . '%',
+					// 	'name' => '%' . $expediaName23 . '%',
+					// 	'city' =>  $expedia['city'],
+					// ],
+					// '9' => [
+					// 	'latitude' => $latitude1 . '%',
+					// 	'longitude ' => $longitude0 . '%',
+					// 	'name' => '%' . $expediaName1 . '%',
+					// 	'city' => $expedia['city'],
+					// 	'mapper_phone_number' => '%' . $phone . '%',
+					// ],
 				];
 
 				$this->executionTime('report_mapper');
@@ -254,7 +254,7 @@ class MakeMapperExpediaGiate extends Command
 				}
 
 				if (!$mp) {
-					$this->error($expedia['property_id'] . ' - ' . $expedia['name'] . ' | Steps = ' . implode(', ', $error) . ' | TIME = ' . $this->executionTime('report_mapper') . ' sec');
+					// $this->error($expedia['property_id'] . ' - ' . $expedia['name'] . ' | Steps = ' . implode(', ', $error) . ' | TIME = ' . $this->executionTime('report_mapper') . ' sec');
 					$mapperReport[] = [
 						'expedia_id' => $expedia['property_id'],
 						'giata_id' => null,
@@ -264,9 +264,6 @@ class MakeMapperExpediaGiate extends Command
 					];
 					$this->batchReport++;
 				}
-
-				// $query = $search->get()->toArray();
-				// $mapper = $this->addToMapper($mapper, $query, $expedia, 33);
 
 				if ($this->batch > self::BATCH_SIZE_ADVANCED) {
 					MapperExpediaGiata::insert($mapper);

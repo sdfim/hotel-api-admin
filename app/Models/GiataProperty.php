@@ -29,6 +29,7 @@ class GiataProperty extends Model
         'locale',
 		'locale_id',
         'address',
+		'mapper_address',
         'phone',
         'position',
 		'latitude',
@@ -64,5 +65,13 @@ class GiataProperty extends Model
     public function mapperExpediaGiata(): HasOne
     {
         return $this->hasOne(MapperExpediaGiata::class, 'giata_code', 'code');
+    }
+
+	/**
+     * @return HasOne
+     */
+    public function giataGeography(): HasOne
+    {
+        return $this->hasOne(GiataGeography::class, 'city_id', 'city_id');
     }
 }

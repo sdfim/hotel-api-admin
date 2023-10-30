@@ -4,6 +4,8 @@ namespace Modules\API\Controllers\ApiHandlers;
 
 use App\Jobs\SaveSearchInspector;
 use Exception;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Modules\API\Controllers\ApiHandlerInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -85,33 +87,46 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
             $rules = $searchRequest->rules();
             $filters = Validator::make($request->all(), $rules)->validated();
 
-            $dataResponse = [];
-            $count = 0;
-            foreach ($suppliers as $supplier) {
-                $supplierName = Supplier::find($supplier)->name;
-                if ($supplierName == self::SUPPLIER_NAME) {
-                    $supplierData = $this->expedia->search($request, $filters);
-                    $data = $supplierData['results'];
-                    $count += $supplierData['count'];
-                    $dataResponse[$supplierName] = $data;
-                    $clientResponse[$supplierName] = $this->expediaContentDto->ExpediaToContentSearchResponse($data);
-                }
-                // TODO: Add other suppliers
-            }
+			$keyPricingSearch = request()->get('type') . ':contentSearch:' . http_build_query(Arr::dot($filters));
 
-            # enrichment Property Weighting
-            $clientResponse = $this->propsWeight->enrichmentContent($clientResponse, 'hotel');
+			if (Cache::has($keyPricingSearch . ':content') && Cache::has($keyPricingSearch . ':clientContent')) {
 
-            $content = [
-                'count' => $count,
-                'query' => $filters,
-                'results' => $dataResponse,
-            ];
-            $clientContent = [
-                'count' => $count,
-                'query' => $filters,
-                'results' => $clientResponse,
-            ];
+				$content = Cache::get($keyPricingSearch . ':content');
+				$clientContent = Cache::get($keyPricingSearch . ':clientContent');
+
+			} else {
+
+				$dataResponse = [];
+				$count = 0;
+				foreach ($suppliers as $supplier) {
+					$supplierName = Supplier::find($supplier)->name;
+					if ($supplierName == self::SUPPLIER_NAME) {
+						$supplierData = $this->expedia->search($request, $filters);
+						$data = $supplierData['results'];
+						$count += $supplierData['count'];
+						$dataResponse[$supplierName] = $data;
+						$clientResponse[$supplierName] = $this->expediaContentDto->ExpediaToContentSearchResponse($data);
+					}
+					// TODO: Add other suppliers
+				}
+
+				# enrichment Property Weighting
+				$clientResponse = $this->propsWeight->enrichmentContent($clientResponse, 'hotel');
+
+				$content = [
+					'count' => $count,
+					'query' => $filters,
+					'results' => $dataResponse,
+				];
+				$clientContent = [
+					'count' => $count,
+					'query' => $filters,
+					'results' => $clientResponse,
+				];
+
+				Cache::put($keyPricingSearch . ':content', $content, now()->addMinutes(60));
+				Cache::put($keyPricingSearch . ':clientContent', $clientContent, now()->addMinutes(60));
+			}
 
             if ($request->input('supplier_data') == 'true') $res = $content;
             else $res = $clientContent;
@@ -141,16 +156,29 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
             // $rules = $detailRequest->rules();
             // $validator = Validator::make($request->all(), $rules)->validated();
 
-            $dataResponse = [];
-            foreach ($suppliers as $supplier) {
-                $supplierName = Supplier::find($supplier)->name;
-                if ($supplierName == self::SUPPLIER_NAME) {
-                    $data = $this->expedia->detail($request);
-                    $dataResponse[$supplierName] = $data;
-                    $clientResponse[$supplierName] = $this->expediaContentDetailDto->ExpediaToContentDetailResponse($data->first(), $request->input('property_id'));
-                }
-                // TODO: Add other suppliers
-            }
+			$keyPricingSearch = request()->get('type') . ':contentDetail:' . http_build_query(Arr::dot($request->all()));
+
+			if (Cache::has($keyPricingSearch . ':dataResponse') && Cache::has($keyPricingSearch . ':clientResponse')) {
+
+				$dataResponse = Cache::get($keyPricingSearch . ':dataResponse');
+				$clientResponse = Cache::get($keyPricingSearch . ':clientResponse');
+
+			} else {
+
+				$dataResponse = [];
+				foreach ($suppliers as $supplier) {
+					$supplierName = Supplier::find($supplier)->name;
+					if ($supplierName == self::SUPPLIER_NAME) {
+						$data = $this->expedia->detail($request);
+						$dataResponse[$supplierName] = $data;
+						$clientResponse[$supplierName] = $this->expediaContentDetailDto->ExpediaToContentDetailResponse($data->first(), $request->input('property_id'));
+					}
+					// TODO: Add other suppliers
+				}
+
+				Cache::put($keyPricingSearch . ':dataResponse', $dataResponse, now()->addMinutes(60));
+				Cache::put($keyPricingSearch . ':clientResponse', $clientResponse, now()->addMinutes(60));
+			}
 
             if ($request->input('supplier_data') == 'true') $results = $dataResponse;
             else $results = $clientResponse;
@@ -181,31 +209,44 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
             $search_id = (string)Str::uuid();
 
-            $dataResponse = [];
-            $clientResponse = [];
-            foreach ($suppliers as $supplier) {
-                $supplierName = Supplier::find($supplier)->name;
-                if ($supplierName == self::SUPPLIER_NAME) {
-                    $expediaResponse = $this->expedia->price($request, $filters);
-                    $dataResponse[$supplierName] = $expediaResponse;
-                    $clientResponse[$supplierName] = $this->expediaPricingDto->ExpediaToHotelResponse((array)$expediaResponse, $filters, $search_id);
-                }
-                // TODO: Add other suppliers
-            }
+			$keyPricingSearch = request()->get('type') . ':pricingSearch:' . http_build_query(Arr::dot($filters));
 
-            # enrichment Property Weighting
-            $clientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
+			if (Cache::has($keyPricingSearch . ':content') && Cache::has($keyPricingSearch . ':clientContent')) {
 
-            $content = [
-                'count' => count($dataResponse[self::SUPPLIER_NAME]),
-                'query' => $filters,
-                'results' => $dataResponse,
-            ];
-            $clientContent = [
-                'count' => count($clientResponse[self::SUPPLIER_NAME]),
-                'query' => $filters,
-                'results' => $clientResponse,
-            ];
+				$content = Cache::get($keyPricingSearch . ':content');
+				$clientContent = Cache::get($keyPricingSearch . ':clientContent');
+
+			} else {
+
+				$dataResponse = [];
+				$clientResponse = [];
+				foreach ($suppliers as $supplier) {
+					$supplierName = Supplier::find($supplier)->name;
+					if ($supplierName == self::SUPPLIER_NAME) {
+						$expediaResponse = $this->expedia->price($request, $filters);
+						$dataResponse[$supplierName] = $expediaResponse;
+						$clientResponse[$supplierName] = $this->expediaPricingDto->ExpediaToHotelResponse((array)$expediaResponse, $filters, $search_id);
+					}
+					// TODO: Add other suppliers
+				}
+
+				# enrichment Property Weighting
+				$clientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
+
+				$content = [
+					'count' => count($dataResponse[self::SUPPLIER_NAME]),
+					'query' => $filters,
+					'results' => $dataResponse,
+				];
+				$clientContent = [
+					'count' => count($clientResponse[self::SUPPLIER_NAME]),
+					'query' => $filters,
+					'results' => $clientResponse,
+				];
+
+				Cache::put($keyPricingSearch . ':content', $content, now()->addMinutes(60));
+				Cache::put($keyPricingSearch . ':clientContent', $clientContent, now()->addMinutes(60));
+			}
 
             # save data to Inspector
             SaveSearchInspector::dispatch([

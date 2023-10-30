@@ -2,7 +2,9 @@
     $field = $getState();
     $address = '';
     if(isset($field['AddressLine'])){
-		$address = \Modules\API\Tools\StringTool::lineBreak($field['AddressLine']);
+		$string = ($field['StreetNmbr'] ?? '') . ' ' . $field['AddressLine'] . 
+			' (' . ($field['CityName'] ?? '') . ' ' . ($field['PostalCode'] ?? '') . ' ' . ($field['CountryName'] ?? '') . ')';
+		$address = \Modules\API\Tools\StringTool::lineBreak($string);
     }
 @endphp
 <div>

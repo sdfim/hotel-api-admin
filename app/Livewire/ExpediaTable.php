@@ -71,10 +71,13 @@ class ExpediaTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->sortable()
                     ->toggleable(),
-                ViewColumn::make('address')->view('dashboard.expedia.column.address-field')
+                ViewColumn::make('address')
+					->view('dashboard.expedia.column.address-field')
                     ->searchable(isIndividual: true)
                     ->toggleable(),
-                ViewColumn::make('mapperGiataExpedia.giata_id')->label('Giata id')->view('dashboard.expedia.column.giata_id')
+                ViewColumn::make('mapperGiataExpedia.giata_id')
+					->label('Giata id')
+					->view('dashboard.expedia.column.giata_id')
                     ->searchable(isIndividual: true),
                 TextColumn::make('mapperGiataExpedia.property_id')
                     ->searchable(isIndividual: true)
@@ -107,7 +110,9 @@ class ExpediaTable extends Component implements HasForms, HasTable
                         return 'Empty';
                     })
                     ->toggleable(),
-                ViewColumn::make('edit')->view('dashboard.expedia.column.add-giata')->toggleable(),
+                ViewColumn::make('edit')
+					->view('dashboard.expedia.column.add-giata')
+					->toggleable(),
             ])
             ->filters([
                 Filter::make('is_empty')
