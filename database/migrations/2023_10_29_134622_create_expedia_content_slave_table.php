@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         if (!Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->hasTable('expedia_content_slave')) {
             Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->create('expedia_content_slave', function (Blueprint $table) {
-                $table->integer('property_id')->index()->unique();
+                $table->integer('expedia_property_id')->index()->unique();
                 $table->string('fax');
                 $table->string('tax_id');
                 $table->json('category');

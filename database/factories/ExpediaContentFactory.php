@@ -26,20 +26,14 @@ class ExpediaContentFactory extends Factory
     {
 
         return [
-            'property_id' => $this->faker->numberBetween(1, 10000), // Пример значения для property_id
-            'rating' => $this->faker->randomFloat(2, 1, 5), // Пример значения для rating
+            'property_id' => $this->faker->numberBetween(1, 10000),
+            'rating' => $this->faker->randomFloat(2, 1, 5), 
             'name' => $this->faker->name,
-            'giata_TTIcode' => $this->faker->numberBetween(1, 10000),
             'city' => $this->faker->city,
-            'state_province_code' => $this->faker->stateAbbr,
-            'state_province_name' => $this->faker->state,
-            'postal_code' => $this->faker->postcode,
-            'country_code' => $this->faker->countryCode,
             'latitude' => $this->faker->latitude,
             'longitude' => $this->faker->longitude,
-            'category_name' => $this->faker->word,
-            'checkin_time' => $this->faker->time,
-            'checkout_time' => $this->faker->time,
+            'phone' => $this->faker->phoneNumber,
+            'total_occupancy' => $this->faker->word,
             'address' => '{
                 "city": "New Delhi",
                 "line_1": "Plot No. ' . $this->faker->numberBetween(1, 100) . ', GMR' . $this->faker->word . '",
@@ -82,67 +76,6 @@ class ExpediaContentFactory extends Factory
                 },
                 "obfuscation_required": false
             }',
-            'phone' => $this->faker->phoneNumber,
-            'fax' => $this->faker->phoneNumber,
-            'tax_id' => $this->faker->isbn10,
-            'category' => '{
-                "id": "1",
-                "name": "Hotel"
-            }',
-            'business_model' => '{
-                "expedia_collect": true,
-                "property_collect": true
-            }',
-            'rank' => $this->faker->word,
-            'checkin' => '{
-                "min_age": 21,
-                "end_time": "anytime",
-                "begin_time": "3:00 PM",
-                "instructions": "<ul>  <li>Extra-person charges may apply and vary depending on property policy</li><li>Government-issued photo identification and a credit card, debit card, or cash deposit may be required at check-in for incidental charges</li><li>Special requests are subject to availability upon check-in and may incur additional charges; special requests cannot be guaranteed</li><li>This property accepts credit cards, debit cards, and cash</li><li>Safety features at this property include a fire extinguisher, a smoke detector, a security system, a first aid kit, and window guards</li><li>Please note that cultural norms and guest policies may differ by country and by property; the policies listed are provided by the property</li>  </ul> <ul>  <li>Guests are permitted to bring maximum 1-liter bottle of alcohol per adult for in-room consumption.</li><li>Guests are not permitted to use external speakers on site.</li><li>No visitors or unregistered guests are allowed in guestrooms</li><li>Loud music is not permitted in guestrooms.</li>  </ul>",
-                "special_instructions": "This property offers transfers from the airport (surcharges may apply). Guests must contact the property with arrival details before travel, using the contact information on the booking confirmation. Front desk staff will greet guests on arrival. For more details, please contact the property using the information on the booking confirmation.  Check-in hours are 3 PM on Saturday and Sunday."
-            }',
-            'checkout' => '{}',
-            'fees' => '{}',
-            'policies' => '{}',
-            'attributes' => '{}',
-            'amenities' => '{}',
-            'images' => '{}',
-            'onsite_payments' => '{}',
-            'rooms' => '{}',
-            'total_occupancy' => $this->faker->word,
-            'rooms_occupancy' => '{}',
-            'rates' => '{}',
-            'dates' => '{}',
-            'descriptions' => '{}',
-            'themes' => '{}',
-            'chain' => '{}',
-            'brand' => '{}',
-            'statistics' => '{}',
-            'multi_unit' => $this->faker->boolean,
-            'payment_registration_recommended' => $this->faker->boolean,
-            'vacation_rental_details' => '{}',
-            'airports' => '{}',
-            'spoken_languages' => '{
-                "da": {
-                    "id": "da",
-                    "name": "Danish"
-                },
-                "en": {
-                    "id": "en",
-                    "name": "English"
-                },
-                "fr": {
-                    "id": "fr",
-                    "name": "French"
-                },
-                "hi": {
-                    "id": "hi",
-                    "name": "Hindi"
-                }
-            }',
-            'supply_source' => $this->faker->word,
-            'all_inclusive' => [""],
-
         ];
     }
 }
