@@ -32,9 +32,27 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(Reservation::query()->whereNull('canceled_at')->orderBy('created_at', 'DESC'))
             ->columns([
-                ViewColumn::make('reservation_contains')
-                    ->searchable(isIndividual: true)
-                    ->view('components.datatable-contains-column'),
+                TextColumn::make('reservation_contains')
+                    ->state(function (Reservation $record) {
+                        $field = json_decode($record->reservation_contains, true);
+                        if (is_array($field)) {
+                            return "booking_id: {$field['booking_id']}";
+                        }
+                        return '';
+                    })
+                    ->tooltip(function (Reservation $record) {
+                        $field = json_decode($record->reservation_contains, true);
+                        $tooltip = '';
+                        if (is_array($field)) {
+                            foreach ($field as $key => $value) {
+                                if ($key !== 'hotel_images') $tooltip .= "$key: $value | ";
+                            }
+                        }
+                        return rtrim($tooltip, ' |');
+                    }),
+                ViewColumn::make('reservation_contains.hotel_images')
+                    ->label('Hotel images')
+                    ->view('dashboard.reservations.column.hotel-images', ['limit' => 5]),
                 TextColumn::make('channel.name')
                     ->numeric()
                     ->searchable(isIndividual: true)
