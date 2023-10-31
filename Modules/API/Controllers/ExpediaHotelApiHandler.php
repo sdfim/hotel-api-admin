@@ -124,26 +124,19 @@ class ExpediaHotelApiHandler
             $preSearchData = $this->preSearchData($request, $filters);
             $filters = $preSearchData['filters'] ?? null;
 
-            // $key = 'search:'.md5(json_encode($filters));
-            // if (Cache::has($key)) {
-            // 	$output = Cache::get($key);
-            // } else {
             # get PriceData from RapidAPI Expedia
             $priceData = $this->expediaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
+
             # add price to response
             $output = [];
-            foreach ($preSearchData['results'] as $value) {
-                if (isset($priceData[$value->property_id])) {
-                    $prices_property = json_decode($priceData[$value->property_id]);
-                    if (count($prices_property)) {
-                        $prices_property = (array)$prices_property[0];
-                        // $output[$value->property_id] = (object) array_merge(['content' => $value], ['price' => ['giata_id' => $value->giata_id] + $prices_property);
-                        $output[$value->giata_id] = ['giata_id' => $value->giata_id] + $prices_property;
-                    }
+            foreach ($preSearchData['results']->toArray() as $value) {
+				// dd($value['property_id'], $preSearchData['results']->toArray(), $priceData);
+                if (isset($priceData[$value['property_id']])) {
+					// dd($priceData[$value['property_id']], $value['giata_id']);
+                    $prices_property = $priceData[$value['property_id']];
+                    $output[$value['giata_id']] = ['giata_id' => $value['giata_id']] + $prices_property;
                 }
             }
-            // 	Cache::put($key, $output, now()->addMinutes(120));
-            // }
 
             return $output ?? null;
 

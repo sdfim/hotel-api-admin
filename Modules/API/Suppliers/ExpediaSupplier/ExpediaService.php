@@ -24,7 +24,7 @@ class ExpediaService
      * @param array $query
      * @return array
      */
-    public function getExpediaPriceByPropertyIds(array $queryIds, array $query): array
+    public function getExpediaPriceByPropertyIds(array $propertyIds, array $query): array
     {
         $property['checkin'] = $query['checkin'] ?? date("Y-m-d");
         $property['checkout'] = $query['checkout'] ?? date('Y-m-d', strtotime(date("Y-m-d") . ' +2 days'));
@@ -32,8 +32,6 @@ class ExpediaService
         if (isset($query['travel_purpose'])) {
             $property['travel_purpose'] = $query['travel_purpose'];
         }
-
-        $propertyIds = $queryIds;
 
         try {
             $propertyPriceCall = $this->rapidCallFactory->createPropertyPriceCall($property);

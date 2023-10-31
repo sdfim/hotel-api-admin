@@ -154,11 +154,13 @@ class RapidClient
      */
     public function getAsync(string $path, array $queryParameters, array $addHeaders = []): promise
     {
-        foreach (range(0, 10) as $i) $arrayReplace[] = '%5B' . $i . '%5D';
+        foreach (range(0, 250) as $i) $arrayReplace[] = '%5B' . $i . '%5D';
         $http_build_query = http_build_query($queryParameters);
         $http_query = str_replace($arrayReplace, '', $http_build_query);
 
         $url = $this->rapidBaseUrl . '/' . $path . '?' . $http_query;
+
+		// dd($http_query, $http_query, $url	);
 
         $headers = [
             'Accept-Encoding' => self::GZIP,

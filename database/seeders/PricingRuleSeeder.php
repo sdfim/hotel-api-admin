@@ -42,7 +42,7 @@ class PricingRuleSeeder extends Seeder
         foreach ($giataIds as $giataId) {
             if (in_array($giataId, $issetIds)) continue;
 
-            $days = rand(1, 14);
+            $days = rand(3, 5);
             $nights = $days > 1 ? $days - 1 : 1;
 
             $pricingRule = [
@@ -52,12 +52,12 @@ class PricingRuleSeeder extends Seeder
                 'travel_date' => $today,
                 'supplier_id' => $supplierId,
                 'channel_id' => $channelId,
-                'days' => $days,
+                'days' => 3,
                 'nights' => $nights,
                 'rate_code' => rand(1000, 10000),
                 'room_type' => 'test type',
                 'meal_plan' => 'test meal plan',
-                'rating' => $this->randFloat(4.0, 5.5),
+                'rating' => $this->randFloat(2.5, 4.0),
                 'price_value_to_apply' => rand(1, 100),
                 'rule_start_date' => $today,
                 'rule_expiration_date' => $today->copy()->addDays(rand(30, 60)),
@@ -65,9 +65,9 @@ class PricingRuleSeeder extends Seeder
                 'updated_at' => $today,
             ];
 
-            $pricingRule['number_rooms'] = rand(1, 4);
+            $pricingRule['number_rooms'] = 3;
             $pricingRule['room_guests'] = $pricingRule['number_rooms'] > 1 ? $pricingRule['number_rooms'] - 1 : 0;
-            $pricingRule['total_guests'] = rand($pricingRule['number_rooms'], $pricingRule['number_rooms'] * 2);
+            $pricingRule['total_guests'] = 10;
             $pricingRule['price_value_type_to_apply'] = $priceValueTypeToApplyOptions[rand(0, 1)];
             $pricingRule['price_type_to_apply'] = $priceTypeToApplyOptions[rand(0, 2)];
             if ($pricingRule['price_value_type_to_apply'] === 'fixed_value') {

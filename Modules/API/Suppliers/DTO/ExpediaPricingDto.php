@@ -86,7 +86,6 @@ class ExpediaPricingDto
 		$hotelResponse->setSupplierHotelId($propertyGroup['property_id']);
 		$hotelResponse->setDestination($destination);
 		$hotelResponse->setMealPlansAvailable($propertyGroup['meal_plans_available'] ?? '');
-
 		$hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
 		$hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
 		$countRefundableRates = $this->fetchCountRefundableRates($propertyGroup);
@@ -94,7 +93,7 @@ class ExpediaPricingDto
 		$hotelResponse->setRefundableRates($countRefundableRates['refundable_rates'] ?? '');
 		$roomGroups = [];
 		foreach ($propertyGroup['rooms'] as $roomGroup) {
-			$roomGroups[] = $this->setRoomGroupsResponse((array)$roomGroup, $propertyGroup);
+			$roomGroups[] = $this->setRoomGroupsResponse($roomGroup, $propertyGroup);
 		}
 		$hotelResponse->setRoomGroups($roomGroups);
 
@@ -107,18 +106,17 @@ class ExpediaPricingDto
 	 * @param $propertyGroup
 	 * @return array
 	 */
-	private function fetchCountRefundableRates($propertyGroup): array
+	private function fetchCountRefundableRates(array $propertyGroup): array
 	{
 		$refundableRates = [];
 		$nonRefundableRates = [];
 		foreach ($propertyGroup['rooms'] as $roomGroup) {
-			foreach ($roomGroup->rates as $rate) {
-				if ($rate->refundable) {
-					$refundableRates[] = $rate->id;
+			foreach ($roomGroup['rates'] as $rate) {
+				if ($rate['refundable']) {
+					$refundableRates[] = $rate['id'];
 				} else {
-					$nonRefundableRates[] = $rate->id;
+					$nonRefundableRates[] = $rate['id'];
 				}
-				// dd($rate, $refundableRates, $nonRefundableRates);
 			}
 		}
 
@@ -137,7 +135,9 @@ class ExpediaPricingDto
 		$channelId = $ch->getTokenId(request()->bearerToken());
 		$pricingRulesApplier = [];
 		// stdclass to array
-		$rg = json_decode(json_encode($roomGroup['rates'][0]->occupancy_pricing), true);
+		// TODO: check rates - is array in payload Expedia
+		// dd($roomGroup, $roomGroup['rates']);
+		$rg = $roomGroup['rates'][0]['occupancy_pricing'];
 		try {
 			$this->executionTime();
 			# enrichment Pricing Rules / Application of Pricing Rules
@@ -160,11 +160,11 @@ class ExpediaPricingDto
 		$roomGroupsResponse->setCurrency($pricingRulesApplier['currency'] ?? 'USD');
 		$roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
 		$roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');
-		$roomGroupsResponse->setNonRefundable(!$roomGroup['rates'][0]->refundable);
+		$roomGroupsResponse->setNonRefundable(!$roomGroup['rates'][0]['refundable']);
 		$roomGroupsResponse->setMealPlan($roomGroup['meal_plan'] ?? '');
-		$roomGroupsResponse->setRateId(intval($roomGroup['rates'][0]->id) ?? null);
+		$roomGroupsResponse->setRateId(intval($roomGroup['rates'][0]['id']) ?? null);
 		$roomGroupsResponse->setRateDescription($roomGroup['rate_description'] ?? '');
-		$roomGroupsResponse->setCancellationPolicies($roomGroup['rates'][0]->cancel_penalties ?? []);
+		$roomGroupsResponse->setCancellationPolicies($roomGroup['rates'][0]['cancel_penalties'] ?? []);
 		$roomGroupsResponse->setOpaque($roomGroup['opaque'] ?? '');
 		$rooms = [];
 		foreach ($roomGroup['rates'] as $room) {

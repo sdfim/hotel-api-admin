@@ -190,12 +190,15 @@ class PropertyPriceCall
     {
         $responses = [];
 
-        foreach ($propertyIds as $propertyId) {
-            $this->propertyId = $propertyId;
+		$batchSize = 250;
+		$chunkPropertyIds = array_chunk($propertyIds, $batchSize);
+
+		foreach ($chunkPropertyIds as $keyChunk => $chunk) {
+            $this->propertyId = $chunk;
             $queryParameters = $this->queryParameters();
 
             try {
-                $promises[$propertyId] = $this->client->getAsync(self::PROPERTY_CONTENT_PATH, $queryParameters);
+                $promises[$keyChunk] = $this->client->getAsync(self::PROPERTY_CONTENT_PATH, $queryParameters);
             } catch (Exception $e) {
                 \Log::error('Error while creating promise: ' . $e->getMessage());
             }
@@ -205,10 +208,10 @@ class PropertyPriceCall
             // $responses = Promise\Utils::unwrap($promises);
             $resolvedResponses = Promise\Utils::settle($promises)->wait();
 
-            foreach ($resolvedResponses as $propertyId => $response) {
+            foreach ($resolvedResponses as $response) {
                 if ($response['state'] === 'fulfilled') {
                     $data = $response['value']->getBody()->getContents();
-                    $responses[$propertyId] = $data;
+                    $responses += json_decode($data, true);
                 } else {
                     \Log::error('Promise for property_id ' . $propertyId . ' failed: ' . $response['reason']->getMessage());
                 }
@@ -217,7 +220,12 @@ class PropertyPriceCall
             \Log::error('Error while processing promises: ' . $e->getMessage());
         }
 
-        return $responses;
+		$res = [];
+		foreach ($responses as $response) {
+			$res[$response['property_id']] = $response;
+		}
+
+        return $res;
     }
 
 

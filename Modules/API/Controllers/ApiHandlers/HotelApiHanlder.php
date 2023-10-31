@@ -225,7 +225,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 					if ($supplierName == self::SUPPLIER_NAME) {
 						$expediaResponse = $this->expedia->price($request, $filters);
 						$dataResponse[$supplierName] = $expediaResponse;
-						$clientResponse[$supplierName] = $this->expediaPricingDto->ExpediaToHotelResponse((array)$expediaResponse, $filters, $search_id);
+						$clientResponse[$supplierName] = $this->expediaPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
 					}
 					// TODO: Add other suppliers
 				}
