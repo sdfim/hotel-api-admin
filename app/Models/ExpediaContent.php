@@ -166,13 +166,14 @@ class ExpediaContent extends Model
     public function getHotelImagesByHotelId(int $hotel_id): array
     {
         $expedia = ExpediaContent::where('property_id', $hotel_id)
-            ->select('images')
+			->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
+            ->select('expedia_content_slave.images as images')
             ->get()
             ->first();
 
         $images = [];
         $countImages = 0;
-        foreach ($expedia->images as $image) {
+        foreach (json_decode($expedia->images, true) as $image) {
             if ($countImages == 5) break;
             $images[] = $image['links']['350px']['href'];
             $countImages++;
