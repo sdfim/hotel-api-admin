@@ -77,7 +77,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
                         }
                         // in case when supplier is Expedia total_price and rate_price should be calculated the same way
                         if ($priceTypeToApply === 'net_price' || $priceTypeToApply === 'rate_price') {
-                            $result['affiliate_service_charge'] = ($roomTotals['total_net'] * $priceValueToApply) / 100;
+                            $result['affiliate_service_charge'] += ($roomTotals['total_net'] * $priceValueToApply) / 100;
                         }
                     } else {
                         if ($priceValueFixedTypeToApply === 'per_guest') {
