@@ -162,13 +162,20 @@ class ExpediaPricingDto
 	{
 		$giataId = $propertyGroup['giata_id'];
 		$pricingRulesApplier = [];
+
 		// TODO: check rates - is array in payload Expedia
 		// dd($roomGroup, $roomGroup['rates']);
 		$occupancy_pricing = $roomGroup['rates'][0]['occupancy_pricing'];
 		try {
 			$this->executionTime();
 			# enrichment Pricing Rules / Application of Pricing Rules
-			$pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $this->channelId, $this->query, $occupancy_pricing, $this->pricingRules[$giataId]);
+			$pricingRulesApplier = $this->pricingRulesApplier->apply(
+				$giataId, 
+				$this->channelId, 
+				$this->query, 
+				$occupancy_pricing, 
+				!is_null($this->pricingRules) ? $this->pricingRules[$giataId] : [],
+			);
 
 			$this->total_time += $this->executionTime();
 
