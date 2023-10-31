@@ -12,6 +12,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      * @param int $channelId
      * @param array $requestArray
      * @param array $roomsPricingArray
+     * @param array $pricingRule
      * @param bool $b2b
      * @return array{
      *      total_price: float|int,
@@ -22,7 +23,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      *      currency: string
      *  }
      */
-    public function apply(int $giataId, int $channelId, array $requestArray, array $roomsPricingArray, bool $b2b = true): array
+    public function apply(int $giataId, int $channelId, array $requestArray, array $roomsPricingArray, array $pricingRule, bool $b2b = true): array
     {
         $firstRoomCapacityKey = array_key_first($roomsPricingArray);
 
@@ -42,17 +43,9 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         $totalNumberOfGuestsInAllRooms = self::countTotalNumberOfGuestsInAllRooms($requestArray['occupancy']);
         $requiredRoomCount = count($requestArray['occupancy']);
 
-        // supplier_id=1(is Expedia by default from seeder)
-        $pricingRule = PricingRule::where('supplier_id', 1)
-            ->where('property', $giataId)
-            ->where('channel_id', $channelId)
-            ->where('nights', '>=', $numberOfNights)
-            ->where('total_guests', '>=', $totalNumberOfGuestsInAllRooms)
-            ->where('number_rooms', '>=', $requiredRoomCount)
-            ->where('rating', '>=', (float)$requestArray['rating'])
-            ->whereDate('rule_start_date', '<=', $requestArray['checkin'])
-            ->whereDate('rule_expiration_date', '>=', $requestArray['checkout'])
-            ->first();
+        $isValidPricingRule = $pricingRule && $pricingRule['nights'] >= $numberOfNights &&
+            $pricingRule['total_guests'] >= $totalNumberOfGuestsInAllRooms &&
+            $pricingRule['number_rooms'] >= $requiredRoomCount;
 
         $priceValueTypeToApply = (string)($pricingRule['price_value_type_to_apply'] ?? '');
         $priceValueToApply = (float)($pricingRule['price_value_to_apply'] ?? 0);
@@ -70,7 +63,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
                 $result['total_fees'] += $roomTotals['total_fees'];
                 $result['total_net'] += $roomTotals['total_net'];
 
-                if ($pricingRule) {
+                if ($isValidPricingRule) {
                     if ($priceValueTypeToApply === 'percentage') {
                         if ($priceTypeToApply === 'total_price') {
                             $result['affiliate_service_charge'] += ($roomTotals['total_price'] * $priceValueToApply) / 100;
@@ -100,7 +93,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
                 $result['total_tax'] += $roomTotals['total_tax'];
                 $result['total_fees'] += $roomTotals['total_fees'];
 
-                if ($pricingRule) {
+                if ($isValidPricingRule) {
                     if ($priceValueTypeToApply === 'percentage') {
                         if ($priceTypeToApply === 'total_price') {
                             $result['total_price'] += $roomTotals['total_price'] + (($roomTotals['total_price'] * $priceValueToApply) / 100);

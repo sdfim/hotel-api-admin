@@ -218,14 +218,22 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 			} else {
 
+				\Log::info('ExpediaHotelApiHandler | price | start');
+
 				$dataResponse = [];
 				$clientResponse = [];
 				foreach ($suppliers as $supplier) {
 					$supplierName = Supplier::find($supplier)->name;
 					if ($supplierName == self::SUPPLIER_NAME) {
+
+						\Log::info('ExpediaHotelApiHandler | price | expediaResponse | start');
 						$expediaResponse = $this->expedia->price($request, $filters);
+						\Log::info('ExpediaHotelApiHandler | price | expediaResponse | end');
+
 						$dataResponse[$supplierName] = $expediaResponse;
+						\Log::info('ExpediaHotelApiHandler | price | ExpediaToHotelResponse | start');
 						$clientResponse[$supplierName] = $this->expediaPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
+						\Log::info('ExpediaHotelApiHandler | price | ExpediaToHotelResponse | end');
 					}
 					// TODO: Add other suppliers
 				}
@@ -246,6 +254,9 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 				Cache::put($keyPricingSearch . ':content', $content, now()->addMinutes(60));
 				Cache::put($keyPricingSearch . ':clientContent', $clientContent, now()->addMinutes(60));
+
+				\Log::info('ExpediaHotelApiHandler | price | end');
+
 			}
 
             # save data to Inspector

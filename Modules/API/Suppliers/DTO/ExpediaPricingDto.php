@@ -10,6 +10,7 @@ use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 use App\Models\Channel;
 use App\Models\GiataGeography;
+use App\Models\PricingRule;
 
 class ExpediaPricingDto
 {
@@ -38,6 +39,13 @@ class ExpediaPricingDto
 	 */
 	private float $total_time;
 
+	private  $pricingRules;
+
+	/**
+	 * @var int
+	 */
+	private int $channelId;
+
 	private $destinationData;
 
 	/**
@@ -61,6 +69,23 @@ class ExpediaPricingDto
 	{
 		$this->query = $query;
 		$this->search_id = $search_id;
+
+		$ch = new Channel;
+		$token = $ch->getTokenId(request()->bearerToken());
+		$this->channelId = Channel::where('token_id', $token)->first()->id;
+
+		$pricingRules = PricingRule::where('supplier_id', 1)
+			->whereIn('property', array_keys($supplierResponse))
+			->where('channel_id', $this->channelId)
+			->where('rating', '>=', (float)$query['rating'])
+			->whereDate('rule_start_date', '<=', $query['checkin'])
+			->whereDate('rule_expiration_date', '>=', $query['checkout'])
+			->get()
+			->toArray();
+
+		foreach ($pricingRules as $pricingRule) {
+			$this->pricingRules[$pricingRule['property']] = $pricingRule;
+		}
 
 		$this->destinationData = GiataGeography::where('city_id', $this->query['destination'])
 			->select([
@@ -135,18 +160,15 @@ class ExpediaPricingDto
 	 */
 	public function setRoomGroupsResponse(array $roomGroup, $propertyGroup): array
 	{
-		$giataId = $propertyGroup['property_id'];
-		$ch = new Channel;
-		$channelId = $ch->getTokenId(request()->bearerToken());
+		$giataId = $propertyGroup['giata_id'];
 		$pricingRulesApplier = [];
-		// stdclass to array
 		// TODO: check rates - is array in payload Expedia
 		// dd($roomGroup, $roomGroup['rates']);
-		$rg = $roomGroup['rates'][0]['occupancy_pricing'];
+		$occupancy_pricing = $roomGroup['rates'][0]['occupancy_pricing'];
 		try {
 			$this->executionTime();
 			# enrichment Pricing Rules / Application of Pricing Rules
-			$pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $channelId, $this->query, $rg);
+			$pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $this->channelId, $this->query, $occupancy_pricing, $this->pricingRules[$giataId]);
 
 			$this->total_time += $this->executionTime();
 
