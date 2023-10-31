@@ -2,7 +2,6 @@
 
 namespace Modules\API\PricingRules\Expedia;
 
-use App\Models\PricingRule;
 use Modules\API\PricingRules\PricingRulesApplierInterface;
 
 class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
@@ -148,7 +147,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         $result['total_tax'] = round($result['total_tax'], 2);
         $result['total_fees'] = round($result['total_fees'], 2);
         $result['total_net'] = round($result['total_net'], 2);
-		$result['affiliate_service_charge'] = round($result['affiliate_service_charge'], 2);
+        $result['affiliate_service_charge'] = round($result['affiliate_service_charge'], 2);
 
         return $result;
     }
