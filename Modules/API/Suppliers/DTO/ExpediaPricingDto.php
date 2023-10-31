@@ -140,7 +140,9 @@ class ExpediaPricingDto
 		$rg = json_decode(json_encode($roomGroup['rates'][0]->occupancy_pricing), true);
 		try {
 			$this->executionTime();
+			# enrichment Pricing Rules / Application of Pricing Rules
 			$pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $channelId, $this->query, $rg);
+
 			$this->total_time += $this->executionTime();
 
 			if ($pricingRulesApplier['total_price'] > 0 && $pricingRulesApplier['total_price'] < $this->lowest_priced_room_group) {
@@ -154,6 +156,7 @@ class ExpediaPricingDto
 		$roomGroupsResponse->setTotalTax($pricingRulesApplier['total_tax'] ?? 0.0);
 		$roomGroupsResponse->setTotalFees($pricingRulesApplier['total_fees'] ?? 0.0);
 		$roomGroupsResponse->setTotalNet($pricingRulesApplier['total_net'] ?? 0.0);
+		$roomGroupsResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge'] ?? 0.0);
 		$roomGroupsResponse->setCurrency($pricingRulesApplier['currency'] ?? 'USD');
 		$roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
 		$roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');

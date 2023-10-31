@@ -151,14 +151,11 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
             }
         }
 
-        if ($b2b) {
-            return $result;
-        }
-
         $result['total_price'] = round($result['total_price'], 2);
         $result['total_tax'] = round($result['total_tax'], 2);
         $result['total_fees'] = round($result['total_fees'], 2);
         $result['total_net'] = round($result['total_net'], 2);
+		$result['affiliate_service_charge'] = round($result['affiliate_service_charge'], 2);
 
         return $result;
     }

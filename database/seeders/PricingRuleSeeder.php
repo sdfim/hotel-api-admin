@@ -34,7 +34,7 @@ class PricingRuleSeeder extends Seeder
 
         $channelId = Channel::first()->id;
         $supplierId = Supplier::first()->id;
-        $giataIds = GiataProperty::where('city', 'New York')->pluck('code')->all();
+        $giataIds = GiataProperty::where('city_id', 961)->pluck('code')->all();
         $issetIds = PricingRule::whereIn('property', $giataIds)->pluck('property')->all();
         $today = now();
         $data = [];

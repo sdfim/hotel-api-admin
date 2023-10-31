@@ -18,8 +18,7 @@ class SearchInspectorController extends BaseInspectorController
      * @param $search_type
      * @return string|bool
      */
-    // TODO: optional parameter $type = 'search' have to be provided after required
-    public function save($search_id, $query, $content, $clientContent, $suppliers, $type = 'search', $search_type): string|bool
+    public function save($search_id, $query, $content, $clientContent, $suppliers, $type, $search_type): string|bool
     {
         try {
             $this->current_time = microtime(true);
