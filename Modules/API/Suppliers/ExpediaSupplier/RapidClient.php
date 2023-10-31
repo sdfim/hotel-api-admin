@@ -160,8 +160,6 @@ class RapidClient
 
         $url = $this->rapidBaseUrl . '/' . $path . '?' . $http_query;
 
-		// dd($http_query, $http_query, $url	);
-
         $headers = [
             'Accept-Encoding' => self::GZIP,
             'Authorization' => $this->generateAuthHeader()

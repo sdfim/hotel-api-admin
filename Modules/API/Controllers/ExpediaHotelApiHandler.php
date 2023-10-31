@@ -130,9 +130,7 @@ class ExpediaHotelApiHandler
             # add price to response
             $output = [];
             foreach ($preSearchData['results']->toArray() as $value) {
-				// dd($value['property_id'], $preSearchData['results']->toArray(), $priceData);
                 if (isset($priceData[$value['property_id']])) {
-					// dd($priceData[$value['property_id']], $value['giata_id']);
                     $prices_property = $priceData[$value['property_id']];
                     $output[$value['giata_id']] = ['giata_id' => $value['giata_id']] + $prices_property;
                 }

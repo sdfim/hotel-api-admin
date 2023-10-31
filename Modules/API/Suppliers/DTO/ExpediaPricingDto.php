@@ -38,6 +38,8 @@ class ExpediaPricingDto
 	 */
 	private float $total_time;
 
+	private $destinationData;
+
 	/**
 	 *
 	 */
@@ -59,6 +61,13 @@ class ExpediaPricingDto
 	{
 		$this->query = $query;
 		$this->search_id = $search_id;
+
+		$this->destinationData = GiataGeography::where('city_id', $this->query['destination'])
+			->select([
+				DB::raw("CONCAT(city_name, ', ', locale_name, ', ', country_name) as full_location")
+			])
+			->first();
+
 		$hotelResponse = [];
 		foreach ($supplierResponse as $propertyGroup) {
 			$hotelResponse[] = $this->setHotelResponse($propertyGroup);
@@ -74,12 +83,8 @@ class ExpediaPricingDto
 	 */
 	public function setHotelResponse(array $propertyGroup): array
 	{
-		$destinationData = GiataGeography::where('city_id', $this->query['destination'])
-			->select([
-				DB::raw("CONCAT(city_name, ', ', locale_name, ', ', country_name) as full_location")
-			])
-			->first();
-		$destination = $destinationData->full_location ?? '';
+		
+		$destination = $this->destinationData->full_location ?? '';
 		$hotelResponse = new HotelResponse();
 		$hotelResponse->setGiataHotelId($propertyGroup['giata_id']);
 		$hotelResponse->setSupplier('Expedia');
