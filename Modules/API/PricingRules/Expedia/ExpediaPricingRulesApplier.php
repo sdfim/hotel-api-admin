@@ -12,26 +12,29 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      * @param int $channelId
      * @param array $requestArray
      * @param array $roomsPricingArray
+     * @param bool $b2b
      * @return array{
      *      total_price: float|int,
      *      total_tax: float|int,
      *      total_fees: float|int,
      *      total_net: float|int,
+     *      affiliate_service_charge: float|int,
      *      currency: string
      *  }
      */
-    public function apply(int $giataId, int $channelId, array $requestArray, array $roomsPricingArray): array
+    public function apply(int $giataId, int $channelId, array $requestArray, array $roomsPricingArray, bool $b2b = true): array
     {
         $firstRoomCapacityKey = array_key_first($roomsPricingArray);
 
         /**
-         * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int,currency: string} $result
+         * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int,affiliate_service_charge: float|int,currency: string} $result
          */
         $result = [
             'total_price' => 0,
             'total_tax' => 0,
             'total_fees' => 0,
             'total_net' => 0,
+            'affiliate_service_charge' => 0,
             'currency' => (string)($roomsPricingArray[$firstRoomCapacityKey]['totals']['inclusive']['billable_currency']['currency'] ?? 'USD')
         ];
 
@@ -58,61 +61,98 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         $priceValueFixedTypeToApply = (string)($pricingRule['price_value_fixed_type_to_apply'] ?? '');
 
         // calculate pricing for each room from request
-        foreach ($requestArray['occupancy'] as $room) {
-            $totalNumberOfGuestsInRoom = (int)array_sum($room);
-            $roomTotals = self::calculateRoomTotals($roomsPricingArray[$totalNumberOfGuestsInRoom]);
-            // these values are calculated in the same way for all cases below, therefore they are moved to the top from each closure
-            $result['total_tax'] += $roomTotals['total_tax'];
-            $result['total_fees'] += $roomTotals['total_fees'];
+        if ($b2b) {
+            foreach ($requestArray['occupancy'] as $room) {
+                $totalNumberOfGuestsInRoom = (int)array_sum($room);
+                $roomTotals = self::calculateRoomTotals($roomsPricingArray[$totalNumberOfGuestsInRoom]);
+                $result['total_price'] += $roomTotals['total_price'];
+                $result['total_tax'] += $roomTotals['total_tax'];
+                $result['total_fees'] += $roomTotals['total_fees'];
+                $result['total_net'] += $roomTotals['total_net'];
 
-            if ($pricingRule) {
-                if ($priceValueTypeToApply === 'percentage') {
-                    if ($priceTypeToApply === 'total_price') {
-                        $result['total_price'] += $roomTotals['total_price'] + (($roomTotals['total_price'] * $priceValueToApply) / 100);
-                        $result['total_net'] += $roomTotals['total_net'];
-                    }
-                    // in case when supplier is Expedia total_price and rate_price should be calculated the same way
-                    if ($priceTypeToApply === 'net_price' || $priceTypeToApply === 'rate_price') {
-                        $totalNet = $roomTotals['total_net'] + (($roomTotals['total_net'] * $priceValueToApply) / 100);
-                        $result['total_net'] += $totalNet;
-                        $result['total_price'] += $totalNet + $roomTotals['total_tax'] + $roomTotals['total_fees'];
-                    }
-                } else {
-                    if ($priceTypeToApply === 'total_price') {
+                if ($pricingRule) {
+                    if ($priceValueTypeToApply === 'percentage') {
+                        if ($priceTypeToApply === 'total_price') {
+                            $result['affiliate_service_charge'] += ($roomTotals['total_price'] * $priceValueToApply) / 100;
+                        }
+                        // in case when supplier is Expedia total_price and rate_price should be calculated the same way
+                        if ($priceTypeToApply === 'net_price' || $priceTypeToApply === 'rate_price') {
+                            $result['affiliate_service_charge'] = ($roomTotals['total_net'] * $priceValueToApply) / 100;
+                        }
+                    } else {
                         if ($priceValueFixedTypeToApply === 'per_guest') {
-                            $result['total_price'] += $roomTotals['total_price'] + ($totalNumberOfGuestsInRoom * $priceValueToApply);
+                            $result['affiliate_service_charge'] += $totalNumberOfGuestsInRoom * $priceValueToApply;
                         }
                         if ($priceValueFixedTypeToApply === 'per_room') {
-                            $result['total_price'] += $roomTotals['total_price'] + $priceValueToApply;
+                            $result['affiliate_service_charge'] += $priceValueToApply;
                         }
                         if ($priceValueFixedTypeToApply === 'per_night') {
-                            $result['total_price'] += $roomTotals['total_price'] + ($numberOfNights * $priceValueToApply);
+                            $result['affiliate_service_charge'] += $numberOfNights * $priceValueToApply;
                         }
-
-                        // the same calculation for all cases above
-                        $result['total_net'] += $roomTotals['total_net'];
-                    }
-                    if ($priceTypeToApply === 'net_price' || $priceTypeToApply === 'rate_price') {
-                        $totalNet = 0;
-                        if ($priceValueFixedTypeToApply === 'per_guest') {
-                            $totalNet = $roomTotals['total_net'] + ($totalNumberOfGuestsInRoom * $priceValueToApply);
-                        }
-                        if ($priceValueFixedTypeToApply === 'per_room') {
-                            $totalNet = $roomTotals['total_net'] + $priceValueToApply;
-                        }
-                        if ($priceValueFixedTypeToApply === 'per_night') {
-                            $totalNet = $roomTotals['total_net'] + ($numberOfNights * $priceValueToApply);
-                        }
-
-                        // the same calculation for all cases above
-                        $result['total_net'] += $totalNet;
-                        $result['total_price'] += $totalNet + $roomTotals['total_tax'] + $roomTotals['total_fees'];
                     }
                 }
-            } else {
-                $result['total_price'] += $roomTotals['total_price'];
-                $result['total_net'] += $roomTotals['total_net'];
             }
+        } else {
+            foreach ($requestArray['occupancy'] as $room) {
+                $totalNumberOfGuestsInRoom = (int)array_sum($room);
+                $roomTotals = self::calculateRoomTotals($roomsPricingArray[$totalNumberOfGuestsInRoom]);
+                // these values are calculated in the same way for all cases below, therefore they are moved to the top from each closure
+                $result['total_tax'] += $roomTotals['total_tax'];
+                $result['total_fees'] += $roomTotals['total_fees'];
+
+                if ($pricingRule) {
+                    if ($priceValueTypeToApply === 'percentage') {
+                        if ($priceTypeToApply === 'total_price') {
+                            $result['total_price'] += $roomTotals['total_price'] + (($roomTotals['total_price'] * $priceValueToApply) / 100);
+                            $result['total_net'] += $roomTotals['total_net'];
+                        }
+                        // in case when supplier is Expedia total_price and rate_price should be calculated the same way
+                        if ($priceTypeToApply === 'net_price' || $priceTypeToApply === 'rate_price') {
+                            $totalNet = $roomTotals['total_net'] + (($roomTotals['total_net'] * $priceValueToApply) / 100);
+                            $result['total_net'] += $totalNet;
+                            $result['total_price'] += $totalNet + $roomTotals['total_tax'] + $roomTotals['total_fees'];
+                        }
+                    } else {
+                        if ($priceTypeToApply === 'total_price') {
+                            if ($priceValueFixedTypeToApply === 'per_guest') {
+                                $result['total_price'] += $roomTotals['total_price'] + ($totalNumberOfGuestsInRoom * $priceValueToApply);
+                            }
+                            if ($priceValueFixedTypeToApply === 'per_room') {
+                                $result['total_price'] += $roomTotals['total_price'] + $priceValueToApply;
+                            }
+                            if ($priceValueFixedTypeToApply === 'per_night') {
+                                $result['total_price'] += $roomTotals['total_price'] + ($numberOfNights * $priceValueToApply);
+                            }
+
+                            // the same calculation for all cases above
+                            $result['total_net'] += $roomTotals['total_net'];
+                        }
+                        if ($priceTypeToApply === 'net_price' || $priceTypeToApply === 'rate_price') {
+                            $totalNet = 0;
+                            if ($priceValueFixedTypeToApply === 'per_guest') {
+                                $totalNet = $roomTotals['total_net'] + ($totalNumberOfGuestsInRoom * $priceValueToApply);
+                            }
+                            if ($priceValueFixedTypeToApply === 'per_room') {
+                                $totalNet = $roomTotals['total_net'] + $priceValueToApply;
+                            }
+                            if ($priceValueFixedTypeToApply === 'per_night') {
+                                $totalNet = $roomTotals['total_net'] + ($numberOfNights * $priceValueToApply);
+                            }
+
+                            // the same calculation for all cases above
+                            $result['total_net'] += $totalNet;
+                            $result['total_price'] += $totalNet + $roomTotals['total_tax'] + $roomTotals['total_fees'];
+                        }
+                    }
+                } else {
+                    $result['total_price'] += $roomTotals['total_price'];
+                    $result['total_net'] += $roomTotals['total_net'];
+                }
+            }
+        }
+
+        if ($b2b) {
+            return $result;
         }
 
         $result['total_price'] = round($result['total_price'], 2);
