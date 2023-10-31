@@ -36,10 +36,10 @@ class ExpediaTable extends Component implements HasForms, HasTable
             ->columns([
                 TextColumn::make('property_id')
                     ->sortable()
-                    ->searchable(isIndividual: true, query: function (Builder $query, string $search): Builder {
+                    ->searchable(query: function (Builder $query, string $search): Builder {
 						return $query
 							->where('property_id', $search);
-					})
+					}, isIndividual: true)
                     ->toggleable(),
 				ViewColumn::make('name')
 					->toggleable()
