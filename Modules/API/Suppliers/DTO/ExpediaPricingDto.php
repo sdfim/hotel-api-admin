@@ -27,10 +27,6 @@ class ExpediaPricingDto
 	 */
 	private string $search_id;
 	/**
-	 * @var float|int
-	 */
-	private float|int $lowest_priced_room_group;
-	/**
 	 * @var float
 	 */
 	private float $current_time;
@@ -53,8 +49,6 @@ class ExpediaPricingDto
 	 */
 	public function __construct()
 	{
-		$this->pricingRulesApplier = new ExpediaPricingRulesApplier();
-		$this->lowest_priced_room_group = 100000;
 		$this->current_time = microtime(true);
 		$this->total_time = 0.0;
 	}
@@ -86,6 +80,8 @@ class ExpediaPricingDto
 		foreach ($pricingRules as $pricingRule) {
 			$this->pricingRules[$pricingRule['property']] = $pricingRule;
 		}
+
+		$this->pricingRulesApplier = new ExpediaPricingRulesApplier($query, $this->pricingRules);
 
 		$this->destinationData = GiataGeography::where('city_id', $this->query['destination'])
 			->select([
@@ -122,12 +118,18 @@ class ExpediaPricingDto
 		$hotelResponse->setNonRefundableRates($countRefundableRates['non_refundable_rates'] ?? '');
 		$hotelResponse->setRefundableRates($countRefundableRates['refundable_rates'] ?? '');
 		$roomGroups = [];
+		$lowestPrice = 100000;
 		foreach ($propertyGroup['rooms'] as $roomGroup) {
-			$roomGroups[] = $this->setRoomGroupsResponse($roomGroup, $propertyGroup);
+			$roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup);
+			$roomGroups[] = $roomGroupsData['roomGroupsResponse'];
+			$lowestPricedRoom = $roomGroupsData['lowestPricedRoom'];
+			if ($lowestPricedRoom > 0 && $lowestPricedRoom < $lowestPrice) {
+				$lowestPrice = $lowestPricedRoom;
+			}
 		}
 		$hotelResponse->setRoomGroups($roomGroups);
 
-		$hotelResponse->setLowestPricedRoomGroup($this->lowest_priced_room_group != 100000 ? $this->lowest_priced_room_group : '');
+		$hotelResponse->setLowestPricedRoomGroup($lowestPrice != 100000 ? $lowestPrice : '');
 
 		return $hotelResponse->toArray();
 	}
@@ -163,50 +165,47 @@ class ExpediaPricingDto
 		$giataId = $propertyGroup['giata_id'];
 		$pricingRulesApplier = [];
 
-		// TODO: check rates - is array in payload Expedia
-		// dd($roomGroup, $roomGroup['rates']);
-		$occupancy_pricing = $roomGroup['rates'][0]['occupancy_pricing'];
-		try {
-			$this->executionTime();
-			# enrichment Pricing Rules / Application of Pricing Rules
-			$pricingRulesApplier = $this->pricingRulesApplier->apply(
-				$giataId, 
-				$this->channelId, 
-				$this->query, 
-				$occupancy_pricing, 
-				!is_null($this->pricingRules) ? $this->pricingRules[$giataId] : [],
-			);
-
-			$this->total_time += $this->executionTime();
-
-			if ($pricingRulesApplier['total_price'] > 0 && $pricingRulesApplier['total_price'] < $this->lowest_priced_room_group) {
-				$this->lowest_priced_room_group = $pricingRulesApplier['total_price'];
-			}
-		} catch (Exception $e) {
-			\Log::error('ExpediaPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
-		}
 		$roomGroupsResponse = new RoomGroupsResponse();
-		$roomGroupsResponse->setTotalPrice($pricingRulesApplier['total_price'] ?? 0.0);
-		$roomGroupsResponse->setTotalTax($pricingRulesApplier['total_tax'] ?? 0.0);
-		$roomGroupsResponse->setTotalFees($pricingRulesApplier['total_fees'] ?? 0.0);
-		$roomGroupsResponse->setTotalNet($pricingRulesApplier['total_net'] ?? 0.0);
-		$roomGroupsResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge'] ?? 0.0);
+		
 		$roomGroupsResponse->setCurrency($pricingRulesApplier['currency'] ?? 'USD');
 		$roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
 		$roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');
-		$roomGroupsResponse->setNonRefundable(!$roomGroup['rates'][0]['refundable']);
 		$roomGroupsResponse->setMealPlan($roomGroup['meal_plan'] ?? '');
-		$roomGroupsResponse->setRateId(intval($roomGroup['rates'][0]['id']) ?? null);
 		$roomGroupsResponse->setRateDescription($roomGroup['rate_description'] ?? '');
-		$roomGroupsResponse->setCancellationPolicies($roomGroup['rates'][0]['cancel_penalties'] ?? []);
 		$roomGroupsResponse->setOpaque($roomGroup['opaque'] ?? '');
+
 		$rooms = [];
-		foreach ($roomGroup['rates'] as $room) {
-			$rooms[] = $this->setRoomResponse((array)$room, $roomGroup, $propertyGroup);
+		$priceRoomData = [];
+		foreach ($roomGroup['rates'] as $key => $room) {
+			$roomData = $this->setRoomResponse((array)$room, $roomGroup, $propertyGroup, $giataId);
+			$roomResponse = $roomData['roomResponse'];
+			$pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
+			$rooms[] = $roomResponse;
+			$priceRoomData[$key] = $pricingRulesApplierRoom;
 		}
 		$roomGroupsResponse->setRooms($rooms);
 
-		return $roomGroupsResponse->toArray();
+		$lowestPricedRoom = 100000;
+		$keyLowestPricedRoom = 0;
+		foreach ($priceRoomData as $key => $priceRoom) {
+			if ($priceRoom['total_price'] > 0 && $priceRoom['total_price'] < $lowestPricedRoom) {
+				$lowestPricedRoom = $priceRoom['total_price'];
+				$keyLowestPricedRoom = $key;
+			}
+		}
+
+		# return lowest priced room data
+		$roomGroupsResponse->setTotalPrice($priceRoomData[$keyLowestPricedRoom]['total_price'] ?? 0.0);
+		$roomGroupsResponse->setTotalTax($priceRoomData[$keyLowestPricedRoom]['total_tax'] ?? 0.0);
+		$roomGroupsResponse->setTotalFees($priceRoomData[$keyLowestPricedRoom]['total_fees'] ?? 0.0);
+		$roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom]['total_net'] ?? 0.0);
+		$roomGroupsResponse->setAffiliateServiceCharge($priceRoomData[$keyLowestPricedRoom]['affiliate_service_charge'] ?? 0.0);
+
+		$roomGroupsResponse->setNonRefundable(!$roomGroup['rates'][$keyLowestPricedRoom]['refundable']);
+		$roomGroupsResponse->setRateId(intval($roomGroup['rates'][$keyLowestPricedRoom]['id']) ?? null);
+		$roomGroupsResponse->setCancellationPolicies($roomGroup['rates'][$keyLowestPricedRoom]['cancel_penalties'] ?? []);
+
+		return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
 	}
 
 	/**
@@ -215,7 +214,7 @@ class ExpediaPricingDto
 	 * @param array $propertyGroup
 	 * @return array
 	 */
-	public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup): array
+	public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId): array
 	{
 		$link = 'api/booking/add-item?';
 		$link .= 'search_id=' . $this->search_id;
@@ -225,6 +224,14 @@ class ExpediaPricingDto
 		$link .= '&rate=' . $rate['id'];
 		$link .= '&bed_groups=' . array_key_first((array)$rate['bed_groups']);
 
+		# enrichment Pricing Rules / Application of Pricing Rules
+		$occupancy_pricing = $rate['occupancy_pricing'];
+		try {
+			$pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $occupancy_pricing);
+		} catch (Exception $e) {
+			\Log::error('ExpediaPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
+		}
+
 		$roomResponse = new RoomResponse();
 		$roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
 		$roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
@@ -232,6 +239,11 @@ class ExpediaPricingDto
 		$roomResponse->setSupplierRoomName($roomGroup['room_name'] ?? '');
 		$roomResponse->setSupplierRoomCode(intval($roomGroup['id']) ?? null);
 		$roomResponse->setSupplierBedGroups(array_key_first((array)$rate['bed_groups']) ?? null);
+		$roomResponse->setTotalPrice($pricingRulesApplier['total_price'] ?? 0.0);
+		$roomResponse->setTotalTax($pricingRulesApplier['total_tax'] ?? 0.0);
+		$roomResponse->setTotalFees($pricingRulesApplier['total_fees'] ?? 0.0);
+		$roomResponse->setTotalNet($pricingRulesApplier['total_net'] ?? 0.0);
+		$roomResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge'] ?? 0.0);
 		$roomResponse->setLinks([
 			'booking' => [
 				'method' => 'POST',
@@ -239,7 +251,7 @@ class ExpediaPricingDto
 			]
 		]);
 
-		return $roomResponse->toArray();
+		return ['roomResponse' => $roomResponse->toArray() , 'pricingRulesApplier' => $pricingRulesApplier];
 	}
 
 	/**

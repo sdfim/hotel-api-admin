@@ -6,12 +6,24 @@ use Modules\API\PricingRules\PricingRulesApplierInterface;
 
 class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
 {
+	/**
+	 * @var array
+	 */
+	private array $requestArray;
+	/**
+	 * @var array
+	 */
+	private array $pricingRule;
+	
+	public function __construct(array $requestArray, array $pricingRule)
+	{
+		$this->requestArray = $requestArray;
+		$this->pricingRule = $pricingRule;
+	}
+
     /**
-     * @param int $giataId
-     * @param int $channelId
-     * @param array $requestArray
+	 * @param int $giataId
      * @param array $roomsPricingArray
-     * @param array $pricingRule
      * @param bool $b2b
      * @return array{
      *      total_price: float|int,
@@ -22,8 +34,10 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      *      currency: string
      *  }
      */
-    public function apply(int $giataId, int $channelId, array $requestArray, array $roomsPricingArray, array $pricingRule, bool $b2b = true): array
+    public function apply(int $giataId, array $roomsPricingArray, bool $b2b = true): array
     {
+		$pricingRule = $this->pricingRule[$giataId];
+
         $firstRoomCapacityKey = array_key_first($roomsPricingArray);
 
         /**
@@ -39,8 +53,8 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         ];
 
         $numberOfNights = count($roomsPricingArray[$firstRoomCapacityKey]['nightly']);
-        $totalNumberOfGuestsInAllRooms = self::countTotalNumberOfGuestsInAllRooms($requestArray['occupancy']);
-        $requiredRoomCount = count($requestArray['occupancy']);
+        $totalNumberOfGuestsInAllRooms = self::countTotalNumberOfGuestsInAllRooms($this->requestArray['occupancy']);
+        $requiredRoomCount = count($this->requestArray['occupancy']);
 
         // Previously, we attempted to locate and pass a pricing rule based on factors such as supplier, channel, property,
         // rule_start_date and rule_expiration date. Now, we are also evaluating whether the rule aligns with our requirements
@@ -57,7 +71,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
 
         // calculate pricing for each room from request
         if ($b2b) {
-            foreach ($requestArray['occupancy'] as $room) {
+            foreach ($this->requestArray['occupancy'] as $room) {
                 $totalNumberOfGuestsInRoom = (int)array_sum($room);
                 $roomTotals = self::calculateRoomTotals($roomsPricingArray[$totalNumberOfGuestsInRoom]);
                 $result['total_price'] += $roomTotals['total_price'];
@@ -88,7 +102,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
                 }
             }
         } else {
-            foreach ($requestArray['occupancy'] as $room) {
+            foreach ($this->requestArray['occupancy'] as $room) {
                 $totalNumberOfGuestsInRoom = (int)array_sum($room);
                 $roomTotals = self::calculateRoomTotals($roomsPricingArray[$totalNumberOfGuestsInRoom]);
                 // these values are calculated in the same way for all cases below, therefore they are moved to the top from each closure

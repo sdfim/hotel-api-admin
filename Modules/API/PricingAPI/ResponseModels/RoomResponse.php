@@ -32,6 +32,112 @@ class RoomResponse
      * @var array
      */
     private array $links;
+	/**
+	 * @var float
+	 */
+	private float $total_price;
+	/**
+	 * @var float
+	 */
+	private float $total_tax;
+	/**
+	 * @var float
+	 */
+	private float $total_fees;
+	/**
+	 * @var float
+	 */
+	private float $total_net;
+	/**
+	 * @var float
+	 */
+	private float $affiliate_service_charge;
+
+
+	/**
+	 * @param float $total_price
+	 * @return void
+	 */
+	public function setTotalPrice(float $total_price): void
+	{
+		$this->total_price = $total_price;
+	}
+
+	/**
+	 * @return float
+	 */
+	public function getTotalPrice(): float
+	{
+		return $this->total_price;
+	}
+
+	/**
+	 * @param float $total_tax
+	 * @return void
+	 */
+	public function setTotalTax(float $total_tax): void
+	{
+		$this->total_tax = $total_tax;
+	}
+
+	/**
+	 * @return float
+	 */
+	public function getTotalTax(): float
+	{
+		return $this->total_tax;
+	}
+
+	/**
+	 * @param float $total_fees
+	 * @return void
+	 */
+	public function setTotalFees(float $total_fees): void
+	{
+		$this->total_fees = $total_fees;
+	}
+
+	/**
+	 * @return float
+	 */
+	public function getTotalFees(): float
+	{
+		return $this->total_fees;
+	}
+
+	/**
+	 * @param float $affiliate_service_charge
+	 * @return void
+	 */
+	public function setAffiliateServiceCharge(float $affiliate_service_charge): void
+	{
+		$this->affiliate_service_charge = $affiliate_service_charge;
+	}
+
+	/**
+	 * @return float
+	 */
+	public function getAffiliateServiceCharge(): float
+	{
+		return $this->affiliate_service_charge;
+	}
+
+	/**
+	 * @param float $total_net
+	 * @return void
+	 */
+	public function setTotalNet(float $total_net): void
+	{
+		$this->total_net = $total_net;
+	}
+
+	/**
+	 * @return float
+	 */
+	public function getTotalNet(): float
+	{
+		return $this->total_net;
+	}
 
     /**
      * @param array $links
@@ -164,6 +270,11 @@ class RoomResponse
             'per_day_rate_breakdown' => $this->getPerDayRateBreakdown(),
             'supplier_room_code' => $this->getSupplierRoomCode(),
             'supplier_bed_groups' => $this->getSupplierBedGroups(),
+			'total_price' => $this->getTotalPrice(),
+			'total_tax' => $this->getTotalTax(),
+			'total_fees' => $this->getTotalFees(),
+			'total_net' => $this->getTotalNet(),
+			'affiliate_service_charge' => $this->getAffiliateServiceCharge(),
             'links' => $this->getLinks(),
         ];
     }
