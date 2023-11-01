@@ -42,6 +42,9 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         $totalNumberOfGuestsInAllRooms = self::countTotalNumberOfGuestsInAllRooms($requestArray['occupancy']);
         $requiredRoomCount = count($requestArray['occupancy']);
 
+        // Previously, we attempted to locate and pass a pricing rule based on factors such as supplier, channel, property,
+        // rule_start_date and rule_expiration date. Now, we are also evaluating whether the rule aligns with our requirements
+        // based on criteria that we can calculate or derive from property data.
         $isValidPricingRule = $pricingRule && $pricingRule['nights'] >= $numberOfNights &&
             $pricingRule['total_guests'] >= $totalNumberOfGuestsInAllRooms &&
             $pricingRule['number_rooms'] >= $requiredRoomCount;
