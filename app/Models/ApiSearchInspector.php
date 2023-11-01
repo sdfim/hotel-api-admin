@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Storage;
 
@@ -38,6 +39,24 @@ class ApiSearchInspector extends Model
     public function token(): BelongsTo
     {
         return $this->belongsTo(PersonalAccessToken::class);
+    }
+
+	/**
+     * Get the comments for the blog post.
+     */
+    public function apiBookingInspector(): HasMany
+    {
+        return $this->hasMany(ApiBookingInspector::class, 'search_id', 'search_id');
+    }
+	
+	protected static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function ($model) {
+            Storage::delete($model->response_path);
+			Storage::delete($model->client_response_path);
+        });
     }
 
     /**

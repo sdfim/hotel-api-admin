@@ -50,6 +50,16 @@ class ApiBookingInspector extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+	protected static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function ($model) {
+            Storage::delete($model->response_path);
+			Storage::delete($model->client_response_path);
+        });
+    }
+
     /**
      * @param $filters
      * @return string|null
