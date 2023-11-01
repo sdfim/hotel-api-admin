@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Content Loader Exception') }}
+    {{ __('Exceptions Report') }}
 @endsection
 @section('css')
     <link href="{{ URL::asset('build/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}"
@@ -20,7 +20,7 @@
 @section('content')
 
     <!-- -->
-    <x-page-title title="Content Loader Exception" pagetitle="index"/>
+    <x-page-title title="Exceptions Report" pagetitle="index"/>
 
     <div class="grid grid-cols-12 gap-5">
         <div class="col-span-12">
