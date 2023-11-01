@@ -3,7 +3,6 @@
 namespace App\Livewire\Charts;
 
 use App\Models\ApiSearchInspector;
-use App\Models\ExpediaContent;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -37,41 +36,57 @@ class SearchInspectorRadarChart extends ChartWidget
             'Nights'
         ];
 
-        if (Cache::has($keySearchInspectorRadarChart . ':labels') && Cache::has($keySearchInspectorRadarChart . ':data')) {
-            $data = Cache::get($keySearchInspectorRadarChart . ':data');
+        if (Cache::has($keySearchInspectorRadarChart . ':data')) {
+            $theMostPopularDestinations = Cache::get($keySearchInspectorRadarChart . ':data');
         } else {
-            $model = ApiSearchInspector::select(
-                DB::raw('JSON_UNQUOTE(JSON_EXTRACT(request, "$.destination")) AS destination'),
-                DB::raw('AVG(JSON_EXTRACT(request, "$.rating")) AS average_rating'),
-                DB::raw('AVG(SUM(CAST(JSON_EXTRACT(request, "$.occupancy[0].adults") AS SIGNED) + COALESCE(JSON_EXTRACT(request, "$.occupancy[0].children"), 0))) AS total_occupancy'),
-                DB::raw('AVG(COALESCE(JSON_EXTRACT(request, "$.occupancy[0].children"), 0))) AS children'),
-                DB::raw('AVG(DATEDIFF(JSON_UNQUOTE(JSON_EXTRACT(request, "$.checkout")), JSON_UNQUOTE(JSON_EXTRACT(request, "$.checkin")))) AS days')
+            $theMostPopularDestinations = ApiSearchInspector::select(
+                DB::raw("JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination')) AS destination"),
+                DB::raw("CAST(AVG(JSON_EXTRACT(request, '$.rating')) AS DECIMAL(5,2)) AS avg_rating"),
+                DB::raw("CAST(AVG(JSON_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy')))) AS DECIMAL(5,2)) AS avg_rooms"),
+                DB::raw("CAST(AVG(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy[0].adults')) + IFNULL(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy[0].children')), 0)) AS DECIMAL(5,2)) AS avg_occupancy"),
+                DB::raw("CAST(AVG(IFNULL(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy[0].children')), 0)) AS DECIMAL(5,2)) AS avg_children"),
+                DB::raw("CAST(AVG(DATEDIFF(JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkout')), JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkin')))) AS DECIMAL(5,2)) AS avg_days")
             )
-            ->groupBy('destination')
-            ->orderBy('average_rating', 'DESC')
-            ->limit(5)
-            ->get();
+                ->groupBy('destination')
+                ->orderBy('avg_rating', 'DESC')
+                ->limit(5)
+                ->get()
+                ->toArray();
 
-            $data = $model->pluck('total');
-
-            Cache::put($keySearchInspectorRadarChart . ':data', $data, now()->addMinutes(1440));
+            Cache::put($keySearchInspectorRadarChart . ':data', $theMostPopularDestinations, now()->addMinutes(1440));
         }
 
-        $colors = [];
+        $datasets = [];
 
-        for ($i = 0; $i < count($data); $i++) {
-            $randomColor = '#' . dechex(mt_rand(0x000000, 0xFFFFFF));
-            $colors[] = $randomColor;
+        foreach ($theMostPopularDestinations as $popularDestination) {
+            $red = rand(0, 255);
+            $green = rand(0, 255);
+            $blue = rand(0, 255);
+
+            $dataset = [
+                'label' => $popularDestination['destination'],
+                'data' => [
+                    $popularDestination['avg_rating'],
+                    $popularDestination['avg_rooms'],
+                    $popularDestination['avg_occupancy'],
+                    $popularDestination['avg_children'],
+                    $popularDestination['avg_days'] - 1,
+                ],
+                'fill' => true,
+                'backgroundColor' => "rgb($red, $green, $blue, 0.2)",
+                'borderColor' => "rgb($red, $green, $blue)",
+                'pointBackgroundColor' => "rgb($red, $green, $blue)",
+                'pointBorderColor' => '#fff',
+                'pointHoverBackgroundColor' => '#fff',
+                'pointHoverBorderColor' => "rgb($red, $green, $blue)"
+            ];
+
+            $datasets[] = $dataset;
         }
 
         return [
-            'datasets' => [
-                [
-                    'data' => $data,
-                    'backgroundColor' => $colors,
-                ],
-            ],
             'labels' => $labels,
+            'datasets' => $datasets,
         ];
     }
 

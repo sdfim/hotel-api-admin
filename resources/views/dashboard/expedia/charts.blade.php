@@ -13,6 +13,14 @@
         </div>
     </div>
 
+    <div class="grid grid-cols-2 gap-5">
+        <div class="card-body relative overflow-x-auto">
+            @livewire('charts.search-inspector-radar-chart')
+        </div>
+        <div class="card-body relative overflow-x-auto">
+        </div>
+    </div>
+
     <div class="grid grid-cols-1 gap-5">
         <div class="card-body relative overflow-x-auto">
             @livewire('charts.expedia-exception-report-chart')
