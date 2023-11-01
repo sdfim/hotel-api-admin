@@ -177,7 +177,6 @@ class ExpediaPricingDto
 
         $roomGroupsResponse = new RoomGroupsResponse();
 
-        $roomGroupsResponse->setCurrency($pricingRulesApplier['currency'] ?? 'USD');
         $roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
         $roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');
         $roomGroupsResponse->setMealPlan($roomGroup['meal_plan'] ?? '');
@@ -214,6 +213,11 @@ class ExpediaPricingDto
         $roomGroupsResponse->setNonRefundable(!$roomGroup['rates'][$keyLowestPricedRoom]['refundable']);
         $roomGroupsResponse->setRateId(intval($roomGroup['rates'][$keyLowestPricedRoom]['id']) ?? null);
         $roomGroupsResponse->setCancellationPolicies($roomGroup['rates'][$keyLowestPricedRoom]['cancel_penalties'] ?? []);
+
+		$firstRoomCapacityKey = array_key_first($roomGroup['rates'][0]['occupancy_pricing']);
+		$currency = $roomGroup['rates'][0]['occupancy_pricing'][$firstRoomCapacityKey]['nightly'][0][0]['currency'];
+
+		$roomGroupsResponse->setCurrency($currency ?? 'USD');
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }

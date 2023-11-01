@@ -31,7 +31,6 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      *      total_fees: float|int,
      *      total_net: float|int,
      *      affiliate_service_charge: float|int,
-     *      currency: string
      *  }
      */
     public function apply(int $giataId, array $roomsPricingArray, bool $b2b = true): array
@@ -41,7 +40,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         $firstRoomCapacityKey = array_key_first($roomsPricingArray);
 
         /**
-         * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int,affiliate_service_charge: float|int,currency: string} $result
+         * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int,affiliate_service_charge: float|int} $result
          */
         $result = [
             'total_price' => 0,
@@ -49,7 +48,6 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
             'total_fees' => 0,
             'total_net' => 0,
             'affiliate_service_charge' => 0,
-            'currency' => (string)($roomsPricingArray[$firstRoomCapacityKey]['totals']['inclusive']['billable_currency']['currency'] ?? 'USD')
         ];
 
         $numberOfNights = count($roomsPricingArray[$firstRoomCapacityKey]['nightly']);
@@ -188,20 +186,19 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
 
     /**
      * @param array $roomPricing
-     * @return array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int,currency: string}
+     * @return array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int}
      */
     public static function calculateRoomTotals(array $roomPricing): array
     {
         // in case when there is no any discount total_net = rate_price(amount of rates each night)
         /**
-         * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int,currency: string} $totals
+         * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int} $totals
          */
         $totals = [
             'total_price' => 0,
             'total_tax' => 0,
             'total_fees' => 0,
             'total_net' => 0,
-            'currency' => (string)($roomPricing['nightly'][0][0]['currency'] ?? 'USD'),
         ];
 
         foreach ($roomPricing['nightly'] as $night) {

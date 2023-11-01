@@ -208,12 +208,13 @@ class PropertyPriceCall
             // $responses = Promise\Utils::unwrap($promises);
             $resolvedResponses = Promise\Utils::settle($promises)->wait();
 
+			$responses = [];
             foreach ($resolvedResponses as $response) {
                 if ($response['state'] === 'fulfilled') {
                     $data = $response['value']->getBody()->getContents();
-                    $responses += json_decode($data, true);
+                    $responses = array_merge($responses, json_decode($data, true));
                 } else {
-                    \Log::error('Promise for property_id ' . $propertyId . ' failed: ' . $response['reason']->getMessage());
+                    \Log::error('Promise for property_id ' . $this->propertyId . ' failed: ' . $response['reason']->getMessage());
                 }
             }
         } catch (Exception $e) {
