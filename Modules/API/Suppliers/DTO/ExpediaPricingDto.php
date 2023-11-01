@@ -77,6 +77,7 @@ class ExpediaPricingDto
 			->get()
 			->toArray();
 
+		$this->pricingRules = [];
 		foreach ($pricingRules as $pricingRule) {
 			$this->pricingRules[$pricingRule['property']] = $pricingRule;
 		}
@@ -225,6 +226,11 @@ class ExpediaPricingDto
 		$link .= '&bed_groups=' . array_key_first((array)$rate['bed_groups']);
 
 		# enrichment Pricing Rules / Application of Pricing Rules
+		$pricingRulesApplier['total_price'] = 0.0;
+		$pricingRulesApplier['total_tax'] = 0.0;
+		$pricingRulesApplier['total_fees'] = 0.0;
+		$pricingRulesApplier['total_net'] = 0.0;
+		$pricingRulesApplier['affiliate_service_charge'] = 0.0;
 		$occupancy_pricing = $rate['occupancy_pricing'];
 		try {
 			$pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $occupancy_pricing);
@@ -239,11 +245,11 @@ class ExpediaPricingDto
 		$roomResponse->setSupplierRoomName($roomGroup['room_name'] ?? '');
 		$roomResponse->setSupplierRoomCode(intval($roomGroup['id']) ?? null);
 		$roomResponse->setSupplierBedGroups(array_key_first((array)$rate['bed_groups']) ?? null);
-		$roomResponse->setTotalPrice($pricingRulesApplier['total_price'] ?? 0.0);
-		$roomResponse->setTotalTax($pricingRulesApplier['total_tax'] ?? 0.0);
-		$roomResponse->setTotalFees($pricingRulesApplier['total_fees'] ?? 0.0);
-		$roomResponse->setTotalNet($pricingRulesApplier['total_net'] ?? 0.0);
-		$roomResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge'] ?? 0.0);
+		$roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
+		$roomResponse->setTotalTax($pricingRulesApplier['total_tax']);
+		$roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
+		$roomResponse->setTotalNet($pricingRulesApplier['total_net']);
+		$roomResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge']);
 		$roomResponse->setLinks([
 			'booking' => [
 				'method' => 'POST',

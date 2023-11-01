@@ -22,7 +22,7 @@ class ExpediaRatingChart extends ChartWidget
     /**
      * @var string|null
      */
-    protected static ?string $maxHeight = '300px';
+    protected static ?string $maxHeight = '400px';
 
     /**
      * @return array
