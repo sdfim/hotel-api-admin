@@ -6,23 +6,23 @@ use Modules\API\PricingRules\PricingRulesApplierInterface;
 
 class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
 {
-	/**
-	 * @var array
-	 */
-	private array $requestArray;
-	/**
-	 * @var array
-	 */
-	private array $pricingRule;
-	
-	public function __construct(array $requestArray, array $pricingRule)
-	{
-		$this->requestArray = $requestArray;
-		$this->pricingRule = $pricingRule;
-	}
+    /**
+     * @var array
+     */
+    private array $requestArray;
+    /**
+     * @var array
+     */
+    private array $pricingRule;
+
+    public function __construct(array $requestArray, array $pricingRule)
+    {
+        $this->requestArray = $requestArray;
+        $this->pricingRule = $pricingRule;
+    }
 
     /**
-	 * @param int $giataId
+     * @param int $giataId
      * @param array $roomsPricingArray
      * @param bool $b2b
      * @return array{
@@ -36,7 +36,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      */
     public function apply(int $giataId, array $roomsPricingArray, bool $b2b = true): array
     {
-		$pricingRule = $this->pricingRule[$giataId];
+        $pricingRule = $this->pricingRule[$giataId];
 
         $firstRoomCapacityKey = array_key_first($roomsPricingArray);
 
