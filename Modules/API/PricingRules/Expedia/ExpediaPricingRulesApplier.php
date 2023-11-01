@@ -36,7 +36,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      */
     public function apply(int $giataId, array $roomsPricingArray, bool $b2b = true): array
     {
-        $pricingRule = $this->pricingRule[$giataId];
+        $pricingRule = $this->pricingRule[$giataId] ?? [];
 
         $firstRoomCapacityKey = array_key_first($roomsPricingArray);
 
