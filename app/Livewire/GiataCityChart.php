@@ -11,6 +11,8 @@ class GiataCityChart extends ChartWidget
 {
     protected static ?string $heading = 'Giata City Chart';
 
+    protected static ?string $pollingInterval = null;
+
     protected function getData(): array
 	{
 		$keyGiataCityChart = 'GiataCityChart';

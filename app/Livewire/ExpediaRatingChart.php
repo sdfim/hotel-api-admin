@@ -11,6 +11,8 @@ class ExpediaRatingChart extends ChartWidget
 {
 	protected static ?string $heading = 'Expedia Rating Chart';
 
+    protected static ?string $pollingInterval = null;
+
 	protected function getData(): array
 	{
 		$keyExpediaRatingChart = 'ExpediaRatingChart';
