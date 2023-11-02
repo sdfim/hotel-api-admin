@@ -18,6 +18,7 @@
             @livewire('charts.search-inspector-radar-chart')
         </div>
         <div class="card-body relative overflow-x-auto">
+            @livewire('charts.search-inspector-rooms-doughnut-chart')
         </div>
     </div>
 

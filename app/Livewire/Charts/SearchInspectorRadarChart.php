@@ -29,10 +29,10 @@ class SearchInspectorRadarChart extends ChartWidget
         $keySearchInspectorRadarChart = 'SearchInspectorRadarChart';
 
         if (Cache::has($keySearchInspectorRadarChart . ':data')) {
-            $theMostPopularDestinations = Cache::get($keySearchInspectorRadarChart . ':data');
+            $data = Cache::get($keySearchInspectorRadarChart . ':data');
         } else {
             $giataGeographies = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_geographies';
-            $theMostPopularDestinations = ApiSearchInspector::select(
+            $data = ApiSearchInspector::select(
                 DB::raw("COALESCE((SELECT city_name FROM $giataGeographies WHERE city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))),
                     JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
                 DB::raw("CAST(AVG(JSON_EXTRACT(request, '$.rating')) AS DECIMAL(5,2)) AS avg_rating"),
@@ -47,7 +47,7 @@ class SearchInspectorRadarChart extends ChartWidget
                 ->get()
                 ->toArray();
 
-            Cache::put($keySearchInspectorRadarChart . ':data', $theMostPopularDestinations, now()->addMinutes(60));
+            Cache::put($keySearchInspectorRadarChart . ':data', $data, now()->addMinutes(60));
         }
 
         $labels = [
@@ -68,7 +68,7 @@ class SearchInspectorRadarChart extends ChartWidget
 
         $datasets = [];
 
-        foreach ($theMostPopularDestinations as $index => $popularDestination) {
+        foreach ($data as $index => $popularDestination) {
             $dataset = [
                 'label' => $popularDestination['destination'],
                 'data' => [

@@ -63,13 +63,13 @@ class ExpediaRatingChart extends ChartWidget
         ];
 
         return [
+            'labels' => $labels,
             'datasets' => [
                 [
                     'data' => $data,
                     'backgroundColor' => $colors,
                 ],
-            ],
-            'labels' => $labels,
+            ]
         ];
     }
 
