@@ -405,7 +405,7 @@ class DownloadExpediaData extends Command
 			$ratingConfig = GeneralConfiguration::latest()->first()->star_ratings;
 
 			$rating = $ratingConfig ?? self::MIN_RATING ?? 4;
-			$rating = 0;
+			// $rating = 0;
 
             if ($output['rating'] < $rating) $is_write = false;
 
@@ -519,7 +519,7 @@ class DownloadExpediaData extends Command
 
 		$this->info('SetInactiveStasus. ' . $this->executionTime('step') . " seconds");
 
-        $this->saveSuccessReport('DownloadExpediaData', '5 Set Inactive Stasus', json_encode([
+        $this->saveSuccessReport('DownloadExpediaData', 'Step:5 Set Inactive Stasus', json_encode([
             'execution_time' => $this->executionTime('report') . ' sec',
 			'propertyIds_set_inactive' => $propertyIds,
         ]));
