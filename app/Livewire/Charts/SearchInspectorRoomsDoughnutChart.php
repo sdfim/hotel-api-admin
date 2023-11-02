@@ -52,11 +52,11 @@ class SearchInspectorRoomsDoughnutChart extends ChartWidget
         }
 
         $colors = [
-            'rgb(0, 0, 255)',
-            'rgb(0, 128, 0)',
-            'rgb(255, 0, 0)',
-            'rgb(255, 165, 0)',
-            'rgb(128, 0, 128)'
+            'rgb(0, 0, 255, 0.8)',
+            'rgb(0, 128, 0, 0.8)',
+            'rgb(255, 0, 0, 0.8)',
+            'rgb(255, 165, 0, 0.8)',
+            'rgb(128, 0, 128, 0.8)'
         ];
 
         return [
