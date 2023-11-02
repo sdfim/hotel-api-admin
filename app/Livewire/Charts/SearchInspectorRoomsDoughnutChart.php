@@ -12,7 +12,7 @@ class SearchInspectorRoomsDoughnutChart extends ChartWidget
     /**
      * @var string|null
      */
-    protected static ?string $heading = 'Search Inspector Rooms Doughnut Chart';
+    protected static ?string $heading = 'Search Inspector Rooms Total Doughnut Chart';
 
     /**
      * @var string|null
