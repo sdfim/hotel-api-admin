@@ -17,7 +17,7 @@ class SearchInspectorRadarChart extends ChartWidget
     /**
      * @var string|null
      */
-    protected static ?string $pollingInterval = null;
+    protected static ?string $pollingInterval = '3600s';
 
     /**
      * @var string|null
@@ -34,6 +34,14 @@ class SearchInspectorRadarChart extends ChartWidget
             'Occupancy',
             'Children',
             'Nights'
+        ];
+
+        $colors = [
+            '0, 0, 255',
+            '0, 128, 0',
+            '255, 0, 0',
+            '255, 165, 0',
+            '128, 0, 128'
         ];
 
         if (Cache::has($keySearchInspectorRadarChart . ':data')) {
@@ -53,16 +61,12 @@ class SearchInspectorRadarChart extends ChartWidget
                 ->get()
                 ->toArray();
 
-            Cache::put($keySearchInspectorRadarChart . ':data', $theMostPopularDestinations, now()->addMinutes(1440));
+            Cache::put($keySearchInspectorRadarChart . ':data', $theMostPopularDestinations, now()->addMinutes(60));
         }
 
         $datasets = [];
 
-        foreach ($theMostPopularDestinations as $popularDestination) {
-            $red = rand(0, 255);
-            $green = rand(0, 255);
-            $blue = rand(0, 255);
-
+        foreach ($theMostPopularDestinations as $index => $popularDestination) {
             $dataset = [
                 'label' => $popularDestination['destination'],
                 'data' => [
@@ -73,12 +77,12 @@ class SearchInspectorRadarChart extends ChartWidget
                     $popularDestination['avg_days'] - 1,
                 ],
                 'fill' => true,
-                'backgroundColor' => "rgb($red, $green, $blue, 0.2)",
-                'borderColor' => "rgb($red, $green, $blue)",
-                'pointBackgroundColor' => "rgb($red, $green, $blue)",
+                'backgroundColor' => "rgb($colors[$index], 0.2)",
+                'borderColor' => "rgb($colors[$index])",
+                'pointBackgroundColor' => "rgb($colors[$index])",
                 'pointBorderColor' => '#fff',
                 'pointHoverBackgroundColor' => '#fff',
-                'pointHoverBorderColor' => "rgb($red, $green, $blue)"
+                'pointHoverBorderColor' => "rgb($colors[$index])"
             ];
 
             $datasets[] = $dataset;
