@@ -47,12 +47,14 @@ class SearchInspectorRadarChart extends ChartWidget
         if (Cache::has($keySearchInspectorRadarChart . ':data')) {
             $theMostPopularDestinations = Cache::get($keySearchInspectorRadarChart . ':data');
         } else {
+            $giataGeographies = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_geographies';
             $theMostPopularDestinations = ApiSearchInspector::select(
-                DB::raw("JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination')) AS destination"),
+                DB::raw("COALESCE((SELECT city_name FROM $giataGeographies WHERE city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))),
+                    JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
                 DB::raw("CAST(AVG(JSON_EXTRACT(request, '$.rating')) AS DECIMAL(5,2)) AS avg_rating"),
                 DB::raw("CAST(AVG(JSON_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy')))) AS DECIMAL(5,2)) AS avg_rooms"),
-                DB::raw("CAST(AVG(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy[0].adults')) + IFNULL(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy[0].children')), 0)) AS DECIMAL(5,2)) AS avg_occupancy"),
-                DB::raw("CAST(AVG(IFNULL(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy[0].children')), 0)) AS DECIMAL(5,2)) AS avg_children"),
+                DB::raw("CAST(AVG(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy[*].adults')) + IFNULL(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy[*].children')), 0)) AS DECIMAL(5,2)) AS avg_occupancy"),
+                DB::raw("CAST(AVG(IFNULL(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy[*].children')), 0)) AS DECIMAL(5,2)) AS avg_children"),
                 DB::raw("CAST(AVG(DATEDIFF(JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkout')), JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkin')))) AS DECIMAL(5,2)) AS avg_days")
             )
                 ->groupBy('destination')
