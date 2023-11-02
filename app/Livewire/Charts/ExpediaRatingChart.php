@@ -47,11 +47,20 @@ class ExpediaRatingChart extends ChartWidget
             Cache::put($keyExpediaRatingChart . ':data', $data, now()->addMinutes(1440));
         }
 
-        $colors = [];
-        for ($i = 0; $i < count($data); $i++) {
-            $randomColor = '#' . dechex(mt_rand(0x000000, 0xFFFFFF));
-            $colors[] = $randomColor;
-        }
+        $colors = [
+            'rgb(0, 0, 255)',
+            'rgb(0, 128, 0)',
+            'rgb(255, 0, 0)',
+            'rgb(255, 165, 0)',
+            'rgb(128, 0, 128)',
+            'rgb(0, 128, 128)',
+            'rgb(255, 255, 0)',
+            'rgb(255, 105, 180)',
+            'rgb(139, 69, 19)',
+            'rgb(0, 255, 255)',
+            'rgb(0, 255, 0)',
+            'rgb(255, 0, 255)'
+        ];
 
         return [
             'datasets' => [

@@ -28,22 +28,6 @@ class SearchInspectorRadarChart extends ChartWidget
     {
         $keySearchInspectorRadarChart = 'SearchInspectorRadarChart';
 
-        $labels = [
-            'Rating',
-            'Rooms',
-            'Occupancy',
-            'Children',
-            'Nights'
-        ];
-
-        $colors = [
-            '0, 0, 255',
-            '0, 128, 0',
-            '255, 0, 0',
-            '255, 165, 0',
-            '128, 0, 128'
-        ];
-
         if (Cache::has($keySearchInspectorRadarChart . ':data')) {
             $theMostPopularDestinations = Cache::get($keySearchInspectorRadarChart . ':data');
         } else {
@@ -65,6 +49,22 @@ class SearchInspectorRadarChart extends ChartWidget
 
             Cache::put($keySearchInspectorRadarChart . ':data', $theMostPopularDestinations, now()->addMinutes(60));
         }
+
+        $labels = [
+            'Rating',
+            'Rooms',
+            'Occupancy',
+            'Children',
+            'Nights'
+        ];
+
+        $colors = [
+            '0, 0, 255',
+            '0, 128, 0',
+            '255, 0, 0',
+            '255, 165, 0',
+            '128, 0, 128'
+        ];
 
         $datasets = [];
 
