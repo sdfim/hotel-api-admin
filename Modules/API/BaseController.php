@@ -5,6 +5,22 @@ namespace Modules\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @OA\Info(
+ *	title="UJV API Documentation",
+ *	version="1.0.0"
+ * )
+ * @OA\SecurityScheme(
+ *     type="http",
+ *     description="authentication token",
+ *     name="Token based Based",
+ *     in="header",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     securityScheme="apiAuth",
+ * )
+ */
+
 class BaseController extends Controller
 {
     /**

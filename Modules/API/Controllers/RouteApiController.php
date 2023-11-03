@@ -97,6 +97,37 @@ class RouteApiController extends Controller
         };
     }
 
+	/**
+	 * @OA\Get(
+	 *   tags={"Content API"},
+	 *   path="/api/content/destinations",
+	 *   summary="Get list of destinations",
+	 *   description="Get list valid value of destinations by city name, can be used for autocomplete, min 3 characters",
+	 *    @OA\Parameter(
+	 *      name="city",
+	 *      in="query",
+	 *      required=true,
+	 *      description="Type of content to search (e.g., 'rome', 'new y', londo').",
+	 *      @OA\Schema(
+	 *        type="string",
+	 *        example="londo"
+	 *        )
+	 *    ),  
+	 *   @OA\Response(
+	 *     response=200,
+	 *     description="OK",
+	 *   ),
+	 *   @OA\Response(
+	 *       response=401,
+	 *       description="Unauthenticated",
+	 *   ),
+	 *   @OA\Response(
+	 *       response=403,
+	 *       description="Forbidden"
+	 *   ),
+	 *   security={{ "apiAuth": {} }}
+	 * )
+	 */
 	public function destinations(Request $request): JsonResponse
     {
 		if (empty($request->get('city'))) {

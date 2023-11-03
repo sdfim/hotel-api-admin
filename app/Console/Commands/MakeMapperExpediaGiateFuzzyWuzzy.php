@@ -71,42 +71,54 @@ class MakeMapperExpediaGiateFuzzyWuzzy extends Command
 
 		foreach ($arrExpedia as $expedia) {
 
+			try {
+				$longitude = bcdiv($expedia['longitude'], 1, 2);
+			} catch (\Exception $e) {
+				$longitude = -0.006;
+			}
+
 			$expediaStr = $expedia['name'] . ' ' .
 				$expedia['city'] . ' ' .
 				bcdiv($expedia['latitude'], 1, 2) . ' ' .
-				bcdiv($expedia['longitude'], 1, 2) . ' ' .
+				$longitude . ' ' .
 				str_replace(['-'], '', $expedia['phone']) . ' ' .
 				$expedia['address']['line_1'];
 			$expediaCode = $expedia['property_id'];
 
 			$this->warn('Expedia: ' . $expediaCode . ' - ' . $expediaStr. ' ' . $this->executionTime('fuzzy-wuzzy') . 's');
 
-			// $key = 'expedia_' . $expediaCode;
+			$key = 'expedia_' . $expediaCode;
 
-			// if (Cache::has($key)) {
-			// 	$giata = Cache::get($key);
-			// } else {
+			if (Cache::has($key)) {
+				$giata = Cache::get($key);
+			} else {
 				$giata = GiataProperty::select('*')
 				->whereRaw("MATCH(name) AGAINST('" . str_replace("'", ' ', $expedia['name']) . "' IN NATURAL LANGUAGE MODE)")
 				// ->whereRaw("MATCH(mapper_address) AGAINST('" . $expedia['address']['line_1']. "' IN NATURAL LANGUAGE MODE)")
 				// ->where('phone', 'like', '%' . str_replace(['-'], '', $expedia['phone']) . '%')
 				->where('latitude', 'like', bcdiv($expedia['latitude'], 1, 2) . '%')
-				->where('longitude', 'like', bcdiv($expedia['longitude'], 1, 2) . '%')
+				->where('longitude', 'like', $longitude . '%')
 				// ->where('city', 'like', '%' . $expedia['city'] . '%')
 				->get()
 				->toArray();
 
-			// 	Cache::put($key, $giata, 60 * 60 * 24);
-			// }
+				Cache::put($key, $giata, 60 * 60 * 24);
+			}
 
 			if ($giata) {
 				$this->info(" giata count " . count($giata) . ' | ' . $this->executionTime('fuzzy-wuzzy') . 's');
 
 				foreach ($giata as $giataItem) {
+
+					try {
+						$longitudeGiata = bcdiv($expedia['longitude'], 1, 2);
+					} catch (\Exception $e) {
+						$longitudeGiata = -0.006;
+					}
 					$giataStr = $giataItem['name'] . ' ' .
 						$giataItem['city'] . ' ' .
 						bcdiv($giataItem['latitude'], 1, 2) . ' ' .
-						bcdiv($giataItem['longitude'], 1, 2) . ' ' .
+						$longitudeGiata . ' ' .
 						$giataItem['mapper_phone_number'] . ' ' .
 						$giataItem['mapper_address'];
 
@@ -122,11 +134,17 @@ class MakeMapperExpediaGiateFuzzyWuzzy extends Command
 							$perc1 . ' | ' .
 							$perc2);
 						$this->batch++;
-						$mapper[] = [
-							'expedia_id' => $expediaCode,
-							'giata_id' => $giataCode,
-							'step' => round($perc1, 0),
-						];
+
+						$maxPerc = 50;
+						if ($perc1 > $maxPerc) {
+							$maxPerc = $perc1;
+							$mapper[0] = [
+								'expedia_id' => $expediaCode,
+								'giata_id' => $giataCode,
+								'step' => round($perc1, 0),
+							];
+						}
+						
 					}
 					// $this->error('Expedia: ' . $expediaCode . ' - ' . 
 					// 		$expedia['name'] . ' | ' . 
@@ -156,6 +174,7 @@ class MakeMapperExpediaGiateFuzzyWuzzy extends Command
 			// ->leftJoin('report_mapper_expedia_giata', 'report_mapper_expedia_giata.expedia_id', '=', 'expedia_content_main.property_id')
 			// ->whereNull('report_mapper_expedia_giata.expedia_id')
 			->where('expedia_content_main.rating', '>=', 4)
+			->where('expedia_content_main.property_id', '>=', 22881837)
 			->cursor();
 
 		foreach ($query as $row) {
