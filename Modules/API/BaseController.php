@@ -19,6 +19,18 @@ use Illuminate\Http\JsonResponse;
  *     bearerFormat="JWT",
  *     securityScheme="apiAuth",
  * )
+ * @OA\Tag(
+ *   name="Content API",
+ *   description="API Endpoints of Content"
+ * ),
+ * @OA\Tag(
+ *   name="Price API",
+ *   description="API Endpoints of Price"
+ * ),
+ * @OA\Tag(
+ *   name="Booking API",
+ *   description="API Endpoints of Booking"
+ * ),
  */
 
 class BaseController extends Controller

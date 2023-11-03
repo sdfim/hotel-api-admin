@@ -5,7 +5,598 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/booking": {},
         "/api/content": {},
+        "/api/booking/add-item": {
+            "post": {
+                "tags": [
+                    "Booking API"
+                ],
+                "summary": "Add an hotel room(s) to the cart.",
+                "description": "Add an hotel room(s) to the cart.",
+                "operationId": "2c4889c84d7cc8b291b338af2cdd8ac6",
+                "parameters": [
+                    {
+                        "name": "search_id",
+                        "in": "query",
+                        "description": "Search ID",
+                        "required": true,
+                        "example": "86eec169-3cda-4275-9a15-e52251ff62c5"
+                    },
+                    {
+                        "name": "supplier",
+                        "in": "query",
+                        "description": "Supplier",
+                        "required": true,
+                        "example": "Expedia"
+                    },
+                    {
+                        "name": "hotel_id",
+                        "in": "query",
+                        "description": "Hotel ID",
+                        "required": true,
+                        "example": "36572902"
+                    },
+                    {
+                        "name": "room_id",
+                        "in": "query",
+                        "description": "Room ID",
+                        "required": true,
+                        "example": "213307487"
+                    },
+                    {
+                        "name": "rate",
+                        "in": "query",
+                        "description": "Rate",
+                        "required": true,
+                        "example": "242261024"
+                    },
+                    {
+                        "name": "bed_groups",
+                        "in": "query",
+                        "description": "Bed groups",
+                        "required": true,
+                        "example": "37310"
+                    },
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "description": "Query parameters",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "affiliate_reference_id": {
+                                    "description": "Affiliate reference ID",
+                                    "type": "string",
+                                    "example": "4480A12"
+                                },
+                                "hold": {
+                                    "description": "Hold the booking",
+                                    "type": "boolean",
+                                    "example": false
+                                },
+                                "email": {
+                                    "description": "Email address",
+                                    "type": "string",
+                                    "example": "john@example.com",
+                                    "nullable": true
+                                },
+                                "phone": {
+                                    "description": "Phone number",
+                                    "properties": {
+                                        "country_code": {
+                                            "description": "Country code",
+                                            "type": "string",
+                                            "example": "1"
+                                        },
+                                        "area_code": {
+                                            "description": "Area code",
+                                            "type": "string",
+                                            "example": "487"
+                                        },
+                                        "number": {
+                                            "description": "Phone number",
+                                            "type": "string",
+                                            "example": "5550077"
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "rooms": {
+                                    "description": "Rooms",
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "given_name": {
+                                                "description": "Given name",
+                                                "type": "string",
+                                                "example": "John"
+                                            },
+                                            "family_name": {
+                                                "description": "Family name",
+                                                "type": "string",
+                                                "example": "Portman"
+                                            },
+                                            "smoking": {
+                                                "description": "Smoking",
+                                                "type": "boolean",
+                                                "example": false
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "payments": {
+                                    "description": "Payments",
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "type": {
+                                                "description": "Type",
+                                                "type": "string",
+                                                "example": "affiliate_collect"
+                                            },
+                                            "billing_contact": {
+                                                "description": "Billing contact",
+                                                "properties": {
+                                                    "given_name": {
+                                                        "description": "Given name",
+                                                        "type": "string",
+                                                        "example": "John"
+                                                    },
+                                                    "family_name": {
+                                                        "description": "Family name",
+                                                        "type": "string",
+                                                        "example": "Smith"
+                                                    },
+                                                    "address": {
+                                                        "description": "Address",
+                                                        "properties": {
+                                                            "line_1": {
+                                                                "description": "Address line 1",
+                                                                "type": "string",
+                                                                "example": "555 1st St"
+                                                            },
+                                                            "city": {
+                                                                "description": "City",
+                                                                "type": "string",
+                                                                "example": "Seattle"
+                                                            },
+                                                            "state_province_code": {
+                                                                "description": "State/province code",
+                                                                "type": "string",
+                                                                "example": "WA"
+                                                            },
+                                                            "postal_code": {
+                                                                "description": "Postal code",
+                                                                "type": "string",
+                                                                "example": "98121"
+                                                            },
+                                                            "country_code": {
+                                                                "description": "Country code",
+                                                                "type": "string",
+                                                                "example": "US"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "query": {
+                                        "properties": {
+                                            "affiliate_reference_id": {
+                                                "description": "Affiliate reference ID",
+                                                "type": "string",
+                                                "example": "4480A12"
+                                            },
+                                            "hold": {
+                                                "description": "Hold the booking",
+                                                "type": "boolean",
+                                                "example": false
+                                            },
+                                            "email": {
+                                                "description": "Email address",
+                                                "type": "string",
+                                                "example": "john@example.com",
+                                                "nullable": true
+                                            },
+                                            "phone": {
+                                                "description": "Phone number",
+                                                "properties": {
+                                                    "country_code": {
+                                                        "description": "Country code",
+                                                        "type": "string",
+                                                        "example": "1"
+                                                    },
+                                                    "area_code": {
+                                                        "description": "Area code",
+                                                        "type": "string",
+                                                        "example": "487"
+                                                    },
+                                                    "number": {
+                                                        "description": "Phone number",
+                                                        "type": "string",
+                                                        "example": "5550077"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "rooms": {
+                                                "description": "Rooms",
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "given_name": {
+                                                            "description": "Given name",
+                                                            "type": "string",
+                                                            "example": "John"
+                                                        },
+                                                        "family_name": {
+                                                            "description": "Family name",
+                                                            "type": "string",
+                                                            "example": "Portman"
+                                                        },
+                                                        "smoking": {
+                                                            "description": "Smoking",
+                                                            "type": "boolean",
+                                                            "example": false
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "payments": {
+                                                "description": "Payments",
+                                                "type": "array",
+                                                "items": {
+                                                    "properties": {
+                                                        "type": {
+                                                            "description": "Type",
+                                                            "type": "string",
+                                                            "example": "affiliate_collect"
+                                                        },
+                                                        "billing_contact": {
+                                                            "description": "Billing contact",
+                                                            "properties": {
+                                                                "given_name": {
+                                                                    "description": "Given name",
+                                                                    "type": "string",
+                                                                    "example": "John"
+                                                                },
+                                                                "family_name": {
+                                                                    "description": "Family name",
+                                                                    "type": "string",
+                                                                    "example": "Smith"
+                                                                },
+                                                                "address": {
+                                                                    "description": "Address",
+                                                                    "properties": {
+                                                                        "line_1": {
+                                                                            "description": "Address line 1",
+                                                                            "type": "string",
+                                                                            "example": "555 1st St"
+                                                                        },
+                                                                        "city": {
+                                                                            "description": "City",
+                                                                            "type": "string",
+                                                                            "example": "Seattle"
+                                                                        },
+                                                                        "state_province_code": {
+                                                                            "description": "State/province code",
+                                                                            "type": "string",
+                                                                            "example": "WA"
+                                                                        },
+                                                                        "postal_code": {
+                                                                            "description": "Postal code",
+                                                                            "type": "string",
+                                                                            "example": "98121"
+                                                                        },
+                                                                        "country_code": {
+                                                                            "description": "Country code",
+                                                                            "type": "string",
+                                                                            "example": "US"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "api/booking/retrieve-items": {
+            "get": {
+                "tags": [
+                    "Booking API"
+                ],
+                "summary": "Get detailed information about a hotel.",
+                "description": "Get detailed information about a hotel.",
+                "operationId": "c28f1cc3a2609421d320889e317b8bf1",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "Booking ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/booking/change-items": {
+            "put": {
+                "tags": [
+                    "Booking API"
+                ],
+                "summary": "Change the details of a hotel room(s) in the cart.",
+                "description": "Change the details of a hotel room(s) in the cart.",
+                "operationId": "b01a40f95671c086c29929b883f8021e",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "Booking ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
+                        }
+                    },
+                    {
+                        "name": "room_id",
+                        "in": "query",
+                        "description": "Room ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "213307487"
+                        }
+                    },
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "description": "Query parameters",
+                        "required": true,
+                        "schema": {
+                            "properties": {
+                                "given_name": {
+                                    "description": "Given name",
+                                    "type": "string",
+                                    "example": "John"
+                                },
+                                "family_name": {
+                                    "description": "Family name",
+                                    "type": "string",
+                                    "example": "Smith"
+                                },
+                                "smoking": {
+                                    "description": "Smoking",
+                                    "type": "boolean",
+                                    "example": false
+                                },
+                                "special_request": {
+                                    "description": "Special request",
+                                    "type": "string",
+                                    "example": "Top floor or away from street please"
+                                },
+                                "loyalty_id": {
+                                    "description": "Loyalty ID",
+                                    "type": "string",
+                                    "example": "ABC123"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "query": {
+                                        "properties": {
+                                            "given_name": {
+                                                "description": "Given name",
+                                                "type": "string",
+                                                "example": "John"
+                                            },
+                                            "family_name": {
+                                                "description": "Family name",
+                                                "type": "string",
+                                                "example": "Smith"
+                                            },
+                                            "smoking": {
+                                                "description": "Smoking",
+                                                "type": "boolean",
+                                                "example": false
+                                            },
+                                            "special_request": {
+                                                "description": "Special request",
+                                                "type": "string",
+                                                "example": "Top floor or away from street please"
+                                            },
+                                            "loyalty_id": {
+                                                "description": "Loyalty ID",
+                                                "type": "string",
+                                                "example": "ABC123"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "api/booking/list-bookings": {
+            "get": {
+                "tags": [
+                    "Booking API"
+                ],
+                "summary": "Get detailed information about a bookings.",
+                "description": "Get detailed information about a bookings.",
+                "operationId": "29726a65a194069590165330cc79bafe",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Type",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "hotel"
+                        }
+                    },
+                    {
+                        "name": "supplier",
+                        "in": "query",
+                        "description": "Supplier",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "Expedia"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "api/booking/remove-item": {
+            "delete": {
+                "tags": [
+                    "Booking API"
+                ],
+                "summary": "Delete an item from the cart.",
+                "description": "Delete an item from the cart.",
+                "operationId": "ba922b986fee5885a54ed8b531afcfcf",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "Booking ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/content/search": {
             "post": {
                 "tags": [
@@ -389,5 +980,19 @@
                 "scheme": "bearer"
             }
         }
-    }
+    },
+    "tags": [
+        {
+            "name": "Content API",
+            "description": "API Endpoints of Content"
+        },
+        {
+            "name": "Price API",
+            "description": "API Endpoints of Price"
+        },
+        {
+            "name": "Booking API",
+            "description": "API Endpoints of Booking"
+        }
+    ]
 }
