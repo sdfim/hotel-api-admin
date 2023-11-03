@@ -7,12 +7,12 @@ use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
-class SearchInspectorRoomsDoughnutChart extends ChartWidget
+class SearchInspectorOccupancyDoughnutChart extends ChartWidget
 {
     /**
      * @var string|null
      */
-    protected static ?string $heading = 'Search Inspector Rooms Total Doughnut Chart';
+    protected static ?string $heading = 'Search Inspector Occupancy Total Doughnut Chart';
 
     /**
      * @var string|null
@@ -26,28 +26,29 @@ class SearchInspectorRoomsDoughnutChart extends ChartWidget
 
     protected function getData(): array
     {
-        $keySearchInspectorRoomsDoughnutChart = 'SearchInspectorRoomsDoughnutChart';
+        $keySearchInspectorOccupancyDoughnutChart = 'SearchInspectorOccupancyDoughnutChart';
 
-        if (Cache::has($keySearchInspectorRoomsDoughnutChart . ':labels') && Cache::has($keySearchInspectorRoomsDoughnutChart . ':data')) {
-            $labels = Cache::get($keySearchInspectorRoomsDoughnutChart . ':labels');
-            $data = Cache::get($keySearchInspectorRoomsDoughnutChart . ':data');
+        if (Cache::has($keySearchInspectorOccupancyDoughnutChart . ':labels') && Cache::has($keySearchInspectorOccupancyDoughnutChart . ':data')) {
+            $labels = Cache::get($keySearchInspectorOccupancyDoughnutChart . ':labels');
+            $data = Cache::get($keySearchInspectorOccupancyDoughnutChart . ':data');
         } else {
             $giataGeographies = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_geographies';
             $model = ApiSearchInspector::select(
                 DB::raw("COALESCE((SELECT city_name FROM $giataGeographies WHERE city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))),
                     JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
-                DB::raw("SUM(JSON_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy')))) AS rooms"),
+                DB::raw("SUM(oc.adults + oc.children) AS occupancy"),
             )
+                ->crossJoin(DB::raw("JSON_TABLE(request, '$.occupancy[*]' COLUMNS (adults INT PATH '$.adults' DEFAULT '0' ON EMPTY, children INT PATH '$.children' DEFAULT '0' ON EMPTY)) oc"))
                 ->groupBy('destination')
-                ->orderBy('rooms', 'DESC')
+                ->orderBy('occupancy', 'DESC')
                 ->limit(5)
                 ->get();
 
             $labels = $model->pluck('destination');
-            $data = $model->pluck('rooms');
+            $data = $model->pluck('occupancy');
 
-            Cache::put($keySearchInspectorRoomsDoughnutChart . ':labels', $labels, now()->addMinutes(60));
-            Cache::put($keySearchInspectorRoomsDoughnutChart . ':data', $data, now()->addMinutes(60));
+            Cache::put($keySearchInspectorOccupancyDoughnutChart . ':labels', $labels, now()->addMinutes(60));
+            Cache::put($keySearchInspectorOccupancyDoughnutChart . ':data', $data, now()->addMinutes(60));
         }
 
         $colors = [

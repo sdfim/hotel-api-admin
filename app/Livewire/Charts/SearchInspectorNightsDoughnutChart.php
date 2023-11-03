@@ -7,12 +7,12 @@ use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
-class SearchInspectorRoomsDoughnutChart extends ChartWidget
+class SearchInspectorNightsDoughnutChart extends ChartWidget
 {
     /**
      * @var string|null
      */
-    protected static ?string $heading = 'Search Inspector Rooms Total Doughnut Chart';
+    protected static ?string $heading = 'Search Inspector Nights Total Doughnut Chart';
 
     /**
      * @var string|null
@@ -24,30 +24,31 @@ class SearchInspectorRoomsDoughnutChart extends ChartWidget
      */
     protected static ?string $maxHeight = '400px';
 
+
     protected function getData(): array
     {
-        $keySearchInspectorRoomsDoughnutChart = 'SearchInspectorRoomsDoughnutChart';
+        $keySearchInspectorNightsDoughnutChart = 'SearchInspectorNightsDoughnutChart';
 
-        if (Cache::has($keySearchInspectorRoomsDoughnutChart . ':labels') && Cache::has($keySearchInspectorRoomsDoughnutChart . ':data')) {
-            $labels = Cache::get($keySearchInspectorRoomsDoughnutChart . ':labels');
-            $data = Cache::get($keySearchInspectorRoomsDoughnutChart . ':data');
+        if (Cache::has($keySearchInspectorNightsDoughnutChart . ':labels') && Cache::has($keySearchInspectorNightsDoughnutChart . ':data')) {
+            $labels = Cache::get($keySearchInspectorNightsDoughnutChart . ':labels');
+            $data = Cache::get($keySearchInspectorNightsDoughnutChart . ':data');
         } else {
             $giataGeographies = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_geographies';
             $model = ApiSearchInspector::select(
                 DB::raw("COALESCE((SELECT city_name FROM $giataGeographies WHERE city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))),
                     JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
-                DB::raw("SUM(JSON_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy')))) AS rooms"),
+                DB::raw("SUM(DATEDIFF(JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkout')), JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkin'))) - 1) AS nights")
             )
                 ->groupBy('destination')
-                ->orderBy('rooms', 'DESC')
+                ->orderBy('nights', 'DESC')
                 ->limit(5)
                 ->get();
 
             $labels = $model->pluck('destination');
-            $data = $model->pluck('rooms');
+            $data = $model->pluck('nights');
 
-            Cache::put($keySearchInspectorRoomsDoughnutChart . ':labels', $labels, now()->addMinutes(60));
-            Cache::put($keySearchInspectorRoomsDoughnutChart . ':data', $data, now()->addMinutes(60));
+            Cache::put($keySearchInspectorNightsDoughnutChart . ':labels', $labels, now()->addMinutes(60));
+            Cache::put($keySearchInspectorNightsDoughnutChart . ':data', $data, now()->addMinutes(60));
         }
 
         $colors = [

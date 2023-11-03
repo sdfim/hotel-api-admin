@@ -37,10 +37,11 @@ class SearchInspectorRadarChart extends ChartWidget
                     JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
                 DB::raw("CAST(AVG(JSON_EXTRACT(request, '$.rating')) AS DECIMAL(5,2)) AS avg_rating"),
                 DB::raw("CAST(AVG(JSON_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy')))) AS DECIMAL(5,2)) AS avg_rooms"),
-                DB::raw("CAST(AVG(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy[*].adults')) + IFNULL(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy[*].children')), 0)) AS DECIMAL(5,2)) AS avg_occupancy"),
-                DB::raw("CAST(AVG(IFNULL(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy[*].children')), 0)) AS DECIMAL(5,2)) AS avg_children"),
+                DB::raw("CAST(AVG(oc.adults + oc.children) AS DECIMAL(5,2)) AS avg_occupancy"),
+                DB::raw("CAST(AVG(oc.children) AS DECIMAL(5,2)) AS avg_children"),
                 DB::raw("CAST(AVG(DATEDIFF(JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkout')), JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkin')))) AS DECIMAL(5,2)) AS avg_days")
             )
+                ->crossJoin(DB::raw("JSON_TABLE(request, '$.occupancy[*]' COLUMNS (adults INT PATH '$.adults' DEFAULT '0' ON EMPTY, children INT PATH '$.children' DEFAULT '0' ON EMPTY)) oc"))
                 ->groupBy('destination')
                 ->orderBy('avg_rating', 'DESC')
                 ->limit(5)
