@@ -13,13 +13,13 @@
                     "Booking API"
                 ],
                 "summary": "Add an hotel room(s) to the cart.",
-                "description": "Add an hotel room(s) to the cart.",
+                "description": "The **'/api/booking/add-item'** endpoint is a fundamental feature of a booking or reservation system. <br>\n\t *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
                 "operationId": "2c4889c84d7cc8b291b338af2cdd8ac6",
                 "parameters": [
                     {
                         "name": "search_id",
                         "in": "query",
-                        "description": "Search ID",
+                        "description": "Search ID. To retrieve the search ID, you need to execute a **'/api/pricing/search'** request. <br>\n\t *      In the end of the response object, you can find the **'search_id'** property.",
                         "required": true,
                         "example": "86eec169-3cda-4275-9a15-e52251ff62c5"
                     },
@@ -33,28 +33,28 @@
                     {
                         "name": "hotel_id",
                         "in": "query",
-                        "description": "Hotel ID",
+                        "description": "Giata Hotel ID",
                         "required": true,
                         "example": "36572902"
                     },
                     {
                         "name": "room_id",
                         "in": "query",
-                        "description": "Room ID",
+                        "description": "Supplier Room ID",
                         "required": true,
                         "example": "213307487"
                     },
                     {
                         "name": "rate",
                         "in": "query",
-                        "description": "Rate",
+                        "description": "Supplier Rate",
                         "required": true,
                         "example": "242261024"
                     },
                     {
                         "name": "bed_groups",
                         "in": "query",
-                        "description": "Bed groups",
+                        "description": "Supplier Bed groups",
                         "required": true,
                         "example": "37310"
                     },
@@ -354,7 +354,7 @@
                     "Booking API"
                 ],
                 "summary": "Get detailed information about a hotel.",
-                "description": "Get detailed information about a hotel.",
+                "description": "The **'/api/booking/retrieve-items'** endpoint is a critical feature within a booking or reservation system. <br>  Its primary purpose is to provide users with the ability to retrieve a comprehensive list of items or services <br>   that have been associated with a particular booking. <br>  This endpoint is essential for users to review the details and components of their reservations.",
                 "operationId": "c28f1cc3a2609421d320889e317b8bf1",
                 "parameters": [
                     {
@@ -619,7 +619,7 @@
                     {
                         "name": "destination",
                         "in": "query",
-                        "description": "ID of the destination for the content search.",
+                        "description": "Giata ID of the destination for the content search.",
                         "required": true,
                         "schema": {
                             "type": "integer",
@@ -665,7 +665,7 @@
                                         "type": "string"
                                     },
                                     "destination": {
-                                        "description": "ID of the destination for the content search.",
+                                        "description": "Giata ID of the destination for the content search.",
                                         "type": "integer"
                                     },
                                     "rating": {
@@ -733,7 +733,7 @@
                     {
                         "name": "property_id",
                         "in": "query",
-                        "description": "ID of the property to get details for (e.g., 98736411).",
+                        "description": "Giata ID of the property to get details for (e.g., 98736411).",
                         "required": true,
                         "schema": {
                             "type": "integer",
@@ -765,7 +765,7 @@
                     "Price API"
                 ],
                 "summary": "Search Price Hotels",
-                "description": "Endpoint for making a hotel reservation.",
+                "description": "The **'/api/pricing/search'** endpoint, when used for hotel pricing, <br> is a critical part of a hotel booking API. <br> It enables users and developers to search for and obtain detailed pricing information related to hotel accommodations.",
                 "operationId": "c75b4cb1d8a7b7d741ee54e92451a0a5",
                 "parameters": [
                     {
@@ -784,7 +784,7 @@
                         "description": "Check-in date in YYYY-MM-DD format (e.g., '2023-11-11').",
                         "required": true,
                         "schema": {
-                            "type": "date",
+                            "type": "string",
                             "example": "2023-11-11"
                         }
                     },
@@ -794,14 +794,14 @@
                         "description": "Check-out date in YYYY-MM-DD format (e.g., '2023-11-21').",
                         "required": true,
                         "schema": {
-                            "type": "date",
+                            "type": "string",
                             "example": "2023-11-21"
                         }
                     },
                     {
                         "name": "destination",
                         "in": "query",
-                        "description": "ID of the destination for the reservation (e.g., 1175).",
+                        "description": "Giata ID code of the destination for the reservation (e.g., 1175).",
                         "required": true,
                         "schema": {
                             "type": "integer",

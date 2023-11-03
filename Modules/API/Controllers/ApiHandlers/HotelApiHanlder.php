@@ -107,7 +107,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *      name="destination",
 	 *      in="query",
 	 *      required=true,
-	 *      description="ID of the destination for the content search.",
+	 *      description="Giata ID of the destination for the content search.",
 	 *    	@OA\Schema(
 	 *    	  type="integer",
 	 *    	  example=961
@@ -153,7 +153,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *         @OA\Property(
 	 *           property="destination",
 	 *           type="integer",
-	 *           description="ID of the destination for the content search."
+	 *           description="Giata ID of the destination for the content search."
 	 *         ),
 	 *         @OA\Property(
 	 *           property="rating",
@@ -295,7 +295,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *      name="property_id",
 	 *   	in="query",
 	 *   	required=true,
-	 *   	description="ID of the property to get details for (e.g., 98736411).",
+	 *   	description="Giata ID of the property to get details for (e.g., 98736411).",
 	 *   	@OA\Schema(
 	 *   	  type="integer",
 	 *   	  example=98736411
@@ -370,7 +370,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *   tags={"Price API"},
 	 *   path="/api/pricing/search",
 	 *   summary="Search Price Hotels",
-	 *   description="Endpoint for making a hotel reservation.",
+	 *   description="The **'/api/pricing/search'** endpoint, when used for hotel pricing, <br> is a critical part of a hotel booking API. <br> It enables users and developers to search for and obtain detailed pricing information related to hotel accommodations.",
 	 *   @OA\Parameter(
 	 *     name="type",
 	 *     in="query",
@@ -387,7 +387,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *     required=true,
 	 *     description="Check-in date in YYYY-MM-DD format (e.g., '2023-11-11').",
 	 *     @OA\Schema(
-	 *       type="date",
+	 *       type="string",
 	 *       example="2023-11-11"
 	 *     )
 	 *   ),
@@ -397,7 +397,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *     required=true,
 	 *     description="Check-out date in YYYY-MM-DD format (e.g., '2023-11-21').",
 	 *     @OA\Schema(
-	 *       type="date",
+	 *       type="string",
 	 *       example="2023-11-21"
 	 *     )
 	 *   ),
@@ -405,7 +405,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *     name="destination",
 	 *     in="query",
 	 *     required=true,
-	 *     description="ID of the destination for the reservation (e.g., 1175).",
+	 *     description="Giata ID code of the destination for the reservation (e.g., 1175).",
 	 *     @OA\Schema(
 	 *       type="integer",
 	 *       example=1175

@@ -56,12 +56,14 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 *   tags={"Booking API"},
 	 *   path="/api/booking/add-item",
 	 *   summary="Add an hotel room(s) to the cart.",
-	 *   description="Add an hotel room(s) to the cart.",
+	 *   description="The **'/api/booking/add-item'** endpoint is a fundamental feature of a booking or reservation system. <br>
+	 *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
 	 *    @OA\Parameter(
 	 *      name="search_id",
 	 *      in="query",
 	 *      required=true,
-	 *      description="Search ID",
+	 *      description="Search ID. To retrieve the search ID, you need to execute a **'/api/pricing/search'** request. <br>
+	 *      In the end of the response object, you can find the **'search_id'** property.",
 	 *      example="86eec169-3cda-4275-9a15-e52251ff62c5"
 	 *    ),
 	 *    @OA\Parameter(
@@ -75,28 +77,28 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 *      name="hotel_id",
 	 *      in="query",
 	 *      required=true,
-	 *      description="Hotel ID",
+	 *      description="Giata Hotel ID",
 	 *      example="36572902"
 	 *    ),
 	 *    @OA\Parameter(
 	 *      name="room_id",
 	 *      in="query",
 	 *      required=true,
-	 *      description="Room ID",
+	 *      description="Supplier Room ID",
 	 *      example="213307487"
 	 *    ),
 	 *    @OA\Parameter(
 	 *      name="rate",
 	 *      in="query",
 	 *      required=true,
-	 *      description="Rate",
+	 *      description="Supplier Rate",
 	 *      example="242261024"
 	 *    ),
 	 *    @OA\Parameter(
 	 *      name="bed_groups",
 	 *      in="query",
 	 *      required=true,
-	 *      description="Bed groups",
+	 *      description="Supplier Bed groups",
 	 *      example="37310"
 	 *    ),
 	 *    @OA\Parameter(
@@ -462,7 +464,7 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 *   tags={"Booking API"},
 	 *   path="api/booking/retrieve-items",
 	 *   summary="Get detailed information about a hotel.",
-	 *   description="Get detailed information about a hotel.",
+	 *   description="The **'/api/booking/retrieve-items'** endpoint is a critical feature within a booking or reservation system. <br>  Its primary purpose is to provide users with the ability to retrieve a comprehensive list of items or services <br>   that have been associated with a particular booking. <br>  This endpoint is essential for users to review the details and components of their reservations.",
 	 *    @OA\Parameter(
 	 *      name="booking_id",
 	 *      in="query",
