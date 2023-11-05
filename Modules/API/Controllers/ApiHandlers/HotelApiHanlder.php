@@ -2,6 +2,7 @@
 
 namespace Modules\API\Controllers\ApiHandlers;
 
+use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveSearchInspector;
 use Exception;
 use Illuminate\Support\Arr;
@@ -355,7 +356,9 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 					$dataResponse[$supplierName] = $expediaResponse;
 
 					\Log::info('ExpediaHotelApiHandler | price | ExpediaToHotelResponse | start');
-					$clientResponse[$supplierName] = $this->expediaPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
+					$dtoData = $this->expediaPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
+					$bookingItems = $dtoData['bookingItems'];
+					$clientResponse[$supplierName] = $dtoData['response'];
 					\Log::info('ExpediaHotelApiHandler | price | ExpediaToHotelResponse | end');
 				}
 				// TODO: Add other suppliers
@@ -387,6 +390,8 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 				'search',
 				'hotel'
 			]);
+
+			SaveBookingItems::dispatch($bookingItems);
 
 			if ($request->input('supplier_data') == 'true') $res = $content;
 			else $res = $clientContent;

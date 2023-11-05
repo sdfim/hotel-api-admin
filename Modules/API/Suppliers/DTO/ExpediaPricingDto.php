@@ -115,9 +115,10 @@ class ExpediaPricingDto
         }
         \Log::info('ExpediaPricingDto | enrichmentPricingRules - ' . $this->total_time . 's');
 
-		SaveBookingItems::dispatch($this->bookingItems);
+		// TODO: uncomment this line after add Redis
+		// SaveBookingItems::dispatch($this->bookingItems);
 
-        return $hotelResponse;
+        return ['response' => $hotelResponse, 'bookingItems' =>$this->bookingItems];
     }
 
     /**
