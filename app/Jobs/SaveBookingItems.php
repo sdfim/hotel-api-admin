@@ -20,7 +20,7 @@ class SaveBookingItems implements ShouldQueue
 	private array $bookingItems;
 
 	public $tries = 5;
-	public $retryAfter = 50;
+	public $retryAfter = 250;
 	
     /**
      * Create a new job instance.
@@ -35,7 +35,6 @@ class SaveBookingItems implements ShouldQueue
      */
     public function handle(): void
     {
-		usleep(100);
         ApiBookingItem::insert($this->bookingItems);
     }
 }
