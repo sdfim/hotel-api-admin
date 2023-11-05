@@ -92,111 +92,30 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *   tags={"Content API"},
 	 *   path="/api/content/search",
 	 *   summary="Search Hotels",
-	 *   description="Search for hotels by destination or coordinates.",
-	 *    @OA\Parameter(
-	 *      name="type",
-	 *      in="query",
-	 *      required=true,
-	 *      description="Type of content to search (e.g., 'hotel').",
-	 *      @OA\Schema(
-	 *        type="string",
-	 *        example="hotel"
-	 *        )
-	 *    ),
-	 *    @OA\Parameter(
-	 *      name="destination",
-	 *      in="query",
-	 *      required=true,
-	 *      description="Giata ID of the destination for the content search.",
-	 *    	@OA\Schema(
-	 *    	  type="integer",
-	 *    	  example=961
-	 *      )
-	 *    ),
-	 *    @OA\Parameter(
-	 *      name="rating",
-	 *      in="query",
-	 *      required=true,
-	 *      description="Minimum rating of the content (e.g., 4).",
-	 *      @OA\Schema(
-	 *        type="number",
-	 *        example=4
-	 *      )
-	 *    ),
-	 *    @OA\Parameter(
-	 *      name="page",
-	 *      in="query",
-	 *      description="Page number for pagination (e.g., 1).",
-	 *      @OA\Schema(
-	 *        type="integer",
-	 *        example=1
-	 *      )
-	 *    ),
-	 *    @OA\Parameter(
-	 *      name="results_per_page",
-	 *      in="query",
-	 *      description="Number of results to return per page (e.g., 250).",
-	 *      @OA\Schema(
-	 *        type="integer",
-	 *        example=250
-	 *      )
-	 *    ),
+	 *   description="Search for hotels by destination or coordinates.",   	  
 	 *   @OA\RequestBody(
-	 *     @OA\MediaType(
-	 *       mediaType="application/json",
-	 *       @OA\Schema(
-	 *         @OA\Property(
-	 *           property="type",
-	 *           type="string",
-	 *           description="Type of content to search (e.g., 'hotel')."
-	 *         ),
-	 *         @OA\Property(
-	 *           property="destination",
-	 *           type="integer",
-	 *           description="Giata ID of the destination for the content search."
-	 *         ),
-	 *         @OA\Property(
-	 *           property="rating",
-	 *           type="number",
-	 *           description="Minimum rating of the content (e.g., 4)."
-	 *         ),
-	 *         @OA\Property(
-	 *           property="page",
-	 *           type="integer",
-	 *           description="Page number for pagination (e.g., 1)."
-	 *         ),
-	 *         @OA\Property(
-	 *           property="results_per_page",
-	 *           type="integer",
-	 *           description="Number of results to return per page (e.g., 250)."
-	 *         ),
-	 *         example={
-	 *           "type": "hotel",
-	 *           "destination": 961,
-	 *           "rating": 4,
-	 *           "page": 1,
-	 *           "results_per_page": 250
+	 *     description="JSON object containing the details of the reservation.",
+	 *     required=true,
+	 *     @OA\JsonContent(    
+	 *       oneOf={
+	 *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestDestination"),
+	 *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestCoordinates"),
 	 *         },
-	 *         @OA\Examples(example="withCity", summary="With City", value={
-	 *           "type": "restaurant",
-	 *           "destination": 123,
-	 *           "rating": 3.5,
-	 *           "page": 2,
-	 *           "results_per_page": 10
-	 *         }),
-	 *         @OA\Examples(example="withCoordinates", summary="With Coordinates",value={
-	 *           "type": "attraction",
-	 *           "destination": 789,
-	 *           "rating": 4.5,
-	 *           "page": 3,
-	 *           "results_per_page": 20
-	 *         })
-	 *       )
+	 *       examples={
+	 *           "searchByDestination": @OA\Schema(ref="#/components/examples/ContentSearchRequestDestination", example="ContentSearchRequestDestination"),
+	 *           "searchByCoordinates": @OA\Schema(ref="#/components/examples/ContentSearchRequestCoordinates", example="ContentSearchRequestCoordinates"),
+	 *       },
 	 *     ),
 	 *   ),
 	 *   @OA\Response(
 	 *     response=200,
 	 *     description="OK",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/ContentSearchResponse",
+	 *       examples={
+	 *       "searchByCoordinates": @OA\Schema(ref="#/components/examples/ContentSearchResponse", example="ContentSearchResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   @OA\Response(
 	 *       response=401,
@@ -304,6 +223,12 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *   @OA\Response(
 	 *     response=200,
 	 *     description="OK",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/ContentDetailResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/ContentDetailResponse", example="ContentDetailResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   @OA\Response(
 	 *       response=401,
@@ -371,158 +296,27 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *   path="/api/pricing/search",
 	 *   summary="Search Price Hotels",
 	 *   description="The **'/api/pricing/search'** endpoint, when used for hotel pricing, <br> is a critical part of a hotel booking API. <br> It enables users and developers to search for and obtain detailed pricing information related to hotel accommodations.",
-	 *   @OA\Parameter(
-	 *     name="type",
-	 *     in="query",
-	 *     required=true,
-	 *     description="Type of reservation (e.g., 'hotel').",
-	 *     @OA\Schema(
-	 *       type="string",
-	 *       example="hotel"
-	 *     )
-	 *   ),
-	 *   @OA\Parameter(
-	 *     name="checkin",
-	 *     in="query",
-	 *     required=true,
-	 *     description="Check-in date in YYYY-MM-DD format (e.g., '2023-11-11').",
-	 *     @OA\Schema(
-	 *       type="string",
-	 *       example="2023-11-11"
-	 *     )
-	 *   ),
-	 *   @OA\Parameter(
-	 *     name="checkout",
-	 *     in="query",
-	 *     required=true,
-	 *     description="Check-out date in YYYY-MM-DD format (e.g., '2023-11-21').",
-	 *     @OA\Schema(
-	 *       type="string",
-	 *       example="2023-11-21"
-	 *     )
-	 *   ),
-	 *   @OA\Parameter(
-	 *     name="destination",
-	 *     in="query",
-	 *     required=true,
-	 *     description="Giata ID code of the destination for the reservation (e.g., 1175).",
-	 *     @OA\Schema(
-	 *       type="integer",
-	 *       example=1175
-	 *    )
-	 *   ),
-	 *   @OA\Parameter(
-	 *     name="rating",
-	 *     in="query",
-	 *     required=true,
-	 *     description="Rating of the hotel (e.g., 3.5).",
-	 *     @OA\Schema(
-	 *       type="number",
-	 *       example=3.5
-	 *     )
-	 *   ),
-	 *   @OA\Parameter(
-	 *     name="occupancy",
-	 *     in="query",
-	 *     required=true,
-	 *     description="Array of occupancy details. For each guest, specify the number of adults and children.",
-	 *     @OA\Schema(
-	 *       type="array",
-	 *       @OA\Items(
-	 *         type="object",
-	 *         @OA\Property(
-	 *           property="adults",
-	 *           type="integer",
-	 *           description="Number of adults in the room."
-	 *         ),
-	 *         @OA\Property(
-	 *           property="children",
-	 *           type="integer",
-	 *           description="Number of children in the room."
-	 *         )
-	 *       )
-	 *     ),
-	 *     example={
-	 *     {
-	 *     "adults": 2,
-	 *     "children": 1
-	 *     },
-	 *     {
-	 *     "adults": 1
-	 *     }
-	 *     }
-	 *   ),
 	 *   @OA\RequestBody(
 	 *     description="JSON object containing the details of the reservation.",
 	 *     required=true,
-	 *     @OA\MediaType(
-	 *       mediaType="application/json",
-	 *       @OA\Schema(
-	 *         @OA\Property(
-	 *           property="type",
-	 *           type="string",
-	 *           description="Type of reservation (e.g., 'hotel')."
-	 *         ),
-	 *         @OA\Property(
-	 *           property="checkin",
-	 *           type="date",
-	 *           description="Check-in date in YYYY-MM-DD format (e.g., '2023-11-11')."
-	 *         ),
-	 *         @OA\Property(
-	 *           property="checkout",
-	 *           type="date",
-	 *           description="Check-out date in YYYY-MM-DD format (e.g., '2023-11-21')."
-	 *         ),
-	 *         @OA\Property(
-	 *           property="destination",
-	 *           type="integer",
-	 *           description="ID of the destination for the reservation (e.g., 1175)."
-	 *         ),
-	 *         @OA\Property(
-	 *           property="rating",
-	 *           type="number",
-	 *           description="Rating of the hotel (e.g., 3.5)."
-	 *         ),
-	 *         @OA\Property(
-	 *           property="occupancy",
-	 *           type="array",
-	 *           description="Array of occupancy details. For each guest, specify the number of adults and children.",
-	 *           @OA\Items(
-	 *             type="object",
-	 *             @OA\Property(
-	 *               property="adults",
-	 *               type="integer",
-	 *               description="Number of adults in the room."
-	 *             ),
-	 *             @OA\Property(
-	 *               property="children",
-	 *               type="integer",
-	 *               description="Number of children in the room."
-	 *             )
-	 *           )
-	 *         )
-	 *       ),
-	 *       example={
-	 *         "type": "hotel",
-	 *         "checkin": "2023-11-11",
-	 *         "checkout": "2023-11-21",
-	 *         "destination": 1175,
-	 *         "rating": 3.5,
-	 *         "occupancy": {
-	 *           {
-	 *             "adults": 2,
-	 *             "children": 1
-	 *           },
-	 *           {
-	 *             "adults": 1
-	 *           }
-	 *         }
-	 *       }
+	 *     @OA\JsonContent(    
+	 *       ref="#/components/schemas/PricingSearchRequest", 
+	 *       examples={
+	 *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchRequestNewYork", example="PricingSearchRequestNewYork"),
+	 *           "London": @OA\Schema(ref="#/components/examples/PricingSearchRequestLondon", example="PricingSearchRequestLondon"),
+	 *       },
 	 *     ),
 	 *   ),
 	 *   @OA\Response(
 	 *     response=200,
 	 *     description="OK",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/PricingSearchResponse", 
+	 *		 examples={
+	 *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchResponseNewYork", example="PricingSearchResponseNewYork"),
+	 *           "London": @OA\Schema(ref="#/components/examples/PricingSearchResponseLondon", example="PricingSearchResponseLondon"),
+	 *       },
+	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}
 	 * )
@@ -539,51 +333,49 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 			$keyPricingSearch = request()->get('type') . ':pricingSearch:' . http_build_query(Arr::dot($filters));
 
-			if (Cache::has($keyPricingSearch . ':content') && Cache::has($keyPricingSearch . ':clientContent')) {
+			\Log::info('ExpediaHotelApiHandler | price | start');
 
-				$content = Cache::get($keyPricingSearch . ':content');
-				$clientContent = Cache::get($keyPricingSearch . ':clientContent');
-			} else {
+			$dataResponse = [];
+			$clientResponse = [];
+			foreach ($suppliers as $supplier) {
+				$supplierName = Supplier::find($supplier)->name;
+				if ($supplierName == self::SUPPLIER_NAME) {
 
-				\Log::info('ExpediaHotelApiHandler | price | start');
-
-				$dataResponse = [];
-				$clientResponse = [];
-				foreach ($suppliers as $supplier) {
-					$supplierName = Supplier::find($supplier)->name;
-					if ($supplierName == self::SUPPLIER_NAME) {
+					if ( Cache::has($keyPricingSearch . ':content:' . self::SUPPLIER_NAME) ) {
+						$expediaResponse = Cache::get($keyPricingSearch . ':content:' . self::SUPPLIER_NAME);
+					} else {
 
 						\Log::info('ExpediaHotelApiHandler | price | expediaResponse | start');
 						$expediaResponse = $this->expedia->price($request, $filters);
 						\Log::info('ExpediaHotelApiHandler | price | expediaResponse | end');
 
-						$dataResponse[$supplierName] = $expediaResponse;
-						\Log::info('ExpediaHotelApiHandler | price | ExpediaToHotelResponse | start');
-						$clientResponse[$supplierName] = $this->expediaPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
-						\Log::info('ExpediaHotelApiHandler | price | ExpediaToHotelResponse | end');
+						Cache::put($keyPricingSearch . ':content:' . self::SUPPLIER_NAME, $expediaResponse, now()->addMinutes(60));
 					}
-					// TODO: Add other suppliers
+
+					$dataResponse[$supplierName] = $expediaResponse;
+
+					\Log::info('ExpediaHotelApiHandler | price | ExpediaToHotelResponse | start');
+					$clientResponse[$supplierName] = $this->expediaPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
+					\Log::info('ExpediaHotelApiHandler | price | ExpediaToHotelResponse | end');
 				}
-
-				# enrichment Property Weighting
-				$clientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
-
-				$content = [
-					'count' => count($dataResponse[self::SUPPLIER_NAME]),
-					'query' => $filters,
-					'results' => $dataResponse,
-				];
-				$clientContent = [
-					'count' => count($clientResponse[self::SUPPLIER_NAME]),
-					'query' => $filters,
-					'results' => $clientResponse,
-				];
-
-				Cache::put($keyPricingSearch . ':content', $content, now()->addMinutes(60));
-				Cache::put($keyPricingSearch . ':clientContent', $clientContent, now()->addMinutes(60));
-
-				\Log::info('ExpediaHotelApiHandler | price | end');
+				// TODO: Add other suppliers
 			}
+
+			# enrichment Property Weighting
+			$clientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
+
+			$content = [
+				'count' => count($dataResponse[self::SUPPLIER_NAME]),
+				'query' => $filters,
+				'results' => $dataResponse,
+			];
+			$clientContent = [
+				'count' => count($clientResponse[self::SUPPLIER_NAME]),
+				'query' => $filters,
+				'results' => $clientResponse,
+			];
+
+			\Log::info('ExpediaHotelApiHandler | price | end');
 
 			# save data to Inspector
 			SaveSearchInspector::dispatch([

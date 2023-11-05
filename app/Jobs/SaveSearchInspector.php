@@ -39,7 +39,11 @@ class SaveSearchInspector implements ShouldQueue
     {
         [$search_id, $filters, $content, $clientContent, $supplierIds, $type, $search_type] = $this->dataQueue;
 
-        $this->searchInspector->save($search_id, $filters, $content, $clientContent, $supplierIds, $type, $search_type);
+		try {
+			$this->searchInspector->save($search_id, $filters, $content, $clientContent, $supplierIds, $type, $search_type);
+		} catch (\Exception $e) {
+			\Log::error('SaveSearchInspector: ' . $e->getMessage());
+		}
 
     }
 }

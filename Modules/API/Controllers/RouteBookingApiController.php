@@ -3,6 +3,8 @@
 namespace Modules\API\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApiBookingItem;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
@@ -66,6 +68,10 @@ class RouteBookingApiController extends Controller
      *
      */
     private const ROUTE_CANCEL_BOOKING = 'cancelBooking';
+	/**
+	 *
+	 */
+	private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
     /**
      * @var ExpediaService
      */
@@ -149,12 +155,21 @@ class RouteBookingApiController extends Controller
      */
     private function determinant(Request $request): void
     {
-        $this->type = $request->get('type') ?? null;
+		$this->type = $request->get('type') ?? null;
         $this->supplier = $request->get('supplier') ?? null;
+
+		# Autodetect type by booking_item
+		if(request()->has('booking_item')) {
+			$apiBookingItem = ApiBookingItem::where('booking_item', request()->get('booking_item'))->first()->toArray();
+			$this->supplier = Supplier::where('id', $apiBookingItem['supplier_id'])->first()->name;
+			$this->type = $this->searchInspector->geTypeBySearchId($apiBookingItem['search_id']);
+		}
+
         # Autodetect type by search_id
         if ($request->get('search_id') && $this->type == null) {
             $this->type = $this->searchInspector->geTypeBySearchId($request->get('search_id'));
         }
+
         # Autodetect type and supplier by booking_id
         if ($request->get('booking_id') && $this->type == null) {
             $bi = $this->bookingInspector->geTypeSupplierByBookingId($request->get('booking_id'));

@@ -2,8 +2,11 @@
 
 namespace Modules\API\Suppliers\DTO;
 
+use App\Jobs\SaveBookingItems;
 use Exception;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Modules\API\PricingAPI\ResponseModels\HotelResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
@@ -11,6 +14,7 @@ use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 use App\Models\Channel;
 use App\Models\GiataGeography;
 use App\Models\PricingRule;
+use App\Models\ApiBookingItem;
 
 class ExpediaPricingDto
 {
@@ -50,6 +54,11 @@ class ExpediaPricingDto
      */
     private GiataGeography|null $destinationData;
 
+	/**
+	 * @var array
+	 */
+	private array $bookingItems;
+
     /**
      *
      */
@@ -66,9 +75,10 @@ class ExpediaPricingDto
      * @return array
      */
     public function ExpediaToHotelResponse(array $supplierResponse, array $query, string $search_id): array
-    {
+    {		
         $this->query = $query;
         $this->search_id = $search_id;
+		$this->bookingItems = [];
 
         $ch = new Channel;
         $token = $ch->getTokenId(request()->bearerToken());
@@ -104,6 +114,8 @@ class ExpediaPricingDto
             $hotelResponse[] = $this->setHotelResponse($propertyGroup);
         }
         \Log::info('ExpediaPricingDto | enrichmentPricingRules - ' . $this->total_time . 's');
+
+		SaveBookingItems::dispatch($this->bookingItems);
 
         return $hotelResponse;
     }
@@ -264,12 +276,27 @@ class ExpediaPricingDto
         $roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
         $roomResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge']);
-        $roomResponse->setLinks([
-            'booking' => [
-                'method' => 'POST',
-                'href' => $link
-            ]
-        ]);
+        // $roomResponse->setLinks([
+        //     'booking' => [
+        //         'method' => 'POST',
+        //         'href' => $link
+        //     ]
+        // ]);
+		$bookingItem = Str::uuid()->toString();
+		$this->bookingItems[] = [
+			'booking_item' => $bookingItem,
+			// TODO: get id supplier from DB
+			'supplier_id' => '1',
+			'search_id' => $this->search_id,
+			'booking_item_data' => json_encode([
+				'hotel_id' => $propertyGroup['giata_id'],
+				'room_id' => $roomGroup['id'],
+				'rate' => $rate['id'],
+				'bed_groups' => array_key_first((array)$rate['bed_groups']),
+			]),
+			'created_at' => Carbon::now(),
+		];
+		$roomResponse->setBookingItem($bookingItem);
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
     }

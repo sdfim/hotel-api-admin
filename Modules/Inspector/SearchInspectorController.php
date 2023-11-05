@@ -33,14 +33,14 @@ class SearchInspectorController extends BaseInspectorController
             $client_path = $type . '/' . date("Y-m-d") . '/' . $hash . '_client.json';
 
             $inspector = ApiSearchInspector::where('response_path', $path)->first();
-            if ($inspector) return $inspector->id;
-            \Log::debug('SearchInspectorController search exist: ' . $this->executionTime() . ' seconds');
+			// check if inspector not exists
+            if (!$inspector) {
+				Storage::put($path, $content);
+				\Log::debug('SearchInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
 
-            Storage::put($path, $content);
-            \Log::debug('SearchInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
-
-            Storage::put($client_path, $clientContent);
-            \Log::debug('SearchInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
+				Storage::put($client_path, $clientContent);
+				\Log::debug('SearchInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
+			}
 
             $data = [
                 'search_id' => $search_id,
