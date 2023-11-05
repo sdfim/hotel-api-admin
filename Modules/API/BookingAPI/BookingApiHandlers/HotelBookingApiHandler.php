@@ -2,6 +2,8 @@
 
 namespace Modules\API\BookingAPI\BookingApiHandlers;
 
+use App\Models\ApiBookingItem;
+use App\Models\Supplier;
 use Exception;
 use Modules\API\BaseController;
 use Modules\API\Requests\BookingAddItemHotelRequest;
@@ -11,6 +13,7 @@ use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Illuminate\Support\Facades\Validator;
 use Modules\Inspector\SearchInspectorController;
 use Modules\API\BookingAPI\ExpediaHotelBookingApiHandler;
+use Spatie\FlareClient\Api;
 
 /**
  * @OA\PathItem(
@@ -59,347 +62,32 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 *   description="The **'/api/booking/add-item'** endpoint is a fundamental feature of a booking or reservation system. <br>
 	 *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
 	 *    @OA\Parameter(
-	 *      name="search_id",
+	 *      name="booking_item",
 	 *      in="query",
 	 *      required=true,
-	 *      description="Search ID. To retrieve the search ID, you need to execute a **'/api/pricing/search'** request. <br>
-	 *      In the end of the response object, you can find the **'search_id'** property.",
-	 *      example="86eec169-3cda-4275-9a15-e52251ff62c5"
-	 *    ),
-	 *    @OA\Parameter(
-	 *      name="supplier",
-	 *      in="query",
-	 *      required=true,
-	 *      description="Supplier",
-	 *      example="Expedia"
-	 *    ),
-	 *    @OA\Parameter(
-	 *      name="hotel_id",
-	 *      in="query",
-	 *      required=true,
-	 *      description="Giata Hotel ID",
-	 *      example="36572902"
-	 *    ),
-	 *    @OA\Parameter(
-	 *      name="room_id",
-	 *      in="query",
-	 *      required=true,
-	 *      description="Supplier Room ID",
-	 *      example="213307487"
-	 *    ),
-	 *    @OA\Parameter(
-	 *      name="rate",
-	 *      in="query",
-	 *      required=true,
-	 *      description="Supplier Rate",
-	 *      example="242261024"
-	 *    ),
-	 *    @OA\Parameter(
-	 *      name="bed_groups",
-	 *      in="query",
-	 *      required=true,
-	 *      description="Supplier Bed groups",
-	 *      example="37310"
-	 *    ),
-	 *    @OA\Parameter(
-	 *      name="query",
-	 *      in="query",
-	 *      required=true,
-	 *      description="Query parameters",
-	 *      @OA\Schema(
-	 *        type="object",
-	 *        @OA\Property(
-	 *          property="affiliate_reference_id",
-	 *          type="string",
-	 *          description="Affiliate reference ID",
-	 *          example="4480A12"
-	 *        ),
-	 *        @OA\Property(
-	 *          property="hold",
-	 *          type="boolean",
-	 *          description="Hold the booking",
-	 *          example=false
-	 *        ),
-	 *        @OA\Property(
-	 *          property="email",
-	 *          type="string",
-	 *          description="Email address",
-	 *          example="john@example.com",
-	 *          nullable=true
-	 *        ),
-	 *        @OA\Property(
-	 *          property="phone",
-	 *          type="object",
-	 *          description="Phone number",
-	 *          @OA\Property(
-	 *            property="country_code",
-	 *            type="string",
-	 *            description="Country code",
-	 *            example="1"
-	 *          ),
-	 *          @OA\Property(
-	 *            property="area_code",
-	 *            type="string",
-	 *            description="Area code",
-	 *            example="487"
-	 *          ),
-	 *          @OA\Property(
-	 *            property="number",
-	 *            type="string",
-	 *            description="Phone number",
-	 *            example="5550077"
-	 *          )
-	 *        ),
-	 *        @OA\Property(
-	 *          property="rooms",
-	 *          type="array",
-	 *          description="Rooms",
-	 *          @OA\Items(
-	 *            type="object",
-	 *            @OA\Property(
-	 *              property="given_name",
-	 *              type="string",
-	 *              description="Given name",
-	 *              example="John"
-	 *            ),
-	 *            @OA\Property(
-	 *              property="family_name",
-	 *              type="string",
-	 *              description="Family name",
-	 *              example="Portman"
-	 *            ),
-	 *            @OA\Property(
-	 *              property="smoking",
-	 *              type="boolean",
-	 *              description="Smoking",
-	 *              example=false
-	 *            )
-	 *          )
-	 *        ),
-	 *        @OA\Property(
-	 *          property="payments",
-	 *          type="array",
-	 *          description="Payments",
-	 *          @OA\Items(
-	 *            type="object",
-	 *            @OA\Property(
-	 *              property="type",
-	 *              type="string",
-	 *              description="Type",
-	 *              example="affiliate_collect"
-	 *            ),
-	 *            @OA\Property(
-	 *              property="billing_contact",
-	 *              type="object",
-	 *              description="Billing contact",
-	 *              @OA\Property(
-	 *                property="given_name",
-	 *                type="string",
-	 *                description="Given name",
-	 *                example="John"
-	 *              ),
-	 *              @OA\Property(
-	 *                property="family_name",
-	 *                type="string",
-	 *                description="Family name",
-	 *                example="Smith"
-	 *              ),
-	 *              @OA\Property(
-	 *                property="address",
-	 *                type="object",
-	 *                description="Address",
-	 *                @OA\Property(
-	 *                  property="line_1",
-	 *                  type="string",
-	 *                  description="Address line 1",
-	 *                  example="555 1st St"
-	 *                ),
-	 *                @OA\Property(
-	 *                  property="city",
-	 *                  type="string",
-	 *                  description="City",
-	 *                  example="Seattle"
-	 *                ),
-	 *                @OA\Property(
-	 *                  property="state_province_code",
-	 *                  type="string",
-	 *                  description="State/province code",
-	 *                  example="WA"
-	 *                ),
-	 *                @OA\Property(
-	 *                  property="postal_code",
-	 *                  type="string",
-	 *                  description="Postal code",
-	 *                  example="98121"
-	 *                ),
-	 *                @OA\Property(
-	 *                  property="country_code",
-	 *                  type="string",
-	 *                  description="Country code",
-	 *                  example="US"
-	 *                )
-	 *              )
-	 *            )
-	 *          )
-	 *        )
-	 *      )
-	 *    ),	  
-	 *    @OA\RequestBody(
-	 *      @OA\MediaType(
-	 *        mediaType="application/json",
-	 *        @OA\Schema(
-	 *          @OA\Property(
-	 *            property="query",
-	 *            type="object",
-	 *            @OA\Property(
-	 *              property="affiliate_reference_id",
-	 *              type="string",
-	 *              description="Affiliate reference ID",
-	 *              example="4480A12"
-	 *            ),
-	 *            @OA\Property(
-	 *              property="hold",
-	 *              type="boolean",
-	 *              description="Hold the booking",
-	 *              example=false
-	 *            ),
-	 *            @OA\Property(
-	 *              property="email",
-	 *              type="string",
-	 *              description="Email address",
-	 *              example="john@example.com",
-	 *              nullable=true
-	 *            ),
-	 *            @OA\Property(
-	 *              property="phone",
-	 *              type="object",
-	 *              description="Phone number",
-	 *              @OA\Property(
-	 *                property="country_code",
-	 *                type="string",
-	 *                description="Country code",
-	 *                example="1"
-	 *              ),
-	 *              @OA\Property(
-	 *                property="area_code",
-	 *                type="string",
-	 *                description="Area code",
-	 *                example="487"
-	 *              ),
-	 *              @OA\Property(
-	 *                property="number",
-	 *                type="string",
-	 *                description="Phone number",
-	 *                example="5550077"
-	 *              )
-	 *            ),
-	 *            @OA\Property(
-	 *              property="rooms",
-	 *              type="array",
-	 *              description="Rooms",
-	 *              @OA\Items(
-	 *                type="object",
-	 *                @OA\Property(
-	 *                  property="given_name",
-	 *                  type="string",
-	 *                  description="Given name",
-	 *                  example="John"
-	 *                ),
-	 *                @OA\Property(
-	 *                  property="family_name",
-	 *                  type="string",
-	 *                  description="Family name",
-	 *                  example="Portman"
-	 *                ),
-	 *                @OA\Property(
-	 *                  property="smoking",
-	 *                  type="boolean",
-	 *                  description="Smoking",
-	 *                  example=false
-	 *                )
-	 *              )
-	 *            ),
-	 *            @OA\Property(
-	 *              property="payments",
-	 *              type="array",
-	 *              description="Payments",
-	 *              @OA\Items(
-	 *                type="object",
-	 *                @OA\Property(
-	 *                  property="type",
-	 *                  type="string",
-	 *                  description="Type",
-	 *                  example="affiliate_collect"
-	 *                ),
-	 *                @OA\Property(
-	 *                  property="billing_contact",
-	 *                  type="object",
-	 *                  description="Billing contact",
-	 *                  @OA\Property(
-	 *                    property="given_name",
-	 *                    type="string",
-	 *                    description="Given name",	
-	 *                    example="John"
-	 *                  ),
-	 *                  @OA\Property(
-	 *                    property="family_name",
-	 *                    type="string",
-	 *                    description="Family name",
-	 *                    example="Smith"
-	 *                  ),
-	 *                  @OA\Property(
-	 *                    property="address",
-	 *                    type="object",
-	 *                    description="Address",
-	 *                    @OA\Property(
-	 *                      property="line_1",
-	 *                      type="string",
-	 *                      description="Address line 1",
-	 *                      example="555 1st St"
-	 *                    ),
-	 *                    @OA\Property(
-	 *                      property="city",
-	 *                      type="string",
-	 *                      description="City",
-	 *                      example="Seattle"
-	 *                    ),
-	 *                    @OA\Property(
-	 *                      property="state_province_code",
-	 *                      type="string",
-	 *                      description="State/province code",
-	 *                      example="WA"
-	 *                    ),
-	 *                    @OA\Property(
-	 *                      property="postal_code",
-	 *                      type="string",
-	 *                      description="Postal code",
-	 *                      example="98121"
-	 *                    ),
-	 *                    @OA\Property(
-	 *                      property="country_code",
-	 *                      type="string",
-	 *                      description="Country code",
-	 *                      example="US"
-	 *                    )
-	 *                  )
-	 *               )
-	 *             )    
-	 *           )
-	 *         )
-	 *       )
-	 *     )
+	 *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
+	 *      In the response object for each rate is a **booking_item** property.",
+	 *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+	 *    ),     	  
+	 *     @OA\RequestBody(
+	 *     description="JSON object containing the details of the reservation.",
+	 *     required=true,
+	 *     @OA\JsonContent(    
+	 *       ref="#/components/schemas/BookingAddItemRequest", 
+	 *       examples={
+     *           "example1": @OA\Schema(ref="#/components/examples/BookingAddItemRequest", example="BookingAddItemRequest"),
+     *       },
+	 *     ),
 	 *   ),
 	 *   @OA\Response(
 	 *     response=200,
 	 *     description="OK",
-	 *   ),
-	 *   @OA\Response(
-	 *       response=401,
-	 *       description="Unauthenticated",
-	 *   ),
-	 *   @OA\Response(
-	 *       response=403,
-	 *       description="Forbidden"
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BookingAddItemResponse", 
+	 *		   examples={
+	 *             "example1": @OA\Schema(ref="#/components/examples/BookingAddItemResponse", example="BookingAddItemResponse"),
+     *         },
+	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}
 	 * )
@@ -407,13 +95,27 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	public function addItem(Request $request, string $supplier): JsonResponse
 	{
 		$data = [];
+
 		try {
 			$bookingAddItemRequest = new BookingAddItemHotelRequest();
 			$rules = $bookingAddItemRequest->rules();
 			$filters = Validator::make($request->all(), $rules)->validated();
-			$filters = array_merge($filters, $request->all());
+
+			if(request()->has('booking_item')) {
+				$apiBookingItem = ApiBookingItem::where('booking_item', request()->get('booking_item'))->first()->toArray();
+				$filters['search_id'] = $apiBookingItem['search_id'];
+			}
+
+			$filters = array_merge($filters, $request->all());		
 
 			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+
+				$booking_item_data = json_decode($apiBookingItem['booking_item_data'], true);
+				$filters['hotel_id'] = $booking_item_data['hotel_id'];
+				$filters['room_id'] = $booking_item_data['room_id'];
+				$filters['rate'] = $booking_item_data['rate'];
+				$filters['bed_groups'] = $booking_item_data['bed_groups'];
+
 				$data = $this->expedia->addItem($filters);
 			}
 			// TODO: Add other suppliers
@@ -431,6 +133,49 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 * @param Request $request
 	 * @param string $supplier
 	 * @return JsonResponse
+	 */
+	/**
+	 * @OA\Delete(
+	 *   tags={"Booking API"},
+	 *   path="/api/booking/remove-item",
+	 *   summary="Delete an item from the cart.",
+	 *   description="Delete an item from the cart.",
+	 *    @OA\Parameter(
+	 *      name="booking_id",
+	 *      in="query",
+	 *      required=true,
+	 *      description="Booking ID",
+	 *      example="3333cee5-b4a3-4e51-bfb0-02d09370b585"
+	 *    ),
+	 *    @OA\Parameter(
+	 *      name="booking_item",
+	 *      in="query",
+	 *      required=true,
+	 *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
+	 *      In the response object for each rate is a **booking_item** property.",
+	 *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+	 *    ),
+	 *    @OA\Response(
+	 *      response=200,
+	 *      description="OK",
+	 *      @OA\JsonContent(
+	 *        ref="#/components/schemas/BookingRemoveItemResponse",
+	 *        examples={
+	 *        "example1": @OA\Schema(ref="#/components/examples/BookingRemoveItemResponse", example="BookingRemoveItemResponse"),
+	 *        }
+	 *      )
+	 *    ),
+	 *    @OA\Response(
+	 *      response=400,
+	 *      description="Unauthenticated",
+	 *      @OA\JsonContent(
+	 *        examples={
+	 *        "example1": @OA\Schema(ref="#/components/examples/BookingRemoveItemResponseError", example="BookingRemoveItemResponseError"),
+	 *        },
+	 *      )
+	 *    ),
+	 *    security={{ "apiAuth": {} }}
+	 * )
 	 */
 	public function removeItem(Request $request, string $supplier): JsonResponse
 	{
@@ -462,7 +207,7 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	/**
 	 * @OA\Get(
 	 *   tags={"Booking API"},
-	 *   path="api/booking/retrieve-items",
+	 *   path="/api/booking/retrieve-items",
 	 *   summary="Get detailed information about a hotel.",
 	 *   description="The **'/api/booking/retrieve-items'** endpoint is a critical feature within a booking or reservation system. <br>  Its primary purpose is to provide users with the ability to retrieve a comprehensive list of items or services <br>   that have been associated with a particular booking. <br>  This endpoint is essential for users to review the details and components of their reservations.",
 	 *    @OA\Parameter(
@@ -546,157 +291,49 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 *   path="/api/booking/change-items",
 	 *   summary="Change the details of a hotel room(s) in the cart.",
 	 *   description="Change the details of a hotel room(s) in the cart.",
-	 *    @OA\Parameter(
+	 *   @OA\Parameter(
 	 *      name="booking_id",
 	 *      in="query",
 	 *      required=true,
 	 *      description="Booking ID",
-	 *      @OA\Schema(
-	 *        type="string",
-	 *        example="5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
-	 *      )
-	 *    ),
-	 *    @OA\Parameter(
-	 *      name="room_id",
+	 *      example="3333cee5-b4a3-4e51-bfb0-02d09370b585"
+	 *    ),  
+	 *   @OA\Parameter(
+	 *      name="booking_item",
 	 *      in="query",
 	 *      required=true,
-	 *      description="Room ID",
-	 *      @OA\Schema(
-	 *        type="string",
-	 *        example="213307487"
-	 *      )
-	 *    ),
-	 *    @OA\Parameter(
-	 *      name="query",
-	 *      in="query",
-	 *      required=true,
-	 *      description="Query parameters",
-	 *      @OA\Schema(
-	 *        type="object",
-	 *        @OA\Property(
-	 *          property="given_name",
-	 *          type="string",
-	 *          description="Given name",
-	 *          example="John",
-	 *          @OA\Schema(
-	 *            type="string",
-	 *            example="John"
-	 *          )
-	 *        ),
-	 *        @OA\Property(
-	 *          property="family_name",
-	 *          type="string",
-	 *          description="Family name",
-	 *          example="Smith",
-	 *          @OA\Schema(
-	 *            type="string",
-	 *            example="Smith"
-	 *          )
-	 *        ),
-	 *        @OA\Property(
-	 *          property="smoking",
-	 *          type="boolean",
-	 *          description="Smoking",
-	 *          example=false,
-	 *          @OA\Schema(
-	 *            type="boolean",
-	 *            example=false
-	 *          )
-	 *        ),
-	 *        @OA\Property(
-	 *          property="special_request",
-	 *          type="string",
-	 *          description="Special request",
-	 *          example="Top floor or away from street please",
-	 *          @OA\Schema(
-	 *            type="string",
-	 *            example="Top floor or away from street please"
-	 *          )
-	 *        ),
-	 *        @OA\Property(
-	 *          property="loyalty_id",
-	 *          type="string",
-	 *          description="Loyalty ID",
-	 *          example="ABC123",
-	 *          @OA\Schema(
-	 *            type="string",
-	 *            example="ABC123"
-	 *          )
-	 *        )
-	 *      )
-	 *    ),	  
-	 *    @OA\RequestBody(
-	 *      @OA\MediaType(
-	 *        mediaType="application/json",
-	 *        @OA\Schema(
-	 *          @OA\Property(
-	 *            property="query",
-	 *            type="object",
-	 *            @OA\Property(
-	 *              property="given_name",
-	 *              type="string",
-	 *              description="Given name",
-	 *              example="John",
-	 *              @OA\Schema(
-	 *                type="string",
-	 *                example="John"
-	 *              )
-	 *            ),
-	 *            @OA\Property(
-	 *              property="family_name",
-	 *              type="string",
-	 *              description="Family name",
-	 *              example="Smith",
-	 *              @OA\Schema(
-	 *                type="string",
-	 *                example="Smith"
-	 *              )
-	 *            ),
-	 *            @OA\Property(
-	 *              property="smoking",
-	 *              type="boolean",
-	 *              description="Smoking",
-	 *              example=false,
-	 *              @OA\Schema(
-	 *                type="boolean",
-	 *                example=false
-	 *              )
-	 *            ),
-	 *            @OA\Property(
-	 *              property="special_request",
-	 *              type="string",
-	 *              description="Special request",
-	 *              example="Top floor or away from street please",
-	 *              @OA\Schema(
-	 *                type="string",
-	 *                example="Top floor or away from street please"
-	 *              )
-	 *            ),
-	 *            @OA\Property(
-	 *              property="loyalty_id",
-	 *              type="string",
-	 *              description="Loyalty ID",
-	 *              example="ABC123",
-	 *              @OA\Schema(
-	 *                type="string",
-	 *                example="ABC123"
-	 *              )
-	 *            )
-	 *          )
-	 *        )
-	 *      )
-	 *    ),
+	 *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
+	 *      In the response object for each rate is a **booking_item** property.",
+	 *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+	 *    ),     	  
+	 *     @OA\RequestBody(
+	 *     description="JSON object containing the details of the reservation.",
+	 *     required=true,
+	 *     @OA\JsonContent(    
+	 *       ref="#/components/schemas/BookingChangeItemRequest", 
+	 *       examples={
+     *           "example1": @OA\Schema(ref="#/components/examples/BookingChangeItemRequest", example="BookingAddItemRequest"),
+     *       },
+	 *     ),
+	 *   ),
 	 *   @OA\Response(
 	 *     response=200,
 	 *     description="OK",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BookingChangeItemResponse", 
+	 *		   examples={
+	 *             "example1": @OA\Schema(ref="#/components/examples/BookingChangeItemResponse", example="BookingChangeItemResponse"),
+     *         },
+	 *     )
 	 *   ),
 	 *   @OA\Response(
-	 *       response=401,
-	 *       description="Unauthenticated",
-	 *   ),
-	 *   @OA\Response(
-	 *       response=403,
-	 *       description="Forbidden"
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       examples={
+	 *         "example1": @OA\Schema(ref="#/components/examples/BookingChangeItemResponseError", example="BookingChangeItemResponseError"),
+	 *       },
+	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}
 	 * )
@@ -714,7 +351,7 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 			// TODO: Add other suppliers
 
 		} catch (Exception $e) {
-			\Log::error('HotelBookingApiHandler | listBookings ' . $e->getMessage());
+			\Log::error('HotelBookingApiHandler | changeItems ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 
@@ -739,7 +376,7 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	/**
 	 * @OA\Get(
 	 *   tags={"Booking API"},
-	 *   path="api/booking/list-bookings",
+	 *   path="/api/booking/list-bookings",
 	 *   summary="Get detailed information about a bookings.",
 	 *   description="Get detailed information about a bookings.",
 	 *    @OA\Parameter(
@@ -810,38 +447,7 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 * @param string $supplier
 	 * @return JsonResponse
 	 */
-	/**
-	 * @OA\Delete(
-	 *   tags={"Booking API"},
-	 *   path="api/booking/remove-item",
-	 *   summary="Delete an item from the cart.",
-	 *   description="Delete an item from the cart.",
-	 *    @OA\Parameter(
-	 *      name="booking_id",
-	 *      in="query",
-	 *      required=true,
-	 *      description="Booking ID",
-	 *      @OA\Schema(
-	 *        type="string",
-	 *        example="5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
-	 *      )
-	 *    ),
-	 *    @OA\Response(
-	 *      response=200,
-	 *      description="OK",
-	 *    ),
-	 *    @OA\Response(
-	 *        response=401,
-	 *        description="Unauthenticated",
-	 *    ),
-	 *    @OA\Response(
-	 *        response=403,
-	 *        description="Forbidden"
-	 *    ),
-	 *    security={{ "apiAuth": {} }}
-	 * )
-	 */
-	public function cancelBooking(Request $request, string $supplier): JsonResponse
+		public function cancelBooking(Request $request, string $supplier): JsonResponse
 	{
 		try {
 			// TODO: add validation for request

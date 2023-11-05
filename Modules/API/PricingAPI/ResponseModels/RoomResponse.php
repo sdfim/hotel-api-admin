@@ -52,7 +52,27 @@ class RoomResponse
 	 * @var float
 	 */
 	private float $affiliate_service_charge;
+	/**
+	 * @var string
+	 */
+	private string $booking_item;
 
+	/**
+	 * @param string $booking_item
+	 * @return void
+	 */
+	public function setBookingItem(string $booking_item): void
+	{
+		$this->booking_item = $booking_item;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getBookingItem(): string
+	{
+		return $this->booking_item;
+	}
 
 	/**
 	 * @param float $total_price
@@ -268,14 +288,15 @@ class RoomResponse
             'giata_room_name' => $this->getGiataRoomName(),
             'supplier_room_name' => $this->getSupplierRoomName(),
             'per_day_rate_breakdown' => $this->getPerDayRateBreakdown(),
-            'supplier_room_code' => $this->getSupplierRoomCode(),
-            'supplier_bed_groups' => $this->getSupplierBedGroups(),
+            // 'supplier_room_code' => $this->getSupplierRoomCode(),
+            // 'supplier_bed_groups' => $this->getSupplierBedGroups(),
 			'total_price' => $this->getTotalPrice(),
 			'total_tax' => $this->getTotalTax(),
 			'total_fees' => $this->getTotalFees(),
 			'total_net' => $this->getTotalNet(),
 			'affiliate_service_charge' => $this->getAffiliateServiceCharge(),
-            'links' => $this->getLinks(),
+            // 'links' => $this->getLinks(),
+			'booking_item' => $this->getBookingItem(),
         ];
     }
 }

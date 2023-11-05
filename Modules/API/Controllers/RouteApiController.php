@@ -116,6 +116,12 @@ class RouteApiController extends Controller
 	 *   @OA\Response(
 	 *     response=200,
 	 *     description="OK",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/ContentDestinationslResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/ContentDestinationslResponse", example="ContentDestinationslResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   @OA\Response(
 	 *       response=401,
@@ -137,7 +143,7 @@ class RouteApiController extends Controller
 			return response()->json(['error' => 'Invalid city, string must be 3 characters or more'], 400);
 		}
 
-		$destinations = GiataGeography::
+		$giataGeography = GiataGeography::
 			select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_id')
 			->where('city_name', 'like', $request->get('city').'%')
 			->limit(35)
@@ -145,6 +151,14 @@ class RouteApiController extends Controller
 			->get()
 			->pluck('city_id','full_name')
 			->toArray();
+
+		$destinations = [];
+		foreach ($giataGeography as $key => $value) {
+			$destinations[] = [
+				'full_name' => $key,
+				'city_id' => $value,
+			];
+		}
 
 		$response = [
             'success' => true,

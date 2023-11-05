@@ -61,14 +61,12 @@ class ApiBookingInspector extends Model
     }
 
     /**
-     * @param $filters
+     * @param string $booking_id
+	 * @param int $room_id
      * @return string|null
      */
-    public function getLinkDeleteItem($filters): string|null
+    public function getLinkDeleteItem(string $booking_id, int $room_id): string|null
     {
-        $booking_id = $filters['booking_id'];
-        $room_id = $filters['room_id'];
-
         $inspector = ApiBookingInspector::where('type', 'add_item')
             ->where('sub_type', 'like', 'retrieve' . '%')
             ->where('booking_id', $booking_id)
@@ -89,14 +87,12 @@ class ApiBookingInspector extends Model
     }
 
     /**
-     * @param $filters
+     * @param string $booking_id
+	 * @param int $room_id
      * @return string|null
      */
-    public function getLinkPutMethod($filters): string|null
+    public function getLinkPutMethod(string $booking_id, int $room_id): string|null
     {
-        $booking_id = $filters['booking_id'];
-        $room_id = $filters['room_id'];
-
         $inspector = ApiBookingInspector::where('type', 'add_item')
             ->where('sub_type', 'like', 'retrieve' . '%')
             ->where('booking_id', $booking_id)
