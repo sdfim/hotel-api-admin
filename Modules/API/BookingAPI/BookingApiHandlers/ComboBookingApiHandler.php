@@ -88,4 +88,14 @@ class ComboBookingApiHandler extends BaseController implements BookingApiHandler
     {
 
     }
+
+	/**
+	 * @param Request $request
+	 * @param string $supplier
+	 * @return JsonResponse
+	 */
+	public function changeBooking(Request $request, string $supplier): JsonResponse
+	{
+
+	}
 }

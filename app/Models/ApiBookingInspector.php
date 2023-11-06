@@ -27,6 +27,7 @@ class ApiBookingInspector extends Model
         'search_id',
         'supplier_id',
         'search_type',
+		'booking_item',
         'type',
         'sub_type',
         'request',
@@ -67,10 +68,12 @@ class ApiBookingInspector extends Model
      */
     public function getLinkDeleteItem(string $booking_id, int $room_id): string|null
     {
-        $inspector = ApiBookingInspector::where('type', 'add_item')
+        $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve' . '%')
             ->where('booking_id', $booking_id)
             ->first();
+
+		if (!isset($inspector)) return null;
 
         $json_response = json_decode(Storage::get($inspector->response_path));
         $rooms = $json_response->rooms;
@@ -93,7 +96,7 @@ class ApiBookingInspector extends Model
      */
     public function getLinkPutMethod(string $booking_id, int $room_id): string|null
     {
-        $inspector = ApiBookingInspector::where('type', 'add_item')
+        $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve' . '%')
             ->where('booking_id', $booking_id)
             ->first();
@@ -120,7 +123,7 @@ class ApiBookingInspector extends Model
     {
         $booking_id = $filters['booking_id'];
 
-        $inspector = ApiBookingInspector::where('type', 'add_item')
+        $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve' . '%')
             ->where('booking_id', $booking_id)
             ->first();
@@ -138,7 +141,7 @@ class ApiBookingInspector extends Model
     {
         $booking_id = $filters['booking_id'];
 
-        $inspector = ApiBookingInspector::where('type', 'add_item')
+        $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve' . '%')
             ->where('booking_id', $booking_id)
             ->first();
@@ -152,7 +155,7 @@ class ApiBookingInspector extends Model
      */
     public function getLinkRetrieveItem($booking_id): string|null
     {
-        $inspector = ApiBookingInspector::where('type', 'add_item')
+        $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'create' . '%')
             ->where('booking_id', $booking_id)
             ->first();

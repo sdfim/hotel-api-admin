@@ -6,9 +6,9 @@ use OpenApi\Annotations as OA;
 
 /**
  * @OA\Schema(
- *   schema="BookingAddItemRequest",
- *   title="Booking Add Item Request",
- *   description="Schema Booking Add Item Request",
+ *   schema="BookingBookRequest",
+ *   title="Booking Book Request",
+ *   description="Schema Booking Book Request",
  *   type="object",
  *   required={"query"},
  *   @OA\Property(
@@ -149,8 +149,8 @@ use OpenApi\Annotations as OA;
  *   )
  * ),          
  * @OA\Examples(
- *     example="BookingAddItemRequest",
- *     summary="Example Booking Add Item Request",
+ *     example="BookingBookRequest",
+ *     summary="Example Booking Book Request",
  *     value=
  * {
  *    "query":{
@@ -189,6 +189,6 @@ use OpenApi\Annotations as OA;
  * )
  */
 
-class BookingAddItemRequest
+class BookingBookRequest
 {
 }

@@ -42,6 +42,13 @@ interface BookingApiHandlerInterface
      */
     public function book(Request $request, string $supplier): JsonResponse;
 
+	/**
+	 * @param Request $request
+	 * @param string $supplier
+	 * @return JsonResponse
+	 */
+	public function changeBooking(Request $request, string $supplier): JsonResponse;
+
     /**
      * @param Request $request
      * @param string $supplier
