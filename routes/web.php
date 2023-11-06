@@ -2,6 +2,7 @@
 
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\ContentLoaderExceptionsController;
+use Modules\AdministrationSuite\Http\Controllers\ContentLoaderExceptionsChartsController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
 use Modules\AdministrationSuite\Http\Controllers\GeographyController;
 use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
@@ -50,6 +51,7 @@ Route::prefix('admin')->group(function () {
         Route::resource('search-inspector', SearchInspectorController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
         Route::resource('booking-inspector', BookingInspectorController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
         Route::resource('content-loader-exceptions', ContentLoaderExceptionsController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
+        Route::resource('content-loader-exceptions-charts', ContentLoaderExceptionsChartsController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
 
         Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
         Route::resource('reservations', ReservationsController::class)->except(['delete', 'store', 'create']);
