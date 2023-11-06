@@ -26,13 +26,13 @@ class PriceHotelRequest extends ApiRequest
         return [
             'checkin' => ['required', 'date_format:Y-m-d', 'after:today'],
             'checkout' => ['required', 'date_format:Y-m-d', 'after:checkin'],
-            'destination' => ['required', function ($attribute, $value, $fail) {
+            'destination' => ['required', function ($value, $fail) {
 				if (!is_string($value) && !is_int($value)) {
 					$fail('The destination must be a string or an integer.');
 				}
 			}],
             'travel_purpose' => ['string'],
-            'rating' => ['required', 'string'],
+            'rating' => ['required', 'numeric'],
             'occupancy' => ['required', 'array'],
         ];
     }

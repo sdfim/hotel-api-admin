@@ -17,6 +17,7 @@ use Filament\Tables\Table;
 use Illuminate\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
+use Illuminate\Support\HtmlString;
 
 class ExpediaTable extends Component implements HasForms, HasTable
 {
@@ -79,35 +80,29 @@ class ExpediaTable extends Component implements HasForms, HasTable
 					->label('Giata id')
 					->view('dashboard.expedia.column.giata_id')
                     ->searchable(isIndividual: true),
-                TextColumn::make('mapperGiataExpedia.property_id')
-                    ->searchable(isIndividual: true)
-                    ->default('')
-                    ->label('Type')
-                    ->sortable()
-                    ->formatStateUsing(function ($record) {
-                        if (count($record->mapperGiataExpedia) > 1) {
-                            return 'Multivariate';
-                        } else if (count($record->mapperGiataExpedia) == 1) {
-                            return 'Single';
-                        }
-                        return 'Empty';
-                    })
-                    ->toggleable(),
                 TextColumn::make('mapperGiataExpedia.step')
                     ->searchable(isIndividual: true)
-                    ->label('Version')
-                    ->formatStateUsing(function ($record) {
-                        if (count($record->mapperGiataExpedia) > 1) {
-                            return 'Autom';
-                        }
-                        if (count($record->mapperGiataExpedia) == 1) {
-                            if ($record->mapperGiataExpedia[0]->step == 100) {
-                                return 'Manual';
-                            } else {
-                                return 'Auto';
-                            }
-                        }
-                        return 'Empty';
+                    ->label(new HtmlString('Strategy<br> Mapper'))
+					->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        '1' => 'success',
+                        '2' => 'success',
+                        '3' => 'info',
+						'4' => 'info',
+						'5' => 'info',
+						'6' => 'info',
+						'7' => 'info',
+						'10' => 'success',
+                        default => 'gray',
+                    })
+                    ->toggleable(),
+				TextColumn::make('is_active')
+                    ->searchable(isIndividual: true)
+                    ->label('Active')
+					->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        '1' => 'success',
+                        default => 'gray',
                     })
                     ->toggleable(),
                 ViewColumn::make('edit')

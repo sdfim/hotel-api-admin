@@ -72,6 +72,7 @@ class ExpediaHotelApiHandler
 
 			$results->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
 				->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.expedia_id', '=', 'expedia_content_main.property_id')
+				->where('expedia_content_main.is_active', 1)
 			    ->whereNotNull('mapper_expedia_giatas.expedia_id')
 				->select(
 					'expedia_content_main.*', 

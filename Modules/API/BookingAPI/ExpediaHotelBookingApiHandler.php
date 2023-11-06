@@ -3,6 +3,7 @@
 namespace Modules\API\BookingAPI;
 
 use App\Jobs\SaveBookingInspector;
+use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\Channel;
@@ -11,24 +12,11 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
-use Modules\Inspector\BookingInspectorController;
 use Illuminate\Support\Str;
 use GuzzleHttp\Promise;
 
 class ExpediaHotelBookingApiHandler
 {
-    /**
-     *
-     */
-    private const AFFILIATE_REFERENCE_ID = 'UJV-V1';
-    /**
-     * @var ExpediaService
-     */
-    private ExpediaService $expediaService;
-    /**
-     * @var BookingInspectorController
-     */
-    private BookingInspectorController $bookingInspector;
     /**
      * @var RapidClient
      */
@@ -37,10 +25,8 @@ class ExpediaHotelBookingApiHandler
     /**
      * @param ExpediaService $expediaService
      */
-    public function __construct(ExpediaService $expediaService)
+    public function __construct()
     {
-        $this->expediaService = $expediaService;
-        $this->bookingInspector = new BookingInspectorController();
         $this->rapidClient = new RapidClient();
     }
 
@@ -140,11 +126,11 @@ class ExpediaHotelBookingApiHandler
             'links' => [
                 'remove' => [
                     'method' => 'DELETE',
-                    'href' => '/api/booking/remove-item?booking_id=' . $booking_id . '&room_id=' . $filters['room_id'],
+                    'href' => '/api/booking/remove-item?booking_id=' . $booking_id . '&booking_item=' . $filters['booking_item'],
                 ],
                 'change' => [
                     'method' => 'PUT',
-                    'href' => '/api/booking/change-items?booking_id=' . $booking_id . '&room_id=' . $filters['room_id'],
+                    'href' => '/api/booking/change-items?booking_id=' . $booking_id . '&booking_item=' . $filters['booking_item'],
                 ],
                 'retrieve' => [
                     'method' => 'GET',
@@ -187,9 +173,13 @@ class ExpediaHotelBookingApiHandler
      */
     public function removeItem(array $filters): array
     {
-        # step 1 Read Booking Inspector, Get link  DELETE method from 'add_item | get_book'
+		# step 1 Get room_id from ApiBookingItem
+		$bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
+		$room_id = json_decode($bookingItem->booking_item_data, true)['room_id']; 
+
+		# step 2 Read Booking Inspector, Get link  DELETE method from 'add_item | get_book'
         $inspector = new ApiBookingInspector();
-        $linkDeleteItem = $inspector->getLinkDeleteItem($filters);
+        $linkDeleteItem = $inspector->getLinkDeleteItem($filters['booking_id'], $room_id);
         $search_id = $inspector->getSearchId($filters);
         $filters['search_id'] = $search_id;
         $booking_id = $filters['booking_id'];
@@ -197,11 +187,9 @@ class ExpediaHotelBookingApiHandler
         # Delete item DELETE method query
         $props = $this->getPathParamsFromLink($linkDeleteItem);
 
-        // dump($props, $linkDeleteItem);
-
         $bodyArr = [
             'itinerary_id' => $inspector->getItineraryId($filters),
-            'room_id' => $filters['room_id']
+            'room_id' => $room_id
         ];
         $body = json_encode($bodyArr);
 
@@ -304,15 +292,21 @@ class ExpediaHotelBookingApiHandler
      */
     public function changeItems(array $filters): array|null
     {
-        # step 1 Read Booking Inspector, Get link  PUT method from 'add_item | get_book'
+		# step 1 Get room_id from ApiBookingItem
+		$bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
+		$room_id = json_decode($bookingItem->booking_item_data, true)['room_id'];
+
+        # step 2 Read Booking Inspector, Get link  PUT method from 'add_item | get_book'
         $inspector = new ApiBookingInspector();
-        $linkPutMethod = $inspector->getLinkPutMethod($filters);
+        $linkPutMethod = $inspector->getLinkPutMethod($filters['booking_id'], $room_id);
+
         $search_id = $inspector->getSearchId($filters);
         $filters['search_id'] = $search_id;
         $booking_id = $filters['booking_id'];
 
         # Booking PUT query
         $props = $this->getPathParamsFromLink($linkPutMethod);
+
         $addHeaders = [
             'Customer-Ip' => '5.5.5.5',
             'Accept' => 'application/json',

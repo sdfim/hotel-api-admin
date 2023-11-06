@@ -31,42 +31,41 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
             ->query(ApiBookingInspector::orderBy('created_at', 'DESC'))
             ->columns([
                 TextColumn::make('id')
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
                 TextColumn::make('search_id')
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
                 TextColumn::make('booking_id')
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
                 TextColumn::make('type')
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable()
                     ->label('Endpoint'),
                 TextColumn::make('sub_type')
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable()
                     ->label('Step'),
                 TextColumn::make('token.id')
                     ->numeric()
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable()
                     ->label('Channel'),
                 TextColumn::make('supplier.name')
                     ->numeric()
                     ->toggleable()
-                    ->searchable(),
-                ViewColumn::make('request')->toggleable()->view('dashboard.booking-inspector.column.request'),
+                    ->searchable(isIndividual: true),
+                ViewColumn::make('request')
+					->toggleable()
+					->view('dashboard.booking-inspector.column.request'),
                 TextColumn::make('created_at')
-                    ->dateTime()
+					->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable()
-            ])
-            ->filters([
-
             ])
             ->actions([
                 ViewAction::make()

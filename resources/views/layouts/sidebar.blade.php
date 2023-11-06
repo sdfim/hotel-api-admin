@@ -38,6 +38,20 @@
                         <span data-key="t-reservations"> Reservations</span>
                     </a>
                 </li>
+				<li>
+                    <a href="{{ Route('pricing_rules.index') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-network-3"></i>
+                        <span data-key="t-pricing-rules"> Pricing Rule</span>
+                    </a>
+                </li>
+				<li>
+                    <a href="{{ Route('property-weighting.index') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-weight"></i>
+                        <span data-key="t-log-viewer"> Property Weighting</span>
+                    </a>
+                </li>
 
                 <li class="@if(Route::currentRouteName() == 'booking-inspector.show' || Route::currentRouteName() == 'search-inspector.show') mm-active @endif">
                     <a href="javascript: void(0);" aria-expanded="false"
@@ -62,7 +76,7 @@
                     <a href="{{ Route('content-loader-exceptions.index') }}"
                        class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-graph-line"></i>
-                        <span data-key="t-content-loader-exception"> Content Loader Issues</span>
+                        <span data-key="t-content-loader-exception"> Exceptions Report</span>
                     </a>
                 </li>
                 <li>
@@ -106,20 +120,7 @@
                         <span data-key="t-content"> Content</span>
                     </a>
                 </li>--}}
-                <li>
-                    <a href="{{ Route('pricing_rules.index') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-network-3"></i>
-                        <span data-key="t-pricing-rules"> Pricing Rule</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ Route('property-weighting.index') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-weight"></i>
-                        <span data-key="t-log-viewer"> Property Weighting</span>
-                    </a>
-                </li>
+
                 <li>
                     <a href="{{ url('log-viewer') }}"
                        class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">

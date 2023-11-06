@@ -97,6 +97,43 @@ class RouteApiController extends Controller
         };
     }
 
+	/**
+	 * @OA\Get(
+	 *   tags={"Content API"},
+	 *   path="/api/content/destinations",
+	 *   summary="Get list of destinations",
+	 *   description="Get list valid value of destinations by city name, can be used for autocomplete, min 3 characters",
+	 *    @OA\Parameter(
+	 *      name="city",
+	 *      in="query",
+	 *      required=true,
+	 *      description="Type of content to search (e.g., 'rome', 'new y', londo').",
+	 *      @OA\Schema(
+	 *        type="string",
+	 *        example="londo"
+	 *        )
+	 *    ),  
+	 *   @OA\Response(
+	 *     response=200,
+	 *     description="OK",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/ContentDestinationslResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/ContentDestinationslResponse", example="ContentDestinationslResponse"),
+	 *       }
+	 *     )
+	 *   ),
+	 *   @OA\Response(
+	 *       response=401,
+	 *       description="Unauthenticated",
+	 *   ),
+	 *   @OA\Response(
+	 *       response=403,
+	 *       description="Forbidden"
+	 *   ),
+	 *   security={{ "apiAuth": {} }}
+	 * )
+	 */
 	public function destinations(Request $request): JsonResponse
     {
 		if (empty($request->get('city'))) {
@@ -106,7 +143,7 @@ class RouteApiController extends Controller
 			return response()->json(['error' => 'Invalid city, string must be 3 characters or more'], 400);
 		}
 
-		$destinations = GiataGeography::
+		$giataGeography = GiataGeography::
 			select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_id')
 			->where('city_name', 'like', $request->get('city').'%')
 			->limit(35)
@@ -114,6 +151,14 @@ class RouteApiController extends Controller
 			->get()
 			->pluck('city_id','full_name')
 			->toArray();
+
+		$destinations = [];
+		foreach ($giataGeography as $key => $value) {
+			$destinations[] = [
+				'full_name' => $key,
+				'city_id' => $value,
+			];
+		}
 
 		$response = [
             'success' => true,

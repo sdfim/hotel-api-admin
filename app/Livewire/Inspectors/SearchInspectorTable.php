@@ -33,20 +33,33 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
             ->query(ApiSearchInspector::orderBy('created_at', 'DESC'))
             ->columns([
                 TextColumn::make('id')
-                    ->searchable()
+					->searchable(isIndividual: true)
                     ->toggleable(),
                 TextColumn::make('search_id')
-                    ->searchable()
+					->searchable(isIndividual: true)
                     ->toggleable()
                     ->label('Search ID'),
+				ViewColumn::make('request')
+					->toggleable()
+					->searchable(isIndividual: true)
+					->view('dashboard.search-inspector.column.request-data'),
+				ViewColumn::make('request json')
+					->label('')
+					->toggleable()
+					->view('dashboard.search-inspector.column.request'),
+                TextColumn::make('created_at')
+                    ->toggleable()
+                    ->searchable(isIndividual: true)
+                    ->sortable(),
                 TextColumn::make('type')
-                    ->searchable()
+					->searchable(isIndividual: true)
                     ->toggleable()
                     ->label('Endpoint'),
                 TextColumn::make('token.id')
+					->label('Channel')
                     ->numeric()
                     ->toggleable()
-                    ->searchable(),
+                    ->searchable(isIndividual: true),
                 TextColumn::make('suppliers')
                     ->toggleable()
                     ->formatStateUsing(function (ApiSearchInspector $record): string {
@@ -62,11 +75,6 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereIn('suppliers', explode(',', $search));
                     }),
-                ViewColumn::make('request')->toggleable()->view('dashboard.search-inspector.column.request'),
-                TextColumn::make('created_at')
-                    ->toggleable()
-                    ->dateTime()
-                    ->sortable()
             ])
             ->filters([])
             ->actions([
