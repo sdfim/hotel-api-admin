@@ -21,12 +21,17 @@ class BookingInspectorController extends BaseInspectorController
      */
     public function save($booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type): string|bool
     {
+
+		\Log::debug('BookingInspectorController save query: ', [
+			'query' => $query,
+		]);
         try {
             $this->current_time = microtime(true);
 
             $ch = new Channel;
             $token_id = $ch->getTokenId(request()->bearerToken());
             $search_id = $query['search_id'];
+			$booking_item = $query['booking_item'] ?? null;
             $query = json_encode($query);
             $content = json_encode($content);
             $client_content = json_encode($client_content);
@@ -36,20 +41,20 @@ class BookingInspectorController extends BaseInspectorController
             $client_path = $type . '/' . date("Y-m-d") . '/' . $subType . '/' . $hash . '.client.json';
 
             $booking = ApiBookingInspector::where('response_path', $path)->first();
-            if ($booking) return $booking->id;
-            \Log::debug('BookingInspectorController item exist: ' . $this->executionTime() . ' seconds');
+            if (!$booking) {
+				Storage::put($path, $content);
+				\Log::debug('BookingInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
 
-            Storage::put($path, $content);
-            \Log::debug('BookingInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
-
-            Storage::put($client_path, $client_content);
-            \Log::debug('BookingInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
+				Storage::put($client_path, $client_content);
+				\Log::debug('BookingInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
+			}
 
             $data = [
                 'booking_id' => $booking_id,
                 'token_id' => $token_id,
                 'supplier_id' => $supplier_id,
                 'search_id' => $search_id,
+				'booking_item' => $booking_item,
                 'search_type' => $search_type,
                 'type' => $type,
                 'sub_type' => $subType,
@@ -57,6 +62,8 @@ class BookingInspectorController extends BaseInspectorController
                 'response_path' => $path,
                 'client_response_path' => $client_path,
             ];
+
+			\Log::debug('BookingInspectorController save data: ', $data);
 
             $booking = ApiBookingInspector::create($data);
             \Log::debug('BookingInspectorController save to DB: ' . $this->executionTime() . ' seconds');

@@ -22,24 +22,14 @@
                         "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n\t *      In the response object for each rate is a **booking_item** property.",
                         "required": true,
                         "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                    },
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "**booking_id**, if it exists",
+                        "example": "c698abfe-9bfa-45ee-a201-dc7322e008ab"
                     }
                 ],
-                "requestBody": {
-                    "description": "JSON object containing the details of the reservation.",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BookingAddItemRequest"
-                            },
-                            "examples": {
-                                "BookingAddItemRequest": {
-                                    "$ref": "#/components/examples/BookingAddItemRequest"
-                                }
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -69,16 +59,16 @@
                 "tags": [
                     "Booking API"
                 ],
-                "summary": "Delete an item from the cart.",
-                "description": "Delete an item from the cart.",
+                "summary": "Add an hotel room(s) to the cart.",
+                "description": "The **'/api/booking/add-item'** endpoint is a fundamental feature of a booking or reservation system. <br>\n\t *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
                 "operationId": "02aae9b1f61cd585e15426e28fec10d9",
                 "parameters": [
                     {
                         "name": "booking_id",
                         "in": "query",
-                        "description": "Booking ID",
+                        "description": "**booking_id**",
                         "required": true,
-                        "example": "3333cee5-b4a3-4e51-bfb0-02d09370b585"
+                        "example": "c698abfe-9bfa-45ee-a201-dc7322e008ab"
                     },
                     {
                         "name": "booking_item",
@@ -103,19 +93,6 @@
                                 }
                             }
                         }
-                    },
-                    "400": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "examples": {
-                                    "BookingRemoveItemResponseError": {
-                                        "$ref": "#/components/examples/BookingRemoveItemResponseError"
-                                    }
-                                }
-                            }
-                        }
                     }
                 },
                 "security": [
@@ -130,8 +107,8 @@
                 "tags": [
                     "Booking API"
                 ],
-                "summary": "Get detailed information about a hotel.",
-                "description": "The **'/api/booking/retrieve-items'** endpoint is a critical feature within a booking or reservation system. <br>  Its primary purpose is to provide users with the ability to retrieve a comprehensive list of items or services <br>   that have been associated with a particular booking. <br>  This endpoint is essential for users to review the details and components of their reservations.",
+                "summary": "Getting detailed information about the items in your shopping cart.",
+                "description": "The **'/api/booking/retrieve-items'** endpoint is a fundamental feature of a booking <br>",
                 "operationId": "920af8f674947fcd9562a18979ada532",
                 "parameters": [
                     {
@@ -147,7 +124,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingRetrieveItemsResponse"
+                                },
+                                "examples": {
+                                    "BookingRetrieveItemsResponse": {
+                                        "$ref": "#/components/examples/BookingRetrieveItemsResponse"
+                                    }
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "Unauthenticated"
@@ -163,14 +152,58 @@
                 ]
             }
         },
-        "/api/booking/change-items": {
+        "/api/booking/book": {
+            "post": {
+                "tags": [
+                    "Booking API"
+                ],
+                "summary": "Book a hotel room(s). Book all items/booking_items in the cart.",
+                "description": "The **'/api/bookingbooking'** endpoint is a fundamental feature of a booking or reservation system. <br>\n\t *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
+                "operationId": "5e0fedb02b1aa71019d2b6a7d8681dc7",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n\t *      In the response object for each rate is a **booking_id** property.",
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "description": "JSON object containing the details of the reservation.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingBookRequest"
+                            },
+                            "examples": {
+                                "BookingBookRequest": {
+                                    "$ref": "#/components/examples/BookingBookRequest"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/booking/change-booking": {
             "put": {
                 "tags": [
                     "Booking API"
                 ],
-                "summary": "Change the details of a hotel room(s) in the cart.",
-                "description": "Change the details of a hotel room(s) in the cart.",
-                "operationId": "b01a40f95671c086c29929b883f8021e",
+                "summary": "Change the details of a hotel room(s).",
+                "description": "Change the details of a hotel room(s).",
+                "operationId": "10057d6ad461f3c35ad97390bc6987b8",
                 "parameters": [
                     {
                         "name": "booking_id",
@@ -193,11 +226,11 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/BookingChangeItemRequest"
+                                "$ref": "#/components/schemas/BookingChangeBookingRequest"
                             },
                             "examples": {
-                                "BookingAddItemRequest": {
-                                    "$ref": "#/components/examples/BookingChangeItemRequest"
+                                "BookingChangeBookingRequest": {
+                                    "$ref": "#/components/examples/BookingChangeBookingRequest"
                                 }
                             }
                         }
@@ -209,11 +242,11 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BookingChangeItemResponse"
+                                    "$ref": "#/components/schemas/BookingChangeBookingResponse"
                                 },
                                 "examples": {
-                                    "BookingChangeItemResponse": {
-                                        "$ref": "#/components/examples/BookingChangeItemResponse"
+                                    "BookingChangeBookingResponse": {
+                                        "$ref": "#/components/examples/BookingChangeBookingResponse"
                                     }
                                 }
                             }
@@ -225,8 +258,8 @@
                             "application/json": {
                                 "schema": {},
                                 "examples": {
-                                    "BookingChangeItemResponseError": {
-                                        "$ref": "#/components/examples/BookingChangeItemResponseError"
+                                    "BookingChangeBookingResponseError": {
+                                        "$ref": "#/components/examples/BookingChangeBookingResponseError"
                                     }
                                 }
                             }
@@ -279,6 +312,91 @@
                     },
                     "403": {
                         "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/booking/retrieve-booking": {
+            "get": {
+                "tags": [
+                    "Booking API"
+                ],
+                "summary": "Get detailed information about a hotel.",
+                "description": "The **'/api/booking/retrieve-booking'** endpoint is a critical feature within a booking or reservation system. <br>  Its primary purpose is to provide users with the ability to retrieve a comprehensive list of items or services <br>   that have been associated with a particular booking. <br>  This endpoint is essential for users to review the details and components of their reservations.",
+                "operationId": "30ebe171f509b2a1f023f4b0ab59436d",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "Booking ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/booking/cancel-booking": {
+            "delete": {
+                "tags": [
+                    "Booking API"
+                ],
+                "summary": "Cancel Booking",
+                "description": "Cancel Booking",
+                "operationId": "3189aa0749e31e921b36de95a06c6b87",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "Booking ID",
+                        "required": true,
+                        "example": "3333cee5-b4a3-4e51-bfb0-02d09370b585"
+                    },
+                    {
+                        "name": "booking_item",
+                        "in": "query",
+                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n\t *      In the response object for each rate is a **booking_item** property. <br>\n\t *      If there is no booking_item, all items will be deleted",
+                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingCancelBookingResponse"
+                                },
+                                "examples": {
+                                    "BookingCancelBookingResponse": {
+                                        "$ref": "#/components/examples/BookingCancelBookingResponse"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -519,9 +637,44 @@
     },
     "components": {
         "schemas": {
-            "BookingAddItemRequest": {
-                "title": "Booking Add Item Request",
-                "description": "Schema Booking Add Item Request",
+            "BookingAddItemResponse": {
+                "title": "Booking Add Item Response",
+                "description": "Schema Booking Add Item Response",
+                "required": [
+                    "success",
+                    "data",
+                    "message"
+                ],
+                "properties": {
+                    "success": {
+                        "description": "Success (e.g., 'true').",
+                        "type": "boolean",
+                        "example": "true"
+                    },
+                    "data": {
+                        "required": [
+                            "booking_id"
+                        ],
+                        "properties": {
+                            "booking_id": {
+                                "description": "Booking ID (e.g., 'c0e509c2-09cd-4555-8937-73135c2c9b09').",
+                                "type": "string",
+                                "example": "c0e509c2-09cd-4555-8937-73135c2c9b09"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "description": "Message (e.g., 'success').",
+                        "type": "string",
+                        "example": "success"
+                    }
+                },
+                "type": "object"
+            },
+            "BookingBookRequest": {
+                "title": "Booking Book Request",
+                "description": "Schema Booking Book Request",
                 "required": [
                     "query"
                 ],
@@ -683,9 +836,9 @@
                 },
                 "type": "object"
             },
-            "BookingAddItemResponse": {
-                "title": "Booking Add Item Response",
-                "description": "Schema Booking Add Item Response",
+            "BookingCancelBookingResponse": {
+                "title": "Booking Remove Item Response",
+                "description": "Schema Booking Remove Item Response",
                 "required": [
                     "success",
                     "data",
@@ -693,34 +846,46 @@
                 ],
                 "properties": {
                     "success": {
-                        "description": "Success (e.g., 'true').",
+                        "description": "Indicates the success status of the response.",
                         "type": "boolean",
-                        "example": "true"
+                        "example": true
                     },
                     "data": {
-                        "required": [
-                            "booking_id"
-                        ],
+                        "description": "Data of the response.",
                         "properties": {
-                            "booking_id": {
-                                "description": "Booking ID (e.g., 'c0e509c2-09cd-4555-8937-73135c2c9b09').",
-                                "type": "string",
-                                "example": "c0e509c2-09cd-4555-8937-73135c2c9b09"
+                            "result": {
+                                "description": "Result of the response.",
+                                "type": "array",
+                                "items": {
+                                    "properties": {
+                                        "booking_item": {
+                                            "description": "Booking item.",
+                                            "type": "string",
+                                            "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                                        },
+                                        "status": {
+                                            "description": "Status of the response.",
+                                            "type": "string",
+                                            "example": "Room is already cancelled."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
                             }
                         },
                         "type": "object"
                     },
                     "message": {
-                        "description": "Message (e.g., 'success').",
+                        "description": "Message of the response.",
                         "type": "string",
                         "example": "success"
                     }
                 },
                 "type": "object"
             },
-            "BookingChangeItemRequest": {
-                "title": "Booking Change Item Request",
-                "description": "Schema Booking Add Item Request",
+            "BookingChangeBookingRequest": {
+                "title": "Booking Change Booking Request",
+                "description": "Schema Booking Add Booking Request",
                 "required": [
                     "query"
                 ],
@@ -762,9 +927,9 @@
                 },
                 "type": "object"
             },
-            "BookingChangeItemResponse": {
-                "title": "Booking Change Item Response",
-                "description": "Schema Booking Change Item Response",
+            "BookingChangeBookingResponse": {
+                "title": "Booking Change Booking Response",
+                "description": "Schema Booking Change Booking Response",
                 "required": [
                     "success",
                     "data",
@@ -786,7 +951,7 @@
             },
             "BookingRemoveItemResponse": {
                 "title": "Booking Remove Item Response",
-                "description": "Schema Booking Remove Item Response",
+                "description": "Schema of Booking Remove Item Response",
                 "required": [
                     "success",
                     "data",
@@ -794,23 +959,175 @@
                 ],
                 "properties": {
                     "success": {
-                        "description": "Indicates the success status of the response.",
+                        "description": "Success (e.g., 'true').",
                         "type": "boolean",
-                        "example": true
+                        "example": "true"
                     },
                     "data": {
-                        "description": "Data of the response.",
+                        "description": "Data",
                         "properties": {
                             "result": {
-                                "description": "Result of the response.",
-                                "type": "string",
-                                "example": "Room cancelled."
+                                "description": "Result",
+                                "properties": {
+                                    "booking_id": {
+                                        "description": "Booking ID (e.g., 'c698abfe-9bfa-45ee-a201-dc7322e008ab').",
+                                        "type": "string",
+                                        "example": "c698abfe-9bfa-45ee-a201-dc7322e008ab"
+                                    },
+                                    "booking_item": {
+                                        "description": "Booking Item (e.g., 'f8287abe-52be-43a2-8354-b8c4327786a4').",
+                                        "type": "string",
+                                        "example": "f8287abe-52be-43a2-8354-b8c4327786a4"
+                                    },
+                                    "status": {
+                                        "description": "Status (e.g., 'This item is not in the cart').",
+                                        "type": "string",
+                                        "example": "This item is not in the cart"
+                                    }
+                                },
+                                "type": "object"
                             }
                         },
                         "type": "object"
                     },
                     "message": {
-                        "description": "Message of the response.",
+                        "description": "Message (e.g., 'success').",
+                        "type": "string",
+                        "example": "success"
+                    }
+                },
+                "type": "object"
+            },
+            "BookingRetrieveItemsResponse": {
+                "title": "Booking Retrieve Items Response",
+                "description": "Schema of Booking Retrieve Items Response",
+                "required": [
+                    "success",
+                    "data",
+                    "message"
+                ],
+                "properties": {
+                    "success": {
+                        "description": "Success (e.g., 'true').",
+                        "type": "boolean",
+                        "example": "true"
+                    },
+                    "data": {
+                        "description": "Data",
+                        "properties": {
+                            "result": {
+                                "description": "Result",
+                                "properties": {
+                                    "booking_id": {
+                                        "description": "Booking ID (e.g., 'c698abfe-9bfa-45ee-a201-dc7322e008ab').",
+                                        "type": "string",
+                                        "example": "c698abfe-9bfa-45ee-a201-dc7322e008ab"
+                                    },
+                                    "booking_items": {
+                                        "description": "Booking Items",
+                                        "type": "array",
+                                        "items": {
+                                            "description": "Booking Item",
+                                            "properties": {
+                                                "booking_item": {
+                                                    "description": "Booking Item (e.g., 'f8287abe-52be-43a2-8354-b8c4327786a4').",
+                                                    "type": "string",
+                                                    "example": "f8287abe-52be-43a2-8354-b8c4327786a4"
+                                                },
+                                                "booking_item_data": {
+                                                    "description": "Booking Item Data",
+                                                    "properties": {
+                                                        "rate": {
+                                                            "description": "Rate (e.g., '382884473').",
+                                                            "type": "string",
+                                                            "example": "382884473"
+                                                        },
+                                                        "room_id": {
+                                                            "description": "Room ID (e.g., '218129262').",
+                                                            "type": "string",
+                                                            "example": "218129262"
+                                                        },
+                                                        "hotel_id": {
+                                                            "description": "Hotel ID (e.g., 60295986).",
+                                                            "type": "integer",
+                                                            "example": 60295986
+                                                        },
+                                                        "bed_groups": {
+                                                            "description": "Bed Groups (e.g., 37321).",
+                                                            "type": "integer",
+                                                            "example": 37321
+                                                        },
+                                                        "room": {
+                                                            "description": "Room",
+                                                            "properties": {
+                                                                "giata_room_code": {
+                                                                    "description": "Giata Room Code (e.g., '').",
+                                                                    "type": "string",
+                                                                    "example": ""
+                                                                },
+                                                                "giata_room_name": {
+                                                                    "description": "Giata Room Name (e.g., '').",
+                                                                    "type": "string",
+                                                                    "example": ""
+                                                                },
+                                                                "supplier_room_name": {
+                                                                    "description": "Supplier Room Name (e.g., 'Superior Room, 1 King Bed, Non Smoking').",
+                                                                    "type": "string",
+                                                                    "example": "Superior Room, 1 King Bed, Non Smoking"
+                                                                },
+                                                                "per_day_rate_breakdown": {
+                                                                    "description": "Per Day Rate Breakdown (e.g., '').",
+                                                                    "type": "string",
+                                                                    "example": ""
+                                                                },
+                                                                "total_price": {
+                                                                    "description": "Total Price (e.g., 6757.5).",
+                                                                    "type": "number",
+                                                                    "example": 6757.5
+                                                                },
+                                                                "total_tax": {
+                                                                    "description": "Total Tax (e.g., 917.5).",
+                                                                    "type": "number",
+                                                                    "example": 917.5
+                                                                },
+                                                                "total_fees": {
+                                                                    "description": "Total Fees (e.g., 480).",
+                                                                    "type": "number",
+                                                                    "example": 480
+                                                                },
+                                                                "total_net": {
+                                                                    "description": "Total Net (e.g., 5840).",
+                                                                    "type": "number",
+                                                                    "example": 5840
+                                                                },
+                                                                "affiliate_service_charge": {
+                                                                    "description": "Affiliate Service Charge (e.g., 5197.6).",
+                                                                    "type": "number",
+                                                                    "example": 5197.6
+                                                                },
+                                                                "booking_item": {
+                                                                    "description": "Booking Item (e.g., '7ba653c3-8f9a-46c0-83c2-b8a23bbd908b').",
+                                                                    "type": "string",
+                                                                    "example": "7ba653c3-8f9a-46c0-83c2-b8a23bbd908b"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "description": "Message (e.g., 'success').",
                         "type": "string",
                         "example": "success"
                     }
@@ -1744,8 +2061,18 @@
             }
         },
         "examples": {
-            "BookingAddItemRequest": {
-                "summary": "Example Booking Add Item Request",
+            "BookingAddItemResponse": {
+                "summary": "Example Booking Add Item Response",
+                "value": {
+                    "success": true,
+                    "data": {
+                        "booking_id": "c0e509c2-09cd-4555-8937-73135c2c9b09"
+                    },
+                    "message": "success"
+                }
+            },
+            "BookingBookRequest": {
+                "summary": "Example Booking Book Request",
                 "value": {
                     "query": {
                         "hold": false,
@@ -1781,18 +2108,23 @@
                     }
                 }
             },
-            "BookingAddItemResponse": {
-                "summary": "Example Booking Add Item Response",
+            "BookingCancelBookingResponse": {
+                "summary": "Example Booking Remove Item Response",
                 "value": {
                     "success": true,
                     "data": {
-                        "booking_id": "c0e509c2-09cd-4555-8937-73135c2c9b09"
+                        "result": [
+                            {
+                                "booking_item": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
+                                "status": "Room is already cancelled."
+                            }
+                        ]
                     },
                     "message": "success"
                 }
             },
-            "BookingChangeItemRequest": {
-                "summary": "Example Booking Change Item Request",
+            "BookingChangeBookingRequest": {
+                "summary": "Example Booking Change Booking Request",
                 "value": {
                     "query": {
                         "given_name": "John",
@@ -1803,15 +2135,15 @@
                     }
                 }
             },
-            "BookingChangeItemResponse": {
-                "summary": "Example Booking Change Item Response",
+            "BookingChangeBookingResponse": {
+                "summary": "Example Booking Change Booking Response",
                 "value": {
                     "success": true,
                     "message": "success"
                 }
             },
-            "BookingChangeItemResponseError": {
-                "summary": "Example Booking Change Item Response Error",
+            "BookingChangeBookingResponseError": {
+                "summary": "Example Booking Change Booking Response Error",
                 "value": {
                     "success": false,
                     "error": [
@@ -1824,20 +2156,73 @@
                 }
             },
             "BookingRemoveItemResponse": {
-                "summary": "Example Booking Remove Item Response",
+                "summary": "Example of Booking Remove Item Response",
                 "value": {
                     "success": true,
                     "data": {
-                        "result": "Room cancelled."
+                        "result": {
+                            "booking_id": "c698abfe-9bfa-45ee-a201-dc7322e008ab",
+                            "booking_item": "f8287abe-52be-43a2-8354-b8c4327786a4",
+                            "status": "This item is not in the cart"
+                        }
                     },
                     "message": "success"
                 }
             },
-            "BookingRemoveItemResponseError": {
-                "summary": "Example Booking Remove Item Response Error",
+            "BookingRetrieveItemsResponse": {
+                "summary": "Example of Booking Retrieve Items Response",
                 "value": {
-                    "success": false,
-                    "error": "Room is already cancelled."
+                    "success": true,
+                    "data": {
+                        "result": {
+                            "booking_id": "c698abfe-9bfa-45ee-a201-dc7322e008ab",
+                            "booking_items": [
+                                {
+                                    "booking_item": "7ba653c3-8f9a-46c0-83c2-b8a23bbd908b",
+                                    "booking_item_data": {
+                                        "rate": "382884473",
+                                        "room_id": "218129262",
+                                        "hotel_id": 60295986,
+                                        "bed_groups": 37321
+                                    },
+                                    "room": {
+                                        "giata_room_code": "",
+                                        "giata_room_name": "",
+                                        "supplier_room_name": "Superior Room, 1 King Bed, Non Smoking",
+                                        "per_day_rate_breakdown": "",
+                                        "total_price": 6757.5,
+                                        "total_tax": 917.5,
+                                        "total_fees": 480,
+                                        "total_net": 5840,
+                                        "affiliate_service_charge": 5197.6,
+                                        "booking_item": "7ba653c3-8f9a-46c0-83c2-b8a23bbd908b"
+                                    }
+                                },
+                                {
+                                    "booking_item": "8d9424f7-8967-41c7-a1a4-4d80f958ef50",
+                                    "booking_item_data": {
+                                        "rate": "388777728",
+                                        "room_id": "321415108",
+                                        "hotel_id": 60295986,
+                                        "bed_groups": 37321
+                                    },
+                                    "room": {
+                                        "giata_room_code": "",
+                                        "giata_room_name": "",
+                                        "supplier_room_name": "Superior Room, 1 King Bed, Non Smoking (Mobility\\/Hearing Accessible, Tub)",
+                                        "per_day_rate_breakdown": "",
+                                        "total_price": 7179.7,
+                                        "total_tax": 971.7,
+                                        "total_fees": 480,
+                                        "total_net": 6208,
+                                        "affiliate_service_charge": 5525.12,
+                                        "booking_item": "8d9424f7-8967-41c7-a1a4-4d80f958ef50"
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "message": "success"
                 }
             },
             "ContentDestinationslResponse": {

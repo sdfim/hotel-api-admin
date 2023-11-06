@@ -2,13 +2,16 @@
 
 namespace Modules\API\BookingAPI\BookingApiHandlers;
 
+use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\Supplier;
 use Exception;
 use Modules\API\BaseController;
+use Modules\API\BookingAPI\BookingApiHandlerInterface;
 use Modules\API\Requests\BookingAddItemHotelRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\API\Requests\BookingBookHotelRequest;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Illuminate\Support\Facades\Validator;
 use Modules\Inspector\SearchInspectorController;
@@ -20,7 +23,7 @@ use Spatie\FlareClient\Api;
  * path="/api/booking",
  * )
  */
-class HotelBookingApiHandler extends BaseController // implements BookingApiHandlerInterface
+class HotelBookingApiHandler extends BaseController implements BookingApiHandlerInterface
 {
 	/**
 	 * @var ExpediaService
@@ -68,17 +71,13 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
 	 *      In the response object for each rate is a **booking_item** property.",
 	 *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-	 *    ),     	  
-	 *     @OA\RequestBody(
-	 *     description="JSON object containing the details of the reservation.",
-	 *     required=true,
-	 *     @OA\JsonContent(    
-	 *       ref="#/components/schemas/BookingAddItemRequest", 
-	 *       examples={
-     *           "example1": @OA\Schema(ref="#/components/examples/BookingAddItemRequest", example="BookingAddItemRequest"),
-     *       },
-	 *     ),
-	 *   ),
+	 *    ),
+	 *    @OA\Parameter(
+	 *      name="booking_id",
+	 *      in="query",
+	 *      description="**booking_id**, if it exists",
+	 *      example="c698abfe-9bfa-45ee-a201-dc7322e008ab"
+	 *    ),
 	 *   @OA\Response(
 	 *     response=200,
 	 *     description="OK",
@@ -100,7 +99,20 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 			$bookingAddItemRequest = new BookingAddItemHotelRequest();
 			$rules = $bookingAddItemRequest->rules();
 			$filters = Validator::make($request->all(), $rules)->validated();
-
+			
+			if (request()->has('booking_id')) {
+				$apiBookingItem = ApiBookingInspector::where('booking_item', request()->get('booking_item'))
+					->where('booking_id', request()->get('booking_id'))	
+					->first();
+				if ($apiBookingItem) {
+					return $this->sendError([
+						'error' => 'booking_item, booking_id pair is not unique.', 
+						'message' => 'This item is already in your cart.'
+					]);
+				}
+				$filters['booking_id'] = request()->get('booking_id');
+			}
+			// dd($filters);
 			if(request()->has('booking_item')) {
 				$apiBookingItem = ApiBookingItem::where('booking_item', request()->get('booking_item'))->first()->toArray();
 				$filters['search_id'] = $apiBookingItem['search_id'];
@@ -138,14 +150,15 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 * @OA\Delete(
 	 *   tags={"Booking API"},
 	 *   path="/api/booking/remove-item",
-	 *   summary="Delete an item from the cart.",
-	 *   description="Delete an item from the cart.",
+	 *   summary="Add an hotel room(s) to the cart.",
+	 *   description="The **'/api/booking/add-item'** endpoint is a fundamental feature of a booking or reservation system. <br>
+	 *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
 	 *    @OA\Parameter(
 	 *      name="booking_id",
 	 *      in="query",
 	 *      required=true,
-	 *      description="Booking ID",
-	 *      example="3333cee5-b4a3-4e51-bfb0-02d09370b585"
+	 *      description="**booking_id**",
+	 *      example="c698abfe-9bfa-45ee-a201-dc7322e008ab"
 	 *    ),
 	 *    @OA\Parameter(
 	 *      name="booking_item",
@@ -155,26 +168,17 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 *      In the response object for each rate is a **booking_item** property.",
 	 *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
 	 *    ),
-	 *    @OA\Response(
-	 *      response=200,
-	 *      description="OK",
-	 *      @OA\JsonContent(
-	 *        ref="#/components/schemas/BookingRemoveItemResponse",
-	 *        examples={
-	 *        "example1": @OA\Schema(ref="#/components/examples/BookingRemoveItemResponse", example="BookingRemoveItemResponse"),
-	 *        }
-	 *      )
-	 *    ),
-	 *    @OA\Response(
-	 *      response=400,
-	 *      description="Unauthenticated",
-	 *      @OA\JsonContent(
-	 *        examples={
-	 *        "example1": @OA\Schema(ref="#/components/examples/BookingRemoveItemResponseError", example="BookingRemoveItemResponseError"),
-	 *        },
-	 *      )
-	 *    ),
-	 *    security={{ "apiAuth": {} }}
+	 *   @OA\Response(
+	 *     response=200,
+	 *     description="OK",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BookingRemoveItemResponse", 
+	 *		   examples={
+	 *             "example1": @OA\Schema(ref="#/components/examples/BookingRemoveItemResponse", example="BookingRemoveItemResponse"),
+     *         },
+	 *     )
+	 *   ),
+	 *   security={{ "apiAuth": {} }}
 	 * )
 	 */
 	public function removeItem(Request $request, string $supplier): JsonResponse
@@ -208,8 +212,8 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 * @OA\Get(
 	 *   tags={"Booking API"},
 	 *   path="/api/booking/retrieve-items",
-	 *   summary="Get detailed information about a hotel.",
-	 *   description="The **'/api/booking/retrieve-items'** endpoint is a critical feature within a booking or reservation system. <br>  Its primary purpose is to provide users with the ability to retrieve a comprehensive list of items or services <br>   that have been associated with a particular booking. <br>  This endpoint is essential for users to review the details and components of their reservations.",
+	 *   summary="Getting detailed information about the items in your shopping cart.",
+	 *   description="The **'/api/booking/retrieve-items'** endpoint is a fundamental feature of a booking <br>",
 	 *    @OA\Parameter(
 	 *      name="booking_id",
 	 *      in="query",
@@ -223,6 +227,12 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 *    @OA\Response(
 	 *      response=200,
 	 *      description="OK",
+	 *      @OA\JsonContent(
+	 *        ref="#/components/schemas/BookingRetrieveItemsResponse",
+	 *        examples={
+	 *        "example1": @OA\Schema(ref="#/components/examples/BookingRetrieveItemsResponse", example="BookingRetrieveItemsResponse"),
+	 *        }
+	 *      )
 	 *    ),
 	 *    @OA\Response(
 	 *        response=401,
@@ -251,8 +261,10 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 			\Log::error('HotelBookingApiHandler | retrieveItems ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
-
-		return $this->sendResponse(['result' => $data], 'success');
+		if (isset($data['error']))
+			return $this->sendError($data['error']);
+		else 
+			return $this->sendResponse(['result' => $data['success']], 'success');
 	}
 
 	/**
@@ -286,11 +298,72 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 * @return JsonResponse
 	 */
 	/**
+	 * @OA\Post(
+	 *   tags={"Booking API"},
+	 *   path="/api/booking/book",
+	 *   summary="Book a hotel room(s). Book all items/booking_items in the cart.",
+	 *   description="The **'/api/bookingbooking'** endpoint is a fundamental feature of a booking or reservation system. <br>
+	 *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
+	 *    @OA\Parameter(
+	 *      name="booking_id",
+	 *      in="query",
+	 *      required=true,
+	 *      description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
+	 *      In the response object for each rate is a **booking_id** property.",
+	 *    ),     	  
+	 *     @OA\RequestBody(
+	 *     description="JSON object containing the details of the reservation.",
+	 *     required=true,
+	 *     @OA\JsonContent(    
+	 *       ref="#/components/schemas/BookingBookRequest", 
+	 *       examples={
+     *           "example1": @OA\Schema(ref="#/components/examples/BookingBookRequest", example="BookingBookRequest"),
+     *       },
+	 *     ),
+	 *   ),
+	 *   @OA\Response(
+	 *     response=200,
+	 *     description="OK",
+	 *   ),
+	 *   security={{ "apiAuth": {} }}
+	 * )
+	 */
+	public function book(Request $request, string $supplier): JsonResponse
+	{
+		$data = [];
+
+		try {
+			$bookingBookRequest = new BookingBookHotelRequest();
+			$rules = $bookingBookRequest->rules();
+			$filters = Validator::make($request->all(), $rules)->validated();
+
+			$filters = array_merge($filters, $request->all());		
+
+			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+				$data = $this->expedia->book($filters);
+			}
+			// TODO: Add other suppliers
+		} catch (Exception $e) {
+			\Log::error('HotelBookingApiHandler | book ' . $e->getMessage());
+			return $this->sendError(['error' => $e->getMessage()], 'failed');
+		}
+
+		if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
+
+		return $this->sendResponse($data, 'success');
+	}
+
+	/**
+	 * @param Request $request
+	 * @param string $supplier
+	 * @return JsonResponse
+	 */
+	/**
 	 * @OA\Put(
 	 *   tags={"Booking API"},
-	 *   path="/api/booking/change-items",
-	 *   summary="Change the details of a hotel room(s) in the cart.",
-	 *   description="Change the details of a hotel room(s) in the cart.",
+	 *   path="/api/booking/change-booking",
+	 *   summary="Change the details of a hotel room(s).",
+	 *   description="Change the details of a hotel room(s).",
 	 *   @OA\Parameter(
 	 *      name="booking_id",
 	 *      in="query",
@@ -310,9 +383,9 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 *     description="JSON object containing the details of the reservation.",
 	 *     required=true,
 	 *     @OA\JsonContent(    
-	 *       ref="#/components/schemas/BookingChangeItemRequest", 
+	 *       ref="#/components/schemas/BookingChangeBookingRequest", 
 	 *       examples={
-     *           "example1": @OA\Schema(ref="#/components/examples/BookingChangeItemRequest", example="BookingAddItemRequest"),
+     *           "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingRequest", example="BookingChangeBookingRequest"),
      *       },
 	 *     ),
 	 *   ),
@@ -320,9 +393,9 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 *     response=200,
 	 *     description="OK",
 	 *     @OA\JsonContent(
-	 *       ref="#/components/schemas/BookingChangeItemResponse", 
+	 *       ref="#/components/schemas/BookingChangeBookingResponse", 
 	 *		   examples={
-	 *             "example1": @OA\Schema(ref="#/components/examples/BookingChangeItemResponse", example="BookingChangeItemResponse"),
+	 *             "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingResponse", example="BookingChangeBookingResponse"),
      *         },
 	 *     )
 	 *   ),
@@ -331,14 +404,14 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 *     description="Bad Request",
 	 *     @OA\JsonContent(
 	 *       examples={
-	 *         "example1": @OA\Schema(ref="#/components/examples/BookingChangeItemResponseError", example="BookingChangeItemResponseError"),
+	 *         "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingResponseError", example="BookingChangeBookingResponseError"),
 	 *       },
 	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}
 	 * )
 	 */
-	public function changeItems(Request $request, string $supplier): JsonResponse
+	public function changeBooking(Request $request, string $supplier): JsonResponse
 	{
 		try {
 			// TODO: add validation for request
@@ -346,7 +419,7 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 
 			$data = [];
 			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
-				$data = $this->expedia->changeItems($filters);
+				$data = $this->expedia->changeBooking($filters);
 			}
 			// TODO: Add other suppliers
 
@@ -357,15 +430,6 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 
 		if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
 		return $this->sendResponse($data ?? [], 'success');
-	}
-
-	/**
-	 * @param Request $request
-	 * @param string $supplier
-	 * @return JsonResponse
-	 */
-	public function book(Request $request, string $supplier): JsonResponse
-	{
 	}
 
 	/**
@@ -438,14 +502,95 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 	 * @param string $supplier
 	 * @return JsonResponse
 	 */
+	/**
+	 * @OA\Get(
+	 *   tags={"Booking API"},
+	 *   path="/api/booking/retrieve-booking",
+	 *   summary="Get detailed information about a hotel.",
+	 *   description="The **'/api/booking/retrieve-booking'** endpoint is a critical feature within a booking or reservation system. <br>  Its primary purpose is to provide users with the ability to retrieve a comprehensive list of items or services <br>   that have been associated with a particular booking. <br>  This endpoint is essential for users to review the details and components of their reservations.",
+	 *    @OA\Parameter(
+	 *      name="booking_id",
+	 *      in="query",
+	 *      required=true,
+	 *      description="Booking ID",
+	 *      @OA\Schema(
+	 *        type="string",
+	 *        example="5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
+	 *      )
+	 *    ),    
+	 *    @OA\Response(
+	 *      response=200,
+	 *      description="OK",
+	 *    ),
+	 *    @OA\Response(
+	 *        response=401,
+	 *        description="Unauthenticated",
+	 *    ),
+	 *    @OA\Response(
+	 *        response=403,
+	 *        description="Forbidden"
+	 *    ),
+	 *    security={{ "apiAuth": {} }}
+	 * )
+	 */
 	public function retrieveBooking(Request $request, string $supplier): JsonResponse
 	{
+		try {
+			// TODO: add validation for request
+			$filters = $request->all();
+
+			$data = [];
+			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+				$data = $this->expedia->retrieveBooking($filters);
+			}
+			// TODO: Add other suppliers
+
+		} catch (Exception $e) {
+			\Log::error('HotelBookingApiHandler | retrieveBooking ' . $e->getMessage());
+			return $this->sendError(['error' => $e->getMessage()], 'failed');
+		}
+
+		return $this->sendResponse(['result' => $data], 'success');
 	}
 
 	/**
 	 * @param Request $request
 	 * @param string $supplier
 	 * @return JsonResponse
+	 */
+	/**
+	 * @OA\Delete(
+	 *   tags={"Booking API"},
+	 *   path="/api/booking/cancel-booking",
+	 *   summary="Cancel Booking",
+	 *   description="Cancel Booking",
+	 *    @OA\Parameter(
+	 *      name="booking_id",
+	 *      in="query",
+	 *      required=true,
+	 *      description="Booking ID",
+	 *      example="3333cee5-b4a3-4e51-bfb0-02d09370b585"
+	 *    ),
+	 *    @OA\Parameter(
+	 *      name="booking_item",
+	 *      in="query",
+	 *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
+	 *      In the response object for each rate is a **booking_item** property. <br>
+	 *      If there is no booking_item, all items will be deleted",
+	 *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+	 *    ),
+	 *    @OA\Response(
+	 *      response=200,
+	 *      description="OK",
+	 *      @OA\JsonContent(
+	 *        ref="#/components/schemas/BookingCancelBookingResponse",
+	 *        examples={
+	 *        "example1": @OA\Schema(ref="#/components/examples/BookingCancelBookingResponse", example="BookingCancelBookingResponse"),
+	 *        }
+	 *      )
+	 *    ),
+	 *    security={{ "apiAuth": {} }}
+	 * )
 	 */
 		public function cancelBooking(Request $request, string $supplier): JsonResponse
 	{
@@ -460,7 +605,7 @@ class HotelBookingApiHandler extends BaseController // implements BookingApiHand
 			// TODO: Add other suppliers
 
 		} catch (Exception $e) {
-			\Log::error('HotelBookingApiHanlder | removeItem ' . $e->getMessage());
+			\Log::error('HotelBookingApiHanlder | cancelBooking ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 

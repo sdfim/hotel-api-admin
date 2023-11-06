@@ -88,4 +88,14 @@ class FlightBookingApiHandler extends BaseController implements BookingApiHandle
     {
 
     }
+
+	/**
+	 * @param Request $request
+	 * @param string $supplier
+	 * @return JsonResponse
+	 */
+	public function changeBooking(Request $request, string $supplier): JsonResponse
+	{
+
+	}
 }
