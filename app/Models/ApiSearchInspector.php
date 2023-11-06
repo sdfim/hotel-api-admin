@@ -133,4 +133,38 @@ class ApiSearchInspector extends Model
 
         return ['query' => $json_response->query, 'price' => $price, 'supplier_hotel_id' => $hotel_id];
     }
+
+    /**
+     * @return int
+     */
+    public function getTotalOccupancyAttribute(): int
+    {
+        $occupancy = $this->request['occupancy'] ?? [];
+
+        $totalAdults = 0;
+        $totalChildren = 0;
+
+        foreach ($occupancy as $occupant) {
+            $totalAdults += $occupant['adults'];
+            $totalChildren += $occupant['children'] ?? 0;
+        }
+
+        return $totalAdults + $totalChildren;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalChildrenAttribute(): int
+    {
+        $occupancy = $this->request['occupancy'] ?? [];
+
+        $totalChildren = 0;
+
+        foreach ($occupancy as $occupant) {
+            $totalChildren += $occupant['children'] ?? 0;
+        }
+
+        return $totalChildren;
+    }
 }

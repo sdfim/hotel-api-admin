@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Charts;
 
 use App\Models\GiataProperty;
 use Filament\Widgets\ChartWidget;
@@ -49,20 +49,29 @@ class GiataCityChart extends ChartWidget
             Cache::put($keyGiataCityChart . ':data', $data, now()->addMinutes(1440));
         }
 
-        $colors = [];
-        for ($i = 0; $i < count($data); $i++) {
-            $randomColor = '#' . dechex(mt_rand(0x000000, 0xFFFFFF));
-            $colors[] = $randomColor;
-        }
+        $colors = [
+            'rgb(0, 0, 255, 0.8)',
+            'rgb(0, 128, 0, 0.8)',
+            'rgb(255, 0, 0, 0.8)',
+            'rgb(255, 165, 0, 0.8)',
+            'rgb(128, 0, 128, 0.8)',
+            'rgb(0, 128, 128, 0.8)',
+            'rgb(255, 255, 0, 0.8)',
+            'rgb(255, 105, 180, 0.8)',
+            'rgb(139, 69, 19, 0.8)',
+            'rgb(0, 255, 255, 0.8)',
+            'rgb(0, 255, 0, 0.8)',
+            'rgb(255, 0, 255, 0.8)'
+        ];
 
         return [
+            'labels' => $labels,
             'datasets' => [
                 [
                     'data' => $data,
                     'backgroundColor' => $colors,
                 ],
-            ],
-            'labels' => $labels,
+            ]
         ];
     }
 

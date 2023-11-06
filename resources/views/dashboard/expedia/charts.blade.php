@@ -4,26 +4,38 @@
 @endsection
 @section('content')
     <x-page-title title="Expedia Chart" pagetitle="index"/>
-
-	<div class="grid grid-cols-2 gap-5">
-
+    <div class="grid grid-cols-2 gap-5">
         <div class="card-body relative overflow-x-auto">
-			@livewire('expedia-rating-chart')
+            @livewire('charts.expedia-rating-chart')
         </div>
         <div class="card-body relative overflow-x-auto">
-            @livewire('giata-city-chart')
+            @livewire('charts.giata-city-chart')
         </div>
-
     </div>
 
-	<div class="grid grid-cols-1 gap-5">
-
+    <div class="grid grid-cols-2 gap-5">
         <div class="card-body relative overflow-x-auto">
-            @livewire('expedia-exception-report-chart')
+            @livewire('charts.search-inspector-radar-chart')
         </div>
-
+        <div class="card-body relative overflow-x-auto">
+            @livewire('charts.search-inspector-rooms-doughnut-chart')
+        </div>
     </div>
 
-	ExpediaExceptionReportChart
+    <div class="grid grid-cols-2 gap-5">
+        <div class="card-body relative overflow-x-auto">
+            @livewire('charts.search-inspector-occupancy-doughnut-chart')
+        </div>
+        <div class="card-body relative overflow-x-auto">
+            @livewire('charts.search-inspector-children-doughnut-chart')
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-5">
+        <div class="card-body relative overflow-x-auto">
+            @livewire('charts.search-inspector-nights-doughnut-chart')
+        </div>
+        <div class="card-body relative overflow-x-auto">
+        </div>
+    </div>
 @endsection
-
