@@ -59,11 +59,10 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	/**
 	 * @OA\Post(
-	 *   tags={"Booking API"},
+	 *   tags={"Booking API | Cart Endpoints"},
 	 *   path="/api/booking/add-item",
-	 *   summary="Add an hotel room(s) to the cart.",
-	 *   description="The **'/api/booking/add-item'** endpoint is a fundamental feature of a booking or reservation system. <br>
-	 *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
+	 *   summary="Add an item to your shopping cart.",
+	 *   description="Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
 	 *    @OA\Parameter(
 	 *      name="booking_item",
 	 *      in="query",
@@ -148,11 +147,10 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	/**
 	 * @OA\Delete(
-	 *   tags={"Booking API"},
+	 *   tags={"Booking API | Cart Endpoints"},
 	 *   path="/api/booking/remove-item",
-	 *   summary="Add an hotel room(s) to the cart.",
-	 *   description="The **'/api/booking/add-item'** endpoint is a fundamental feature of a booking or reservation system. <br>
-	 *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
+	 *   summary="Remove a specific item from your shopping cart",
+	 *   description="Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",
 	 *    @OA\Parameter(
 	 *      name="booking_id",
 	 *      in="query",
@@ -210,10 +208,10 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	/**
 	 * @OA\Get(
-	 *   tags={"Booking API"},
+	 *   tags={"Booking API | Cart Endpoints"},
 	 *   path="/api/booking/retrieve-items",
-	 *   summary="Getting detailed information about the items in your shopping cart.",
-	 *   description="The **'/api/booking/retrieve-items'** endpoint is a fundamental feature of a booking <br>",
+	 *   summary="Retrieve a list of items currently in your shopping cart.",
+	 *   description="Retrieve a list of items currently in your shopping cart. This endpoint provides details about the items added to your cart.",
 	 *    @OA\Parameter(
 	 *      name="booking_id",
 	 *      in="query",
@@ -299,11 +297,10 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	/**
 	 * @OA\Post(
-	 *   tags={"Booking API"},
+	 *   tags={"Booking API | Booking Endpoints"},
 	 *   path="/api/booking/book",
-	 *   summary="Book a hotel room(s). Book all items/booking_items in the cart.",
-	 *   description="The **'/api/bookingbooking'** endpoint is a fundamental feature of a booking or reservation system. <br>
-	 *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
+	 *   summary="Create a new booking for a service or event",
+	 *   description="Create a new booking for a service or event. Use this endpoint to make reservations.",
 	 *    @OA\Parameter(
 	 *      name="booking_id",
 	 *      in="query",
@@ -360,10 +357,10 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	/**
 	 * @OA\Put(
-	 *   tags={"Booking API"},
+	 *   tags={"Booking API | Booking Endpoints"},
 	 *   path="/api/booking/change-booking",
-	 *   summary="Change the details of a hotel room(s).",
-	 *   description="Change the details of a hotel room(s).",
+	 *   summary="Modify an existing booking..",
+	 *   description="Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
 	 *   @OA\Parameter(
 	 *      name="booking_id",
 	 *      in="query",
@@ -439,10 +436,10 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	/**
 	 * @OA\Get(
-	 *   tags={"Booking API"},
+	 *   tags={"Booking API | Booking Endpoints"},
 	 *   path="/api/booking/list-bookings",
-	 *   summary="Get detailed information about a bookings.",
-	 *   description="Get detailed information about a bookings.",
+	 *   summary="Retrieve a list of all your booking reservations. ",
+	 *   description="Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
 	 *    @OA\Parameter(
 	 *      name="type",
 	 *      in="query",
@@ -504,10 +501,10 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	/**
 	 * @OA\Get(
-	 *   tags={"Booking API"},
+	 *   tags={"Booking API | Booking Endpoints"},
 	 *   path="/api/booking/retrieve-booking",
-	 *   summary="Get detailed information about a hotel.",
-	 *   description="The **'/api/booking/retrieve-booking'** endpoint is a critical feature within a booking or reservation system. <br>  Its primary purpose is to provide users with the ability to retrieve a comprehensive list of items or services <br>   that have been associated with a particular booking. <br>  This endpoint is essential for users to review the details and components of their reservations.",
+	 *   summary="Retrieve detailed information about a specific booking reservation. ",
+	 *   description="Retrieve detailed information about a specific booking reservation. This endpoint allows you to access all the information related to a particular reservation.",
 	 *    @OA\Parameter(
 	 *      name="booking_id",
 	 *      in="query",
@@ -560,9 +557,9 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	/**
 	 * @OA\Delete(
-	 *   tags={"Booking API"},
+	 *   tags={"Booking API | Booking Endpoints"},
 	 *   path="/api/booking/cancel-booking",
-	 *   summary="Cancel Booking",
+	 *   summary="Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
 	 *   description="Cancel Booking",
 	 *    @OA\Parameter(
 	 *      name="booking_id",

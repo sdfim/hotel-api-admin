@@ -10,10 +10,10 @@
         "/api/booking/add-item": {
             "post": {
                 "tags": [
-                    "Booking API"
+                    "Booking API | Cart Endpoints"
                 ],
-                "summary": "Add an hotel room(s) to the cart.",
-                "description": "The **'/api/booking/add-item'** endpoint is a fundamental feature of a booking or reservation system. <br>\n\t *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
+                "summary": "Add an item to your shopping cart.",
+                "description": "Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
                 "operationId": "2c4889c84d7cc8b291b338af2cdd8ac6",
                 "parameters": [
                     {
@@ -57,10 +57,10 @@
         "/api/booking/remove-item": {
             "delete": {
                 "tags": [
-                    "Booking API"
+                    "Booking API | Cart Endpoints"
                 ],
-                "summary": "Add an hotel room(s) to the cart.",
-                "description": "The **'/api/booking/add-item'** endpoint is a fundamental feature of a booking or reservation system. <br>\n\t *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
+                "summary": "Remove a specific item from your shopping cart",
+                "description": "Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",
                 "operationId": "02aae9b1f61cd585e15426e28fec10d9",
                 "parameters": [
                     {
@@ -105,10 +105,10 @@
         "/api/booking/retrieve-items": {
             "get": {
                 "tags": [
-                    "Booking API"
+                    "Booking API | Cart Endpoints"
                 ],
-                "summary": "Getting detailed information about the items in your shopping cart.",
-                "description": "The **'/api/booking/retrieve-items'** endpoint is a fundamental feature of a booking <br>",
+                "summary": "Retrieve a list of items currently in your shopping cart.",
+                "description": "Retrieve a list of items currently in your shopping cart. This endpoint provides details about the items added to your cart.",
                 "operationId": "920af8f674947fcd9562a18979ada532",
                 "parameters": [
                     {
@@ -155,10 +155,10 @@
         "/api/booking/book": {
             "post": {
                 "tags": [
-                    "Booking API"
+                    "Booking API | Booking Endpoints"
                 ],
-                "summary": "Book a hotel room(s). Book all items/booking_items in the cart.",
-                "description": "The **'/api/bookingbooking'** endpoint is a fundamental feature of a booking or reservation system. <br>\n\t *   It enables users to augment their existing bookings by adding new items or services, enhancing the overall booking experience.",
+                "summary": "Create a new booking for a service or event",
+                "description": "Create a new booking for a service or event. Use this endpoint to make reservations.",
                 "operationId": "5e0fedb02b1aa71019d2b6a7d8681dc7",
                 "parameters": [
                     {
@@ -199,10 +199,10 @@
         "/api/booking/change-booking": {
             "put": {
                 "tags": [
-                    "Booking API"
+                    "Booking API | Booking Endpoints"
                 ],
-                "summary": "Change the details of a hotel room(s).",
-                "description": "Change the details of a hotel room(s).",
+                "summary": "Modify an existing booking..",
+                "description": "Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
                 "operationId": "10057d6ad461f3c35ad97390bc6987b8",
                 "parameters": [
                     {
@@ -276,10 +276,10 @@
         "/api/booking/list-bookings": {
             "get": {
                 "tags": [
-                    "Booking API"
+                    "Booking API | Booking Endpoints"
                 ],
-                "summary": "Get detailed information about a bookings.",
-                "description": "Get detailed information about a bookings.",
+                "summary": "Retrieve a list of all your booking reservations. ",
+                "description": "Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
                 "operationId": "6024a2930afaa22afae39e5f4b218034",
                 "parameters": [
                     {
@@ -324,10 +324,10 @@
         "/api/booking/retrieve-booking": {
             "get": {
                 "tags": [
-                    "Booking API"
+                    "Booking API | Booking Endpoints"
                 ],
-                "summary": "Get detailed information about a hotel.",
-                "description": "The **'/api/booking/retrieve-booking'** endpoint is a critical feature within a booking or reservation system. <br>  Its primary purpose is to provide users with the ability to retrieve a comprehensive list of items or services <br>   that have been associated with a particular booking. <br>  This endpoint is essential for users to review the details and components of their reservations.",
+                "summary": "Retrieve detailed information about a specific booking reservation. ",
+                "description": "Retrieve detailed information about a specific booking reservation. This endpoint allows you to access all the information related to a particular reservation.",
                 "operationId": "30ebe171f509b2a1f023f4b0ab59436d",
                 "parameters": [
                     {
@@ -362,9 +362,9 @@
         "/api/booking/cancel-booking": {
             "delete": {
                 "tags": [
-                    "Booking API"
+                    "Booking API | Booking Endpoints"
                 ],
-                "summary": "Cancel Booking",
+                "summary": "Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
                 "description": "Cancel Booking",
                 "operationId": "3189aa0749e31e921b36de95a06c6b87",
                 "parameters": [
@@ -5420,8 +5420,12 @@
             "description": "API Endpoints of Price"
         },
         {
-            "name": "Booking API",
-            "description": "API Endpoints of Booking"
+            "name": "Booking API | Cart Endpoints",
+            "description": "API Endpoints of Cart (pre-reservation)"
+        },
+        {
+            "name": "Booking API | Booking Endpoints",
+            "description": "API Endpoints of Booking (reservation)"
         }
     ]
 }
