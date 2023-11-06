@@ -24,6 +24,9 @@ class SearchInspectorOccupancyDoughnutChart extends ChartWidget
      */
     protected static ?string $maxHeight = '400px';
 
+    /**
+     * @return array
+     */
     protected function getData(): array
     {
         $keySearchInspectorOccupancyDoughnutChart = 'SearchInspectorOccupancyDoughnutChart';
@@ -70,6 +73,9 @@ class SearchInspectorOccupancyDoughnutChart extends ChartWidget
         ];
     }
 
+    /**
+     * @return string
+     */
     protected function getType(): string
     {
         return 'doughnut';

@@ -24,6 +24,9 @@ class SearchInspectorRadarChart extends ChartWidget
      */
     protected static ?string $maxHeight = '400px';
 
+    /**
+     * @return array
+     */
     protected function getData(): array
     {
         $keySearchInspectorRadarChart = 'SearchInspectorRadarChart';
@@ -97,6 +100,9 @@ class SearchInspectorRadarChart extends ChartWidget
         ];
     }
 
+    /**
+     * @return string
+     */
     protected function getType(): string
     {
         return 'radar';

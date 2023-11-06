@@ -7,8 +7,14 @@ use Filament\Widgets\ChartWidget;
 
 class ExpediaExceptionReportChart extends ChartWidget
 {
+    /**
+     * @var string|null
+     */
     protected static ?string $heading = 'Expedia Exception Report Chart';
 
+    /**
+     * @return array
+     */
     protected function getData(): array
     {
         $model = ApiExceptionReport::select()
@@ -37,6 +43,9 @@ class ExpediaExceptionReportChart extends ChartWidget
         ];
     }
 
+    /**
+     * @return string
+     */
     protected function getType(): string
     {
         return 'bar';
