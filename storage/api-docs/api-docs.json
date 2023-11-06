@@ -104,7 +104,7 @@
                             }
                         }
                     },
-                    "401": {
+                    "400": {
                         "description": "Unauthenticated",
                         "content": {
                             "application/json": {
@@ -116,9 +116,6 @@
                                 }
                             }
                         }
-                    },
-                    "403": {
-                        "description": "Forbidden"
                     }
                 },
                 "security": [
@@ -418,7 +415,7 @@
         "/api/pricing/search": {
             "post": {
                 "tags": [
-                    "Price API"
+                    "Pricing API"
                 ],
                 "summary": "Search Price Hotels",
                 "description": "The **'/api/pricing/search'** endpoint, when used for hotel pricing, <br> is a critical part of a hotel booking API. <br> It enables users and developers to search for and obtain detailed pricing information related to hotel accommodations.",
@@ -5034,7 +5031,7 @@
             "description": "API Endpoints of Content"
         },
         {
-            "name": "Price API",
+            "name": "Pricing API",
             "description": "API Endpoints of Price"
         },
         {

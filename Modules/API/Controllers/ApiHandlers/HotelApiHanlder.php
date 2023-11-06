@@ -293,7 +293,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 */
 	/**
 	 * @OA\Post(
-	 *   tags={"Price API"},
+	 *   tags={"Pricing API"},
 	 *   path="/api/pricing/search",
 	 *   summary="Search Price Hotels",
 	 *   description="The **'/api/pricing/search'** endpoint, when used for hotel pricing, <br> is a critical part of a hotel booking API. <br> It enables users and developers to search for and obtain detailed pricing information related to hotel accommodations.",

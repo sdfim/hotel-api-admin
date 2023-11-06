@@ -24,7 +24,7 @@ use Illuminate\Http\JsonResponse;
  *   description="API Endpoints of Content"
  * ),
  * @OA\Tag(
- *   name="Price API",
+ *   name="Pricing API",
  *   description="API Endpoints of Price"
  * ),
  * @OA\Tag(
