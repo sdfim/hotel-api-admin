@@ -271,6 +271,7 @@ class ExpediaBookApiHandler extends BaseController
     {
         $booking_id = $filters['booking_id'];
         $filters['search_id'] = $bookingInspector->search_id;
+		$filters['booking_item'] = $bookingInspector->booking_item;
         $dataResponse = [];
         $json_response = json_decode(Storage::get($bookingInspector->response_path));
 

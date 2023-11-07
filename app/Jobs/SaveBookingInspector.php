@@ -48,6 +48,6 @@ class SaveBookingInspector implements ShouldQueue
 
         $this->bookingInspector->save($booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type);
 
-        if ($type == 'book' && $subType == 'retrieve') $this->expediaTools->saveAddItemToReservations($booking_id, $query);
+        if ($type == 'book' && $subType == 'create') $this->expediaTools->saveAddItemToReservations($booking_id, $query);
     }
 }
