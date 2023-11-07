@@ -1,0 +1,476 @@
+<?php
+
+namespace Modules\API\BookingAPI\BookingApiHandlers;
+
+use App\Models\ApiBookingInspector;
+use App\Models\ApiBookingItem;
+use App\Models\Supplier;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Modules\API\BaseController;
+use Modules\API\BookingAPI\ExpediaBookApiHandler;
+use Modules\API\Requests\BookingBookRequest;
+
+/**
+ * @OA\PathItem(
+ * path="/api/booking",
+ * )
+ */
+class BookApiHandler extends BaseController
+{
+    /**
+     * @var ExpediaBookApiHandler
+     */
+    private ExpediaBookApiHandler $expedia;
+    /**
+     *
+     */
+    private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
+
+    public function __construct()
+    {
+        $this->expedia = new ExpediaBookApiHandler();
+    }
+
+    /**
+     * @param Request $request
+     * @param string $supplier
+     * @return JsonResponse
+     */
+    /**
+     * @OA\Post(
+     *   tags={"Booking API | Booking Endpoints"},
+     *   path="/api/booking/book",
+     *   summary="Create a new booking for a service or event",
+     *   description="Create a new booking for a service or event. Use this endpoint to make reservations.",
+     *    @OA\Parameter(
+     *      name="booking_id",
+     *      in="query",
+     *      required=true,
+     *      description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
+     *      In the response object for each rate is a **booking_id** property.",
+     *    ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK",
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
+     */
+    public function book(Request $request): JsonResponse
+    {
+        $bookingBookRequest = new BookingBookRequest();
+        $rules = $bookingBookRequest->rules();
+        $filters = Validator::make($request->all(), $rules)->validated();
+        $filters = array_merge($filters, $request->all());
+
+        $itemsBooked = ApiBookingInspector::where('booking_id', $request->booking_id)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->get()
+            ->pluck('booking_id')
+            ->toArray();
+
+        $items = ApiBookingInspector::where('booking_id', $request->booking_id)
+            ->where('type', 'add_item')
+            ->where('sub_type', 'like', 'price_check' . '%')
+            ->whereNotIn('booking_id', $itemsBooked)
+            ->get();
+
+        if (!$items->count()) {
+            return $this->sendError(['error' => 'No items to book OR the order cart (booking_id) is complete/booked'], 'failed');
+        }
+
+        $data = [];
+        foreach ($items as $item) {
+            try {
+
+                $supplier = Supplier::where('id', $item->supplier_id)->first();
+                if ($supplier->name == self::EXPEDIA_SUPPLIER_NAME) {
+
+                    $data[] = $this->expedia->book($filters, $item);
+                }
+                // TODO: Add other suppliers
+            } catch (Exception $e) {
+                \Log::error('BookApiHandler | book ' . $e->getMessage());
+                $data[] = [
+                    'booking_id' => $item->booking_id,
+                    'booking_item' => $item->booking_item,
+                    'search_id' => $item->search_id,
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        return $this->sendResponse($data, 'success');
+    }
+
+    /**
+     * @param Request $request
+     * @param string $supplier
+     * @return JsonResponse
+     */
+    /**
+     * @OA\Put(
+     *   tags={"Booking API | Booking Endpoints"},
+     *   path="/api/booking/change-booking",
+     *   summary="Modify an existing booking..",
+     *   description="Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
+     *   @OA\Parameter(
+     *      name="booking_id",
+     *      in="query",
+     *      required=true,
+     *      description="Booking ID",
+     *      example="3333cee5-b4a3-4e51-bfb0-02d09370b585"
+     *    ),
+     *   @OA\Parameter(
+     *      name="booking_item",
+     *      in="query",
+     *      required=true,
+     *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
+     *      In the response object for each rate is a **booking_item** property.",
+     *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+     *    ),
+     *     @OA\RequestBody(
+     *     description="JSON object containing the details of the reservation.",
+     *     required=true,
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BookingChangeBookingRequest",
+     *       examples={
+     *           "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingRequest", example="BookingChangeBookingRequest"),
+     *       },
+     *     ),
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BookingChangeBookingResponse",
+     *           examples={
+     *             "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingResponse", example="BookingChangeBookingResponse"),
+     *         },
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=400,
+     *     description="Bad Request",
+     *     @OA\JsonContent(
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingResponseError", example="BookingChangeBookingResponseError"),
+     *       },
+     *     )
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
+     */
+    public function changeBooking(Request $request): JsonResponse
+    {
+        $supplierId = ApiBookingItem::where('booking_item', $request->booking_item)->first()->supplier_id;
+        $supplier = Supplier::where('id', $supplierId)->first()->name;
+        try {
+            // TODO: add validation for request
+            $filters = $request->all();
+
+            $data = [];
+            if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+                $data = $this->expedia->changeBooking($filters);
+            }
+            // TODO: Add other suppliers
+
+        } catch (Exception $e) {
+            \Log::error('BookApiHandler | changeItems ' . $e->getMessage());
+            return $this->sendError(['error' => $e->getMessage()], 'failed');
+        }
+
+        if (isset($data['errors'])) {
+            return $this->sendError($data['errors'], $data['message']);
+        }
+
+        return $this->sendResponse($data ?? [], 'success');
+    }
+
+    /**
+     * @param Request $request
+     * @param string $supplier
+     * @return JsonResponse
+     */
+    /**
+     * @OA\Get(
+     *   tags={"Booking API | Booking Endpoints"},
+     *   path="/api/booking/list-bookings",
+     *   summary="Retrieve a list of all your booking reservations. ",
+     *   description="Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
+     *    @OA\Parameter(
+     *      name="type",
+     *      in="query",
+     *      required=true,
+     *      description="Type",
+     *      @OA\Schema(
+     *        type="string",
+     *        example="hotel"
+     *      )
+     *    ),
+     *    @OA\Parameter(
+     *      name="supplier",
+     *      in="query",
+     *      required=true,
+     *      description="Supplier",
+     *      @OA\Schema(
+     *        type="string",
+     *        example="Expedia"
+     *      )
+     *    ),
+     *    @OA\Response(
+     *      response=200,
+     *      description="OK",
+     *    ),
+     *    @OA\Response(
+     *        response=401,
+     *        description="Unauthenticated",
+     *    ),
+     *    @OA\Response(
+     *        response=403,
+     *        description="Forbidden"
+     *    ),
+     *    security={{ "apiAuth": {} }}
+     * )
+     */
+    public function listBookings(Request $request): JsonResponse
+    {
+        $supplier = $request->get('supplier');
+        try {
+            // TODO: add validation for request
+            $filters = $request->all();
+
+            $data = [];
+            if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+                $data = $this->expedia->listBookings();
+            }
+            // TODO: Add other suppliers
+        } catch (Exception $e) {
+            \Log::error('HotelBookingApiHanlder | listBookings ' . $e->getMessage());
+            return $this->sendError(['error' => $e->getMessage()], 'failed');
+        }
+
+        return $this->sendResponse(['count' => count($data), 'result' => $data], 'success');
+    }
+
+    /**
+     * @param Request $request
+     * @param string $supplier
+     * @return JsonResponse
+     */
+    /**
+     * @OA\Get(
+     *   tags={"Booking API | Booking Endpoints"},
+     *   path="/api/booking/retrieve-booking",
+     *   summary="Retrieve detailed information about a specific booking reservation. ",
+     *   description="Retrieve detailed information about a specific booking reservation. This endpoint allows you to access all the information related to a particular reservation.",
+     *    @OA\Parameter(
+     *      name="booking_id",
+     *      in="query",
+     *      required=true,
+     *      description="Booking ID",
+     *      @OA\Schema(
+     *        type="string",
+     *        example="5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
+     *      )
+     *    ),
+     *    @OA\Response(
+     *      response=200,
+     *      description="OK",
+     *    ),
+     *    @OA\Response(
+     *        response=401,
+     *        description="Unauthenticated",
+     *    ),
+     *    @OA\Response(
+     *        response=403,
+     *        description="Forbidden"
+     *    ),
+     *    security={{ "apiAuth": {} }}
+     * )
+     */
+    public function retrieveBooking(Request $request): JsonResponse
+    {
+        $itemsBooked = ApiBookingInspector::bookedItems($request->booking_id);
+
+        // TODO: add validation for request
+        $filters = $request->all();
+        $data = [];
+        foreach ($itemsBooked as $item) {
+            try {
+                $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
+
+                if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+                    $data[] = $this->expedia->retrieveBooking($filters, $item);
+                }
+                // TODO: Add other suppliers
+
+            } catch (Exception $e) {
+                \Log::error('BookApiHandler | retrieveBooking ' . $e->getMessage());
+                $data[] = [
+                    'booking_id' => $item['booking_id'],
+                    'booking_item' => $item['booking_item'],
+                    'search_id' => $item['search_id'],
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        return $this->sendResponse(['result' => $data], 'success');
+    }
+
+    /**
+     * @param Request $request
+     * @param string $supplier
+     * @return JsonResponse
+     */
+    /**
+     * @OA\Delete(
+     *   tags={"Booking API | Booking Endpoints"},
+     *   path="/api/booking/cancel-booking",
+     *   summary="Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
+     *   description="Cancel Booking",
+     *    @OA\Parameter(
+     *      name="booking_id",
+     *      in="query",
+     *      required=true,
+     *      description="Booking ID",
+     *      example="3333cee5-b4a3-4e51-bfb0-02d09370b585"
+     *    ),
+     *    @OA\Parameter(
+     *      name="booking_item",
+     *      in="query",
+     *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
+     *      In the response object for each rate is a **booking_item** property. <br>
+     *      If there is no booking_item, all items will be deleted",
+     *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+     *    ),
+     *    @OA\Response(
+     *      response=200,
+     *      description="OK",
+     *      @OA\JsonContent(
+     *        ref="#/components/schemas/BookingCancelBookingResponse",
+     *        examples={
+     *        "example1": @OA\Schema(ref="#/components/examples/BookingCancelBookingResponse", example="BookingCancelBookingResponse"),
+     *        }
+     *      )
+     *    ),
+     *    security={{ "apiAuth": {} }}
+     * )
+     */
+    public function cancelBooking(Request $request): JsonResponse
+    {
+		if (isset($request->booking_item)) {
+			$itemsBooked = ApiBookingInspector::bookedItem($request->booking_id, $request->booking_item);
+		} else {
+			$itemsBooked = ApiBookingInspector::bookedItems($request->booking_id);
+		}
+		
+		// TODO: add validation for request
+        $filters = $request->all();
+        $data = [];
+        foreach ($itemsBooked as $item) {
+            try {
+                $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
+
+                if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+                    $data[] = $this->expedia->cancelBooking($filters, $item);
+                }
+                // TODO: Add other suppliers
+
+            } catch (Exception $e) {
+                \Log::error('BookApiHandler | cancelBooking ' . $e->getMessage());
+                $data[] = [
+                    'booking_id' => $item['booking_id'],
+                    'booking_item' => $item['booking_item'],
+                    'search_id' => $item['search_id'],
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        return $this->sendResponse(['result' => $data], 'success');
+	}
+
+    /**
+     * @param Request $request
+     * @param string $supplier
+     * @return JsonResponse
+     */
+    /**
+     * @OA\Get(
+     *   tags={"Booking API | Cart Endpoints"},
+     *   path="/api/booking/retrieve-items",
+     *   summary="Retrieve a list of items currently in your shopping cart.",
+     *   description="Retrieve a list of items currently in your shopping cart. This endpoint provides details about the items added to your cart.",
+     *    @OA\Parameter(
+     *      name="booking_id",
+     *      in="query",
+     *      required=true,
+     *      description="Booking ID",
+     *      @OA\Schema(
+     *        type="string",
+     *        example="5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
+     *      )
+     *    ),
+     *    @OA\Response(
+     *      response=200,
+     *      description="OK",
+     *      @OA\JsonContent(
+     *        ref="#/components/schemas/BookingRetrieveItemsResponse",
+     *        examples={
+     *        "example1": @OA\Schema(ref="#/components/examples/BookingRetrieveItemsResponse", example="BookingRetrieveItemsResponse"),
+     *        }
+     *      )
+     *    ),
+     *    @OA\Response(
+     *        response=401,
+     *        description="Unauthenticated",
+     *    ),
+     *    @OA\Response(
+     *        response=403,
+     *        description="Forbidden"
+     *    ),
+     *    security={{ "apiAuth": {} }}
+     * )
+     */
+    public function retrieveItems(Request $request): JsonResponse
+    {
+        // TODO: add validation for request
+        $filters = $request->all();
+
+        $itemsInCart = ApiBookingInspector::where('booking_id', $request->booking_id)
+            ->where('type', 'add_item')
+            ->where('sub_type', 'like', 'price_check' . '%')
+            ->get();
+
+        $res = [];
+        try {
+            foreach ($itemsInCart as $item) {
+
+                if (ApiBookingInspector::isBook($request->booking_id, $item->booking_item)) {
+                    return $this->sendError(['error' => 'Cart is empty or booked'], 'failed');
+                }
+
+                $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
+
+                $data = [];
+                if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+                    $res[] = $this->expedia->retrieveItem($filters, $item);
+                }
+                // TODO: Add other suppliers
+            }
+
+        } catch (Exception $e) {
+            \Log::error('HotelBookingApiHandler | retrieveItems ' . $e->getMessage());
+            return $this->sendError(['error' => $e->getMessage()], 'failed');
+        }
+
+        return $this->sendResponse(['result' => $res], 'success');
+
+    }
+}
