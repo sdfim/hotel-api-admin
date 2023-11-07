@@ -4,6 +4,8 @@ RUN apt-get update && apt-get install -y git zip unzip libicu-dev && rm -rf /var
 
 RUN docker-php-ext-install pdo_mysql && docker-php-ext-install mysqli && docker-php-ext-configure intl && docker-php-ext-install intl
 
+RUN pecl install redis && docker-php-ext-enable redis
+
 RUN sed -i 's/\/var\/www\/html/\/var\/www\/html\/public/g' /etc/apache2/sites-enabled/000-default.conf
 RUN a2enmod rewrite headers
 
