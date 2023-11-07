@@ -69,9 +69,14 @@ class RouteBookingApiController extends Controller
      */
     private const ROUTE_CANCEL_BOOKING = 'cancelBooking';
 	/**
+	 * 
+	 */
+	private const ROUTE_CHANGE_BOOKING = 'changeBooking';
+	/**
 	 *
 	 */
 	private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
+	
     /**
      * @var ExpediaService
      */
@@ -133,16 +138,18 @@ class RouteBookingApiController extends Controller
             'combo' => new ComboBookingApiHandler(),
             default => response()->json(['message' => 'Invalid route'], 400),
         };
+		
 
         return match ($this->route) {
             'addItem' => $dataHandler->addItem($request, $this->supplier),
             'removeItem' => $dataHandler->removeItem($request, $this->supplier),
             'retrieveItems' => $dataHandler->retrieveItems($request, $this->supplier),
-            'changeItems' => $dataHandler->changeItems($request, $this->supplier),
-            'listBookings' => $dataHandler->listBookings($request, $this->supplier),
 
             'addPassengers' => $dataHandler->addPassengers($request, $this->supplier),
+
             'book' => $dataHandler->book($request, $this->supplier),
+			'listBookings' => $dataHandler->listBookings($request, $this->supplier),
+			'changeBooking' => $dataHandler->changeBooking($request, $this->supplier),
             'retrieveBooking' => $dataHandler->retrieveBooking($request, $this->supplier),
             'cancelBooking' => $dataHandler->cancelBooking($request, $this->supplier),
             default => response()->json(['message' => 'Invalid route'], 400),
@@ -158,23 +165,23 @@ class RouteBookingApiController extends Controller
 		$this->type = $request->get('type') ?? null;
         $this->supplier = $request->get('supplier') ?? null;
 
-		# Autodetect type by booking_item
-		if(request()->has('booking_item')) {
-			$apiBookingItem = ApiBookingItem::where('booking_item', request()->get('booking_item'))->first()->toArray();
-			$this->supplier = Supplier::where('id', $apiBookingItem['supplier_id'])->first()->name;
-			$this->type = $this->searchInspector->geTypeBySearchId($apiBookingItem['search_id']);
-		}
-
-        # Autodetect type by search_id
-        if ($request->get('search_id') && $this->type == null) {
-            $this->type = $this->searchInspector->geTypeBySearchId($request->get('search_id'));
-        }
-
         # Autodetect type and supplier by booking_id
         if ($request->get('booking_id') && $this->type == null) {
             $bi = $this->bookingInspector->geTypeSupplierByBookingId($request->get('booking_id'));
             $this->type = $bi['type'];
             $this->supplier = $bi['supplier'];
+        }
+
+		# Autodetect type by booking_item
+		else if($request->has('booking_item')) {
+			$apiBookingItem = ApiBookingItem::where('booking_item', $request->has('booking_item'))->first()->toArray();
+			$this->supplier = Supplier::where('id', $apiBookingItem['supplier_id'])->first()->name;
+			$this->type = $this->searchInspector->geTypeBySearchId($apiBookingItem['search_id']);
+		}
+
+		# Autodetect type by search_id
+        else if ($request->get('search_id') && $this->type == null) {
+            $this->type = $this->searchInspector->geTypeBySearchId($request->get('search_id'));
         }
 
         $this->route = Route::currentRouteName();
@@ -204,7 +211,8 @@ class RouteBookingApiController extends Controller
             self::ROUTE_BOOK,
             self::ROUTE_LIST_BOOKINGS,
             self::ROUTE_RETRIEVE_BOOKING,
-            self::ROUTE_CANCEL_BOOKING
+            self::ROUTE_CANCEL_BOOKING,
+			self::ROUTE_CHANGE_BOOKING,
         ], true);
     }
 }

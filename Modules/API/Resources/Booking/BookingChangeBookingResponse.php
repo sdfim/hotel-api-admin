@@ -6,9 +6,9 @@ use OpenApi\Annotations as OA;
 
 /**
  * @OA\Schema(
- *   schema="BookingChangeItemResponse",
- *   title="Booking Change Item Response",
- *   description="Schema Booking Change Item Response",
+ *   schema="BookingChangeBookingResponse",
+ *   title="Booking Change Booking Response",
+ *   description="Schema Booking Change Booking Response",
  *   type="object",
  *   required={"success", "data", "message"},
  *   @OA\Property(
@@ -25,8 +25,8 @@ use OpenApi\Annotations as OA;
  *   )
  * ),
  * @OA\Examples(
- *     example="BookingChangeItemResponse",
- *     summary="Example Booking Change Item Response",
+ *     example="BookingChangeBookingResponse",
+ *     summary="Example Booking Change Booking Response",
  *     value=
  * {
  *     "success": true,
@@ -34,8 +34,8 @@ use OpenApi\Annotations as OA;
  * }
  * ),
  * @OA\Examples(
- *   example="BookingChangeItemResponseError",
- *   summary="Example Booking Change Item Response Error",
+ *   example="BookingChangeBookingResponseError",
+ *   summary="Example Booking Change Booking Response Error",
  *   value=
  * {
  *   "success": false,
@@ -50,6 +50,6 @@ use OpenApi\Annotations as OA;
  * )
  */
 
-class BookingChangeItemResponse
+class BookingChangeBookingResponse
 {
 }

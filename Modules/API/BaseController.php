@@ -28,8 +28,12 @@ use Illuminate\Http\JsonResponse;
  *   description="API Endpoints of Price"
  * ),
  * @OA\Tag(
- *   name="Booking API",
- *   description="API Endpoints of Booking"
+ *   name="Booking API | Cart Endpoints",
+ *   description="API Endpoints of Cart (pre-reservation)"
+ * ),
+ * @OA\Tag(
+ *   name="Booking API | Booking Endpoints",
+ *   description="API Endpoints of Booking (reservation)"
  * ),
  */
 
