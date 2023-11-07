@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\API\BookingAPI\BookingApiHandlers\BookApiHandler;
 use Modules\API\Controllers\RouteApiController;
 use Modules\API\Controllers\RouteBookingApiController;
 
@@ -28,13 +29,12 @@ Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'pricing'], function (
 Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'booking'], function () {
 	Route::post('/add-item',	[RouteBookingApiController::class, 'handle'])->name('addItem');
 	Route::delete('/remove-item', 	[RouteBookingApiController::class, 'handle'])->name('removeItem');
-	Route::get('/retrieve-items', [RouteBookingApiController::class, 'handle'])->name('retrieveItems');
-	
+	Route::get('/retrieve-items', [BookApiHandler::class, 'retrieveItems'])->name('retrieveItems');
 	Route::post('/add-passengers', 	[RouteBookingApiController::class, 'handle'])->name('addPassengers');
 
-	Route::post('/book', [RouteBookingApiController::class, 'handle'])->name('book');
-	Route::get('/list-bookings', [RouteBookingApiController::class, 'handle'])->name('listBookings');
-	Route::put('/change-booking', [RouteBookingApiController::class, 'handle'])->name('changeBooking');
-	Route::get('/retrieve-booking', [RouteBookingApiController::class, 'handle'])->name('retrieveBooking');
-	Route::delete('/cancel-booking', [RouteBookingApiController::class, 'handle'])->name('cancelBooking');
+	Route::post('/book', [BookApiHandler::class, 'book'])->name('book');
+	Route::get('/list-bookings', [BookApiHandler::class, 'listBookings'])->name('listBookings');
+	Route::put('/change-booking', [BookApiHandler::class, 'changeBooking'])->name('changeBooking');
+	Route::get('/retrieve-booking', [BookApiHandler::class, 'retrieveBooking'])->name('retrieveBooking');
+	Route::delete('/cancel-booking', [BookApiHandler::class, 'cancelBooking'])->name('cancelBooking');
 });

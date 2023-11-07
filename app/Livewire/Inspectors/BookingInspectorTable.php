@@ -30,11 +30,11 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(ApiBookingInspector::orderBy('created_at', 'DESC'))
             ->columns([
-                TextColumn::make('id')
+                TextColumn::make('search_id')
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
-                TextColumn::make('search_id')
+				TextColumn::make('booking_item')
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),

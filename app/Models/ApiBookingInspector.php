@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Sanctum\PersonalAccessToken;
 
 class ApiBookingInspector extends Model
 {
@@ -27,12 +27,12 @@ class ApiBookingInspector extends Model
         'search_id',
         'supplier_id',
         'search_type',
-		'booking_item',
+        'booking_item',
         'type',
         'sub_type',
         'request',
         'response_path',
-        'client_response_path'
+        'client_response_path',
     ];
 
     /**
@@ -51,29 +51,32 @@ class ApiBookingInspector extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-	protected static function boot()
+    protected static function boot()
     {
         parent::boot();
 
         static::deleted(function ($model) {
             Storage::delete($model->response_path);
-			Storage::delete($model->client_response_path);
+            Storage::delete($model->client_response_path);
         });
     }
 
     /**
      * @param string $booking_id
-	 * @param int $room_id
+     * @param int $room_id
      * @return string|null
      */
-    public function getLinkDeleteItem(string $booking_id, int $room_id): string|null
+    public function getLinkDeleteItem(string $booking_id, string $booking_item, int $room_id): string | null
     {
         $inspector = ApiBookingInspector::where('type', 'book')
+			->where('booking_item', $booking_item)
             ->where('sub_type', 'like', 'retrieve' . '%')
             ->where('booking_id', $booking_id)
             ->first();
 
-		if (!isset($inspector)) return null;
+        if (!isset($inspector)) {
+            return null;
+        }
 
         $json_response = json_decode(Storage::get($inspector->response_path));
         $rooms = $json_response->rooms;
@@ -91,10 +94,10 @@ class ApiBookingInspector extends Model
 
     /**
      * @param string $booking_id
-	 * @param int $room_id
+     * @param int $room_id
      * @return string|null
      */
-    public function getLinkPutMethod(string $booking_id, int $room_id): string|null
+    public function getLinkPutMethod(string $booking_id, int $room_id): string | null
     {
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve' . '%')
@@ -119,7 +122,7 @@ class ApiBookingInspector extends Model
      * @param $filters
      * @return string|null
      */
-    public function getItineraryId($filters): null|string
+    public function getItineraryId($filters): null | string
     {
         $booking_id = $filters['booking_id'];
 
@@ -137,7 +140,7 @@ class ApiBookingInspector extends Model
      * @param $filters
      * @return string|null
      */
-    public function getSearchId($filters): null|string
+    public function getSearchId($filters): null | string
     {
         $booking_id = $filters['booking_id'];
 
@@ -153,7 +156,7 @@ class ApiBookingInspector extends Model
      * @param $booking_id
      * @return string|null
      */
-    public function getLinkRetrieveItem($booking_id): string|null
+    public function getLinkRetrieveItem($booking_id): string | null
     {
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'create' . '%')
@@ -169,14 +172,14 @@ class ApiBookingInspector extends Model
      * @param $channel
      * @return array|null
      */
-    public function getAffiliateReferenceIdByChannel($channel): array|null
+    public function getAffiliateReferenceIdByChannel($channel): array | null
     {
         $inspectors = ApiBookingInspector::where('token_id', $channel)
             ->where(function ($query) {
                 $query->where(function ($query) {
                     $query->where('type', 'add_item')
                         ->where('sub_type', 'like', 'retrieve' . '%');
-                })// ->orWhere('type', 'retrieve_items')
+                }) // ->orWhere('type', 'retrieve_items')
                 ;
             })
             ->get();
@@ -187,7 +190,7 @@ class ApiBookingInspector extends Model
             if (isset($json_response->affiliate_reference_id)) {
                 $list[] = [
                     'affiliate_reference_id' => $json_response->affiliate_reference_id,
-                    'email' => $json_response->email
+                    'email' => $json_response->email,
                 ];
             }
         }
@@ -203,5 +206,56 @@ class ApiBookingInspector extends Model
     {
         $search = ApiBookingInspector::where('booking_id', $booking_id)->first();
         return ['type' => $search->search_type, 'supplier' => $search->supplier->name];
+    }
+
+    /**
+     * @param string $booking_id
+     * @param string $booking_item
+     * @return bool
+     */
+    public static function isBook(string $booking_id, string $booking_item): bool
+    {
+        return ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('booking_item', $booking_item)
+            ->where('type', 'book')
+            ->exists();
+    }
+
+    /**
+     * @param string $booking_id
+     * @param string $booking_item
+     * @return bool
+     */
+    public static function isDuplicate(string $booking_id, string $booking_item): bool
+    {
+        return ApiBookingInspector::where('booking_item', request()->get('booking_item'))
+            ->where('booking_id', request()->get('booking_id'))
+            ->exists();
+    }
+
+	/**
+	 * @param string $booking_id
+	 * @return object
+	 */
+    public static function bookedItems(string $booking_id): object
+    {
+        return ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->get();
+    }
+
+	/**
+	 * @param string $booking_id
+	 * @param string $booking_item
+	 * @return object
+	 */
+    public static function bookedItem(string $booking_id, string $booking_item): object
+    {
+        return ApiBookingInspector::where('booking_id', $booking_id)
+			->where('booking_item', $booking_item)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->get();
     }
 }

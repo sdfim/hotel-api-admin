@@ -118,7 +118,7 @@ class ExpediaPricingDto
 		// TODO: uncomment this line after add Redis
 		// SaveBookingItems::dispatch($this->bookingItems);
 
-        return ['response' => $hotelResponse, 'bookingItems' =>$this->bookingItems];
+        return ['response' => $hotelResponse, 'bookingItems' => $this->bookingItems];
     }
 
     /**
