@@ -31,9 +31,6 @@ class GiataCityChart extends ChartWidget
     {
         $keyGiataCityChart = 'GiataCityChart';
 
-        Cache::delete($keyGiataCityChart . ':labels');
-        Cache::delete($keyGiataCityChart . ':data');
-
         if (Cache::has($keyGiataCityChart . ':labels') && Cache::has($keyGiataCityChart . ':data')) {
             $labels = Cache::get($keyGiataCityChart . ':labels');
             $data = Cache::get($keyGiataCityChart . ':data');

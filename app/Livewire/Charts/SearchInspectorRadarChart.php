@@ -31,8 +31,6 @@ class SearchInspectorRadarChart extends ChartWidget
     {
         $keySearchInspectorRadarChart = 'SearchInspectorRadarChart';
 
-        Cache::delete($keySearchInspectorRadarChart . ':data');
-
         if (Cache::has($keySearchInspectorRadarChart . ':data')) {
             $data = Cache::get($keySearchInspectorRadarChart . ':data');
         } else {
