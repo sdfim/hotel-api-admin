@@ -19,48 +19,14 @@
         <div class="col-span-12">
             <div class="card dark:bg-zinc-800 dark:border-zinc-600">
                 <div class="card-body relative overflow-x-auto">
-                    <canvas id="myChart"></canvas>
+                    <div class="card-body relative overflow-x-auto">
+                        @livewire('charts.expedia-exception-report-chart')
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 @endsection
 @section('js')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-       var data = {
-            labels: <?=json_encode($dates)?>,
-            datasets: [
-                {
-                    label: "Success",
-                    backgroundColor: "rgba(75, 192, 192, 0.2)",
-                    borderColor: "rgba(75, 192, 192, 1)",
-                    borderWidth: 1,
-                    data: <?=json_encode($success)?> // Значение первого бара
-                },
-                {
-                    label: "Error",
-                    backgroundColor: "rgba(255, 99, 132, 0.2)",
-                    borderColor: "rgba(255, 99, 132, 1)",
-                    borderWidth: 1,
-                    data: <?=json_encode($errors)?> // Значение второго бара
-                }
-            ],
-            
-        };
 
-        var options = {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        };
-        var ctx = document.getElementById('myChart').getContext('2d');
-        var myChart = new Chart(ctx, {
-            type: 'bar',
-            data: data,
-            options: options
-        });
-    </script>
 @endsection
