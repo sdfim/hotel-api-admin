@@ -375,10 +375,18 @@ class ExpediaHotelBookingApiHandler
 			$passengers = ApiBookingInspector::where('booking_id', $booking_id)
 				->where('booking_item', $filters['booking_item'])
 				->where('type', 'add_passengers')
-				->first()
-				->toArray();
+				->first();
 
-			$dataPassengers = json_decode($passengers['request'], true);
+			if (!$passengers) {
+				return [
+					'error' => 'Passengers not found.',
+					'booking_item' => $filters['booking_item'],
+				];
+			} else {
+				$passengersArr = $passengers->toArray();
+			}
+
+			$dataPassengers = json_decode($passengersArr['request'], true);
 			// dd($dataPassengers);
 
             # Booking POST query - Create Booking
