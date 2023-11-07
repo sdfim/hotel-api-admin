@@ -31,13 +31,14 @@ class SearchInspectorRadarChart extends ChartWidget
     {
         $keySearchInspectorRadarChart = 'SearchInspectorRadarChart';
 
+        Cache::delete($keySearchInspectorRadarChart . ':data');
+
         if (Cache::has($keySearchInspectorRadarChart . ':data')) {
             $data = Cache::get($keySearchInspectorRadarChart . ':data');
         } else {
             $giataGeographies = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_geographies';
             $data = ApiSearchInspector::select(
-                DB::raw("COALESCE((SELECT city_name FROM $giataGeographies WHERE city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))),
-                    JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
+                DB::raw("COALESCE(gg.city_name, JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
                 DB::raw("CAST(AVG(JSON_EXTRACT(request, '$.rating')) AS DECIMAL(5,2)) AS avg_rating"),
                 DB::raw("CAST(AVG(JSON_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy')))) AS DECIMAL(5,2)) AS avg_rooms"),
                 DB::raw("CAST(AVG(oc.adults + oc.children) AS DECIMAL(5,2)) AS avg_occupancy"),
@@ -45,6 +46,9 @@ class SearchInspectorRadarChart extends ChartWidget
                 DB::raw("CAST(AVG(DATEDIFF(JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkout')), JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkin')))) AS DECIMAL(5,2)) AS avg_days")
             )
                 ->crossJoin(DB::raw("JSON_TABLE(request, '$.occupancy[*]' COLUMNS (adults INT PATH '$.adults' DEFAULT '0' ON EMPTY, children INT PATH '$.children' DEFAULT '0' ON EMPTY)) oc"))
+                ->leftJoin($giataGeographies . ' AS gg', function ($join) {
+                    $join->on(DB::raw("gg.city_id"), '=', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))"));
+                })
                 ->groupBy('destination')
                 ->orderBy('avg_rating', 'DESC')
                 ->limit(5)

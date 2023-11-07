@@ -38,10 +38,12 @@ class SearchInspectorNightsDoughnutChart extends ChartWidget
         } else {
             $giataGeographies = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_geographies';
             $model = ApiSearchInspector::select(
-                DB::raw("COALESCE((SELECT city_name FROM $giataGeographies WHERE city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))),
-                    JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
+                DB::raw("COALESCE(gg.city_name, JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
                 DB::raw("SUM(DATEDIFF(JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkout')), JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkin'))) - 1) AS nights")
             )
+                ->leftJoin($giataGeographies . ' AS gg', function ($join) {
+                    $join->on(DB::raw("gg.city_id"), '=', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))"));
+                })
                 ->groupBy('destination')
                 ->orderBy('nights', 'DESC')
                 ->limit(5)

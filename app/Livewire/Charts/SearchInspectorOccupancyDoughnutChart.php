@@ -37,11 +37,13 @@ class SearchInspectorOccupancyDoughnutChart extends ChartWidget
         } else {
             $giataGeographies = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_geographies';
             $model = ApiSearchInspector::select(
-                DB::raw("COALESCE((SELECT city_name FROM $giataGeographies WHERE city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))),
-                    JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
+                DB::raw("COALESCE(gg.city_name, JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
                 DB::raw("SUM(oc.adults + oc.children) AS occupancy"),
             )
                 ->crossJoin(DB::raw("JSON_TABLE(request, '$.occupancy[*]' COLUMNS (adults INT PATH '$.adults' DEFAULT '0' ON EMPTY, children INT PATH '$.children' DEFAULT '0' ON EMPTY)) oc"))
+                ->leftJoin($giataGeographies . ' AS gg', function ($join) {
+                    $join->on(DB::raw("gg.city_id"), '=', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))"));
+                })
                 ->groupBy('destination')
                 ->orderBy('occupancy', 'DESC')
                 ->limit(5)

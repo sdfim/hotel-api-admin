@@ -31,12 +31,14 @@ class GiataCityChart extends ChartWidget
     {
         $keyGiataCityChart = 'GiataCityChart';
 
+        Cache::delete($keyGiataCityChart . ':labels');
+        Cache::delete($keyGiataCityChart . ':data');
+
         if (Cache::has($keyGiataCityChart . ':labels') && Cache::has($keyGiataCityChart . ':data')) {
             $labels = Cache::get($keyGiataCityChart . ':labels');
             $data = Cache::get($keyGiataCityChart . ':data');
         } else {
-            $model = GiataProperty::with('giataGeography')
-                ->select('city_id', 'city', DB::raw('count(*) as total'))
+            $model = GiataProperty::select('city_id', 'city', DB::raw('count(*) as total'))
                 ->groupBy('city_id', 'city')
                 ->orderBy('total', 'DESC')
                 ->take(10)
