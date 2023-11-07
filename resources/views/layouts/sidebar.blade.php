@@ -73,11 +73,23 @@
                     </ul>
                 </li>
                 <li class="@if(Route::currentRouteName() == 'content-loader-exceptions.show') mm-active @endif">
-                    <a href="{{ Route('content-loader-exceptions.index') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                    <a href="javascript: void(0);" aria-expanded="false"
+                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-graph-line"></i>
-                        <span data-key="t-content-loader-exception"> Exceptions Report</span>
+                        <span data-key="t-inspector">Exceptions Report</span>
                     </a>
+                    <ul>
+                        <li>
+                            <a href="{{ Route('content-loader-exceptions.index') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
+                                Data</a>
+                        </li>
+                        <li>
+                            <a href="{{ Route('content-loader-exceptions-charts.index') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
+                                Chart</a>
+                        </li>
+                    </ul>
                 </li>
                 <li>
                     <a href="javascript: void(0);" aria-expanded="false"
