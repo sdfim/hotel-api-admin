@@ -239,6 +239,58 @@ class ExpediaHotelBookingApiHandler
      */
     public function addPassengers(array $filters): array | null
     {
+		$booking_id = $filters['booking_id'];
+		$filters['search_id'] = ApiBookingInspector::where('booking_id', $filters['booking_id'])->first()->search_id;
+
+		$bookingItem = ApiBookingInspector::where('booking_id', $booking_id)
+			->where('booking_item', $filters['booking_item'])
+			->where('type', 'add_passengers');
+
+		$apiSearchInspector = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->request;
+
+		$countRooms = count(json_decode($apiSearchInspector, true)['occupancy']);
+
+		if ($countRooms != count($filters['rooms'])) {
+			$res = [
+				'error' => [
+					'booking_id' => $booking_id,
+					'booking_item' => $filters['booking_item'],
+					'status' => 'The number of rooms does not match the number of rooms in the search. Must be ' . $countRooms . ' rooms.',
+				]
+			];
+			return $res;
+		}
+
+		if ($bookingItem->get()->count() > 0) {
+			$bookingItem->delete();
+			$status = 'Passengers updated to booking.';
+			$subType = 'updated';
+		} else {
+			$status = 'Passengers added to booking.';
+			$subType = 'add';
+		}
+
+		$res = [
+			'success' =>
+				[
+					'booking_id' => $booking_id,
+					'booking_item' => $filters['booking_item'],
+					'status' => $status,
+				]
+			];
+
+		SaveBookingInspector::dispatch([
+			$booking_id,
+			$filters,
+			[],
+			$res,
+			1,
+			'add_passengers',
+			$subType,
+			'hotel',
+		]);
+
+		return $res;
     }
 
     /**
@@ -304,8 +356,6 @@ class ExpediaHotelBookingApiHandler
      */
     public function book(array $filters): array | null
     {
-        $queryHold = $filters['query']['hold'] ?? false;
-
         $booking_id = $filters['booking_id'];
         $bookLinks = ApiBookingInspector::where('type', 'add_item')
             ->where('sub_type', 'like', 'price_check' . '%')
@@ -314,17 +364,37 @@ class ExpediaHotelBookingApiHandler
 
         foreach ($bookLinks as $bookLink) {
 
+			$queryHold = $filters['query']['hold'] ?? false;
+
             $dataResponse = json_decode(Storage::get($bookLink->response_path));
 
             $linkBookItineraries = $dataResponse->links->book->href;
             $filters['search_id'] = $bookLink->search_id;
             $filters['booking_item'] = $bookLink->booking_item;
 
+			$passengers = ApiBookingInspector::where('booking_id', $booking_id)
+				->where('booking_item', $filters['booking_item'])
+				->where('type', 'add_passengers')
+				->first()
+				->toArray();
+
+			$dataPassengers = json_decode($passengers['request'], true);
+			// dd($dataPassengers);
+
             # Booking POST query - Create Booking
             // TODO: need check count of rooms. count(rooms) in current query == count(rooms) in search query
             $props = $this->getPathParamsFromLink($linkBookItineraries);
-            $bodyArr = $filters['query'];
+
+            // $bodyArr = $filters['query'];
+			$bodyArr = $dataPassengers;
+
             $bodyArr['affiliate_reference_id'] = 'UJV_' . time();
+
+			// TODO: need move it to config or const
+			foreach ($bodyArr['payments'] as $key => $payment) {
+				$bodyArr['payments'][$key]['type'] = 'affiliate_collect';
+			}
+
             $body = json_encode($bodyArr);
             $addHeaders = [
                 'Customer-Ip' => '5.5.5.5',

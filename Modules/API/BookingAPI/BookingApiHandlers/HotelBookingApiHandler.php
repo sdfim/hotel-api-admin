@@ -270,6 +270,44 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 * @param string $supplier
 	 * @return JsonResponse
 	 */
+	/**
+	 * @OA\Post(
+	 *   tags={"Booking API | Cart Endpoints"},
+	 *   path="/api/booking/add-passengers",
+	 *   summary="Add passengers to a booking.",
+	 *   description="Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
+	 *     @OA\Parameter(
+	 *       name="booking_id",
+	 *       in="query",
+	 *       required=true,
+	 *       description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
+	 *       In the response object for each rate is a **booking_id** property.",
+	 *     ),
+	 *     @OA\Parameter(
+	 *       name="booking_item",
+	 *       in="query",
+	 *       required=true,
+	 *       description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
+	 *       In the response object for each rate is a **booking_item** property.",
+	 *       example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+	 *     ),
+	 *     @OA\RequestBody(
+	 *     description="JSON object containing the details of the reservation.",
+	 *     required=true,
+	 *     @OA\JsonContent(    
+	 *       ref="#/components/schemas/BookingAddPassengersRequest", 
+	 *       examples={
+     *           "example1": @OA\Schema(ref="#/components/examples/BookingAddPassengersRequest", example="BookingAddPassengersRequest"),
+     *       },
+	 *     ),
+	 *   ),
+	 *   @OA\Response(
+	 *     response=200,
+	 *     description="OK",
+	 *   ),
+	 *   security={{ "apiAuth": {} }}
+	 * )
+	 */
 	public function addPassengers(Request $request, string $supplier): JsonResponse
 	{
 		try {
@@ -287,7 +325,8 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 
-		return $this->sendResponse(['count' => count($data), 'result' => $data], 'success');
+		if (isset($data['error'])) return $this->sendError($data['error']);
+		return $this->sendResponse(['result' => $data['success']], 'success');
 	}
 
 	/**
@@ -308,16 +347,6 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 *      description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
 	 *      In the response object for each rate is a **booking_id** property.",
 	 *    ),     	  
-	 *     @OA\RequestBody(
-	 *     description="JSON object containing the details of the reservation.",
-	 *     required=true,
-	 *     @OA\JsonContent(    
-	 *       ref="#/components/schemas/BookingBookRequest", 
-	 *       examples={
-     *           "example1": @OA\Schema(ref="#/components/examples/BookingBookRequest", example="BookingBookRequest"),
-     *       },
-	 *     ),
-	 *   ),
 	 *   @OA\Response(
 	 *     response=200,
 	 *     description="OK",

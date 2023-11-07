@@ -152,6 +152,57 @@
                 ]
             }
         },
+        "/api/booking/add-passengers": {
+            "post": {
+                "tags": [
+                    "Booking API | Cart Endpoints"
+                ],
+                "summary": "Add passengers to a booking.",
+                "description": "Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
+                "operationId": "0d08e953f2ed94194075f3d3e3e60b73",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n\t *       In the response object for each rate is a **booking_id** property.",
+                        "required": true
+                    },
+                    {
+                        "name": "booking_item",
+                        "in": "query",
+                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n\t *       In the response object for each rate is a **booking_item** property.",
+                        "required": true,
+                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                    }
+                ],
+                "requestBody": {
+                    "description": "JSON object containing the details of the reservation.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingAddPassengersRequest"
+                            },
+                            "examples": {
+                                "BookingAddPassengersRequest": {
+                                    "$ref": "#/components/examples/BookingAddPassengersRequest"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/booking/book": {
             "post": {
                 "tags": [
@@ -168,22 +219,6 @@
                         "required": true
                     }
                 ],
-                "requestBody": {
-                    "description": "JSON object containing the details of the reservation.",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BookingBookRequest"
-                            },
-                            "examples": {
-                                "BookingBookRequest": {
-                                    "$ref": "#/components/examples/BookingBookRequest"
-                                }
-                            }
-                        }
-                    }
-                },
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -672,156 +707,103 @@
                 },
                 "type": "object"
             },
-            "BookingBookRequest": {
-                "title": "Booking Book Request",
-                "description": "Schema Booking Book Request",
+            "BookingAddPassengersRequest": {
+                "title": "Booking Add Passengers Request",
+                "description": "Schema Booking Add Passengers Reques",
                 "required": [
                     "query"
                 ],
                 "properties": {
-                    "query": {
-                        "required": [
-                            "hold",
-                            "email",
-                            "phone",
-                            "rooms",
-                            "payments"
-                        ],
+                    "email": {
+                        "description": "Email",
+                        "type": "string",
+                        "example": "john@example.com"
+                    },
+                    "phone": {
+                        "description": "Phone",
                         "properties": {
-                            "hold": {
-                                "description": "Hold booking (e.g., 'false').",
-                                "type": "boolean",
-                                "example": "false"
-                            },
-                            "email": {
-                                "description": "Email of the customer (e.g., 'john@example.com').",
+                            "country_code": {
+                                "description": "Country Code",
                                 "type": "string",
-                                "format": "email",
-                                "example": "john@example.com"
+                                "example": "1"
                             },
-                            "phone": {
-                                "required": [
-                                    "country_code",
-                                    "area_code",
-                                    "number"
-                                ],
-                                "properties": {
-                                    "country_code": {
-                                        "description": "Country code of the phone number (e.g., '1').",
-                                        "type": "string",
-                                        "example": "1"
-                                    },
-                                    "area_code": {
-                                        "description": "Area code of the phone number (e.g., '487').",
-                                        "type": "string",
-                                        "example": "487"
-                                    },
-                                    "number": {
-                                        "description": "Number of the phone number (e.g., '5550077').",
-                                        "type": "string",
-                                        "example": "5550077"
-                                    }
+                            "area_code": {
+                                "description": "Area Code",
+                                "type": "string",
+                                "example": "487"
+                            },
+                            "number": {
+                                "description": "Number",
+                                "type": "string",
+                                "example": "5550077"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "rooms": {
+                        "description": "Rooms",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "given_name": {
+                                    "description": "Given Name",
+                                    "type": "string",
+                                    "example": "John"
                                 },
-                                "type": "object"
+                                "family_name": {
+                                    "description": "Family Name",
+                                    "type": "string",
+                                    "example": "Portman"
+                                }
                             },
-                            "rooms": {
-                                "description": "Rooms of the booking",
-                                "type": "array",
-                                "items": {
-                                    "required": [
-                                        "given_name",
-                                        "family_name"
-                                    ],
+                            "type": "object"
+                        }
+                    },
+                    "payments": {
+                        "description": "Payments",
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "billing_contact": {
+                                    "description": "Billing Contact",
                                     "properties": {
                                         "given_name": {
-                                            "description": "Given name of the customer (e.g., 'John').",
+                                            "description": "Given Name",
                                             "type": "string",
                                             "example": "John"
                                         },
                                         "family_name": {
-                                            "description": "Family name of the customer (e.g., 'Portman').",
+                                            "description": "Family Name",
                                             "type": "string",
-                                            "example": "Portman"
+                                            "example": "Smith"
                                         },
-                                        "smoking": {
-                                            "description": "Smoking room (e.g., 'false').",
-                                            "type": "boolean",
-                                            "example": "false"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            },
-                            "payments": {
-                                "description": "Payments of the booking",
-                                "type": "array",
-                                "items": {
-                                    "required": [
-                                        "type",
-                                        "billing_contact"
-                                    ],
-                                    "properties": {
-                                        "type": {
-                                            "description": "Type of the payment (e.g., 'affiliate_collect').",
-                                            "type": "string",
-                                            "enum": [
-                                                "affiliate_collect"
-                                            ],
-                                            "example": "affiliate_collect"
-                                        },
-                                        "billing_contact": {
-                                            "required": [
-                                                "given_name",
-                                                "family_name",
-                                                "address"
-                                            ],
+                                        "address": {
+                                            "description": "Address",
                                             "properties": {
-                                                "given_name": {
-                                                    "description": "Given name of the customer (e.g., 'John').",
+                                                "line_1": {
+                                                    "description": "Line 1",
                                                     "type": "string",
-                                                    "example": "John"
+                                                    "example": "555 1st St"
                                                 },
-                                                "family_name": {
-                                                    "description": "Family name of the customer (e.g., 'Smith').",
+                                                "city": {
+                                                    "description": "City",
                                                     "type": "string",
-                                                    "example": "Smith"
+                                                    "example": "Seattle"
                                                 },
-                                                "address": {
-                                                    "required": [
-                                                        "line_1",
-                                                        "city",
-                                                        "state_province_code",
-                                                        "postal_code",
-                                                        "country_code"
-                                                    ],
-                                                    "properties": {
-                                                        "line_1": {
-                                                            "description": "Address line 1 (e.g., '555 1st St').",
-                                                            "type": "string",
-                                                            "example": "555 1st St"
-                                                        },
-                                                        "city": {
-                                                            "description": "City (e.g., 'Seattle').",
-                                                            "type": "string",
-                                                            "example": "Seattle"
-                                                        },
-                                                        "state_province_code": {
-                                                            "description": "State or province code (e.g., 'WA').",
-                                                            "type": "string",
-                                                            "example": "WA"
-                                                        },
-                                                        "postal_code": {
-                                                            "description": "Postal code (e.g., '98121').",
-                                                            "type": "string",
-                                                            "example": "98121"
-                                                        },
-                                                        "country_code": {
-                                                            "description": "Country code (e.g., 'US').",
-                                                            "type": "string",
-                                                            "example": "US"
-                                                        }
-                                                    },
-                                                    "type": "object"
+                                                "state_province_code": {
+                                                    "description": "State Province Code",
+                                                    "type": "string",
+                                                    "example": "WA"
+                                                },
+                                                "postal_code": {
+                                                    "description": "Postal Code",
+                                                    "type": "string",
+                                                    "example": "98121"
+                                                },
+                                                "country_code": {
+                                                    "description": "Country Code",
+                                                    "type": "string",
+                                                    "example": "US"
                                                 }
                                             },
                                             "type": "object"
@@ -829,9 +811,9 @@
                                     },
                                     "type": "object"
                                 }
-                            }
-                        },
-                        "type": "object"
+                            },
+                            "type": "object"
+                        }
                     }
                 },
                 "type": "object"
@@ -2071,41 +2053,36 @@
                     "message": "success"
                 }
             },
-            "BookingBookRequest": {
-                "summary": "Example Booking Book Request",
+            "BookingAddPassengersRequest": {
+                "summary": "Example Booking Add Passengers Request",
                 "value": {
-                    "query": {
-                        "hold": false,
-                        "email": "john@example.com",
-                        "phone": {
-                            "country_code": "1",
-                            "area_code": "487",
-                            "number": "5550077"
-                        },
-                        "rooms": [
-                            {
+                    "email": "john@example.com",
+                    "phone": {
+                        "country_code": "1",
+                        "area_code": "487",
+                        "number": "5550077"
+                    },
+                    "rooms": [
+                        {
+                            "given_name": "John",
+                            "family_name": "Portman"
+                        }
+                    ],
+                    "payments": [
+                        {
+                            "billing_contact": {
                                 "given_name": "John",
-                                "family_name": "Portman",
-                                "smoking": false
-                            }
-                        ],
-                        "payments": [
-                            {
-                                "type": "affiliate_collect",
-                                "billing_contact": {
-                                    "given_name": "John",
-                                    "family_name": "Smith",
-                                    "address": {
-                                        "line_1": "555 1st St",
-                                        "city": "Seattle",
-                                        "state_province_code": "WA",
-                                        "postal_code": "98121",
-                                        "country_code": "US"
-                                    }
+                                "family_name": "Smith",
+                                "address": {
+                                    "line_1": "555 1st St",
+                                    "city": "Seattle",
+                                    "state_province_code": "WA",
+                                    "postal_code": "98121",
+                                    "country_code": "US"
                                 }
                             }
-                        ]
-                    }
+                        }
+                    ]
                 }
             },
             "BookingCancelBookingResponse": {
