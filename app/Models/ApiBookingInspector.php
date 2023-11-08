@@ -79,6 +79,7 @@ class ApiBookingInspector extends Model
         }
 
         $json_response = json_decode(Storage::get($inspector->response_path));
+
         $rooms = $json_response->rooms;
 
         $linkDeleteItem = '';
@@ -258,4 +259,16 @@ class ApiBookingInspector extends Model
             ->where('sub_type', 'create')
             ->get();
     }
+	/*
+	 * @param string $booking_id
+	 * @param string $booking_item
+	 * @return object
+	 */
+	public static function getPassengers(string $booking_id, string $booking_item): object
+	{
+		return ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('booking_item', $booking_item)
+            ->where('type', 'add_passengers')
+            ->first();
+	}
 }

@@ -7,17 +7,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Modules\API\Suppliers\ExpediaSupplier\ExpediaTools;
 use Modules\Inspector\BookingInspectorController;
 
 class SaveBookingInspector implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    /**
-     * @var ExpediaTools
-     */
-    private ExpediaTools $expediaTools;
 
     /**
      * @var BookingInspectorController
@@ -34,7 +28,6 @@ class SaveBookingInspector implements ShouldQueue
      */
     public function __construct($dataQueue)
     {
-        $this->expediaTools = new ExpediaTools();
         $this->bookingInspector = new BookingInspectorController();
         $this->dataQueue = $dataQueue;
     }
@@ -47,7 +40,5 @@ class SaveBookingInspector implements ShouldQueue
         [$booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type] = $this->dataQueue;
 
         $this->bookingInspector->save($booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type);
-
-        if ($type == 'book' && $subType == 'create') $this->expediaTools->saveAddItemToReservations($booking_id, $query);
     }
 }
