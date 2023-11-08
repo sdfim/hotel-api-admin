@@ -17,7 +17,7 @@ class ExpediaRatingChart extends ChartWidget
     /**
      * @var string|null
      */
-    protected static ?string $pollingInterval = null;
+    protected static ?string $pollingInterval = '86400s';
 
     /**
      * @var string|null
