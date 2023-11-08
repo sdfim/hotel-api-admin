@@ -65,11 +65,11 @@ class SearchInspectorRadarChart extends ChartWidget
         ];
 
         $colors = [
-            '0, 0, 139',
+            '25, 25, 112',
             '75, 0, 130',
-            '0, 128, 128',
-            '34, 139, 34',
-            '255, 215, 0',
+            '0, 255, 255',
+            '50, 205, 50',
+            '255, 215, 0'
         ];
 
         $datasets = [];
