@@ -35,13 +35,17 @@ class GiataCityChart extends ChartWidget
             $labels = Cache::get($keyGiataCityChart . ':labels');
             $data = Cache::get($keyGiataCityChart . ':data');
         } else {
-            $model = GiataProperty::select('city_id', 'city', DB::raw('count(*) as total'))
+            $model = GiataProperty::select(
+                'city_id', 'city', 'locale',
+                DB::raw("CONCAT(city, ', ', locale) AS city_country"),
+                DB::raw('COUNT(*) AS total')
+            )
                 ->groupBy('city_id', 'city')
                 ->orderBy('total', 'DESC')
                 ->take(10)
                 ->get();
 
-            $labels = $model->pluck('city');
+            $labels = $model->pluck('city_country');
             $data = $model->pluck('total');
 
             Cache::put($keyGiataCityChart . ':labels', $labels, now()->addMinutes(1440));
