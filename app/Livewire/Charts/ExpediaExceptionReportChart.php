@@ -20,7 +20,6 @@ class ExpediaExceptionReportChart extends ChartWidget
     protected static ?string $pollingInterval = '7200s';
 
     /**
-
      * @return array
      */
     protected function getData(): array
