@@ -34,6 +34,7 @@ class PriceHotelRequest extends ApiRequest
             'travel_purpose' => ['string'],
             'rating' => ['required', 'numeric'],
             'occupancy' => ['required', 'array'],
+			'supplier' => ['string'],
         ];
     }
 
