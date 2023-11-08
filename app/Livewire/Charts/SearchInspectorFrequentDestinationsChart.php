@@ -7,12 +7,12 @@ use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
-class GiataCityChart extends ChartWidget
+class SearchInspectorFrequentDestinationsChart extends ChartWidget
 {
     /**
      * @var string|null
      */
-    protected static ?string $heading = 'Giata City Chart';
+    protected static ?string $heading = 'Frequent Destinations';
 
     /**
      * @var string|null
@@ -29,32 +29,31 @@ class GiataCityChart extends ChartWidget
      */
     protected function getData(): array
     {
-        $keyGiataCityChart = 'GiataCityChart';
+        $keyGiataCityChart = 'SearchInspectorFrequentDestinationsChart';
 
         if (Cache::has($keyGiataCityChart . ':labels') && Cache::has($keyGiataCityChart . ':data')) {
             $labels = Cache::get($keyGiataCityChart . ':labels');
             $data = Cache::get($keyGiataCityChart . ':data');
         } else {
             $model = DB::select("
-					SELECT
-						gp.city_id,
-						CONCAT(gg.city_name, ' (', gg.locale_name, ' ', gg.country_name, ')') AS city,
-						gp.count
-					FROM (
-						SELECT city_id, COUNT(*) AS count
-						FROM ujv_api.giata_properties
-						GROUP BY city_id
-						ORDER BY count DESC
-						LIMIT 10
-					) AS gp
-					LEFT JOIN ujv_api.giata_geographies gg ON gp.city_id = gg.city_id
+			SELECT 
+				JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination')) AS destination,
+				COUNT(*) as count
+			FROM    
+				api_search_inspector
+			
+			GROUP BY 
+				destination
+			ORDER BY 
+				count DESC
+			LIMIT 10
 				");
 
 
 			$labels = [];
 			$data = [];
 			foreach ($model as $item) {
-				$labels[] = $item->city;
+				$labels[] = $item->destination;
 				$data[] = $item->count;
 			}
 
