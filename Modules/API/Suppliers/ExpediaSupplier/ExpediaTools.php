@@ -2,9 +2,12 @@
 
 namespace Modules\API\Suppliers\ExpediaSupplier;
 
+use App\Models\ApiBookingInspector;
+use App\Models\ApiBookingItem;
 use App\Models\Channel;
 use App\Models\Reservation;
 use App\Models\ApiSearchInspector;
+use App\Models\Supplier;
 use App\Models\ExpediaContent;
 use Exception;
 
@@ -40,39 +43,54 @@ class ExpediaTools
      * @param array $filters
      * @return void
      */
-    public function saveAddItemToReservations(string $booking_id, array $filters): void
+    public function saveAddItemToReservations(string $booking_id, array $filters, array $passenger): void
     {
         try {
             $token_id = $this->channel->getTokenId(request()->bearerToken());
             $channel_id = Channel::where('token_id', $token_id)->first()->id;
 
-            $reservationsData = $this->apiInspector->getReservationsDataBySearchId($filters);
+			$apiSearchinspector = ApiSearchInspector::where('search_id', $filters['search_id'])->first();
+			$search_type = $apiSearchinspector->search_type;
 
-            $checkin = $reservationsData['query']->checkin;
+			$apiBookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
+			$supplier = Supplier::where('id', $apiBookingItem->supplier_id)->first()->name;
 
-            $hotel_id = $filters['hotel_id'];
-            $hotelName = $this->expedia->getHotelNameByHotelId($reservationsData['supplier_hotel_id']);
-            $hotelImages = $this->expedia->getHotelImagesByHotelId($reservationsData['supplier_hotel_id']);
+			$passenger_surname = $passenger['rooms'][0]['family_name'] . ' ' . $passenger['rooms'][0]['given_name'];
+			
+			if ($supplier === 'Expedia') {
+				$reservationsData = $this->apiInspector->getReservationsExpediaData($filters, $apiBookingItem, $apiSearchinspector);
 
-            $reservation = new Reservation();
-            $reservation->date_offload = null;
-            $reservation->date_travel = date("Y-m-d", strtotime($checkin));
-            $reservation->passenger_surname = $filters['query']['rooms'][0]['family_name'];
-            $reservation->reservation_contains = json_encode([
-                'type' => 'hotel',
-                'supplier' => 'Expedia',
-                'booking_id' => $booking_id,
-                'hotel_id' => $hotel_id,
-                'hotel_name' => $hotelName,
-                'hotel_images' => json_encode($hotelImages),
-            ]);
-            $reservation->channel_id = $channel_id;
+				if ($search_type == 'hotel') {
 
-            $reservation->total_cost = $reservationsData['price']['total_price'];
-
-            $reservation->canceled_at = null;
-
-            $reservation->save();
+					$reservation = new Reservation();
+					
+					$checkin = $reservationsData['query']['checkin'];
+					$hotelName = $this->expedia->getHotelNameByHotelId($reservationsData['supplier_hotel_id']);
+					$hotelImages = $this->expedia->getHotelImagesByHotelId($reservationsData['supplier_hotel_id']);
+	
+					$reservation->date_offload = null;
+					$reservation->date_travel = date("Y-m-d", strtotime($checkin));
+					$reservation->passenger_surname = $passenger_surname;
+					$reservation->reservation_contains = json_encode([
+						'type' => $search_type,
+						'supplier' => $supplier,
+						'booking_id' => $booking_id,
+						'hotel_id' => $reservationsData['supplier_hotel_id'],
+						'hotel_name' => $hotelName,
+						'hotel_images' => json_encode($hotelImages),
+					]);
+	
+					$reservation->channel_id = $channel_id;
+					$reservation->total_cost = $reservationsData['price']['total_price'];
+					$reservation->canceled_at = null;
+		
+					$reservation->save();
+				} 
+				// TODO: add other search types
+				else return;
+			}
+			// TODO: add other suppliers
+            
         } catch (Exception $e) {
             \Log::error('ExpediaTools | saveAddItemToReservations' . $e->getMessage());
         }

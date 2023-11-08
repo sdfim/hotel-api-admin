@@ -145,9 +145,13 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			} else {
 
 				$dataResponse = [];
+				$clientResponse = [];
 				$count = 0;
 				foreach ($suppliers as $supplier) {
 					$supplierName = Supplier::find($supplier)->name;
+
+					if(isset($request->supplier) && $request->supplier != $supplierName) continue;
+
 					if ($supplierName == self::SUPPLIER_NAME) {
 						$supplierData = $this->expedia->search($request, $filters);
 						$data = $supplierData['results'];
@@ -258,6 +262,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			} else {
 
 				$dataResponse = [];
+				$clientResponse = [];
 				foreach ($suppliers as $supplier) {
 					$supplierName = Supplier::find($supplier)->name;
 					if ($supplierName == self::SUPPLIER_NAME) {
@@ -338,8 +343,13 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 			$dataResponse = [];
 			$clientResponse = [];
+			$countResponse = 0;
+			$countClientResponse = 0;
 			foreach ($suppliers as $supplier) {
 				$supplierName = Supplier::find($supplier)->name;
+
+				if(isset($request->supplier) && $request->supplier != $supplierName) continue;
+
 				if ($supplierName == self::SUPPLIER_NAME) {
 
 					if ( Cache::has($keyPricingSearch . ':content:' . self::SUPPLIER_NAME) ) {
@@ -360,6 +370,9 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 					$bookingItems = $dtoData['bookingItems'];
 					$clientResponse[$supplierName] = $dtoData['response'];
 					\Log::info('ExpediaHotelApiHandler | price | ExpediaToHotelResponse | end');
+
+					$countResponse += count($expediaResponse);
+					$countClientResponse += count($clientResponse[$supplierName]);
 				}
 				// TODO: Add other suppliers
 			}
@@ -368,12 +381,12 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			$clientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
 
 			$content = [
-				'count' => count($dataResponse[self::SUPPLIER_NAME]),
+				'count' => $countResponse,
 				'query' => $filters,
 				'results' => $dataResponse,
 			];
 			$clientContent = [
-				'count' => count($clientResponse[self::SUPPLIER_NAME]),
+				'count' => $countClientResponse,
 				'query' => $filters,
 				'results' => $clientResponse,
 			];
@@ -391,7 +404,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 				'hotel'
 			]);
 
-			SaveBookingItems::dispatch($bookingItems);
+			if (isset($bookingItems)) SaveBookingItems::dispatch($bookingItems);
 
 			if ($request->input('supplier_data') == 'true') $res = $content;
 			else $res = $clientContent;
