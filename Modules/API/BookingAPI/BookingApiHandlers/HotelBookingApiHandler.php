@@ -12,6 +12,8 @@ use Modules\API\Requests\BookingAddItemHotelRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
+use Modules\API\Requests\BookingRemoveItemHotelRequest;
 use Modules\Inspector\SearchInspectorController;
 use Modules\API\BookingAPI\ExpediaHotelBookingApiHandler;
 use Spatie\FlareClient\Api;
@@ -85,13 +87,12 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	public function addItem(Request $request, string $supplier): JsonResponse
 	{
+		$validate = Validator::make($request->all(), (new BookingAddItemHotelRequest())->rules());
+        if ($validate->fails()) return $this->sendError($validate->errors());
+		
+		$filters = $request->all();
 		$data = [];
-
 		try {
-			$bookingAddItemRequest = new BookingAddItemHotelRequest();
-			$rules = $bookingAddItemRequest->rules();
-			$filters = Validator::make($request->all(), $rules)->validated();
-			
 			if (request()->has('booking_id')) {
 
 				if (ApiBookingInspector::isBook(request()->get('booking_id'), request()->get('booking_item'))) {
@@ -116,8 +117,8 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 				$filters['search_id'] = $apiBookingItem['search_id'];
 			}
 
-			$filters = array_merge($filters, $request->all());		
-
+			$filters = array_merge($filters, $request->all());	
+			
 			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
 
 				$booking_item_data = json_decode($apiBookingItem['booking_item_data'], true);
@@ -180,11 +181,13 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	public function removeItem(Request $request, string $supplier): JsonResponse
 	{
-		try {
-			// TODO: add validation for request
-			$filters = $request->all();
+		$validate = Validator::make($request->all(), (new BookingRemoveItemHotelRequest())->rules());
+        if ($validate->fails()) return $this->sendError($validate->errors());
 
-			$data = [];
+		$filters = $request->all();
+		dd($filters);
+		$data = [];
+		try {
 			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
 				$data = $this->expedia->removeItem($filters);
 			}
@@ -245,6 +248,9 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	public function addPassengers(Request $request, string $supplier): JsonResponse
 	{
+		$filters = Validator::make($request->all(), (new AddPassengersRequest())->rules());
+        if ($filters->fails()) return $this->sendError($filters->errors());
+
 		try {
 			// TODO: add validation for request
 			$filters = $request->all();
