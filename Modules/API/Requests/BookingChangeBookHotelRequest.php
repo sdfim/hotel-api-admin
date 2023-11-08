@@ -3,12 +3,13 @@
 namespace Modules\API\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
-use Modules\API\Validate\ApiRequest;
 use Illuminate\Support\Facades\Auth;
+use Modules\API\Validate\ApiRequest;
 
-class BookingAddItemHotelRequest extends ApiRequest
+
+class BookingChangeBookHotelRequest extends ApiRequest
 {
-    /**
+     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
@@ -24,8 +25,12 @@ class BookingAddItemHotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
-			'booking_item' => 'required|size:36',
-			'booking_id' => 'sometimes|size:36',
+            'query' => 'required|array',
+            'query.given_name' => 'required|string|max:255',
+            'query.family_name' => 'required|string|max:255',
+            'query.smoking' => 'required|boolean',
+            'query.special_request' => 'string|max:255',
+            'query.loyalty_id' => 'string|max:10', 
         ];
     }
 
