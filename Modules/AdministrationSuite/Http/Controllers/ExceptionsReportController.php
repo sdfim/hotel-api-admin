@@ -4,7 +4,7 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 
 use Illuminate\View\View;
 
-class ContentLoaderExceptionsController extends Controller
+class ExceptionsReportController extends Controller
 {
 
     /**
@@ -13,6 +13,6 @@ class ContentLoaderExceptionsController extends Controller
      */
     public function index(): View
     {
-        return view('dashboard.content-loader-exceptions.index');
+        return view('dashboard.exceptions-report.index');
     }
 }

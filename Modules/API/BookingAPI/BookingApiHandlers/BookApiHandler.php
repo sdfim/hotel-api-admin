@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Modules\API\BaseController;
 use Modules\API\BookingAPI\ExpediaBookApiHandler;
 use Modules\API\Requests\BookingBookRequest;
+use Modules\API\Requests\BookingChangeBookHotelRequest;
 
 /**
  * @OA\PathItem(
@@ -167,12 +168,15 @@ class BookApiHandler extends BaseController
      */
     public function changeBooking(Request $request): JsonResponse
     {
+		$validate = Validator::make($request->all(), (new BookingChangeBookHotelRequest())->rules());
+        if ($validate->fails()) return $this->sendError($validate->errors());
+
+		$filters = $request->all();
+
         $supplierId = ApiBookingItem::where('booking_item', $request->booking_item)->first()->supplier_id;
         $supplier = Supplier::where('id', $supplierId)->first()->name;
-        try {
-            // TODO: add validation for request
-            $filters = $request->all();
 
+        try {
             $data = [];
             if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
                 $data = $this->expedia->changeBooking($filters);
@@ -239,11 +243,14 @@ class BookApiHandler extends BaseController
      */
     public function listBookings(Request $request): JsonResponse
     {
-        $supplier = $request->get('supplier');
-        try {
-            // TODO: add validation for request
-            $filters = $request->all();
+		$validate = Validator::make($request->all(), [
+			'supplier' => 'required|string', 
+			'type' => 'required|string|in:hotel,flight,combo'
+		]);
+		if ($validate->fails()) return $this->sendError($validate->errors());
 
+        $supplier = $request->supplier;
+        try {
             $data = [];
             if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
                 $data = $this->expedia->listBookings();
@@ -295,10 +302,11 @@ class BookApiHandler extends BaseController
      */
     public function retrieveBooking(Request $request): JsonResponse
     {
-        $itemsBooked = ApiBookingInspector::bookedItems($request->booking_id);
+		$filters = $request->all();
+		$validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
+        if ($validate->fails()) return $this->sendError($validate->errors());
 
-        // TODO: add validation for request
-        $filters = $request->all();
+        $itemsBooked = ApiBookingInspector::bookedItems($request->booking_id);
         $data = [];
         foreach ($itemsBooked as $item) {
             try {
@@ -364,6 +372,12 @@ class BookApiHandler extends BaseController
      */
     public function cancelBooking(Request $request): JsonResponse
     {
+		$validate = Validator::make($request->all(), [
+			'booking_id' => 'required|size:36',
+			'booking_item' => 'nullable|size:36'
+		]);
+        if ($validate->fails()) return $this->sendError($validate->errors());
+
 		if (isset($request->booking_item)) {
 			$itemsBooked = ApiBookingInspector::bookedItem($request->booking_id, $request->booking_item);
 		} else {
@@ -440,8 +454,9 @@ class BookApiHandler extends BaseController
      */
     public function retrieveItems(Request $request): JsonResponse
     {
-        // TODO: add validation for request
         $filters = $request->all();
+		$validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
+        if ($validate->fails()) return $this->sendError($validate->errors());
 
         $itemsInCart = ApiBookingInspector::where('booking_id', $request->booking_id)
             ->where('type', 'add_item')

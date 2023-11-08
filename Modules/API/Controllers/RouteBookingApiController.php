@@ -13,6 +13,7 @@ use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiSearchInspector;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Validator;
 
 class RouteBookingApiController extends Controller
 {
@@ -157,23 +158,30 @@ class RouteBookingApiController extends Controller
 		$this->type = $request->get('type') ?? null;
         $this->supplier = $request->get('supplier') ?? null;
 
-        # Autodetect type and supplier by booking_id
-        if ($request->get('booking_id') && $this->type == null) {
-            $bi = $this->bookingInspector->geTypeSupplierByBookingId($request->get('booking_id'));
-            $this->type = $bi['type'];
-            $this->supplier = $bi['supplier'];
-        }
-
 		# Autodetect type by booking_item
-		else if($request->has('booking_item')) {
+		if($request->has('booking_item')) {
+			$validate = Validator::make($request->all(), ['booking_item' => 'required|size:36']);
+        	if ($validate->fails()) {
+				$this->type = null;
+				$this->supplier = null;
+				return;
+			};
 			$apiBookingItem = ApiBookingItem::where('booking_item', $request->has('booking_item'))->first()->toArray();
 			$this->supplier = Supplier::where('id', $apiBookingItem['supplier_id'])->first()->name;
 			$this->type = $this->searchInspector->geTypeBySearchId($apiBookingItem['search_id']);
 		}
 
-		# Autodetect type by search_id
-        else if ($request->get('search_id') && $this->type == null) {
-            $this->type = $this->searchInspector->geTypeBySearchId($request->get('search_id'));
+		# Autodetect type and supplier by booking_id
+        else if ($request->get('booking_id') && $this->type == null) {
+			$validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
+        	if ($validate->fails()) {
+				$this->type = null;
+				$this->supplier = null;
+				return;
+			};
+            $bi = $this->bookingInspector->geTypeSupplierByBookingId($request->get('booking_id'));
+            $this->type = $bi['type'];
+            $this->supplier = $bi['supplier'];
         }
 
         $this->route = Route::currentRouteName();

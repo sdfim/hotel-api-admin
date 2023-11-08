@@ -31,10 +31,9 @@ class SearchInspectorRadarChart extends ChartWidget
     {
         $keySearchInspectorRadarChart = 'SearchInspectorRadarChart';
 
-
-        // if (Cache::has($keySearchInspectorRadarChart . ':data')) {
-        //     $data = Cache::get($keySearchInspectorRadarChart . ':data');
-        // } else {
+        if (Cache::has($keySearchInspectorRadarChart . ':data')) {
+            $data = Cache::get($keySearchInspectorRadarChart . ':data');
+        } else {
             $data = DB::select("
 				SELECT 
 					COALESCE(gg.city_name, JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination,
@@ -55,8 +54,8 @@ class SearchInspectorRadarChart extends ChartWidget
 					avg_rating DESC
 				LIMIT 5");
 
-        //     Cache::put($keySearchInspectorRadarChart . ':data', $data, now()->addMinutes(60));
-        // }
+            Cache::put($keySearchInspectorRadarChart . ':data', $data, now()->addMinutes(60));
+        }
 
         $labels = [
             'Rating',
@@ -67,11 +66,11 @@ class SearchInspectorRadarChart extends ChartWidget
         ];
 
         $colors = [
-            '0, 0, 255',
+            '70, 130, 180',
             '0, 128, 0',
-            '255, 0, 0',
-            '255, 165, 0',
-            '128, 0, 128'
+            '128, 0, 128',
+            '139, 69, 19',
+            '0, 0, 128',
         ];
 
         $datasets = [];

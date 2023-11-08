@@ -38,10 +38,12 @@ class SearchInspectorNightsDoughnutChart extends ChartWidget
         } else {
             $giataGeographies = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_geographies';
             $model = ApiSearchInspector::select(
-                DB::raw("COALESCE((SELECT city_name FROM $giataGeographies WHERE city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))),
-                    JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
+                DB::raw("COALESCE(gg.city_name, JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
                 DB::raw("SUM(DATEDIFF(JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkout')), JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkin'))) - 1) AS nights")
             )
+                ->leftJoin($giataGeographies . ' AS gg', function ($join) {
+                    $join->on(DB::raw("gg.city_id"), '=', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))"));
+                })
                 ->groupBy('destination')
                 ->orderBy('nights', 'DESC')
                 ->limit(5)
@@ -55,11 +57,18 @@ class SearchInspectorNightsDoughnutChart extends ChartWidget
         }
 
         $colors = [
-            'rgb(0, 0, 255, 0.8)',
-            'rgb(0, 128, 0, 0.8)',
-            'rgb(255, 0, 0, 0.8)',
-            'rgb(255, 165, 0, 0.8)',
-            'rgb(128, 0, 128, 0.8)'
+            'rgb(70, 130, 180, 0.85)',
+            'rgb(0, 128, 0, 0.85)',
+            'rgb(128, 0, 128, 0.85)',
+            'rgb(139, 69, 19, 0.85)',
+            'rgb(0, 0, 128, 0.85)',
+            'rgb(128, 0, 0, 0.85)',
+            'rgb(255, 192, 203, 0.85)',
+            'rgb(255, 215, 0, 0.85)',
+            'rgb(124, 252, 0, 0.85)',
+            'rgb(255, 69, 0, 0.85)',
+            'rgb(255, 165, 0, 0.85)',
+            'rgb(30, 144, 255, 0.85)'
         ];
 
         return [

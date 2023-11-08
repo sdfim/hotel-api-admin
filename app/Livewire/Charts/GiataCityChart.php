@@ -17,7 +17,7 @@ class GiataCityChart extends ChartWidget
     /**
      * @var string|null
      */
-    protected static ?string $pollingInterval = null;
+    protected static ?string $pollingInterval = '86400s';
 
     /**
      * @var string|null
@@ -63,18 +63,18 @@ class GiataCityChart extends ChartWidget
         }
 
         $colors = [
-            'rgb(0, 0, 255, 0.8)',
-            'rgb(0, 128, 0, 0.8)',
-            'rgb(255, 0, 0, 0.8)',
-            'rgb(255, 165, 0, 0.8)',
-            'rgb(128, 0, 128, 0.8)',
-            'rgb(0, 128, 128, 0.8)',
-            'rgb(255, 255, 0, 0.8)',
-            'rgb(255, 105, 180, 0.8)',
-            'rgb(139, 69, 19, 0.8)',
-            'rgb(0, 255, 255, 0.8)',
-            'rgb(0, 255, 0, 0.8)',
-            'rgb(255, 0, 255, 0.8)'
+            'rgb(70, 130, 180, 0.85)',
+            'rgb(0, 128, 0, 0.85)',
+            'rgb(128, 0, 128, 0.85)',
+            'rgb(139, 69, 19, 0.85)',
+            'rgb(0, 0, 128, 0.85)',
+            'rgb(128, 0, 0, 0.85)',
+            'rgb(255, 192, 203, 0.85)',
+            'rgb(255, 215, 0, 0.85)',
+            'rgb(124, 252, 0, 0.85)',
+            'rgb(255, 69, 0, 0.85)',
+            'rgb(255, 165, 0, 0.85)',
+            'rgb(30, 144, 255, 0.85)'
         ];
 
         return [
