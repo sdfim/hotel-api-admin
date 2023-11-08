@@ -20,7 +20,7 @@ class ContentLoaderExceptionsControllerTest extends TestCase
     {
         $this->auth();
 
-        $response = $this->get('/admin/content-loader-exceptions');
+        $response = $this->get('/admin/exceptions-report');
 
         $response->assertStatus(200);
     }

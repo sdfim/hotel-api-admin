@@ -55,7 +55,7 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->searchable(),
                 ViewColumn::make('response_path')
-                    ->view('dashboard.content-loader-exceptions.column.request')
+                    ->view('dashboard.exceptions-report.column.request')
                     ->label('Response'),
                 TextColumn::make('created_at')
                     ->sortable()
