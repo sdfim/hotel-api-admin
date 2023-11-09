@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Charts;
 
-use App\Models\ApiSearchInspector;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +21,7 @@ class SearchInspectorNightsDoughnutChart extends ChartWidget
     /**
      * @var string|null
      */
-    protected static ?string $maxHeight = '400px';
+    protected static ?string $maxHeight = '500px';
 
 
     /**
@@ -36,21 +35,24 @@ class SearchInspectorNightsDoughnutChart extends ChartWidget
             $labels = Cache::get($keySearchInspectorNightsDoughnutChart . ':labels');
             $data = Cache::get($keySearchInspectorNightsDoughnutChart . ':data');
         } else {
-            $giataGeographies = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_geographies';
-            $model = ApiSearchInspector::select(
-                DB::raw("COALESCE(gg.city_name, JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
-                DB::raw("SUM(DATEDIFF(JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkout')), JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkin'))) - 1) AS nights")
-            )
-                ->leftJoin($giataGeographies . ' AS gg', function ($join) {
-                    $join->on(DB::raw("gg.city_id"), '=', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))"));
-                })
-                ->groupBy('destination')
-                ->orderBy('nights', 'DESC')
-                ->limit(5)
-                ->get();
+            $queryResult = DB::select("
+                SELECT
+                    COALESCE(CONCAT(gg.city_name, ' (', gg.locale_name, ' - ', gg.country_name, ')'), JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination,
+                    SUM(DATEDIFF(JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkout')), JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkin'))) - 1) AS nights
+                FROM
+                    api_search_inspector
+                LEFT JOIN
+                    ujv_api.giata_geographies AS gg ON gg.city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))
+                GROUP BY
+                    destination
+                ORDER BY
+                    nights DESC
+                LIMIT 5");
 
-            $labels = $model->pluck('destination');
-            $data = $model->pluck('nights');
+            $queryResult = json_decode(json_encode($queryResult), true);
+
+            $labels = array_column($queryResult, 'destination');
+            $data = array_column($queryResult, 'nights');
 
             Cache::put($keySearchInspectorNightsDoughnutChart . ':labels', $labels, now()->addMinutes(60));
             Cache::put($keySearchInspectorNightsDoughnutChart . ':data', $data, now()->addMinutes(60));

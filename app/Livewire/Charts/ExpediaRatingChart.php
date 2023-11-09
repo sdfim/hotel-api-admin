@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Charts;
 
-use App\Models\ExpediaContent;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -35,13 +34,14 @@ class ExpediaRatingChart extends ChartWidget
             $labels = Cache::get($keyExpediaRatingChart . ':labels');
             $data = Cache::get($keyExpediaRatingChart . ':data');
         } else {
-            $model = ExpediaContent::select('rating', DB::raw('count(*) as total'))
-                ->groupBy('rating')
-                ->orderBy('rating', 'DESC')
-                ->get();
+            $queryResult = DB::select("
+                SELECT rating, COUNT(*) AS total FROM ujv_api.expedia_content_main GROUP BY rating ORDER BY rating DESC
+            ");
 
-            $labels = $model->pluck('rating');
-            $data = $model->pluck('total');
+            $queryResult = json_decode(json_encode($queryResult), true);
+
+            $labels = array_column($queryResult, 'rating');
+            $data = array_column($queryResult, 'total');
 
             Cache::put($keyExpediaRatingChart . ':labels', $labels, now()->addMinutes(1440));
             Cache::put($keyExpediaRatingChart . ':data', $data, now()->addMinutes(1440));

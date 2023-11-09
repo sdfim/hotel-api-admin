@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Charts;
 
-use App\Models\ApiSearchInspector;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +21,7 @@ class SearchInspectorRoomsDoughnutChart extends ChartWidget
     /**
      * @var string|null
      */
-    protected static ?string $maxHeight = '400px';
+    protected static ?string $maxHeight = '500px';
 
     /**
      * @return array
@@ -35,21 +34,24 @@ class SearchInspectorRoomsDoughnutChart extends ChartWidget
             $labels = Cache::get($keySearchInspectorRoomsDoughnutChart . ':labels');
             $data = Cache::get($keySearchInspectorRoomsDoughnutChart . ':data');
         } else {
-            $giataGeographies = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_geographies';
-            $model = ApiSearchInspector::select(
-                DB::raw("COALESCE(gg.city_name, JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination"),
-                DB::raw("SUM(JSON_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy')))) AS rooms"),
-            )
-                ->leftJoin($giataGeographies . ' AS gg', function ($join) {
-                    $join->on(DB::raw("gg.city_id"), '=', DB::raw("JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))"));
-                })
-                ->groupBy('destination')
-                ->orderBy('rooms', 'DESC')
-                ->limit(5)
-                ->get();
+            $queryResult = DB::select("
+                SELECT
+                    COALESCE(CONCAT(gg.city_name, ' (', gg.locale_name, ' - ', gg.country_name, ')'), JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination,
+                    SUM(JSON_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy')))) AS rooms
+                FROM
+                    api_search_inspector
+                LEFT JOIN
+                    ujv_api.giata_geographies AS gg ON gg.city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))
+                GROUP BY
+                    destination
+                ORDER BY
+                    rooms DESC
+                LIMIT 5");
 
-            $labels = $model->pluck('destination');
-            $data = $model->pluck('rooms');
+            $queryResult = json_decode(json_encode($queryResult), true);
+
+            $labels = array_column($queryResult, 'destination');
+            $data = array_column($queryResult, 'rooms');
 
             Cache::put($keySearchInspectorRoomsDoughnutChart . ':labels', $labels, now()->addMinutes(60));
             Cache::put($keySearchInspectorRoomsDoughnutChart . ':data', $data, now()->addMinutes(60));
