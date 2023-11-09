@@ -140,28 +140,7 @@ class ApiSearchInspector extends Model
         $booking_item_data = json_decode($apiBookingItem->booking_item_data, true);
         $client_response = json_decode(Storage::get($searchInspector->client_response_path), true);
 
-        foreach ($client_response['results']['Expedia'] as $value) {
-            if ($value['giata_hotel_id'] === $booking_item_data['hotel_id']) {
-                $itemData = $value;
-            }
-        }
-
-        if ($searchInspector->search_type == 'hotel') {
-            foreach ($itemData['room_groups'] as $kg => $group) {
-                foreach ($group['rooms'] as $kr => $room) {
-                    if ($room['booking_item'] === $booking_item) {
-						$price = [
-							'total_price' => $room['total_price'],
-							'total_tax' => $room['total_tax'],
-							'total_fees' => $room['total_fees'],
-							'total_net' => $room['total_net'],
-							'affiliate_service_charge' => $room['affiliate_service_charge'], 
-							'currency' => $itemData['room_groups'][$kr]['currency'] ?? 'USD',
-						];
-                    }
-                }
-            }
-        }
+		$price = json_decode($apiBookingItem->booking_pricing_data, true);
 
 		$supplier_hotel_id = MapperExpediaGiata::where('giata_id', $booking_item_data['hotel_id'])->first()->expedia_id;
 

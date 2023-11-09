@@ -154,57 +154,109 @@ use OpenApi\Annotations as OA;
  *     summary="Example of Booking Retrieve Items Response",
  *     value=
  * {
- * 	"success": true,
- * 	"data": {
- * 		"result": {
- * 			"booking_id": "c698abfe-9bfa-45ee-a201-dc7322e008ab",
- * 			"booking_items": {
- * 				{
- * 					"booking_item": "7ba653c3-8f9a-46c0-83c2-b8a23bbd908b",
- * 					"booking_item_data": {
- * 						"rate": "382884473",
- * 						"room_id": "218129262",
- * 						"hotel_id": 60295986,
- * 						"bed_groups": 37321
- * 					},
- * 					"room": {
- * 						"giata_room_code": "",
- * 						"giata_room_name": "",
- * 						"supplier_room_name": "Superior Room, 1 King Bed, Non Smoking",
- * 						"per_day_rate_breakdown": "",
- * 						"total_price": 6757.5,
- * 						"total_tax": 917.5,
- * 						"total_fees": 480,
- * 						"total_net": 5840,
- * 						"affiliate_service_charge": 5197.6,
- * 						"booking_item": "7ba653c3-8f9a-46c0-83c2-b8a23bbd908b"
- * 					}
- * 				},
- * 				{
- * 					"booking_item": "8d9424f7-8967-41c7-a1a4-4d80f958ef50",
- * 					"booking_item_data": {
- * 						"rate": "388777728",
- * 						"room_id": "321415108",
- * 						"hotel_id": 60295986,
- * 						"bed_groups": 37321
- * 					},
- * 					"room": {
- * 						"giata_room_code": "",
- * 						"giata_room_name": "",
- * 						"supplier_room_name": "Superior Room, 1 King Bed, Non Smoking (Mobility\/Hearing Accessible, Tub)",
- * 						"per_day_rate_breakdown": "",
- * 						"total_price": 7179.7,
- * 						"total_tax": 971.7,
- * 						"total_fees": 480,
- * 						"total_net": 6208,
- * 						"affiliate_service_charge": 5525.12,
- * 						"booking_item": "8d9424f7-8967-41c7-a1a4-4d80f958ef50"
- * 					}
- * 				}
- * 			}
- * 		}
- * 	},
- * 	"message": "success"
+ *     "success": true,
+ *     "data": {
+ *         "result": {
+ *             {
+ *                 "booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
+ *                 "booking_item": "bd5e6c4e-6e5c-49cf-8ddf-c52abe49b764",
+ *                 "search_id": "d2ff0669-8d0e-4709-826d-ccdcef01d4a2",
+ *                 "supplier": "Expedia",
+ *                 "supplier_data": {
+ *                     "rate": "386422960",
+ *                     "room_id": "316614898",
+ *                     "hotel_id": 32041597,
+ *                     "bed_groups": 38735
+ *                 },
+ *                 "pricing_data": {
+ *                     "total_net": 21396.96,
+ *                     "total_tax": 4279.32,
+ *                     "total_fees": 0,
+ *                     "total_price": 25676.28,
+ *                     "booking_item": "bd5e6c4e-6e5c-49cf-8ddf-c52abe49b764",
+ *                     "giata_room_code": "",
+ *                     "giata_room_name": "",
+ *                     "supplier_room_name": "Luxury Apartment, 3 Bedrooms",
+ *                     "per_day_rate_breakdown": "",
+ *                     "affiliate_service_charge": 0
+ *                 },
+ *                 "passengers": {
+ *                     "rooms": {
+ *                         {
+ *                             "given_name": "John",
+ *                             "family_name": "Portman"
+ *                         },
+ *                         {
+ *                             "given_name": "John",
+ *                             "family_name": "Portman"
+ *                         }
+ *                     },
+ *                     "title": "mr",
+ *                     "last_name": "Portman",
+ *                     "search_id": "d2ff0669-8d0e-4709-826d-ccdcef01d4a2",
+ *                     "booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
+ *                     "first_name": "John",
+ *                     "booking_item": "bd5e6c4e-6e5c-49cf-8ddf-c52abe49b764"
+ *                 },
+ *                 "request": {
+ *                     "rating": 4.5258,
+ *                     "checkin": "2023-11-11",
+ *                     "checkout": "2023-11-20",
+ *                     "occupancy": {
+ *                         {
+ *                             "adults": 2,
+ *                             "children": 2
+ *                         },
+ *                         {
+ *                             "adults": 3
+ *                         }
+ *                     },
+ *                     "destination": 302
+ *                 }
+ *             },
+ *             {
+ *                 "booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
+ *                 "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
+ *                 "search_id": "d2ff0669-8d0e-4709-826d-ccdcef01d4a2",
+ *                 "supplier": "Expedia",
+ *                 "supplier_data": {
+ *                     "rate": "238007246",
+ *                     "room_id": "212700403",
+ *                     "hotel_id": 43414913,
+ *                     "bed_groups": 37321
+ *                 },
+ *                 "pricing_data": {
+ *                     "total_net": 97630.34,
+ *                     "total_tax": 19526.07,
+ *                     "total_fees": 0,
+ *                     "total_price": 117156.41,
+ *                     "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
+ *                     "giata_room_code": "",
+ *                     "giata_room_name": "",
+ *                     "supplier_room_name": "Suite (Hyde Park)",
+ *                     "per_day_rate_breakdown": "",
+ *                     "affiliate_service_charge": 0
+ *                 },
+ *                 "passengers": {},
+ *                 "request": {
+ *                     "rating": 4.5258,
+ *                     "checkin": "2023-11-11",
+ *                     "checkout": "2023-11-20",
+ *                     "occupancy": {
+ *                         {
+ *                             "adults": 2,
+ *                             "children": 2
+ *                         },
+ *                         {
+ *                             "adults": 3
+ *                         }
+ *                     },
+ *                     "destination": 302
+ *                 }
+ *             }
+ *         }
+ *     },
+ *     "message": "success"
  * }
  * )
  */

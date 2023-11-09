@@ -52,20 +52,36 @@ class BookApiHandler extends BaseController
      *      required=true,
      *      description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
      *      In the response object for each rate is a **booking_id** property.",
-     *    ),
+     *   ),
+	 *   @OA\RequestBody(
+     *     description="JSON object containing the details of the reservation.",
+     *     required=true,
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BookingBookRequest",
+     *       examples={
+     *           "example1": @OA\Schema(ref="#/components/examples/BookingBookRequest", example="BookingBookRequest"),
+     *       },
+     *     ),
+     *   ),
      *   @OA\Response(
      *     response=200,
      *     description="OK",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BookingBookResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BookingBookResponse", example="BookingBookResponse"),
+	 *       }
+	 *     )
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
      */
     public function book(Request $request): JsonResponse
     {
-        $bookingBookRequest = new BookingBookRequest();
-        $rules = $bookingBookRequest->rules();
-        $filters = Validator::make($request->all(), $rules)->validated();
-        $filters = array_merge($filters, $request->all());
+		$validate = Validator::make($request->all(), (new BookingBookRequest())->rules());
+        if ($validate->fails()) return $this->sendError($validate->errors());
+
+        $filters = $request->all();
 
         $itemsBooked = ApiBookingInspector::where('booking_id', $request->booking_id)
             ->where('type', 'book')

@@ -8,6 +8,7 @@ use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\Channel;
+use App\Models\Supplier;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Promise;
@@ -113,7 +114,11 @@ class ExpediaBookApiHandler extends BaseController
 
         $props = $this->getPathParamsFromLink($linkBookItineraries);
 
-        $bodyArr = $dataPassengers;
+		$bodyArr['email'] = $filters['email'];
+		$bodyArr['phone'] = $filters['phone'];
+		$bodyArr['rooms'] = $dataPassengers['rooms'];
+		$bodyArr['payments'][]['billing_contact'] = $filters['booking_contact'];
+
         $bodyArr['affiliate_reference_id'] = 'UJV_' . time();
 
         foreach ($bodyArr['payments'] as $key => $payment) {
@@ -345,32 +350,28 @@ class ExpediaBookApiHandler extends BaseController
 
         $apiBookingItem = ApiBookingItem::where('booking_item', $bookingInspector->booking_item)->first();
         $booking_item_data = json_decode($apiBookingItem->booking_item_data, true);
+		$booking_pricing_data = json_decode($apiBookingItem->booking_pricing_data, true);
 
         $searchInspector = ApiSearchInspector::where('search_id', $bookingInspector->search_id)->first();
-        $client_response = json_decode(Storage::get($searchInspector->client_response_path), true);
 
-        foreach ($client_response['results']['Expedia'] as $value) {
-            if ($value['giata_hotel_id'] === $booking_item_data['hotel_id']) {
-                $itemData = $value;
-            }
+		$passengers = ApiBookingInspector::getPassengers($bookingInspector->booking_id, $bookingInspector->booking_item);
+		$dataPassengers = [];
+        if ($passengers) {
+            $passengersArr = $passengers->toArray();
+			$dataPassengers = json_decode($passengersArr['request'], true);
         }
 
-        if ($bookingInspector->search_type == 'hotel') {
-            foreach ($itemData['room_groups'] as $kg => $group) {
-                foreach ($group['rooms'] as $kr => $room) {
-                    if ($room['booking_item'] === $bookingInspector->booking_item) {
-                        $data = $room;
-                    }
-                }
-            }
-        }
+		$supplier_id = $apiBookingItem->supplier_id;
+		$supplier = Supplier::find($supplier_id)->name;
 
         return [
             'booking_id' => $bookingInspector->booking_id,
             'booking_item' => $bookingInspector->booking_item,
             'search_id' => $bookingInspector->search_id,
-            'booking_item_data' => $booking_item_data,
-            'data' => $data,
+			'supplier' => $supplier,
+            'supplier_data' => $booking_item_data,
+			'pricing_data' => $booking_pricing_data,
+			'passengers' => $dataPassengers,
             'request' => json_decode($searchInspector->request, true),
         ];
     }
