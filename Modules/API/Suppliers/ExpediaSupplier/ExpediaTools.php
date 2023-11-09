@@ -75,9 +75,12 @@ class ExpediaTools
 						'type' => $search_type,
 						'supplier' => $supplier,
 						'booking_id' => $booking_id,
+						'booking_item' => $filters['booking_item'],
+						'search_id' => $filters['search_id'],
 						'hotel_id' => $reservationsData['supplier_hotel_id'],
 						'hotel_name' => $hotelName,
 						'hotel_images' => json_encode($hotelImages),
+						'price' => json_decode($apiBookingItem->booking_pricing_data, true),
 					]);
 	
 					$reservation->channel_id = $channel_id;

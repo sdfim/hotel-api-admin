@@ -339,8 +339,6 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 			$keyPricingSearch = request()->get('type') . ':pricingSearch:' . http_build_query(Arr::dot($filters));
 
-			\Log::info('HotelApiHanlder | price | start');
-
 			$dataResponse = [];
 			$clientResponse = [];
 			$countResponse = 0;

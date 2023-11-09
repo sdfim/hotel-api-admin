@@ -35,6 +35,7 @@ class PriceHotelRequest extends ApiRequest
             'rating' => ['required', 'numeric'],
             'occupancy' => ['required', 'array'],
 			'supplier' => ['string'],
+			'currency'=> ['string'],
         ];
     }
 
