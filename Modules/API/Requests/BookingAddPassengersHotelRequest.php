@@ -29,23 +29,13 @@ class BookingAddPassengersHotelRequest extends ApiRequest
         return [
             'booking_item' => 'required|size:36',
             'booking_id' => 'required|size:36',
-            'email' => 'required|email',
-            'phone.country_code' => 'required|numeric|digits_between:1,4',
-            'phone.area_code' => 'required|numeric|digits_between:1,5',
-            'phone.number' => 'required|numeric|digits_between:1,10',
+            'title' => 'required|string',
+			'first_name' => 'required|string',
+			'last_name' => 'required|string',
             'rooms' => 'required|array',
             'rooms.*.given_name' => 'required|string',
             'rooms.*.family_name' => 'required|string',
-            'payments' => 'required|array',
-            'payments.*.billing_contact' => 'required|array',
-            'payments.*.billing_contact.given_name' => 'required|string',
-            'payments.*.billing_contact.family_name' => 'required|string',
-            'payments.*.billing_contact.address' => 'required|array',
-            'payments.*.billing_contact.address.line_1' => 'required|string',
-            'payments.*.billing_contact.address.city' => 'required|string',
-            'payments.*.billing_contact.address.state_province_code' => 'required|string',
-            'payments.*.billing_contact.address.postal_code' => 'required|string',
-            'payments.*.billing_contact.address.country_code' => 'required|string|size:2',
+			'rooms.*.date_birth_adults' => 'string',
         ];
     }
 

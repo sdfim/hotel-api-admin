@@ -112,10 +112,8 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 				$filters['booking_id'] = request()->get('booking_id');
 			}
 
-			if(request()->has('booking_item')) {
-				$apiBookingItem = ApiBookingItem::where('booking_item', request()->get('booking_item'))->first()->toArray();
-				$filters['search_id'] = $apiBookingItem['search_id'];
-			}
+			$apiBookingItem = ApiBookingItem::where('booking_item', request()->get('booking_item'))->first()->toArray();
+			$filters['search_id'] = $apiBookingItem['search_id'];
 
 			$filters = array_merge($filters, $request->all());	
 			

@@ -37,7 +37,7 @@ class ExpediaService
             $propertyPriceCall = $this->rapidCallFactory->createPropertyPriceCall($property);
             $dataPrice = $propertyPriceCall->getPriceData($propertyIds);
         } catch (Exception $e) {
-            \Log::error('ExpediaHotelApiHandler | getExpediaPriceByPropertyIds' . $e->getMessage());
+            \Log::error('ExpediaService | getExpediaPriceByPropertyIds' . $e->getMessage());
             return [];
         }
 

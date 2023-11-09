@@ -160,32 +160,39 @@ class RouteBookingApiController extends Controller
 
 		# Autodetect type by booking_item
 		if($request->has('booking_item')) {
-			$validate = Validator::make($request->all(), ['booking_item' => 'required|size:36']);
-        	if ($validate->fails()) {
-				$this->type = null;
-				$this->supplier = null;
-				return;
-			};
+			if (!$this->validatedUuid('booking_item')) return;
 			$apiBookingItem = ApiBookingItem::where('booking_item', $request->has('booking_item'))->first()->toArray();
 			$this->supplier = Supplier::where('id', $apiBookingItem['supplier_id'])->first()->name;
 			$this->type = $this->searchInspector->geTypeBySearchId($apiBookingItem['search_id']);
 		}
 
 		# Autodetect type and supplier by booking_id
-        else if ($request->get('booking_id') && $this->type == null) {
-			$validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
-        	if ($validate->fails()) {
-				$this->type = null;
-				$this->supplier = null;
-				return;
-			};
+        else if ($request->has('booking_id') && $this->type == null) {
+			if (!$this->validatedUuid('booking_id')) return;
             $bi = $this->bookingInspector->geTypeSupplierByBookingId($request->get('booking_id'));
             $this->type = $bi['type'];
             $this->supplier = $bi['supplier'];
         }
 
+		# Autodetect type by search_id
+        else if ($request->has('search_id') && $this->type == null) {
+        	if (!$this->validatedUuid('search_id')) return;
+            $this->type = $this->searchInspector->geTypeBySearchId($request->get('search_id'));
+        }
+
         $this->route = Route::currentRouteName();
     }
+
+	private function validatedUuid($id) : bool
+	{
+		$validate = Validator::make(request()->all(), [$id => 'required|size:36']);
+        if ($validate->fails()) {
+			$this->type = null;
+			$this->supplier = null;
+			return false;
+		};
+		return true;
+	}
 
     /**
      * @param $value

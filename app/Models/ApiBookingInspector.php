@@ -264,7 +264,7 @@ class ApiBookingInspector extends Model
 	 * @param string $booking_item
 	 * @return object
 	 */
-	public static function getPassengers(string $booking_id, string $booking_item): object
+	public static function getPassengers(string $booking_id, string $booking_item): object|null
 	{
 		return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)

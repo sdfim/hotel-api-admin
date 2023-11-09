@@ -28,7 +28,7 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('api_booking_inspector', function (Blueprint $table) {
-            $table->dropColumn('search_type');
+            $table->dropColumn('booking_item');
         });
     }
 };

@@ -284,6 +284,8 @@ class ExpediaPricingDto
         //     ]
         // ]);
 		$bookingItem = Str::uuid()->toString();
+		$roomResponse->setBookingItem($bookingItem);
+
 		$this->bookingItems[] = [
 			'booking_item' => $bookingItem,
 			// TODO: get id supplier from DB
@@ -295,9 +297,9 @@ class ExpediaPricingDto
 				'rate' => $rate['id'],
 				'bed_groups' => array_key_first((array)$rate['bed_groups']),
 			]),
+			'booking_pricing_data' => json_encode($roomResponse->toArray()),
 			'created_at' => Carbon::now(),
 		];
-		$roomResponse->setBookingItem($bookingItem);
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
     }
