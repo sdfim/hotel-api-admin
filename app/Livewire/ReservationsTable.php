@@ -45,7 +45,9 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         $tooltip = '';
                         if (is_array($field)) {
                             foreach ($field as $key => $value) {
-                                if ($key !== 'hotel_images') $tooltip .= "$key: $value | ";
+								if (is_array($value)) {
+									$tooltip .= "$key: " . json_encode($value) . " | ";
+								} else if ($key !== 'hotel_images') $tooltip .= "$key: $value | ";
                             }
                         }
                         return rtrim($tooltip, ' |');

@@ -36,7 +36,13 @@
                                     $tooltip = '<ul class="!list-disc ml-6">';
                                     if (is_array($field)) {
                                         foreach ($field as $key => $value) {
-                                            if ($key !== 'hotel_images') $tooltip .= "<li><strong>$key:</strong> $value</li>";
+											if (is_array($value)) {
+												$tooltip .= "<li><strong>$key:</strong> <ul class='!list-disc ml-6'>";
+												foreach ($value as $key2 => $value2) {
+													$tooltip .= "<li><strong>$key2:</strong> $value2</li>";
+												}
+												$tooltip .= '</ul></li>';
+											} else if ($key !== 'hotel_images') $tooltip .= "<li><strong>$key:</strong> $value</li>";
                                         }
                                     }
 									$tooltip .= '</ul>';
