@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Charts;
 
-use App\Models\ApiSearchInspector;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +16,7 @@ class SearchInspectorRadarChart extends ChartWidget
     /**
      * @var string|null
      */
-    protected static ?string $pollingInterval = null;
+    protected static ?string $pollingInterval = '3600s';
 
     /**
      * @var string|null
@@ -35,24 +34,26 @@ class SearchInspectorRadarChart extends ChartWidget
             $data = Cache::get($keySearchInspectorRadarChart . ':data');
         } else {
             $data = DB::select("
-				SELECT 
-					COALESCE(gg.city_name, JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination,
+				SELECT
+					COALESCE(CONCAT(gg.city_name, ' (', gg.locale_name, ' - ', gg.country_name, ')'), JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination,
 					CAST(AVG(JSON_EXTRACT(request, '$.rating')) AS DECIMAL(5,2)) AS avg_rating,
 					CAST(AVG(JSON_LENGTH(JSON_UNQUOTE(JSON_EXTRACT(request, '$.occupancy')))) AS DECIMAL(5,2)) AS avg_rooms,
 					CAST(AVG(oc.adults + oc.children) AS DECIMAL(5,2)) AS avg_occupancy,
 					CAST(AVG(oc.children) AS DECIMAL(5,2)) AS avg_children,
 					CAST(AVG(DATEDIFF(JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkout')), JSON_UNQUOTE(JSON_EXTRACT(request, '$.checkin')))) AS DECIMAL(5,2)) AS avg_days
-				FROM 
+				FROM
 					api_search_inspector
-				CROSS JOIN 
+				CROSS JOIN
 					JSON_TABLE(request, '$.occupancy[*]' COLUMNS (adults INT PATH '$.adults' DEFAULT '0' ON EMPTY, children INT PATH '$.children' DEFAULT '0' ON EMPTY)) oc
-				LEFT JOIN 
+				LEFT JOIN
 					ujv_api.giata_geographies gg ON gg.city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))
-				GROUP BY 
+				GROUP BY
 					destination
-				ORDER BY 
+				ORDER BY
 					avg_rating DESC
 				LIMIT 5");
+
+            $data = json_decode(json_encode($data), true);
 
             Cache::put($keySearchInspectorRadarChart . ':data', $data, now()->addMinutes(60));
         }
@@ -76,8 +77,6 @@ class SearchInspectorRadarChart extends ChartWidget
         $datasets = [];
 
         foreach ($data as $index => $popularDestination) {
-
-			$popularDestination = (array)$popularDestination;
             $dataset = [
                 'label' => $popularDestination['destination'],
                 'data' => [

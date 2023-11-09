@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Charts;
 
-use App\Models\GiataProperty;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -35,28 +34,30 @@ class GiataCityChart extends ChartWidget
             $labels = Cache::get($keyGiataCityChart . ':labels');
             $data = Cache::get($keyGiataCityChart . ':data');
         } else {
-            $model = DB::select("
-					SELECT
-						gp.city_id,
-						CONCAT(gg.city_name, ' (', gg.locale_name, ' ', gg.country_name, ')') AS city,
-						gp.count
-					FROM (
-						SELECT city_id, COUNT(*) AS count
-						FROM ujv_api.giata_properties
-						GROUP BY city_id
-						ORDER BY count DESC
-						LIMIT 10
-					) AS gp
-					LEFT JOIN ujv_api.giata_geographies gg ON gp.city_id = gg.city_id
-				");
+            $queryResult = DB::select("
+                SELECT
+                    gp.city_id,
+                    CONCAT(gg.city_name, ' (', gg.locale_name, ' - ', gg.country_name, ')') AS city,
+                    gp.count
+                FROM
+                    (
+                        SELECT city_id, COUNT(*) AS count
+                        FROM ujv_api.giata_properties
+                        GROUP BY city_id
+                        ORDER BY count DESC
+                        LIMIT 10
+                    ) AS gp
+                LEFT JOIN
+                    ujv_api.giata_geographies gg ON gp.city_id = gg.city_id");
 
+            $queryResult = json_decode(json_encode($queryResult), true);
 
-			$labels = [];
-			$data = [];
-			foreach ($model as $item) {
-				$labels[] = $item->city;
-				$data[] = $item->count;
-			}
+            $queryResult = array_filter($queryResult, function ($element) {
+                return $element['city'] !== null;
+            });
+
+            $labels = array_column($queryResult, 'city');
+            $data = array_column($queryResult, 'count');
 
             Cache::put($keyGiataCityChart . ':labels', $labels, now()->addMinutes(1440));
             Cache::put($keyGiataCityChart . ':data', $data, now()->addMinutes(1440));

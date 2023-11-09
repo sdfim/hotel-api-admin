@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Charts;
 
-use App\Models\GiataProperty;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +16,7 @@ class SearchInspectorFrequentDestinationsChart extends ChartWidget
     /**
      * @var string|null
      */
-    protected static ?string $pollingInterval = null;
+    protected static ?string $pollingInterval = '86400s';
 
     /**
      * @var string|null
@@ -35,27 +34,22 @@ class SearchInspectorFrequentDestinationsChart extends ChartWidget
             $labels = Cache::get($keyGiataCityChart . ':labels');
             $data = Cache::get($keyGiataCityChart . ':data');
         } else {
-            $model = DB::select("
-			SELECT 
+            $queryResult = DB::select("
+			SELECT
 				JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination')) AS destination,
 				COUNT(*) as count
-			FROM    
+			FROM
 				api_search_inspector
-			
-			GROUP BY 
+			GROUP BY
 				destination
-			ORDER BY 
+			ORDER BY
 				count DESC
-			LIMIT 10
-				");
+			LIMIT 10");
 
+            $queryResult = json_decode(json_encode($queryResult), true);
 
-			$labels = [];
-			$data = [];
-			foreach ($model as $item) {
-				$labels[] = $item->destination;
-				$data[] = $item->count;
-			}
+            $labels = array_column($queryResult, 'destination');
+            $data = array_column($queryResult, 'count');
 
             Cache::put($keyGiataCityChart . ':labels', $labels, now()->addMinutes(1440));
             Cache::put($keyGiataCityChart . ':data', $data, now()->addMinutes(1440));

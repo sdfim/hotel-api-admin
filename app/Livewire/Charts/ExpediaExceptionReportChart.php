@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Charts;
 
-use App\Models\ApiExceptionReport;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -39,19 +38,24 @@ class ExpediaExceptionReportChart extends ChartWidget
             $labels = Cache::get($keyExceptionsReportChart . ':labels');
             $data = Cache::get($keyExceptionsReportChart . ':data');
         } else {
-            $model = ApiExceptionReport::select(
-                DB::raw('DATE(created_at) as date'),
-                DB::raw('SUM(level = "success") as success_count'),
-                DB::raw('SUM(level = "error") as error_count')
-            )
-                ->where('created_at', '>=', now()->subDays(30))
-                ->groupBy('date')
-                ->get();
+            $queryResult = DB::select("
+                SELECT
+                    DATE(created_at) AS date,
+                    SUM(level = 'success') AS success_count,
+                    SUM(level = 'error') AS error_count
+				FROM
+				    api_exception_reports
+				WHERE
+				    created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+				GROUP BY
+				    date");
 
-            $labels = $model->pluck('date');
+            $queryResult = json_decode(json_encode($queryResult), true);
+
+            $labels = array_column($queryResult, 'date');
             $data = [
-                'successes' => $model->pluck('success_count'),
-                'errors' => $model->pluck('error_count')
+                'successes' => array_column($queryResult, 'success_count'),
+                'errors' => array_column($queryResult, 'error_count')
             ];
 
             Cache::put($keyExceptionsReportChart . ':labels', $labels, now()->addMinutes(1440));
