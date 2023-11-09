@@ -183,7 +183,6 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
         if ($validate->fails()) return $this->sendError($validate->errors());
 
 		$filters = $request->all();
-		dd($filters);
 		$data = [];
 		try {
 			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
