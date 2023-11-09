@@ -164,7 +164,7 @@ class ExpediaHotelBookingApiHandler
     public function addPassengers(array $filters): array | null
     {
 		$booking_id = $filters['booking_id'];
-		$filters['search_id'] = ApiBookingInspector::where('booking_id', $filters['booking_id'])->first()->search_id;
+		$filters['search_id'] = ApiBookingInspector::where('booking_item', $filters['booking_item'])->first()->search_id;
 
 		$bookingItem = ApiBookingInspector::where('booking_id', $booking_id)
 			->where('booking_item', $filters['booking_item'])
