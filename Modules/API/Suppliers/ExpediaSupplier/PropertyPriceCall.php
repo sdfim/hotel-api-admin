@@ -197,6 +197,8 @@ class PropertyPriceCall
             $this->propertyId = $chunk;
             $queryParameters = $this->queryParameters();
 
+			// dd($queryParameters);
+
             try {
                 $promises[$keyChunk] = $this->client->getAsync(self::PROPERTY_CONTENT_PATH, $queryParameters);
             } catch (Exception $e) {
@@ -248,7 +250,11 @@ class PropertyPriceCall
         $queryParams[self::CURRENCY] = $this->currency;
 
         foreach ($this->occupancy as $room) {
-            $queryParams[self::OCCUPANCY][] = $room['adults'] + ($room['children'] ?? 0);
+			if (isset($room['children_ages'])) {
+				$queryParams[self::OCCUPANCY][] = $room['adults'] .'-'. implode(',', $room['children_ages']);
+			} else {
+            	$queryParams[self::OCCUPANCY][] = $room['adults'];
+			}
         }
         $queryParams[self::RATE_PLAN_COUNT] = $this->ratePlanCount;
         $queryParams[self::SALES_CHANNEL] = $this->salesChannel;

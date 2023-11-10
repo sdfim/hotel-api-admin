@@ -23,11 +23,11 @@ class CustomBookingCommand extends Command
      */
     protected $description = 'Command description';
     protected $client;
-    protected const TOKEN = '3pzcngNyytS3KA7ebXaVX5rKMW5c06QdnLXo4ZSV595a1707';
-    protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
+    // protected const TOKEN = '3pzcngNyytS3KA7ebXaVX5rKMW5c06QdnLXo4ZSV595a1707';
+    // protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
-    // protected const TOKEN = '2x3WbYgBLcfkE8fS1WCUGeWRcEBLfVmY60agbnErb97f692a';
-    // protected const BASE_URI = 'http://localhost:8008';
+    protected const TOKEN = '2x3WbYgBLcfkE8fS1WCUGeWRcEBLfVmY60agbnErb97f692a';
+    protected const BASE_URI = 'http://localhost:8008';
 	 /**
      * @var string|null
      */
