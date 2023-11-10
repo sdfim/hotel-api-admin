@@ -25,8 +25,8 @@ class PriceHotelRequest extends ApiRequest
     {
         return [
             'type' => 'required|string',
-            'currency' => 'required|string',
-            'hotel_name' => 'required|string',
+            'currency' => 'string',
+            'hotel_name' => 'string',
             'checkin' => 'required|date_format:Y-m-d|after:today',
             'checkout' => 'required|date_format:Y-m-d|after:checkin',
             'destination' => [
