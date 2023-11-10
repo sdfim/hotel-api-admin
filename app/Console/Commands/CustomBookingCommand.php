@@ -182,7 +182,7 @@ class CustomBookingCommand extends Command
             "type" => "hotel",
             "checkin" => $checkin,
             "checkout" => $checkout,
-            "destination" => 961,
+            "destination" => $faker->randomElement([961, 302, 93, 960, 1102]),
             "rating" => $faker->numberBetween(3, 5),
             "occupancy" => $occupancy
         ];

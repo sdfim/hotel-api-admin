@@ -36,6 +36,7 @@ class SearchHotelRequest extends ApiRequest
 			'longitude' => ['numeric'],
 			'radius' => ['numeric'],
 			'supplier' => ['string'],
+			'hotel_name' => ['string'],
         ];
     }
 

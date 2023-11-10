@@ -82,6 +82,13 @@ class ExpediaHotelApiHandler
 					'mapper_expedia_giatas.giata_id'
 				);
 
+			if (isset($filters['hotel_name'])) {
+				$hotelNameArr = explode(' ', $filters['hotel_name']);
+				foreach ($hotelNameArr as $hotelName) {
+					$results->where('expedia_content_main.name', 'like', '%' . $hotelName . '%');
+				}
+			}
+
             $count = $results->count('expedia_id');
 
             $results = $results->offset($resultsPerPage * ($page - 1))
