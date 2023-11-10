@@ -8,11 +8,11 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Modules\API\BookingAPI\BookingApiHandlers\BookApiHandler;
 use Tests\TestCase;
 
-class ApiContentSearch extends TestCase
+class ContentSearchTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_hotel_search_method_response()
+	public function test_hotel_search_method_response()
     {
 		$headers = $this->getHeader();
         $jsonData = $this->hotelSearchRequest();
