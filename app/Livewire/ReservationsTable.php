@@ -11,6 +11,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
@@ -45,16 +46,25 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         $tooltip = '';
                         if (is_array($field)) {
                             foreach ($field as $key => $value) {
-								if (is_array($value)) {
-									$tooltip .= "$key: " . json_encode($value) . " | ";
-								} else if ($key !== 'hotel_images') $tooltip .= "$key: $value | ";
+                                if (is_array($value)) {
+                                    $tooltip .= "$key: " . json_encode($value) . " | ";
+                                } else if ($key !== 'hotel_images') $tooltip .= "$key: $value | ";
                             }
                         }
                         return rtrim($tooltip, ' |');
                     }),
-                ViewColumn::make('reservation_contains.hotel_images')
+                ImageColumn::make('reservation_contains.hotel_images')
                     ->label('Hotel images')
-                    ->view('dashboard.reservations.column.hotel-images', ['limit' => 5]),
+                    ->state(function (Reservation $record) {
+                        $reservationContains = json_decode($record->reservation_contains, true);
+                        return $reservationContains['hotel_images'] ? json_decode($reservationContains['hotel_images']) : [];
+                    })
+                    ->circular()
+                    ->stacked()
+                    ->limit(4)
+                    ->limitedRemainingText(isSeparate: true)
+                    ->url(fn(Reservation $record): string => route('reservations.show', $record))
+                    ->openUrlInNewTab(),
                 TextColumn::make('channel.name')
                     ->numeric()
                     ->searchable(isIndividual: true)
