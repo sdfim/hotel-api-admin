@@ -22,6 +22,7 @@ class PriceHotelRequest extends ApiRequest
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
+
     {
         return [
             'checkin' => ['required', 'date_format:Y-m-d', 'after:today'],
