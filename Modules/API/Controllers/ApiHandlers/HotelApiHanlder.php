@@ -132,9 +132,10 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	public function search(Request $request, array $suppliers): JsonResponse
 	{
 		try {
-			$searchRequest = new SearchHotelRequest();
-			$rules = $searchRequest->rules();
-			$filters = Validator::make($request->all(), $rules)->validated();
+			$validate = Validator::make($request->all(), (new SearchHotelRequest())->rules());
+			if ($validate->fails()) return $this->sendError($validate->errors());
+			
+			$filters = $request->all();
 
 			$keyPricingSearch = request()->get('type') . ':contentSearch:' . http_build_query(Arr::dot($filters));
 
@@ -249,9 +250,11 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	public function detail(Request $request, array $suppliers): JsonResponse
 	{
 		try {
-			// $detailRequest = new DetailHotelRequest();
-			// $rules = $detailRequest->rules();
-			// $validator = Validator::make($request->all(), $rules)->validated();
+			$validate = Validator::make($request->all(), [
+				'property_id' => 'required|string',
+				'type' => 'required|in:hotel,flight,combo'
+			]);
+			if ($validate->fails()) return $this->sendError($validate->errors());	
 
 			$keyPricingSearch = request()->get('type') . ':contentDetail:' . http_build_query(Arr::dot($request->all()));
 
@@ -331,9 +334,10 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	public function price(Request $request, array $suppliers): JsonResponse
 	{
 		try {
-			$priceRequest = new PriceHotelRequest();
-			$rules = $priceRequest->rules();
-			$filters = Validator::make($request->all(), $rules)->validated();
+			$validate = Validator::make($request->all(), (new PriceHotelRequest())->rules());
+			if ($validate->fails()) return $this->sendError($validate->errors());
+			
+			$filters = $request->all();
 
 			$search_id = (string)Str::uuid();
 

@@ -22,23 +22,33 @@ class PriceHotelRequest extends ApiRequest
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
-    {
-        return [
-            'checkin' => ['required', 'date_format:Y-m-d', 'after:today'],
-            'checkout' => ['required', 'date_format:Y-m-d', 'after:checkin'],
-            'destination' => ['required', function ($value, $fail) {
-				if (!is_string($value) && !is_int($value)) {
-					$fail('The destination must be a string or an integer.');
-				}
-			}],
-            'travel_purpose' => ['string'],
-            'rating' => ['required', 'numeric'],
-            'occupancy' => ['required', 'array'],
-			'supplier' => ['string'],
-			'currency'=> ['string'],
-			'hotel_name' => ['string'],
-        ];
-    }
+{
+    return [
+        'type' => 'required|string',
+        'currency' => 'required|string',
+        'hotel_name' => 'required|string',
+        'checkin' => 'required|date_format:Y-m-d|after:today',
+        'checkout' => 'required|date_format:Y-m-d|after:checkin',
+        'destination' => [
+            'required',
+            function ($attribute, $value, $fail) {
+                if (!is_string($value) && !is_int($value)) {
+                    $fail('The destination must be a string or a number.');
+                } elseif (is_int($value) && (int) $value <= 0) {
+                    $fail('The destination must be a non-negative integer.');
+                } elseif (is_int($value) && strlen((string) $value) > 6) {
+                    $fail('The destination must be an integer with 6 or fewer digits.');
+                }
+            },
+        ],
+        'rating' => 'required|numeric|between:1,5.5',
+        'occupancy' => 'required|array',
+        'occupancy.*.adults' => 'required|numeric|between:1,9',
+        'occupancy.*.children' => 'numeric',
+        'occupancy.*.children_ages' => 'array',
+        'occupancy.*.children_ages.*' => 'numeric|between:0,17',
+    ];
+}
 
     /**
      * @return array

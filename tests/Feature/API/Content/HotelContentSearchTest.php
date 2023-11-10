@@ -34,7 +34,7 @@ class HotelContentSearchTest extends TestCase
 	private function seederSupplier() : void
 	{
 		$supplier = Supplier::firstOrNew([
-            'name' => 'Expedia',
+            'name' => 'expedia',
             'description' => 'Expedia Description']);
         $supplier->save();
 	}
