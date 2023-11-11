@@ -15,9 +15,8 @@ return new class extends Migration {
         Schema::dropIfExists('api_search_inspectors');
 
         Schema::create('api_search_inspector', function (Blueprint $table) {
-            $table->id();
-
-            $table->uuid('search_id')->index();
+            
+			$table->uuid('search_id')->index()->primary();
 
             $table->string('type');
 

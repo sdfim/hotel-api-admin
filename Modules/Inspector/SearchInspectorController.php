@@ -51,9 +51,10 @@ class SearchInspectorController extends BaseInspectorController
                 'request' => $query,
                 'response_path' => $path,
                 'client_response_path' => $client_path,
+				'created_at' => date('Y-m-d H:i:s'),
             ];
 
-            $inspector = ApiSearchInspector::create($data);
+            $inspector = ApiSearchInspector::insert($data);
             \Log::debug('SearchInspectorController save to DB: ' . $this->executionTime() . ' seconds');
 
             return $inspector ? $inspector->id : false;

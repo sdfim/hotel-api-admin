@@ -17,12 +17,22 @@ class ApiSearchInspector extends Model
      * @var string
      */
     protected $table = 'api_search_inspector';
+	protected $primaryKey = 'search_id';
+
+	 /**
+     * Get the auto-incrementing key type.
+     *
+     * @return string
+     */
+    public function getKeyType()
+    {
+        return 'string';
+    }
 
     /**
      * @var string[]
      */
     protected $fillable = [
-        'id',
         'search_id',
         'token_id',
         'suppliers',

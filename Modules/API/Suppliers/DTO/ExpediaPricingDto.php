@@ -265,6 +265,8 @@ class ExpediaPricingDto
             \Log::error('ExpediaPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
         }
 
+		if ($pricingRulesApplier['total_price'] == 0.0) \Log::error('ExpediaPricingDto | setRoomGroupsResponse ', ['error' => 'total_price == 0.0']);
+
         $roomResponse = new RoomResponse();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');

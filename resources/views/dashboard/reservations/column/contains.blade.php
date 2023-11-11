@@ -2,7 +2,8 @@
 @php
     $record = json_decode($getRecord()->reservation_contains, true);
 
-    $content =  'search_id:<b> ' . $record['search_id'] . "</b><br>";
+	$search_id = $record['search_id'];
+    $content =  'search_id: <a href=' . route('search-inspector.show', $search_id ) .' target="_blank" style="color: #007bff;">' . $search_id . '</a><br>';
 	$content .= 'booking_item:<b> ' . $record['booking_item']. "</b><br>";
 	$content .= 'booking_id:<b> ' . $record['booking_id'] . "</b>";
 

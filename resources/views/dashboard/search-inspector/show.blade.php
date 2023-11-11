@@ -23,7 +23,7 @@
                         <div class="col-lg-12 margin-tb">
                             <div class="mt-2">
                                 <strong>Search ID:</strong>
-                                {{ $inspector->id }}
+                                {{ $inspector->search_id }}
                             </div>
                             <div class="mt-2">
                                 <strong>Search Type:</strong>

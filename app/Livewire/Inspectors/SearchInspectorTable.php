@@ -32,9 +32,6 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(ApiSearchInspector::orderBy('created_at', 'DESC'))
             ->columns([
-                TextColumn::make('id')
-					->searchable(isIndividual: true)
-                    ->toggleable(),
                 TextColumn::make('search_id')
 					->searchable(isIndividual: true)
                     ->toggleable()
