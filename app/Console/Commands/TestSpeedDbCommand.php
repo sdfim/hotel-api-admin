@@ -6,6 +6,7 @@ use DB;
 use Illuminate\Console\Command;
 use Modules\API\Controllers\ExpediaHotelApiHandler;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
+use Faker\Factory as Faker;
 
 
 class TestSpeedDbCommand extends Command
@@ -60,16 +61,18 @@ class TestSpeedDbCommand extends Command
 		$this->info('querySearchMain3: ' . $this->executionTime('start') . ' sec');
 		$this->info('query for Search endpoit as mative query:  ' . $this->executionTime('main-search') . ' sec');
 
+		$faker = Faker::create();
+
 		$request = [
 			"type" => "hotel",
-			"destination" => 961,
-			"rating" => 1,
+			"destination" => $faker->randomElement([961, 302, 93, 960, 1102]),
+			"rating" => $faker->numberBetween(3, 5),
 			"page" => 1,
 			"results_per_page" => 250,
 		];
 
 		$querySearchMain = (new ExpediaHotelApiHandler($this->expediaService))->preSearchData($request);
-		$this->info("query for Search endpoit as ORM & methods: ". $this->executionTime("start") . " sec");
+		$this->info("query for Search endpoit as ORM & methods: ". $this->executionTime("start") . " sec" . ' count: ' . $querySearchMain['count']);
 
 		$this->info("querySearchMain request: ". json_encode($request));
 
