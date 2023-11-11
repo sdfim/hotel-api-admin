@@ -50,7 +50,7 @@ class CustomBookingCommand extends Command
 			}
 		}
 		
-		return $bookingItems[rand(0, $i)];
+		return $bookingItems[rand(1, $i)];
 	}
 
     public function strategy1(): void
@@ -103,10 +103,21 @@ class CustomBookingCommand extends Command
 
         $occupancy = [];
         foreach (range(1, $count) as $index) {
-            $occupancy[] = [
-                "adults" => $faker->numberBetween(1, 3),
-                "children" => ($count % 2 == 0) ? 1 : 0,
-            ];
+
+			$room["adults"] = $faker->numberBetween(1, 3);
+
+			if ($count % 2 != 0) $children = rand(0, 2);
+			else $children = 0;
+			$children_ages = [];
+			if ($children > 0) {
+				foreach (range(1, $children) as $index) {
+					$children_ages[] = rand(1, 17);
+				}
+				$room["children"] = $children;
+				$room["children_ages"] = $children_ages;
+			}
+
+			$occupancy[] = $room;
         }
 
         $requestData = [
