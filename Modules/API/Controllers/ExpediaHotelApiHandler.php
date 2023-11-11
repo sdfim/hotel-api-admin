@@ -47,11 +47,11 @@ class ExpediaHotelApiHandler
      * @param array $filters
      * @return array|null
      */
-    private function preSearchData(Request $request, array $filters): array|null
+    public function preSearchData(array $filters): array|null
     {
-        $resultsPerPage = $request->get('results_per_page') ?? self::RESULT_PER_PAGE;
-        $page = $request->get('page') ?? self::PAGE;
-        $rating = $request->get('rating') ?? self::RATING;
+        $resultsPerPage = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
+        $page = $filters['page'] ?? self::PAGE;
+        $rating = $filters['rating'] ?? self::RATING;
 
         try {
             $expedia = new ExpediaContent();
@@ -64,7 +64,7 @@ class ExpediaHotelApiHandler
 				$filters['ids'] = $expedia->getIdsByCoordinate($minMaxCoordinate);
 			}
 
-            $fields = $request->get('fullList') ? $expedia->getFullListFields() : $expedia->getShortListFields();
+            $fields = isset($filters['fullList']) ? $expedia->getFullListFields() : $expedia->getShortListFields();
             $query = $expedia->select();
 
             $searchBuilder = new HotelSearchBuilder($query);
@@ -113,9 +113,9 @@ class ExpediaHotelApiHandler
      * @param array $filters
      * @return array
      */
-    public function search(Request $request, array $filters): array
+    public function search(array $filters): array
     {
-        $preSearchData = $this->preSearchData($request, $filters);
+        $preSearchData = $this->preSearchData($filters);
         $results = $preSearchData['results']->toArray() ?? [];
 
         return ['results' => $results, 'count' => $preSearchData['count']];
@@ -126,10 +126,10 @@ class ExpediaHotelApiHandler
      * @param array $filters
      * @return array|null
      */
-    public function price(Request $request, array $filters): array|null
+    public function price(array $filters): array|null
     {
         try {
-            $preSearchData = $this->preSearchData($request, $filters);
+            $preSearchData = $this->preSearchData($filters);
             $filters = $preSearchData['filters'] ?? null;
 
             # get PriceData from RapidAPI Expedia
@@ -159,10 +159,7 @@ class ExpediaHotelApiHandler
     public function detail(Request $request): object
     {
         $expedia = new ExpediaContent();
-
         $expedia_id = $expedia->getExpediaIdByGiataId($request->get('property_id'));
-
-        // $expedia_id = $request->get('property_id') ?? null;
 
         $results = $expedia
 			->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')

@@ -154,7 +154,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 					if(isset($request->supplier) && $request->supplier != $supplierName) continue;
 
 					if ($supplierName == self::SUPPLIER_NAME) {
-						$supplierData = $this->expedia->search($request, $filters);
+						$supplierData = $this->expedia->search($filters);
 						$data = $supplierData['results'];
 						$count += $supplierData['count'];
 						$dataResponse[$supplierName] = $data;
@@ -359,7 +359,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 					} else {
 
 						\Log::info('HotelApiHanlder | price | expediaResponse | start');
-						$expediaResponse = $this->expedia->price($request, $filters);
+						$expediaResponse = $this->expedia->price($filters);
 						\Log::info('HotelApiHanlder | price | expediaResponse | end');
 
 						Cache::put($keyPricingSearch . ':content:' . self::SUPPLIER_NAME, $expediaResponse, now()->addMinutes(60));

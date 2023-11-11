@@ -4,6 +4,8 @@ namespace App\Console\Commands;
 
 use DB;
 use Illuminate\Console\Command;
+use Modules\API\Controllers\ExpediaHotelApiHandler;
+use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 
 
 class TestSpeedDbCommand extends Command
@@ -11,11 +13,16 @@ class TestSpeedDbCommand extends Command
 	use BaseTrait;
     protected $signature = 'test-speed-db';
     protected $description = 'Command description';
-
+	protected ExpediaService $expediaService;
+	public function __construct(ExpediaService $expediaService)
+    {
+		parent::__construct();
+        $this->expediaService = $expediaService;
+    }
 
     public function handle()
     {
-		$this->info('TestSpeedDbCommand ');
+		$this->info('TestSpeedDbCommand DB');
 
 		$this->current_time['start'] = microtime(true);
 
@@ -51,7 +58,20 @@ class TestSpeedDbCommand extends Command
 		");
 
 		$this->info('querySearchMain3: ' . $this->executionTime('start') . ' sec');
-		$this->info('uery for Search endpoit all: ' . $this->executionTime('main-search') . ' sec');
+		$this->info('query for Search endpoit as mative query:  ' . $this->executionTime('main-search') . ' sec');
+
+		$request = [
+			"type" => "hotel",
+			"destination" => 961,
+			"rating" => 1,
+			"page" => 1,
+			"results_per_page" => 250,
+		];
+
+		$querySearchMain = (new ExpediaHotelApiHandler($this->expediaService))->preSearchData($request);
+		$this->info("query for Search endpoit as ORM & methods: ". $this->executionTime("start") . " sec");
+
+		$this->info("querySearchMain request: ". json_encode($request));
 
     }
 	
