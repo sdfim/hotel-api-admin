@@ -33,27 +33,14 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(Reservation::query()->whereNull('canceled_at')->orderBy('created_at', 'DESC'))
             ->columns([
-                TextColumn::make('reservation_contains')
-                    ->state(function (Reservation $record) {
-                        $field = json_decode($record->reservation_contains, true);
-                        if (is_array($field)) {
-                            return "booking_id: {$field['booking_id']}";
-                        }
-                        return '';
-                    })
-                    ->tooltip(function (Reservation $record) {
-                        $field = json_decode($record->reservation_contains, true);
-                        $tooltip = '';
-                        if (is_array($field)) {
-                            foreach ($field as $key => $value) {
-                                if (is_array($value)) {
-                                    $tooltip .= "$key: " . json_encode($value) . " | ";
-                                } else if ($key !== 'hotel_images') $tooltip .= "$key: $value | ";
-                            }
-                        }
-                        return rtrim($tooltip, ' |');
-                    }),
-                ImageColumn::make('reservation_contains.hotel_images')
+				ViewColumn::make('reservation_contains')
+					->searchable(isIndividual: true)
+                    ->view('dashboard.reservations.column.contains'),
+				TextColumn::make('channel.name')
+                    ->numeric()
+                    ->searchable(isIndividual: true)
+                    ->sortable(),
+				ImageColumn::make('reservation_contains.hotel_images')
                     ->label('Hotel images')
                     ->state(function (Reservation $record) {
                         $reservationContains = json_decode($record->reservation_contains, true);
@@ -65,10 +52,6 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->limitedRemainingText(isSeparate: true)
                     ->url(fn(Reservation $record): string => route('reservations.show', $record))
                     ->openUrlInNewTab(),
-                TextColumn::make('channel.name')
-                    ->numeric()
-                    ->searchable(isIndividual: true)
-                    ->sortable(),
                 TextColumn::make('date_offload')
                     ->default('N\A')
                     ->searchable(isIndividual: true)
