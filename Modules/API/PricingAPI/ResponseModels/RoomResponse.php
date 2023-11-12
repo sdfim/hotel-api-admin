@@ -56,6 +56,27 @@ class RoomResponse
 	 * @var string
 	 */
 	private string $booking_item;
+	/**
+	 * @var string
+	 */
+	private string $currency;
+
+	/**
+	 * @param string $currency
+	 * @return void
+	 */
+	public function setCurrency(string $currency): void
+	{
+		$this->currency = $currency;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCurrency(): string
+	{
+		return $this->currency;
+	}
 
 	/**
 	 * @param string $booking_item
@@ -295,6 +316,7 @@ class RoomResponse
 			'total_fees' => $this->getTotalFees(),
 			'total_net' => $this->getTotalNet(),
 			'affiliate_service_charge' => $this->getAffiliateServiceCharge(),
+			'currency' => $this->getCurrency(),
             // 'links' => $this->getLinks(),
 			'booking_item' => $this->getBookingItem(),
         ];

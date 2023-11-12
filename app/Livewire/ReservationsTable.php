@@ -46,9 +46,14 @@ class ReservationsTable extends Component implements HasForms, HasTable
                 TextColumn::make('date_offload')
                     ->default('N\A')
                     ->searchable(isIndividual: true)
+					->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'N\A' => 'info',
+                        default => 'success',
+                    })
                     ->sortable(),
                 TextColumn::make('date_travel')
-                    ->dateTime()
+                    ->date()
                     ->searchable(isIndividual: true)
                     ->sortable(),
                 TextColumn::make('passenger_surname')
@@ -56,7 +61,25 @@ class ReservationsTable extends Component implements HasForms, HasTable
                 TextColumn::make('total_cost')
                     ->numeric()
                     ->searchable(isIndividual: true)
-                    ->money('USD')
+                    ->money(function (Reservation $reservation) {
+						$price = json_decode($reservation->reservation_contains, true)['price'] ?? [];
+						return $price['currency'] ?? 'USD';
+					})
+                    ->color(function (Reservation $reservation, string $state) {
+						$currency = json_decode($reservation->reservation_contains, true)['price']['currency'] ?? 'USD';
+						$res =  match ($state) {
+							'0' => 'warning',
+							default => 'success',
+						};
+						$res =  match ($currency) {
+							'EUR' => 'info',
+							'GBP'=> 'danger',
+							'CAD' => 'warning',
+							'JPY'=> 'gray',
+							default => 'success',
+						};
+						return $res;
+					})
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()

@@ -23,9 +23,16 @@ class PriceHotelRequest extends ApiRequest
      */
     public function rules(): array
     {
+		$validCurrencies = [
+			'AED', 'ARS', 'AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'COP', 'DKK', 'EGP',
+			'EUR', 'GBP', 'HKD', 'IDR', 'ILS', 'INR', 'JPY', 'KRW', 'LBP', 'MAD',
+			'MXN', 'MYR', 'NOK', 'NZD', 'PHP', 'PLN', 'QAR', 'RUB', 'SAR', 'SEK',
+			'SGD', 'THB', 'TRY', 'TWD', 'USD', 'VND', 'ZAR'
+		];
+
         return [
             'type' => 'required|string',
-            'currency' => 'string',
+        	'currency' => ['required', 'string', 'in:' . implode(',', $validCurrencies)],
             'hotel_name' => 'string',
             'checkin' => 'required|date_format:Y-m-d|after:today',
             'checkout' => 'required|date_format:Y-m-d|after:checkin',

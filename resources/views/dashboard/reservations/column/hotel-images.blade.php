@@ -20,7 +20,7 @@
 
             @for ($i = 0; $i < $imagesCount; $i++)
                 <a href="{{$images[$i]}}" class="reservation-glightbox-{{$getRecord()->id}}">
-                    <img src="{{$images[$i]}}" style="height: 2rem; width: 2rem;"
+                    <img src="{{$images[$i]}}" style="height: 3rem; width: 3rem;"
                          class="max-w-none object-cover object-center rounded-full ring-white dark:ring-gray-900 ring-2 img-fluid"
                          alt="work-thumbnail">
                 </a>

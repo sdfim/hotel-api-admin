@@ -30,6 +30,10 @@ class ExpediaPricingDto
      * @var string
      */
     private string $search_id;
+	/**
+	 * @var string
+	 */
+	private string $currency;
     /**
      * @var float
      */
@@ -196,6 +200,10 @@ class ExpediaPricingDto
         $roomGroupsResponse->setRateDescription($roomGroup['rate_description'] ?? '');
         $roomGroupsResponse->setOpaque($roomGroup['opaque'] ?? '');
 
+		$firstRoomCapacityKey = array_key_first($roomGroup['rates'][0]['occupancy_pricing']);
+		$this->currency = $roomGroup['rates'][0]['occupancy_pricing'][$firstRoomCapacityKey]['nightly'][0][0]['currency'];
+		$roomGroupsResponse->setCurrency($this->currency ?? 'USD');
+
         $rooms = [];
         $priceRoomData = [];
         foreach ($roomGroup['rates'] as $key => $room) {
@@ -227,10 +235,7 @@ class ExpediaPricingDto
         $roomGroupsResponse->setRateId(intval($roomGroup['rates'][$keyLowestPricedRoom]['id']) ?? null);
         $roomGroupsResponse->setCancellationPolicies($roomGroup['rates'][$keyLowestPricedRoom]['cancel_penalties'] ?? []);
 
-		$firstRoomCapacityKey = array_key_first($roomGroup['rates'][0]['occupancy_pricing']);
-		$currency = $roomGroup['rates'][0]['occupancy_pricing'][$firstRoomCapacityKey]['nightly'][0][0]['currency'];
-
-		$roomGroupsResponse->setCurrency($currency ?? 'USD');
+		
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
@@ -244,14 +249,6 @@ class ExpediaPricingDto
      */
     public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId): array
     {
-        $link = 'api/booking/add-item?';
-        $link .= 'search_id=' . $this->search_id;
-        $link .= '&supplier=Expedia';
-        $link .= '&hotel_id=' . $propertyGroup['giata_id'];
-        $link .= '&room_id=' . $roomGroup['id'];
-        $link .= '&rate=' . $rate['id'];
-        $link .= '&bed_groups=' . array_key_first((array)$rate['bed_groups']);
-
         # enrichment Pricing Rules / Application of Pricing Rules
         $pricingRulesApplier['total_price'] = 0.0;
         $pricingRulesApplier['total_tax'] = 0.0;
@@ -279,12 +276,8 @@ class ExpediaPricingDto
         $roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
         $roomResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge']);
-        // $roomResponse->setLinks([
-        //     'booking' => [
-        //         'method' => 'POST',
-        //         'href' => $link
-        //     ]
-        // ]);
+		$roomResponse->setCurrency($this->currency);
+
 		$bookingItem = Str::uuid()->toString();
 		$roomResponse->setBookingItem($bookingItem);
 
