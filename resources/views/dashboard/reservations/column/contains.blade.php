@@ -3,14 +3,13 @@
     $record = json_decode($getRecord()->reservation_contains, true);
 
 	$search_id = $record['search_id'];
-    $content =  'search_id: <a href=' . route('search-inspector.show', $search_id ) .' target="_blank" style="color: #007bff;">' . $search_id . '</a><br>';
-	$content .= 'booking_item:<b> ' . $record['booking_item']. "</b><br>";
-	$content .= 'booking_id:<b> ' . $record['booking_id'] . "</b>";
+	$content = 'booking_item:<b> ' . $record['booking_item']. "</b><br>";
+	$content .= 'booking_id:<b> ' . $record['booking_id'] . "</b><br>";
+	$content .=  'search_id: <a href=' . route('search-inspector.show', $search_id ) .' target="_blank" style="color: #007bff;">' . $search_id . '</a>';
 
 	unset($record['search_id']);
 	unset($record['booking_item']);
 	unset($record['booking_id']);
-
 	
 	$array = [];
     if (is_array($record)) {

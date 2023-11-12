@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Reservation;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
@@ -60,6 +61,8 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true),
                 TextColumn::make('total_cost')
                     ->numeric()
+					->weight(FontWeight::Bold)
+					->size(TextColumn\TextColumnSize::Large)
                     ->searchable(isIndividual: true)
                     ->money(function (Reservation $reservation) {
 						$price = json_decode($reservation->reservation_contains, true)['price'] ?? [];

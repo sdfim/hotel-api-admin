@@ -32,27 +32,18 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(ApiSearchInspector::orderBy('created_at', 'DESC'))
             ->columns([
-                TextColumn::make('search_id')
+				ViewColumn::make('search_id')
+					->tooltip('view Search ID data')
 					->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->label('Search ID'),
+					->view('dashboard.search-inspector.column.search-id'),
 				ViewColumn::make('request')
 					->toggleable()
 					->searchable(isIndividual: true)
 					->view('dashboard.search-inspector.column.request-data'),
 				ViewColumn::make('request json')
 					->label('')
-					->toggleable()
 					->view('dashboard.search-inspector.column.request'),
-                TextColumn::make('created_at')
-                    ->toggleable()
-                    ->searchable(isIndividual: true)
-                    ->sortable(),
-                TextColumn::make('type')
-					->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->label('Endpoint'),
-                TextColumn::make('token.id')
+                TextColumn::make('token.name')
 					->label('Channel')
                     ->numeric()
                     ->toggleable()
@@ -72,18 +63,23 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereIn('suppliers', explode(',', $search));
                     }),
-            ])
+				TextColumn::make('created_at')
+                    ->toggleable()
+                    ->searchable(isIndividual: true)
+                    ->sortable(),
+				])
             ->filters([])
-            ->actions([
-                ViewAction::make()
-                    ->url(fn(ApiSearchInspector $record): string => route('search-inspector.show', $record))
-                    ->label('View response')
-                    ->color('info'),
+            // ->actions([
+            //     ViewAction::make()
+            //         ->url(fn(ApiSearchInspector $record): string => route('search-inspector.show', $record))
+            //         ->label('View response')
+            //         ->color('info'),
 
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
-            ]);
+            // ])
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([]),
+            // ])
+			;
     }
 
     /**
