@@ -41,9 +41,18 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->numeric()
                     ->searchable(isIndividual: true)
                     ->sortable(),
-				ViewColumn::make('reservation_contains.hotel_images')
+                ImageColumn::make('reservation_contains.hotel_images')
                     ->label('Hotel images')
-                    ->view('dashboard.reservations.column.hotel-images', ['limit' => 5]),
+                    ->state(function (Reservation $record) {
+                        $reservationContains = json_decode($record->reservation_contains, true);
+                        return $reservationContains['hotel_images'] ? json_decode($reservationContains['hotel_images']) : [];
+                    })
+                    ->circular()
+                    ->stacked()
+                    ->limit(4)
+                    ->limitedRemainingText(isSeparate: true)
+                    ->url(fn(Reservation $record): string => route('reservations.show', $record))
+                    ->openUrlInNewTab(),
                 TextColumn::make('date_offload')
                     ->default('N\A')
                     ->searchable(isIndividual: true)
