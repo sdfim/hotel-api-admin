@@ -160,23 +160,27 @@ class RouteBookingApiController extends Controller
 		$this->type = $request->get('type') ?? null;
         $this->supplier = $request->get('supplier') ?? null;
 
-		$token_id = PersonalAccessToken::findToken($request->bearerToken())->id;
+		$requestTokenId = PersonalAccessToken::findToken($request->bearerToken())->id;
+		$dbTokenId = null;
 
-		# Autodetect type by booking_item
+		# Autodetect type by booking_item and chek Owner token 
 		if($request->has('booking_item')) {
 			if (!$this->validatedUuid('booking_item')) return [];
 			$apiBookingItem = ApiBookingItem::where('booking_item', $request->get('booking_item'))->with('search')->first();
 			if (!$apiBookingItem) return ['error' => 'Invalid booking_item'];
-			if ($apiBookingItem->search->token_id !== $token_id) return ['error' => 'Owner token not match'];
+			$dbTokenId = $apiBookingItem->search->token_id;
+			if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
 			$this->supplier = Supplier::where('id', $apiBookingItem->supplier_id)->first()->name;
 			$this->type = $this->searchInspector->geTypeBySearchId($apiBookingItem->search_id);
 		}
 
-		# Autodetect type and supplier by booking_id
+		# Autodetect type and supplier by booking_id and chek Owner token 
         if ($request->has('booking_id')) {
 			if (!$this->validatedUuid('booking_id')) return ['error' => 'Invalid booking_id'];
             $bi = $this->bookingInspector->geTypeSupplierByBookingId($request->get('booking_id'));
 			if (empty($bi)) return ['error' => 'Invalid booking_id'];
+			$dbTokenId = $bi['token_id'];
+			if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
             if ($this->type == null) $this->type = $bi['type'];
             if ($this->supplier == null) $this->supplier = $bi['supplier'];
         }

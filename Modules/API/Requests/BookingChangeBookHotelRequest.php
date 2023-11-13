@@ -25,6 +25,8 @@ class BookingChangeBookHotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
+			'booking_id' => 'required|size:36',
+			'booking_item' => 'required|size:36',
             'query' => 'required|array',
             'query.given_name' => 'required|string|max:255',
             'query.family_name' => 'required|string|max:255',
