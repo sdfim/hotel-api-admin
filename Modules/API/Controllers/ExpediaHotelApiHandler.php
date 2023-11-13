@@ -37,9 +37,9 @@ class ExpediaHotelApiHandler
     /**
      * @param ExpediaService $expediaService
      */
-    public function __construct(ExpediaService $expediaService)
+    public function __construct()
     {
-        $this->expediaService = $expediaService;
+        $this->expediaService = new ExpediaService();
     }
 
     /**

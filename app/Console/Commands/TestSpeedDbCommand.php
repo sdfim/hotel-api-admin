@@ -70,7 +70,7 @@ class TestSpeedDbCommand extends Command
 			"results_per_page" => 250,
 		];
 
-		$querySearchMain = (new ExpediaHotelApiHandler($this->expediaService))->preSearchData($request);
+		$querySearchMain = (new ExpediaHotelApiHandler())->preSearchData($request);
 		$this->info("query for Search endpoit as ORM & methods: ". $this->executionTime("start") . " sec" . ' count: ' . $querySearchMain['count']);
 
 		$this->info("querySearchMain request: ". json_encode($request));

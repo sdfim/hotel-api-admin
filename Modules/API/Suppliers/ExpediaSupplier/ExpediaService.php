@@ -7,16 +7,21 @@ use Exception;
 class ExpediaService
 {
     /**
-     * @var PropertyCallFactory
+     * @var PropertyPriceCall
      */
-    private PropertyCallFactory $rapidCallFactory;
+    private  $propertyPriceCall;
+
+	/**
+	 * @var RapidClient
+	 */
+	private $rapidClient;
 
     /**
      * @param PropertyCallFactory $rapidCallFactory
      */
-    public function __construct(PropertyCallFactory $rapidCallFactory)
+    public function __construct()
     {
-        $this->rapidCallFactory = $rapidCallFactory;
+		$this->rapidClient = new RapidClient();
     }
 
     /**
@@ -28,8 +33,8 @@ class ExpediaService
     {
 
         try {
-            $propertyPriceCall = $this->rapidCallFactory->createPropertyPriceCall($query);
-            $dataPrice = $propertyPriceCall->getPriceData($propertyIds);
+			$this->propertyPriceCall = new PropertyPriceCall($this->rapidClient, $query);
+            $dataPrice = $this->propertyPriceCall->getPriceData($propertyIds);
         } catch (Exception $e) {
             \Log::error('ExpediaService | getExpediaPriceByPropertyIds' . $e->getMessage());
             return [];
