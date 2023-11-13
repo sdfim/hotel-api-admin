@@ -51,6 +51,14 @@ class ApiBookingInspector extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+	/**
+     * @return BelongsTo
+	 */
+	public function search(): BelongsTo
+    {
+        return $this->belongsTo(ApiSearchInspector::class, 'search_id', 'search_id');
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -206,7 +214,7 @@ class ApiBookingInspector extends Model
     public function geTypeSupplierByBookingId(string $booking_id): array
     {
         $search = ApiBookingInspector::where('booking_id', $booking_id)->first();
-        return ['type' => $search->search_type, 'supplier' => $search->supplier->name];
+        return $search ? ['type' => $search->search_type, 'supplier' => $search->supplier->name] : [];
     }
 
     /**

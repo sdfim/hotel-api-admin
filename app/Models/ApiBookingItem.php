@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ApiBookingItem extends Model
 {
@@ -26,5 +28,10 @@ class ApiBookingItem extends Model
 		'booking_item_data',
 		'created_at'
 	];
+
+    public function search(): BelongsTo
+    {
+        return $this->belongsTo(ApiSearchInspector::class, 'search_id', 'search_id');
+    }
 
 }

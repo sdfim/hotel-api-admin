@@ -52,7 +52,15 @@ class ApiSearchInspector extends Model
     }
 
 	/**
-     * Get the comments for the blog post.
+     * Get the search for the bookingItem.
+     */
+    public function bookingItem(): HasMany
+    {
+        return $this->hasMany(ApiBookingItem::class, 'search_id', 'search_id');
+    }
+
+	/**
+     * Get the search for the bookingInspector.
      */
     public function apiBookingInspector(): HasMany
     {
