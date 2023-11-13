@@ -29,16 +29,6 @@ class AppServiceProvider extends ServiceProvider
             $propertyCallFactory = $app->make(PropertyCallFactory::class);
             return new ExpediaService($propertyCallFactory);
         });
-
-		$this->app->singleton(RouteApiController::class, function($app) {
-			$experiaService = $app->make(ExpediaService::class);
-			return new ExpediaHotelApiHandler($experiaService);
-		});
-
-		$this->app->singleton(HotelApiHanlder::class, function($app) {
-			$experiaService = $app->make(ExpediaService::class);
-			return new ExpediaHotelApiHandler($experiaService);
-		});
     }
 
     /**

@@ -3,10 +3,8 @@
 namespace Modules\API\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\GiataProperty;
 use App\Models\GiataGeography;
 use App\Models\Supplier;
-use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,7 +12,6 @@ use Illuminate\Support\Facades\Route;
 use Modules\API\Controllers\ApiHandlers\HotelApiHanlder;
 use Modules\API\Controllers\ApiHandlers\FlightApiHandler;
 use Modules\API\Controllers\ApiHandlers\ComboApiHandler;
-use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 
 class RouteApiController extends Controller
 {
@@ -46,24 +43,6 @@ class RouteApiController extends Controller
      *
      */
     private const ROUTE_PRICE = 'price';
-    /**
-     * @var RouteApiStrategy
-     */
-    private RouteApiStrategy $strategy;
-    /**
-     * @var ExpediaService
-     */
-    private ExpediaService $expediaService;
-
-    /**
-     * @param RouteApiStrategy $strategy
-     * @param ExpediaService $expediaService
-     */
-    public function __construct(RouteApiStrategy $strategy, ExpediaService $expediaService)
-    {
-        $this->strategy = $strategy;
-        $this->expediaService = $expediaService;
-    }
 
     /**
      * @param Request $request
@@ -83,7 +62,7 @@ class RouteApiController extends Controller
         $suppliersIds = [$expediaId];
 
         $dataHandler = match ($type) {
-            'hotel' => new HotelApiHanlder($this->expediaService),
+            'hotel' => new HotelApiHanlder(),
             'flight' => new FlightApiHandler(),
             'combo' => new ComboApiHandler(),
             default => response()->json(['error' => 'Invalid route'], 400),
