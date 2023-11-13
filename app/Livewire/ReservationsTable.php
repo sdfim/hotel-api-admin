@@ -50,6 +50,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->circular()
                     ->stacked()
                     ->limit(4)
+					->size(45)
                     ->limitedRemainingText(isSeparate: true)
                     ->url(fn(Reservation $record): string => route('reservations.show', $record))
                     ->openUrlInNewTab(),
