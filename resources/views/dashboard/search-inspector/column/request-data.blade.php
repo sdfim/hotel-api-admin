@@ -21,11 +21,11 @@
 					$rating .= $ratingIcon;
 				}
 			}
-			if ($key === 'destination') $str1 =  $destinationIcon . ' ' . $value  . ' | <span style="color: #FFD700;"> ' . $rating . '</span>';		
+			if ($key === 'destination') $str1 =  $destinationIcon . ' ' . $value  . ' <span style="color: #FFD700;"> ' . $rating . '</span>';		
 			if ($key === 'checkin') $str0 = $value . " - ";
-			if ($key === 'checkout') $str0 .= $value . "<br>";
+			if ($key === 'checkout') $str0 .= $value;
 		}
-		$str = '<div><p>' . $str0 . '</p><p>' . $str1 . '</p><p>rooms: ' . json_encode($rooms) . '</p></div>';
+		$str = '<div><p>' . $str0 . ' ' . $str1 . '</p><p>rooms: ' . json_encode($rooms) . '</p></div>';
     @endphp
     
 @endif
