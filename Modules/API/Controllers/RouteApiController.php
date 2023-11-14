@@ -103,12 +103,24 @@ class RouteApiController extends Controller
 	 *     )
 	 *   ),
 	 *   @OA\Response(
-	 *       response=401,
-	 *       description="Unauthenticated",
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   @OA\Response(
-	 *       response=403,
-	 *       description="Forbidden"
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}
 	 * )
