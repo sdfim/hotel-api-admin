@@ -31,6 +31,78 @@ class HotelContentSearchTest extends TestCase
 			]);
     }
 
+	public function test_hotel_search_without_type_method_response_true()
+    {
+		$this->seederSupplier();
+
+		$headers = $this->getHeader();
+        $jsonData = $this->hotelSearchWithoutTypeRequest();
+		$response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+		
+		// dump($headers);
+		// $response->dd();
+
+		$response
+			->assertStatus(400)
+			->assertJson([
+				'message' => 'Invalid type',
+			]);
+    }
+
+	public function test_hotel_search_with_failed_type_method_response_true()
+    {
+		$this->seederSupplier();
+
+		$headers = $this->getHeader();
+        $jsonData = $this->hotelSearchWithFailedTypeRequest();
+		$response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+		
+		// dump($headers);
+		// $response->dd();
+
+		$response
+			->assertStatus(400)
+			->assertJson([
+				'message' => 'Invalid type',
+			]);
+    }
+
+	public function test_hotel_search_with_failed_destination_method_response_true()
+    {
+		$this->seederSupplier();
+
+		$headers = $this->getHeader();
+        $jsonData = $this->hotelSearchWithFailedDestinationRequest();
+		$response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+		
+		// dump($headers);
+		// $response->dd();
+
+		$response
+			->assertStatus(400)
+			->assertJson([
+				'success' => false,
+			]);
+    }
+
+	public function test_hotel_search_with_failed_rating_method_response_true()
+    {
+		$this->seederSupplier();
+
+		$headers = $this->getHeader();
+        $jsonData = $this->hotelSearchWithFailedRatingRequest();
+		$response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+		
+		// dump($headers);
+		// $response->dd();
+
+		$response
+			->assertStatus(400)
+			->assertJson([
+				'success' => false,
+			]);
+    }
+
 	private function seederSupplier() : void
 	{
 		$supplier = Supplier::firstOrNew([
@@ -45,6 +117,50 @@ class HotelContentSearchTest extends TestCase
 			"type" => "hotel",
 			"destination" => 1175,
 			"rating" => 4,
+			"page" => 1,
+			"results_per_page" => 250,
+		];
+	}
+
+	private function hotelSearchWithoutTypeRequest() : array
+	{
+		return [
+			"type" => "",
+			"destination" => 1175,
+			"rating" => 4,
+			"page" => 1,
+			"results_per_page" => 250,
+		];
+	}
+
+	private function hotelSearchWithFailedTypeRequest() : array
+	{
+		return [
+			"type" => "aaaaa",
+			"destination" => 1175,
+			"rating" => 4,
+			"page" => 1,
+			"results_per_page" => 250,
+		];
+	}
+
+	private function hotelSearchWithFailedDestinationRequest() : array
+	{
+		return [
+			"type" => "hotel",
+			"destination" => "",
+			"rating" => 4,
+			"page" => 1,
+			"results_per_page" => 250,
+		];
+	}
+
+	private function hotelSearchWithFailedRatingRequest() : array
+	{
+		return [
+			"type" => "hotel",
+			"destination" => 1175,
+			"rating" => "",
 			"page" => 1,
 			"results_per_page" => 250,
 		];

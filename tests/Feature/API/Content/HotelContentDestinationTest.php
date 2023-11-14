@@ -27,6 +27,36 @@ class HotelContentDestinationTest extends TestCase
 				'success' => true,
 			]);
     }
+
+	public function test_hotel_destination_with_empty_parameter_method_response_true()
+    {
+		$this->seederSupplier();
+
+		$headers = $this->getHeader();
+		
+		$response_detail = $this->withHeaders($headers)->get('/api/content/destinations?city=');
+		
+		$response_detail
+			->assertStatus(400)
+			->assertJson([
+				'error' => "Invalid city",
+			]);
+    }
+
+	public function test_hotel_destination_without_parameter_method_response_true()
+    {
+		$this->seederSupplier();
+
+		$headers = $this->getHeader();
+		
+		$response_detail = $this->withHeaders($headers)->get('/api/content/destinations');
+		
+		$response_detail
+			->assertStatus(400)
+			->assertJson([
+				'error' => "Invalid city",
+			]);
+    }
 	
 	private function seederSupplier() : void
 	{

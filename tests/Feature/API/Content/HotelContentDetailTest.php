@@ -46,6 +46,32 @@ class HotelContentDetailTest extends TestCase
 			]);
     }
 
+	public function test_hotel_detail_without_type_parameter_method_response_true()
+    {
+		$this->seederSupplier();
+
+		$headers = $this->getHeader();		
+		$response_detail = $this->withHeaders($headers)->get('/api/content/detail?property_id=99999999999999');
+		$response_detail
+			->assertStatus(400)
+			->assertJson([
+				'message' => "Invalid type",
+			]);
+    }
+
+	public function test_hotel_detail_without_property_id_parametr_method_response_true()
+    {
+		$this->seederSupplier();
+
+		$headers = $this->getHeader();		
+		$response_detail = $this->withHeaders($headers)->get('/api/content/detail?type=hotel');
+		$response_detail
+			->assertStatus(400)
+			->assertJson([
+				'success' => false,
+			]);
+    }
+
 	private function seederSupplier() : void
 	{
 		$supplier = Supplier::firstOrNew([
