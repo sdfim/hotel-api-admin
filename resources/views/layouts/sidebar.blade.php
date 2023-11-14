@@ -125,19 +125,18 @@
                         <span data-key="t-geography"> Geography</span>
                     </a>
                 </li>
-                {{--<li>
-                    <a href="{{ Route('content') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-blog"></i>
-                        <span data-key="t-content"> Content</span>
-                    </a>
-                </li>--}}
-
                 <li>
                     <a href="{{ url('log-viewer') }}"
                        class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-document-remove"></i>
                         <span data-key="t-log-viewer"> Log Viewer</span>
+                    </a>
+                </li>
+				<li>
+                    <a href="{{ url('api/documentation') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-document-edit"></i>
+                        <span data-key="t-api-documentatio"> OpenApi Documentation</span>
                     </a>
                 </li>
 
