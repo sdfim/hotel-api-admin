@@ -23,9 +23,6 @@ class HotelContentSearchTest extends TestCase
         $jsonData = $this->hotelSearchRequest();
         $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
 
-        // dump($headers);
-        // $response->dd();
-
         $response
             ->assertStatus(200)
             ->assertJson([
@@ -45,13 +42,11 @@ class HotelContentSearchTest extends TestCase
         $jsonData = $this->hotelSearchWithoutTypeRequest();
         $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
 
-        // dump($headers);
-        // $response->dd();
-
         $response
             ->assertStatus(400)
             ->assertJson([
-                'message' => 'Invalid type',
+                'success' => false,
+                'message' => 'Incorrect type'
             ]);
     }
 
@@ -59,43 +54,19 @@ class HotelContentSearchTest extends TestCase
      * @test
      * @return void
      */
-    public function test_hotel_search_with_failed_type_method_response_400()
+    public function test_hotel_search_with_incorrect_type_method_response_400()
     {
         $this->seederSupplier();
 
         $headers = $this->getHeader();
-        $jsonData = $this->hotelSearchWithFailedTypeRequest();
+        $jsonData = $this->hotelSearchWithIncorrectTypeRequest();
         $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
-
-        // dump($headers);
-        // $response->dd();
-
-        $response
-            ->assertStatus(400)
-            ->assertJson([
-                'message' => 'Invalid type',
-            ]);
-    }
-
-    /**
-     * @test
-     * @return void
-     */
-    public function test_hotel_search_with_failed_destination_method_response_400()
-    {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
-        $jsonData = $this->hotelSearchWithFailedDestinationRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
-
-        // dump($headers);
-        // $response->dd();
 
         $response
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'message' => 'Incorrect type'
             ]);
     }
 
@@ -103,21 +74,39 @@ class HotelContentSearchTest extends TestCase
      * @test
      * @return void
      */
-    public function test_hotel_search_with_failed_rating_method_response_400()
+    public function test_hotel_search_with_incorrect_destination_method_response_400()
     {
         $this->seederSupplier();
 
         $headers = $this->getHeader();
-        $jsonData = $this->hotelSearchWithFailedRatingRequest();
+        $jsonData = $this->hotelSearchWithIncorrectDestinationRequest();
         $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
-
-        // dump($headers);
-        // $response->dd();
 
         $response
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'message' => 'Incorrect destination'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_with_incorrect_rating_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchWithIncorrectRatingRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Incorrect rating'
             ]);
     }
 
@@ -137,6 +126,286 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(200)
             ->assertJson([
                 'success' => true,
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_without_type_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithoutTypeRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Type isn\'t provided'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_with_incorrect_type_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithIncorrectTypeRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Incorrect type'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_without_latitude_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithoutLatitudeRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Latitude is not provided'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_with_incorrect_latitude_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithIncorrectLatitudeRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Incorrect latitude'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_without_longitude_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithoutLongitudeRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Longitude is not provided'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_with_incorrect_longitude_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithIncorrectLongitudeRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Incorrect longitude'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_without_radius_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithoutRadiusRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Radius is not provided'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_with_incorrect_radius_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithIncorrectRadiusRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Incorrect radius'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_without_rating_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithoutRatingRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Rating is not provided'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_with_incorrect_rating_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithIncorrectRatingRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Incorrect rating'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_without_page_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithoutPageRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Page is not provided'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_with_incorrect_page_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithIncorrectPageRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Incorrect page'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_without_results_per_page_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithoutResultsPerPageRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'results_per_page is not provided'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_by_coordinates_with_incorrect_results_per_page_method_response_400()
+    {
+        $this->seederSupplier();
+
+        $headers = $this->getHeader();
+        $jsonData = $this->hotelSearchByCoordinatesWithIncorrectResultsPerPageRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Incorrect results_per_page'
             ]);
     }
 
@@ -171,10 +440,10 @@ class HotelContentSearchTest extends TestCase
     /**
      * @return array
      */
-    private function hotelSearchWithFailedTypeRequest(): array
+    private function hotelSearchWithIncorrectTypeRequest(): array
     {
         return [
-            "type" => "aaaaa",
+            "type" => "wrong_type",
             "destination" => 1175,
             "rating" => 4,
             "page" => 1,
@@ -185,7 +454,7 @@ class HotelContentSearchTest extends TestCase
     /**
      * @return array
      */
-    private function hotelSearchWithFailedDestinationRequest(): array
+    private function hotelSearchWithIncorrectDestinationRequest(): array
     {
         return [
             "type" => "hotel",
@@ -199,7 +468,7 @@ class HotelContentSearchTest extends TestCase
     /**
      * @return array
      */
-    private function hotelSearchWithFailedRatingRequest(): array
+    private function hotelSearchWithIncorrectRatingRequest(): array
     {
         return [
             "type" => "hotel",
@@ -223,6 +492,235 @@ class HotelContentSearchTest extends TestCase
             "rating" => 1,
             "page" => 1,
             "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithoutTypeRequest(): array
+    {
+        return [
+            "latitude" => 40.7480,
+            "longitude" => -73.991,
+            "radius" => 20,
+            "rating" => 1,
+            "page" => 1,
+            "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithIncorrectTypeRequest(): array
+    {
+        return [
+            "type" => "wrong_type",
+            "latitude" => 40.7480,
+            "longitude" => -73.991,
+            "radius" => 20,
+            "rating" => 1,
+            "page" => 1,
+            "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithoutLatitudeRequest(): array
+    {
+        return [
+            "type" => "hotel",
+            "longitude" => -73.991,
+            "radius" => 20,
+            "rating" => 1,
+            "page" => 1,
+            "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * Latitude:
+     *
+     * Valid range: -90° to +90°
+     * Northern Hemisphere: 0° to +90°
+     * Southern Hemisphere: 0° to -90°
+     *
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithIncorrectLatitudeRequest(): array
+    {
+        return [
+            "type" => "hotel",
+            "latitude" => -91,
+            "longitude" => -73.991,
+            "radius" => 20,
+            "rating" => 1,
+            "page" => 1,
+            "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithoutLongitudeRequest(): array
+    {
+        return [
+            "type" => "hotel",
+            "latitude" => 40.7480,
+            "radius" => 20,
+            "rating" => 1,
+            "page" => 1,
+            "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * Longitude:
+     *
+     * Valid range: -180° to +180°
+     * Eastern Hemisphere: 0° to +180°
+     * Western Hemisphere: 0° to -180°
+     *
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithIncorrectLongitudeRequest(): array
+    {
+        return [
+            "type" => "hotel",
+            "latitude" => 40.7480,
+            "longitude" => -181.991,
+            "radius" => 20,
+            "rating" => 1,
+            "page" => 1,
+            "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithoutRadiusRequest(): array
+    {
+        return [
+            "type" => "hotel",
+            "latitude" => 40.7480,
+            "longitude" => -73.991,
+            "rating" => 1,
+            "page" => 1,
+            "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithIncorrectRadiusRequest(): array
+    {
+        return [
+            "type" => "hotel",
+            "latitude" => 40.7480,
+            "longitude" => -73.991,
+            "radius" => -1,
+            "rating" => 1,
+            "page" => 1,
+            "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithoutRatingRequest(): array
+    {
+        return [
+            "type" => "hotel",
+            "latitude" => 40.7480,
+            "longitude" => -73.991,
+            "radius" => -1,
+            "page" => 1,
+            "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithIncorrectRatingRequest(): array
+    {
+        return [
+            "type" => "hotel",
+            "latitude" => 40.7480,
+            "longitude" => -73.991,
+            "radius" => -1,
+            "rating" => -1,
+            "page" => 1,
+            "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithoutPageRequest(): array
+    {
+        return [
+            "type" => "hotel",
+            "latitude" => 40.7480,
+            "longitude" => -73.991,
+            "radius" => 20,
+            "rating" => 2,
+            "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithIncorrectPageRequest(): array
+    {
+        return [
+            "type" => "hotel",
+            "latitude" => 40.7480,
+            "longitude" => -73.991,
+            "radius" => 20,
+            "rating" => 2,
+            "page" => -1,
+            "results_per_page" => 20
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithoutResultsPerPageRequest(): array
+    {
+        return [
+            "type" => "hotel",
+            "latitude" => 40.7480,
+            "longitude" => -73.991,
+            "radius" => 20,
+            "rating" => 2,
+            "page" => 1,
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function hotelSearchByCoordinatesWithIncorrectResultsPerPageRequest(): array
+    {
+        return [
+            "type" => "hotel",
+            "latitude" => 40.7480,
+            "longitude" => -73.991,
+            "radius" => 20,
+            "rating" => 2,
+            "page" => 1,
+            "results_per_page" => -1
         ];
     }
 
