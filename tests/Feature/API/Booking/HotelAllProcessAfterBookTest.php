@@ -6,122 +6,125 @@ use App\Models\Channel;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
-use Modules\API\BookingAPI\BookingApiHandlers\BookApiHandler;
-use SebastianBergmann\Type\VoidType;
 use Tests\TestCase;
 
 class HotelAllProcessAfterBookTest extends TestCase
 {
     use RefreshDatabase;
 
-	/**
-	 * @test
-	 * @coversNothing
-	 * @return void
-	 */
+    /**
+     * @test
+     * @coversNothing
+     * @return void
+     */
     public function test_book_method_response()
     {
-		$headers = $this->getHeader();
-		$this->seederSupplier();
+        $headers = $this->getHeader();
+        $this->seederSupplier();
 
-		## SEARCH 1
+        ## SEARCH 1
 
-		# step 1 Search endpoint api/pricing/search
-		$jsonData = $this->searchRequest();
-		$response = $this->withHeaders($headers)->postJson('/api/pricing/search', $jsonData);
-		$responseArr = $response->json();
+        # step 1 Search endpoint api/pricing/search
+        $jsonData = $this->searchRequest();
+        $response = $this->withHeaders($headers)->postJson('/api/pricing/search', $jsonData);
+        $responseArr = $response->json();
 
-		$search_id = $responseArr['data']['search_id'];
-		$booking_item = $responseArr['data']['results']['Expedia'][0]['room_groups'][0]['rooms'][0]['booking_item'];
+        $search_id = $responseArr['data']['search_id'];
+        $booking_item = $responseArr['data']['results']['Expedia'][0]['room_groups'][0]['rooms'][0]['booking_item'];
+        dump($booking_item, $search_id);
 
-		dump($booking_item, $search_id);
+        # step 2 add to cart api/pricing/add-item
+        $response = $this->withHeaders($headers)->postJson('/api/booking/add-item', ['booking_item' => $booking_item]);
+        $responseArr = $response->json();
+        $booking_id = $responseArr['data']['booking_id'];
+        dump($booking_id);
 
-		# step 2 add to cart api/pricing/add-item
-		$response = $this->withHeaders($headers)->postJson('/api/booking/add-item', ['booking_item' => $booking_item]);
-		$responseArr = $response->json();
+        # step 3 add passenger api/booking/add-passengers
+        $jsonData = $this->addPassengersRequest();
+        $jsonData = array_merge($jsonData, ['booking_id' => $booking_id, 'booking_item' => $booking_item]);
+        $response = $this->withHeaders($headers)->postJson('/api/booking/add-passengers', $jsonData);
+        $responseArr = $response->json();
+        dump($responseArr);
 
-		$booking_id = $responseArr['data']['booking_id'];
+        # step 4 book api/booking/book
+        $jsonData = $this->addBookRequest();
+        $jsonData = array_merge($jsonData, ['booking_id' => $booking_id]);
+        $response = $this->withHeaders($headers)->postJson('/api/booking/book', $jsonData);
+        $responseArr = $response->json();
+        dump($responseArr);
 
-		dump($booking_id);
+        # step 5 book api/booking/change-booking
+        $jsonData = $this->changeBookingRequest();
+        $jsonData = array_merge($jsonData, ['booking_id' => $booking_id, 'booking_item' => $booking_item]);
+        $response = $this->withHeaders($headers)->putJson('/api/booking/change-booking', $jsonData);
+        $responseArr = $response->json();
+        dump($responseArr);
 
-		# step 3 add passenger api/booking/add-passengers
-		$jsonData = $this->addPassengersRequest();
-		$jsonData = array_merge($jsonData, ['booking_id' => $booking_id, 'booking_item' => $booking_item]);
-		$response = $this->withHeaders($headers)->postJson('/api/booking/add-passengers', $jsonData);
-		$responseArr = $response->json();
-		dump($responseArr);
+        # step 6 book api/booking/list-booking
+        $response = $this->withHeaders($headers)->get('/api/booking/list-bookings?type=hotel&supplier=Expedia');
+        $responseArr = $response->json();
+        dump($responseArr);
 
-		# step 4 book api/booking/book
-		$jsonData = $this->addBookRequest();
-		$jsonData = array_merge($jsonData, ['booking_id' => $booking_id]);
-		$response = $this->withHeaders($headers)->postJson('/api/booking/book', $jsonData);
-		$responseArr = $response->json();
+        # step 7 book api/booking/retrieve-booking
+        $response = $this->withHeaders($headers)->get('/api/booking/retrieve-booking?booking_id=' . $booking_id);
+        $responseArr = $response->json();
+        dump($responseArr);
 
-		dump($responseArr);
+        # step 8 book api/booking/cancel-booking
 
-		# step 5 book api/booking/change-booking
-		$jsonData = $this->changeBookingRequest();
-		$jsonData = array_merge($jsonData, ['booking_id' => $booking_id, 'booking_item' => $booking_item]);
-		$response = $this->withHeaders($headers)->putJson('/api/booking/change-booking', $jsonData);
-		$responseArr = $response->json();
-		dump($responseArr);
+        $response = $this->withHeaders($headers)->deleteJson('/api/booking/cancel-booking', ['booking_id' => $booking_id]);
+        $responseArr = $response->json();
+        dump($responseArr);
 
-		# step 6 book api/booking/list-booking
-		$response = $this->withHeaders($headers)->get('/api/booking/list-bookings?type=hotel&supplier=Expedia');
-		$responseArr = $response->json();
-		dump($responseArr);
-
-		# step 7 book api/booking/retrieve-booking
-		$response = $this->withHeaders($headers)->get('/api/booking/retrieve-booking?booking_id='.$booking_id);
-		$responseArr = $response->json();
-		dump($responseArr);
-
-		# step 8 book api/booking/cancel-booking
-
-		$response = $this->withHeaders($headers)->deleteJson('/api/booking/cancel-booking', ['booking_id' => $booking_id]);
-		$responseArr = $response->json();
-		dump($responseArr);
-
-		$response
-			->assertStatus(200)
-			->assertJson([
-				'success' => true,
-				'message' => 'success',					
-			]);
+        $response
+            ->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'success',
+            ]);
     }
 
-	private function getHeader() : array
-	{
-		$this->auth();
-		$channel = Channel::factory()->create();
-		$token = $channel->access_token;
-		return [
-			'Authorization' => 'Bearer ' . $token,
-		];
-	}
+    /**
+     * @return string[]
+     */
+    private function getHeader(): array
+    {
+        $this->auth();
+        $channel = Channel::factory()->create();
+        $token = $channel->access_token;
+        return [
+            'Authorization' => 'Bearer ' . $token,
+        ];
+    }
 
-	private function changeBookingRequest() : array 
-	{
-		return [
-			"query" => 
-			[
-				"given_name" => "John",
-				"family_name" => "Smith",
-				"smoking" => false,
-				"special_request" => "Top floor or away frostreet please",
-				"loyalty_id" => "ABC123"
-			]
-		];
-	}
-	private function searchRequest() : array
-	{
-		$checkin = Carbon::now()->addDays(7)->toDateString();
-		$checkout = Carbon::now()->addDays(7 + rand(2,5))->toDateString();	
-	
-		return [
-			'type' => 'hotel',
+    /**
+     * @return array[]
+     */
+    private function changeBookingRequest(): array
+    {
+        return [
+            "query" =>
+                [
+                    "given_name" => "John",
+                    "family_name" => "Smith",
+                    "smoking" => false,
+                    "special_request" => "Top floor or away frostreet please",
+                    "loyalty_id" => "ABC123"
+                ]
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    private function searchRequest(): array
+    {
+        $checkin = Carbon::now()->addDays(7)->toDateString();
+        $checkout = Carbon::now()->addDays(7 + rand(2, 5))->toDateString();
+
+        return [
+            'type' => 'hotel',
             'currency' => 'EUR',
             'hotel_name' => 'New',
             'checkin' => $checkin,
@@ -138,110 +141,124 @@ class HotelAllProcessAfterBookTest extends TestCase
                     'adults' => 1,
                 ],
             ],
-		];
-	}
+        ];
+    }
 
-	private function searchRequestStep2() : array
-	{
-		$checkin = Carbon::now()->addDays(7)->toDateString();
-		$checkout = Carbon::now()->addDays(7 + rand(2,5))->toDateString();	
-		return [
-			"type" => "hotel",
-			"checkin" => $checkin,
-			"checkout" => $checkout,
-			"destination" => 961,
-			"rating" => 4.5,
-			"occupancy" => [
-				[
-					"adults" => 2,
-					"children" => 1
-				],
-				[
-					"adults" => 3
-				],
-				[
-					"adults" => 1
-				]
-			]
-		];
-	}
-	
-	private function addPassengersRequest() : array
-	{
-		return [
-			"title" => "mr",
-			"first_name" => "John",
-			"last_name" => "Portman",
-			"rooms" => [
-				[
-					"given_name" => "John",
-					"family_name" => "Portman"
-				],
-				[
-					"given_name" => "John",
-					"family_name" => "Portman"
-				]
-			]
-		];
-	}
+    /**
+     * @return array
+     */
+    private function searchRequestStep2(): array
+    {
+        $checkin = Carbon::now()->addDays(7)->toDateString();
+        $checkout = Carbon::now()->addDays(7 + rand(2, 5))->toDateString();
+        return [
+            "type" => "hotel",
+            "checkin" => $checkin,
+            "checkout" => $checkout,
+            "destination" => 961,
+            "rating" => 4.5,
+            "occupancy" => [
+                [
+                    "adults" => 2,
+                    "children" => 1
+                ],
+                [
+                    "adults" => 3
+                ],
+                [
+                    "adults" => 1
+                ]
+            ]
+        ];
+    }
 
-	private function addPassengersRequestStep2() : array
-	{
-		return [
-			"title" => "mr",
-			"first_name" => "John",
-			"last_name" => "Portman",
-			"rooms" => [
-				[
-					"given_name" => "John",
-					"family_name" => "Portman"
-				],
-				[
-					"given_name" => "Dana",
-					"family_name" => "Portman"
-				],
-				[
-					"given_name" => "Mikle",
-					"family_name" => "Portman"
-				]
-			]
-		];
-	}
+    /**
+     * @return array
+     */
+    private function addPassengersRequest(): array
+    {
+        return [
+            "title" => "mr",
+            "first_name" => "John",
+            "last_name" => "Portman",
+            "rooms" => [
+                [
+                    "given_name" => "John",
+                    "family_name" => "Portman"
+                ],
+                [
+                    "given_name" => "John",
+                    "family_name" => "Portman"
+                ]
+            ]
+        ];
+    }
 
-	
-	private function addBookRequest() : array
-	{
-		return  [
-			"amount_pay" => "Deposit",
-			"email" => "john@example.com",
-			"phone" => [
-				"country_code" => "1",
-				"area_code" => "487",
-				"number" => "5550077"
-			],
-			"booking_contact" => [
-				"given_name" => "John",
-				"family_name" => "Smith",
-				"address" => [
-					"line_1" => "555 1st St",
-					"city" => "Seattle",
-					"state_province_code" => "WA",
-					"postal_code" => "98121",
-					"country_code" => "US"
-				]
-			]
-		];
-	}
+    /**
+     * @return array
+     */
+    private function addPassengersRequestStep2(): array
+    {
+        return [
+            "title" => "mr",
+            "first_name" => "John",
+            "last_name" => "Portman",
+            "rooms" => [
+                [
+                    "given_name" => "John",
+                    "family_name" => "Portman"
+                ],
+                [
+                    "given_name" => "Dana",
+                    "family_name" => "Portman"
+                ],
+                [
+                    "given_name" => "Mikle",
+                    "family_name" => "Portman"
+                ]
+            ]
+        ];
+    }
 
-	private function seederSupplier() : void
-	{
-		$supplier = Supplier::firstOrNew([
+    /**
+     * @return array
+     */
+    private function addBookRequest(): array
+    {
+        return [
+            "amount_pay" => "Deposit",
+            "email" => "john@example.com",
+            "phone" => [
+                "country_code" => "1",
+                "area_code" => "487",
+                "number" => "5550077"
+            ],
+            "booking_contact" => [
+                "given_name" => "John",
+                "family_name" => "Smith",
+                "address" => [
+                    "line_1" => "555 1st St",
+                    "city" => "Seattle",
+                    "state_province_code" => "WA",
+                    "postal_code" => "98121",
+                    "country_code" => "US"
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @return void
+     */
+    private function seederSupplier(): void
+    {
+        $supplier = Supplier::firstOrNew([
             'name' => 'Expedia',
             'description' => 'Expedia Description']);
         $supplier->save();
-	}
+    }
 
-	/**
+    /**
      * @return void
      */
     public function auth(): void
