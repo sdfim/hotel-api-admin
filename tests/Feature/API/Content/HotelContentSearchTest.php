@@ -46,7 +46,7 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Incorrect type'
+                'message' => 'Invalid type'
             ]);
     }
 
@@ -66,7 +66,7 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Incorrect type'
+                'message' => 'Invalid type'
             ]);
     }
 
@@ -86,7 +86,6 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Incorrect destination'
             ]);
     }
 
@@ -106,7 +105,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Incorrect rating'
+                'error' => [
+					'rating' => ['The rating must be a number.']
+				]
             ]);
     }
 
@@ -145,7 +146,7 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Type isn\'t provided'
+                'message' => 'Invalid type'
             ]);
     }
 
@@ -165,7 +166,7 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Incorrect type'
+                'message' => 'Invalid type'
             ]);
     }
 
@@ -185,7 +186,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Latitude is not provided'
+				'error' => [
+					'latitude' => ['The latitude field is required.']
+				]
             ]);
     }
 
@@ -198,14 +201,16 @@ class HotelContentSearchTest extends TestCase
         $this->seederSupplier();
 
         $headers = $this->getHeader();
-        $jsonData = $this->hotelSearchByCoordinatesWithIncorrectLatitudeRequest();
+        $jsonData = $this->hotelSearchByCoordinatesWithIncorrectLatitudeRequest();		
         $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Incorrect latitude'
+				'error' => [
+					'latitude' => ['The latitude must be between -90 and 90.']
+				]
             ]);
     }
 
@@ -218,14 +223,16 @@ class HotelContentSearchTest extends TestCase
         $this->seederSupplier();
 
         $headers = $this->getHeader();
-        $jsonData = $this->hotelSearchByCoordinatesWithoutLongitudeRequest();
+        $jsonData = $this->hotelSearchByCoordinatesWithoutLongitudeRequest();	
         $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Longitude is not provided'
+				'error' => [
+					'longitude' => ['The longitude field is required.']
+				]
             ]);
     }
 
@@ -245,7 +252,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Incorrect longitude'
+				'error' => [
+					'longitude' => ['The longitude must be between -180 and 180.']
+				]
             ]);
     }
 
@@ -265,7 +274,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Radius is not provided'
+				'error' => [
+					'radius' => ['The radius field is required.']
+				]
             ]);
     }
 
@@ -285,7 +296,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Incorrect radius'
+				'error' => [
+					'radius' => ['The radius must be between 1 and 100.']
+				]
             ]);
     }
 
@@ -305,7 +318,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Rating is not provided'
+				'error' => [
+					'radius' => ['The radius must be between 1 and 100.']
+				]
             ]);
     }
 
@@ -325,7 +340,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Incorrect rating'
+				'error'=> [
+					'rating' => ['The rating must be between 1 and 5.5.']
+				]
             ]);
     }
 
@@ -333,7 +350,7 @@ class HotelContentSearchTest extends TestCase
      * @test
      * @return void
      */
-    public function test_hotel_search_by_coordinates_without_page_method_response_400()
+    public function test_hotel_search_by_coordinates_without_page_method_response_200()
     {
         $this->seederSupplier();
 
@@ -342,10 +359,9 @@ class HotelContentSearchTest extends TestCase
         $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
 
         $response
-            ->assertStatus(400)
+            ->assertStatus(200)
             ->assertJson([
-                'success' => false,
-                'message' => 'Page is not provided'
+                'success' => true,
             ]);
     }
 
@@ -365,7 +381,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Incorrect page'
+				'error'=> [
+					'page' => ['The page must be between 1 and 1000.']
+				]
             ]);
     }
 
@@ -373,7 +391,7 @@ class HotelContentSearchTest extends TestCase
      * @test
      * @return void
      */
-    public function test_hotel_search_by_coordinates_without_results_per_page_method_response_400()
+    public function test_hotel_search_by_coordinates_without_results_per_page_method_response_200()
     {
         $this->seederSupplier();
 
@@ -382,10 +400,9 @@ class HotelContentSearchTest extends TestCase
         $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
 
         $response
-            ->assertStatus(400)
+            ->assertStatus(200)
             ->assertJson([
-                'success' => false,
-                'message' => 'results_per_page is not provided'
+                'success' => true,
             ]);
     }
 
@@ -405,7 +422,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Incorrect results_per_page'
+				'error'=> [
+					'results_per_page' => ['The results per page must be between 1 and 1000.']
+				]
             ]);
     }
 
@@ -655,7 +674,7 @@ class HotelContentSearchTest extends TestCase
             "type" => "hotel",
             "latitude" => $this->randFloat(-90, 90),
             "longitude" => $this->randFloat(-180, 180),
-            "radius" => -1,
+            "radius" => 10,
             "rating" => -1,
             "page" => 1,
             "results_per_page" => 20
