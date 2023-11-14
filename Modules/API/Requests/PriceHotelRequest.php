@@ -30,9 +30,23 @@ class PriceHotelRequest extends ApiRequest
 			'SGD', 'THB', 'TRY', 'TWD', 'USD', 'VND', 'ZAR'
 		];
 
+		$occupancy = request()->occupancy;
+		foreach ($occupancy as $key => $value) {
+			if (isset($value['children']) && !isset($value['children_ages'])) return [
+				'occupancy.'. $key .'.children_ages' => 'required|array',
+			];
+			else if (isset($value['children']) && (count($value['children_ages']) !== $value['children'])) return [
+				'occupancy.'.$key .'.children_ages' => ['required', 
+					function ($attribute, $value, $fail) {
+						$fail('The number of children must equal the number of records of their age children_ages.');
+					}
+				],
+			];
+		}
+
         return [
             'type' => 'required|string',
-        	'currency' => ['required', 'string', 'in:' . implode(',', $validCurrencies)],
+        	'currency' => ['string', 'in:' . implode(',', $validCurrencies)],
             'hotel_name' => 'string',
             'checkin' => 'required|date_format:Y-m-d|after:today',
             'checkout' => 'required|date_format:Y-m-d|after:checkin',

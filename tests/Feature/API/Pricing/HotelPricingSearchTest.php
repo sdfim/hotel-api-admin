@@ -5,9 +5,7 @@ namespace Tests\Feature\API\Pricing;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
-use Modules\API\BookingAPI\BookingApiHandlers\BookApiHandler;
 use Tests\TestCase;
 
 class HotelPricingSearchTest extends TestCase
@@ -54,6 +52,16 @@ class HotelPricingSearchTest extends TestCase
             [$this->hotelSearchRequest('rating')],
             [$this->hotelSearchRequest('occupancy')],
         ];
+    }
+
+    public function testChildAgesCountMatchesChildrenCount()
+    {
+        $jsonData = $this->hotelSearchRequest('child_ages_count_mismatch');
+        $response = $this->makeApiRequest('/api/pricing/search', $jsonData);
+        $response->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     private function makeApiRequest(string $url, array $jsonData)
@@ -109,6 +117,15 @@ class HotelPricingSearchTest extends TestCase
                 ],
             ];
         }
+        if ($fail == 'child_ages_count_mismatch') {
+            $data['occupancy'] = [
+                [
+                    'adults' => 2,
+                    'children' => 3,
+                    'children_ages' => [4, 12],
+                ],
+            ];
+        }
 
         return $data;
     }
@@ -126,7 +143,7 @@ class HotelPricingSearchTest extends TestCase
     {
         $supplier = Supplier::firstOrNew([
             'name' => 'expedia',
-            'description' => 'Expedia Description'
+            'description' => 'Expedia Description',
         ]);
         $supplier->save();
     }

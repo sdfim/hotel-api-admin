@@ -57,7 +57,7 @@ class SearchInspectorController extends BaseInspectorController
             $inspector = ApiSearchInspector::insert($data);
             \Log::debug('SearchInspectorController save to DB: ' . $this->executionTime() . ' seconds');
 
-            return $inspector ? $inspector->id : false;
+            return $inspector ? true : false;
 
         } catch (\Exception $e) {
             \Log::error('Error save ApiSearchInspector: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());

@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BaseController;
 use Modules\API\BookingAPI\ExpediaBookApiHandler;
 use Modules\API\Requests\BookingBookRequest;
@@ -30,9 +31,9 @@ class BookApiHandler extends BaseController
      */
     private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
 
-    public function __construct()
+    public function __construct(ExpediaBookApiHandler $expedia)
     {
-        $this->expedia = new ExpediaBookApiHandler();
+        $this->expedia = $expedia;
     }
 
     /**
@@ -78,6 +79,9 @@ class BookApiHandler extends BaseController
      */
     public function book(Request $request): JsonResponse
     {
+		$determinant = $this->determinant($request);
+        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+
 		$validate = Validator::make($request->all(), (new BookingBookRequest())->rules());
         if ($validate->fails()) return $this->sendError($validate->errors());
 
@@ -184,8 +188,15 @@ class BookApiHandler extends BaseController
      */
     public function changeBooking(Request $request): JsonResponse
     {
+		$determinant = $this->determinant($request);
+        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+		
 		$validate = Validator::make($request->all(), (new BookingChangeBookHotelRequest())->rules());
         if ($validate->fails()) return $this->sendError($validate->errors());
+
+		if (!ApiBookingInspector::isBook($request->booking_id, $request->booking_item)) {
+			return $this->sendError(['error' => 'booking_id and/or booking_item not yet booked'], 'failed');
+		}
 
 		$filters = $request->all();
 
@@ -259,6 +270,9 @@ class BookApiHandler extends BaseController
      */
     public function listBookings(Request $request): JsonResponse
     {
+		$determinant = $this->determinant($request);
+        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+
 		$validate = Validator::make($request->all(), [
 			'supplier' => 'required|string', 
 			'type' => 'required|string|in:hotel,flight,combo'
@@ -318,6 +332,9 @@ class BookApiHandler extends BaseController
      */
     public function retrieveBooking(Request $request): JsonResponse
     {
+		$determinant = $this->determinant($request);
+        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+
 		$filters = $request->all();
 		$validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
         if ($validate->fails()) return $this->sendError($validate->errors());
@@ -325,6 +342,10 @@ class BookApiHandler extends BaseController
         $itemsBooked = ApiBookingInspector::bookedItems($request->booking_id);
         $data = [];
         foreach ($itemsBooked as $item) {
+			if (!ApiBookingInspector::isBook($request->booking_id, $item->booking_item)) {
+				$data[] = ['error' => 'booking_id and/or booking_item not yet booked'];
+				continue;
+			}
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
 
@@ -343,6 +364,9 @@ class BookApiHandler extends BaseController
                 ];
             }
         }
+		if (empty($data)) {
+			return $this->sendError(['error' => 'booking_id not yet booked'], 'failed');
+		}
 
         return $this->sendResponse(['result' => $data], 'success');
     }
@@ -388,6 +412,9 @@ class BookApiHandler extends BaseController
      */
     public function cancelBooking(Request $request): JsonResponse
     {
+		$determinant = $this->determinant($request);
+        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+
 		$validate = Validator::make($request->all(), [
 			'booking_id' => 'required|size:36',
 			'booking_item' => 'nullable|size:36'
@@ -404,6 +431,10 @@ class BookApiHandler extends BaseController
         $filters = $request->all();
         $data = [];
         foreach ($itemsBooked as $item) {
+			if (!ApiBookingInspector::isBook($request->booking_id, $item->booking_item)) {
+				$data[] = ['error' => 'booking_id and/or booking_item not yet booked'];
+				continue;
+			}
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
 
@@ -422,6 +453,9 @@ class BookApiHandler extends BaseController
                 ];
             }
         }
+		if (empty($data)) {
+			return $this->sendError(['error' => 'booking_id not yet booked'], 'failed');
+		}
 
         return $this->sendResponse(['result' => $data], 'success');
 	}
@@ -470,6 +504,9 @@ class BookApiHandler extends BaseController
      */
     public function retrieveItems(Request $request): JsonResponse
     {
+		$determinant = $this->determinant($request);
+        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+
         $filters = $request->all();
 		$validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
         if ($validate->fails()) return $this->sendError($validate->errors());
@@ -504,4 +541,48 @@ class BookApiHandler extends BaseController
         return $this->sendResponse(['result' => $res], 'success');
 
     }
+
+	/**
+     * @param Request $request
+     * @return void
+     */
+    private function determinant(Request $request): array
+    {
+		$requestTokenId = PersonalAccessToken::findToken($request->bearerToken())->id;
+		$dbTokenId = null;
+
+		# chek Owner token 
+		if($request->has('booking_item')) {
+			if (!$this->validatedUuid('booking_item')) return [];
+			$apiBookingItem = ApiBookingItem::where('booking_item', $request->get('booking_item'))->with('search')->first();
+			if (!$apiBookingItem) return ['error' => 'Invalid booking_item'];
+			$dbTokenId = $apiBookingItem->search->token_id;
+			if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
+		}
+
+		# chek Owner token 
+        if ($request->has('booking_id')) {
+			
+			if (!$this->validatedUuid('booking_id')) return ['error' => 'Invalid booking_id'];
+            $bi = (new ApiBookingInspector())->geTypeSupplierByBookingId($request->get('booking_id'));
+			if (empty($bi)) return ['error' => 'Invalid booking_id'];
+			$dbTokenId = $bi['token_id'];
+
+			// dd($request->get('booking_id'), $requestTokenId, $dbTokenId, ($dbTokenId !== $requestTokenId));
+			if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
+        }
+
+		return [];
+    }
+
+	private function validatedUuid($id) : bool
+	{
+		$validate = Validator::make(request()->all(), [$id => 'required|size:36']);
+        if ($validate->fails()) {
+			$this->type = null;
+			$this->supplier = null;
+			return false;
+		};
+		return true;
+	}
 }

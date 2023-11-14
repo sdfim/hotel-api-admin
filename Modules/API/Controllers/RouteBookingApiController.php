@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ApiBookingItem;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\ComboBookingApiHandler;
@@ -128,7 +129,8 @@ class RouteBookingApiController extends Controller
      */
     public function handle(Request $request): mixed
     {
-        $this->determinant($request);
+		$determinant = $this->determinant($request);
+        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
         if (!self::isTypeValid($this->type)) return response()->json(['message' => 'Invalid type'], 400);
         if (!self::isRouteValid($this->route)) return response()->json(['message' => 'Invalid route'], 400);
         if (is_null($this->supplier)) return response()->json(['message' => 'Invalid supplier'], 400);
@@ -153,34 +155,44 @@ class RouteBookingApiController extends Controller
      * @param Request $request
      * @return void
      */
-    private function determinant(Request $request): void
+    private function determinant(Request $request): array
     {
 		$this->type = $request->get('type') ?? null;
         $this->supplier = $request->get('supplier') ?? null;
 
-		# Autodetect type by booking_item
+		$requestTokenId = PersonalAccessToken::findToken($request->bearerToken())->id;
+		$dbTokenId = null;
+
+		# Autodetect type by booking_item and chek Owner token 
 		if($request->has('booking_item')) {
-			if (!$this->validatedUuid('booking_item')) return;
-            $apiBookingItem = ApiBookingItem::where('booking_item', $request->get('booking_item'))->first()->toArray();
-			$this->supplier = Supplier::where('id', $apiBookingItem['supplier_id'])->first()->name;
-			$this->type = $this->searchInspector->geTypeBySearchId($apiBookingItem['search_id']);
+			if (!$this->validatedUuid('booking_item')) return [];
+			$apiBookingItem = ApiBookingItem::where('booking_item', $request->get('booking_item'))->with('search')->first();
+			if (!$apiBookingItem) return ['error' => 'Invalid booking_item'];
+			$dbTokenId = $apiBookingItem->search->token_id;
+			if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
+			$this->supplier = Supplier::where('id', $apiBookingItem->supplier_id)->first()->name;
+			$this->type = $this->searchInspector->geTypeBySearchId($apiBookingItem->search_id);
 		}
 
-		# Autodetect type and supplier by booking_id
-        else if ($request->has('booking_id') && $this->type == null) {
-			if (!$this->validatedUuid('booking_id')) return;
+		# Autodetect type and supplier by booking_id and chek Owner token 
+        if ($request->has('booking_id')) {
+			if (!$this->validatedUuid('booking_id')) return ['error' => 'Invalid booking_id'];
             $bi = $this->bookingInspector->geTypeSupplierByBookingId($request->get('booking_id'));
-            $this->type = $bi['type'];
-            $this->supplier = $bi['supplier'];
+			if (empty($bi)) return ['error' => 'Invalid booking_id'];
+			$dbTokenId = $bi['token_id'];
+			if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
+            if ($this->type == null) $this->type = $bi['type'];
+            if ($this->supplier == null) $this->supplier = $bi['supplier'];
         }
 
 		# Autodetect type by search_id
-        else if ($request->has('search_id') && $this->type == null) {
-        	if (!$this->validatedUuid('search_id')) return;
+        if ($request->has('search_id') && $this->type == null) {
+        	if (!$this->validatedUuid('search_id')) return ['error' => 'Invalid search_id'];
             $this->type = $this->searchInspector->geTypeBySearchId($request->get('search_id'));
         }
 
         $this->route = Route::currentRouteName();
+		return [];
     }
 
 	private function validatedUuid($id) : bool

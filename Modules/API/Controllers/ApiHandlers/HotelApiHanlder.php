@@ -38,10 +38,6 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 */
 	private const SUPPLIER_NAME = 'Expedia';
 	/**
-	 * @var ExpediaService
-	 */
-	private ExpediaService $expediaService;
-	/**
 	 * @var SearchInspectorController
 	 */
 	private SearchInspectorController $apiInspector;
@@ -66,13 +62,10 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 */
 	private EnrichmentWeight $propsWeight;
 
-	/**
-	 * @param ExpediaService $expediaService
-	 */
-	public function __construct(ExpediaService $expediaService)
+
+	public function __construct()
 	{
-		$this->expediaService = $expediaService;
-		$this->expedia = new ExpediaHotelApiHandler($this->expediaService);
+		$this->expedia = new ExpediaHotelApiHandler();
 		$this->apiInspector = new SearchInspectorController();
 		$this->expediaPricingDto = new ExpediaPricingDto();
 		$this->expediaContentDto = new ExpediaContentDto();

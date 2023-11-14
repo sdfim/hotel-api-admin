@@ -3,22 +3,9 @@
 namespace Modules\API\Controllers;
 
 use Illuminate\Http\JsonResponse;
-use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 
 class RouteApiStrategy
 {
-    /**
-     * @var ExpediaService
-     */
-    private ExpediaService $expediaService;
-
-    /**
-     * @param ExpediaService $expediaService
-     */
-    public function __construct(ExpediaService $expediaService)
-    {
-        $this->expediaService = $expediaService;
-    }
 
     /**
      * @param $supplier
@@ -33,11 +20,6 @@ class RouteApiStrategy
         if (!class_exists($nameClass)) {
             return response()->json(['message' => 'Handler class not found'], 400);
         }
-        if ($nameClass == ExpediaHotelApiHandler::class) {
-            $dataHandler = new $nameClass($this->expediaService);
-        } else {
-            $dataHandler = new $nameClass();
-        }
-        return $dataHandler;
+        return  new $nameClass();
     }
 }
