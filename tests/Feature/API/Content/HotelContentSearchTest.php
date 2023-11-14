@@ -486,8 +486,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "latitude" => 40.7480,
-            "longitude" => -73.991,
+            "latitude" => $this->randFloat(-90, 90),
+            "longitude" => $this->randFloat(-180, 180),
             "radius" => 20,
             "rating" => 1,
             "page" => 1,
@@ -501,8 +501,8 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithoutTypeRequest(): array
     {
         return [
-            "latitude" => 40.7480,
-            "longitude" => -73.991,
+            "latitude" => $this->randFloat(-90, 90),
+            "longitude" => $this->randFloat(-180, 180),
             "radius" => 20,
             "rating" => 1,
             "page" => 1,
@@ -517,8 +517,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "wrong_type",
-            "latitude" => 40.7480,
-            "longitude" => -73.991,
+            "latitude" => $this->randFloat(-90, 90),
+            "longitude" => $this->randFloat(-180, 180),
             "radius" => 20,
             "rating" => 1,
             "page" => 1,
@@ -533,7 +533,7 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "longitude" => -73.991,
+            "longitude" => $this->randFloat(-180, 180),
             "radius" => 20,
             "rating" => 1,
             "page" => 1,
@@ -554,8 +554,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "latitude" => -91,
-            "longitude" => -73.991,
+            "latitude" => $this->randFloat(-180, -91),
+            "longitude" => $this->randFloat(-180, 180),
             "radius" => 20,
             "rating" => 1,
             "page" => 1,
@@ -570,7 +570,7 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "latitude" => 40.7480,
+            "latitude" => $this->randFloat(-90, 90),
             "radius" => 20,
             "rating" => 1,
             "page" => 1,
@@ -591,8 +591,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "latitude" => 40.7480,
-            "longitude" => -181.991,
+            "latitude" => $this->randFloat(-90, 90),
+            "longitude" => $this->randFloat(-360, -180),
             "radius" => 20,
             "rating" => 1,
             "page" => 1,
@@ -607,8 +607,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "latitude" => 40.7480,
-            "longitude" => -73.991,
+            "latitude" => $this->randFloat(-90, 90),
+            "longitude" => $this->randFloat(-180, 180),
             "rating" => 1,
             "page" => 1,
             "results_per_page" => 20
@@ -622,8 +622,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "latitude" => 40.7480,
-            "longitude" => -73.991,
+            "latitude" => $this->randFloat(-90, 90),
+            "longitude" => $this->randFloat(-180, 180),
             "radius" => -1,
             "rating" => 1,
             "page" => 1,
@@ -638,8 +638,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "latitude" => 40.7480,
-            "longitude" => -73.991,
+            "latitude" => $this->randFloat(-90, 90),
+            "longitude" => $this->randFloat(-180, 180),
             "radius" => -1,
             "page" => 1,
             "results_per_page" => 20
@@ -653,8 +653,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "latitude" => 40.7480,
-            "longitude" => -73.991,
+            "latitude" => $this->randFloat(-90, 90),
+            "longitude" => $this->randFloat(-180, 180),
             "radius" => -1,
             "rating" => -1,
             "page" => 1,
@@ -669,8 +669,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "latitude" => 40.7480,
-            "longitude" => -73.991,
+            "latitude" => $this->randFloat(-90, 90),
+            "longitude" => $this->randFloat(-180, 180),
             "radius" => 20,
             "rating" => 2,
             "results_per_page" => 20
@@ -684,8 +684,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "latitude" => 40.7480,
-            "longitude" => -73.991,
+            "latitude" => $this->randFloat(-90, 90),
+            "longitude" => $this->randFloat(-180, 180),
             "radius" => 20,
             "rating" => 2,
             "page" => -1,
@@ -700,8 +700,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "latitude" => 40.7480,
-            "longitude" => -73.991,
+            "latitude" => $this->randFloat(-90, 90),
+            "longitude" => $this->randFloat(-180, 180),
             "radius" => 20,
             "rating" => 2,
             "page" => 1,
@@ -715,8 +715,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             "type" => "hotel",
-            "latitude" => 40.7480,
-            "longitude" => -73.991,
+            "latitude" => $this->randFloat(-90, 90),
+            "longitude" => $this->randFloat(-180, 180),
             "radius" => 20,
             "rating" => 2,
             "page" => 1,
@@ -745,5 +745,15 @@ class HotelContentSearchTest extends TestCase
         return [
             'Authorization' => 'Bearer ' . $token,
         ];
+    }
+
+    /**
+     * @param float $minValue
+     * @param float $maxValue
+     * @return float
+     */
+    public function randFloat(float $minValue, float $maxValue): float
+    {
+        return round($minValue + mt_rand() / mt_getrandmax() * ($maxValue - $minValue), 2);
     }
 }
