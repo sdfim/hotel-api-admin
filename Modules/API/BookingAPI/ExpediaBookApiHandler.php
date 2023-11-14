@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Modules\API\BaseController;
+use Modules\API\Suppliers\DTO\ExpediaHotelBookDto;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaTools;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
@@ -158,9 +159,11 @@ class ExpediaBookApiHandler extends BaseController
 
         # Booking GET query - Retrieve Booking
         $props = $this->getPathParamsFromLink($linkBookRetrieves);
+		$clientResponse = [];
         try {
             $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
             $dataResponse = json_decode($response->getBody()->getContents());
+			$clientResponse = $dataResponse ? (new ExpediaHotelBookDto)->ExpediaToHotelBookResponseModel($filters) : [];
         } catch (RequestException $e) {
             \Log::error('ExpediaBookApiHandler | book | retrieve ' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
@@ -175,10 +178,10 @@ class ExpediaBookApiHandler extends BaseController
         if ($viewSupplierData) {
             $res = (array) $dataResponse;
         } else {
-            $res = [
-                'booking_id' => $booking_id,
-                'search_id' => $filters['search_id'],
-                'booking_item' => $filters['booking_item'],
+            $res = $clientResponse + [
+                // 'booking_id' => $booking_id,
+                // 'search_id' => $filters['search_id'],
+                // 'booking_item' => $filters['booking_item'],
                 'links' => [
                     'remove' => [
                         'method' => 'DELETE',

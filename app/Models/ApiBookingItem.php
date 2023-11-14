@@ -34,4 +34,9 @@ class ApiBookingItem extends Model
         return $this->belongsTo(ApiSearchInspector::class, 'search_id', 'search_id');
     }
 
+	public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'id');
+    }
+
 }
