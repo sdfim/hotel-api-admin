@@ -94,10 +94,12 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *       oneOf={
 	 *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestDestination"),
 	 *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestCoordinates"),
+	 *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestSupplierHotelName"),
 	 *         },
 	 *       examples={
 	 *           "searchByDestination": @OA\Schema(ref="#/components/examples/ContentSearchRequestDestination", example="ContentSearchRequestDestination"),
 	 *           "searchByCoordinates": @OA\Schema(ref="#/components/examples/ContentSearchRequestCoordinates", example="ContentSearchRequestCoordinates"),
+	 *           "searchBySupplierHotelName": @OA\Schema(ref="#/components/examples/ContentSearchRequestSupplierHotelName", example="ContentSearchRequestSupplierHotelName"),
 	 *       },
 	 *     ),
 	 *   ),
@@ -112,12 +114,24 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *     )
 	 *   ),
 	 *   @OA\Response(
-	 *       response=401,
-	 *       description="Unauthenticated",
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   @OA\Response(
-	 *       response=403,
-	 *       description="Forbidden"
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}
 	 * )
@@ -230,12 +244,24 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *     )
 	 *   ),
 	 *   @OA\Response(
-	 *       response=401,
-	 *       description="Unauthenticated",
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   @OA\Response(
-	 *       response=403,
-	 *       description="Forbidden"
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}
 	 * )
@@ -306,6 +332,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *       examples={
 	 *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchRequestNewYork", example="PricingSearchRequestNewYork"),
 	 *           "London": @OA\Schema(ref="#/components/examples/PricingSearchRequestLondon", example="PricingSearchRequestLondon"),
+	 *           "SupplierCurrency": @OA\Schema(ref="#/components/examples/PricingSearchRequestCurrencySupplier", example="PricingSearchRequestCurrencySupplier"),
 	 *       },
 	 *     ),
 	 *   ),
@@ -318,6 +345,26 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchResponseNewYork", example="PricingSearchResponseNewYork"),
 	 *           "London": @OA\Schema(ref="#/components/examples/PricingSearchResponseLondon", example="PricingSearchResponseLondon"),
 	 *       },
+	 *     )
+	 *   ),
+	 *   @OA\Response(
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *     )
+	 *   ),
+	 *   @OA\Response(
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
 	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}

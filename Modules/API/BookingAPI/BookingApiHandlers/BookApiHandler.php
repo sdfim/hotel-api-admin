@@ -74,6 +74,27 @@ class BookApiHandler extends BaseController
 	 *       }
 	 *     )
      *   ),
+	 *   @OA\Response(
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BookingBookResponseErrorItem",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BookingBookResponseErrorItem", example="BookingBookResponseErrorItem"),
+	 *       "example2": @OA\Schema(ref="#/components/examples/BookingBookResponseErrorBooked", example="BookingBookResponseErrorBooked"),
+	 *       }
+	 *     )
+     *   ),
+	 *   @OA\Response(
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
+	 *   ),
      *   security={{ "apiAuth": {} }}
      * )
      */
@@ -183,6 +204,16 @@ class BookApiHandler extends BaseController
      *       },
      *     )
      *   ),
+	 *   @OA\Response(
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
+	 *   ),
      *   security={{ "apiAuth": {} }}
      * )
      */
@@ -258,14 +289,26 @@ class BookApiHandler extends BaseController
      *      description="OK",
      *    ),
      *    @OA\Response(
-     *        response=401,
-     *        description="Unauthenticated",
-     *    ),
-     *    @OA\Response(
-     *        response=403,
-     *        description="Forbidden"
-     *    ),
-     *    security={{ "apiAuth": {} }}
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
+	 *   ),
+     *   @OA\Response(
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *     )
+	 *   ),
+     *   security={{ "apiAuth": {} }}
      * )
      */
     public function listBookings(Request $request): JsonResponse
@@ -320,14 +363,26 @@ class BookApiHandler extends BaseController
      *      description="OK",
      *    ),
      *    @OA\Response(
-     *        response=401,
-     *        description="Unauthenticated",
-     *    ),
-     *    @OA\Response(
-     *        response=403,
-     *        description="Forbidden"
-     *    ),
-     *    security={{ "apiAuth": {} }}
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
+	 *   ),
+     *   @OA\Response(
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *     )
+	 *   ),
+     *   security={{ "apiAuth": {} }}
      * )
      */
     public function retrieveBooking(Request $request): JsonResponse
@@ -407,7 +462,27 @@ class BookApiHandler extends BaseController
      *        }
      *      )
      *    ),
-     *    security={{ "apiAuth": {} }}
+	 *    @OA\Response(
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *      )
+	 *    ),
+	 *    @OA\Response(
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
+	 *   ),
+     *   security={{ "apiAuth": {} }}
      * )
      */
     public function cancelBooking(Request $request): JsonResponse
@@ -492,14 +567,26 @@ class BookApiHandler extends BaseController
      *      )
      *    ),
      *    @OA\Response(
-     *        response=401,
-     *        description="Unauthenticated",
-     *    ),
-     *    @OA\Response(
-     *        response=403,
-     *        description="Forbidden"
-     *    ),
-     *    security={{ "apiAuth": {} }}
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
+	 *   ),
+     *   @OA\Response(
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *     )
+	 *   ),
+     *   security={{ "apiAuth": {} }}
      * )
      */
     public function retrieveItems(Request $request): JsonResponse
