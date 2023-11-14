@@ -22,21 +22,44 @@ class SearchHotelRequest extends ApiRequest
      * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
-    {
+    {	
+		if (!isset(request()->destination)) {
+			if (!isset(request()->latitude)) {
+				return [
+					'latitude' => ['required', 'numeric', function ($attribute, $value, $fail) {
+						$fail('The latitude field must be between -90 and 90 degrees when the destination is not present.');
+					}],
+				];
+			}
+			if (!isset(request()->longitude)) {
+				return [
+					'longitude' => ['required', 'numeric', function ($attribute, $value, $fail) {
+						$fail('The longitude field must be between -180 and 180 degrees when the destination is not present.');
+					}],
+				];
+			}
+			if (!isset(request()->radius)) {
+				return [
+					'radius' => ['required', 'numeric', function ($attribute, $value, $fail) {
+						$fail('The radius field is required when the destination is not present.');
+					}],
+				];
+			}
+		}
         return [
-            'destination' => ['required', function ($attribute, $value, $fail) {
+            'destination' => [function ($attribute, $value, $fail) {
 				if (!is_string($value) && !is_int($value)) {
 					$fail('The destination must be a string or an integer.');
 				}
 			}],
-            'rating' => ['numeric'],
-            'page' => ['integer'],
-            'results_per_page' => ['integer'],
-			'latitude' => ['numeric'],
-			'longitude' => ['numeric'],
-			'radius' => ['numeric'],
-			'supplier' => ['string'],
-			'hotel_name' => ['string'], 
+            'rating' => 'numeric|between:1,5.5',
+            'page' => 'integer|between:1,1000',
+            'results_per_page' => 'integer|between:1,1000',
+			'latitude' => 'numeric|between:-90,90',
+			'longitude' => 'numeric|between:-180,180',
+			'radius' => 'numeric|between:1,100',
+			'supplier' => 'string',
+			'hotel_name' => 'string',
         ];
     }
 
