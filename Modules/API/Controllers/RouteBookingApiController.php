@@ -161,7 +161,7 @@ class RouteBookingApiController extends Controller
 		# Autodetect type by booking_item
 		if($request->has('booking_item')) {
 			if (!$this->validatedUuid('booking_item')) return;
-			$apiBookingItem = ApiBookingItem::where('booking_item', $request->has('booking_item'))->first()->toArray();
+            $apiBookingItem = ApiBookingItem::where('booking_item', $request->get('booking_item'))->first()->toArray();
 			$this->supplier = Supplier::where('id', $apiBookingItem['supplier_id'])->first()->name;
 			$this->type = $this->searchInspector->geTypeBySearchId($apiBookingItem['search_id']);
 		}
