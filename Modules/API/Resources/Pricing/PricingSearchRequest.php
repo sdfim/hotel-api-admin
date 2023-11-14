@@ -33,6 +33,12 @@ use OpenApi\Annotations as OA;
  *     example="Expedia"
  *   ),
  *   @OA\Property(
+ *     property="hotel_name",
+ *     description="Name of the hotel (e.g., 'Sheraton').",
+ *     type="string",
+ *     example="Sheraton"
+ *   ),
+ *   @OA\Property(
  *     property="checkin",
  *     description="Checkin date in ISO 8601 format (e.g., '2023-11-11').",
  *     type="string",
@@ -145,6 +151,8 @@ use OpenApi\Annotations as OA;
  * {
  *   "type": "hotel",
  *   "currency": "EUR",
+ *   "supplier": "Expedia",
+ *   "hotel_name": "Sheraton",
  *   "checkin": "2023-11-19",
  *   "checkout": "2023-11-21",
  *   "destination": 961,
