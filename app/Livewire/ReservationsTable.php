@@ -41,11 +41,13 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->numeric()
                     ->searchable(isIndividual: true)
                     ->sortable(),
-                ImageColumn::make('reservation_contains.hotel_images')
-                    ->label('Hotel images')
+                ImageColumn::make('images')
                     ->state(function (Reservation $record) {
                         $reservationContains = json_decode($record->reservation_contains, true);
-                        return $reservationContains['hotel_images'] ? json_decode($reservationContains['hotel_images']) : [];
+						$images = [];
+						if (isset($reservationContains['hotel_images'])) $images = json_decode($reservationContains['hotel_images']);
+						if (isset($reservationContains['flight_images'])) $images = json_decode($reservationContains['flight_images']);
+                        return $images;
                     })
                     ->circular()
                     ->stacked()

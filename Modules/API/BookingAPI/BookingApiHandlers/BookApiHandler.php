@@ -31,9 +31,9 @@ class BookApiHandler extends BaseController
      */
     private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
 
-    public function __construct()
+    public function __construct(ExpediaBookApiHandler $expedia)
     {
-        $this->expedia = new ExpediaBookApiHandler();
+        $this->expedia = $expedia;
     }
 
     /**

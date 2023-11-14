@@ -4,15 +4,9 @@ namespace Modules\API\BookingAPI;
 
 use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingInspector;
-use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
-use App\Models\Channel;
-use DB;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Promise;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
