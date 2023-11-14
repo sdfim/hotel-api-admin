@@ -7,7 +7,7 @@ use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponse;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
-class ExpediaContentDetailDto
+class ExpediaHotelContentDetailDto
 {
 
     /**
