@@ -19,6 +19,8 @@ class SetLocationHeader
 
 		if ($request->path() !== "/") $response->headers->set('Location', env('APP_URL'));
 
+		$response->headers->set('X-Frame-Options', 'SAMEORIGIN', false);
+
         return $response;
     }
 }
