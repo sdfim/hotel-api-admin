@@ -172,7 +172,6 @@ return [
         App\Providers\JetstreamServiceProvider::class,
         App\Providers\RolesServiceProvider::class,
         App\Providers\PermissionServiceProvider::class,
-		App\Providers\CustomUrlServiceProvider::class,
     ])->toArray(),
 
     /*

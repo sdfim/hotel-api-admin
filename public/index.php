@@ -53,3 +53,7 @@ $response = $kernel->handle(
 )->send();
 
 $kernel->terminate($request, $response);
+
+function route($name, $parameters = [], $absolute = false) {
+    return app('url')->route($name, $parameters, $absolute);
+}
