@@ -106,8 +106,8 @@ class HotelContentSearchTest extends TestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-					'rating' => ['The rating must be a number.']
-				]
+                    'rating' => ['The rating must be a number.']
+                ]
             ]);
     }
 
@@ -186,9 +186,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-				'error' => [
-					'latitude' => ['The latitude field is required.']
-				]
+                'error' => [
+                    'latitude' => ['The latitude field is required.']
+                ]
             ]);
     }
 
@@ -201,16 +201,16 @@ class HotelContentSearchTest extends TestCase
         $this->seederSupplier();
 
         $headers = $this->getHeader();
-        $jsonData = $this->hotelSearchByCoordinatesWithIncorrectLatitudeRequest();		
+        $jsonData = $this->hotelSearchByCoordinatesWithIncorrectLatitudeRequest();
         $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-				'error' => [
-					'latitude' => ['The latitude must be between -90 and 90.']
-				]
+                'error' => [
+                    'latitude' => ['The latitude must be between -90 and 90.']
+                ]
             ]);
     }
 
@@ -223,16 +223,16 @@ class HotelContentSearchTest extends TestCase
         $this->seederSupplier();
 
         $headers = $this->getHeader();
-        $jsonData = $this->hotelSearchByCoordinatesWithoutLongitudeRequest();	
+        $jsonData = $this->hotelSearchByCoordinatesWithoutLongitudeRequest();
         $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-				'error' => [
-					'longitude' => ['The longitude field is required.']
-				]
+                'error' => [
+                    'longitude' => ['The longitude field is required.']
+                ]
             ]);
     }
 
@@ -252,9 +252,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-				'error' => [
-					'longitude' => ['The longitude must be between -180 and 180.']
-				]
+                'error' => [
+                    'longitude' => ['The longitude must be between -180 and 180.']
+                ]
             ]);
     }
 
@@ -274,9 +274,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-				'error' => [
-					'radius' => ['The radius field is required.']
-				]
+                'error' => [
+                    'radius' => ['The radius field is required.']
+                ]
             ]);
     }
 
@@ -296,9 +296,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-				'error' => [
-					'radius' => ['The radius must be between 1 and 100.']
-				]
+                'error' => [
+                    'radius' => ['The radius must be between 1 and 100.']
+                ]
             ]);
     }
 
@@ -318,9 +318,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-				'error' => [
-					'radius' => ['The radius must be between 1 and 100.']
-				]
+                'error' => [
+                    'radius' => ['The radius must be between 1 and 100.']
+                ]
             ]);
     }
 
@@ -340,9 +340,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-				'error'=> [
-					'rating' => ['The rating must be between 1 and 5.5.']
-				]
+                'error' => [
+                    'rating' => ['The rating must be between 1 and 5.5.']
+                ]
             ]);
     }
 
@@ -381,9 +381,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-				'error'=> [
-					'page' => ['The page must be between 1 and 1000.']
-				]
+                'error' => [
+                    'page' => ['The page must be between 1 and 1000.']
+                ]
             ]);
     }
 
@@ -422,9 +422,9 @@ class HotelContentSearchTest extends TestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-				'error'=> [
-					'results_per_page' => ['The results per page must be between 1 and 1000.']
-				]
+                'error' => [
+                    'results_per_page' => ['The results per page must be between 1 and 1000.']
+                ]
             ]);
     }
 
@@ -507,7 +507,7 @@ class HotelContentSearchTest extends TestCase
             "type" => "hotel",
             "latitude" => $this->randFloat(-90, 90),
             "longitude" => $this->randFloat(-180, 180),
-            "radius" => 20,
+            "radius" => rand(10, 50),
             "rating" => $this->randFloat(1, 5.5),
             "page" => 1,
             "results_per_page" => 20
@@ -522,7 +522,7 @@ class HotelContentSearchTest extends TestCase
         return [
             "latitude" => $this->randFloat(-90, 90),
             "longitude" => $this->randFloat(-180, 180),
-            "radius" => 20,
+            "radius" => rand(10, 50),
             "rating" => $this->randFloat(1, 5.5),
             "page" => 1,
             "results_per_page" => 20
@@ -538,7 +538,7 @@ class HotelContentSearchTest extends TestCase
             "type" => "wrong_type",
             "latitude" => $this->randFloat(-90, 90),
             "longitude" => $this->randFloat(-180, 180),
-            "radius" => 20,
+            "radius" => rand(10, 50),
             "rating" => $this->randFloat(1, 5.5),
             "page" => 1,
             "results_per_page" => 20
@@ -553,7 +553,7 @@ class HotelContentSearchTest extends TestCase
         return [
             "type" => "hotel",
             "longitude" => $this->randFloat(-180, 180),
-            "radius" => 20,
+            "radius" => rand(10, 50),
             "rating" => $this->randFloat(1, 5.5),
             "page" => 1,
             "results_per_page" => 20
@@ -575,7 +575,7 @@ class HotelContentSearchTest extends TestCase
             "type" => "hotel",
             "latitude" => $this->randFloat(-180, -91),
             "longitude" => $this->randFloat(-180, 180),
-            "radius" => 20,
+            "radius" => rand(10, 50),
             "rating" => $this->randFloat(1, 5.5),
             "page" => 1,
             "results_per_page" => 20
@@ -590,7 +590,7 @@ class HotelContentSearchTest extends TestCase
         return [
             "type" => "hotel",
             "latitude" => $this->randFloat(-90, 90),
-            "radius" => 20,
+            "radius" => rand(10, 50),
             "rating" => $this->randFloat(1, 5.5),
             "page" => 1,
             "results_per_page" => 20
@@ -612,7 +612,7 @@ class HotelContentSearchTest extends TestCase
             "type" => "hotel",
             "latitude" => $this->randFloat(-90, 90),
             "longitude" => $this->randFloat(-360, -180),
-            "radius" => 20,
+            "radius" => rand(10, 50),
             "rating" => $this->randFloat(1, 5.5),
             "page" => 1,
             "results_per_page" => 20
@@ -674,7 +674,7 @@ class HotelContentSearchTest extends TestCase
             "type" => "hotel",
             "latitude" => $this->randFloat(-90, 90),
             "longitude" => $this->randFloat(-180, 180),
-            "radius" => 10,
+            "radius" => rand(10, 50),
             "rating" => -1,
             "page" => 1,
             "results_per_page" => 20
@@ -690,8 +690,8 @@ class HotelContentSearchTest extends TestCase
             "type" => "hotel",
             "latitude" => $this->randFloat(-90, 90),
             "longitude" => $this->randFloat(-180, 180),
-            "radius" => 20,
-            "rating" => 2,
+            "radius" => rand(10, 50),
+            "rating" => $this->randFloat(1, 5.5),
             "results_per_page" => 20
         ];
     }
@@ -705,8 +705,8 @@ class HotelContentSearchTest extends TestCase
             "type" => "hotel",
             "latitude" => $this->randFloat(-90, 90),
             "longitude" => $this->randFloat(-180, 180),
-            "radius" => 20,
-            "rating" => 2,
+            "radius" => rand(10, 50),
+            "rating" => $this->randFloat(1, 5.5),
             "page" => -1,
             "results_per_page" => 20
         ];
@@ -721,8 +721,8 @@ class HotelContentSearchTest extends TestCase
             "type" => "hotel",
             "latitude" => $this->randFloat(-90, 90),
             "longitude" => $this->randFloat(-180, 180),
-            "radius" => 20,
-            "rating" => 2,
+            "radius" => rand(10, 50),
+            "rating" => $this->randFloat(1, 5.5),
             "page" => 1,
         ];
     }
@@ -736,8 +736,8 @@ class HotelContentSearchTest extends TestCase
             "type" => "hotel",
             "latitude" => $this->randFloat(-90, 90),
             "longitude" => $this->randFloat(-180, 180),
-            "radius" => 20,
-            "rating" => 2,
+            "radius" => rand(10, 50),
+            "rating" => $this->randFloat(1, 5.5),
             "page" => 1,
             "results_per_page" => -1
         ];
