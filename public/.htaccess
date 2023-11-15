@@ -17,6 +17,7 @@
 	# Enable CORS (add this section before the front controller rules)
 	<IfModule mod_headers.c>
 		Header set Access-Control-Allow-Origin "https://ddwlx1ki3fks2.cloudfront.net"
+		Header always set X-Frame-Options "ALLOW-FROM https://ddwlx1ki3fks2.cloudfront.net"
 	</IfModule>
 
     # Send Requests To Front Controller...
