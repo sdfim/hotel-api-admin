@@ -31,7 +31,7 @@
                                     </div>
                                 @endif
 
-                                <form method="POST" action="{{ route('login') }}" class="mt-4 pt-2">
+                                <form method="POST" action="{{ route('login', false) }}" class="mt-4 pt-2">
                                     @csrf
                                     <div class="mb-4">
                                         <label for="email"
