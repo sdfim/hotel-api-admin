@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Booking Inspector') }}
+    {{ __('Booking Items') }}
 @endsection
 @section('css')
     <link href="{{ URL::asset('build/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}"
@@ -14,22 +14,19 @@
             max-height: 450px;
             overflow-x: auto;
         }
-        .m-5{
-            margin: 10px;
-        }
     </style>
 
 @endsection
 @section('content')
 
     <!-- -->
-    <x-page-title title="Booking Inspector" pagetitle="index"/>
+    <x-page-title title="Booking Items" pagetitle="index"/>
 
     <div class="grid grid-cols-12 gap-5">
         <div class="col-span-12">
             <div class="card dark:bg-zinc-800 dark:border-zinc-600">
                 <div class="card-body relative overflow-x-auto">
-                    @livewire('inspectors.booking-inspector-table')
+                    @livewire('inspectors.booking-items-table')
                 </div>
             </div>
         </div>
