@@ -27,6 +27,7 @@ class SearchHotelRequest extends ApiRequest
 			if (!isset(request()->latitude)) return ['latitude' => 'required', 'numeric', 'between:-90,90'];
 			if (!isset(request()->longitude)) return ['longitude' => 'required', 'numeric', 'between:-180,180'];
 			if (!isset(request()->radius)) return ['radius' => 'required', 'numeric', 'between:1,100'];
+
 		}
         return [
             'destination' => [function ($attribute, $value, $fail) {

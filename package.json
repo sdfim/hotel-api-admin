@@ -25,7 +25,6 @@
         "@curiosityx/bootstrap-session-timeout": "^1.0.0",
         "@popperjs/core": "^2.11.6",
         "@simonwep/pickr": "^1.8.1",
-        "admin-resources": "git+https://github.com/themesbrand/admin-resources#master",
         "alertifyjs": "^1.13.1",
         "apexcharts": "^3.26.3",
         "chart.js": "^2.9.4",

@@ -54,6 +54,39 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingBookResponseErrorItem"
+                                },
+                                "examples": {
+                                    "BookingBookResponseErrorItem": {
+                                        "$ref": "#/components/examples/BookingBookResponseErrorItem"
+                                    },
+                                    "BookingBookResponseErrorBooked": {
+                                        "$ref": "#/components/examples/BookingBookResponseErrorBooked"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -131,6 +164,21 @@
                                 }
                             }
                         }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -175,10 +223,34 @@
                         "description": "OK"
                     },
                     "401": {
-                        "description": "Unauthenticated"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
                     },
-                    "403": {
-                        "description": "Forbidden"
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -213,10 +285,34 @@
                         "description": "OK"
                     },
                     "401": {
-                        "description": "Unauthenticated"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
                     },
-                    "403": {
-                        "description": "Forbidden"
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -260,6 +356,36 @@
                                 "examples": {
                                     "BookingCancelBookingResponse": {
                                         "$ref": "#/components/examples/BookingCancelBookingResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
                                     }
                                 }
                             }
@@ -310,10 +436,34 @@
                         }
                     },
                     "401": {
-                        "description": "Unauthenticated"
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
                     },
-                    "403": {
-                        "description": "Forbidden"
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -357,6 +507,36 @@
                                 "examples": {
                                     "BookingAddItemResponse": {
                                         "$ref": "#/components/examples/BookingAddItemResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
                                     }
                                 }
                             }
@@ -405,6 +585,36 @@
                                 "examples": {
                                     "BookingRemoveItemResponse": {
                                         "$ref": "#/components/examples/BookingRemoveItemResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
                                     }
                                 }
                             }
@@ -459,7 +669,52 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
+                                },
+                                "examples": {
+                                    "BookingAddPassengersResponseAdd": {
+                                        "$ref": "#/components/examples/BookingAddPassengersResponseAdd"
+                                    },
+                                    "BookingAddPassengersResponseUpdate": {
+                                        "$ref": "#/components/examples/BookingAddPassengersResponseUpdate"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
+                                },
+                                "examples": {
+                                    "BookingAddPassengersResponseError": {
+                                        "$ref": "#/components/examples/BookingAddPassengersResponseError"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -489,6 +744,9 @@
                                     },
                                     {
                                         "$ref": "#/components/schemas/ContentSearchRequestCoordinates"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestSupplierHotelName"
                                     }
                                 ]
                             },
@@ -498,6 +756,9 @@
                                 },
                                 "ContentSearchRequestCoordinates": {
                                     "$ref": "#/components/examples/ContentSearchRequestCoordinates"
+                                },
+                                "ContentSearchRequestSupplierHotelName": {
+                                    "$ref": "#/components/examples/ContentSearchRequestSupplierHotelName"
                                 }
                             }
                         }
@@ -519,11 +780,35 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthenticated"
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
                     },
-                    "403": {
-                        "description": "Forbidden"
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -579,11 +864,35 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthenticated"
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
                     },
-                    "403": {
-                        "description": "Forbidden"
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -615,6 +924,9 @@
                                 },
                                 "PricingSearchRequestLondon": {
                                     "$ref": "#/components/examples/PricingSearchRequestLondon"
+                                },
+                                "PricingSearchRequestCurrencySupplier": {
+                                    "$ref": "#/components/examples/PricingSearchRequestCurrencySupplier"
                                 }
                             }
                         }
@@ -634,6 +946,36 @@
                                     },
                                     "PricingSearchResponseLondon": {
                                         "$ref": "#/components/examples/PricingSearchResponseLondon"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
                                     }
                                 }
                             }
@@ -683,11 +1025,35 @@
                             }
                         }
                     },
-                    "401": {
-                        "description": "Unauthenticated"
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
                     },
-                    "403": {
-                        "description": "Forbidden"
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -700,6 +1066,21 @@
     },
     "components": {
         "schemas": {
+            "BadRequestResponse": {
+                "title": "BadRequest 400 error",
+                "description": "Schema of BadRequest 400 error",
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "description": "Error message",
+                        "type": "string",
+                        "example": "Invalid type"
+                    }
+                },
+                "type": "object"
+            },
             "BookingAddItemResponse": {
                 "title": "Booking Add Item Response",
                 "description": "Schema Booking Add Item Response",
@@ -780,6 +1161,49 @@
                             },
                             "type": "object"
                         }
+                    }
+                },
+                "type": "object"
+            },
+            "BookingAddPassengersResponse": {
+                "title": "Booking Add Passengers Response",
+                "description": "Schema Booking Add Passengers Response",
+                "required": [
+                    "success",
+                    "data",
+                    "message"
+                ],
+                "properties": {
+                    "success": {
+                        "description": "Success status",
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "result": {
+                        "description": "Result object",
+                        "properties": {
+                            "booking_id": {
+                                "description": "Booking ID",
+                                "type": "string",
+                                "example": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e"
+                            },
+                            "booking_item": {
+                                "description": "Booking Item",
+                                "type": "string",
+                                "example": "bed7af51-836a-4d7e-8f82-8efe8b1825d4"
+                            },
+                            "status": {
+                                "description": "Status",
+                                "type": "string",
+                                "example": "Passengers added to booking."
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "description": "Message",
+                        "type": "string",
+                        "example": "success"
                     }
                 },
                 "type": "object"
@@ -898,6 +1322,11 @@
                             "result": {
                                 "description": "Result",
                                 "properties": {
+                                    "status": {
+                                        "description": "Status (e.g., 'booked').",
+                                        "type": "string",
+                                        "example": "booked"
+                                    },
                                     "booking_id": {
                                         "description": "Booking ID (e.g., 'c698abfe-9bfa-45ee-a201-dc7322e008ab').",
                                         "type": "string",
@@ -912,6 +1341,77 @@
                                         "description": "Booking Item",
                                         "type": "string",
                                         "example": "f8287abe-52be-43a2-8354-b8c4327786a4"
+                                    },
+                                    "supplier": {
+                                        "description": "Supplier (e.g., 'Expedia').",
+                                        "type": "string",
+                                        "example": "Expedia"
+                                    },
+                                    "hotel_name": {
+                                        "description": "Hotel Name (e.g., 'Sheraton New York Times Square Hotel (60295986)').",
+                                        "type": "string",
+                                        "example": "Sheraton New York Times Square Hotel (60295986)"
+                                    },
+                                    "rooms": {
+                                        "description": "Rooms",
+                                        "properties": {
+                                            "room_name": {
+                                                "description": "Room Name (e.g., 'Superior Room, 2 Double Beds, Non Smoking (High Floor)').",
+                                                "type": "string",
+                                                "example": "Superior Room, 2 Double Beds, Non Smoking (High Floor)"
+                                            },
+                                            "meal_plan": {
+                                                "description": "Meal Plan (e.g., '').",
+                                                "type": "string",
+                                                "example": ""
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "cancellation_terms": {
+                                        "description": "Cancellation Terms (e.g., '').",
+                                        "type": "string",
+                                        "example": ""
+                                    },
+                                    "rate": {
+                                        "description": "Rate (e.g., '274355054').",
+                                        "type": "string",
+                                        "example": "274355054"
+                                    },
+                                    "total_price": {
+                                        "description": "Total Price (e.g., 1287.02).",
+                                        "type": "number",
+                                        "example": 1287.02
+                                    },
+                                    "total_tax": {
+                                        "description": "Total Tax (e.g., 176.82).",
+                                        "type": "number",
+                                        "example": 176.82
+                                    },
+                                    "total_fees": {
+                                        "description": "Total Fees (e.g., 120).",
+                                        "type": "number",
+                                        "example": 120
+                                    },
+                                    "total_net": {
+                                        "description": "Total Net (e.g., 1110.2).",
+                                        "type": "number",
+                                        "example": 1110.2
+                                    },
+                                    "affiliate_service_charge": {
+                                        "description": "Affiliate Service Charge (e.g., 988.08).",
+                                        "type": "number",
+                                        "example": 988.08
+                                    },
+                                    "currency": {
+                                        "description": "Currency (e.g., 'EUR').",
+                                        "type": "string",
+                                        "example": "EUR"
+                                    },
+                                    "per_night_breakdown": {
+                                        "description": "Per Night Breakdown (e.g., 643.51).",
+                                        "type": "number",
+                                        "example": 643.51
                                     },
                                     "links": {
                                         "description": "Links",
@@ -977,6 +1477,21 @@
                         "description": "Message (e.g., 'success').",
                         "type": "string",
                         "example": "success"
+                    }
+                },
+                "type": "object"
+            },
+            "BookingBookResponseErrorItem": {
+                "title": "Booking Book Response Error Item",
+                "description": "Schema of Booking Book Response Error Item",
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "description": "Message (e.g., 'Invalid booking_id').",
+                        "type": "string",
+                        "example": "Invalid booking_id"
                     }
                 },
                 "type": "object"
@@ -1279,6 +1794,27 @@
                 },
                 "type": "object"
             },
+            "UnAuthenticatedResponse": {
+                "title": "UnAuthenticated 401 error",
+                "description": "Schema of UnAuthenticated 401 error",
+                "required": [
+                    "api_status",
+                    "message"
+                ],
+                "properties": {
+                    "api_status": {
+                        "description": "API status code",
+                        "type": "integer",
+                        "example": 401
+                    },
+                    "message": {
+                        "description": "Error message",
+                        "type": "string",
+                        "example": "UnAuthenticated"
+                    }
+                },
+                "type": "object"
+            },
             "ContentDestinationslResponse": {
                 "title": "Content Destinations Response",
                 "description": "Schema Content Destinations Response",
@@ -1563,6 +2099,51 @@
                 },
                 "type": "object"
             },
+            "ContentSearchRequestSupplierHotelName": {
+                "title": "Content Search Request Supplier and Hotel Name",
+                "description": "Schema Content Search Request Supplier and Hotel Name",
+                "required": [
+                    "query"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "Type of content to search (e.g., 'hotel', 'flight', 'combo').",
+                        "type": "string",
+                        "example": "hotel"
+                    },
+                    "hotel_name": {
+                        "description": "Hotel name.",
+                        "type": "string",
+                        "example": "Sheraton"
+                    },
+                    "supplier": {
+                        "description": "Supplier (e.g., 'Expedia').",
+                        "type": "string",
+                        "example": "Expedia"
+                    },
+                    "destination": {
+                        "description": "Destination ID.",
+                        "type": "integer",
+                        "example": 961
+                    },
+                    "rating": {
+                        "description": "Rating of the hotel.",
+                        "type": "integer",
+                        "example": 3.5
+                    },
+                    "page": {
+                        "description": "Page number.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "results_per_page": {
+                        "description": "Number of results per page.",
+                        "type": "integer",
+                        "example": 250
+                    }
+                },
+                "type": "object"
+            },
             "ContentSearchRequestCoordinates": {
                 "title": "Content Search Request Coordinates",
                 "description": "Schema Content Search Request Coordinates",
@@ -1778,6 +2359,64 @@
                         ],
                         "example": "hotel"
                     },
+                    "currency": {
+                        "description": "Currency of the hotel/flight/combo (e.g., 'EUR').",
+                        "type": "string",
+                        "enum": [
+                            "AED",
+                            "ARS",
+                            "AUD",
+                            "BRL",
+                            "CAD",
+                            "CHF",
+                            "CNY",
+                            "COP",
+                            "DKK",
+                            "EGP",
+                            "EUR",
+                            "GBP",
+                            "HKD",
+                            "IDR",
+                            "ILS",
+                            "INR",
+                            "JPY",
+                            "KRW",
+                            "LBP",
+                            "MAD",
+                            "MXN",
+                            "MYR",
+                            "NOK",
+                            "NZD",
+                            "PHP",
+                            "PLN",
+                            "QAR",
+                            "RUB",
+                            "SAR",
+                            "SEK",
+                            "SGD",
+                            "THB",
+                            "TRY",
+                            "TWD",
+                            "USD",
+                            "VND",
+                            "ZAR"
+                        ],
+                        "example": "EUR"
+                    },
+                    "supplier": {
+                        "description": "Supplier of the hotel/flight/comb (e.g., 'Expedia').",
+                        "type": "string",
+                        "enum": [
+                            "Expedia",
+                            "Example"
+                        ],
+                        "example": "Expedia"
+                    },
+                    "hotel_name": {
+                        "description": "Name of the hotel (e.g., 'Sheraton').",
+                        "type": "string",
+                        "example": "Sheraton"
+                    },
                     "checkin": {
                         "description": "Checkin date in ISO 8601 format (e.g., '2023-11-11').",
                         "type": "string",
@@ -1828,6 +2467,14 @@
                                     "description": "Number of children (e.g., '2').",
                                     "type": "integer",
                                     "example": "2"
+                                },
+                                "children_ages": {
+                                    "description": "Ages of children (e.g., '2, 4').",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "example": "2"
+                                    }
                                 }
                             },
                             "type": "object"
@@ -2206,6 +2853,12 @@
             }
         },
         "examples": {
+            "BadRequestResponse": {
+                "summary": "Example of BadRequest",
+                "value": {
+                    "message": "Invalid type"
+                }
+            },
             "BookingAddItemResponse": {
                 "summary": "Example Booking Add Item Response",
                 "value": {
@@ -2232,6 +2885,45 @@
                             "family_name": "Portman"
                         }
                     ]
+                }
+            },
+            "BookingAddPassengersResponseUpdate": {
+                "summary": "Example Booking Add Passengers Response Update",
+                "value": {
+                    "success": true,
+                    "data": {
+                        "result": {
+                            "booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
+                            "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
+                            "status": "Passengers updated to booking."
+                        }
+                    },
+                    "message": "success"
+                }
+            },
+            "BookingAddPassengersResponseAdd": {
+                "summary": "Example Booking Add Passengers Response",
+                "value": {
+                    "success": true,
+                    "data": {
+                        "result": {
+                            "booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
+                            "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
+                            "status": "Passengers added to booking."
+                        }
+                    },
+                    "message": "success"
+                }
+            },
+            "BookingAddPassengersResponseError": {
+                "summary": "Example Booking Add Passengers Response Error",
+                "value": {
+                    "success": false,
+                    "error": {
+                        "booking_id": "b1b7db09-6b53-480e-bece-53a2d5ef30d6",
+                        "booking_item": "84fb55f2-5792-4958-b475-4c39ea787b5f",
+                        "status": "The number of rooms does not match the number of rooms in the search. Must be 2 rooms."
+                    }
                 }
             },
             "BookingBookRequest": {
@@ -2263,45 +2955,57 @@
                     "success": true,
                     "data": [
                         {
-                            "booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
-                            "search_id": "d2ff0669-8d0e-4709-826d-ccdcef01d4a2",
-                            "booking_item": "bd5e6c4e-6e5c-49cf-8ddf-c52abe49b764",
+                            "status": "booked",
+                            "booking_id": "b1b7db09-6b53-480e-bece-53a2d5ef30d6",
+                            "bookring_item": "84fb55f2-5792-4958-b475-4c39ea787b5f",
+                            "supplier": "Expedia",
+                            "hotel_name": "Sheraton New York Times Square Hotel (60295986)",
+                            "rooms": {
+                                "room_name": "Superior Room, 2 Double Beds, Non Smoking (High Floor)",
+                                "meal_plan": ""
+                            },
+                            "cancellation_terms": "",
+                            "rate": "274355054",
+                            "total_price": 1287.02,
+                            "total_tax": 176.82,
+                            "total_fees": 120,
+                            "total_net": 1110.2,
+                            "affiliate_service_charge": 988.08,
+                            "currency": "EUR",
+                            "per_night_breakdown": 643.51,
                             "links": {
                                 "remove": {
                                     "method": "DELETE",
-                                    "href": "\\/api\\/booking\\/cancel-booking?booking_id=5abcab52-00b0-423c-aafe-2fed6f6d1f4e&booking_item=bd5e6c4e-6e5c-49cf-8ddf-c52abe49b764"
+                                    "href": "\\/api\\/booking\\/cancel-booking?booking_id=b1b7db09-6b53-480e-bece-53a2d5ef30d6&booking_item=84fb55f2-5792-4958-b475-4c39ea787b5f"
                                 },
                                 "change": {
                                     "method": "PUT",
-                                    "href": "\\/api\\/booking\\/change-booking?booking_id=5abcab52-00b0-423c-aafe-2fed6f6d1f4e&booking_item=bd5e6c4e-6e5c-49cf-8ddf-c52abe49b764"
+                                    "href": "\\/api\\/booking\\/change-booking?booking_id=b1b7db09-6b53-480e-bece-53a2d5ef30d6&booking_item=84fb55f2-5792-4958-b475-4c39ea787b5f"
                                 },
                                 "retrieve": {
                                     "method": "GET",
-                                    "href": "\\/api\\/booking\\/retrieve-booking?booking_id=5abcab52-00b0-423c-aafe-2fed6f6d1f4e"
-                                }
-                            }
-                        },
-                        {
-                            "booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
-                            "search_id": "d2ff0669-8d0e-4709-826d-ccdcef01d4a2",
-                            "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
-                            "links": {
-                                "remove": {
-                                    "method": "DELETE",
-                                    "href": "\\/api\\/booking\\/cancel-booking?booking_id=5abcab52-00b0-423c-aafe-2fed6f6d1f4e&booking_item=bed7af51-836a-4d7e-8f82-8efe8b1825d4"
-                                },
-                                "change": {
-                                    "method": "PUT",
-                                    "href": "\\/api\\/booking\\/change-booking?booking_id=5abcab52-00b0-423c-aafe-2fed6f6d1f4e&booking_item=bed7af51-836a-4d7e-8f82-8efe8b1825d4"
-                                },
-                                "retrieve": {
-                                    "method": "GET",
-                                    "href": "\\/api\\/booking\\/retrieve-booking?booking_id=5abcab52-00b0-423c-aafe-2fed6f6d1f4e"
+                                    "href": "\\/api\\/booking\\/retrieve-booking?booking_id=b1b7db09-6b53-480e-bece-53a2d5ef30d6"
                                 }
                             }
                         }
                     ],
                     "message": "success"
+                }
+            },
+            "BookingBookResponseErrorItem": {
+                "summary": "Example of Booking Book Response Error Item",
+                "value": {
+                    "message": "Invalid booking_id"
+                }
+            },
+            "BookingBookResponseErrorBooked": {
+                "summary": "Example of Booking Book Response Error Booked",
+                "value": {
+                    "success": false,
+                    "error": {
+                        "error": "No items to book OR the order cart (booking_id) is complete/booked"
+                    },
+                    "message": "failed"
                 }
             },
             "BookingCancelBookingResponse": {
@@ -2471,6 +3175,13 @@
                         ]
                     },
                     "message": "success"
+                }
+            },
+            "UnAuthenticatedResponse": {
+                "summary": "Example of UnAuthenticated",
+                "value": {
+                    "api_status": "401",
+                    "message": "UnAuthenticated"
                 }
             },
             "ContentDestinationslResponse": {
@@ -3416,6 +4127,18 @@
                     "type": "hotel",
                     "destination": 1175,
                     "rating": 2,
+                    "page": 1,
+                    "results_per_page": 250
+                }
+            },
+            "ContentSearchRequestSupplierHotelName": {
+                "summary": "Example Content Search by Supplier and Hotel Name",
+                "value": {
+                    "type": "hotel",
+                    "hotel_name": "Sheraton",
+                    "supplier": "Expedia",
+                    "destination": 961,
+                    "rating": 3.5,
                     "page": 1,
                     "results_per_page": 250
                 }
@@ -4983,7 +5706,10 @@
                     "occupancy": [
                         {
                             "adults": 4,
-                            "children": 1
+                            "children": 1,
+                            "children_ages": [
+                                2
+                            ]
                         },
                         {
                             "adults": 3
@@ -5002,7 +5728,11 @@
                     "occupancy": [
                         {
                             "adults": 2,
-                            "children": 2
+                            "children": 2,
+                            "children_ages": [
+                                2,
+                                4
+                            ]
                         },
                         {
                             "adults": 3
@@ -5010,31 +5740,30 @@
                     ]
                 }
             },
-            "PricingSearchRequestOccupavcyWithOutChildren": {
-                "summary": "Occupavcy Without Children",
-                "value": [
-                    {
-                        "adults": 2
-                    },
-                    {
-                        "adults": 3
-                    },
-                    {
-                        "adults": 4
-                    }
-                ]
-            },
-            "PricingSearchRequestOccupavcyWithChildren": {
-                "summary": "Occupavcy With Children",
-                "value": [
-                    {
-                        "adults": 2,
-                        "children": 2
-                    },
-                    {
-                        "adults": 3
-                    }
-                ]
+            "PricingSearchRequestCurrencySupplier": {
+                "summary": "Occupavcy With Currency and Supplier",
+                "value": {
+                    "type": "hotel",
+                    "currency": "EUR",
+                    "supplier": "Expedia",
+                    "hotel_name": "Sheraton",
+                    "checkin": "2023-11-19",
+                    "checkout": "2023-11-21",
+                    "destination": 961,
+                    "rating": 3.5,
+                    "occupancy": [
+                        {
+                            "adults": 2,
+                            "children": 1,
+                            "children_ages": [
+                                2
+                            ]
+                        },
+                        {
+                            "adults": 1
+                        }
+                    ]
+                }
             },
             "PricingSearchResponseNewYork": {
                 "summary": "An Example Pricing Search Response New York",
