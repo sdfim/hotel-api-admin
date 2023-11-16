@@ -54,51 +54,33 @@
             @endphp
             <div class="card-body">
                 <div class="relative overflow-x-auto">
-                    <div class="row">
-                        <div class="col-lg-12 margin-tb">
-                            <div class="mt-6 mb-6">
-                                <x-button-back route="{{ route('reservations.index') }}" text="Back"/>
-                            </div>
-                        </div>
+                    <div class="mb-3 row">
+                        <x-button-back route="{{ route('reservations.index') }}" text="Back"/>
                     </div>
-                    <div class="grid gr-t-3">
-                            <div class="">
-                                <div class="card p-5 rounded bg-sky-500 border-sky-500">
-                                    <h5 class="mb-3 text-white text-17">Type</h5>
-                                    <p class="text-white/60">{{$field['type']}}</p>
-                                </div>
-                            </div>
-                            <div class="">
-                                <div class="card p-5 rounded bg-sky-500 border-sky-500">
-                                    <h5 class="mb-3 text-white text-17">Supplier</h5>
-                                    <p class="text-white/60">{{$field['supplier']}}</p>
-                                </div>
-                            </div>
-                            <div class="">
-                                <div class="card p-5 rounded bg-sky-500 border-sky-500">
-                                    <h5 class="mb-3 text-white text-17">Search id</h5>
-                                    <p class="text-white/60">{{$field['search_id']}}</p>
-                                </div>
-                            </div>
-                    </div>
-                    <div class="grid gr-t-2">
-                            <div class="">
-                                <div class="card p-5 rounded bg-sky-500 border-sky-500">
-                                    <h5 class="mb-3 text-white text-17">Booking item</h5>
-                                    <p class="text-white/60">{{$field['booking_item']}}</p>
-                                </div>
-                            </div>
-                            <div class="">
-                                <div class="card p-5 rounded bg-sky-500 border-sky-500">
-                                    <h5 class="mb-3 text-white text-17">Booking id</h5>
-                                    <p class="text-white/60">{{$field['booking_id']}}</p>
-                                </div>
-                            </div>
-                    </div>
+                    <div class="grid grid-flow-col auto-cols-max gap-5">
+						<div class="card p-2 rounded bg-sky-500 col-span-1">
+							<p class="text-white/60">Type</p>
+							<h5 class="mt-1 text-white text-17">{{$field['type']}}</h5>
+							<p class="text-white/60">Supplier</p>
+							<h5 class="mt-1 text-white text-17">{{$field['supplier']}}</h5>
+						</div>
+						<div class="card p-2 rounded bg-sky-500 col-span-2">
+							<p class="mt-1 text-white/60">Search id:
+								<span class="text-white text-17"><b>{{$field['search_id']}}</b></span>
+							</p>
+							<p class="mt-2 text-white/60">Booking item:
+								<span class="text-white text-17"><b>{{$field['booking_item']}}</b></span>
+							</p>
+							<p class="mt-2 text-white/60">Booking id:
+								<span class="text-white text-17"><b>{{$field['booking_id']}}</b></span>
+							</p>
+						</div>
+					</div>
+
                     <div class="grid gr-t-32">
                             <div class="">
                                 <div class="card border-sky-500 dark:bg-zinc-800 h-100">
-                                    <div class="p-5 border-b border-sky-500">
+                                    <div class="p-3 border-b border-sky-500">
                                         <h5 class="text-sky-500 text-17">Info</h5>
                                     </div>
                                     <div class="card-body">
@@ -160,7 +142,7 @@
                             </div>
                             <div class="">
                                 <div class="card border-sky-500 dark:bg-zinc-800 h-100">
-                                    <div class="p-5 border-b border-sky-500">
+                                    <div class="p-3 border-b border-sky-500">
                                         <h5 class="text-sky-500 text-17">Price</h5>
                                     </div>
                                     <div class="card-body">
@@ -201,7 +183,7 @@
                             </div>
                             <div class="">
                                 <div class="card border-sky-500 dark:bg-zinc-800 h-100">
-                                    <div class="p-5 border-b border-sky-500">
+                                    <div class="p-3 border-b border-sky-500">
                                         <h5 class="text-sky-500 text-17">Reservation Contains</h5>
                                     </div>
                                     <div class="card-body">
@@ -257,7 +239,7 @@
                     <div class="row">
                         <div class="col-span-12 xl:col-span-12 w-100 mt-10">
                             <div class="card border-sky-500 dark:bg-zinc-800 h-100">
-                                <div class="p-5 border-b border-sky-500">
+                                <div class="p-3 border-b border-sky-500">
                                     <h5 class="text-sky-500 text-17">Hotel Images</h5>
                                 </div>
                                 <div class="card-body">

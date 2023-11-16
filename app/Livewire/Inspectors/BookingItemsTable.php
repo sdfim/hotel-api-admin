@@ -32,6 +32,22 @@ class BookingItemsTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(ApiBookingItem::orderBy('created_at', 'DESC'))
             ->columns([
+				TextColumn::make('search.search_type')
+					->label('Type')
+                    ->numeric()
+					->icon(fn(ApiBookingItem $record): string => match ($record->search->search_type) {
+						'hotel' => 'heroicon-o-home',
+						'flight' => 'heroicon-o-airplane',
+						default => 'heroicon-o-search',
+					})
+                    ->toggleable()
+					->size(TextColumn\TextColumnSize::Large)
+					->color(fn(string $state): string => match ($state) {
+                        'hotel' => 'grey',
+						'flight' => 'success',
+                        default => 'info',
+                    })
+                    ->searchable(isIndividual: true),
 				ViewColumn::make('booking_item')
 					->searchable(isIndividual: true)
 					->toggleable()
@@ -47,10 +63,13 @@ class BookingItemsTable extends Component implements HasForms, HasTable
                 ViewColumn::make('booking_item_data')
 					->label('Item data')
 					->view('dashboard.booking-items.column.booking-item-data'),
+				ViewColumn::make('query')
+					->label('Query')
+					->view('dashboard.booking-items.column.search'),
                 ViewColumn::make('booking_pricing_data')
 					->label('Pricing data')
 					->view('dashboard.booking-items.column.booking-pricing-data'),
-                
+				
 				])
             ->filters([])
             // ->actions([
