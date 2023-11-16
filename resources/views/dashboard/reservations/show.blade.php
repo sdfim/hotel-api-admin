@@ -11,6 +11,34 @@
         .w-100{
             width: 100%;
         }
+        .gr-t-3{
+            grid-template-columns: 1fr 1fr 3fr;
+            grid-column-gap: 15px;
+        }
+        .gr-t-2{
+            grid-template-columns: 1fr 1fr;
+            grid-column-gap: 15px;
+        }
+        .gr-t-32{
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-column-gap: 15px;
+        }
+        @media screen and (max-width: 775px) {
+            .gr-t-3{
+                grid-template-columns: 1fr;
+                grid-column-gap: 15px;
+            }
+            .gr-t-2{
+                grid-template-columns: 1fr;
+                grid-column-gap: 15px;
+            }
+            .gr-t-32{
+                grid-template-columns: 1fr;
+                grid-column-gap: 15px;
+                grid-row-gap: 15px;
+            }
+        }
+
     </style>
 @endsection
 @section('content')
@@ -33,152 +61,199 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row justify-between">
-                        <div class="col-span-12 xl:col-span-4">
-                            <div class="card p-5 rounded bg-sky-500 border-sky-500">
-                                <h5 class="mb-3 text-white text-17">Search id</h5>
-                                <p class="text-white/60">{{$field['search_id']}}</p>
+                    <div class="grid gr-t-3">
+                            <div class="">
+                                <div class="card p-5 rounded bg-sky-500 border-sky-500">
+                                    <h5 class="mb-3 text-white text-17">Type</h5>
+                                    <p class="text-white/60">{{$field['type']}}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-span-12 xl:col-span-4">
-                            <div class="card p-5 rounded bg-sky-500 border-sky-500">
-                                <h5 class="mb-3 text-white text-17">Booking item</h5>
-                                <p class="text-white/60">{{$field['booking_item']}}</p>
+                            <div class="">
+                                <div class="card p-5 rounded bg-sky-500 border-sky-500">
+                                    <h5 class="mb-3 text-white text-17">Supplier</h5>
+                                    <p class="text-white/60">{{$field['supplier']}}</p>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-span-12 xl:col-span-4">
-                            <div class="card p-5 rounded bg-sky-500 border-sky-500">
-                                <h5 class="mb-3 text-white text-17">Booking id</h5>
-                                <p class="text-white/60">{{$field['booking_id']}}</p>
+                            <div class="">
+                                <div class="card p-5 rounded bg-sky-500 border-sky-500">
+                                    <h5 class="mb-3 text-white text-17">Search id</h5>
+                                    <p class="text-white/60">{{$field['search_id']}}</p>
+                                </div>
                             </div>
-                        </div>
                     </div>
-                    <div class="row justify-between">
-                        <div class="col-span-12 xl:col-span-3">
-                            <div class="card border-sky-500 dark:bg-zinc-800 h-100">
-                                <div class="p-5 border-b border-sky-500">
-                                    <h5 class="text-sky-500 text-17">Price</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p class="text-gray-700 mt-2 dark:text-zinc-100">
-                                        @php
-                                            $field = json_decode($reservation->reservation_contains, true);
-                                            $field = $field['price'];
-                                            $tooltip = '<ul class="!list-disc ml-6">';
-                                            if (is_array($field)) {
-                                                foreach ($field as $key => $value) {
-                                                    if($key != 'booking_item'){
-                                                        if (is_array($value)) {
-                                                        $tooltip .= "<li><strong>$key:</strong> <ul class='!list-disc ml-6'>";
-                                                        foreach ($value as $key2 => $value2) {
-                                                            $tooltip .= "<li><strong>$key2:</strong> $value2</li>";
-                                                        }
-                                                        $tooltip .= '</ul></li>';
-                                                        } else if ($key !== 'hotel_images') $tooltip .= "<li><strong>$key:</strong> $value</li>";
-                                                    }
-                                                    
-                                                }
-                                            }
-                                            $tooltip .= '</ul>';
-                                            echo $tooltip;
-                                        @endphp
-                                    </p>
+                    <div class="grid gr-t-2">
+                            <div class="">
+                                <div class="card p-5 rounded bg-sky-500 border-sky-500">
+                                    <h5 class="mb-3 text-white text-17">Booking item</h5>
+                                    <p class="text-white/60">{{$field['booking_item']}}</p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-span-12 xl:col-span-3">
-                            <div class="card border-sky-500 dark:bg-zinc-800 h-100">
-                                <div class="p-5 border-b border-sky-500">
-                                    <h5 class="text-sky-500 text-17">Reservation Contains</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p class="text-gray-700 mt-2 dark:text-zinc-100">
-                                        @php
-                                            $field = json_decode($reservation->reservation_contains, true);
-                                            $tooltip = '<ul class="!list-disc ml-6">';
-                                            if (is_array($field)) {
-                                                foreach ($field as $key => $value) {
-                                                    if($key != 'price'){
-                                                        if (is_array($value)) {
-                                                        $tooltip .= "<li><strong>$key:</strong> <ul class='!list-disc ml-6'>";
-                                                        foreach ($value as $key2 => $value2) {
-                                                            $tooltip .= "<li><strong>$key2:</strong> $value2</li>";
-                                                        }
-                                                        $tooltip .= '</ul></li>';
-                                                        } else if ($key !== 'hotel_images') $tooltip .= "<li><strong>$key:</strong> $value</li>";
-                                                    }
-                                                }
-                                            }
-                                            $tooltip .= '</ul>';
-                                            echo $tooltip;
-                                        @endphp
-                                    </p>
+                            <div class="">
+                                <div class="card p-5 rounded bg-sky-500 border-sky-500">
+                                    <h5 class="mb-3 text-white text-17">Booking id</h5>
+                                    <p class="text-white/60">{{$field['booking_id']}}</p>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-span-12 xl:col-span-4">
-                            <div class="card border-sky-500 dark:bg-zinc-800 h-100">
-                                <div class="p-5 border-b border-sky-500">
-                                    <h5 class="text-sky-500 text-17">Info</h5>
-                                </div>
-                                <div class="card-body">
-                                    <p class="text-gray-700 mt-2 dark:text-zinc-100">
-                                        <div class="col-xs-12 col-sm-12 col-md-12">
-                                            <div class="form-group">
-                                                <strong>ID:</strong>
-                                                {{ $reservation->id }}
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 col-md-12">
-                                            <div class="form-group">
-                                                <strong>Date offload:</strong>
-                                                {{ $reservation->date_offload ?? "N/A" }}
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 col-md-12">
-                                            <div class="form-group">
-                                                <strong>Date of Travel:</strong>
-                                                {{ $reservation->date_travel}}
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 col-md-12">
-                                            <div class="form-group">
-                                                <strong>Passenger Surname:</strong>
-                                                {{ $reservation->passenger_surname}}
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 col-md-12">
-                                            <div class="form-group">
-                                                <strong>Channel:</strong>
-                                                <ul class="!list-disc ml-6">
-                                                    <li><strong>Name:</strong> {{ $reservation->channel->name}}</li>
-                                                    <li><strong>Description:</strong> {{ $reservation->channel->description}}</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 col-md-12">
-                                            <div class="form-group">
-                                                <strong>Total Cost:</strong>
-                                                {{ $reservation->total_cost }}
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 col-md-12">
-                                            <div class="form-group">
-                                                <strong>Create:</strong>
-                                                {{ $reservation->created_at }}
-                                            </div>
-                                        </div>
-                                        <div class="col-xs-12 col-sm-12 col-md-12">
-                                            <div class="form-group">
-                                                <strong>Update:</strong>
-                                                {{ $reservation->updated_at }}
-                                            </div>
-                                        </div>
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
+                    <div class="grid gr-t-32">
+                            <div class="">
+                                <div class="card border-sky-500 dark:bg-zinc-800 h-100">
+                                    <div class="p-5 border-b border-sky-500">
+                                        <h5 class="text-sky-500 text-17">Info</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-gray-700 mt-2 dark:text-zinc-100">
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>ID:</strong>
+                                                    {{ $reservation->id }}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Date offload:</strong>
+                                                    {{ $reservation->date_offload ?? "N/A" }}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Date of Travel:</strong>
+                                                    {{ $reservation->date_travel}}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Passenger Surname:</strong>
+                                                    {{ $reservation->passenger_surname}}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Channel:</strong>
+                                                    <ul class="!list-disc ml-6">
+                                                        <li><strong>Name:</strong> {{ $reservation->channel->name}}</li>
+                                                        <li><strong>Description:</strong> {{ $reservation->channel->description}}</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Total Cost:</strong>
+                                                    {{ $reservation->total_cost }}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Create:</strong>
+                                                    {{ $reservation->created_at }}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Update:</strong>
+                                                    {{ $reservation->updated_at }}
+                                                </div>
+                                            </div>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="">
+                                <div class="card border-sky-500 dark:bg-zinc-800 h-100">
+                                    <div class="p-5 border-b border-sky-500">
+                                        <h5 class="text-sky-500 text-17">Price</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-gray-700 mt-2 dark:text-zinc-100">
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Currency:</strong>
+                                                    {{ $field['price']['currency'] }}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Total net:</strong>
+                                                    {{ $field['price']['total_net'] }}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Total tax:</strong>
+                                                    {{ $field['price']['total_tax'] }}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Total fees:</strong>
+                                                    {{ $field['price']['total_fees'] }}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Total price:</strong>
+                                                    {{ $field['price']['total_price'] }}
+                                                </div>
+                                            </div>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="">
+                                <div class="card border-sky-500 dark:bg-zinc-800 h-100">
+                                    <div class="p-5 border-b border-sky-500">
+                                        <h5 class="text-sky-500 text-17">Reservation Contains</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-gray-700 mt-2 dark:text-zinc-100">
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Hotel id:</strong>
+                                                    {{ $field['hotel_id']}}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Hotel name:</strong>
+                                                    {{ $field['hotel_name']}}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Giata room code:</strong>
+                                                    {{ $field['price']['giata_room_code']}}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Giata room name:</strong>
+                                                    {{ $field['price']['giata_room_name']}}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Supplier room name:</strong>
+                                                    {{ $field['price']['supplier_room_name']}}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Per day rate breakdown:</strong>
+                                                    {{ $field['price']['per_day_rate_breakdown']}}
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-sm-12 col-md-12">
+                                                <div class="form-group">
+                                                    <strong>Affiliate service charge:</strong>
+                                                    {{ $field['price']['affiliate_service_charge']}}
+                                                </div>
+                                            </div>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                    
                     <div class="row">
                         <div class="col-span-12 xl:col-span-12 w-100 mt-10">
                             <div class="card border-sky-500 dark:bg-zinc-800 h-100">

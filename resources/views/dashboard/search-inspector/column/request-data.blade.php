@@ -12,7 +12,7 @@
 		}
 		$arr = Arr::dot($fields);
 		$str = '';
-		$destinationIcon = '<i class="fa-solid fa-house" style="color: #4466f0;"></i>';
+		$destinationIcon = '<br><div class="flex justify-between"><div><i class="fa-solid fa-house" style="color: #4466f0;"></i>';
 		$ratingIcon = '<i class="fa-solid fa-star"></i>';
 		$rating = '';
 		foreach ($arr as $key => $value) {
@@ -21,11 +21,11 @@
 					$rating .= $ratingIcon;
 				}
 			}
-			if ($key === 'destination') $str1 =  $destinationIcon . ' ' . $value  . ' <span style="color: #FFD700;"> ' . $rating . '</span>';		
+			if ($key === 'destination') $str1 =  $destinationIcon . ' ' . $value  . '</div>  <span style="color: #FFD700;"> ' . $rating . '</span></div>';		
 			if ($key === 'checkin') $str0 = $value . " - ";
 			if ($key === 'checkout') $str0 .= $value;
 		}
-		$str = '<div><p>' . $str0 . ' ' . $str1 . '</p><p>rooms: ' . json_encode($rooms) . '</p></div>';
+		$str = '<div class="p-2"><p>' . $str0 . ' ' . $str1 . '</p><p>rooms: ' . json_encode($rooms) . '</p></div>';
     @endphp
     
 @endif
