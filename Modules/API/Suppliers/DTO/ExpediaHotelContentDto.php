@@ -4,7 +4,7 @@ namespace Modules\API\Suppliers\DTO;
 
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponse;
 
-class ExpediaContentDto
+class ExpediaHotelContentDto
 {
     /**
      * @param array $supplierResponse

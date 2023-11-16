@@ -4,37 +4,42 @@ namespace Tests\Feature\API\Booking;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Modules\API\BookingAPI\BookingApiHandlers\BookApiHandler;
 use Tests\TestCase;
 
 class HotelBookingBookTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * @test
+     * @return void
+     */
     public function test_book_method_response()
     {
-		$headers = $this->getHeader();
+        $headers = $this->getHeader();
 
-		$response = $this->withHeaders($headers)
-			->postJson('/api/booking/book', ['booking_id' => 'd491dd2b-56fc-45e5-a7e3-3ed5a9ffb023']);
+        $response = $this->withHeaders($headers)
+            ->postJson('/api/booking/book', ['booking_id' => 'd491dd2b-56fc-45e5-a7e3-3ed5a9ffb023']);
 
-		// dump($headers);
-		// $response->dd();
+        // dump($headers);
+        // $response->dd();
 
-		$response
-			->assertStatus(400)
-			->assertJson([
-				'success' => false,
-			]);
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
-	public function getHeader() : array
-	{
-		$user = User::factory()->create();
-		$token = $user->createToken('TestToken')->plainTextToken;
-		return [
-			'Authorization' => 'Bearer ' . $token,
-		];
-	}
+    /**
+     * @return string[]
+     */
+    public function getHeader(): array
+    {
+        $user = User::factory()->create();
+        $token = $user->createToken('TestToken')->plainTextToken;
+        return [
+            'Authorization' => 'Bearer ' . $token,
+        ];
+    }
 }

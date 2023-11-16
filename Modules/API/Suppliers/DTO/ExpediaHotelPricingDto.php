@@ -16,7 +16,7 @@ use App\Models\GiataGeography;
 use App\Models\PricingRule;
 use App\Models\ApiBookingItem;
 
-class ExpediaPricingDto
+class ExpediaHotelPricingDto
 {
     /**
      * @var ExpediaPricingRulesApplier
@@ -117,7 +117,7 @@ class ExpediaPricingDto
         foreach ($supplierResponse as $propertyGroup) {
             $hotelResponse[] = $this->setHotelResponse($propertyGroup);
         }
-        \Log::info('ExpediaPricingDto | enrichmentPricingRules - ' . $this->total_time . 's');
+        \Log::info('ExpediaHotelPricingDto | enrichmentPricingRules - ' . $this->total_time . 's');
 
 		// TODO: uncomment this line after add Redis
 		// SaveBookingItems::dispatch($this->bookingItems);
@@ -259,10 +259,10 @@ class ExpediaPricingDto
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $occupancy_pricing);
         } catch (Exception $e) {
-            \Log::error('ExpediaPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
+            \Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
         }
 
-		if ($pricingRulesApplier['total_price'] == 0.0) \Log::error('ExpediaPricingDto | setRoomGroupsResponse ', ['error' => 'total_price == 0.0']);
+		if ($pricingRulesApplier['total_price'] == 0.0) \Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => 'total_price == 0.0']);
 
         $roomResponse = new RoomResponse();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');

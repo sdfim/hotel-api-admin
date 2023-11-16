@@ -19,6 +19,26 @@ use OpenApi\Annotations as OA;
  *     example="hotel"
  *   ),
  *   @OA\Property(
+ *     property="currency",
+ *     description="Currency of the hotel/flight/combo (e.g., 'EUR').",
+ *     type="string",
+ *     enum={"AED", "ARS", "AUD", "BRL", "CAD", "CHF", "CNY", "COP", "DKK", "EGP", "EUR", "GBP", "HKD", "IDR", "ILS", "INR", "JPY", "KRW", "LBP", "MAD", "MXN", "MYR", "NOK", "NZD", "PHP", "PLN", "QAR", "RUB", "SAR", "SEK", "SGD", "THB", "TRY", "TWD", "USD", "VND", "ZAR"},
+ *     example="EUR"
+ *   ),
+ *   @OA\Property(
+ *     property="supplier",
+ *     description="Supplier of the hotel/flight/comb (e.g., 'Expedia').",
+ *     type="string",
+ *     enum={"Expedia", "Example"},
+ *     example="Expedia"
+ *   ),
+ *   @OA\Property(
+ *     property="hotel_name",
+ *     description="Name of the hotel (e.g., 'Sheraton').",
+ *     type="string",
+ *     example="Sheraton"
+ *   ),
+ *   @OA\Property(
  *     property="checkin",
  *     description="Checkin date in ISO 8601 format (e.g., '2023-11-11').",
  *     type="string",
@@ -62,6 +82,15 @@ use OpenApi\Annotations as OA;
  *         description="Number of children (e.g., '2').",
  *         type="integer",
  *         example="2"
+ *       ),
+ *       @OA\Property(
+ *         property="children_ages",
+ *         description="Ages of children (e.g., '2, 4').",
+ *         type="array",
+ *         @OA\Items(
+ *           type="integer",
+ *           example="2"
+ *         )
  *       )
  *     )
  *   )
@@ -79,7 +108,10 @@ use OpenApi\Annotations as OA;
  * 	 "occupancy": {
  * 		 {
  * 			"adults": 4,
- *          "children": 1
+ *          "children": 1,
+ *          "children_ages": {
+ *            2
+ *           }
  * 		 },
  *       {
  * 			"adults": 3
@@ -100,7 +132,11 @@ use OpenApi\Annotations as OA;
  * 	 "occupancy": {
  * 		 {
  * 			"adults": 2,
- *          "children": 2
+ *          "children": 2,
+ *          "children_ages": {
+ *            2,
+ *            4
+ *           }
  * 		 },
  *       {
  * 			"adults": 3
@@ -109,33 +145,30 @@ use OpenApi\Annotations as OA;
  * }
  * ),
  * * @OA\Examples(
- *     example="PricingSearchRequestOccupavcyWithOutChildren",
- *     summary="Occupavcy Without Children",
+ *     example="PricingSearchRequestCurrencySupplier",
+ *     summary="Occupavcy With Currency and Supplier",
  *     value=
  * {
- * 	 {
- * 	 "adults": 2
- * 	 },
- *   {
- * 	 "adults": 3
- * 	 },
- *   {
- * 	 "adults": 4
- * 	 }
- * }
- * ),
- * * @OA\Examples(
- *     example="PricingSearchRequestOccupavcyWithChildren",
- *     summary="Occupavcy With Children",
- *     value=
- * {
- * 	 {
- * 	 "adults": 2,
- *   "children": 2
- * 	 },
- *   {
- * 	 "adults": 3
- * 	 }
+ *   "type": "hotel",
+ *   "currency": "EUR",
+ *   "supplier": "Expedia",
+ *   "hotel_name": "Sheraton",
+ *   "checkin": "2023-11-19",
+ *   "checkout": "2023-11-21",
+ *   "destination": 961,
+ *   "rating": 3.5,
+ *   "occupancy": {
+ *     {
+ *       "adults": 2,
+ *       "children": 1,
+ *       "children_ages": {
+ *         2
+ *        }
+ *     },
+ *     {
+ *       "adults": 1
+ *     }
+ *   }
  * }
  * )
  */

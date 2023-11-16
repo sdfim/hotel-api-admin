@@ -3,6 +3,8 @@
 namespace App\Livewire\Inspectors;
 
 use App\Models\ApiBookingInspector;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -10,6 +12,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -78,7 +81,53 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([]),
-            ]);
+            ])
+			->filters([
+				Filter::make('is_book')
+                    ->form([
+                        Checkbox::make('is_book')
+                            ->label('Is Book Status')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+						if ($data['is_book']) {
+							return $query->whereIn('booking_id', function ($subQuery) {
+								$subQuery->select('booking_id')
+									->from('api_booking_inspector')
+									->where('type', 'book')
+									->distinct();
+							});
+						} else {
+							return $query;
+						}
+					})->indicateUsing(function (array $data): ?string {
+                        if (!$data['is_book']) {
+                            return null;
+                        }
+                        return 'Book Status';
+                    }),
+				Filter::make('is_not_book')
+                    ->form([
+                        Checkbox::make('is_not_book')
+                            ->label('Is NOT Book Status')
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+						if ($data['is_not_book']) {
+							return $query->whereNotIn('booking_id', function ($subQuery) {
+								$subQuery->select('booking_id')
+									->from('api_booking_inspector')
+									->where('type', 'book')
+									->distinct();
+							});
+						} else {
+							return $query;
+						}
+					})->indicateUsing(function (array $data): ?string {
+                        if (!$data['is_not_book']) {
+                            return null;
+                        }
+                        return 'NOT Book Status';
+                    })
+			]);
     }
 
     /**

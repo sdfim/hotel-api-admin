@@ -6,14 +6,21 @@ use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class HotelPricingSearchTest extends TestCase
 {
     use RefreshDatabase;
 
-    private $headers;
+    /**
+     * @var array|string[]
+     */
+    private array $headers;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -21,7 +28,11 @@ class HotelPricingSearchTest extends TestCase
         $this->headers = $this->getHeader();
     }
 
-    public function testHotelSearchMethodResponseTrue()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_search_method_response_true(): void
     {
         $jsonData = $this->hotelSearchRequest();
         $response = $this->makeApiRequest('/api/pricing/search', $jsonData);
@@ -32,9 +43,11 @@ class HotelPricingSearchTest extends TestCase
     }
 
     /**
-     * @dataProvider provideInvalidHotelSearchData
+     * @test
+     * @param $jsonData
+     * @return void
      */
-    public function testInvalidHotelSearch($jsonData)
+    public function test_invalid_hotel_search($jsonData): void
     {
         $response = $this->makeApiRequest('/api/pricing/search', $jsonData);
         $response->assertStatus(400)
@@ -43,7 +56,10 @@ class HotelPricingSearchTest extends TestCase
             ]);
     }
 
-    public function provideInvalidHotelSearchData()
+    /**
+     * @return array[]
+     */
+    public function provideInvalidHotelSearchData(): array
     {
         return [
             [$this->hotelSearchRequest('checkin')],
@@ -54,7 +70,11 @@ class HotelPricingSearchTest extends TestCase
         ];
     }
 
-    public function testChildAgesCountMatchesChildrenCount()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_child_ages_count_matches_children_count()
     {
         $jsonData = $this->hotelSearchRequest('child_ages_count_mismatch');
         $response = $this->makeApiRequest('/api/pricing/search', $jsonData);
@@ -64,11 +84,20 @@ class HotelPricingSearchTest extends TestCase
             ]);
     }
 
-    private function makeApiRequest(string $url, array $jsonData)
+    /**
+     * @param string $url
+     * @param array $jsonData
+     * @return TestResponse
+     */
+    private function makeApiRequest(string $url, array $jsonData): TestResponse
     {
         return $this->withHeaders($this->headers)->postJson($url, $jsonData);
     }
 
+    /**
+     * @param string $fail
+     * @return array
+     */
     private function hotelSearchRequest(string $fail = ''): array
     {
         $checkin = Carbon::now()->addDays(7)->toDateString();
@@ -130,6 +159,9 @@ class HotelPricingSearchTest extends TestCase
         return $data;
     }
 
+    /**
+     * @return string[]
+     */
     public function getHeader(): array
     {
         $user = User::factory()->create();
@@ -139,6 +171,9 @@ class HotelPricingSearchTest extends TestCase
         ];
     }
 
+    /**
+     * @return void
+     */
     private function seederSupplier(): void
     {
         $supplier = Supplier::firstOrNew([

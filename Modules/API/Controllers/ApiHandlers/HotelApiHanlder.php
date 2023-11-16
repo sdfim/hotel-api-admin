@@ -18,9 +18,9 @@ use Illuminate\Support\Facades\Validator;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\Inspector\SearchInspectorController;
 use Modules\API\Requests\PriceHotelRequest;
-use Modules\API\Suppliers\DTO\ExpediaPricingDto;
-use Modules\API\Suppliers\DTO\ExpediaContentDto;
-use Modules\API\Suppliers\DTO\ExpediaContentDetailDto;
+use Modules\API\Suppliers\DTO\ExpediaHotelPricingDto;
+use Modules\API\Suppliers\DTO\ExpediaHotelContentDto;
+use Modules\API\Suppliers\DTO\ExpediaHotelContentDetailDto;
 use Illuminate\Support\Str;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
 use OpenApi\Annotations as OA;
@@ -46,17 +46,17 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 */
 	private ExpediaHotelApiHandler $expedia;
 	/**
-	 * @var ExpediaPricingDto
+	 * @var ExpediaHotelPricingDto
 	 */
-	private ExpediaPricingDto $expediaPricingDto;
+	private ExpediaHotelPricingDto $ExpediaHotelPricingDto;
 	/**
-	 * @var ExpediaContentDto
+	 * @var ExpediaHotelContentDto
 	 */
-	private ExpediaContentDto $expediaContentDto;
+	private ExpediaHotelContentDto $ExpediaHotelContentDto;
 	/**
-	 * @var ExpediaContentDetailDto
+	 * @var ExpediaHotelContentDetailDto
 	 */
-	private ExpediaContentDetailDto $expediaContentDetailDto;
+	private ExpediaHotelContentDetailDto $ExpediaHotelContentDetailDto;
 	/**
 	 * @var EnrichmentWeight
 	 */
@@ -67,9 +67,9 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	{
 		$this->expedia = new ExpediaHotelApiHandler();
 		$this->apiInspector = new SearchInspectorController();
-		$this->expediaPricingDto = new ExpediaPricingDto();
-		$this->expediaContentDto = new ExpediaContentDto();
-		$this->expediaContentDetailDto = new ExpediaContentDetailDto();
+		$this->ExpediaHotelPricingDto = new ExpediaHotelPricingDto();
+		$this->ExpediaHotelContentDto = new ExpediaHotelContentDto();
+		$this->ExpediaHotelContentDetailDto = new ExpediaHotelContentDetailDto();
 		$this->propsWeight = new EnrichmentWeight();
 	}
 	/*
@@ -94,10 +94,12 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *       oneOf={
 	 *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestDestination"),
 	 *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestCoordinates"),
+	 *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestSupplierHotelName"),
 	 *         },
 	 *       examples={
 	 *           "searchByDestination": @OA\Schema(ref="#/components/examples/ContentSearchRequestDestination", example="ContentSearchRequestDestination"),
 	 *           "searchByCoordinates": @OA\Schema(ref="#/components/examples/ContentSearchRequestCoordinates", example="ContentSearchRequestCoordinates"),
+	 *           "searchBySupplierHotelName": @OA\Schema(ref="#/components/examples/ContentSearchRequestSupplierHotelName", example="ContentSearchRequestSupplierHotelName"),
 	 *       },
 	 *     ),
 	 *   ),
@@ -112,12 +114,24 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *     )
 	 *   ),
 	 *   @OA\Response(
-	 *       response=401,
-	 *       description="Unauthenticated",
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   @OA\Response(
-	 *       response=403,
-	 *       description="Forbidden"
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}
 	 * )
@@ -151,7 +165,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 						$data = $supplierData['results'];
 						$count += $supplierData['count'];
 						$dataResponse[$supplierName] = $data;
-						$clientResponse[$supplierName] = $this->expediaContentDto->ExpediaToContentSearchResponse($data);
+						$clientResponse[$supplierName] = $this->ExpediaHotelContentDto->ExpediaToContentSearchResponse($data);
 					}
 					// TODO: Add other suppliers
 				}
@@ -230,12 +244,24 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *     )
 	 *   ),
 	 *   @OA\Response(
-	 *       response=401,
-	 *       description="Unauthenticated",
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   @OA\Response(
-	 *       response=403,
-	 *       description="Forbidden"
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}
 	 * )
@@ -264,7 +290,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 					if ($supplierName == self::SUPPLIER_NAME) {
 						$data = $this->expedia->detail($request);
 						$dataResponse[$supplierName] = $data;
-						$clientResponse[$supplierName] = $this->expediaContentDetailDto->ExpediaToContentDetailResponse($data->first(), $request->input('property_id'));
+						$clientResponse[$supplierName] = $this->ExpediaHotelContentDetailDto->ExpediaToContentDetailResponse($data->first(), $request->input('property_id'));
 					}
 					// TODO: Add other suppliers
 				}
@@ -306,6 +332,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *       examples={
 	 *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchRequestNewYork", example="PricingSearchRequestNewYork"),
 	 *           "London": @OA\Schema(ref="#/components/examples/PricingSearchRequestLondon", example="PricingSearchRequestLondon"),
+	 *           "SupplierCurrency": @OA\Schema(ref="#/components/examples/PricingSearchRequestCurrencySupplier", example="PricingSearchRequestCurrencySupplier"),
 	 *       },
 	 *     ),
 	 *   ),
@@ -318,6 +345,26 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchResponseNewYork", example="PricingSearchResponseNewYork"),
 	 *           "London": @OA\Schema(ref="#/components/examples/PricingSearchResponseLondon", example="PricingSearchResponseLondon"),
 	 *       },
+	 *     )
+	 *   ),
+	 *   @OA\Response(
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *     )
+	 *   ),
+	 *   @OA\Response(
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
 	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}
@@ -361,7 +408,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 					$dataResponse[$supplierName] = $expediaResponse;
 
 					\Log::info('HotelApiHanlder | price | ExpediaToHotelResponse | start');
-					$dtoData = $this->expediaPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
+					$dtoData = $this->ExpediaHotelPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
 					$bookingItems = $dtoData['bookingItems'];
 					$clientResponse[$supplierName] = $dtoData['response'];
 					\Log::info('HotelApiHanlder | price | ExpediaToHotelResponse | end');

@@ -82,6 +82,26 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
      *         },
 	 *     )
 	 *   ),
+	 *   @OA\Response(
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *     )
+	 *   ),
+	 *   @OA\Response(
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
+	 *   ),
 	 *   security={{ "apiAuth": {} }}
 	 * )
 	 */
@@ -172,6 +192,26 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 *		   examples={
 	 *             "example1": @OA\Schema(ref="#/components/examples/BookingRemoveItemResponse", example="BookingRemoveItemResponse"),
      *         },
+	 *      )
+	 *   ),
+	 *   @OA\Response(
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BadRequestResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+	 *       }
+	 *     )
+	 *   ),
+	 *   @OA\Response(
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
 	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}
@@ -239,6 +279,33 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 *   @OA\Response(
 	 *     response=200,
 	 *     description="OK",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BookingAddPassengersResponse",
+	 *       examples={
+	 *           "Add": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseAdd", example="BookingAddPassengersResponseAdd"),
+	 *           "Update": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseUpdate", example="BookingAddPassengersResponseUpdate"),
+	 *       },
+	 *     ),
+	 *   ),
+	 *   @OA\Response(
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BookingAddPassengersResponse",
+	 *       examples={
+	 *       "Error": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseError", example="BookingAddPassengersResponseError"),
+	 *       },
+	 *     ),
+	 *   ),
+	 *   @OA\Response(
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
 	 *   ),
 	 *   security={{ "apiAuth": {} }}
 	 * )
