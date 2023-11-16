@@ -50,9 +50,4 @@ class ApiBookingItem extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-	public function supplier(): BelongsTo
-    {
-        return $this->belongsTo(Supplier::class, 'supplier_id', 'id');
-    }
-
 }
