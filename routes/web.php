@@ -7,6 +7,7 @@ use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
 use Modules\AdministrationSuite\Http\Controllers\GeographyController;
 use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
+use Modules\AdministrationSuite\Http\Controllers\BookingItemsController;
 use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
 use Modules\AdministrationSuite\Http\Controllers\PropertyMappingController;
 use Modules\AdministrationSuite\Http\Controllers\ReservationsController;
@@ -50,6 +51,7 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('search-inspector', SearchInspectorController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
         Route::resource('booking-inspector', BookingInspectorController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
+        Route::resource('booking-items', BookingItemsController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
         Route::resource('exceptions-report', ExceptionsReportController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
         Route::resource('exceptions-report-chart', ExceptionsReportChartController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
 

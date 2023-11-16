@@ -15,9 +15,18 @@ class ApiBookingItem extends Model
      * @var string
      */
     protected $table = 'api_booking_items';
+	protected $primaryKey = 'booking_item';
 
 	public $timestamps = false;
-
+ 	/**
+     * Get the auto-incrementing key type.
+     *
+     * @return string
+     */
+    public function getKeyType()
+    {
+        return 'string';
+    }
 	/**
 	 * @var string[]
 	 */
@@ -32,6 +41,13 @@ class ApiBookingItem extends Model
     public function search(): BelongsTo
     {
         return $this->belongsTo(ApiSearchInspector::class, 'search_id', 'search_id');
+    }
+ 	/**
+     * @return BelongsTo
+     */
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
 	public function supplier(): BelongsTo

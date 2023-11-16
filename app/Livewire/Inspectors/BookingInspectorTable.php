@@ -17,6 +17,7 @@ use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Actions\ActionGroup;
 
 class BookingInspectorTable extends Component implements HasForms, HasTable
 {
@@ -37,10 +38,10 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
 					->searchable(isIndividual: true)
 					->toggleable()
 					->view('dashboard.booking-inspector.column.search-id'),
-				TextColumn::make('booking_item')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
+                ViewColumn::make('booking_item')
+					->searchable(isIndividual: true)
+					->toggleable()
+					->view('dashboard.booking-inspector.column.booking-item'),
                 TextColumn::make('booking_id')
                     ->searchable(isIndividual: true)
                     ->toggleable()
@@ -71,10 +72,12 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     ->sortable()
             ])
             ->actions([
-                ViewAction::make()
-                    ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
-                    ->label('View response')
-                    ->color('info')
+                ActionGroup::make([
+                    ViewAction::make()
+                        ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
+                        ->label('View response')
+                        ->color('info')
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([]),
