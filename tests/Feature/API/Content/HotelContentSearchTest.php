@@ -12,16 +12,28 @@ class HotelContentSearchTest extends TestCase
     use RefreshDatabase;
 
     /**
+     * @var array|string[]
+     */
+    private array $headers;
+
+    /**
+     * @return void
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seederSupplier();
+        $this->headers = $this->getHeader();
+    }
+
+    /**
      * @test
      * @return void
      */
     public function test_hotel_search_method_response_true()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(200)
@@ -36,11 +48,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_without_type_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchWithoutTypeRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -56,11 +65,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_with_incorrect_type_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchWithIncorrectTypeRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -76,11 +82,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_with_incorrect_destination_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchWithIncorrectDestinationRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -95,11 +98,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_with_incorrect_rating_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchWithIncorrectRatingRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -117,11 +117,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_method_response_true()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(200)
@@ -136,11 +133,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_without_type_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithoutTypeRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -156,11 +150,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_with_incorrect_type_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithIncorrectTypeRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -176,11 +167,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_without_latitude_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithoutLatitudeRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -198,11 +186,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_with_incorrect_latitude_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithIncorrectLatitudeRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -220,11 +205,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_without_longitude_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithoutLongitudeRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -242,11 +224,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_with_incorrect_longitude_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithIncorrectLongitudeRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -264,11 +243,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_without_radius_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithoutRadiusRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -286,11 +262,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_with_incorrect_radius_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithIncorrectRadiusRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -308,11 +281,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_without_rating_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithoutRatingRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -330,11 +300,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_with_incorrect_rating_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithIncorrectRatingRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -352,11 +319,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_without_page_method_response_200()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithoutPageRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(200)
@@ -371,11 +335,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_with_incorrect_page_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithIncorrectPageRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)
@@ -393,11 +354,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_without_results_per_page_method_response_200()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithoutResultsPerPageRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(200)
@@ -412,11 +370,8 @@ class HotelContentSearchTest extends TestCase
      */
     public function test_hotel_search_by_coordinates_with_incorrect_results_per_page_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
         $jsonData = $this->hotelSearchByCoordinatesWithIncorrectResultsPerPageRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/content/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/content/search', $jsonData);
 
         $response
             ->assertStatus(400)

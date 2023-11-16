@@ -21,9 +21,6 @@ class HotelBookingBookTest extends TestCase
         $response = $this->withHeaders($headers)
             ->postJson('/api/booking/book', ['booking_id' => 'd491dd2b-56fc-45e5-a7e3-3ed5a9ffb023']);
 
-        // dump($headers);
-        // $response->dd();
-
         $response
             ->assertStatus(400)
             ->assertJson([
