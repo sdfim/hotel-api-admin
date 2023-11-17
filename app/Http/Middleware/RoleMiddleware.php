@@ -14,7 +14,7 @@ class RoleMiddleware
      * @param null $permission
      * @return mixed
      */
-    public function handle ($request, Closure $next, $role, $permission = null)
+    public function handle($request, Closure $next, $role, $permission = null): mixed
     {
         if (!auth()->user()->hasRole($role)) {
             abort(404);

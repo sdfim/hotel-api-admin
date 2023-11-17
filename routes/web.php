@@ -37,7 +37,7 @@ Route::get('/', function () {
     } else {
         return redirect('/admin/reservations');
     }
-});
+})->name('root');
 
 Route::prefix('admin')->group(function () {
     Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {

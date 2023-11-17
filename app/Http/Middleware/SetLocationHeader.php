@@ -17,7 +17,11 @@ class SetLocationHeader
     {
         $response = $next($request);
 
-		if ($request->path() !== "/") $response->headers->set('Location', env('APP_URL'));
+        $appEnv = env('APP_ENV') ?? config('app.env');
+        $appUrl = env('APP_URL') ?? config('app.url');
+
+        if (in_array($appEnv, ['production', 'prod', 'development', 'dev']) && $request->path() !== "/")
+            $response->headers->set('Location', $appUrl);
 
         return $response;
     }
