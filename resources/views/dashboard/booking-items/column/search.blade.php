@@ -1,10 +1,10 @@
-@if($getRecord()->request)
+@if($getRecord()->search->request)
     @php
-        $str = '';
+		$str = '';
 
-		if ($getRecord()->search_type === 'hotel') {
+		if ($getRecord()->search->search_type === 'hotel') {
 
-			$fields = json_decode($getRecord()->request, true);
+			$fields = json_decode($getRecord()->search->request, true);
 			$rooms = [];
 			foreach ($fields as $key => $item) {
 				if ($key == 'occupancy') {

@@ -18,6 +18,7 @@ use Illuminate\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Component;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Actions\ActionGroup;
 
 class GiataTable extends Component implements HasForms, HasTable
 {
@@ -82,9 +83,11 @@ class GiataTable extends Component implements HasForms, HasTable
 				// 	->searchable(isIndividual: true),
             ])
             ->actions([
-                ViewAction::make()
-                    ->url(fn(GiataProperty $record): string => route('giata.show', $record->code))
-                    ->color('info'),
+                ActionGroup::make([
+                    ViewAction::make()
+                        ->url(fn(GiataProperty $record): string => route('giata.show', $record->code))
+                        ->color('info'),
+                ])
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([]),
