@@ -20,7 +20,10 @@ class SetLocationHeader
         $appEnv = env('APP_ENV') ?? config('app.env');
         $appUrl = env('APP_URL') ?? config('app.url');
 
-        if (in_array($appEnv, ['production', 'prod', 'development', 'dev']) && $request->path() !== "/") {
+        if (in_array($appEnv, ['production', 'prod', 'development', 'dev']) &&
+            $request->headers->has('referer') &&
+            $request->path() !== "/"
+        ) {
             $refererUrl = parse_url($request->headers->get('referer'));
             $scheme = $refererUrl['scheme'];
             $host = $refererUrl['host'];
