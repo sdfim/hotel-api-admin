@@ -16,12 +16,19 @@ class SetLocationHeader
     public function handle(Request $request, Closure $next): Response
     {
         $response = $next($request);
-
         $appEnv = env('APP_ENV') ?? config('app.env');
-        $appUrl = env('APP_URL') ?? config('app.url');
 
-        if (in_array($appEnv, ['production', 'prod', 'development', 'dev']) && $request->path() !== "/")
-            $response->headers->set('Location', $appUrl);
+        if (in_array($appEnv, ['production', 'prod', 'development', 'dev']) &&
+            $request->headers->has('referer') &&
+            $request->path() !== "/"
+        ) {
+            $referer = parse_url($request->headers->get('referer'));
+            $scheme = $referer['scheme'];
+            $host = $referer['host'];
+            $port = isset($referer['port']) ? ':' . $referer['port'] : '';
+            $referrerWithoutPath = $scheme . '://' . $host . $port;
+            $response->headers->set('Location', $referrerWithoutPath);
+        }
 
         return $response;
     }
