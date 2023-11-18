@@ -16,11 +16,7 @@
 
 	# Enable CORS (add this section before the front controller rules)
 	<IfModule mod_headers.c>
-	<IfModule mod_headers.c>
-		SetEnvIf Origin "https://ddwlx1ki3fks2\.cloudfront\.net$" AccessControlAllowOrigin=$0
-		SetEnvIf Origin "https://ftcrniw4u7\.us-east-1\.awsapprunner\.com$" AccessControlAllowOrigin=$0
-		SetEnvIf Origin "https://tajawp36ym\.us-east-1\.awsapprunner\.com$" AccessControlAllowOrigin=$0
-		Header set Access-Control-Allow-Origin %{AccessControlAllowOrigin}e env=AccessControlAllowOrigin
+		Header set Access-Control-Allow-Origin "https://ddwlx1ki3fks2.cloudfront.net"
 	</IfModule>
 
     # Send Requests To Front Controller...
