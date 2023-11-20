@@ -106,6 +106,7 @@ class HotelPricingSearchTest extends TestCase
         $jsonData = $this->hotelSearchRequestData(['incorrect_supplier']);
         $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
 
+        //TODO: ask Andrew why it return results for non-existent supplier(even if the results are empty)
         $response
             ->assertStatus(400)
             ->assertJson([
@@ -317,6 +318,12 @@ class HotelPricingSearchTest extends TestCase
         $jsonData = $this->hotelSearchRequestData(['missed_occupancy']);
         $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
 
+        //TODO: ask Andrew why we got such an error. We are expected to receive something like
+        //'error' => [
+        //  'occupancy' => [
+        //      'The occupancy field is required.'
+        //  ]
+        //]
         $response
             ->assertStatus(400)
             ->assertJson([
