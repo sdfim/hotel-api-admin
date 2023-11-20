@@ -119,7 +119,6 @@ class HotelPricingSearchTest extends TestCase
             ]);
     }
 
-
     /**
      * @test
      * @return void
