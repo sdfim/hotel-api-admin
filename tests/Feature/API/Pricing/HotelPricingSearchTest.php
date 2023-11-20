@@ -288,6 +288,47 @@ class HotelPricingSearchTest extends TestCase
     }
 
     /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_pricing_search_with_incorrect_occupancy_method_response_400()
+    {
+        $jsonData = $this->hotelSearchRequestData(['incorrect_occupancy']);
+        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                "success" => false,
+                "error" => [
+                    "occupancy.0.adults" => [
+                        "The occupancy.0.adults field is required."
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_pricing_search_without_occupancy_method_response_400()
+    {
+        $jsonData = $this->hotelSearchRequestData(['missed_occupancy']);
+        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                "success" => false,
+                "error" => [
+                    "error" => "foreach() argument must be of type array|object, null given"
+                ],
+                "message" => "failed"
+            ]);
+    }
+
+    /**
      * @param array $keysToFail
      * @return array
      */
@@ -320,6 +361,7 @@ class HotelPricingSearchTest extends TestCase
             if (in_array('missed_rating', $keysToFail)) unset($data['rating']);
             if (in_array('incorrect_occupancy', $keysToFail)) $data['occupancy'] = [[]];
             if (in_array('missed_occupancy', $keysToFail)) unset($data['occupancy']);
+            //TODO: write methods for the keys above and then ask GPT if I can optimize the construction of multiple in_array
             if (in_array('missed_occupancy_adults', $keysToFail)) {
                 foreach ($data['occupancy'] as $room) {
                     unset($room['adults']);
