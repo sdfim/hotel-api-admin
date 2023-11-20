@@ -52,7 +52,7 @@ class HotelContentDestinationsTest extends TestCase
         $response_detail
             ->assertStatus(400)
             ->assertJson([
-                'error' => "Invalid city",
+                'error' => 'Invalid city',
             ]);
     }
 
@@ -67,7 +67,7 @@ class HotelContentDestinationsTest extends TestCase
         $response_detail
             ->assertStatus(400)
             ->assertJson([
-                'error' => "Invalid city",
+                'error' => 'Invalid city',
             ]);
     }
 

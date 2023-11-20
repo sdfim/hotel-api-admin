@@ -389,11 +389,11 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "destination" => 1175,
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 250,
+            'type' => 'hotel',
+            'destination' => 1175,
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 250,
         ];
     }
 
@@ -403,11 +403,11 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchWithoutTypeRequestData(): array
     {
         return [
-            "type" => "",
-            "destination" => 1175,
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 250,
+            'type' => '',
+            'destination' => 1175,
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 250,
         ];
     }
 
@@ -417,11 +417,11 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchWithIncorrectTypeRequestData(): array
     {
         return [
-            "type" => "wrong_type",
-            "destination" => 1175,
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 250,
+            'type' => 'wrong_type',
+            'destination' => 1175,
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 250,
         ];
     }
 
@@ -431,11 +431,11 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchWithIncorrectDestinationRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "destination" => "",
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 250,
+            'type' => 'hotel',
+            'destination' => '',
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 250,
         ];
     }
 
@@ -445,11 +445,11 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchWithIncorrectRatingRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "destination" => 1175,
-            "rating" => "",
-            "page" => 1,
-            "results_per_page" => 250,
+            'type' => 'hotel',
+            'destination' => 1175,
+            'rating' => '',
+            'page' => 1,
+            'results_per_page' => 250,
         ];
     }
 
@@ -459,13 +459,13 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "latitude" => $this->randFloat(-90, 90),
-            "longitude" => $this->randFloat(-180, 180),
-            "radius" => rand(10, 50),
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 20
+            'type' => 'hotel',
+            'latitude' => $this->randFloat(-90, 90),
+            'longitude' => $this->randFloat(-180, 180),
+            'radius' => rand(10, 50),
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 20
         ];
     }
 
@@ -475,12 +475,12 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithoutTypeRequestData(): array
     {
         return [
-            "latitude" => $this->randFloat(-90, 90),
-            "longitude" => $this->randFloat(-180, 180),
-            "radius" => rand(10, 50),
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 20
+            'latitude' => $this->randFloat(-90, 90),
+            'longitude' => $this->randFloat(-180, 180),
+            'radius' => rand(10, 50),
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 20
         ];
     }
 
@@ -490,13 +490,13 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithIncorrectTypeRequestData(): array
     {
         return [
-            "type" => "wrong_type",
-            "latitude" => $this->randFloat(-90, 90),
-            "longitude" => $this->randFloat(-180, 180),
-            "radius" => rand(10, 50),
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 20
+            'type' => 'wrong_type',
+            'latitude' => $this->randFloat(-90, 90),
+            'longitude' => $this->randFloat(-180, 180),
+            'radius' => rand(10, 50),
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 20
         ];
     }
 
@@ -506,12 +506,12 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithoutLatitudeRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "longitude" => $this->randFloat(-180, 180),
-            "radius" => rand(10, 50),
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 20
+            'type' => 'hotel',
+            'longitude' => $this->randFloat(-180, 180),
+            'radius' => rand(10, 50),
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 20
         ];
     }
 
@@ -527,13 +527,13 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithIncorrectLatitudeRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "latitude" => $this->randFloat(-180, -91),
-            "longitude" => $this->randFloat(-180, 180),
-            "radius" => rand(10, 50),
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 20
+            'type' => 'hotel',
+            'latitude' => $this->randFloat(-180, -91),
+            'longitude' => $this->randFloat(-180, 180),
+            'radius' => rand(10, 50),
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 20
         ];
     }
 
@@ -543,12 +543,12 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithoutLongitudeRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "latitude" => $this->randFloat(-90, 90),
-            "radius" => rand(10, 50),
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 20
+            'type' => 'hotel',
+            'latitude' => $this->randFloat(-90, 90),
+            'radius' => rand(10, 50),
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 20
         ];
     }
 
@@ -564,13 +564,13 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithIncorrectLongitudeRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "latitude" => $this->randFloat(-90, 90),
-            "longitude" => $this->randFloat(-360, -180),
-            "radius" => rand(10, 50),
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 20
+            'type' => 'hotel',
+            'latitude' => $this->randFloat(-90, 90),
+            'longitude' => $this->randFloat(-360, -180),
+            'radius' => rand(10, 50),
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 20
         ];
     }
 
@@ -580,12 +580,12 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithoutRadiusRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "latitude" => $this->randFloat(-90, 90),
-            "longitude" => $this->randFloat(-180, 180),
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 20
+            'type' => 'hotel',
+            'latitude' => $this->randFloat(-90, 90),
+            'longitude' => $this->randFloat(-180, 180),
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 20
         ];
     }
 
@@ -595,13 +595,13 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithIncorrectRadiusRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "latitude" => $this->randFloat(-90, 90),
-            "longitude" => $this->randFloat(-180, 180),
-            "radius" => -1,
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => 20
+            'type' => 'hotel',
+            'latitude' => $this->randFloat(-90, 90),
+            'longitude' => $this->randFloat(-180, 180),
+            'radius' => -1,
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => 20
         ];
     }
 
@@ -611,12 +611,12 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithoutRatingRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "latitude" => $this->randFloat(-90, 90),
-            "longitude" => $this->randFloat(-180, 180),
-            "radius" => -1,
-            "page" => 1,
-            "results_per_page" => 20
+            'type' => 'hotel',
+            'latitude' => $this->randFloat(-90, 90),
+            'longitude' => $this->randFloat(-180, 180),
+            'radius' => -1,
+            'page' => 1,
+            'results_per_page' => 20
         ];
     }
 
@@ -626,13 +626,13 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithIncorrectRatingRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "latitude" => $this->randFloat(-90, 90),
-            "longitude" => $this->randFloat(-180, 180),
-            "radius" => rand(10, 50),
-            "rating" => -1,
-            "page" => 1,
-            "results_per_page" => 20
+            'type' => 'hotel',
+            'latitude' => $this->randFloat(-90, 90),
+            'longitude' => $this->randFloat(-180, 180),
+            'radius' => rand(10, 50),
+            'rating' => -1,
+            'page' => 1,
+            'results_per_page' => 20
         ];
     }
 
@@ -642,12 +642,12 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithoutPageRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "latitude" => $this->randFloat(-90, 90),
-            "longitude" => $this->randFloat(-180, 180),
-            "radius" => rand(10, 50),
-            "rating" => $this->randFloat(1, 5.5),
-            "results_per_page" => 20
+            'type' => 'hotel',
+            'latitude' => $this->randFloat(-90, 90),
+            'longitude' => $this->randFloat(-180, 180),
+            'radius' => rand(10, 50),
+            'rating' => $this->randFloat(1, 5.5),
+            'results_per_page' => 20
         ];
     }
 
@@ -657,13 +657,13 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithIncorrectPageRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "latitude" => $this->randFloat(-90, 90),
-            "longitude" => $this->randFloat(-180, 180),
-            "radius" => rand(10, 50),
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => -1,
-            "results_per_page" => 20
+            'type' => 'hotel',
+            'latitude' => $this->randFloat(-90, 90),
+            'longitude' => $this->randFloat(-180, 180),
+            'radius' => rand(10, 50),
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => -1,
+            'results_per_page' => 20
         ];
     }
 
@@ -673,12 +673,12 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithoutResultsPerPageRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "latitude" => $this->randFloat(-90, 90),
-            "longitude" => $this->randFloat(-180, 180),
-            "radius" => rand(10, 50),
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
+            'type' => 'hotel',
+            'latitude' => $this->randFloat(-90, 90),
+            'longitude' => $this->randFloat(-180, 180),
+            'radius' => rand(10, 50),
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
         ];
     }
 
@@ -688,13 +688,13 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithIncorrectResultsPerPageRequestData(): array
     {
         return [
-            "type" => "hotel",
-            "latitude" => $this->randFloat(-90, 90),
-            "longitude" => $this->randFloat(-180, 180),
-            "radius" => rand(10, 50),
-            "rating" => $this->randFloat(1, 5.5),
-            "page" => 1,
-            "results_per_page" => -1
+            'type' => 'hotel',
+            'latitude' => $this->randFloat(-90, 90),
+            'longitude' => $this->randFloat(-180, 180),
+            'radius' => rand(10, 50),
+            'rating' => $this->randFloat(1, 5.5),
+            'page' => 1,
+            'results_per_page' => -1
         ];
     }
 

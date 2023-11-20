@@ -121,18 +121,18 @@ class HotelAllProcessBookTest extends TestCase
         $checkin = Carbon::now()->addDays(7)->toDateString();
         $checkout = Carbon::now()->addDays(7 + rand(2, 5))->toDateString();
         return [
-            "type" => "hotel",
-            "checkin" => $checkin,
-            "checkout" => $checkout,
-            "destination" => 302,
-            "rating" => 5,
-            "occupancy" => [
+            'type' => 'hotel',
+            'checkin' => $checkin,
+            'checkout' => $checkout,
+            'destination' => 302,
+            'rating' => 5,
+            'occupancy' => [
                 [
-                    "adults" => 2,
-                    "children" => 2
+                    'adults' => 2,
+                    'children' => 2
                 ],
                 [
-                    "adults" => 3
+                    'adults' => 3
                 ]
             ]
         ];
@@ -146,21 +146,21 @@ class HotelAllProcessBookTest extends TestCase
         $checkin = Carbon::now()->addDays(7)->toDateString();
         $checkout = Carbon::now()->addDays(7 + rand(2, 5))->toDateString();
         return [
-            "type" => "hotel",
-            "checkin" => $checkin,
-            "checkout" => $checkout,
-            "destination" => 961,
-            "rating" => 4.5,
-            "occupancy" => [
+            'type' => 'hotel',
+            'checkin' => $checkin,
+            'checkout' => $checkout,
+            'destination' => 961,
+            'rating' => 4.5,
+            'occupancy' => [
                 [
-                    "adults" => 2,
-                    "children" => 1
+                    'adults' => 2,
+                    'children' => 1
                 ],
                 [
-                    "adults" => 3
+                    'adults' => 3
                 ],
                 [
-                    "adults" => 1
+                    'adults' => 1
                 ]
             ]
         ];
@@ -172,17 +172,17 @@ class HotelAllProcessBookTest extends TestCase
     private function addPassengersRequest(): array
     {
         return [
-            "title" => "mr",
-            "first_name" => "John",
-            "last_name" => "Portman",
-            "rooms" => [
+            'title' => 'mr',
+            'first_name' => 'John',
+            'last_name' => 'Portman',
+            'rooms' => [
                 [
-                    "given_name" => "John",
-                    "family_name" => "Portman"
+                    'given_name' => 'John',
+                    'family_name' => 'Portman'
                 ],
                 [
-                    "given_name" => "John",
-                    "family_name" => "Portman"
+                    'given_name' => 'John',
+                    'family_name' => 'Portman'
                 ]
             ]
         ];
@@ -194,21 +194,21 @@ class HotelAllProcessBookTest extends TestCase
     private function addPassengersRequestStep2(): array
     {
         return [
-            "title" => "mr",
-            "first_name" => "John",
-            "last_name" => "Portman",
-            "rooms" => [
+            'title' => 'mr',
+            'first_name' => 'John',
+            'last_name' => 'Portman',
+            'rooms' => [
                 [
-                    "given_name" => "John",
-                    "family_name" => "Portman"
+                    'given_name' => 'John',
+                    'family_name' => 'Portman'
                 ],
                 [
-                    "given_name" => "Dana",
-                    "family_name" => "Portman"
+                    'given_name' => 'Dana',
+                    'family_name' => 'Portman'
                 ],
                 [
-                    "given_name" => "Mikle",
-                    "family_name" => "Portman"
+                    'given_name' => 'Mikle',
+                    'family_name' => 'Portman'
                 ]
             ]
         ];
@@ -220,22 +220,22 @@ class HotelAllProcessBookTest extends TestCase
     private function addBookRequest(): array
     {
         return [
-            "amount_pay" => "Deposit",
-            "email" => "john@example.com",
-            "phone" => [
-                "country_code" => "1",
-                "area_code" => "487",
-                "number" => "5550077"
+            'amount_pay' => 'Deposit',
+            'email' => 'john@example.com',
+            'phone' => [
+                'country_code' => '1',
+                'area_code' => '487',
+                'number' => '5550077'
             ],
-            "booking_contact" => [
-                "given_name" => "John",
-                "family_name" => "Smith",
-                "address" => [
-                    "line_1" => "555 1st St",
-                    "city" => "Seattle",
-                    "state_province_code" => "WA",
-                    "postal_code" => "98121",
-                    "country_code" => "US"
+            'booking_contact' => [
+                'given_name' => 'John',
+                'family_name' => 'Smith',
+                'address' => [
+                    'line_1' => '555 1st St',
+                    'city' => 'Seattle',
+                    'state_province_code' => 'WA',
+                    'postal_code' => '98121',
+                    'country_code' => 'US'
                 ]
             ]
         ];

@@ -88,10 +88,10 @@ class HotelPricingSearchTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                "success" => false,
-                "error" => [
-                    "currency" => [
-                        "The selected currency is invalid."
+                'success' => false,
+                'error' => [
+                    'currency' => [
+                        'The selected currency is invalid.'
                     ]
                 ]
             ]);
@@ -109,10 +109,10 @@ class HotelPricingSearchTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                "success" => false,
-                "error" => [
-                    "supplier" => [
-                        "Incorrect/non-existent supplier"
+                'success' => false,
+                'error' => [
+                    'supplier' => [
+                        'Incorrect/non-existent supplier'
                     ]
                 ]
             ]);
@@ -131,10 +131,10 @@ class HotelPricingSearchTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                "success" => false,
-                "error" => [
-                    "checkin" => [
-                        "The checkin must be a date after today."
+                'success' => false,
+                'error' => [
+                    'checkin' => [
+                        'The checkin must be a date after today.'
                     ]
                 ]
             ]);
@@ -152,10 +152,10 @@ class HotelPricingSearchTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                "success" => false,
-                "error" => [
-                    "checkout" => [
-                        "The checkout must be a date after checkin."
+                'success' => false,
+                'error' => [
+                    'checkout' => [
+                        'The checkout must be a date after checkin.'
                     ]
                 ]
             ]);
@@ -173,10 +173,10 @@ class HotelPricingSearchTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                "success" => false,
-                "error" => [
-                    "checkin" => [
-                        "The checkin field is required."
+                'success' => false,
+                'error' => [
+                    'checkin' => [
+                        'The checkin field is required.'
                     ]
                 ]
             ]);
@@ -194,10 +194,10 @@ class HotelPricingSearchTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                "success" => false,
-                "error" => [
-                    "checkout" => [
-                        "The checkout field is required."
+                'success' => false,
+                'error' => [
+                    'checkout' => [
+                        'The checkout field is required.'
                     ]
                 ]
             ]);
@@ -215,10 +215,10 @@ class HotelPricingSearchTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                "success" => false,
-                "error" => [
-                    "destination" => [
-                        "The destination must be a non-negative integer."
+                'success' => false,
+                'error' => [
+                    'destination' => [
+                        'The destination must be a non-negative integer.'
                     ]
                 ]
             ]);
@@ -236,10 +236,10 @@ class HotelPricingSearchTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                "success" => false,
-                "error" => [
-                    "destination" => [
-                        "The destination field is required."
+                'success' => false,
+                'error' => [
+                    'destination' => [
+                        'The destination field is required.'
                     ]
                 ]
             ]);
@@ -257,10 +257,10 @@ class HotelPricingSearchTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                "success" => false,
-                "error" => [
-                    "rating" => [
-                        "The rating must be between 1 and 5.5."
+                'success' => false,
+                'error' => [
+                    'rating' => [
+                        'The rating must be between 1 and 5.5.'
                     ]
                 ]
             ]);
@@ -278,10 +278,10 @@ class HotelPricingSearchTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                "success" => false,
-                "error" => [
-                    "rating" => [
-                        "The rating field is required."
+                'success' => false,
+                'error' => [
+                    'rating' => [
+                        'The rating field is required.'
                     ]
                 ]
             ]);
@@ -299,10 +299,10 @@ class HotelPricingSearchTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                "success" => false,
-                "error" => [
-                    "occupancy.0.adults" => [
-                        "The occupancy.0.adults field is required."
+                'success' => false,
+                'error' => [
+                    'occupancy.0.adults' => [
+                        'The occupancy.0.adults field is required.'
                     ]
                 ]
             ]);
@@ -320,71 +320,216 @@ class HotelPricingSearchTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                "success" => false,
-                "error" => [
-                    "error" => "foreach() argument must be of type array|object, null given"
+                'success' => false,
+                'error' => [
+                    'error' => 'foreach() argument must be of type array|object, null given'
                 ],
-                "message" => "failed"
+                'message' => 'failed'
             ]);
     }
 
     /**
-     * @param array $keysToFail
-     * @return array
+     * @test
+     * @return void
+     */
+    public function test_hotel_pricing_search_without_occupancy_adults_method_response_400()
+    {
+        $jsonData = $this->hotelSearchRequestData(['missed_occupancy_adults']);
+        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $error = [];
+
+        foreach ($jsonData['occupancy'] as $index => $room) {
+            $errorName = "occupancy.$index.adults";
+            $error[$errorName] = "The $errorName field is required.";
+        }
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'error' => $error
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_pricing_search_with_incorrect_occupancy_adults_method_response_400()
+    {
+        $jsonData = $this->hotelSearchRequestData(['incorrect_occupancy_adults']);
+        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $error = [];
+
+        foreach ($jsonData['occupancy'] as $index => $room) {
+            $errorName = "occupancy.$index.adults";
+            $error[$errorName] = "The $errorName must be between 1 and 9.";
+        }
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'error' => $error
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_pricing_search_with_incorrect_children_count_method_response_400()
+    {
+        $jsonData = $this->hotelSearchRequestData(['incorrect_children_count']);
+        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $error = [];
+
+        foreach ($jsonData['occupancy'] as $index => $room) {
+            if (isset($room['children'])) {
+                $error["occupancy.$index.children_ages"] = 'The number of children must equal the number of records of their age children_ages.';
+            }
+        }
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'error' => $error
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_pricing_search_without_children_ages_method_response_400()
+    {
+        $jsonData = $this->hotelSearchRequestData(['missed_children_ages']);
+        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $error = [];
+
+        foreach ($jsonData['occupancy'] as $index => $room) {
+            if (isset($room['children'])) {
+                $errorName = "occupancy.$index.children_ages";
+                $error[$errorName] = "The $errorName ages field is required.";
+            }
+        }
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'error' => $error
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_pricing_search_with_incorrect_children_ages_method_response_400()
+    {
+        $jsonData = $this->hotelSearchRequestData(['incorrect_children_ages']);
+        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $error = [];
+
+        foreach ($jsonData['occupancy'] as $index => $room) {
+            if (isset($room['children']) && isset($room['children_ages'])) {
+                $error["occupancy.$index.children_ages"] = 'The number of children must equal the number of records of their age children_ages.';
+            }
+        }
+
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'error' => $error
+            ]);
+    }
+
+    /**
+     * @param array $keysToFail An array of keys indicating which values to modify or remove.
+     *     Possible values:
+     *     - 'incorrect_type': Set an incorrect value for the 'type' key.
+     *     - 'type_missed': Remove the 'type' key.
+     *     - 'incorrect_currency': Set an incorrect value for the 'currency' key.
+     *     - 'incorrect_supplier': Set an incorrect value for the 'supplier' key.
+     *     - 'incorrect_check_in': Set an incorrect value for the 'checkin' key.
+     *     - 'incorrect_check_out': Set an incorrect value for the 'checkout' key.
+     *     - 'check_in_missed': Remove the 'checkin' key.
+     *     - 'check_out_missed': Remove the 'checkout' key.
+     *     - 'incorrect_destination': Set an incorrect value for the 'destination' key.
+     *     - 'missed_destination': Remove the 'destination' key.
+     *     - 'incorrect_rating': Set an incorrect value for the 'rating' key.
+     *     - 'missed_rating': Remove the 'rating' key.
+     *     - 'incorrect_occupancy': Set an incorrect value for the 'occupancy' key.
+     *     - 'missed_occupancy': Remove the 'occupancy' key.
+     *     - 'missed_occupancy_adults': Remove the 'adults' key from each room in the 'occupancy' array.
+     *     - 'incorrect_occupancy_adults': Set an incorrect value for the 'adults' key in each room of the 'occupancy' array.
+     *     - 'incorrect_children_count': Set an incorrect value for the 'children' key in each room of the 'occupancy' array.
+     *     - 'missed_children_ages': Remove the 'children_ages' key from each room in the 'occupancy' array.
+     *     - 'incorrect_children_ages': Set an incorrect value for the 'children_ages' key in each room of the 'occupancy' array.
+     * @return array The hotel search request data.
      */
     private function hotelSearchRequestData(array $keysToFail = []): array
     {
         $data = [
-            "type" => "hotel",
-            "currency" => "EUR",
-            "supplier" => "Expedia",
-            "hotel_name" => "Sheraton",
-            "checkin" => Carbon::now()->addDays(7)->toDateString(),
-            "checkout" => Carbon::now()->addDays(7 + rand(2, 5))->toDateString(),
-            "destination" => 961,
-            "rating" => $this->randFloat(1, 5.5),
-            "occupancy" => $this->generateOccupancy()
+            'type' => 'hotel',
+            'currency' => 'EUR',
+            'supplier' => 'Expedia',
+            'hotel_name' => 'Sheraton',
+            'checkin' => Carbon::now()->addDays(7)->toDateString(),
+            'checkout' => Carbon::now()->addDays(7 + rand(2, 5))->toDateString(),
+            'destination' => 961,
+            'rating' => $this->randFloat(1, 5.5),
+            'occupancy' => $this->generateOccupancy()
         ];
 
         if (count($keysToFail) > 0) {
-            if (in_array('incorrect_type', $keysToFail)) $data['type'] = 'wrong_type';
-            if (in_array('type_missed', $keysToFail)) unset($data['type']);
-            if (in_array('incorrect_currency', $keysToFail)) $data['currency'] = 'Wrong Currency';
-            if (in_array('incorrect_supplier', $keysToFail)) $data['supplier'] = 'Wrong Supplier';
-            if (in_array('incorrect_check_in', $keysToFail)) $data['checkin'] = Carbon::now()->subDays(5)->toDateString();
-            if (in_array('incorrect_check_out', $keysToFail)) $data['checkout'] = Carbon::now()->subDays(2)->toDateString();
-            if (in_array('check_in_missed', $keysToFail)) unset($data['checkin']);
-            if (in_array('check_out_missed', $keysToFail)) unset($data['checkout']);
-            if (in_array('incorrect_destination', $keysToFail)) $data['destination'] = 0;
-            if (in_array('missed_destination', $keysToFail)) unset($data['destination']);
-            if (in_array('incorrect_rating', $keysToFail)) $data['rating'] = -1;
-            if (in_array('missed_rating', $keysToFail)) unset($data['rating']);
-            if (in_array('incorrect_occupancy', $keysToFail)) $data['occupancy'] = [[]];
-            if (in_array('missed_occupancy', $keysToFail)) unset($data['occupancy']);
-            //TODO: write methods for the keys above and then ask GPT if I can optimize the construction of multiple in_array
-            if (in_array('missed_occupancy_adults', $keysToFail)) {
-                foreach ($data['occupancy'] as $room) {
+            $occupancy = &$data['occupancy'];
+
+            if (isset($keysToFail['incorrect_type'])) $data['type'] = 'wrong_type';
+            if (isset($keysToFail['type_missed'])) unset($data['type']);
+            if (isset($keysToFail['incorrect_currency'])) $data['currency'] = 'Wrong Currency';
+            if (isset($keysToFail['incorrect_supplier'])) $data['supplier'] = 'Wrong Supplier';
+            if (isset($keysToFail['incorrect_check_in'])) $data['checkin'] = Carbon::now()->subDays(5)->toDateString();
+            if (isset($keysToFail['incorrect_check_out'])) $data['checkout'] = Carbon::now()->subDays(2)->toDateString();
+            if (isset($keysToFail['check_in_missed'], $keysToFail['check_out_missed'])) {
+                unset($data['checkin'], $data['checkout']);
+            }
+            if (isset($keysToFail['incorrect_destination'])) $data['destination'] = 0;
+            if (isset($keysToFail['missed_destination'])) unset($data['destination']);
+            if (isset($keysToFail['incorrect_rating'])) $data['rating'] = -1;
+            if (isset($keysToFail['missed_rating'])) unset($data['rating']);
+            if (isset($keysToFail['incorrect_occupancy'])) $data['occupancy'] = [[]];
+            if (isset($keysToFail['missed_occupancy'])) unset($data['occupancy']);
+            if (isset($keysToFail['missed_occupancy_adults'], $occupancy)) {
+                foreach ($occupancy as &$room) {
                     unset($room['adults']);
                 }
             }
-            if (in_array('incorrect_occupancy_adults', $keysToFail)) {
-                foreach ($data['occupancy'] as $room) {
+            if (isset($keysToFail['incorrect_occupancy_adults'], $occupancy)) {
+                foreach ($occupancy as &$room) {
                     $room['adults'] = 0;
                 }
             }
-            if (in_array('incorrect_children_count', $keysToFail)) {
-                foreach ($data['occupancy'] as $room) {
+            if (isset($keysToFail['incorrect_children_count'], $occupancy)) {
+                foreach ($occupancy as &$room) {
                     if (isset($room['children'])) $room['children'] = 0;
                 }
             }
-            if (in_array('missed_children_ages', $keysToFail)) {
-                foreach ($data['occupancy'] as $room) {
-                    if (isset($room['children']) && isset($room['children_ages'])) unset($room['children_ages']);
+            if (isset($keysToFail['missed_children_ages'], $occupancy)) {
+                foreach ($occupancy as &$room) {
+                    if (isset($room['children'], $room['children_ages'])) {
+                        unset($room['children_ages']);
+                    }
                 }
             }
-            if (in_array('incorrect_children_ages', $keysToFail)) {
-                foreach ($data['occupancy'] as $room) {
-                    if (isset($room['children']) && isset($room['children_ages'])) $room['children_ages'] = [];
+            if (isset($keysToFail['incorrect_children_ages'], $occupancy)) {
+                foreach ($occupancy as &$room) {
+                    if (isset($room['children'], $room['children_ages'])) {
+                        $room['children_ages'] = [];
+                    }
                 }
             }
         }

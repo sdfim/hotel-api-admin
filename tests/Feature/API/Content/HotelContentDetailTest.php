@@ -72,7 +72,7 @@ class HotelContentDetailTest extends TestCase
         $response_detail
             ->assertStatus(400)
             ->assertJson([
-                'message' => "Invalid type",
+                'message' => 'Invalid type',
             ]);
     }
 
@@ -96,11 +96,11 @@ class HotelContentDetailTest extends TestCase
     private function hotelSearchRequest(): array
     {
         return [
-            "type" => "hotel",
-            "destination" => 1175,
-            "rating" => 4,
-            "page" => 1,
-            "results_per_page" => 250,
+            'type' => 'hotel',
+            'destination' => 1175,
+            'rating' => 4,
+            'page' => 1,
+            'results_per_page' => 250,
         ];
     }
 
