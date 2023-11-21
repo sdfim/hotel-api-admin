@@ -17,7 +17,7 @@ class CustomBookingCommand extends Command
     // protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
     // protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
-    protected const TOKEN = '';
+    protected const TOKEN = 'SqSDT1oa1OVRS6rl42N0xyYn3031HF8Tbnf0dnaLfb2abad1';
     protected const BASE_URI = 'http://localhost:8008';
 
     private string $step;
@@ -25,9 +25,7 @@ class CustomBookingCommand extends Command
     public function __construct()
     {
         parent::__construct();
-		$token = self::TOKEN != '' ? self::TOKEN : Channel::first()->access_token ?? '';
-        $this->client = Http::withToken($token);
-
+        $this->client = Http::withToken(self::TOKEN);
     }
 
     public function handle()
