@@ -494,44 +494,43 @@ class HotelPricingSearchTest extends TestCase
         if (count($keysToFail) > 0) {
             $occupancy = &$data['occupancy'];
 
-            if (isset($keysToFail['incorrect_type'])) $data['type'] = 'wrong_type';
-            if (isset($keysToFail['type_missed'])) unset($data['type']);
-            if (isset($keysToFail['incorrect_currency'])) $data['currency'] = 'Wrong Currency';
-            if (isset($keysToFail['incorrect_supplier'])) $data['supplier'] = 'Wrong Supplier';
-            if (isset($keysToFail['incorrect_check_in'])) $data['checkin'] = Carbon::now()->subDays(5)->toDateString();
-            if (isset($keysToFail['incorrect_check_out'])) $data['checkout'] = Carbon::now()->subDays(2)->toDateString();
-            if (isset($keysToFail['check_in_missed'], $keysToFail['check_out_missed'])) {
-                unset($data['checkin'], $data['checkout']);
-            }
-            if (isset($keysToFail['incorrect_destination'])) $data['destination'] = 0;
-            if (isset($keysToFail['missed_destination'])) unset($data['destination']);
-            if (isset($keysToFail['incorrect_rating'])) $data['rating'] = -1;
-            if (isset($keysToFail['missed_rating'])) unset($data['rating']);
-            if (isset($keysToFail['incorrect_occupancy'])) $data['occupancy'] = [[]];
-            if (isset($keysToFail['missed_occupancy'])) unset($data['occupancy']);
-            if (isset($keysToFail['missed_occupancy_adults'], $occupancy)) {
+            if (in_array('incorrect_type', $keysToFail)) $data['type'] = 'wrong_type';
+            if (in_array('type_missed', $keysToFail)) unset($data['type']);
+            if (in_array('incorrect_currency', $keysToFail)) $data['currency'] = 'Wrong Currency';
+            if (in_array('incorrect_supplier', $keysToFail)) $data['supplier'] = 'Wrong Supplier';
+            if (in_array('incorrect_check_in', $keysToFail)) $data['checkin'] = Carbon::now()->subDays(5)->toDateString();
+            if (in_array('incorrect_check_out', $keysToFail)) $data['checkout'] = Carbon::now()->subDays(2)->toDateString();
+            if (in_array('check_in_missed', $keysToFail) ) unset($data['checkin']);
+            if (in_array('check_out_missed', $keysToFail)) unset($data['checkout']);
+            if (in_array('incorrect_destination', $keysToFail)) $data['destination'] = 0;
+            if (in_array('missed_destination', $keysToFail)) unset($data['destination']);
+            if (in_array('incorrect_rating', $keysToFail)) $data['rating'] = -1;
+            if (in_array('missed_rating', $keysToFail)) unset($data['rating']);
+            if (in_array('incorrect_occupancy', $keysToFail)) $data['occupancy'] = [[]];
+            if (in_array('missed_occupancy', $keysToFail)) unset($data['occupancy']);
+            if (in_array('missed_occupancy_adults', $keysToFail)) {
                 foreach ($occupancy as &$room) {
                     unset($room['adults']);
                 }
             }
-            if (isset($keysToFail['incorrect_occupancy_adults'], $occupancy)) {
+            if (in_array('incorrect_occupancy_adults', $keysToFail)) {
                 foreach ($occupancy as &$room) {
                     $room['adults'] = 0;
                 }
             }
-            if (isset($keysToFail['incorrect_children_count'], $occupancy)) {
+            if (in_array('incorrect_children_count', $keysToFail)) {
                 foreach ($occupancy as &$room) {
                     if (isset($room['children'])) $room['children'] = 0;
                 }
             }
-            if (isset($keysToFail['missed_children_ages'], $occupancy)) {
+            if (in_array('missed_children_ages', $keysToFail)) {
                 foreach ($occupancy as &$room) {
                     if (isset($room['children'], $room['children_ages'])) {
                         unset($room['children_ages']);
                     }
                 }
             }
-            if (isset($keysToFail['incorrect_children_ages'], $occupancy)) {
+            if (in_array('incorrect_children_ages', $keysToFail)) {
                 foreach ($occupancy as &$room) {
                     if (isset($room['children'], $room['children_ages'])) {
                         $room['children_ages'] = [];
@@ -539,6 +538,7 @@ class HotelPricingSearchTest extends TestCase
                 }
             }
         }
+
 
         return $data;
     }
