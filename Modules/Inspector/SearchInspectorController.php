@@ -29,8 +29,10 @@ class SearchInspectorController extends BaseInspectorController
             $content = json_encode($content);
             $clientContent = json_encode($clientContent);
             $hash = md5($query);
-            $path = $type . '/' . date("Y-m-d") . '/' . $hash . '.json';
-            $client_path = $type . '/' . date("Y-m-d") . '/' . $hash . '_client.json';
+
+			$generalPath = self::PATH_INSPECTORS . 'search_inspector/'  . date("Y-m-d") . '/' . $type . '_' . $hash;
+            $path = $generalPath . '.json';
+            $client_path = $generalPath . '.client.json';
 
             $inspector = ApiSearchInspector::where('response_path', $path)->first();
 			// check if inspector not exists

@@ -28,6 +28,8 @@ class MapperExpediaGiata extends Model
      * @var mixed
      */
     protected $connection;
+	protected $primaryKey = ['expedia_id', 'giata_id'];
+	public $incrementing = false;
 
     /**
      * @param array $attributes

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\Storage;
+
 
 class ApiBookingItem extends Model
 {
@@ -16,6 +18,7 @@ class ApiBookingItem extends Model
      */
     protected $table = 'api_booking_items';
 	protected $primaryKey = 'booking_item';
+	public $incrementing = false;
 
 	public $timestamps = false;
  	/**
@@ -48,6 +51,16 @@ class ApiBookingItem extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+	
+	protected static function boot()
+    {
+        parent::boot();
+
+        static::deleted(function ($model) {
+            Storage::delete($model->response_path);
+			Storage::delete($model->client_response_path);
+        });
     }
 
 }

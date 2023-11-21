@@ -17,7 +17,7 @@ class ExpediaContent extends Model
      */
     protected $connection;
 	protected $primaryKey = 'property_id';
-	# protected const TABLE = 'expedia_contents';
+	public $incrementing = false;
 	protected const TABLE = 'expedia_content_main';
 
 	/**
@@ -123,7 +123,7 @@ class ExpediaContent extends Model
 		
         return $query->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
             ->select('mapper_expedia_giatas.expedia_id')
-            ->whereNotNull('mapper_expedia_giatas.expedia_id')
+            // ->whereNotNull('mapper_expedia_giatas.expedia_id')
             ->get()
             ->pluck('expedia_id')
             ->toArray();
