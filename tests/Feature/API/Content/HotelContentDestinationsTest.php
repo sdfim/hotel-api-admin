@@ -12,16 +12,27 @@ class HotelContentDestinationsTest extends TestCase
     use RefreshDatabase;
 
     /**
+     * @var array|string[]
+     */
+    private array $headers;
+
+    /**
+     * @return void
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seederSupplier();
+        $this->headers = $this->getHeader();
+    }
+
+    /**
      * @test
      * @return void
      */
     public function test_hotel_destination_method_response_true()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
-
-        $response_detail = $this->withHeaders($headers)->get('/api/content/destinations?city=London');
+        $response_detail = $this->withHeaders($this->headers)->get('/api/content/destinations?city=London');
 
         $response_detail
             ->assertStatus(200)
@@ -36,16 +47,12 @@ class HotelContentDestinationsTest extends TestCase
      */
     public function test_hotel_destination_with_empty_parameter_method_response_400()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
-
-        $response_detail = $this->withHeaders($headers)->get('/api/content/destinations?city=');
+        $response_detail = $this->withHeaders($this->headers)->get('/api/content/destinations?city=');
 
         $response_detail
             ->assertStatus(400)
             ->assertJson([
-                'error' => "Invalid city",
+                'error' => 'Invalid city',
             ]);
     }
 
@@ -55,16 +62,12 @@ class HotelContentDestinationsTest extends TestCase
      */
     public function test_hotel_destination_without_parameter_method_response_true()
     {
-        $this->seederSupplier();
-
-        $headers = $this->getHeader();
-
-        $response_detail = $this->withHeaders($headers)->get('/api/content/destinations');
+        $response_detail = $this->withHeaders($this->headers)->get('/api/content/destinations');
 
         $response_detail
             ->assertStatus(400)
             ->assertJson([
-                'error' => "Invalid city",
+                'error' => 'Invalid city',
             ]);
     }
 
@@ -77,20 +80,6 @@ class HotelContentDestinationsTest extends TestCase
             'name' => 'Expedia',
             'description' => 'Expedia Description']);
         $supplier->save();
-    }
-
-    /**
-     * @return array
-     */
-    private function hotelSearchRequest(): array
-    {
-        return [
-            "type" => "hotel",
-            "destination" => 1175,
-            "rating" => 4,
-            "page" => 1,
-            "results_per_page" => 250,
-        ];
     }
 
     /**

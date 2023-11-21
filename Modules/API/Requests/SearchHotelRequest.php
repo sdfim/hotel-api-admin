@@ -24,27 +24,10 @@ class SearchHotelRequest extends ApiRequest
     public function rules(): array
     {	
 		if (!isset(request()->destination)) {
-			if (!isset(request()->latitude)) {
-				return [
-					'latitude' => ['required', 'numeric', function ($attribute, $value, $fail) {
-						$fail('The latitude field must be between -90 and 90 degrees when the destination is not present.');
-					}],
-				];
-			}
-			if (!isset(request()->longitude)) {
-				return [
-					'longitude' => ['required', 'numeric', function ($attribute, $value, $fail) {
-						$fail('The longitude field must be between -180 and 180 degrees when the destination is not present.');
-					}],
-				];
-			}
-			if (!isset(request()->radius)) {
-				return [
-					'radius' => ['required', 'numeric', function ($attribute, $value, $fail) {
-						$fail('The radius field is required when the destination is not present.');
-					}],
-				];
-			}
+			if (!isset(request()->latitude)) return ['latitude' => 'required', 'numeric', 'between:-90,90'];
+			if (!isset(request()->longitude)) return ['longitude' => 'required', 'numeric', 'between:-180,180'];
+			if (!isset(request()->radius)) return ['radius' => 'required', 'numeric', 'between:1,100'];
+
 		}
         return [
             'destination' => [function ($attribute, $value, $fail) {

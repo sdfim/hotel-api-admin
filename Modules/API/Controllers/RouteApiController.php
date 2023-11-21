@@ -53,8 +53,18 @@ class RouteApiController extends Controller
         $type = $request->get('type');
         $route = Route::currentRouteName();
 
-        if (!self::isTypeValid($type)) return response()->json(['message' => 'Invalid type'], 400);
-        if (!self::isRouteValid($route)) return response()->json(['message' => 'Invalid route'], 400);
+        if (!self::isTypeValid($type)) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Invalid type'
+			], 400);
+		}
+        if (!self::isRouteValid($route)) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Invalid route'
+			], 400);
+		}
 
         // TODO: [UJV-3] Get supplier from DB use config Admin Panel
         $expedia = self::DEFAULT_SUPPLIER;
