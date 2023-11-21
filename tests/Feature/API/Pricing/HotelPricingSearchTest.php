@@ -103,20 +103,19 @@ class HotelPricingSearchTest extends TestCase
      */
     public function test_hotel_pricing_search_with_incorrect_supplier_method_response_400()
     {
-        // $jsonData = $this->hotelSearchRequestData(['incorrect_supplier']);
-        // $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $jsonData = $this->hotelSearchRequestData(['incorrect_supplier']);
+        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
 
-        // //TODO: ask Andrew why it return results for non-existent supplier(even if the results are empty)
-        // $response
-        //     ->assertStatus(400)
-        //     ->assertJson([
-        //         'success' => false,
-        //         'error' => [
-        //             'supplier' => [
-        //                 'Incorrect/non-existent supplier'
-        //             ]
-        //         ]
-        //     ]);
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'supplier' => [
+                        'The selected supplier is invalid.'
+                    ]
+                ]
+            ]);
     }
 
     /**
@@ -317,20 +316,13 @@ class HotelPricingSearchTest extends TestCase
         $jsonData = $this->hotelSearchRequestData(['missed_occupancy']);
         $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
 
-        //TODO: ask Andrew why we got such an error. We are expected to receive something like
-        //'error' => [
-        //  'occupancy' => [
-        //      'The occupancy field is required.'
-        //  ]
-        //]
-        $response
+		$response
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'error' => 'foreach() argument must be of type array|object, null given'
-                ],
-                'message' => 'failed'
+                    'occupancy' => ['The occupancy field is required.']
+                ]
             ]);
     }
 
@@ -380,33 +372,6 @@ class HotelPricingSearchTest extends TestCase
             ]);
     }
 
-
-    /**
-     * @test
-     * @return void
-     */
-    public function test_hotel_pricing_search_without_children_ages_method_response_400()
-    {
-        $jsonData = $this->hotelSearchRequestData(['missed_children_ages']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
-        $error = [];
-
-        foreach ($jsonData['occupancy'] as $index => $room) {
-            if (isset($room['children'])) {
-                $errorName = "occupancy.$index.children_ages";
-                $error[$errorName] = ["The " .  str_replace('_', ' ', $errorName) . " field is required."];
-				break;
-            }
-        }
-
-        $response
-            ->assertStatus(400)
-            ->assertJson([
-                'success' => false,
-                'error' => $error
-            ]);
-    }
-
     /**
      * @test
      * @return void
@@ -418,8 +383,9 @@ class HotelPricingSearchTest extends TestCase
         $error = [];
 
         foreach ($jsonData['occupancy'] as $index => $room) {
-            if (isset($room['children']) && isset($room['children_ages'])) {
-                $error["occupancy.$index.children_ages"] = ['The occupancy.0.children ages field is required.'];
+            if (empty($room['children_ages']) && isset($room['children_ages'])) {
+                $error["occupancy.$index.children_ages"] = ["The occupancy.$index.children ages field is required."];
+				break;
             }
         }
 
@@ -450,7 +416,6 @@ class HotelPricingSearchTest extends TestCase
      *     - 'missed_occupancy': Remove the 'occupancy' key.
      *     - 'missed_occupancy_adults': Remove the 'adults' key from each room in the 'occupancy' array.
      *     - 'incorrect_occupancy_adults': Set an incorrect value for the 'adults' key in each room of the 'occupancy' array.
-     *     - 'missed_children_ages': Remove the 'children_ages' key from each room in the 'occupancy' array.
      *     - 'incorrect_children_ages': Set an incorrect value for the 'children_ages' key in each room of the 'occupancy' array.
      * @return array The hotel search request data.
      */
@@ -460,7 +425,7 @@ class HotelPricingSearchTest extends TestCase
             'type' => 'hotel',
             'currency' => 'EUR',
             'supplier' => 'Expedia',
-            'hotel_name' => 'Sheraton',
+            'hotel_name' => 'Plaza',
             'checkin' => Carbon::now()->addDays(7)->toDateString(),
             'checkout' => Carbon::now()->addDays(7 + rand(2, 5))->toDateString(),
             'destination' => 961,
@@ -504,9 +469,7 @@ class HotelPricingSearchTest extends TestCase
             }
             if (in_array('incorrect_children_ages', $keysToFail)) {
                 foreach ($occupancy as &$room) {
-                    if (isset($room['children'], $room['children_ages'])) {
-                        $room['children_ages'] = [];
-                    }
+                    $room['children_ages'] = [];
                 }
             }
         }

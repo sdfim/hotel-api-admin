@@ -2,6 +2,7 @@
 
 namespace Modules\API\Requests;
 
+use App\Models\Supplier;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
@@ -30,8 +31,19 @@ class PriceHotelRequest extends ApiRequest
 			'SGD', 'THB', 'TRY', 'TWD', 'USD', 'VND', 'ZAR'
 		];
 
+		$supplier = Supplier::get()->pluck('name')->map('ucfirst')->toArray();
+
 		$occupancy = request()->occupancy;
+		if (is_null($occupancy)) return [
+			'occupancy' => ['required', function ($attribute, $value, $fail) {
+				$fail('The occupancy must be an array.');
+			}],
+		];
 		foreach ($occupancy as $key => $value) {
+			if (empty($value['children_ages']) && isset($value['children_ages'])) return [
+					'occupancy.'.$key .'.children_ages' => ['required'],
+				];
+			else 
 			if (isset($value['children']) && !isset($value['children_ages'])) return [
 				'occupancy.'. $key .'.children_ages' => 'required|array',
 			];
@@ -48,6 +60,7 @@ class PriceHotelRequest extends ApiRequest
             'type' => 'required|string',
         	'currency' => ['string', 'in:' . implode(',', $validCurrencies)],
             'hotel_name' => 'string',
+			'supplier' => ['string', 'in:' . implode(',', $supplier)],
             'checkin' => 'required|date_format:Y-m-d|after:today',
             'checkout' => 'required|date_format:Y-m-d|after:checkin',
             'destination' => [
