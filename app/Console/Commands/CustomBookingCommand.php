@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Faker\Factory as Faker;
 use Illuminate\Console\Command;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Http;
 
 class CustomBookingCommand extends Command
 {
+    use WithFaker;
+
     protected $signature = 'custom-booking-command {step}';
     protected $description = 'Command description';
     protected PendingRequest $client;
@@ -31,33 +33,34 @@ class CustomBookingCommand extends Command
         $step = $this->argument('step');
 
         foreach (range(1, $step) as $index) {
-			$this->warn('STEP ' . $index . ' of ' . $step);
+            $this->warn('STEP ' . $index . ' of ' . $step);
             $this->strategy1();
         }
     }
 
-	private function getBookingItem(array $responseData) : string
-	{
-		$flattened = Arr::dot($responseData);
+    private function getBookingItem(array $responseData): string
+    {
+        $flattened = Arr::dot($responseData);
 
-		$bookingItems = [];
-		$i = 0;
-		foreach ($flattened as $key => $value) {
-			if (str_contains($key, 'booking_item')) {
-				$bookingItems[$i] = $value;
-				$i++;
-			}
-		}
+        $bookingItems = [];
+        $i = 0;
 
-		return $bookingItems[rand(1, $i)];
-	}
+        foreach ($flattened as $key => $value) {
+            if (str_contains($key, 'booking_item')) {
+                $bookingItems[$i] = $value;
+                $i++;
+            }
+        }
+
+        return $bookingItems[rand(1, $i)];
+    }
 
     public function strategy1(): void
     {
         $this->warn('SEARCH 1');
         $responseData = $this->makeSearchRequest(2);
         $searchId = $responseData['data']['search_id'];
-		$bookingItem = $this->getBookingItem($responseData);
+        $bookingItem = $this->getBookingItem($responseData);
         $this->info('search_id = ' . $searchId);
         $this->info('booking_item = ' . $bookingItem);
 
@@ -96,40 +99,40 @@ class CustomBookingCommand extends Command
 
     private function makeSearchRequest(int $count = 1): array
     {
-        $faker = Faker::create();
         $checkin = Carbon::now()->addDays(7)->toDateString();
         $checkout = Carbon::now()->addDays(7 + rand(2, 5))->toDateString();
 
         $occupancy = [];
-        foreach (range(1, $count) as $index) {
+        foreach (range(1, $count) as $ignoredIndex) {
+            $room["adults"] = $this->faker->numberBetween(1, 3);
 
-			$room["adults"] = $faker->numberBetween(1, 3);
+            if ($count % 2 != 0) $children = rand(0, 2);
+            else $children = 0;
+            $children_ages = [];
+            if ($children > 0) {
+                foreach (range(1, $children) as $innerIgnoredIndex) {
+                    $children_ages[] = rand(1, 17);
+                }
 
-			if ($count % 2 != 0) $children = rand(0, 2);
-			else $children = 0;
-			$children_ages = [];
-			if ($children > 0) {
-				foreach (range(1, $children) as $index) {
-					$children_ages[] = rand(1, 17);
-				}
-				$room["children"] = $children;
-				$room["children_ages"] = $children_ages;
-			}
+                $room["children"] = $children;
+                $room["children_ages"] = $children_ages;
+            }
 
-			$occupancy[] = $room;
+            $occupancy[] = $room;
         }
 
         $requestData = [
             "type" => "hotel",
-			'currency' => $faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
-			"destination" => $faker->randomElement([961, 302, 93, 960, 1102]),
+            'currency' => $this->faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
+            "destination" => $this->faker->randomElement([961, 302, 93, 960, 1102]),
             "checkin" => $checkin,
             "checkout" => $checkout,
             "occupancy" => $occupancy,
-			"rating" => $faker->numberBetween(3, 5),
+            "rating" => $this->faker->numberBetween(3, 5),
         ];
 
         $response = $this->client->post(self::BASE_URI . '/api/pricing/search', $requestData);
+
         return $response->json();
     }
 
@@ -158,23 +161,23 @@ class CustomBookingCommand extends Command
             "booking_item" => $bookingItem,
         ];
 
-        $faker = Faker::create();
-		$rooms = [];
-		foreach (range(1, $count) as $index) {
-			$rooms[] = [
-				"given_name" => $faker->firstName,
-				"family_name" => $faker->lastName,
-			];
-		}
+
+        $rooms = [];
+        foreach (range(1, $count) as $ignoredIndex) {
+            $rooms[] = [
+                "given_name" => $this->faker->firstName,
+                "family_name" => $this->faker->lastName,
+            ];
+        }
         $requestData += [
             "title" => "mr",
-            "first_name" => $faker->firstName,
-            "last_name" => $faker->lastName,
+            "first_name" => $this->faker->firstName,
+            "last_name" => $this->faker->lastName,
             "rooms" => $rooms
         ];
 
         $response = $this->client->post(self::BASE_URI . '/api/booking/add-passengers', $requestData);
-		$this->info('addPassengers: ' . json_encode($response->json()));
+        $this->info('addPassengers: ' . json_encode($response->json()));
     }
 
     private function removeBookingItem(string $bookingId, string $bookingItem): void
@@ -185,7 +188,7 @@ class CustomBookingCommand extends Command
         ];
 
         $response = $this->client->delete(self::BASE_URI . '/api/booking/remove-item', $requestData);
-		$this->info('removeBookingItem: ' . json_encode($response->json()));
+        $this->info('removeBookingItem: ' . json_encode($response->json()));
     }
 
     private function retrieveItems(string $bookingId): void
@@ -200,31 +203,29 @@ class CustomBookingCommand extends Command
 
     private function book(string $bookingId): void
     {
-		$faker = Faker::create();
-
         $requestData = [
             "booking_id" => $bookingId,
             "amount_pay" => "Deposit",
-            "email" => $faker->email,
+            "email" => $this->faker->email,
             "phone" => [
                 "country_code" => "1",
                 "area_code" => "487",
                 "number" => "5550077",
             ],
             "booking_contact" => [
-                "given_name" => $faker->firstName,
-                "family_name" => $faker->lastName,
+                "given_name" => $this->faker->firstName,
+                "family_name" => $this->faker->lastName,
                 "address" => [
-                    "line_1" => $faker->streetAddress,
-                    "city" => $faker->city,
-                    "state_province_code" => $faker->stateAbbr,
-                    "postal_code" => $faker->postcode,
-                    "country_code" => $faker->countryCode,
+                    "line_1" => $this->faker->streetAddress,
+                    "city" => $this->faker->city,
+                    "state_province_code" => $this->faker->stateAbbr,
+                    "postal_code" => $this->faker->postcode,
+                    "country_code" => $this->faker->countryCode,
                 ],
             ],
-		];
+        ];
 
         $response = $this->client->post(self::BASE_URI . '/api/booking/book', $requestData);
-		$this->info('book: ' . json_encode($response->json()));
+        $this->info('book: ' . json_encode($response->json()));
     }
 }
