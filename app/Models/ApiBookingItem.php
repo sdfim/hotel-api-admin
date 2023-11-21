@@ -16,6 +16,7 @@ class ApiBookingItem extends Model
      */
     protected $table = 'api_booking_items';
 	protected $primaryKey = 'booking_item';
+	public $incrementing = false;
 
 	public $timestamps = false;
  	/**
