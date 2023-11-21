@@ -380,7 +380,6 @@ class HotelPricingSearchTest extends TestCase
             ]);
     }
 
-
     /**
      * @test
      * @return void
@@ -394,8 +393,8 @@ class HotelPricingSearchTest extends TestCase
         foreach ($jsonData['occupancy'] as $index => $room) {
             if (isset($room['children'])) {
                 $errorName = "occupancy.$index.children_ages";
-                $error[$errorName] = ["The " .  str_replace('_', ' ', $errorName) . " field is required."];
-				break;
+                $error[$errorName] = ["The " . str_replace('_', ' ', $errorName) . " field is required."];
+                break;
             }
         }
 
@@ -477,7 +476,7 @@ class HotelPricingSearchTest extends TestCase
             if (in_array('incorrect_supplier', $keysToFail)) $data['supplier'] = 'Wrong Supplier';
             if (in_array('incorrect_check_in', $keysToFail)) $data['checkin'] = Carbon::now()->subDays(5)->toDateString();
             if (in_array('incorrect_check_out', $keysToFail)) $data['checkout'] = Carbon::now()->subDays(2)->toDateString();
-            if (in_array('check_in_missed', $keysToFail) ) unset($data['checkin']);
+            if (in_array('check_in_missed', $keysToFail)) unset($data['checkin']);
             if (in_array('check_out_missed', $keysToFail)) unset($data['checkout']);
             if (in_array('incorrect_destination', $keysToFail)) $data['destination'] = 0;
             if (in_array('missed_destination', $keysToFail)) unset($data['destination']);
