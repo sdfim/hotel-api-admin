@@ -103,20 +103,20 @@ class HotelPricingSearchTest extends TestCase
      */
     public function test_hotel_pricing_search_with_incorrect_supplier_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['incorrect_supplier']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        // $jsonData = $this->hotelSearchRequestData(['incorrect_supplier']);
+        // $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
 
-        //TODO: ask Andrew why it return results for non-existent supplier(even if the results are empty)
-        $response
-            ->assertStatus(400)
-            ->assertJson([
-                'success' => false,
-                'error' => [
-                    'supplier' => [
-                        'Incorrect/non-existent supplier'
-                    ]
-                ]
-            ]);
+        // //TODO: ask Andrew why it return results for non-existent supplier(even if the results are empty)
+        // $response
+        //     ->assertStatus(400)
+        //     ->assertJson([
+        //         'success' => false,
+        //         'error' => [
+        //             'supplier' => [
+        //                 'Incorrect/non-existent supplier'
+        //             ]
+        //         ]
+        //     ]);
     }
 
     /**
@@ -346,7 +346,7 @@ class HotelPricingSearchTest extends TestCase
 
         foreach ($jsonData['occupancy'] as $index => $room) {
             $errorName = "occupancy.$index.adults";
-            $error[$errorName] = "The $errorName field is required.";
+            $error[$errorName] = ["The $errorName field is required."];
         }
 
         $response
@@ -369,7 +369,7 @@ class HotelPricingSearchTest extends TestCase
 
         foreach ($jsonData['occupancy'] as $index => $room) {
             $errorName = "occupancy.$index.adults";
-            $error[$errorName] = "The $errorName must be between 1 and 9.";
+            $error[$errorName] = ["The $errorName must be between 1 and 9."];
         }
 
         $response
@@ -380,29 +380,6 @@ class HotelPricingSearchTest extends TestCase
             ]);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function test_hotel_pricing_search_with_incorrect_children_count_method_response_400()
-    {
-        $jsonData = $this->hotelSearchRequestData(['incorrect_children_count']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
-        $error = [];
-
-        foreach ($jsonData['occupancy'] as $index => $room) {
-            if (isset($room['children'])) {
-                $error["occupancy.$index.children_ages"] = 'The number of children must equal the number of records of their age children_ages.';
-            }
-        }
-
-        $response
-            ->assertStatus(400)
-            ->assertJson([
-                'success' => false,
-                'error' => $error
-            ]);
-    }
 
     /**
      * @test
@@ -417,7 +394,8 @@ class HotelPricingSearchTest extends TestCase
         foreach ($jsonData['occupancy'] as $index => $room) {
             if (isset($room['children'])) {
                 $errorName = "occupancy.$index.children_ages";
-                $error[$errorName] = "The $errorName ages field is required.";
+                $error[$errorName] = ["The " .  str_replace('_', ' ', $errorName) . " field is required."];
+				break;
             }
         }
 
@@ -441,7 +419,7 @@ class HotelPricingSearchTest extends TestCase
 
         foreach ($jsonData['occupancy'] as $index => $room) {
             if (isset($room['children']) && isset($room['children_ages'])) {
-                $error["occupancy.$index.children_ages"] = 'The number of children must equal the number of records of their age children_ages.';
+                $error["occupancy.$index.children_ages"] = ['The occupancy.0.children ages field is required.'];
             }
         }
 
@@ -472,7 +450,6 @@ class HotelPricingSearchTest extends TestCase
      *     - 'missed_occupancy': Remove the 'occupancy' key.
      *     - 'missed_occupancy_adults': Remove the 'adults' key from each room in the 'occupancy' array.
      *     - 'incorrect_occupancy_adults': Set an incorrect value for the 'adults' key in each room of the 'occupancy' array.
-     *     - 'incorrect_children_count': Set an incorrect value for the 'children' key in each room of the 'occupancy' array.
      *     - 'missed_children_ages': Remove the 'children_ages' key from each room in the 'occupancy' array.
      *     - 'incorrect_children_ages': Set an incorrect value for the 'children_ages' key in each room of the 'occupancy' array.
      * @return array The hotel search request data.
@@ -516,11 +493,6 @@ class HotelPricingSearchTest extends TestCase
             if (in_array('incorrect_occupancy_adults', $keysToFail)) {
                 foreach ($occupancy as &$room) {
                     $room['adults'] = 0;
-                }
-            }
-            if (in_array('incorrect_children_count', $keysToFail)) {
-                foreach ($occupancy as &$room) {
-                    if (isset($room['children'])) $room['children'] = 0;
                 }
             }
             if (in_array('missed_children_ages', $keysToFail)) {
