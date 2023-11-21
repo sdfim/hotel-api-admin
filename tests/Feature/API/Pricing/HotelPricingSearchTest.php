@@ -442,7 +442,7 @@ class HotelPricingSearchTest extends TestCase
             if (in_array('incorrect_supplier', $keysToFail)) $data['supplier'] = 'Wrong Supplier';
             if (in_array('incorrect_check_in', $keysToFail)) $data['checkin'] = Carbon::now()->subDays(5)->toDateString();
             if (in_array('incorrect_check_out', $keysToFail)) $data['checkout'] = Carbon::now()->subDays(2)->toDateString();
-            if (in_array('check_in_missed', $keysToFail) ) unset($data['checkin']);
+            if (in_array('check_in_missed', $keysToFail)) unset($data['checkin']);
             if (in_array('check_out_missed', $keysToFail)) unset($data['checkout']);
             if (in_array('incorrect_destination', $keysToFail)) $data['destination'] = 0;
             if (in_array('missed_destination', $keysToFail)) unset($data['destination']);
