@@ -2,14 +2,14 @@
 
 namespace Tests\Feature\API\Content;
 
-use App\Models\Supplier;
-use App\Models\User;
+use Feature\API\ApiTestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Illuminate\Foundation\Testing\WithFaker;
 
-class HotelContentSearchTest extends TestCase
+class HotelContentSearchTest extends ApiTestCase
 {
     use RefreshDatabase;
+    use WithFaker;
 
     /**
      * @var array|string[]
@@ -390,8 +390,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'destination' => 1175,
-            'rating' => $this->randFloat(1, 5.5),
+            'destination' => $this->faker->randomElement([961, 302, 93, 960, 1102]),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 250,
         ];
@@ -404,8 +404,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => '',
-            'destination' => 1175,
-            'rating' => $this->randFloat(1, 5.5),
+            'destination' => $this->faker->randomElement([961, 302, 93, 960, 1102]),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 250,
         ];
@@ -418,8 +418,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'wrong_type',
-            'destination' => 1175,
-            'rating' => $this->randFloat(1, 5.5),
+            'destination' => $this->faker->randomElement([961, 302, 93, 960, 1102]),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 250,
         ];
@@ -433,7 +433,7 @@ class HotelContentSearchTest extends TestCase
         return [
             'type' => 'hotel',
             'destination' => '',
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 250,
         ];
@@ -446,7 +446,7 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'destination' => 1175,
+            'destination' => $this->faker->randomElement([961, 302, 93, 960, 1102]),
             'rating' => '',
             'page' => 1,
             'results_per_page' => 250,
@@ -460,10 +460,10 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'latitude' => $this->randFloat(-90, 90),
-            'longitude' => $this->randFloat(-180, 180),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => rand(10, 50),
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 20
         ];
@@ -475,10 +475,10 @@ class HotelContentSearchTest extends TestCase
     private function hotelSearchByCoordinatesWithoutTypeRequestData(): array
     {
         return [
-            'latitude' => $this->randFloat(-90, 90),
-            'longitude' => $this->randFloat(-180, 180),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => rand(10, 50),
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 20
         ];
@@ -491,10 +491,10 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'wrong_type',
-            'latitude' => $this->randFloat(-90, 90),
-            'longitude' => $this->randFloat(-180, 180),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => rand(10, 50),
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 20
         ];
@@ -507,9 +507,9 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'longitude' => $this->randFloat(-180, 180),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => rand(10, 50),
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 20
         ];
@@ -528,10 +528,10 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'latitude' => $this->randFloat(-180, -91),
-            'longitude' => $this->randFloat(-180, 180),
+            'latitude' => $this->faker->randomFloat(2, -180, -91),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => rand(10, 50),
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 20
         ];
@@ -544,9 +544,9 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'latitude' => $this->randFloat(-90, 90),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
             'radius' => rand(10, 50),
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 20
         ];
@@ -565,10 +565,10 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'latitude' => $this->randFloat(-90, 90),
-            'longitude' => $this->randFloat(-360, -180),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
+            'longitude' => $this->faker->randomFloat(2, -360, -180),
             'radius' => rand(10, 50),
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 20
         ];
@@ -581,9 +581,9 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'latitude' => $this->randFloat(-90, 90),
-            'longitude' => $this->randFloat(-180, 180),
-            'rating' => $this->randFloat(1, 5.5),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 20
         ];
@@ -596,10 +596,10 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'latitude' => $this->randFloat(-90, 90),
-            'longitude' => $this->randFloat(-180, 180),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => -1,
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 20
         ];
@@ -612,8 +612,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'latitude' => $this->randFloat(-90, 90),
-            'longitude' => $this->randFloat(-180, 180),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => -1,
             'page' => 1,
             'results_per_page' => 20
@@ -627,8 +627,8 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'latitude' => $this->randFloat(-90, 90),
-            'longitude' => $this->randFloat(-180, 180),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => rand(10, 50),
             'rating' => -1,
             'page' => 1,
@@ -643,10 +643,10 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'latitude' => $this->randFloat(-90, 90),
-            'longitude' => $this->randFloat(-180, 180),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => rand(10, 50),
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'results_per_page' => 20
         ];
     }
@@ -658,10 +658,10 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'latitude' => $this->randFloat(-90, 90),
-            'longitude' => $this->randFloat(-180, 180),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => rand(10, 50),
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => -1,
             'results_per_page' => 20
         ];
@@ -674,10 +674,10 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'latitude' => $this->randFloat(-90, 90),
-            'longitude' => $this->randFloat(-180, 180),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => rand(10, 50),
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
         ];
     }
@@ -689,45 +689,12 @@ class HotelContentSearchTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'latitude' => $this->randFloat(-90, 90),
-            'longitude' => $this->randFloat(-180, 180),
+            'latitude' => $this->faker->randomFloat(2, -90, 90),
+            'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => rand(10, 50),
-            'rating' => $this->randFloat(1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => -1
         ];
-    }
-
-    /**
-     * @return void
-     */
-    private function seederSupplier(): void
-    {
-        $supplier = Supplier::firstOrNew([
-            'name' => 'expedia',
-            'description' => 'Expedia Description']);
-        $supplier->save();
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getHeader(): array
-    {
-        $user = User::factory()->create();
-        $token = $user->createToken('TestToken')->plainTextToken;
-        return [
-            'Authorization' => 'Bearer ' . $token,
-        ];
-    }
-
-    /**
-     * @param float $minValue
-     * @param float $maxValue
-     * @return float
-     */
-    public function randFloat(float $minValue, float $maxValue): float
-    {
-        return round($minValue + mt_rand() / mt_getrandmax() * ($maxValue - $minValue), 2);
     }
 }

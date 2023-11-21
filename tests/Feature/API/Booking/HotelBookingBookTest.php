@@ -3,10 +3,10 @@
 namespace Tests\Feature\API\Booking;
 
 use App\Models\User;
+use Feature\API\ApiTestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class HotelBookingBookTest extends TestCase
+class HotelBookingBookTest extends ApiTestCase
 {
     use RefreshDatabase;
 
@@ -26,17 +26,5 @@ class HotelBookingBookTest extends TestCase
             ->assertJson([
                 'success' => false,
             ]);
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getHeader(): array
-    {
-        $user = User::factory()->create();
-        $token = $user->createToken('TestToken')->plainTextToken;
-        return [
-            'Authorization' => 'Bearer ' . $token,
-        ];
     }
 }

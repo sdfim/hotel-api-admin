@@ -2,15 +2,15 @@
 
 namespace Tests\Feature\API\Pricing;
 
-use App\Models\Supplier;
-use App\Models\User;
+use Feature\API\ApiTestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
-use Tests\TestCase;
 
-class HotelPricingSearchTest extends TestCase
+class HotelPricingSearchTest extends ApiTestCase
 {
     use RefreshDatabase;
+    use WithFaker;
 
     /**
      * @var array|string[]
@@ -457,13 +457,13 @@ class HotelPricingSearchTest extends TestCase
     {
         $data = [
             'type' => 'hotel',
-            'currency' => 'EUR',
+            'currency' => $this->faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
             'supplier' => 'Expedia',
             'hotel_name' => 'Sheraton',
             'checkin' => Carbon::now()->addDays(7)->toDateString(),
             'checkout' => Carbon::now()->addDays(7 + rand(2, 5))->toDateString(),
-            'destination' => 961,
-            'rating' => $this->randFloat(1, 5.5),
+            'destination' => $this->faker->randomElement([961, 302, 93, 960, 1102]),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'occupancy' => $this->generateOccupancy()
         ];
 
@@ -535,39 +535,5 @@ class HotelPricingSearchTest extends TestCase
         }
 
         return $occupancy;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getHeader(): array
-    {
-        $user = User::factory()->create();
-        $token = $user->createToken('TestToken')->plainTextToken;
-        return [
-            'Authorization' => 'Bearer ' . $token,
-        ];
-    }
-
-    /**
-     * @return void
-     */
-    private function seederSupplier(): void
-    {
-        $supplier = Supplier::firstOrNew([
-            'name' => 'expedia',
-            'description' => 'Expedia Description',
-        ]);
-        $supplier->save();
-    }
-
-    /**
-     * @param float $minValue
-     * @param float $maxValue
-     * @return float
-     */
-    public function randFloat(float $minValue, float $maxValue): float
-    {
-        return round($minValue + mt_rand() / mt_getrandmax() * ($maxValue - $minValue), 2);
     }
 }

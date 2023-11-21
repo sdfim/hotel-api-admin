@@ -2,16 +2,15 @@
 
 namespace Tests\Feature\API\Booking;
 
-use App\Models\Channel;
-use App\Models\Supplier;
-use App\Models\User;
+use Feature\API\ApiTestCase;
+use Feature\API\Booking\HotelBookingHelpersTrait;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Tests\TestCase;
 
-class HotelAllProcessAfterBookTest extends TestCase
+class HotelAllProcessAfterBookTest extends ApiTestCase
 {
     use RefreshDatabase;
+    use HotelBookingHelpersTrait;
 
     /**
      * @test
@@ -20,6 +19,7 @@ class HotelAllProcessAfterBookTest extends TestCase
      */
     public function test_book_method_response()
     {
+        $this->auth();
         $headers = $this->getHeader();
         $this->seederSupplier();
 
@@ -86,19 +86,6 @@ class HotelAllProcessAfterBookTest extends TestCase
     }
 
     /**
-     * @return string[]
-     */
-    private function getHeader(): array
-    {
-        $this->auth();
-        $channel = Channel::factory()->create();
-        $token = $channel->access_token;
-        return [
-            'Authorization' => 'Bearer ' . $token,
-        ];
-    }
-
-    /**
      * @return array[]
      */
     private function changeBookingRequest(): array
@@ -109,7 +96,7 @@ class HotelAllProcessAfterBookTest extends TestCase
                     'given_name' => 'John',
                     'family_name' => 'Smith',
                     'smoking' => false,
-                    'special_request' => 'Top floor or away frostreet please',
+                    'special_request' => 'Top floor or away fro-street please',
                     'loyalty_id' => 'ABC123'
                 ]
         ];
@@ -245,29 +232,5 @@ class HotelAllProcessAfterBookTest extends TestCase
                 ]
             ]
         ];
-    }
-
-    /**
-     * @return void
-     */
-    private function seederSupplier(): void
-    {
-        $supplier = Supplier::firstOrNew([
-            'name' => 'Expedia',
-            'description' => 'Expedia Description']);
-        $supplier->save();
-    }
-
-    /**
-     * @return void
-     */
-    public function auth(): void
-    {
-        $user = User::factory()->create();
-
-        $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
     }
 }

@@ -2,16 +2,15 @@
 
 namespace Tests\Feature\API\Booking;
 
-use App\Models\Channel;
-use App\Models\Supplier;
-use App\Models\User;
+use Feature\API\ApiTestCase;
+use Feature\API\Booking\HotelBookingHelpersTrait;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
-use Tests\TestCase;
 
-class HotelAllProcessBookTest extends TestCase
+class HotelAllProcessBookTest extends ApiTestCase
 {
     use RefreshDatabase;
+    use HotelBookingHelpersTrait;
 
     /**
      * @test
@@ -20,6 +19,7 @@ class HotelAllProcessBookTest extends TestCase
      */
     public function test_book_method_response()
     {
+        $this->auth();
         $headers = $this->getHeader();
         $this->seederSupplier();
 
@@ -98,19 +98,6 @@ class HotelAllProcessBookTest extends TestCase
                 'success' => true,
                 'message' => 'success',
             ]);
-    }
-
-    /**
-     * @return string[]
-     */
-    private function getHeader(): array
-    {
-        $this->auth();
-        $channel = Channel::factory()->create();
-        $token = $channel->access_token;
-        return [
-            'Authorization' => 'Bearer ' . $token,
-        ];
     }
 
     /**
@@ -239,29 +226,5 @@ class HotelAllProcessBookTest extends TestCase
                 ]
             ]
         ];
-    }
-
-    /**
-     * @return void
-     */
-    private function seederSupplier(): void
-    {
-        $supplier = Supplier::firstOrNew([
-            'name' => 'Expedia',
-            'description' => 'Expedia Description']);
-        $supplier->save();
-    }
-
-    /**
-     * @return void
-     */
-    public function auth(): void
-    {
-        $user = User::factory()->create();
-
-        $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
     }
 }

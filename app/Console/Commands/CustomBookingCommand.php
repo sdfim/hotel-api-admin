@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -12,14 +13,12 @@ class CustomBookingCommand extends Command
 {
     protected $signature = 'custom-booking-command {step}';
     protected $description = 'Command description';
-    protected $client;
+    protected PendingRequest $client;
     protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
     protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
     // protected const TOKEN = '2x3WbYgBLcfkE8fS1WCUGeWRcEBLfVmY60agbnErb97f692a';
     // protected const BASE_URI = 'http://localhost:8008';
-
-    private string $step;
 
     public function __construct()
     {
@@ -27,12 +26,12 @@ class CustomBookingCommand extends Command
         $this->client = Http::withToken(self::TOKEN);
     }
 
-    public function handle()
+    public function handle(): void
     {
-        $this->step = $this->argument('step');
+        $step = $this->argument('step');
 
-        foreach (range(1, $this->step) as $index) {
-			$this->warn('STEP ' . $index . ' of ' . $this->step);
+        foreach (range(1, $step) as $index) {
+			$this->warn('STEP ' . $index . ' of ' . $step);
             $this->strategy1();
         }
     }
@@ -44,12 +43,12 @@ class CustomBookingCommand extends Command
 		$bookingItems = [];
 		$i = 0;
 		foreach ($flattened as $key => $value) {
-			if (strpos($key, 'booking_item') !== false) {
+			if (str_contains($key, 'booking_item')) {
 				$bookingItems[$i] = $value;
 				$i++;
 			}
 		}
-		
+
 		return $bookingItems[rand(1, $i)];
 	}
 

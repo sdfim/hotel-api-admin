@@ -2,12 +2,10 @@
 
 namespace Tests\Feature\API\Content;
 
-use App\Models\Supplier;
-use App\Models\User;
+use Feature\API\ApiTestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 
-class HotelContentDestinationsTest extends TestCase
+class HotelContentDestinationsTest extends ApiTestCase
 {
     use RefreshDatabase;
 
@@ -69,28 +67,5 @@ class HotelContentDestinationsTest extends TestCase
             ->assertJson([
                 'error' => 'Invalid city',
             ]);
-    }
-
-    /**
-     * @return void
-     */
-    private function seederSupplier(): void
-    {
-        $supplier = Supplier::firstOrNew([
-            'name' => 'Expedia',
-            'description' => 'Expedia Description']);
-        $supplier->save();
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getHeader(): array
-    {
-        $user = User::factory()->create();
-        $token = $user->createToken('TestToken')->plainTextToken;
-        return [
-            'Authorization' => 'Bearer ' . $token,
-        ];
     }
 }
