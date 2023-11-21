@@ -1,17 +1,28 @@
 <div>
-    <form wire:submit="save">
-        {{ $this->form }}
+	<form wire:submit="save">
+		{{ $this->form }}
 
-        @if ($create)
-            <x-button class="mt-4">
-                {{ __('Update') }}
-            </x-button>
-        @else
-            <x-button class="mt-4">
-                {{ __('Create') }}
-            </x-button>
-        @endif
-    </form>
+		@if ($create)
+		<x-button class="mt-4">
+			{{ __('Update') }}
+		</x-button>
+		@else
+		<x-button class="mt-4">
+			{{ __('Create') }}
+		</x-button>
+		@endif
+	</form>
 
-    <x-filament-actions::modals/>
+	<x-filament-actions::modals />
 </div>
+
+<script>
+	window.addEventListener('load', function() {
+	  setTimeout(function() {
+		var inputElement = document.querySelector('.choices__input--cloned');
+		inputElement.style.minWidth = '37ch';
+	  }, 500); 
+	});
+  </script>
+  
+  

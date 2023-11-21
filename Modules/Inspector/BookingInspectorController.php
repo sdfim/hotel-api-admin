@@ -37,8 +37,9 @@ class BookingInspectorController extends BaseInspectorController
             $client_content = json_encode($client_content);
             $hash = md5($query . $booking_id);
 
-            $path = $type . '/' . date("Y-m-d") . '/' . $subType . '/' . $hash . '.json';
-            $client_path = $type . '/' . date("Y-m-d") . '/' . $subType . '/' . $hash . '.client.json';
+			$generalPath = self::PATH_INSPECTORS . 'booking_inspector/' . date("Y-m-d") . '/' . $type . '_' . $subType . '_' . $hash;
+            $path = $generalPath . '.json';
+            $client_path = $generalPath . '.client.json';
 
             $booking = ApiBookingInspector::where('response_path', $path)->first();
             if (!$booking) {

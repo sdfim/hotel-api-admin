@@ -103,10 +103,10 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->maxValue(5.5)
                     ->required(),
                 TextInput::make('stop_bookings')
-                    ->label('Stop bookings with in a number of hours from time of search execution, days')
+                    ->label('Stop bookings with in a number of hours from time of search execution, hours')
                     ->numeric()
                     ->minValue(1)
-                    ->maxValue(365)
+                    ->maxValue(365*24)
                     ->required(),
             ])
             ->statePath('data')
