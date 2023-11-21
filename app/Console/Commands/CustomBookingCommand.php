@@ -108,14 +108,11 @@ class CustomBookingCommand extends Command
 
             if ($count % 2 != 0) $children = rand(0, 2);
             else $children = 0;
-            $children_ages = [];
             if ($children > 0) {
-                foreach (range(1, $children) as $innerIgnoredIndex) {
-                    $children_ages[] = rand(1, 17);
-                }
-
                 $room["children"] = $children;
-                $room["children_ages"] = $children_ages;
+                $room["children_ages"] = array_map(function () {
+                    return rand(1, 17);
+                }, range(1, $children));
             }
 
             $occupancy[] = $room;
