@@ -3,14 +3,14 @@
 namespace Tests\Feature\API\Pricing;
 
 use Feature\API\ApiTestCase;
+use Feature\API\Pricing\HotelPricingGeneralMethodsTrait;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
 
 class HotelPricingSearchTest extends ApiTestCase
 {
     use RefreshDatabase;
-    use WithFaker;
+    use HotelPricingGeneralMethodsTrait;
 
     /**
      * @var array|string[]
@@ -455,17 +455,7 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     private function hotelSearchRequestData(array $keysToFail = []): array
     {
-        $data = [
-            'type' => 'hotel',
-            'currency' => $this->faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
-            'supplier' => 'Expedia',
-            'hotel_name' => 'Sheraton',
-            'checkin' => Carbon::now()->addDays(7)->toDateString(),
-            'checkout' => Carbon::now()->addDays(7 + rand(2, 5))->toDateString(),
-            'destination' => $this->faker->randomElement([961, 302, 93, 960, 1102]),
-            'rating' => $this->faker->randomFloat(1, 1, 5.5),
-            'occupancy' => $this->generateOccupancy()
-        ];
+        $data = $this->generateHotelPricingSearchRequestData();
 
         if (count($keysToFail) > 0) {
             $occupancy = &$data['occupancy'];
@@ -510,30 +500,6 @@ class HotelPricingSearchTest extends ApiTestCase
             }
         }
 
-
         return $data;
-    }
-
-    /**
-     * @return array
-     */
-    private function generateOccupancy(): array
-    {
-        $roomCount = rand(1, 4);
-        $occupancy = [];
-
-        for ($i = 0; $i < $roomCount; $i++) {
-            $haveChildren = rand(0, 1);
-            $occupancy[$i]['adults'] = rand(1, 3);
-            if ($haveChildren) {
-                $numberOfChildren = rand(1, 2);
-                $occupancy[$i]['children'] = $numberOfChildren;
-                for ($c = 0; $c < $numberOfChildren; $c++) {
-                    $occupancy[$i]['children_ages'][$c] = rand(1, 12);
-                }
-            }
-        }
-
-        return $occupancy;
     }
 }

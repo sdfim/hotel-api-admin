@@ -3,14 +3,14 @@
 namespace Tests\Feature\API\Booking;
 
 use Feature\API\ApiTestCase;
-use Feature\API\Booking\HotelBookingHelpersTrait;
+use Feature\API\Booking\HotelBookingGeneralMethodsTrait;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 
 class HotelAllProcessBookTest extends ApiTestCase
 {
     use RefreshDatabase;
-    use HotelBookingHelpersTrait;
+    use HotelBookingGeneralMethodsTrait;
 
     /**
      * @test

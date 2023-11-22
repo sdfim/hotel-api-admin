@@ -4,7 +4,7 @@ namespace Feature\API\Booking;
 
 use App\Models\User;
 
-trait HotelBookingHelpersTrait
+trait HotelBookingGeneralMethodsTrait
 {
     /**
      * @return void
