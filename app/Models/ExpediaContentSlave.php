@@ -13,6 +13,7 @@ class ExpediaContentSlave extends Model
      */
     protected $connection;
 	protected $primaryKey = 'property_id';
+	public $incrementing = false;
 	protected const TABLE = 'expedia_content_slave';
 
     /**

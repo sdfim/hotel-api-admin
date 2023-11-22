@@ -15,6 +15,7 @@ class GiataProperty extends Model
      */
     protected $connection;
 	protected $primaryKey = 'code';
+	public $incrementing = false;
 
     /**
      * @var string[]

@@ -10,6 +10,8 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Str;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
+use Illuminate\Support\Facades\Storage;
+
 
 class ExpediaHotelBookingApiHandler
 {
@@ -116,6 +118,10 @@ class ExpediaHotelBookingApiHandler
 						]
 					];
 			} else {
+				foreach ($bookingItems->get() as $item)	{
+					Storage::delete($item->client_response_path);
+					Storage::delete($item->response_path);
+				}
 				$bookingItems->delete();
 				$res = [
 					'success' =>

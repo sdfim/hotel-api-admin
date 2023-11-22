@@ -18,6 +18,7 @@ class ApiSearchInspector extends Model
      */
     protected $table = 'api_search_inspector';
 	protected $primaryKey = 'search_id';
+	public $incrementing = false;
 
 	 /**
      * Get the auto-incrementing key type.

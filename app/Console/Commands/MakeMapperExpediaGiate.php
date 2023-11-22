@@ -30,7 +30,7 @@ class MakeMapperExpediaGiate extends Command
 	/**
 	 *
 	 */
-	private const BATCH_SIZE = 100;
+	private const BATCH_SIZE = 5;
 	/**
 	 *
 	 */
@@ -77,40 +77,37 @@ class MakeMapperExpediaGiate extends Command
 
 			foreach ($arrExpedia as $expedia) {
 
-				// $this->comment($expedia['property_id'] . ' ' . $expedia['longitude']);
+				$latitude = bcdiv($expedia['latitude'], 1, 1);
+				$longitude = bcdiv($expedia['longitude'], 1, 1);
+				// $latitude = bcdiv($expedia['latitude'], 1, 0);
+				// $longitude = bcdiv($expedia['longitude'], 1, 0);
+				$name = str_replace(['&', '~', '@', '*', '+', ',', '-', 'The', 'Hotel' , '  '], ' ', $expedia['name']);
+				$nameArr = explode(' ', $name);
 
-				$latitude = bcdiv($expedia['latitude'], 1, 2);
-				$longitude = bcdiv($expedia['longitude'], 1, 2);
-				$mapper_address = $expedia['address']['line_1'];
-
-				// $this->comment($expedia['property_id'] . ' ' . $expedia['name'] . ' | ' . 'latitude: ' . $latitude . ' | longitude: ' . $longitude);
-
-				$this->comment($expedia['property_id'] . ' ' . $mapper_address . ' | ' . 'latitude: ' . $latitude . ' | longitude: ' . $longitude);
+				$this->comment($expedia['property_id'] . ' ' . $name . ' | ' . 'latitude: ' . $latitude . ' | longitude: ' . $longitude);
 				
-				if ($expedia['property_id'] < 1664) continue;
+				if ($expedia['property_id'] < 30424234) continue;
 
-				$cityNmae = str_replace(['@', "'"], '', $expedia['city']);
-			
-				$giata = GiataProperty::where('mapper_address', $mapper_address)
+				$giata = GiataProperty::whereRaw("MATCH(name) AGAINST(? IN BOOLEAN MODE)", [$name])
 					->where('latitude', 'like', $latitude . '%')
 					->where('longitude', 'like', $longitude . '%')
 					->get()
 					->toArray();
 
-				if ($giata) {
+				if (!empty($giata)) {
 					foreach ($giata as $giataItem) {
-						$this->info('Expedia: ' . $expedia['property_id'] . ' - ' . $expedia['name'] . ' - ' . $giataItem['code'] . ' - ' . $giataItem['name']);
+						$this->info('Expedia: ' . $expedia['property_id'] . ' - ' . $name . ' - ' . $giataItem['code'] . ' - ' . $giataItem['name']);
 						$this->batch++;
 						$this->batchReport++;
 						$mapper[] = [
 							'expedia_id' => $expedia['property_id'],
 							'giata_id' => $giataItem['code'],
-							'step' => 10,
+							'step' => 11,
 						];
 						$mapperReport[] = [
 							'expedia_id' => $expedia['property_id'],
 							'giata_id' => $giata[0]['code'],
-							'step' => 10,
+							'step' => 11,
 							'status' => 'success',
 							'created_at' => date('Y-m-d H:i:s'),
 						];
@@ -342,6 +339,8 @@ class MakeMapperExpediaGiate extends Command
 			->whereNull('mapper_expedia_giatas.giata_id')
 			->leftJoin('report_mapper_expedia_giata', 'report_mapper_expedia_giata.expedia_id', '=', 'expedia_content_main.property_id')
 			->whereNull('report_mapper_expedia_giata.expedia_id')
+			->where('expedia_content_main.rating', '>=', 3)
+			->where('expedia_content_main.rating', '<', 4)
 			->cursor();
 
 		foreach ($query as $row) {

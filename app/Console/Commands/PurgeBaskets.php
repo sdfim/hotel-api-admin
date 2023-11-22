@@ -2,9 +2,12 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ApiBookingInspector;
 use Illuminate\Console\Command;
 use App\Models\GeneralConfiguration;
 use App\Models\Reservation;
+use Illuminate\Support\Facades\Storage;
+
 
 class PurgeBaskets extends Command
 {
@@ -36,12 +39,41 @@ class PurgeBaskets extends Command
         */
 
         # delete by day config (time_Reservation_kept)
-        $kept_days = GeneralConfiguration::first()->time_Reservation_kept;
+		$this->info('PurgeBaskets: delete by day config (time_Reservation_kept)');
+        $kept_days = GeneralConfiguration::first()->time_reservations_kept;
         $kept_date = date('Y-m-d H:i:s', strtotime('-' . $kept_days . ' days'));
-        Reservation::where('date_travel', '<', $kept_date)->delete();
+        $reservation = Reservation::where('date_travel', '<', $kept_date);
+		if ($reservation->count() > 0) $this->clear($reservation);
 
         # if is Offload Date delete by offload date three_months
+		$this->info('PurgeBaskets: if is Offload Date delete by offload date three_months');
         $three_months = date('Y-m-d H:i:s', strtotime('-3 months'));
-        Reservation::where('date_offload', '<', $three_months)->delete();
+        $reservation = Reservation::where('date_offload', '<', $three_months);
+		if ($reservation->count() > 0) $this->clear($reservation);
+
+		# test 
+		// $this->info('PurgeBaskets: test');
+		// $kept_days = 5;
+		// $kept_date = date('Y-m-d H:i:s', strtotime('+' . $kept_days . ' days'));
+        // $reservation = Reservation::where('date_travel', '<', $kept_date);
+		// if ($reservation->count() > 0) $this->clear($reservation);
     }
+
+	private function clear($reservation)
+	{
+		$list = $reservation->get();
+		$deleteBookingItems = [];
+		foreach ($list as $item) {
+			$booking_id = json_decode($item->reservation_contains, true)['booking_id'];
+			$deleteBookingItems[] = $booking_id;
+			$booking = ApiBookingInspector::where('booking_id', $booking_id)->get();
+			foreach ($booking as $b) {
+				// dump($b->response_path, $b->client_response_path);
+				Storage::delete($b->response_path);
+				Storage::delete($b->client_response_path);
+			}
+		}
+		$reservation->delete();
+		ApiBookingInspector::whereIn('booking_id', $deleteBookingItems)->delete();
+	}
 }

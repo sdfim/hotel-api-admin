@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Faker\Factory as Faker;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\Client\PendingRequest;
@@ -19,8 +20,8 @@ class CustomBookingCommand extends Command
     protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
     protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
-    // protected const TOKEN = '2x3WbYgBLcfkE8fS1WCUGeWRcEBLfVmY60agbnErb97f692a';
-    // protected const BASE_URI = 'http://localhost:8008';
+    protected const TOKEN = 'SqSDT1oa1OVRS6rl42N0xyYn3031HF8Tbnf0dnaLfb2abad1';
+    protected const BASE_URI = 'http://localhost:8008';
 
     public function __construct()
     {
@@ -51,8 +52,8 @@ class CustomBookingCommand extends Command
                 $i++;
             }
         }
-
-        return $bookingItems[rand(1, $i)];
+$i > 0 ? $i-- : $i;
+        return $bookingItems[rand(0, $i)];
     }
 
     public function strategy1(): void
