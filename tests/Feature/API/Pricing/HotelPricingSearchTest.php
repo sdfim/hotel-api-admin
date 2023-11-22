@@ -103,20 +103,19 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_with_incorrect_supplier_method_response_400()
     {
-        // $jsonData = $this->hotelSearchRequestData(['incorrect_supplier']);
-        // $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $jsonData = $this->hotelSearchRequestData(['incorrect_supplier']);
+        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
 
-        // //TODO: ask Andrew why it return results for non-existent supplier(even if the results are empty)
-        // $response
-        //     ->assertStatus(400)
-        //     ->assertJson([
-        //         'success' => false,
-        //         'error' => [
-        //             'supplier' => [
-        //                 'Incorrect/non-existent supplier'
-        //             ]
-        //         ]
-        //     ]);
+        $response
+            ->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'supplier' => [
+                        'The selected supplier is invalid.'
+                    ]
+                ]
+            ]);
     }
 
     /**
@@ -317,20 +316,13 @@ class HotelPricingSearchTest extends ApiTestCase
         $jsonData = $this->hotelSearchRequestData(['missed_occupancy']);
         $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
 
-        //TODO: ask Andrew why we got such an error. We are expected to receive something like
-        //'error' => [
-        //  'occupancy' => [
-        //      'The occupancy field is required.'
-        //  ]
-        //]
         $response
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'error' => 'foreach() argument must be of type array|object, null given'
-                ],
-                'message' => 'failed'
+                    'occupancy' => 'The occupancy field is required.'
+                ]
             ]);
     }
 
