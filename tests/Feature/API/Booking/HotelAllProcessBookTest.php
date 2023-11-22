@@ -4,13 +4,20 @@ namespace Tests\Feature\API\Booking;
 
 use Feature\API\ApiTestCase;
 use Feature\API\Booking\HotelBookingGeneralMethodsTrait;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 
 class HotelAllProcessBookTest extends ApiTestCase
 {
-    use RefreshDatabase;
     use HotelBookingGeneralMethodsTrait;
+
+    /**
+     * @return void
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->auth();
+    }
 
     /**
      * @test
@@ -19,15 +26,11 @@ class HotelAllProcessBookTest extends ApiTestCase
      */
     public function test_book_method_response()
     {
-        $this->auth();
-        $headers = $this->getHeader();
-        $this->seederSupplier();
-
         ## SEARCH 1
 
         # step 1 Search endpoint api/pricing/search
         $jsonData = $this->searchRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/pricing/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
         $responseArr = $response->json();
         $search_id = $responseArr['data']['search_id'];
         $booking_item = $responseArr['data']['results']['Expedia'][0]['room_groups'][0]['rooms'][0]['booking_item'];
@@ -35,7 +38,7 @@ class HotelAllProcessBookTest extends ApiTestCase
         dump($booking_item, $search_id);
 
         # step 2 add to cart api/pricing/add-item
-        $response = $this->withHeaders($headers)->postJson('/api/booking/add-item', ['booking_item' => $booking_item]);
+        $response = $this->withHeaders($this->headers)->postJson('/api/booking/add-item', ['booking_item' => $booking_item]);
         $responseArr = $response->json();
         $booking_id = $responseArr['data']['booking_id'];
 
@@ -44,7 +47,7 @@ class HotelAllProcessBookTest extends ApiTestCase
         # step 3 add passenger api/booking/add-passengers
         $jsonData = $this->addPassengersRequest();
         $jsonData = array_merge($jsonData, ['booking_id' => $booking_id, 'booking_item' => $booking_item]);
-        $response = $this->withHeaders($headers)->postJson('/api/booking/add-passengers', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/booking/add-passengers', $jsonData);
         $responseArr = $response->json();
         dump($responseArr);
 
@@ -52,7 +55,7 @@ class HotelAllProcessBookTest extends ApiTestCase
 
         # step 1 Search endpoint api/pricing/search
         $jsonData = $this->searchRequestStep2();
-        $response = $this->withHeaders($headers)->postJson('/api/pricing/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
         $responseArr = $response->json();
         $search_id = $responseArr['data']['search_id'];
         $booking_item = $responseArr['data']['results']['Expedia'][0]['room_groups'][0]['rooms'][0]['booking_item'];
@@ -60,37 +63,32 @@ class HotelAllProcessBookTest extends ApiTestCase
         dump($booking_item, $search_id);
 
         # step 2 add to cart api/pricing/add-item
-        $response = $this->withHeaders($headers)->postJson('/api/booking/add-item', [
+        $response = $this->withHeaders($this->headers)->postJson('/api/booking/add-item', [
             'booking_item' => $booking_item,
             'booking_id' => $booking_id,
         ]);
         $responseArr = $response->json();
         $booking_id = $responseArr['data']['booking_id'];
-
         dump($booking_id);
 
         # step 3 add passenger api/booking/add-passengers
         $jsonData = $this->addPassengersRequestStep2();
         $jsonData = array_merge($jsonData, ['booking_id' => $booking_id, 'booking_item' => $booking_item]);
-        $response = $this->withHeaders($headers)->postJson('/api/booking/add-passengers', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/booking/add-passengers', $jsonData);
         $responseArr = $response->json();
         dump($responseArr);
-
 
         # step 4 retrieve api/booking/retrieve-items
-        $response = $this->withHeaders($headers)->getJson('/api/booking/retrieve-items', ['booking_id' => $booking_id]);
+        $response = $this->withHeaders($this->headers)->getJson('/api/booking/retrieve-items', ['booking_id' => $booking_id]);
         $responseArr = $response->json();
         dump($responseArr);
-
 
         # step 5 book api/booking/book
         $jsonData = $this->addBookRequest();
         $jsonData = array_merge($jsonData, ['booking_id' => $booking_id]);
-        $response = $this->withHeaders($headers)->postJson('/api/booking/book', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/booking/book', $jsonData);
         $responseArr = $response->json();
-
         dump($responseArr);
-
 
         $response
             ->assertStatus(200)

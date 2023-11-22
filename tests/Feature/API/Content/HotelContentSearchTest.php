@@ -3,28 +3,11 @@
 namespace Tests\Feature\API\Content;
 
 use Feature\API\ApiTestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 
 class HotelContentSearchTest extends ApiTestCase
 {
-    use RefreshDatabase;
     use WithFaker;
-
-    /**
-     * @var array|string[]
-     */
-    private array $headers;
-
-    /**
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seederSupplier();
-        $this->headers = $this->getHeader();
-    }
 
     /**
      * @test

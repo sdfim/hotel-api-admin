@@ -4,28 +4,11 @@ namespace Tests\Feature\API\Pricing;
 
 use Feature\API\ApiTestCase;
 use Feature\API\Pricing\HotelPricingGeneralMethodsTrait;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 
 class HotelPricingSearchTest extends ApiTestCase
 {
-    use RefreshDatabase;
     use HotelPricingGeneralMethodsTrait;
-
-    /**
-     * @var array|string[]
-     */
-    private array $headers;
-
-    /**
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seederSupplier();
-        $this->headers = $this->getHeader();
-    }
 
     /**
      * @test

@@ -4,13 +4,20 @@ namespace Tests\Feature\API\Booking;
 
 use Feature\API\ApiTestCase;
 use Feature\API\Booking\HotelBookingGeneralMethodsTrait;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 
 class HotelAllProcessAfterBookTest extends ApiTestCase
 {
-    use RefreshDatabase;
     use HotelBookingGeneralMethodsTrait;
+
+    /**
+     * @return void
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->auth();
+    }
 
     /**
      * @test
@@ -19,15 +26,11 @@ class HotelAllProcessAfterBookTest extends ApiTestCase
      */
     public function test_book_method_response()
     {
-        $this->auth();
-        $headers = $this->getHeader();
-        $this->seederSupplier();
-
         ## SEARCH 1
 
         # step 1 Search endpoint api/pricing/search
         $jsonData = $this->searchRequest();
-        $response = $this->withHeaders($headers)->postJson('/api/pricing/search', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
         $responseArr = $response->json();
 
         $search_id = $responseArr['data']['search_id'];
@@ -35,7 +38,7 @@ class HotelAllProcessAfterBookTest extends ApiTestCase
         dump($booking_item, $search_id);
 
         # step 2 add to cart api/pricing/add-item
-        $response = $this->withHeaders($headers)->postJson('/api/booking/add-item', ['booking_item' => $booking_item]);
+        $response = $this->withHeaders($this->headers)->postJson('/api/booking/add-item', ['booking_item' => $booking_item]);
         $responseArr = $response->json();
         $booking_id = $responseArr['data']['booking_id'];
         dump($booking_id);
@@ -43,37 +46,36 @@ class HotelAllProcessAfterBookTest extends ApiTestCase
         # step 3 add passenger api/booking/add-passengers
         $jsonData = $this->addPassengersRequest();
         $jsonData = array_merge($jsonData, ['booking_id' => $booking_id, 'booking_item' => $booking_item]);
-        $response = $this->withHeaders($headers)->postJson('/api/booking/add-passengers', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/booking/add-passengers', $jsonData);
         $responseArr = $response->json();
         dump($responseArr);
 
         # step 4 book api/booking/book
         $jsonData = $this->addBookRequest();
         $jsonData = array_merge($jsonData, ['booking_id' => $booking_id]);
-        $response = $this->withHeaders($headers)->postJson('/api/booking/book', $jsonData);
+        $response = $this->withHeaders($this->headers)->postJson('/api/booking/book', $jsonData);
         $responseArr = $response->json();
         dump($responseArr);
 
         # step 5 book api/booking/change-booking
         $jsonData = $this->changeBookingRequest();
         $jsonData = array_merge($jsonData, ['booking_id' => $booking_id, 'booking_item' => $booking_item]);
-        $response = $this->withHeaders($headers)->putJson('/api/booking/change-booking', $jsonData);
+        $response = $this->withHeaders($this->headers)->putJson('/api/booking/change-booking', $jsonData);
         $responseArr = $response->json();
         dump($responseArr);
 
         # step 6 book api/booking/list-booking
-        $response = $this->withHeaders($headers)->get('/api/booking/list-bookings?type=hotel&supplier=Expedia');
+        $response = $this->withHeaders($this->headers)->get('/api/booking/list-bookings?type=hotel&supplier=Expedia');
         $responseArr = $response->json();
         dump($responseArr);
 
         # step 7 book api/booking/retrieve-booking
-        $response = $this->withHeaders($headers)->get('/api/booking/retrieve-booking?booking_id=' . $booking_id);
+        $response = $this->withHeaders($this->headers)->get('/api/booking/retrieve-booking?booking_id=' . $booking_id);
         $responseArr = $response->json();
         dump($responseArr);
 
         # step 8 book api/booking/cancel-booking
-
-        $response = $this->withHeaders($headers)->deleteJson('/api/booking/cancel-booking', ['booking_id' => $booking_id]);
+        $response = $this->withHeaders($this->headers)->deleteJson('/api/booking/cancel-booking', ['booking_id' => $booking_id]);
         $responseArr = $response->json();
         dump($responseArr);
 
