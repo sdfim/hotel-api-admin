@@ -13,21 +13,42 @@ class CustomBookingCommand extends Command
 {
     use WithFaker;
 
+    /**
+     * @var string
+     */
     protected $signature = 'custom-booking-command {step}';
+    /**
+     * @var string
+     */
     protected $description = 'Command description';
+    /**
+     * @var PendingRequest
+     */
     protected PendingRequest $client;
+    /**
+     *
+     */
     protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
+    /**
+     *
+     */
     protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
 //    protected const TOKEN = 'SqSDT1oa1OVRS6rl42N0xyYn3031HF8Tbnf0dnaLfb2abad1';
 //    protected const BASE_URI = 'http://localhost:8008';
 
+    /**
+     *
+     */
     public function __construct()
     {
         parent::__construct();
         $this->client = Http::withToken(self::TOKEN);
     }
 
+    /**
+     * @return void
+     */
     public function handle(): void
     {
         $step = $this->argument('step');
@@ -38,6 +59,10 @@ class CustomBookingCommand extends Command
         }
     }
 
+    /**
+     * @param array $responseData
+     * @return string
+     */
     private function getBookingItem(array $responseData): string
     {
         $flattened = Arr::dot($responseData);
@@ -56,6 +81,10 @@ class CustomBookingCommand extends Command
         return $bookingItems[rand(0, $i)];
     }
 
+
+    /**
+     * @return void
+     */
     public function strategy1(): void
     {
         $this->warn('SEARCH 1');
@@ -98,6 +127,10 @@ class CustomBookingCommand extends Command
         $this->book($bookingId);
     }
 
+    /**
+     * @param int $count
+     * @return array
+     */
     private function makeSearchRequest(int $count = 1): array
     {
         $checkin = Carbon::now()->addDays(7)->toDateString();
@@ -134,6 +167,11 @@ class CustomBookingCommand extends Command
         return $response->json();
     }
 
+    /**
+     * @param string $bookingItem
+     * @param string|null $bookingId
+     * @return string
+     */
     private function addBookingItem(string $bookingItem, ?string $bookingId = null): string
     {
         $requestData = [
@@ -151,6 +189,12 @@ class CustomBookingCommand extends Command
         return $bookingId;
     }
 
+    /**
+     * @param string $bookingId
+     * @param string $bookingItem
+     * @param int $count
+     * @return void
+     */
     private function addPassengers(string $bookingId, string $bookingItem, int $count = 1): void
     {
 
@@ -178,6 +222,11 @@ class CustomBookingCommand extends Command
         $this->info('addPassengers: ' . json_encode($response->json()));
     }
 
+    /**
+     * @param string $bookingId
+     * @param string $bookingItem
+     * @return void
+     */
     private function removeBookingItem(string $bookingId, string $bookingItem): void
     {
         $requestData = [
@@ -189,6 +238,10 @@ class CustomBookingCommand extends Command
         $this->info('removeBookingItem: ' . json_encode($response->json()));
     }
 
+    /**
+     * @param string $bookingId
+     * @return void
+     */
     private function retrieveItems(string $bookingId): void
     {
         $requestData = [
@@ -199,6 +252,10 @@ class CustomBookingCommand extends Command
         $this->info('retrieveItems: ' . json_encode($response->json()));
     }
 
+    /**
+     * @param string $bookingId
+     * @return void
+     */
     private function book(string $bookingId): void
     {
         $requestData = [
