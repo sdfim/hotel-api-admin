@@ -2,14 +2,11 @@
 
 namespace Tests\Feature\API\Booking;
 
-use Feature\API\ApiTestCase;
-use Feature\API\Booking\HotelBookingGeneralMethodsTrait;
+use Feature\API\Booking\HotelBookingApiTestCase;
 use Illuminate\Support\Carbon;
 
-class HotelAllProcessAfterBookTest extends ApiTestCase
+class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
 {
-    use HotelBookingGeneralMethodsTrait;
-
     /**
      * @return void
      */
