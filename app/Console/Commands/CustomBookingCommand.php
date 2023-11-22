@@ -105,13 +105,13 @@ class CustomBookingCommand extends Command
 
         $occupancy = [];
         foreach (range(1, $count) as $ignoredIndex) {
-            $room["adults"] = $this->faker->numberBetween(1, 3);
+            $room['adults'] = $this->faker->numberBetween(1, 3);
 
             if ($count % 2 != 0) $children = rand(0, 2);
             else $children = 0;
             if ($children > 0) {
-                $room["children"] = $children;
-                $room["children_ages"] = array_map(function () {
+                $room['children'] = $children;
+                $room['children_ages'] = array_map(function () {
                     return rand(1, 17);
                 }, range(1, $children));
             }
@@ -120,13 +120,13 @@ class CustomBookingCommand extends Command
         }
 
         $requestData = [
-            "type" => "hotel",
+            'type' => 'hotel',
             'currency' => $this->faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
-            "destination" => $this->faker->randomElement([961, 302, 93, 960, 1102]),
-            "checkin" => $checkin,
-            "checkout" => $checkout,
-            "occupancy" => $occupancy,
-            "rating" => $this->faker->numberBetween(3, 5),
+            'destination' => $this->faker->randomElement([961, 302, 93, 960, 1102]),
+            'checkin' => $checkin,
+            'checkout' => $checkout,
+            'occupancy' => $occupancy,
+            'rating' => $this->faker->numberBetween(3, 5),
         ];
 
         $response = $this->client->post(self::BASE_URI . '/api/pricing/search', $requestData);
@@ -137,7 +137,7 @@ class CustomBookingCommand extends Command
     private function addBookingItem(string $bookingItem, ?string $bookingId = null): string
     {
         $requestData = [
-            "booking_item" => $bookingItem,
+            'booking_item' => $bookingItem,
         ];
 
         if ($bookingId !== null) {
@@ -155,23 +155,23 @@ class CustomBookingCommand extends Command
     {
 
         $requestData = [
-            "booking_id" => $bookingId,
-            "booking_item" => $bookingItem,
+            'booking_id' => $bookingId,
+            'booking_item' => $bookingItem,
         ];
 
 
         $rooms = [];
         foreach (range(1, $count) as $ignoredIndex) {
             $rooms[] = [
-                "given_name" => $this->faker->firstName,
-                "family_name" => $this->faker->lastName,
+                'given_name' => $this->faker->firstName,
+                'family_name' => $this->faker->lastName,
             ];
         }
         $requestData += [
-            "title" => "mr",
-            "first_name" => $this->faker->firstName,
-            "last_name" => $this->faker->lastName,
-            "rooms" => $rooms
+            'title' => 'mr',
+            'first_name' => $this->faker->firstName,
+            'last_name' => $this->faker->lastName,
+            'rooms' => $rooms
         ];
 
         $response = $this->client->post(self::BASE_URI . '/api/booking/add-passengers', $requestData);
@@ -181,8 +181,8 @@ class CustomBookingCommand extends Command
     private function removeBookingItem(string $bookingId, string $bookingItem): void
     {
         $requestData = [
-            "booking_id" => $bookingId,
-            "booking_item" => $bookingItem,
+            'booking_id' => $bookingId,
+            'booking_item' => $bookingItem,
         ];
 
         $response = $this->client->delete(self::BASE_URI . '/api/booking/remove-item', $requestData);
@@ -192,7 +192,7 @@ class CustomBookingCommand extends Command
     private function retrieveItems(string $bookingId): void
     {
         $requestData = [
-            "booking_id" => $bookingId,
+            'booking_id' => $bookingId,
         ];
 
         $response = $this->client->get(self::BASE_URI . '/api/booking/retrieve-items', $requestData);
@@ -202,23 +202,23 @@ class CustomBookingCommand extends Command
     private function book(string $bookingId): void
     {
         $requestData = [
-            "booking_id" => $bookingId,
-            "amount_pay" => "Deposit",
-            "email" => $this->faker->email,
-            "phone" => [
-                "country_code" => "1",
-                "area_code" => "487",
-                "number" => "5550077",
+            'booking_id' => $bookingId,
+            'amount_pay' => 'Deposit',
+            'email' => $this->faker->email,
+            'phone' => [
+                'country_code' => '1',
+                'area_code' => '487',
+                'number' => '5550077',
             ],
-            "booking_contact" => [
-                "given_name" => $this->faker->firstName,
-                "family_name" => $this->faker->lastName,
-                "address" => [
-                    "line_1" => $this->faker->streetAddress,
-                    "city" => $this->faker->city,
-                    "state_province_code" => $this->faker->stateAbbr,
-                    "postal_code" => $this->faker->postcode,
-                    "country_code" => $this->faker->countryCode,
+            'booking_contact' => [
+                'given_name' => $this->faker->firstName,
+                'family_name' => $this->faker->lastName,
+                'address' => [
+                    'line_1' => $this->faker->streetAddress,
+                    'city' => $this->faker->city,
+                    'state_province_code' => $this->faker->stateAbbr,
+                    'postal_code' => $this->faker->postcode,
+                    'country_code' => $this->faker->countryCode,
                 ],
             ],
         ];
