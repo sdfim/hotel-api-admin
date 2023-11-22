@@ -62,7 +62,7 @@ class HotelBookingApiTestCase extends ApiTestCase
      * @param int $roomGroupIndex
      * @return array
      */
-    protected function getBookingItems(array $requestResponse, string $supplier = 'Expedia', int $resultIndex = 0, int $roomGroupIndex = 0,): array
+    protected function getBookingItems(array $requestResponse, string $supplier = 'Expedia', int $resultIndex = 0, int $roomGroupIndex = 0): array
     {
         return array_column($requestResponse['data']['results'][$supplier][$resultIndex]['room_groups'][$roomGroupIndex]['rooms'], 'booking_item') ?? [];
     }
