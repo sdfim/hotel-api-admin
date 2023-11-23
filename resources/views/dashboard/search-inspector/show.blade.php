@@ -17,7 +17,7 @@
                 <x-button-back route="{{ redirect()->getUrlGenerator()->previous() }}" text="Back"/>
                 <h6 class="mb-1 text-15 text-gray-700 dark:text-gray-100 ml-4">Search Inspector</h6>
             </div>
-            <div class="card-body">
+            <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
                 <div class="relative overflow-x-auto">
                     <div class="row">
                         <div class="col-lg-12 margin-tb">
