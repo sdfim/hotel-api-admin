@@ -51,6 +51,29 @@ class PurgeBaskets extends Command
         $reservation = Reservation::where('date_offload', '<', $three_months);
 		if ($reservation->count() > 0) $this->clear($reservation);
 
+		# Stop bookings with in a number of hours from time of search execution, hours*
+		$this->info('PurgeBaskets: Stop bookings with in a number of hours from time of search execution, hours*');
+		$kept_hours = GeneralConfiguration::first()->stop_bookings;
+		// Is NOT Book Status
+		$booking = ApiBookingInspector::with('search')
+			->whereNotIn('booking_id', function ($subQuery) {
+				$subQuery->select('booking_id')
+					->from('api_booking_inspector')
+					->where('type', 'book')
+					->distinct();
+				})
+				->get();
+		foreach ($booking as $b) {
+			$diff = strtotime($b->search->created_at) - strtotime(date('Y-m-d H:i:s'));
+			$hours = $diff / 3600;
+			if ($hours < $kept_hours) {
+				$deleteBookingItems[] = $b->booking_id;
+				Storage::delete($b->response_path);
+				Storage::delete($b->client_response_path);
+			}
+		}
+		ApiBookingInspector::whereIn('booking_id', $deleteBookingItems)->delete();
+
 		# test 
 		// $this->info('PurgeBaskets: test');
 		// $kept_days = 5;
