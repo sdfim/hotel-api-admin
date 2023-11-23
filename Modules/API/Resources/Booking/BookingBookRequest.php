@@ -14,47 +14,48 @@ use OpenApi\Annotations as OA;
  *   @OA\Property(
  *     property="amount_pay",
  *     type="string",
+ *     enum={"Deposit", "Full Payment"},
  *     example="Deposit"
- *   ),
- *   @OA\Property(
- *     property="email",
- *     type="string",
- *     example="john@example.com",
- *     description="Email"
- *   ),
- *   @OA\Property(
- *     property="phone",
- *     type="object",
- *     required={"country_code", "area_code", "number"},
- *     @OA\Property(
- *       property="country_code",
- *       type="string",
- *       example="1"
- *     ),
- *     @OA\Property(
- *       property="area_code",
- *       type="string",
- *       example="487"
- *     ),
- *     @OA\Property(
- *       property="number",
- *       type="string",
- *       example="5550077"
- *     )
  *   ),
  *   @OA\Property(
  *     property="booking_contact",
  *     type="object",
- *     required={"given_name", "family_name", "address"},
+ *     required={"first_name", "last_name", "email", "phone", "address"},
  *     @OA\Property(
- *       property="given_name",
+ *       property="first_name",
  *       type="string",
  *       example="John"
  *     ),
  *     @OA\Property(
- *       property="family_name",
+ *       property="last_name",
  *       type="string",
  *       example="Smith"
+ *     ),
+ *     @OA\Property(
+ *       property="email",
+ *       type="string",
+ *       example="john@example.com",
+ *       format="email"
+ *     ),
+ *     @OA\Property(
+ *       property="phone",
+ *       type="object",
+ *       required={"country_code", "area_code", "number"},
+ *       @OA\Property(
+ *         property="country_code",
+ *         type="string",
+ *         example="1"
+ *       ),
+ *       @OA\Property(
+ *         property="area_code",
+ *         type="string",
+ *         example="487"
+ *       ),
+ *       @OA\Property(
+ *         property="number",
+ *         type="string",
+ *         example="5550077"
+ *       )
  *     ),
  *     @OA\Property(
  *       property="address",
@@ -86,6 +87,43 @@ use OpenApi\Annotations as OA;
  *         example="US"
  *       )
  *     )
+ *   ),
+ *   @OA\Property(
+ *     property="credit_card",
+ *     type="object",
+ *     required={"name_card", "number", "card_type", "expiry_date", "cvv", "billing_address"},
+ *     @OA\Property(
+ *       property="name_card",
+ *       type="string",
+ *       example="Visa"
+ *     ),
+ *     @OA\Property(
+ *       property="number",
+ *       type="integer",
+ *       example=4001919257537193
+ *     ),
+ *     @OA\Property(
+ *       property="card_type",
+ *       type="string",
+ *       enum={"VISA", "MSC", "AMEX", "DIS"},
+ *       example="VISA"
+ *     ),
+ *     @OA\Property(
+ *       property="expiry_date",
+ *       type="string",
+ *       example="09/2026",
+ *       format="m/Y"
+ *     ),
+ *     @OA\Property(
+ *       property="cvv",
+ *       type="integer",
+ *       example=123
+ *     ),
+ *     @OA\Property(
+ *       property="billing_address",
+ *       type="string",
+ *       example=""
+ *     )
  *   )
  * ),       
  * @OA\Examples(
@@ -93,25 +131,33 @@ use OpenApi\Annotations as OA;
  *     summary="Example Booking Book Request",
  *     value=
  * 		{
- * 		   "amount_pay":"Deposit",
- * 		   "email":"john@example.com",
- * 		   "phone":{
- * 		      "country_code":"1",
- * 		      "area_code":"487",
- * 		      "number":"5550077"
- * 		   },
- * 		   "booking_contact":{
- * 		      "given_name":"John",
- * 		      "family_name":"Smith",
- * 		      "address":{
- * 		         "line_1":"555 1st St",
- * 		         "city":"Seattle",
- * 		         "state_province_code":"WA",
- * 		         "postal_code":"98121",
- * 		         "country_code":"US"
- * 		      }
- * 		   }
- * 		}
+ *         "amount_pay":"Deposit",
+ *         "booking_contact":{
+ *            "first_name":"John",
+ *            "last_name":"Smith",
+ *            "email":"john@example.com",
+ *            "phone":{
+ *              "country_code":"1",
+ *              "area_code":"487",
+ *              "number":"5550077"
+ *            },
+ *            "address":{
+ *               "line_1":"555 1st St",
+ *               "city":"Seattle",
+ *               "state_province_code":"WA",
+ *               "postal_code":"98121",
+ *               "country_code":"US"
+ *            }
+ *         },
+ *         "credit_card":{
+ *             "name_card": "Visa",
+ *             "number": 4001919257537193,
+ *             "card_type": "VISA",
+ *             "expiry_date": "09/2026",
+ *             "cvv":123,
+ *             "billing_address": ""
+ *         }
+ *      }
  * )
  */
 
