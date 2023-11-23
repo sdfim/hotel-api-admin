@@ -10,22 +10,63 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_retrieve_items_method_response_200(): void
+    public function test_hotel_booking_retrieve_items_without_passengers_method_response_200(): void
     {
         $createBooking = $this->createHotelBooking();
 
-        $bookingAddItemResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-item?booking_item=$bookingItems[0]");
+        $bookingRetrieveItemsWithoutPassengersResponse = $this->withHeaders($this->headers)
+            ->getJson("api/booking/retrieve-items?booking_id={$createBooking['booking_id']}");
 
-        $bookingId = $bookingAddItemResponse->json('data.booking_id');
-
-        $bookingAddItemResponse->assertStatus(200)
-            ->assertJsonFragment([
-                'success' => true,
+        $bookingRetrieveItemsWithoutPassengersResponse->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
                 'data' => [
-                    'booking_id' => $bookingId
+                    'result' => [
+                        '*' => [
+                            'booking_id',
+                            'booking_item',
+                            'search_id',
+                            'supplier',
+                            'supplier_data' => [
+                                'rate',
+                                'room_id',
+                                'hotel_id',
+                                'bed_groups',
+                            ],
+                            'pricing_data' => [
+                                'currency',
+                                'total_net',
+                                'total_tax',
+                                'total_fees',
+                                'total_price',
+                                'booking_item',
+                                'giata_room_code',
+                                'giata_room_name',
+                                'supplier_room_name',
+                                'per_day_rate_breakdown',
+                                'affiliate_service_charge',
+                            ],
+                            'passengers',
+                            'request' => [
+                                'type',
+                                'rating',
+                                'checkin',
+                                'checkout',
+                                'currency',
+                                'supplier',
+                                'occupancy' => [
+                                    '*' => [
+                                        'adults',
+                                        'children',
+                                        'children_ages',
+                                    ],
+                                ],
+                                'destination',
+                            ],
+                        ],
+                    ],
                 ],
-                'message' => 'success'
+                'message',
             ]);
     }
 
@@ -33,22 +74,76 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_add_item_to_an_existing_booking_method_response_200(): void
+    public function test_hotel_booking_retrieve_items_with_passengers_method_response_200(): void
     {
         $createBooking = $this->createHotelBooking();
 
-        $secondBookingItem = $createBooking['booking_items'][1] ?? $createBooking['booking_items'][0];
+        //TODO: add call of add-passengers
 
-        $bookingAddItemToAnExistingBooking = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-item?booking_item=$secondBookingItem&booking_id={$createBooking['booking_id']}");
+        $bookingRetrieveItemsWithPassengersResponse = $this->withHeaders($this->headers)
+            ->getJson("api/booking/retrieve-items?booking_id={$createBooking['booking_id']}");
 
-        $bookingAddItemToAnExistingBooking->assertStatus(200)
-            ->assertJson([
-                'success' => true,
+        $bookingRetrieveItemsWithPassengersResponse->assertStatus(200)
+            ->assertJsonStructure([
+                'success',
                 'data' => [
-                    'booking_id' => $createBooking['booking_id']
+                    'result' => [
+                        '*' => [
+                            'booking_id',
+                            'booking_item',
+                            'search_id',
+                            'supplier',
+                            'supplier_data' => [
+                                'rate',
+                                'room_id',
+                                'hotel_id',
+                                'bed_groups',
+                            ],
+                            'pricing_data' => [
+                                'currency',
+                                'total_net',
+                                'total_tax',
+                                'total_fees',
+                                'total_price',
+                                'booking_item',
+                                'giata_room_code',
+                                'giata_room_name',
+                                'supplier_room_name',
+                                'per_day_rate_breakdown',
+                                'affiliate_service_charge',
+                            ],
+                            'passengers' => [
+                                '*' => [
+                                    'given_name',
+                                    'family_name',
+                                ],
+                                'title',
+                                'last_name',
+                                'search_id',
+                                'booking_id',
+                                'first_name',
+                                'booking_item',
+                            ],
+                            'request' => [
+                                'type',
+                                'rating',
+                                'checkin',
+                                'checkout',
+                                'currency',
+                                'supplier',
+                                'occupancy' => [
+                                    '*' => [
+                                        'adults',
+                                        'children',
+                                        'children_ages',
+                                    ],
+                                ],
+                                'destination',
+                            ],
+                        ],
+                    ],
                 ],
-                'message' => 'success'
+                'message',
             ]);
     }
 
@@ -56,77 +151,34 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_add_previously_deleted_item_again_method_response_200(): void
-    {
-        $createBooking = $this->createHotelBooking();
-
-        $bookingId = $createBooking['booking_id'];
-        $firstBookingItem = $createBooking['booking_items'][0];
-
-        $this->withHeaders($this->headers)
-            ->postJson("api/booking/remove-item?booking_id=$bookingId&booking_item=$firstBookingItem");
-
-        $bookingAddPreviouslyDeletedItemAgainResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-item?booking_item=$firstBookingItem&booking_id=$bookingId");
-
-        $bookingAddPreviouslyDeletedItemAgainResponse->assertStatus(200)
-            ->assertJson([
-                'success' => true,
-                'data' => [
-                    'booking_id' => $bookingId
-                ],
-                'message' => 'success'
-            ]);
-    }
-
-    /**
-     * @test
-     * @return void
-     */
-    public function test_hotel_booking_add_item_with_non_existent_booking_item_method_response_400(): void
-    {
-        $nonExistentBookingItem = Str::uuid()->toString();
-
-        $bookingAddItemResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-item?booking_item=$nonExistentBookingItem");
-
-        $bookingAddItemResponse->assertStatus(400)
-            ->assertJson([
-                'message' => 'Invalid booking_item'
-            ]);
-    }
-
-    /**
-     * @test
-     * @return void
-     */
-    public function test_hotel_booking_add_item_to_non_existent_booking_id_method_response_400(): void
-    {
-        $nonExistentBookingId = Str::uuid()->toString();
-
-        $createBooking = $this->createHotelBooking();
-
-        $bookingAddItemResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-item?booking_item={$createBooking['booking_items'][0]}&booking_id=$nonExistentBookingId");
-
-        $bookingAddItemResponse->assertStatus(400)
-            ->assertJson([
-                'message' => 'Invalid booking_id'
-            ]);
-    }
-
-    /**
-     * @test
-     * @return void
-     */
-    public function test_hotel_booking_add_item_with_missed_or_empty_booking_item_method_response_400(): void
+    public function test_hotel_booking_retrieve_items_with_missed_booking_id_method_response_400(): void
     {
         $bookingRemoveItemWithMissedBookingItemResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-item?booking_id=");
+            ->postJson("api/booking/retrieve-items");
 
         $bookingRemoveItemWithMissedBookingItemResponse->assertStatus(400)
             ->assertJson([
-                'message' => 'Invalid type'
+                'success' => false,
+                'error' => [
+                    'booking_id' => [
+                        'The booking id field is required.'
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_retrieve_items_with_empty_booking_id_method_response_400(): void
+    {
+        $bookingRemoveItemWithEmptyBookingIdResponse = $this->withHeaders($this->headers)
+            ->postJson("api/booking/retrieve-items?booking_id=");
+
+        $bookingRemoveItemWithEmptyBookingIdResponse->assertStatus(400)
+            ->assertJson([
+                'message' => 'Invalid booking_id'
             ]);
     }
 }
