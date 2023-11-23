@@ -92,7 +92,7 @@ class ExpediaHotelApiHandler
 				}
 			}
 
-            $count = $results->count('expedia_id');
+            $count = $results->count();
 
             $results = $results->offset($resultsPerPage * ($page - 1))
                 ->limit($resultsPerPage)

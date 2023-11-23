@@ -115,8 +115,12 @@ class ExpediaBookApiHandler extends BaseController
 
         $props = $this->getPathParamsFromLink($linkBookItineraries);
 
-		$bodyArr['email'] = $filters['email'];
-		$bodyArr['phone'] = $filters['phone'];
+		$bodyArr['email'] = $filters['booking_contact']['email'];
+		$bodyArr['phone'] = $filters['booking_contact']['phone'];
+		$filters['booking_contact']['given_name'] = $filters['booking_contact']['first_name'];
+		$filters['booking_contact']['family_name'] = $filters['booking_contact']['last_name'];
+		unset($filters['booking_contact']['first_name'], $filters['booking_contact']['last_name']);
+
 		$bodyArr['rooms'] = $dataPassengers['rooms'];
 		$bodyArr['payments'][]['billing_contact'] = $filters['booking_contact'];
 

@@ -81,12 +81,12 @@ class MakeMapperExpediaGiate extends Command
 				$longitude = bcdiv($expedia['longitude'], 1, 1);
 				// $latitude = bcdiv($expedia['latitude'], 1, 0);
 				// $longitude = bcdiv($expedia['longitude'], 1, 0);
-				$name = str_replace(['&', '~', '@', '*', '+', ',', '-', 'The', 'Hotel' , '  '], ' ', $expedia['name']);
+				$name = str_replace(['&', '~', '(', ')', '@', '*', '+', ',', '-', 'The', 'Hotel' , '  '], ' ', $expedia['name']);
 				$nameArr = explode(' ', $name);
 
-				$this->comment($expedia['property_id'] . ' ' . $name . ' | ' . 'latitude: ' . $latitude . ' | longitude: ' . $longitude);
-				
-				if ($expedia['property_id'] < 30424234) continue;
+				$this->comment($expedia['property_id'] . ' ' . $name . ' | ' . 'latitude: ' . $latitude . ' | longitude: ' . $longitude);				
+
+				if ($expedia['property_id'] < 48811311) continue;
 
 				$giata = GiataProperty::whereRaw("MATCH(name) AGAINST(? IN BOOLEAN MODE)", [$name])
 					->where('latitude', 'like', $latitude . '%')
@@ -339,8 +339,8 @@ class MakeMapperExpediaGiate extends Command
 			->whereNull('mapper_expedia_giatas.giata_id')
 			->leftJoin('report_mapper_expedia_giata', 'report_mapper_expedia_giata.expedia_id', '=', 'expedia_content_main.property_id')
 			->whereNull('report_mapper_expedia_giata.expedia_id')
-			->where('expedia_content_main.rating', '>=', 3)
-			->where('expedia_content_main.rating', '<', 4)
+			->where('expedia_content_main.rating', '>=', 1)
+			->where('expedia_content_main.rating', '<', 3)
 			->cursor();
 
 		foreach ($query as $row) {

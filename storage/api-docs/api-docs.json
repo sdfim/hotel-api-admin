@@ -1220,49 +1220,55 @@
                 "properties": {
                     "amount_pay": {
                         "type": "string",
-                        "example": "Deposit"
-                    },
-                    "email": {
-                        "description": "Email",
-                        "type": "string",
-                        "example": "john@example.com"
-                    },
-                    "phone": {
-                        "required": [
-                            "country_code",
-                            "area_code",
-                            "number"
+                        "enum": [
+                            "Deposit",
+                            "Full Payment"
                         ],
-                        "properties": {
-                            "country_code": {
-                                "type": "string",
-                                "example": "1"
-                            },
-                            "area_code": {
-                                "type": "string",
-                                "example": "487"
-                            },
-                            "number": {
-                                "type": "string",
-                                "example": "5550077"
-                            }
-                        },
-                        "type": "object"
+                        "example": "Deposit"
                     },
                     "booking_contact": {
                         "required": [
-                            "given_name",
-                            "family_name",
+                            "first_name",
+                            "last_name",
+                            "email",
+                            "phone",
                             "address"
                         ],
                         "properties": {
-                            "given_name": {
+                            "first_name": {
                                 "type": "string",
                                 "example": "John"
                             },
-                            "family_name": {
+                            "last_name": {
                                 "type": "string",
                                 "example": "Smith"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email",
+                                "example": "john@example.com"
+                            },
+                            "phone": {
+                                "required": [
+                                    "country_code",
+                                    "area_code",
+                                    "number"
+                                ],
+                                "properties": {
+                                    "country_code": {
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "area_code": {
+                                        "type": "string",
+                                        "example": "487"
+                                    },
+                                    "number": {
+                                        "type": "string",
+                                        "example": "5550077"
+                                    }
+                                },
+                                "type": "object"
                             },
                             "address": {
                                 "required": [
@@ -1295,6 +1301,50 @@
                                     }
                                 },
                                 "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "credit_card": {
+                        "required": [
+                            "name_card",
+                            "number",
+                            "card_type",
+                            "expiry_date",
+                            "cvv",
+                            "billing_address"
+                        ],
+                        "properties": {
+                            "name_card": {
+                                "type": "string",
+                                "example": "Visa"
+                            },
+                            "number": {
+                                "type": "integer",
+                                "example": 4001919257537193
+                            },
+                            "card_type": {
+                                "type": "string",
+                                "enum": [
+                                    "VISA",
+                                    "MSC",
+                                    "AMEX",
+                                    "DIS"
+                                ],
+                                "example": "VISA"
+                            },
+                            "expiry_date": {
+                                "type": "string",
+                                "format": "m/Y",
+                                "example": "09/2026"
+                            },
+                            "cvv": {
+                                "type": "integer",
+                                "example": 123
+                            },
+                            "billing_address": {
+                                "type": "string",
+                                "example": ""
                             }
                         },
                         "type": "object"
@@ -2930,15 +2980,15 @@
                 "summary": "Example Booking Book Request",
                 "value": {
                     "amount_pay": "Deposit",
-                    "email": "john@example.com",
-                    "phone": {
-                        "country_code": "1",
-                        "area_code": "487",
-                        "number": "5550077"
-                    },
                     "booking_contact": {
-                        "given_name": "John",
-                        "family_name": "Smith",
+                        "first_name": "John",
+                        "last_name": "Smith",
+                        "email": "john@example.com",
+                        "phone": {
+                            "country_code": "1",
+                            "area_code": "487",
+                            "number": "5550077"
+                        },
                         "address": {
                             "line_1": "555 1st St",
                             "city": "Seattle",
@@ -2946,6 +2996,14 @@
                             "postal_code": "98121",
                             "country_code": "US"
                         }
+                    },
+                    "credit_card": {
+                        "name_card": "Visa",
+                        "number": 4001919257537193,
+                        "card_type": "VISA",
+                        "expiry_date": "09/2026",
+                        "cvv": 123,
+                        "billing_address": ""
                     }
                 }
             },
