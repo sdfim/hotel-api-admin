@@ -1,21 +1,18 @@
 <?php
 
-namespace Tests\Feature\API\Booking;
+namespace Feature\API\Booking;
 
-use Feature\API\Booking\HotelBookingApiTestCase;
 use Illuminate\Support\Str;
 
-class HotelBookingAddItemTest extends HotelBookingApiTestCase
+class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
 {
     /**
      * @test
      * @return void
      */
-    public function test_hotel_booking_add_first_item_method_response_200(): void
+    public function test_hotel_booking_retrieve_items_method_response_200(): void
     {
-        $pricingSearchRequestResponse = $this->getHotelPricingSearchData();
-
-        $bookingItems = $this->getBookingItems($pricingSearchRequestResponse);
+        $createBooking = $this->createHotelBooking();
 
         $bookingAddItemResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-item?booking_item=$bookingItems[0]");
@@ -23,7 +20,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
         $bookingId = $bookingAddItemResponse->json('data.booking_id');
 
         $bookingAddItemResponse->assertStatus(200)
-            ->assertJson([
+            ->assertJsonFragment([
                 'success' => true,
                 'data' => [
                     'booking_id' => $bookingId
