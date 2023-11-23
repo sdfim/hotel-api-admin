@@ -50,7 +50,7 @@ jobs:
           apt-get update
           apt-get install -y php8.2-xdebug
           echo "xdebug.mode=develop,debug,coverage" | tee -a /etc/php/8.2/cli/php.ini
-          echo "xdebug.coverage_enable=1" | tee -a /etc/php/8.2/cli/php.ini
+          php -v
 
       - name: Create Databases And Grant All Privileges
         run: |

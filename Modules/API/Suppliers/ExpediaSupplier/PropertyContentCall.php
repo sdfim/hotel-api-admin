@@ -5,36 +5,103 @@ namespace Modules\API\Suppliers\ExpediaSupplier;
 class PropertyContentCall
 {
     // Path
+    /**
+     *
+     */
     private const PROPERTY_CONTENT_PATH = "v3/properties/content";
 
     // Headers
+    /**
+     *
+     */
     private const LINK = "Link";
+    /**
+     *
+     */
     private const PAGINATION_TOTAL_RESULTS = "Pagination-Total-Results";
 
     // Query parameters keys
+    /**
+     *
+     */
     private const LANGUAGE = "language";
+    /**
+     *
+     */
     private const SUPPLY_SOURCE = "supply_source";
+    /**
+     *
+     */
     private const COUNTRY_CODE = "country_code";
+    /**
+     *
+     */
     private const CATEGORY_ID_EXCLUDE = "category_id_exclude";
+    /**
+     *
+     */
     private const TOKEN = "token";
+    /**
+     *
+     */
     private const INCLUDE = "include";
+    /**
+     *
+     */
     private const PROPERTY_RATING_MIN = "property_rating_min";
+    /**
+     *
+     */
     private const PROPERTY_RATING_MAX = "property_rating_max";
+    /**
+     *
+     */
     private const MAX_EXECUTION_COUNT = 200;
+    /**
+     *
+     */
     private const MAX_EXECUTION_TIME = 120; // seconds
 
     // Call parameters
+    /**
+     * @var
+     */
     private $client;
+    /**
+     * @var mixed
+     */
     private $language;
+    /**
+     * @var mixed
+     */
     private $supplySource;
+    /**
+     * @var mixed
+     */
     private $countryCodes;
+    /**
+     * @var mixed
+     */
     private $categoryIdExcludes;
+    /**
+     * @var float|mixed
+     */
     private $propertyRatingMin;
+    /**
+     * @var float|mixed
+     */
     private $propertyRatingMax;
 
+    /**
+     * @var
+     */
     private $token;
 
-    public function __construct ($client, $property)
+    /**
+     * @param $client
+     * @param $property
+     */
+    public function __construct($client, $property)
     {
         $this->client = $client;
         $this->language = $property['language'];
@@ -45,7 +112,10 @@ class PropertyContentCall
         $this->propertyRatingMax = $property['propertyRatingMax'] ?? 5.0;
     }
 
-    public function stream ()
+    /**
+     * @return array
+     */
+    public function stream(): array
     {
         $results = [];
         $count = 0;
@@ -95,7 +165,10 @@ class PropertyContentCall
     }
 
 
-    public function size ()
+    /**
+     * @return int
+     */
+    public function size(): int
     {
         // Make the call to Rapid.
         $queryParameters = $this->queryParameters();
@@ -103,15 +176,16 @@ class PropertyContentCall
         $response = $this->client->get(self::PROPERTY_CONTENT_PATH, $queryParameters);
 
         // Read the size to return.
-        $size = intval($response->getHeaderLine(self::PAGINATION_TOTAL_RESULTS));
-
         // Close the response since we're not reading it.
         // $response->close();
 
-        return $size;
+        return intval($response->getHeaderLine(self::PAGINATION_TOTAL_RESULTS));
     }
 
-    private function queryParameters ()
+    /**
+     * @return array
+     */
+    private function queryParameters(): array
     {
         $queryParams = [];
 
@@ -140,7 +214,11 @@ class PropertyContentCall
         return $queryParams;
     }
 
-    private function getTokenFromLink ($linkHeader)
+    /**
+     * @param $linkHeader
+     * @return string|null
+     */
+    private function getTokenFromLink($linkHeader): ?string
     {
         if (empty($linkHeader)) {
             return null;

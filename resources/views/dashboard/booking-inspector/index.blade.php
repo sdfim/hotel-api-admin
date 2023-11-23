@@ -3,16 +3,15 @@
     {{ __('Booking Inspector') }}
 @endsection
 @section('css')
-    <link href="{{ URL::asset('build/libs/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.css') }}"
-          rel="stylesheet"
-          type="text/css">
-
     <link href="{{ URL::asset('build/libs/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
     <style>
         .modal-body {
             padding: 20px;
             max-height: 450px;
             overflow-x: auto;
+        }
+        .m-5{
+            margin: 10px;
         }
     </style>
 

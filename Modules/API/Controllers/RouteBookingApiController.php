@@ -3,118 +3,235 @@
 namespace Modules\API\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Suppliers;
+use App\Models\ApiBookingItem;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
-use Modules\API\Controllers\RouteBookingApiStrategy;
-use Modules\API\BookingAPI\BookingApiHendlers\HotelBookingApiHanlder;
-use Modules\API\BookingAPI\BookingApiHendlers\FlightBookingApiHandler;
-use Modules\API\BookingAPI\BookingApiHendlers\ComboBookingApiHandler;
-use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
+use Laravel\Sanctum\PersonalAccessToken;
+use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
+use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
+use Modules\API\BookingAPI\BookingApiHandlers\ComboBookingApiHandler;
+use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiSearchInspector;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Validator;
 
 class RouteBookingApiController extends Controller
 {
-	private const DEFAULT_SUPPLIER = 'expedia';
-	private const TYPE_HOTEL = 'hotel';
-	private const TYPE_FLIGHT = 'flight';
-	private const TYPE_COMBO = 'combo';
-	private const ROUTE_ADD_ITEM = 'addItem';
-	private const ROUTE_REMOVE_ITEM = 'removeItem';
-	private const ROUTE_CHANGE_ITEMS = 'changeItems';
-	private const ROUTE_RETRIEVE_ITEMS = 'retrieveItems';
-	private const ROUTE_ADD_PASSENGERS = 'addPassengers';
-	private const ROUTE_BOOK = 'book';
-	private const ROUTE_LIST_BOOKINGS = 'listBookings';
-	private const ROUTE_RETRIEVE_BOOKING = 'retrieveBooking';
-	private const ROUTE_CANCEL_BOOKING = 'cancelBooking';
-	private ExperiaService $experiaService;
-	private RouteBookingApiStrategy $strategy;
-	private ApiBookingInspector $bookingInspector;
-	private ApiSearchInspector $searchInspector;
-	private string|null $type;
-	private string|null $supplier;
-	private string|null $route;
-
-	public function __construct(RouteBookingApiStrategy $strategy, ExperiaService $experiaService) {
-		$this->strategy = $strategy;
-		$this->experiaService = $experiaService;
-		$this->bookingInspector = new ApiBookingInspector();
-		$this->searchInspector = new ApiSearchInspector();
-		$this->type = null;
-		$this->supplier = null;
-		$this->route = null;
-	}
-
+    /**
+     *
+     */
+    private const DEFAULT_SUPPLIER = 'expedia';
+    /**
+     *
+     */
+    private const TYPE_HOTEL = 'hotel';
+    /**
+     *
+     */
+    private const TYPE_FLIGHT = 'flight';
+    /**
+     *
+     */
+    private const TYPE_COMBO = 'combo';
+    /**
+     *
+     */
+    private const ROUTE_ADD_ITEM = 'addItem';
+    /**
+     *
+     */
+    private const ROUTE_REMOVE_ITEM = 'removeItem';
+    /**
+     *
+     */
+    private const ROUTE_CHANGE_ITEMS = 'changeItems';
+    /**
+     *
+     */
+    private const ROUTE_RETRIEVE_ITEMS = 'retrieveItems';
+    /**
+     *
+     */
+    private const ROUTE_ADD_PASSENGERS = 'addPassengers';
+    /**
+     *
+     */
+    private const ROUTE_BOOK = 'book';
+    /**
+     *
+     */
+    private const ROUTE_LIST_BOOKINGS = 'listBookings';
+    /**
+     *
+     */
+    private const ROUTE_RETRIEVE_BOOKING = 'retrieveBooking';
+    /**
+     *
+     */
+    private const ROUTE_CANCEL_BOOKING = 'cancelBooking';
 	/**
-	 * @param Request $request
-	 * @return mixed
+	 * 
 	 */
-	public function handle(Request $request): mixed
-	{	
-		$this->determinant($request);
-		if (!self::isTypeValid($this->type)) return response()->json(['message' => 'Invalid type'], 400);
-		if (!self::isRouteValid($this->route)) return response()->json(['message' => 'Invalid route'], 400);
-		if (is_null($this->supplier)) return response()->json(['message' => 'Invalid supplier'], 400);
+	private const ROUTE_CHANGE_BOOKING = 'changeBooking';
+	/**
+	 *
+	 */
+	private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
+	
+    /**
+     * @var ExpediaService
+     */
+    private ExpediaService $expediaService;
+    /**
+     * @var RouteBookingApiStrategy
+     */
+    private RouteBookingApiStrategy $strategy;
+    /**
+     * @var ApiBookingInspector
+     */
+    private ApiBookingInspector $bookingInspector;
+    /**
+     * @var ApiSearchInspector
+     */
+    private ApiSearchInspector $searchInspector;
+    /**
+     * @var string|null
+     */
+    private string|null $type;
+    /**
+     * @var string|null
+     */
+    private string|null $supplier;
+    /**
+     * @var string|null
+     */
+    private string|null $route;
+
+    /**
+     * @param RouteBookingApiStrategy $strategy
+     * @param ExpediaService $expediaService
+     */
+    public function __construct(RouteBookingApiStrategy $strategy, ExpediaService $expediaService)
+    {
+        $this->strategy = $strategy;
+        $this->expediaService = $expediaService;
+        $this->bookingInspector = new ApiBookingInspector();
+        $this->searchInspector = new ApiSearchInspector();
+        $this->type = null;
+        $this->supplier = null;
+        $this->route = null;
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function handle(Request $request): mixed
+    {
+		$determinant = $this->determinant($request);
+        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+        if (!self::isTypeValid($this->type)) return response()->json(['message' => 'Invalid type'], 400);
+        if (!self::isRouteValid($this->route)) return response()->json(['message' => 'Invalid route'], 400);
+        if (is_null($this->supplier)) return response()->json(['message' => 'Invalid supplier'], 400);
+
+        $dataHandler = match ($this->type) {
+            'hotel' => new HotelBookingApiHandler($this->expediaService),
+            'flight' => new FlightBookingApiHandler(),
+            'combo' => new ComboBookingApiHandler(),
+            default => response()->json(['message' => 'Invalid route'], 400),
+        };
 		
-		$dataHandler = match ($this->type) {
-			'hotel' => new HotelBookingApiHanlder($this->experiaService),
-			'flight' => new FlightBookingApiHandler(),
-			'combo' => new ComboBookingApiHandler(),
-			default => response()->json(['message' => 'Invalid route'], 400),
-		};
 
-		return match ($this->route) {
-			'addItem' => $dataHandler->addItem($request, $this->supplier),
-			'removeItem' => $dataHandler->removeItem($request, $this->supplier),
-			'retrieveItems' => $dataHandler->retrieveItems($request, $this->supplier),
-			'changeItems' => $dataHandler->changeItems($request, $this->supplier),
-			'listBookings' => $dataHandler->listBookings($request, $this->supplier),
+        return match ($this->route) {
+            'addItem' => $dataHandler->addItem($request, $this->supplier),
+            'removeItem' => $dataHandler->removeItem($request, $this->supplier),
+            'addPassengers' => $dataHandler->addPassengers($request, $this->supplier),
+            default => response()->json(['message' => 'Invalid route'], 400),
+        };
+    }
 
-			'addPassengers' => $dataHandler->addPassengers($request, $this->supplier),
-			'book' => $dataHandler->book($request, $this->supplier),
-			'retrieveBooking' => $dataHandler->retrieveBooking($request, $this->supplier),
-			'cancelBooking' => $dataHandler->cancelBooking($request, $this->supplier),
-			default => response()->json(['message' => 'Invalid route'], 400),
-		};
-	}
-
-	private function determinant(Request $request) : void
-	{
+    /**
+     * @param Request $request
+     * @return void
+     */
+    private function determinant(Request $request): array
+    {
 		$this->type = $request->get('type') ?? null;
-		$this->supplier = $request->get('supplier') ?? null;
+        $this->supplier = $request->get('supplier') ?? null;
+
+		$requestTokenId = PersonalAccessToken::findToken($request->bearerToken())->id;
+		$dbTokenId = null;
+
+		# Autodetect type by booking_item and chek Owner token 
+		if($request->has('booking_item')) {
+			if (!$this->validatedUuid('booking_item')) return [];
+			$apiBookingItem = ApiBookingItem::where('booking_item', $request->get('booking_item'))->with('search')->first();
+			if (!$apiBookingItem) return ['error' => 'Invalid booking_item'];
+			$dbTokenId = $apiBookingItem->search->token_id;
+			if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
+			$this->supplier = Supplier::where('id', $apiBookingItem->supplier_id)->first()->name;
+			$this->type = $this->searchInspector->geTypeBySearchId($apiBookingItem->search_id);
+		}
+
+		# Autodetect type and supplier by booking_id and chek Owner token 
+        if ($request->has('booking_id')) {
+			if (!$this->validatedUuid('booking_id')) return ['error' => 'Invalid booking_id'];
+            $bi = $this->bookingInspector->geTypeSupplierByBookingId($request->get('booking_id'));
+			if (empty($bi)) return ['error' => 'Invalid booking_id'];
+			$dbTokenId = $bi['token_id'];
+			if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
+            if ($this->type == null) $this->type = $bi['type'];
+            if ($this->supplier == null) $this->supplier = $bi['supplier'];
+        }
+
 		# Autodetect type by search_id
-		if ($request->get('search_id') && $this->type == null) {
-			$this->type = $this->searchInspector->geTypeBySearchId($request->get('search_id'));
-		}
-		# Autodetect type and supplier by booking_id
-		if ($request->get('booking_id') && $this->type == null) {
-			$bi = $this->bookingInspector->geTypeSupplierByBookingId($request->get('booking_id'));
-			$this->type = $bi['type'];
-			$this->supplier = $bi['supplier'];
-		}
-		
-		$this->route = \Route::currentRouteName();
+        if ($request->has('search_id') && $this->type == null) {
+        	if (!$this->validatedUuid('search_id')) return ['error' => 'Invalid search_id'];
+            $this->type = $this->searchInspector->geTypeBySearchId($request->get('search_id'));
+        }
 
-	}
+        $this->route = Route::currentRouteName();
+		return [];
+    }
 
-	private static function isTypeValid($value): bool
+	private function validatedUuid($id) : bool
 	{
-		return in_array($value, [self::TYPE_HOTEL, self::TYPE_FLIGHT, self::TYPE_COMBO], true);
+		$validate = Validator::make(request()->all(), [$id => 'required|size:36']);
+        if ($validate->fails()) {
+			$this->type = null;
+			$this->supplier = null;
+			return false;
+		};
+		return true;
 	}
 
-	private static function isRouteValid($value): bool
-	{
-		return in_array($value, [
-			self::ROUTE_ADD_ITEM,
-			self::ROUTE_REMOVE_ITEM,
-			self::ROUTE_RETRIEVE_ITEMS,
-			self::ROUTE_CHANGE_ITEMS,
-			self::ROUTE_ADD_PASSENGERS,
-			self::ROUTE_BOOK,
-			self::ROUTE_LIST_BOOKINGS,
-			self::ROUTE_RETRIEVE_BOOKING,
-			self::ROUTE_CANCEL_BOOKING
-		], true);
-	}
+    /**
+     * @param $value
+     * @return bool
+     */
+    private static function isTypeValid($value): bool
+    {
+        return in_array($value, [self::TYPE_HOTEL, self::TYPE_FLIGHT, self::TYPE_COMBO], true);
+    }
+
+    /**
+     * @param $value
+     * @return bool
+     */
+    private static function isRouteValid($value): bool
+    {
+        return in_array($value, [
+            self::ROUTE_ADD_ITEM,
+            self::ROUTE_REMOVE_ITEM,
+            self::ROUTE_RETRIEVE_ITEMS,
+            self::ROUTE_CHANGE_ITEMS,
+            self::ROUTE_ADD_PASSENGERS,
+            self::ROUTE_BOOK,
+            self::ROUTE_LIST_BOOKINGS,
+            self::ROUTE_RETRIEVE_BOOKING,
+            self::ROUTE_CANCEL_BOOKING,
+			self::ROUTE_CHANGE_BOOKING,
+        ], true);
+    }
 }

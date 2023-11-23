@@ -2,124 +2,147 @@
 
 namespace App\Console\Commands;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
 use App\Models\GiataProperty;
-use SimpleXMLElement;
 use Exception;
 use GuzzleHttp\Client;
-use Illuminate\Support\Arr;
-
+use Illuminate\Support\Facades\DB;
 
 class DownloadGiataData extends Command
 {
-    protected $signature = 'download-giata-data';
-    protected $description = 'Import XML data from a URL, wrtite to DB';
-    protected $current_time;
+	/**
+	 * @var string
+	 */
+	protected $signature = 'download-giata-data';
 
-    public function __construct ()
-    {
-        parent::__construct();
-    }
+	/**
+	 * @var string
+	 */
+	protected $description = 'Import XML data from a URL, wrtite to DB';
 
+	/**
+	 * @var float|string
+	 */
+	protected float|string $current_time;
 
-    public function handle ()
-    {
-        GiataProperty::truncate();
+	/**
+	 *
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+	}
 
-        $this->current_time = microtime(true);
+	/**
+	 * @return void
+	 */
+	public function handle(): void
+	{
+		// GiataProperty::truncate();
 
-        $url = 'http://tticodes.giatamedia.com/webservice/rest/1.0/properties';
-        $batch = 1;
+		$this->current_time = microtime(true);
 
-        // Define your HTTP authentication credentials
-        $username = 'tticodes@godigitaldevelopment.com';
-        $password = 'aw4ZD8ky';
+		$url = 'http://tticodes.giatamedia.com/webservice/rest/1.0/properties';
+		$batch = 1;
 
-        // Create a Guzzle HTTP client instance
-        $client = new Client([
-            'auth' => [$username, $password],
-        ]);
+		// Define your HTTP authentication credentials
+		$username = 'tticodes@godigitaldevelopment.com';
+		$password = 'aw4ZD8ky';
 
-        while ($url) {
-            try {
-                // Send an HTTP GET request with authentication
-                $response = $client->get($url);
+		// Create a Guzzle HTTP client instance
+		$client = new Client([
+			'auth' => [$username, $password],
+		]);
 
-                $this->info(' GET request  BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
+		while ($url) {
+			try {
+				// Send an HTTP GET request with authentication
+				$response = $client->get($url);
 
-                if ($response->getStatusCode() === 200) {
-                    // Get the XML content from the response body
-                    $textXML = $response->getBody()->getContents();
+				$this->info(' GET request  BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
 
-                    $this->info('Get XML BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
+				if ($response->getStatusCode() === 200) {
+					// Get the XML content from the response body
+					$textXML = $response->getBody()->getContents();
 
-                    $url = $this->parseXMLToDb($textXML);
+					$this->info('Get XML BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
 
-                    $this->info('parseXMLToDb BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
+					$url = $this->parseXMLToDb($textXML);
+					if (!$url) $url = $this->parseXMLToDb($textXML);
 
-                    $batch++;
+					$this->info('parseXMLToDb BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
 
-                    $this->info('XML data imported successfully, BATCH: ' . $batch);
-                } else {
-                    $this->error('Error importing XML data. HTTP status code: ' . $response->getStatusCode());
-                }
-            } catch (Exception $e) {
-                $this->error('Error importing XML data: ' . $e->getMessage());
-            }
-        }
-    }
+					$batch++;
 
-    private function executionTime ()
-    {
-        $execution_time = (microtime(true) - $this->current_time);
-        $this->current_time = microtime(true);
+					$this->info('XML data imported successfully, BATCH: ' . $batch);
+				} else {
+					$this->error('Error importing XML data. HTTP status code: ' . $response->getStatusCode());
+				}
+			} catch (Exception | GuzzleException $e) {
+				$this->error('Error importing XML data: ' . $e->getMessage());
+			}
+		}
 
-        return $execution_time;
-    }
+	}
 
-    private function parseXMLToDb ($text)
-    {
-        $xmlContent = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $text);
-        try {
-            $url_next = explode('<More_Properties xlink:href=', $xmlContent)[1];
-            $url_arr = explode('"', $url_next);
-            $url = array_key_exists(1, $url_arr) ? $url_arr[1] : false;
-        } catch (Exception $e) {
-            $this->error('Error get url or it not exist: ' . $e->getMessage());
-            return false;
-        }
+	/**
+	 * @return float|string
+	 */
+	private function executionTime(): float|string
+	{
+		$execution_time = (microtime(true) - $this->current_time);
+		$this->current_time = microtime(true);
 
-        $xml = simplexml_load_string($xmlContent);
-        $json = json_encode($xml);
+		return $execution_time;
+	}
 
-        $phpObj = json_decode($json, true);
+	/**
+	 * @param string $text
+	 * @return false|string
+	 */
+	private function parseXMLToDb(string $text): false|string
+	{
+		$xmlContent = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $text);
+		try {
+			$url_next = explode('<More_Properties xlink:href=', $xmlContent)[1];
+			$url_arr = explode('"', $url_next);
+			$url = array_key_exists(1, $url_arr) ? $url_arr[1] : false;
+		} catch (Exception $e) {
+			$this->error('Error get url or it not exist: ' . $e->getMessage());
+			return false;
+		}
 
-        $this->info('parseXMLToDb, count: ' . count($phpObj['TTI_Property']) . ', url ' . $url);
+		$xml = simplexml_load_string($xmlContent);
 
-        foreach ($phpObj['TTI_Property'] as $data) {
-            $data = [
-                'code' => $data["@attributes"]["Code"],
-                'last_updated' => $data["@attributes"]["LastUpdated"],
-                'name' => $data["Name"],
-                'chain' => isset($data["Chain"]) ? json_encode($data["Chain"]) : null,
-                'city' => $data["City"],
-                'locale' => $data["Locale"],
-                'address' => json_encode($data["Address"]),
-                'phone' => isset($data["Phone"]) ? json_encode($data["Phone"]) : null,
-                'position' => isset($data["Position"]) ? json_encode($data["Position"]) : null,
-                'url' => isset($data["URL"]) ? json_encode($data["URL"]) : null,
-                'cross_references' => json_encode($data["CrossReferences"]["CrossReference"]),
-            ];
-            $batchData[] = $data;
-        }
+		foreach ($xml->TTI_Property as $property) {
+			$data = [
+				'code' => (int) $property['Code'],
+				'last_updated' => (string) $property['LastUpdated'],
+				'name' => (string) $property->Name,
+				'chain' => isset($property->Chain) ? json_encode($property->Chain) : null,
+				'city' => (string) $property->City,
+				'city_id' => (int) $property->City['CityId'],
+				'locale' => (string) $property->Locale,
+				'locale_id' => (int) $property->Locale['LocaleId'],
+				'address' => json_encode($property->Address),
+				'phone' => isset($property->Phone) ? json_encode($property->Phone) : null,
+				'position' => isset($property->Position) ? json_encode($property->Position) : null,
+				'latitude' => isset($property->Position['Latitude']) ? (float) $property->Position['Latitude'] : null,
+				'longitude' => isset($property->Position['Longitude']) ? (float) $property->Position['Longitude'] : null,
+				'url' => isset($property->URL) ? json_encode($property->URL) : null,
+				'cross_references' => json_encode($property->CrossReferences->CrossReference),
+			];
+			$batchData[] = $data;
+		}
 
-        try {
-            GiataProperty::insert($batchData);
-        } catch (\Exception $e) {
-            \Log::error('ImportJsonlData', ['error' => $e->getMessage()]);
-            return false;
-        }
+		try {
+			GiataProperty::insert($batchData);
+		} catch (Exception $e) {
+			\Log::error('ImportJsonlData', ['error' => $e->getMessage()]);
+			return false;
+		}
 
-        return $url;
-    }
+		return $url;
+	}
 }

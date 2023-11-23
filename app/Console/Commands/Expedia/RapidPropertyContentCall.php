@@ -23,7 +23,7 @@ class RapidPropertyContentCall extends Command
 
     private PropertyCallFactory $rapidCallFactory;
 
-    public function __construct (PropertyCallFactory $rapidCallFactory)
+    public function __construct(PropertyCallFactory $rapidCallFactory)
     {
         parent::__construct();
         $this->rapidCallFactory = $rapidCallFactory;
@@ -31,8 +31,9 @@ class RapidPropertyContentCall extends Command
 
     /**
      * Execute the console command.
+     * @return void
      */
-    public function handle ()
+    public function handle(): void
     {
         $property['language'] = "en-US";
         $property['supplySource'] = "expedia";

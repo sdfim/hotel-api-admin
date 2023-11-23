@@ -8,7 +8,7 @@ return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up (): void
+    public function up(): void
     {
         Schema::table('channels', function (Blueprint $table) {
             $table->unsignedBigInteger('token_id')->after('description');
@@ -24,7 +24,7 @@ return new class extends Migration {
     /**
      * Reverse the migrations.
      */
-    public function down (): void
+    public function down(): void
     {
         Schema::table('channels', function (Blueprint $table) {
             $table->dropColumn('token_id');

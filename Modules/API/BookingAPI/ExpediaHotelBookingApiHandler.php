@@ -2,341 +2,219 @@
 
 namespace Modules\API\BookingAPI;
 
-use App\Models\ApiSearchInspector;
+use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingInspector;
-use App\Models\Channels;
-use Illuminate\Http\Request;
-use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
-use Modules\API\Suppliers\ExpediaSupplier\ExperiaService;
-use Illuminate\Support\Facades\Validator;
-use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
-use Modules\Inspector\BookingInspectorController;
+use App\Models\ApiSearchInspector;
+use Exception;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Str;
-use GuzzleHttp\Promise;
+use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
+use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
+use Illuminate\Support\Facades\Storage;
 
 
 class ExpediaHotelBookingApiHandler
 {
-	private const AFFILIATE_REFERENCE_ID = 'UJV-V1';
-	private $experiaService;
-	private $bookingInspector;
-	private $rapidClient;
+    /**
+     * @var RapidClient
+     */
+    private RapidClient $rapidClient;
 
-	public function __construct(ExperiaService $experiaService)
-	{
-		$this->experiaService = $experiaService;
-		$this->bookingInspector = new BookingInspectorController();
-		$this->rapidClient = new RapidClient(env('EXPEDIA_RAPID_API_KEY'), env('EXPEDIA_RAPID_SHARED_SECRET'));
-	}
-	/**
-	 * @param Request $request
-	 * @return array|null
-	 */
-	public function addItem(array $filters): array|null
-	{
-		$queryHold = $filters['query']['hold'];
-		# step 1 Read Inspector, Get linck 'price_check'
-		$inspector = new ApiSearchInspector();
-		$linkPriceCheck = $inspector->getLinckPriceCheck($filters);
+    /**
+     * @param ExpediaService $expediaService
+     */
+    public function __construct()
+    {
+        $this->rapidClient = new RapidClient();
+    }
 
-		# step 2 Get POST linck for booking
-		// TODO: need check if price chenged
-		$props = $this->getPathParamsFromLink($linkPriceCheck);
+    /**
+     * @param array $filters
+     * @return array|null
+     */
+    public function addItem(array $filters): array | null
+    {
+        # step 1 Read Inspector, Get link 'price_check'
+        $inspector = new ApiSearchInspector();
+        $linkPriceCheck = $inspector->getLinckPriceCheck($filters);
+
+        # step 2 Get POST link for booking
+        // TODO: need check if price changed
+        $props = $this->getPathParamsFromLink($linkPriceCheck);
+        try {
+            $response = $this->rapidClient->get($props['path'], $props['paramToken']);
+            $dataResponse = json_decode($response->getBody()->getContents());
+        } catch (RequestException $e) {
+            \Log::error('ExpediaHotelBookingApiHandler | addItem | price_check ' . $e->getResponse()->getBody());
+            $dataResponse = json_decode('' . $e->getResponse()->getBody());
+            return (array) $dataResponse;
+        }
+
+        if (!$dataResponse) {
+            return [];
+        }
+
+        if (isset($filters['booking_id'])) {
+            $booking_id = $filters['booking_id'];
+        } else {
+            $booking_id = (string) Str::uuid();
+        }
+
+        SaveBookingInspector::dispatch([
+            $booking_id,
+            $filters,
+            $dataResponse,
+            [],
+            1,
+            'add_item',
+            'price_check',
+            'hotel',
+        ]);
+
+        return ['booking_id' => $booking_id];
+    }
+
+    /**
+     * @param string $link
+     * @return array
+     */
+    private function getPathParamsFromLink(string $link): array
+    {
+        $arr_link = explode('?', $link);
+        $path = $arr_link[0];
+        $arr_param = explode('=', $arr_link[1]);
+        $paramToken = [$arr_param[0] => str_replace('token=', '', $arr_link[1])];
+
+        return ['path' => $path, 'paramToken' => $paramToken];
+    }
+
+    /**
+     * @param array $filters
+     * @return array
+     */
+    public function removeItem(array $filters): array
+    {
+        $filters['search_id'] = ApiBookingInspector::where('booking_id', $filters['booking_id'])->first()->search_id;
+        $booking_id = $filters['booking_id'];
+		$booking_item = $filters['booking_item'];
+
 		try {
-			$response = $this->rapidClient->get($props['path'], $props['paramToken']);
-			$dataResponse = json_decode($response->getBody()->getContents());
-		} catch (\GuzzleHttp\Exception\RequestException $e) {
-			\Log::error('ExpediaHotelBookingApiHandler | addItem | price_check ' . $e->getResponse()->getBody());
-			$dataResponse = json_decode(''.$e->getResponse()->getBody());
-			return (array)$dataResponse;
-		}
 
-		if (!$dataResponse) return [];
-		$booking_id = (string) Str::uuid();
+			$bookItems = ApiBookingInspector::where('booking_id', $booking_id)
+				->where('type', 'book')
+				->get()->pluck('booking_id')->toArray();
 
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, [], 1, 'add_item', 'price_check' . ($queryHold ? ':hold' : ''), 'hotel');
+			$bookingItems = ApiBookingInspector::where('booking_item', $booking_item)
+				->where('type', 'add_item')
+				->whereNotIn('booking_id', $bookItems);
 
-		$linckBookItineraries =  $dataResponse->links->book->href;
-
-		# Booking POST query - Create Booking
-		// TODO: need check count of rooms. count(rooms) in current query == count(rooms) in serch query
-		$props = $this->getPathParamsFromLink($linckBookItineraries);
-		$bodyArr = $filters['query'];
-		$bodyArr['affiliate_reference_id'] = 'UJV_' . time();
-		$body = json_encode($bodyArr);
-		$addHeaders = [
-			'Customer-Ip' => '5.5.5.5',
-			'Accept' => 'application/json',
-			'Content-Type' => 'application/json',
-			'Test' => 'standard'
-		];
-		try {
-			$response = $this->rapidClient->post($props['path'], $props['paramToken'], $body, $addHeaders);
-			$dataResponse = json_decode($response->getBody()->getContents());
-		} catch (\GuzzleHttp\Exception\RequestException $e) {
-			\Log::error('ExpediaHotelBookingApiHandler | addItem | create ' . $e->getResponse()->getBody());
-			$dataResponse = json_decode(''.$e->getResponse()->getBody());
-			return (array)$dataResponse;
-		}
+			if ($bookingItems->get()->count() === 0) {
+				$res = [
+					'success' =>
+						[
+							'booking_id' => $booking_id,
+							'booking_item' => $booking_item,
+							'status' => 'This item is not in the cart',
+						]
+					];
+			} else {
+				foreach ($bookingItems->get() as $item)	{
+					Storage::delete($item->client_response_path);
+					Storage::delete($item->response_path);
+				}
+				$bookingItems->delete();
+				$res = [
+					'success' =>
+						[
+							'booking_id' => $booking_id,
+							'booking_item' => $booking_item,
+							'status' => 'Item removed from cart.',
+						]
+					];
+			}				
+		} catch (Exception $e) {
+			$res =  [
+				'error' => [
+					'booking_id' => $booking_id,
+					'booking_item' => $booking_item,
+					'status' => 'Item not removed from cart.',
+				]
+			];
+			\Log::error('ExpediaHotelBookingApiHandler | removeItem | ' . $e->getMessage());
+		}	
 		
-		if (!$dataResponse) return [];
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, [], 1, 'add_item', 'create' . ($queryHold ? ':hold' : ''), 'hotel');
-
-		$itinerary_id = $dataResponse->itinerary_id;
-		$linckBookRetrieves =  $dataResponse->links->retrieve->href;
-
-		# Booking GET query - Retrieve Booking
-		$props = $this->getPathParamsFromLink($linckBookRetrieves);
-		$addHeaders = [
-			'Customer-Ip' => '5.5.5.5',
-			'Accept' => 'application/json',
-			'Content-Type' => 'application/json',
-			'Test' => 'standard'
-		];
-		try {
-			$response = $this->rapidClient->get($props['path'], $props['paramToken'], $addHeaders);
-			$dataResponse = json_decode($response->getBody()->getContents());
-		} catch (\GuzzleHttp\Exception\RequestException $e) {
-			\Log::error('ExpediaHotelBookingApiHandler | addItem | create ' . $e->getResponse()->getBody());
-			$dataResponse = json_decode(''.$e->getResponse()->getBody());
-			return (array)$dataResponse;
-		}
-
-		if (!$dataResponse) return [];
-
-		$viewSupplierData = $filters['supplier_data'] ?? false;
-		if ($viewSupplierData) $res = (array)$dataResponse;
-		else $res = [
-			'booking_id' => $booking_id, 
-			'search_id' => $filters['search_id'],
-			'links' => [
-				'remove' => [
-					'method' => 'DELETE',
-					'href'	=> '/api/booking/remove-item?booking_id=' . $booking_id . '&room_id=' . $filters['room_id'],
-				],
-				'change' => [
-					'method' => 'PUT',
-					'href'	=> '/api/booking/change-items?booking_id=' . $booking_id . '&room_id=' . $filters['room_id'],
-				],
-				'retrieve' => [
-					'method' => 'GET',
-					'href'	=> '/api/booking/retrieve-items?booking_id=' . $booking_id,
-				],
-			],
-		];
-
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $res, 1, 'add_item', 'retrieve' . ($queryHold ? ':hold' : ''), 'hotel');
+		SaveBookingInspector::dispatch([
+            $booking_id,
+            $filters,
+            [],
+            $res,
+            1,
+            'remove_item',
+            '',
+            'hotel',
+        ]);
 
 		return $res;
-	}
+    }
 
-	private function getPathParamsFromLink(string $link): array
-	{
-		$arr_link = explode('?', $link);
-		$path = $arr_link[0];
-		$arr_param = explode('=', $arr_link[1]);
-		$paramToken = [$arr_param[0] => str_replace('token=', '', $arr_link[1])];
-
-		return ['path' => $path, 'paramToken' => $paramToken];
-	}
-
-	/**
-	 * @param Request $request
-	 * @return array|null
-	 */
-	public function removeItem(array $filters): array
-	{
-		# step 1 Read Booking Inspector, Get linck  DELETE method from 'add_item | get_book'
-		$inspector = new ApiBookingInspector();
-		$linkDeleteItem = $inspector->getLinckDeleteItem($filters);
-		$search_id = $inspector->getSearchId($filters);
-		$filters['search_id'] = $search_id;
+    /**
+     * @param array $filters
+     * @return array|null
+     */
+    public function addPassengers(array $filters): array | null
+    {
 		$booking_id = $filters['booking_id'];
+		$filters['search_id'] = ApiBookingInspector::where('booking_item', $filters['booking_item'])->first()->search_id;
 
-		# Delete item DELETE method query 
-		$props = $this->getPathParamsFromLink($linkDeleteItem);
+		$bookingItem = ApiBookingInspector::where('booking_id', $booking_id)
+			->where('booking_item', $filters['booking_item'])
+			->where('type', 'add_passengers');
 
-		// dump($props, $linkDeleteItem);
+		$apiSearchInspector = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->request;
 
-		$bodyArr = [
-			'itinerary_id' => $inspector->getItineraryId($filters),
-			'room_id' => $filters['room_id']
-		];
-		$body = json_encode($bodyArr);
+		$countRooms = count(json_decode($apiSearchInspector, true)['occupancy']);
 
-		$addHeaders = [
-			'Customer-Ip' => '5.5.5.5',
-			'Accept' => 'application/json',
-			'Content-Type' => 'application/json',
-			'Test' => 'standard'
-		];
-		try {
-			$response = $this->rapidClient->delete($props['path'], $props['paramToken'], $body, $addHeaders);
-			$dataResponse = json_decode($response->getBody()->getContents());
-
-			if (!$dataResponse) $this->bookingInspector->save(
-				$booking_id, $filters, $dataResponse, ['success' => 'Room cancelled.'], 1, 'remove_item', 'true', 'hotel'
-			);
-			return ['success' => 'Room cancelled.'];
-		} catch (\Exception $e) {
-			$responseError = explode('response:', $e->getMessage());
-			$responseErrorArr = json_decode($responseError[1], true);
-			$this->bookingInspector->save(
-				$booking_id, $filters, $responseErrorArr, ['error' => 'Room is already cancelled.'], 1, 'remove_item', 'false', 'hotel'
-			);
-			return ['error' => $responseErrorArr['message']];
-		}
-	}
-
-	/**
-	 * @param Request $request
-	 * @return array|null
-	 */
-	public function retrieveItems(array $filters): array|null
-	{
-		$booking_id = $filters['booking_id'];
-		
-		# step 1 Read Booking Inspector, Get linck  GET method from 'add_item | post_book'
-		$inspector = new ApiBookingInspector();
-		$linkDeleteItem = $inspector->getLinckRetrieveItem($booking_id);
-
-		$search_id = $inspector->getSearchId($filters);
-		$filters['search_id'] = $search_id;
-
-		# Booking GET query 
-		$props = $this->getPathParamsFromLink($linkDeleteItem);
-		$addHeaders = [
-			'Customer-Ip' => '5.5.5.5',
-			'Accept' => 'application/json',
-			'Content-Type' => 'application/json',
-			'Test' => 'standard'
-		];
-		$response = $this->rapidClient->get($props['path'], $props['paramToken'], $addHeaders);
-		$dataResponse = json_decode($response->getBody()->getContents());
-
-		// TODO: need create DTO for $clientDataResponse
-		$clientDataResponse = $dataResponse;
-
-		if (!$dataResponse) return [];
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $clientDataResponse, 1, 'retrieve_items', '', 'hotel');
-
-		// dd($dataResponse);
-
-		return (array)$dataResponse;
-	}
-
-	/**
-	 * @param Request $request
-	 * @return array|null
-	 */
-	public function addPassengers(array $filters): array|null
-	{
-		
-	}
-
-	/**
-	 * @param Request $request
-	 * @return array|null
-	 */
-	public function changeItems(array $filters): array|null
-	{
-		# step 1 Read Booking Inspector, Get linck  PUT method from 'add_item | get_book'
-		$inspector = new ApiBookingInspector();
-		$linkPutMetod = $inspector->getLinckPutMetod($filters);
-		$search_id = $inspector->getSearchId($filters);
-		$filters['search_id'] = $search_id;
-		$booking_id = $filters['booking_id'];
-
-		# Booking PUT query 
-		$props = $this->getPathParamsFromLink($linkPutMetod);
-		$addHeaders = [
-			'Customer-Ip' => '5.5.5.5',
-			'Accept' => 'application/json',
-			'Content-Type' => 'application/json',
-			'Test' => 'standard'
-		];
-		
-		$bodyArr = $filters['query'];
-		$body = json_encode($bodyArr);
-
-		try {
-			$response = $this->rapidClient->put($props['path'], $props['paramToken'], $body, $addHeaders);
-			$dataResponse = json_decode($response->getBody()->getContents());
-		} catch (\GuzzleHttp\Exception\RequestException $e) {
-			\Log::error('ExpediaHotelBookingApiHandler | addPassengers | Booking PUT query ' . $e->getResponse()->getBody());
-			$dataResponse = json_decode(''.$e->getResponse()->getBody());
+		if ($countRooms != count($filters['rooms'])) {
+			$res = [
+				'error' => [
+					'booking_id' => $booking_id,
+					'booking_item' => $filters['booking_item'],
+					'status' => 'The number of rooms does not match the number of rooms in the search. Must be ' . $countRooms . ' rooms.',
+				]
+			];
+			return $res;
 		}
 
-		if (!$dataResponse) return [];
-		$this->bookingInspector->save($booking_id, $filters, $dataResponse, $dataResponse, 1, 'change_items', '', 'hotel');
-
-		return (array)$dataResponse;
-	}
-
-	/**
-	 * @param Request $request
-	 * @return array|null
-	 */
-	public function book(Request $request): array|null
-	{
-	}
-
-	/**
-	 * @param Request $request
-	 * @return array|null
-	 */
-	public function listBookings(): array|null
-	{	
-		$ch = new Channels;
-		$token_id = $ch->getTokenId(request()->bearerToken());
-
-		# step 1 Read Booking Inspector, Get linck  GET method from 'add_item | post_book'
-		$inspector = new ApiBookingInspector();
-		$list = $inspector->getAffiliateReferenceIdByCannel($token_id);
-		$path = '/v3/itineraries';
-		$addHeaders = [
-			'Customer-Ip' => '5.5.5.5',
-			'Accept' => 'application/json',
-			'Content-Type' => 'application/json',
-			'Test' => 'standard'
-		];
-
-		foreach ($list as $item) {
-			try {
-				$promises[] = $this->rapidClient->getAsync($path, $item, $addHeaders);
-			} catch (Exception $e) {
-				\Log::error('Error while creating promise: ' . $e->getMessage());
-			}
-		}
-		$responses = [];
-		$resolvedResponses = Promise\Utils::settle($promises)->wait();
-		foreach ($resolvedResponses as $response) {
-			if ($response['state'] === 'fulfilled') {
-				$data = $response['value']->getBody()->getContents();
-				$responses[] = json_decode($data, true);
-			} else {
-				\Log::error('ExpediaHotelBookingApiHandler | listBookings  failed: ' . $response['reason']->getMessage());
-			}
+		if ($bookingItem->get()->count() > 0) {
+			$bookingItem->delete();
+			$status = 'Passengers updated to booking.';
+			$subType = 'updated';
+		} else {
+			$status = 'Passengers added to booking.';
+			$subType = 'add';
 		}
 
-		return $responses;
+		$res = [
+			'success' =>
+				[
+					'booking_id' => $booking_id,
+					'booking_item' => $filters['booking_item'],
+					'status' => $status,
+				]
+			];
 
-	}
+		SaveBookingInspector::dispatch([
+			$booking_id,
+			$filters,
+			[],
+			$res,
+			1,
+			'add_passengers',
+			$subType,
+			'hotel',
+		]);
 
-	/**
-	 * @param Request $request
-	 * @return array|null
-	 */
-	public function retrieveBooking(Request $request): array|null
-	{
-	}
-
-	/**
-	 * @param Request $request
-	 * @return array|null
-	 */
-	public function cancelBooking(array $filters): array|null
-	{
-		
-	}
+		return $res;
+    }
+   
 }

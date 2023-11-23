@@ -7,6 +7,9 @@ use Illuminate\View\View;
 
 class SearchInspectorController extends Controller
 {
+    /**
+     * @var array|string[]
+     */
     private array $message = ['show' => 'Show Response'];
 
     /**

@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Channels;
 
-use App\Models\Channels;
+use App\Models\Channel;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -17,17 +17,31 @@ class UpdateChannelsForm extends Component implements HasForms
 {
     use InteractsWithForms;
 
+    /**
+     * @var array|null
+     */
     public ?array $data = [];
 
-    public Channels $record;
+    /**
+     * @var Channel
+     */
+    public Channel $record;
 
-    public function mount (Channels $channel): void
+    /**
+     * @param Channel $channel
+     * @return void
+     */
+    public function mount(Channel $channel): void
     {
         $this->record = $channel;
         $this->form->fill($this->record->attributesToArray());
     }
 
-    public function form (Form $form): Form
+    /**
+     * @param Form $form
+     * @return Form
+     */
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -42,7 +56,10 @@ class UpdateChannelsForm extends Component implements HasForms
             ->model($this->record);
     }
 
-    public function edit (): Redirector|RedirectResponse
+    /**
+     * @return Redirector|RedirectResponse
+     */
+    public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
         $this->record->update($data);
@@ -54,7 +71,10 @@ class UpdateChannelsForm extends Component implements HasForms
         return redirect()->route('channels.index');
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.channels.update-channels-form');
     }

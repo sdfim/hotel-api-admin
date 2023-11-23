@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Illuminate\Database\Seeder;
 
 class SupplierExpediaSeeder extends Seeder
@@ -12,7 +12,7 @@ class SupplierExpediaSeeder extends Seeder
      */
     public function run(): void
     {
-        $supplier = Suppliers::firstOrNew([
+        $supplier = Supplier::firstOrNew([
             'name' => 'Expedia',
             'description' => 'Expedia Description']);
         $supplier->save();

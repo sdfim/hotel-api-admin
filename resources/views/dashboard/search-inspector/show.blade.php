@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Response clear') }}
+    {{ __('Clear response') }}
 @endsection
 @section('content')
     <style>
@@ -11,20 +11,19 @@
             word-wrap: break-word;
         }
     </style>
-    <script src="https://unpkg.com/@alenaksu/json-viewer@2.0.0/dist/json-viewer.bundle.js"></script>
     <div class="col-span-12 xl:col-span-6">
         <div class="card dark:bg-zinc-800 dark:border-zinc-600">
             <div class="card-body pb-0 flex">
                 <x-button-back route="{{ redirect()->getUrlGenerator()->previous() }}" text="Back"/>
                 <h6 class="mb-1 text-15 text-gray-700 dark:text-gray-100 ml-4">Search Inspector</h6>
             </div>
-            <div class="card-body">
+            <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
                 <div class="relative overflow-x-auto">
                     <div class="row">
                         <div class="col-lg-12 margin-tb">
                             <div class="mt-2">
                                 <strong>Search ID:</strong>
-                                {{ $inspector->id }}
+                                {{ $inspector->search_id }}
                             </div>
                             <div class="mt-2">
                                 <strong>Search Type:</strong>
@@ -42,7 +41,7 @@
                                     $suppliers_name_string = '';
                                     $suppliers_array = explode(',',$inspector->suppliers);
                                     for($i = 0; $i < count($suppliers_array); $i++){
-                                        $supplier = \App\Models\Suppliers::find($suppliers_array[$i]);
+                                        $supplier = \App\Models\Supplier::find($suppliers_array[$i]);
                                         if($i == (count($suppliers_array)-1)){
                                             $suppliers_name_string .= $supplier->name;
                                         }else{
@@ -122,12 +121,12 @@
                     <div class="mt-5 tab-content">
                         <div class="block tab-pane" id="tab-pills-response">
                             <p class="mb-0 dark:text-gray-300">
-                                @php
-                                    $file_response = Storage::get($inspector->response_path);
-                                    if($file_response == ''){
-                                        $file_response = json_encode([]);
-                                    }
-                                @endphp
+                            @php
+                                $file_response = Storage::get($inspector->response_path);
+                                if($file_response == ''){
+                                    $file_response = json_encode([]);
+                                }
+                            @endphp
                             <div id="actions-toolbar">
                                 <button
                                     class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
@@ -146,12 +145,12 @@
                         </div>
                         <div class="hidden tab-pane" id="tab-pills-client-response">
                             <p class="mb-0 dark:text-gray-300">
-                                @php
-                                    $file_client_response = Storage::get($inspector->client_response_path);
-                                    if($file_client_response == ''){
-                                        $file_client_response = json_encode([]);
-                                    }
-                                @endphp
+                            @php
+                                $file_client_response = Storage::get($inspector->client_response_path);
+                                if($file_client_response == ''){
+                                    $file_client_response = json_encode([]);
+                                }
+                            @endphp
                             <div id="actions-toolbar">
                                 <button
                                     class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
@@ -175,6 +174,8 @@
     </div>
 @endsection
 @section('scripts')
+    <script src="{{ URL::asset('build/js/json-viewer.js') }}"></script>
+
     <script src="{{ URL::asset('build/js/pages/nav&tabs.js') }}"></script>
 
     <script type="module">

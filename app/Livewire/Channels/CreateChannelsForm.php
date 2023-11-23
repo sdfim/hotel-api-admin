@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Channels;
 
-use App\Models\Channels;
+use App\Models\Channel;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -17,14 +17,24 @@ class CreateChannelsForm extends Component implements HasForms
 {
     use InteractsWithForms;
 
+    /**
+     * @var array|null
+     */
     public ?array $data = [];
 
-    public function mount (): void
+    /**
+     * @return void
+     */
+    public function mount(): void
     {
         $this->form->fill();
     }
 
-    public function form (Form $form): Form
+    /**
+     * @param Form $form
+     * @return Form
+     */
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -36,16 +46,19 @@ class CreateChannelsForm extends Component implements HasForms
                     ->maxLength(191),
             ])
             ->statePath('data')
-            ->model(Channels::class);
+            ->model(Channel::class);
     }
 
-    public function create (): Redirector|RedirectResponse
+    /**
+     * @return Redirector|RedirectResponse
+     */
+    public function create(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
         $token = auth()->user()->createToken($data['name']);
         $data['token_id'] = $token->accessToken->id;
         $data['access_token'] = $token->plainTextToken;
-        $record = Channels::create($data);
+        $record = Channel::create($data);
 
         $this->form->model($record)->saveRelationships();
 
@@ -57,7 +70,10 @@ class CreateChannelsForm extends Component implements HasForms
         return redirect()->route('channels.index');
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.channels.create-channels-form');
     }

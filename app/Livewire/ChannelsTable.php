@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\Channels;
+use App\Models\Channel;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -22,10 +22,15 @@ class ChannelsTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    /**
+     * @param Table $table
+     * @return Table
+     */
+    public function table(Table $table): Table
     {
         return $table
-            ->query(Channels::query())
+            ->paginated([5, 10, 25, 50])
+            ->query(Channel::query())
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
@@ -42,28 +47,27 @@ class ChannelsTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Channels $record): string => route('channels.show', $record)),
+                        ->url(fn(Channel $record): string => route('channels.show', $record)),
                     EditAction::make()
-                        ->url(fn(Channels $record): string => route('channels.edit', $record)),
+                        ->url(fn(Channel $record): string => route('channels.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(Channels $record) => $record->delete())
+                        ->action(fn(Channel $record) => $record->delete())
                 ])
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //
-                ]),
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.channels-table');
     }

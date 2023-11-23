@@ -3,8 +3,8 @@
     $phone = '';
 	if (is_array($field)) {
 		foreach ($field as $key => $value) {
-			if(isset($value['@attributes']['PhoneNumber'])){
-				$phone .= $value['@attributes']['PhoneNumber'] . '<br>';
+			if(isset($value['PhoneNumber'])){
+				$phone .= $value['PhoneNumber'] . '<br>';
 			}
 		}
 	}

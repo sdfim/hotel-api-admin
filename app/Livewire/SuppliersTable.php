@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
@@ -22,10 +22,15 @@ class SuppliersTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    /**
+     * @param Table $table
+     * @return Table
+     */
+    public function table(Table $table): Table
     {
         return $table
-            ->query(Suppliers::query())
+            ->paginated([5, 10, 25, 50])
+            ->query(Supplier::query())
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
@@ -46,23 +51,24 @@ class SuppliersTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Suppliers $record): string => route('suppliers.show', $record)),
+                        ->url(fn(Supplier $record): string => route('suppliers.show', $record)),
                     EditAction::make()
-                        ->url(fn(Suppliers $record): string => route('suppliers.edit', $record)),
+                        ->url(fn(Supplier $record): string => route('suppliers.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(Suppliers $record) => $record->delete())
+                        ->action(fn(Supplier $record) => $record->delete())
                 ])
             ])
             ->bulkActions([
-                BulkActionGroup::make([
-                    //
-                ]),
+                BulkActionGroup::make([]),
             ]);
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
-        return view('livewire.suppliers-table');
+        return view('livewire.suppliers.suppliers-table');
     }
 }

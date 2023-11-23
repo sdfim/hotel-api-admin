@@ -15,3 +15,14 @@
 
     <x-filament-actions::modals/>
 </div>
+
+<script>
+	window.addEventListener('load', function() {
+	  setTimeout(function() {
+		var inputElement = document.querySelector('.choices__input--cloned');
+		inputElement.style.minWidth = '37ch';
+	  }, 500); 
+	});
+  </script>
+  
+  

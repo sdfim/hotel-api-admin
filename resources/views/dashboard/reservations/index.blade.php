@@ -1,6 +1,9 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Reservation') }}
+    {{ __('Reservations List') }}
+@endsection
+@section('css')
+    <link rel="stylesheet" href="{{ URL::asset('build/libs/glightbox/css/glightbox.min.css') }}">
 @endsection
 @section('content')
     <!-- -->
@@ -15,4 +18,11 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script src="{{ URL::asset('build/libs/glightbox/js/glightbox.min.js') }}"></script>
+
+    <!-- lightbox init -->
+    <script src="{{ URL::asset('build/js/pages/lightbox.init.js') }}"></script>
 @endsection

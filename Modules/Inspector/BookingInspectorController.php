@@ -3,60 +3,78 @@
 namespace Modules\Inspector;
 
 use Illuminate\Support\Facades\Storage;
-use App\Models\Channels;
+use App\Models\Channel;
 use App\Models\ApiBookingInspector;
-use Modules\Inspector\BaseInspectorController;
+
 class BookingInspectorController extends BaseInspectorController
 {
-	public function save($booking_id, $query, $content, $client_content, $supplier_id, $type = 'add_item', $subType = 'main', $search_type) : string|bool
-	{
-		try {
-			$this->current_time = microtime(true);
+    /**
+     * @param $booking_id
+     * @param $query
+     * @param $content
+     * @param $client_content
+     * @param $supplier_id
+     * @param $type
+     * @param $subType
+     * @param $search_type
+     * @return string|bool
+     */
+    public function save($booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type): string|bool
+    {
 
-			$ch = new Channels;
-			$token_id = $ch->getTokenId(request()->bearerToken());
-			$search_id = $query['search_id'];
-			$query = json_encode($query);
-			$content = json_encode($content);
-			$client_content = json_encode($client_content);
-			$hash = md5($query.$booking_id);
+		\Log::debug('BookingInspectorController save query: ', [
+			'query' => $query,
+		]);
+        try {
+            $this->current_time = microtime(true);
 
-			$path = $type . '/' . date("Y-m-d") . '/' . $subType . '/' . $hash.'.json';
-			$client_path = $type . '/' . date("Y-m-d") . '/' . $subType . '/' . $hash.'.client.json';
+            $ch = new Channel;
+            $token_id = $ch->getTokenId(request()->bearerToken());
+            $search_id = $query['search_id'];
+			$booking_item = $query['booking_item'] ?? null;
+            $query = json_encode($query);
+            $content = json_encode($content);
+            $client_content = json_encode($client_content);
+            $hash = md5($query . $booking_id);
 
-			$booking = ApiBookingInspector::where('response_path', $path)->first();
-			if ($booking) return $booking->id;
-			\Log::debug('BookingInspectorController item exist: ' . $this->executionTime() . ' seconds');
+			$generalPath = self::PATH_INSPECTORS . 'booking_inspector/' . date("Y-m-d") . '/' . $type . '_' . $subType . '_' . $hash;
+            $path = $generalPath . '.json';
+            $client_path = $generalPath . '.client.json';
 
-			Storage::put($path, $content);
-			\Log::debug('BookingInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
+            $booking = ApiBookingInspector::where('response_path', $path)->first();
+            if (!$booking) {
+				Storage::put($path, $content);
+				\Log::debug('BookingInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
 
-			Storage::put($client_path, $client_content);
-			\Log::debug('BookingInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
+				Storage::put($client_path, $client_content);
+				\Log::debug('BookingInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
+			}
 
-			$data = [
-				'booking_id' => $booking_id,
-				'token_id' => $token_id,
-				'supplier_id' => $supplier_id,
-				'search_id' => $search_id,
-				'search_type' => $search_type,
-				'type' => $type,
-				'sub_type' => $subType, 
-				'request' => $query,
-				'response_path' => $path,
-				'client_response_path' => $client_path,
-			];
+            $data = [
+                'booking_id' => $booking_id,
+                'token_id' => $token_id,
+                'supplier_id' => $supplier_id,
+                'search_id' => $search_id,
+				'booking_item' => $booking_item,
+                'search_type' => $search_type,
+                'type' => $type,
+                'sub_type' => $subType,
+                'request' => $query,
+                'response_path' => $path,
+                'client_response_path' => $client_path,
+            ];
 
-			$bokking = ApiBookingInspector::create($data);
-			\Log::debug('BookingInspectorController save to DB: ' . $this->executionTime() . ' seconds');
+			\Log::debug('BookingInspectorController save data: ', $data);
 
-			return $bokking ? $bokking->id : false;
+            $booking = ApiBookingInspector::create($data);
+            \Log::debug('BookingInspectorController save to DB: ' . $this->executionTime() . ' seconds');
 
-		} catch (\Exception $e) {
-            \Log::error('Error save ApiSearchInspector: ' . $e->getMessage(). ' | ' . $e->getLine() . ' | ' . $e->getFile());
-			
-			return false;
-		}
-	}
+            return $booking ? $booking->id : false;
 
+        } catch (\Exception $e) {
+            \Log::error('Error save ApiSearchInspector: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
+
+            return false;
+        }
+    }
 }

@@ -1,0 +1,35 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Channel;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+/**
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Channels>
+ */
+class ChannelFactory extends Factory
+{
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = Channel::class;
+
+    /**
+     * Define the model's default state.
+     *
+     * @return array<string, mixed>
+     */
+    public function definition(): array
+    {
+        $token = auth()->user()->createToken('name');
+        return [
+            'token_id' => $token->accessToken->id,
+            'access_token' => $token->plainTextToken,
+            'name' => $this->faker->name(),
+            'description' => $this->faker->name(),
+        ];
+    }
+}

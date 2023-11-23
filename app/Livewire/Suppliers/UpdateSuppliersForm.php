@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Suppliers;
 
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Filament\Forms;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -17,17 +17,31 @@ class UpdateSuppliersForm extends Component implements HasForms
 {
     use InteractsWithForms;
 
+    /**
+     * @var array|null
+     */
     public ?array $data = [];
 
-    public Suppliers $record;
+    /**
+     * @var Supplier
+     */
+    public Supplier $record;
 
-    public function mount (Suppliers $suppliers): void
+    /**
+     * @param Supplier $suppliers
+     * @return void
+     */
+    public function mount(Supplier $suppliers): void
     {
         $this->record = $suppliers;
         $this->form->fill($this->record->attributesToArray());
     }
 
-    public function form (Form $form): Form
+    /**
+     * @param Form $form
+     * @return Form
+     */
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -42,7 +56,10 @@ class UpdateSuppliersForm extends Component implements HasForms
             ->model($this->record);
     }
 
-    public function edit (): Redirector|RedirectResponse
+    /**
+     * @return Redirector|RedirectResponse
+     */
+    public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
 
@@ -56,7 +73,10 @@ class UpdateSuppliersForm extends Component implements HasForms
         return redirect()->route('suppliers.index');
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.suppliers.update-suppliers-form');
     }

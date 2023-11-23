@@ -10,7 +10,7 @@ class Kernel extends ConsoleKernel
     /**
      * Define the application's command schedule.
      */
-    protected function schedule (Schedule $schedule): void
+    protected function schedule(Schedule $schedule): void
     {
         // # Expedia Content download archive, unzip, parse json, write to DB
         // $schedule->command('download-expedia-data content 1')->cron('0 1 * * *');
@@ -25,7 +25,7 @@ class Kernel extends ConsoleKernel
     /**
      * Register the commands for the application.
      */
-    protected function commands (): void
+    protected function commands(): void
     {
         $this->load(__DIR__ . '/Commands');
 

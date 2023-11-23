@@ -38,6 +38,7 @@ export default defineConfig({
                 'resources/css/tailwind.css',
                 'resources/css/icons.css',
                 'resources/js/app.js',
+                'resources/js/json-viewer.js',
                 'resources/js/bootstrap.js',
             ],
             refresh: [

@@ -4,94 +4,321 @@ namespace Modules\API\PricingAPI\ResponseModels;
 
 class RoomResponse
 {
-	private string $giata_room_code;
-	private string $giata_room_name;
-	private string $supplier_room_name;
-	private int $supplier_room_code;
-	private string $per_day_rate_breakdown;
-	private int $supplier_bed_groups;
-	private array $links;
+    /**
+     * @var string
+     */
+    private string $giata_room_code;
+    /**
+     * @var string
+     */
+    private string $giata_room_name;
+    /**
+     * @var string
+     */
+    private string $supplier_room_name;
+    /**
+     * @var int
+     */
+    private int $supplier_room_code;
+    /**
+     * @var string
+     */
+    private string $per_day_rate_breakdown;
+    /**
+     * @var int
+     */
+    private int $supplier_bed_groups;
+    /**
+     * @var array
+     */
+    private array $links;
+	/**
+	 * @var float
+	 */
+	private float $total_price;
+	/**
+	 * @var float
+	 */
+	private float $total_tax;
+	/**
+	 * @var float
+	 */
+	private float $total_fees;
+	/**
+	 * @var float
+	 */
+	private float $total_net;
+	/**
+	 * @var float
+	 */
+	private float $affiliate_service_charge;
+	/**
+	 * @var string
+	 */
+	private string $booking_item;
+	/**
+	 * @var string
+	 */
+	private string $currency;
 
-	public function setLinks(array $links) : void
+	/**
+	 * @param string $currency
+	 * @return void
+	 */
+	public function setCurrency(string $currency): void
 	{
-		$this->links = $links;
+		$this->currency = $currency;
 	}
 
-	public function getLinks() : array
+	/**
+	 * @return string
+	 */
+	public function getCurrency(): string
 	{
-		return $this->links;
+		return $this->currency;
 	}
 
-	public function setSupplierBedGroups(int $supplier_bed_groups) : void
+	/**
+	 * @param string $booking_item
+	 * @return void
+	 */
+	public function setBookingItem(string $booking_item): void
 	{
-		$this->supplier_bed_groups = $supplier_bed_groups;
+		$this->booking_item = $booking_item;
 	}
 
-	public function getSupplierBedGroups() : int
+	/**
+	 * @return string
+	 */
+	public function getBookingItem(): string
 	{
-		return $this->supplier_bed_groups;
+		return $this->booking_item;
 	}
 
-	public function setSupplierRoomCode(int $supplier_room_code) : void
+	/**
+	 * @param float $total_price
+	 * @return void
+	 */
+	public function setTotalPrice(float $total_price): void
 	{
-		$this->supplier_room_code = $supplier_room_code;
+		$this->total_price = $total_price;
 	}
 
-	public function getSupplierRoomCode() : int
+	/**
+	 * @return float
+	 */
+	public function getTotalPrice(): float
 	{
-		return $this->supplier_room_code;
+		return $this->total_price;
 	}
 
-	public function setGiataRoomCode(string $giata_room_code) : void
+	/**
+	 * @param float $total_tax
+	 * @return void
+	 */
+	public function setTotalTax(float $total_tax): void
 	{
-		$this->giata_room_code = $giata_room_code;
+		$this->total_tax = $total_tax;
 	}
 
-	public function getGiataRoomCode() : string
+	/**
+	 * @return float
+	 */
+	public function getTotalTax(): float
 	{
-		return $this->giata_room_code;
+		return $this->total_tax;
 	}
 
-	public function setGiataRoomName(string $giata_room_name) : void
+	/**
+	 * @param float $total_fees
+	 * @return void
+	 */
+	public function setTotalFees(float $total_fees): void
 	{
-		$this->giata_room_name = $giata_room_name;
+		$this->total_fees = $total_fees;
 	}
 
-	public function getGiataRoomName() : string
+	/**
+	 * @return float
+	 */
+	public function getTotalFees(): float
 	{
-		return $this->giata_room_name;
+		return $this->total_fees;
 	}
 
-	public function setSupplierRoomName(string $supplier_room_name) : void
+	/**
+	 * @param float $affiliate_service_charge
+	 * @return void
+	 */
+	public function setAffiliateServiceCharge(float $affiliate_service_charge): void
 	{
-		$this->supplier_room_name = $supplier_room_name;
+		$this->affiliate_service_charge = $affiliate_service_charge;
 	}
 
-	public function getSupplierRoomName() : string
+	/**
+	 * @return float
+	 */
+	public function getAffiliateServiceCharge(): float
 	{
-		return $this->supplier_room_name;
+		return $this->affiliate_service_charge;
 	}
 
-	public function setPerDayRateBreakdown(string $per_day_rate_breakdown) : void
+	/**
+	 * @param float $total_net
+	 * @return void
+	 */
+	public function setTotalNet(float $total_net): void
 	{
-		$this->per_day_rate_breakdown = $per_day_rate_breakdown;
+		$this->total_net = $total_net;
 	}
 
-	public function getPerDayRateBreakdown() : string
+	/**
+	 * @return float
+	 */
+	public function getTotalNet(): float
 	{
-		return $this->per_day_rate_breakdown;
+		return $this->total_net;
 	}
 
-	public function toArray() : array
-	{
-		return [
-			'giata_room_code' => $this->getGiataRoomCode(),
-			'giata_room_name' => $this->getGiataRoomName(),
-			'supplier_room_name' => $this->getSupplierRoomName(),
-			'per_day_rate_breakdown' => $this->getPerDayRateBreakdown(),
-			'supplier_room_code' => $this->getSupplierRoomCode(),
-			'supplier_bed_groups' => $this->getSupplierBedGroups(),
-			'links' => $this->getLinks(),
-		];
-	}
+    /**
+     * @param array $links
+     * @return void
+     */
+    public function setLinks(array $links): void
+    {
+        $this->links = $links;
+    }
+
+    /**
+     * @return array
+     */
+    public function getLinks(): array
+    {
+        return $this->links;
+    }
+
+    /**
+     * @param int $supplier_bed_groups
+     * @return void
+     */
+    public function setSupplierBedGroups(int $supplier_bed_groups): void
+    {
+        $this->supplier_bed_groups = $supplier_bed_groups;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSupplierBedGroups(): int
+    {
+        return $this->supplier_bed_groups;
+    }
+
+    /**
+     * @param int $supplier_room_code
+     * @return void
+     */
+    public function setSupplierRoomCode(int $supplier_room_code): void
+    {
+        $this->supplier_room_code = $supplier_room_code;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSupplierRoomCode(): int
+    {
+        return $this->supplier_room_code;
+    }
+
+    /**
+     * @param string $giata_room_code
+     * @return void
+     */
+    public function setGiataRoomCode(string $giata_room_code): void
+    {
+        $this->giata_room_code = $giata_room_code;
+    }
+
+    /**
+     * @return string
+     */
+    public function getGiataRoomCode(): string
+    {
+        return $this->giata_room_code;
+    }
+
+    /**
+     * @param string $giata_room_name
+     * @return void
+     */
+    public function setGiataRoomName(string $giata_room_name): void
+    {
+        $this->giata_room_name = $giata_room_name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getGiataRoomName(): string
+    {
+        return $this->giata_room_name;
+    }
+
+    /**
+     * @param string $supplier_room_name
+     * @return void
+     */
+    public function setSupplierRoomName(string $supplier_room_name): void
+    {
+        $this->supplier_room_name = $supplier_room_name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSupplierRoomName(): string
+    {
+        return $this->supplier_room_name;
+    }
+
+    /**
+     * @param string $per_day_rate_breakdown
+     * @return void
+     */
+    public function setPerDayRateBreakdown(string $per_day_rate_breakdown): void
+    {
+        $this->per_day_rate_breakdown = $per_day_rate_breakdown;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPerDayRateBreakdown(): string
+    {
+        return $this->per_day_rate_breakdown;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return [
+            'giata_room_code' => $this->getGiataRoomCode(),
+            'giata_room_name' => $this->getGiataRoomName(),
+            'supplier_room_name' => $this->getSupplierRoomName(),
+            'per_day_rate_breakdown' => $this->getPerDayRateBreakdown(),
+            // 'supplier_room_code' => $this->getSupplierRoomCode(),
+            // 'supplier_bed_groups' => $this->getSupplierBedGroups(),
+			'total_price' => $this->getTotalPrice(),
+			'total_tax' => $this->getTotalTax(),
+			'total_fees' => $this->getTotalFees(),
+			'total_net' => $this->getTotalNet(),
+			'affiliate_service_charge' => $this->getAffiliateServiceCharge(),
+			'currency' => $this->getCurrency(),
+            // 'links' => $this->getLinks(),
+			'booking_item' => $this->getBookingItem(),
+        ];
+    }
 }

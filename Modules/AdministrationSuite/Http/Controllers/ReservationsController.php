@@ -2,11 +2,14 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use App\Models\Reservations;
+use App\Models\Reservation;
 use Illuminate\View\View;
 
 class ReservationsController extends Controller
 {
+    /**
+     * @var array|string[]
+     */
     private array $message = ['create' => 'Add New Reservations', 'edit' => 'Edit Reservations', 'show' => 'Show Reservations'];
 
     /**
@@ -14,7 +17,7 @@ class ReservationsController extends Controller
      */
     public function index(): View
     {
-        $reservations = Reservations::with(['channel', 'contains'])->get();
+        $reservations = Reservation::with(['channel'])->get();
         return view('dashboard.reservations.index', [
             'reservations' => $reservations
         ]);
@@ -26,7 +29,7 @@ class ReservationsController extends Controller
     public function show(string $id): View
     {
         $text = $this->message;
-        $reservation = Reservations::with(['channel', 'contains'])->findOrFail($id);
+        $reservation = Reservation::with(['channel'])->findOrFail($id);
         return view('dashboard.reservations.show', compact('reservation', 'text'));
     }
 }

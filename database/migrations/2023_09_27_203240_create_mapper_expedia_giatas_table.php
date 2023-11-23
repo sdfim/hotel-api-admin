@@ -8,26 +8,29 @@ return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up (): void
+    public function up(): void
     {
-		if (!Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->hasTable('mapper_expedia_giatas')) {
-            Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->create('mapper_expedia_giatas', function (Blueprint $table) {
-				$table->id();
-				$table->integer('expedia_id');
-				$table->integer('giata_id');
-				// $table->foreign('giata_id')->references('code')->on(env('SECOND_DB_DATABASE', 'ujv_api').'.giata_properties')->onDelete('cascade');
-				// $table->foreign('expedia_id')->references('property_id')->on(env('SECOND_DB_DATABASE', 'ujv_api').'.expedia_contents')->onDelete('cascade');
-				// $table->connection(env('DB_CONNECTION_2', 'mysql2'))->foreign('giata_id')->references('code')->on('giata_properties')->onDelete('cascade');
-				// $table->connection(env('DB_CONNECTION_2', 'mysql2'))->foreign('expedia_id')->references('property_id')->on('expedia_contents')->onDelete('cascade');
-				$table->integer('step');
-			});
-		}
+        $connection = env('DB_CONNECTION_2', 'mysql2');
+
+        if (!Schema::connection($connection)->hasTable('mapper_expedia_giatas')) {
+            Schema::connection($connection)->create('mapper_expedia_giatas', function (Blueprint $table) use ($connection) 
+			{
+                $table->integer('expedia_id')->index();
+                $table->integer('giata_id')->index();
+
+				$table->index(['expedia_id', 'giata_id'], 'idx_expedia_giatas');
+            	$table->primary(['expedia_id', 'giata_id']);
+
+                $table->integer('step');				
+            });
+        }
     }
+
 
     /**
      * Reverse the migrations.
      */
-    public function down (): void
+    public function down(): void
     {
         Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->dropIfExists('mapper_expedia_giatas');
     }

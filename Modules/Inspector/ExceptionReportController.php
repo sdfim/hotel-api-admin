@@ -2,63 +2,73 @@
 
 namespace Modules\Inspector;
 
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use App\Models\ApiExceptionReport;
-use Illuminate\Support\Str;
-use Modules\Inspector\BaseInspectorController;
 
 class ExceptionReportController extends BaseInspectorController
 {
-	public function save($task, $content, $supplier_id , $type = 'error') : string|bool
-	{
-		try {
-			$this->current_time = microtime(true);
-			
-			$hash = md5($task);
-			
-			if ($content == '') $content = json_encode($task);
-			else $content = json_encode($content);
+    /**
+     * @param $uuid
+     * @param $level
+     * @param $supplier_id
+     * @param $action
+     * @param $description
+     * @param $content
+     * @return string|bool
+     */
+    public function save($uuid, $level, $supplier_id, $action, $description, $content): string|bool
+    {
+        try {
+            $this->current_time = microtime(true);
+            $hash = md5($description . date("Y-m-d H:i:s"));
 
-			$path = 'report_' . $type. '/' . date("Y-m-d") . '/' . $hash.'.json';
+            $path = 'exception_report_' . $level . '/' . date("Y-m-d") . '/' . $hash . '.json';
 
-			Storage::put($path, $content);
-			\Log::debug('ExceptionReportController save to Storage: ' . $this->executionTime() . ' seconds');
+            Storage::put($path, $content);
+            \Log::debug('ExceptionReportController save to Storage: ' . $this->executionTime() . ' seconds');
 
-			$uuid = Str::uuid()->toString();
+            $data = [
+                'report_id' => $uuid,
+                'level' => $level, // 'error', 'warning', 'info
+                'supplier_id' => $supplier_id,
+                'action' => $action,
+                'description' => $description,
+                'response_path' => $path
+            ];
 
-			$data = [
-				'id' => $uuid,
-				'supplier_id' => $supplier_id,
-				'type' => $type,
-				'request' => json_encode($task),
-				'response_path' => $path
-			];
+            $inspector = ApiExceptionReport::create($data);
+            \Log::debug('ExceptionReportController save to DB: ' . $this->executionTime() . ' seconds');
 
-			$inspector = ApiExceptionReport::create($data);
-			\Log::debug('ExceptionReportController save to DB: ' . $this->executionTime() . ' seconds');
+            return $inspector ? $uuid : false;
 
-			return $inspector ? $uuid : false;
+        } catch (\Exception $e) {
+            \Log::error('Error save ExceptionReportController: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
 
-		} catch (\Exception $e) {
-            \Log::error('Error save ExceptionReportController: ' . $e->getMessage(). ' | ' . $e->getLine() . ' | ' . $e->getFile());
-			
-			return false;
-		}
-	}
+            return false;
+        }
+    }
 
-	public function get()
-	{
-		//
-	}
+    /**
+     * @return void
+     */
+    public function get()
+    {
+        //
+    }
 
-	public function delete()
-	{
-		//
-	}
+    /**
+     * @return void
+     */
+    public function delete()
+    {
+        //
+    }
 
-	public function update()
-	{
-		//
-	}
+    /**
+     * @return void
+     */
+    public function update()
+    {
+        //
+    }
 }

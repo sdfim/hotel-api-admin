@@ -2,136 +2,187 @@
 
 namespace Modules\API\Suppliers\ExpediaSupplier;
 
+use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Promise\PromiseInterface as promise;
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\RequestOptions;
+use Psr\Http\Message\ResponseInterface;
 
 class RapidClient
 {
-	// Headers
-	private const GZIP = "gzip";
-	private const AUTHORIZATION_HEADER = "EAN APIKey=%s,Signature=%s,timestamp=%s";
+    private const GZIP = "gzip";
 
-	private $apiKey;
-	private $sharedSecret;
-	private $client;
-	private $rapidBaseUrl;
+    private const API_KEY = "13jhb72476h1ufkl4vce08a5ob";
 
-	public function __construct($apiKey, $sharedSecret)
-	{
-		$this->apiKey = $apiKey;
-		$this->sharedSecret = $sharedSecret;
-		$this->client = new Client(['debug' => fopen('./rapidClientDebug.log', 'w')]);
-		$this->rapidBaseUrl = env('EXPEDIA_RAPID_BASE_URL');
-	}
+    private const SHARED_SECRET = "20rf37o3nv5uo";
 
-	public function get($path, $queryParameters, $addHeaders = [])
-	{
-		$queryParams = [];
-		foreach ($queryParameters as $key => $value) {
-			$queryParams[$key] = $value;
-		}
-		$url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+    # Test endpoint: https://test.ean.com
+    # Production endpoint: https://api.ean.com
+    private const BASE_URL = "https://test.ean.com";
 
-		$headers = [
-			'Authorization' => $this->generateAuthHeader(),
-			'Accept-Encoding' => self::GZIP,
-		];
+    private const AUTHORIZATION_HEADER = "EAN APIKey=%s,Signature=%s,timestamp=%s";
 
-		$request = new Request('GET', $url, $headers + $addHeaders);
-		$res = $this->client->sendAsync($request)->wait();
+    /**
+     * @var string|null
+     */
+    private string|null $apiKey;
+    /**
+     * @var string|null
+     */
+    private string|null $sharedSecret;
+    /**
+     * @var Client
+     */
+    private Client $client;
+    /**
+     * @var string|null
+     */
+    private string|null $rapidBaseUrl;
 
-		return $res;
-	}
 
-	public function put($path, $queryParameters, $body, $addHeaders = [])
-	{
-		$queryParams = [];
-		foreach ($queryParameters as $key => $value) {
-			$queryParams[$key] = $value;
-		}
-		$url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+    public function __construct()
+    {
+        $this->apiKey = self::API_KEY;
+        $this->sharedSecret = self::SHARED_SECRET;
+        $this->rapidBaseUrl = self::BASE_URL;
+        $this->client = new Client(['debug' => fopen('./rapidClientDebug.log', 'w')]);
+    }
 
-		$headers = [
-			'Authorization' => $this->generateAuthHeader(),
-			'Accept-Encoding' => self::GZIP,
-		];
-		$headers = $headers + $addHeaders;
+    /**
+     * @param string $path
+     * @param array $queryParameters
+     * @param array $addHeaders
+     * @return mixed
+     */
+    public function get(string $path, array $queryParameters, array $addHeaders = []): mixed
+    {
+        $queryParams = [];
+        foreach ($queryParameters as $key => $value) {
+            $queryParams[$key] = $value;
+        }
+        $url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
-		$request = new Request('PUT', $url, $headers, $body);
-		$res = $this->client->sendAsync($request)->wait();
+        $headers = [
+            'Authorization' => $this->generateAuthHeader(),
+            'Accept-Encoding' => self::GZIP,
+        ];
 
-		return $res;
-	}
+        $request = new Request('GET', $url, $headers + $addHeaders);
+        return $this->client->sendAsync($request)->wait();
+    }
 
-	public function delete($path, $queryParameters, $body, $addHeaders = [])
-	{
-		$queryParams = [];
-		foreach ($queryParameters as $key => $value) {
-			$queryParams[$key] = $value;
-		}
-		$url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+    /**
+     * @param string $path
+     * @param array $queryParameters
+     * @param string $body
+     * @param array $addHeaders
+     * @return mixed
+     */
+    public function put(string $path, array $queryParameters, string $body, array $addHeaders = []): mixed
+    {
+        $queryParams = [];
+        foreach ($queryParameters as $key => $value) {
+            $queryParams[$key] = $value;
+        }
+        $url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
-		$headers = [
-			'Authorization' => $this->generateAuthHeader(),
-			'Accept-Encoding' => self::GZIP,
-		];
+        $headers = [
+            'Authorization' => $this->generateAuthHeader(),
+            'Accept-Encoding' => self::GZIP,
+        ];
+        $headers = $headers + $addHeaders;
 
-		$request = new Request('DELETE', $url, $headers + $addHeaders, $body);
-		$res = $this->client->send($request);
+        $request = new Request('PUT', $url, $headers, $body);
+        return $this->client->sendAsync($request)->wait();
+    }
 
-		return $res;
-	}
+    /**
+     * @param string $path
+     * @param array $queryParameters
+     * @param string $body
+     * @param array $addHeaders
+     * @return ResponseInterface
+     * @throws GuzzleException
+     */
+    public function delete(string $path, array $queryParameters, string $body, array $addHeaders = []): ResponseInterface
+    {
+        $queryParams = [];
+        foreach ($queryParameters as $key => $value) {
+            $queryParams[$key] = $value;
+        }
+        $url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
-	public function post($path, $queryParameters, $body, $addHeaders = [])
-	{
-		$queryParams = [];
-		foreach ($queryParameters as $key => $value) {
-			$queryParams[$key] = $value;
-		}
-		$url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+        $headers = [
+            'Authorization' => $this->generateAuthHeader(),
+            'Accept-Encoding' => self::GZIP,
+        ];
 
-		$headers = [
-			'Authorization' => $this->generateAuthHeader(),
-			'Accept-Encoding' => self::GZIP,
-		];
+        $request = new Request('DELETE', $url, $headers + $addHeaders, $body);
+        return $this->client->send($request);
+    }
 
-		$request = new Request('POST', $url, $headers + $addHeaders, $body);
-		$res = $this->client->sendAsync($request)->wait();
+    /**
+     * @param string $path
+     * @param array $queryParameters
+     * @param string $body
+     * @param array $addHeaders
+     * @return mixed
+     */
+    public function post(string $path, array $queryParameters, string $body, array $addHeaders = []): mixed
+    {
+        $queryParams = [];
+        foreach ($queryParameters as $key => $value) {
+            $queryParams[$key] = $value;
+        }
+        $url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
-		return $res;
-	}
+        $headers = [
+            'Authorization' => $this->generateAuthHeader(),
+            'Accept-Encoding' => self::GZIP,
+        ];
 
-	private function generateAuthHeader()
-	{
-		$timeStampInSeconds = strval(time());
-		$input = $this->apiKey . $this->sharedSecret . $timeStampInSeconds;
-		$signature = hash('sha512', $input);
+        $request = new Request('POST', $url, $headers + $addHeaders, $body);
+        return $this->client->sendAsync($request)->wait();
+    }
 
-		return sprintf(self::AUTHORIZATION_HEADER, $this->apiKey, $signature, $timeStampInSeconds);
-	}
+    /**
+     * @param string $path
+     * @param array $queryParameters
+     * @param array $addHeaders
+     * @return promise
+     */
+    public function getAsync(string $path, array $queryParameters, array $addHeaders = []): promise
+    {
+        foreach (range(0, 250) as $i) $arrayReplace[] = '%5B' . $i . '%5D';
+        $http_build_query = http_build_query($queryParameters);
+        $http_query = str_replace($arrayReplace, '', $http_build_query);
 
-	public function getAsync($path, $queryParameters, $addHeaders=[]): promise
-	{
-		foreach (range(0, 10) as $i) $arrayReplace[] = '%5B'.$i.'%5D';
-		$http_build_query = http_build_query($queryParameters);
-		$http_query = str_replace($arrayReplace, '', $http_build_query);
+        $url = $this->rapidBaseUrl . '/' . $path . '?' . $http_query;
 
-		$url = $this->rapidBaseUrl . '/' . $path . '?' . $http_query;
+        $headers = [
+            'Accept-Encoding' => self::GZIP,
+            'Authorization' => $this->generateAuthHeader()
+        ];
+        $request = new Request('GET', $url, $headers + $addHeaders);
+        try {
+            $res = $this->client->sendAsync($request);
+        } catch (Exception $e) {
+            \Log::error('Error while creating promise: ' . $e->getMessage());
+        }
 
-		$headers = [
-			'Accept-Encoding' => self::GZIP,
-			'Authorization' => $this->generateAuthHeader()
-		];
-		$request = new Request('GET', $url, $headers + $addHeaders);
-		try {
-			$res = $this->client->sendAsync($request);
-		} catch (\Exception $e) {
-			\Log::error('Error while creating promise: ' . $e->getMessage());
-		}
+        return $res;
+    }
 
-		return $res;
-	}
+    /**
+     * @return string
+     */
+    private function generateAuthHeader(): string
+    {
+        $timeStampInSeconds = strval(time());
+        $input = $this->apiKey . $this->sharedSecret . $timeStampInSeconds;
+        $signature = hash('sha512', $input);
 
+        return sprintf(self::AUTHORIZATION_HEADER, $this->apiKey, $signature, $timeStampInSeconds);
+    }
 }

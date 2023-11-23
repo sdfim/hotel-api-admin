@@ -14,8 +14,15 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+	# Enable CORS (add this section before the front controller rules)
+	<IfModule mod_headers.c>
+		Header set Access-Control-Allow-Origin "https://ddwlx1ki3fks2.cloudfront.net"
+	</IfModule>
+
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+
 </IfModule>
+

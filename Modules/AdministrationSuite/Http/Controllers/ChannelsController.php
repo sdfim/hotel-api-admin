@@ -2,7 +2,7 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use App\Models\Channels;
+use App\Models\Channel;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -10,6 +10,9 @@ use Illuminate\View\View;
 class ChannelsController extends Controller
 {
 
+    /**
+     * @var array|string[]
+     */
     private array $message = ['create' => 'Add New Channel', 'edit' => 'Edit Channel', 'show' => 'Show Channel'];
 
     /**
@@ -49,7 +52,7 @@ class ChannelsController extends Controller
             'description' => $request->get('description'),
         ];
 
-        Channels::create($channel);
+        Channel::create($channel);
 
         return redirect()->route('channels.index')
             ->with('success', 'Channels created successfully.');
@@ -60,7 +63,7 @@ class ChannelsController extends Controller
      */
     public function show(string $id): View
     {
-        $channel = Channels::findOrFail($id);
+        $channel = Channel::findOrFail($id);
         $text = $this->message;
 
         return view('dashboard.channels.show', compact('channel', 'text'));
@@ -71,7 +74,7 @@ class ChannelsController extends Controller
      */
     public function edit(string $id): View
     {
-        $channel = Channels::findOrFail($id);
+        $channel = Channel::findOrFail($id);
         $text = $this->message;
 
         return view('dashboard.channels.edit', compact('channel', 'text'));
@@ -82,7 +85,7 @@ class ChannelsController extends Controller
      */
     public function update(Request $request, string $id): RedirectResponse
     {
-        $channel = Channels::findOrFail($id);
+        $channel = Channel::findOrFail($id);
         $request->validate([
             'name' => 'required|string|max:190',
             'description' => 'required|string|max:190',
@@ -98,7 +101,7 @@ class ChannelsController extends Controller
      */
     public function destroy(string $id): RedirectResponse
     {
-        $channels = Channels::findOrFail($id);
+        $channels = Channel::findOrFail($id);
         $channels->delete();
 
         return redirect()->route('channels.index')

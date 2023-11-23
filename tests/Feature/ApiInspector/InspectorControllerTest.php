@@ -12,7 +12,11 @@ class InspectorControllerTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testIndex(): void
+    /**
+     * @test
+     * @return void
+     */
+    public function test_search_index_is_opening(): void
     {
         $this->auth();
 
@@ -21,7 +25,10 @@ class InspectorControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function auth()
+    /**
+     * @return void
+     */
+    public function auth(): void
     {
         $user = User::factory()->create();
 

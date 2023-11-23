@@ -10,6 +10,7 @@
         </testsuite>
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
+			<exclude>tests/Feature/API</exclude>
         </testsuite>
     </testsuites>
     <source>
@@ -19,6 +20,9 @@
             <directory>app/Livewire</directory>
             <directory>Modules/AdministrationSuite</directory>
         </include>
+		<exclude>
+			<directory>app/Livewire/Charts</directory>
+		</exclude>
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>

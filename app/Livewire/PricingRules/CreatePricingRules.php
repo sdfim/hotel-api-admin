@@ -3,10 +3,10 @@
 namespace App\Livewire\PricingRules;
 
 use Livewire\Component;
-use App\Models\Channels;
+use App\Models\Channel;
 use App\Models\GiataProperty;
-use App\Models\PricingRules;
-use App\Models\Suppliers;
+use App\Models\PricingRule;
+use App\Models\Supplier;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -26,24 +26,40 @@ class CreatePricingRules extends Component implements HasForms
 {
     use InteractsWithForms;
 
+    /**
+     * @var array|null
+     */
     public ?array $data = [];
 
-    public function mount (): void
+    /**
+     * @return void
+     */
+    public function mount(): void
     {
         $this->form->fill();
     }
 
-    public function form (Form $form): Form
+    /**
+     * @param Form $form
+     * @return Form
+     */
+    public function form(Form $form): Form
     {
         return $form
+            ->columns([
+                'sm' => 1,
+                'md' => 2,
+                'xl' => 3,
+                '2xl' => 3,
+            ])
             ->schema([
                 Select::make('supplier_id')
                     ->label('Supplier')
-                    ->options(Suppliers::all()->pluck('name', 'id'))
+                    ->options(Supplier::all()->pluck('name', 'id'))
                     ->required(),
                 Select::make('channel_id')
                     ->label('Channel')
-                    ->options(Channels::all()->pluck('name', 'id'))
+                    ->options(Channel::all()->pluck('name', 'id'))
                     ->required(),
                 TextInput::make('name')
                     ->required()
@@ -52,7 +68,7 @@ class CreatePricingRules extends Component implements HasForms
                     ->searchable()
                     ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
-                        ->where('name', 'like', "%{$search}%")->limit(30)->pluck('full_name', 'code')->toArray()
+                        ->where('name', 'like', "%$search%")->limit(30)->pluck('full_name', 'code')->toArray()
                     )
                     ->afterStateUpdated(function (Get $get, Set $set) {
                         $set('destination', null);
@@ -75,31 +91,26 @@ class CreatePricingRules extends Component implements HasForms
                     ->required()
                     ->default(now()),
                 TextInput::make('days')
-                    ->required()
                     ->numeric(),
                 TextInput::make('nights')
                     ->required()
                     ->numeric(),
-                TextInput::make('rate_code')
-                    ->required()
-                    ->maxLength(191),
-                TextInput::make('room_type')
+                TextInput::make('rating')
                     ->required()
                     ->maxLength(191),
                 TextInput::make('total_guests')
                     ->required()
                     ->numeric(),
-                TextInput::make('room_guests')
-                    ->required()
-                    ->numeric(),
                 TextInput::make('number_rooms')
                     ->required()
                     ->numeric(),
-                TextInput::make('meal_plan')
-                    ->required()
+                TextInput::make('room_guests')
+                    ->numeric(),
+                TextInput::make('rate_code')
                     ->maxLength(191),
-                TextInput::make('rating')
-                    ->required()
+                TextInput::make('room_type')
+                    ->maxLength(191),
+                TextInput::make('meal_plan')
                     ->maxLength(191),
                 Select::make('price_value_type_to_apply')
                     ->options([
@@ -128,10 +139,14 @@ class CreatePricingRules extends Component implements HasForms
                     ->required(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
             ])
             ->statePath('data')
-            ->model(PricingRules::class);
+            ->model(PricingRule::class);
     }
 
-    protected function onValidationError (ValidationException $exception): void
+    /**
+     * @param ValidationException $exception
+     * @return void
+     */
+    protected function onValidationError(ValidationException $exception): void
     {
         Notification::make()
             ->title($exception->getMessage())
@@ -139,11 +154,14 @@ class CreatePricingRules extends Component implements HasForms
             ->send();
     }
 
-    public function create (): RedirectResponse|Redirector
+    /**
+     * @return RedirectResponse|Redirector
+     */
+    public function create(): RedirectResponse|Redirector
     {
         $data = $this->form->getState();
 
-        $record = PricingRules::create($data);
+        $record = PricingRule::create($data);
 
         $this->form->model($record)->saveRelationships();
 
@@ -155,7 +173,10 @@ class CreatePricingRules extends Component implements HasForms
         return redirect()->route('pricing_rules.index');
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.pricing-rules.create-pricing-rules');
     }

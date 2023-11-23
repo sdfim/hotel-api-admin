@@ -3,7 +3,7 @@
 namespace App\Livewire\Inspectors;
 
 use App\Models\ApiSearchInspector;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -13,6 +13,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -21,108 +22,70 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function table (Table $table): Table
+    /**
+     * @param Table $table
+     * @return Table
+     */
+    public function table(Table $table): Table
     {
         return $table
-            ->query(ApiSearchInspector::orderBy('created_at','DESC'))
+            ->paginated([5, 10, 25, 50])
+            ->query(ApiSearchInspector::orderBy('created_at', 'DESC'))
             ->columns([
-                TextColumn::make('id')
-                    ->searchable(),
-				TextColumn::make('search_id')
-                    ->searchable()
-					->label('Search ID'),
-                TextColumn::make('type')
-                    ->searchable()
-					->label('Endpoint'),
-                TextColumn::make('token.id')
+				ViewColumn::make('search_id')
+					->tooltip('view Search ID data')
+					->searchable(isIndividual: true)
+					->view('dashboard.search-inspector.column.search-id'),
+				ViewColumn::make('request')
+					->toggleable()
+					->searchable(isIndividual: true)
+					->view('dashboard.search-inspector.column.request-data'),
+				ViewColumn::make('request json')
+					->label('')
+					->view('dashboard.search-inspector.column.request'),
+                TextColumn::make('token.name')
+					->label('Channel')
                     ->numeric()
-                    ->searchable(),
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
                 TextColumn::make('suppliers')
-                ->formatStateUsing(function (ApiSearchInspector $record): string{
-                    $suppliers_name_string = '';
-                    $suppliers_array = explode(',',$record->suppliers);
-                    for($i = 0; $i < count($suppliers_array); $i++){
-                        $supplier = Suppliers::find($suppliers_array[$i]);
-                        if($i == (count($suppliers_array)-1)){
-                            $suppliers_name_string .= $supplier->name;
-                        }else{
+                    ->toggleable()
+                    ->formatStateUsing(function (ApiSearchInspector $record): string {
+                        $suppliers_name_string = '';
+                        $suppliers_array = explode(',', $record->suppliers);
+                        for ($i = 0; $i < count($suppliers_array); $i++) {
+                            $supplier = Supplier::find($suppliers_array[$i]);
                             $suppliers_name_string .= $supplier->name . ', ';
                         }
-                    }
-                    return $suppliers_name_string;
-                }),
-//                    ->searchable(),
+                        // remove all spaces and commas from the end of the line if present
+                        return rtrim($suppliers_name_string, " ,");
+                    })
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereIn('suppliers', explode(',', $search));
+                    }),
+				TextColumn::make('created_at')
+                    ->toggleable()
+                    ->searchable(isIndividual: true)
+                    ->sortable(),
+				])
+            ->filters([])
+            // ->actions([
+            //     ViewAction::make()
+            //         ->url(fn(ApiSearchInspector $record): string => route('search-inspector.show', $record))
+            //         ->label('View response')
+            //         ->color('info'),
 
-                ViewColumn::make('request')->view('dashboard.search-inspector.column.request'),
-                TextColumn::make('created_at')
-                    ->dateTime()
-					->sortable()
-            ])
-            ->filters([
-                // Filter::make('name')
-                // ->form([
-                //     TextInput::make('name')
-                // ])
-                // ->query(function (Builder $query, array $data): Builder {
-                //     return $query
-                //         ->when(
-                //             $data['name'],
-                //             fn (Builder $query, $name): Builder => $query->where('name', 'LIKE', '%'.$name.'%'),
-                //         );
-                // })->indicateUsing(function (array $data): ?string {
-                //     if (! $data['name']) {
-                //         return null;
-                //     }
-                //     return 'Name: ' . $data['name'];
-                // }),
-                // Filter::make('city')
-                // ->form([
-                //     TextInput::make('city')
-                // ])
-                // ->query(function (Builder $query, array $data): Builder {
-                //     return $query
-                //         ->when(
-                //             $data['city'],
-                //             fn (Builder $query, $city): Builder => $query->where('city', 'LIKE', '%'.$city.'%'),
-                //         );
-                // })->indicateUsing(function (array $data): ?string {
-                //     if (! $data['city']) {
-                //         return null;
-                //     }
-                //     return 'City: ' . $data['city'];
-                // }),
-                // Filter::make('address')
-                // ->form([
-                //     TextInput::make('address')
-                // ])
-                // ->query(function (Builder $query, array $data): Builder {
-                //     return $query
-                //         ->when(
-                //             $data['address'],
-                //             fn (Builder $query, $address): Builder => $query->where('address', 'LIKE', '%'.$address.'%'),
-                //         );
-                // })->indicateUsing(function (array $data): ?string {
-                //     if (! $data['address']) {
-                //         return null;
-                //     }
-                //     return 'Address: ' . $data['address'];
-                // })
-            ])
-            ->actions([
-                ViewAction::make()
-                        ->url(fn(ApiSearchInspector $record): string => route('search-inspector.show', $record))
-                        ->label('View response')
-                        ->color('info'),
-
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //
-                ]),
-            ]);
+            // ])
+            // ->bulkActions([
+            //     Tables\Actions\BulkActionGroup::make([]),
+            // ])
+			;
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.inspectors.search-inspector-table');
     }

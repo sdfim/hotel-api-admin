@@ -10,8 +10,11 @@ class RoleMiddlewareTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function it_aborts_request_if_user_does_not_have_required_role()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_it_aborts_request_if_user_does_not_have_required_role(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user, 'web');
@@ -19,13 +22,16 @@ class RoleMiddlewareTest extends TestCase
         $response->assertStatus(404);
     }
 
-    /** @test */
-    public function it_aborts_request_if_user_does_not_have_required_permission()
+    /**
+     * @test
+     * @return void
+     */
+    public function test_it_aborts_request_if_user_does_not_have_required_permission(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user, 'web');
         $response = $this->get('/test-admin');
         $response->assertStatus(404);
     }
-   
+
 }

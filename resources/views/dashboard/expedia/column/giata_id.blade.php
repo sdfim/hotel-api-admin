@@ -7,9 +7,9 @@
     <div style="display: flex; flex-direction: column">
         @foreach($field as $giata)
             @if($i == $counter)
-                <a href="{{route('giata.show', $giata->giata_id)}}" target="_blank">{{$giata->giata_id}}</a>
+                <a href="{{route('giata.show', $giata)}}" target="_blank">{{$giata}}</a>
             @else
-                <a href="{{route('giata.show', $giata->giata_id)}}" target="_blank">{{$giata->giata_id}}, </a>
+                <a href="{{route('giata.show', $giata)}}" target="_blank">{{$giata}}, </a>
             @endif
             @php
                 $i++;

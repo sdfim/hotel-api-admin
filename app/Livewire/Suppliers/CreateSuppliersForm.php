@@ -3,7 +3,7 @@
 namespace App\Livewire\Suppliers;
 
 use Livewire\Component;
-use App\Models\Suppliers;
+use App\Models\Supplier;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -17,14 +17,24 @@ class CreateSuppliersForm extends Component implements HasForms
 {
     use InteractsWithForms;
 
+    /**
+     * @var array|null
+     */
     public ?array $data = [];
 
-    public function mount (): void
+    /**
+     * @return void
+     */
+    public function mount(): void
     {
         $this->form->fill();
     }
 
-    public function form (Form $form): Form
+    /**
+     * @param Form $form
+     * @return Form
+     */
+    public function form(Form $form): Form
     {
         return $form
             ->schema([
@@ -36,14 +46,17 @@ class CreateSuppliersForm extends Component implements HasForms
                     ->maxLength(191),
             ])
             ->statePath('data')
-            ->model(Suppliers::class);
+            ->model(Supplier::class);
     }
 
-    public function create (): Redirector|RedirectResponse
+    /**
+     * @return Redirector|RedirectResponse
+     */
+    public function create(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
 
-        $record = Suppliers::create($data);
+        $record = Supplier::create($data);
 
         $this->form->model($record)->saveRelationships();
 
@@ -55,7 +68,10 @@ class CreateSuppliersForm extends Component implements HasForms
         return redirect()->route('suppliers.index');
     }
 
-    public function render (): View
+    /**
+     * @return View
+     */
+    public function render(): View
     {
         return view('livewire.suppliers.create-suppliers-form');
     }

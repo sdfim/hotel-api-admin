@@ -7,6 +7,9 @@ use App\Models\GiataProperty;
 
 class GiataController extends Controller
 {
+    /**
+     * @var array|string[]
+     */
     private array $message = ['show' => 'Show Giata'];
 
     /**

@@ -2,7 +2,7 @@
 
 namespace App\Livewire\PricingRules;
 
-use App\Models\PricingRules;
+use App\Models\PricingRule;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -14,7 +14,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -23,10 +22,15 @@ class PricingRulesTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    /**
+     * @param Table $table
+     * @return Table
+     */
     public function table(Table $table): Table
     {
         return $table
-            ->query(PricingRules::query())
+            ->paginated([5, 10, 25, 50])
+            ->query(PricingRule::query())
             ->columns([
                 TextColumn::make('suppliers.name')
                     ->sortable()
@@ -112,27 +116,26 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
+            ->filters([])
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(PricingRules $record): string => route('pricing_rules.show', $record)),
+                        ->url(fn(PricingRule $record): string => route('pricing_rules.show', $record)),
                     EditAction::make()
-                        ->url(fn(PricingRules $record): string => route('pricing_rules.edit', $record)),
+                        ->url(fn(PricingRule $record): string => route('pricing_rules.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(PricingRules $record) => $record->delete())
+                        ->action(fn(PricingRule $record) => $record->delete())
                 ])
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    //
-                ]),
+                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 
+    /**
+     * @return View
+     */
     public function render(): View
     {
         return view('livewire.pricing-rules.pricing-rules-table');

@@ -12,16 +12,23 @@ class ContentLoaderExceptionsControllerTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    public function testIndex(): void
+    /**
+     * @test
+     * @return void
+     */
+    public function test_content_loader_exceptions_is_opening(): void
     {
         $this->auth();
 
-        $response = $this->get('/admin/content-loader-exceptions');
+        $response = $this->get('/admin/exceptions-report');
 
         $response->assertStatus(200);
     }
 
-    public function auth()
+    /**
+     * @return void
+     */
+    public function auth(): void
     {
         $user = User::factory()->create();
 

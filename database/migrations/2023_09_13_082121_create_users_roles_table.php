@@ -11,7 +11,7 @@ class CreateUsersRolesTable extends Migration
      *
      * @return void
      */
-    public function up ()
+    public function up()
     {
         Schema::create('users_roles', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id');
@@ -29,7 +29,7 @@ class CreateUsersRolesTable extends Migration
      *
      * @return void
      */
-    public function down ()
+    public function down()
     {
         Schema::dropIfExists('users_roles');
     }
