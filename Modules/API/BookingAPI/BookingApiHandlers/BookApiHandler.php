@@ -61,6 +61,7 @@ class BookApiHandler extends BaseController
      *       ref="#/components/schemas/BookingBookRequest",
      *       examples={
      *           "example1": @OA\Schema(ref="#/components/examples/BookingBookRequest", example="BookingBookRequest"),
+	 *           "example2": @OA\Schema(ref="#/components/examples/BookingBookRequestExpedia", example="BookingBookRequestExpedia"),
      *       },
      *     ),
      *   ),

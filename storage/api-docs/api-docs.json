@@ -34,6 +34,9 @@
                             "examples": {
                                 "BookingBookRequest": {
                                     "$ref": "#/components/examples/BookingBookRequest"
+                                },
+                                "BookingBookRequestExpedia": {
+                                    "$ref": "#/components/examples/BookingBookRequestExpedia"
                                 }
                             }
                         }
@@ -1345,6 +1348,106 @@
                             "billing_address": {
                                 "type": "string",
                                 "example": ""
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "BookingBookRequestExpedia": {
+                "title": "Booking Book Request Expedia",
+                "description": "Schema Booking Book Request Expedia",
+                "required": [
+                    "amount_pay",
+                    "email",
+                    "phone",
+                    "booking_contact"
+                ],
+                "properties": {
+                    "amount_pay": {
+                        "type": "string",
+                        "enum": [
+                            "Deposit",
+                            "Full Payment"
+                        ],
+                        "example": "Deposit"
+                    },
+                    "booking_contact": {
+                        "required": [
+                            "first_name",
+                            "last_name",
+                            "email",
+                            "phone",
+                            "address"
+                        ],
+                        "properties": {
+                            "first_name": {
+                                "type": "string",
+                                "example": "John"
+                            },
+                            "last_name": {
+                                "type": "string",
+                                "example": "Smith"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email",
+                                "example": "john@example.com"
+                            },
+                            "phone": {
+                                "required": [
+                                    "country_code",
+                                    "area_code",
+                                    "number"
+                                ],
+                                "properties": {
+                                    "country_code": {
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "area_code": {
+                                        "type": "string",
+                                        "example": "487"
+                                    },
+                                    "number": {
+                                        "type": "string",
+                                        "example": "5550077"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "address": {
+                                "required": [
+                                    "line_1",
+                                    "city",
+                                    "state_province_code",
+                                    "postal_code",
+                                    "country_code"
+                                ],
+                                "properties": {
+                                    "line_1": {
+                                        "type": "string",
+                                        "example": "555 1st St"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "Seattle"
+                                    },
+                                    "state_province_code": {
+                                        "type": "string",
+                                        "example": "WA"
+                                    },
+                                    "postal_code": {
+                                        "type": "string",
+                                        "example": "98121"
+                                    },
+                                    "country_code": {
+                                        "type": "string",
+                                        "example": "US"
+                                    }
+                                },
+                                "type": "object"
                             }
                         },
                         "type": "object"
@@ -3004,6 +3107,29 @@
                         "expiry_date": "09/2026",
                         "cvv": 123,
                         "billing_address": ""
+                    }
+                }
+            },
+            "BookingBookRequestExpedia": {
+                "summary": "Example Booking Book Request Expedia",
+                "value": {
+                    "amount_pay": "Deposit",
+                    "booking_contact": {
+                        "first_name": "John",
+                        "last_name": "Smith",
+                        "email": "john@example.com",
+                        "phone": {
+                            "country_code": "1",
+                            "area_code": "487",
+                            "number": "5550077"
+                        },
+                        "address": {
+                            "line_1": "555 1st St",
+                            "city": "Seattle",
+                            "state_province_code": "WA",
+                            "postal_code": "98121",
+                            "country_code": "US"
+                        }
                     }
                 }
             },
