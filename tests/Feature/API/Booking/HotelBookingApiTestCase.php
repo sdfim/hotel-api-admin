@@ -45,22 +45,20 @@ class HotelBookingApiTestCase extends ApiTestCase
     /**
      * @param array $requestResponse
      * @param string $supplier
-     * @param int $resultIndex
-     * @param int $roomGroupIndex
      * @return array
      */
-    protected function getBookingItemsFromPricingSearchResult(array $requestResponse, string $supplier = 'Expedia', int $resultIndex = 0, int $roomGroupIndex = 0): array
+    protected function getBookingItemsFromPricingSearchResult(array $requestResponse, string $supplier = 'Expedia'): array
     {
+        $flattenedData = Arr::dot($requestResponse['data']['results'][$supplier]);
+        $bookingItems = [];
 
-		$input = Arr::dot($requestResponse['data']['results'][$supplier]);
-		$output =[ ];
-		foreach($input as $key => $value){
-			if(str_contains($key, 'booking_item')){
-				$output[] = $value;
-			}
-		}
-		return $output;
-        // return array_column($requestResponse['data']['results'][$supplier][$resultIndex]['room_groups'][$roomGroupIndex]['rooms'], 'booking_item') ?? [];
+        foreach ($flattenedData as $key => $value) {
+            if (str_contains($key, 'booking_item')) {
+                $bookingItems[] = $value;
+            }
+        }
+
+        return $bookingItems;
     }
 
     /**

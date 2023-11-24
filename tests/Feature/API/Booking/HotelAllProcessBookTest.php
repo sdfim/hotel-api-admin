@@ -198,12 +198,12 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
             'booking_contact' => [
                 'first_name' => 'John',
                 'last_name' => 'Smith',
-				'email' => 'john@example.com',
-				'phone' => [
-					'country_code' => '1',
-					'area_code' => '487',
-					'number' => '5550077'
-				],
+                'email' => 'john@example.com',
+                'phone' => [
+                    'country_code' => '1',
+                    'area_code' => '487',
+                    'number' => '5550077'
+                ],
                 'address' => [
                     'line_1' => '555 1st St',
                     'city' => 'Seattle',
