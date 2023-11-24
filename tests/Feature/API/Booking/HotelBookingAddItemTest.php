@@ -121,7 +121,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_add_item_with_missed_or_empty_booking_item_method_response_400(): void
+    public function test_hotel_booking_add_item_with_empty_booking_item_method_response_400(): void
     {
         $bookingRemoveItemWithMissedBookingItemResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-item?booking_item=");
