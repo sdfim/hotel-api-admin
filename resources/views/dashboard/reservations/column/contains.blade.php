@@ -3,9 +3,9 @@
     $record = json_decode($getRecord()->reservation_contains, true);
 
 	$search_id = $record['search_id'];
-	$content = 'booking_item: <a href=' . route('booking-items.show', $record['booking_item'] ) .' target="_blank" style="color: #007bff;">' . $record['booking_item']. "</a><br>";
-	$content .= 'booking_id:<b> ' . $record['booking_id'] . "</b><br>";
-	$content .=  'search_id: <a href=' . route('search-inspector.show', $search_id ) .' target="_blank" style="color: #007bff;">' . $search_id . '</a>';
+	$content = '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">booking_item: <a href=' . route('booking-items.show', $record['booking_item'] ) .' target="_blank" style="color: #007bff;">' . $record['booking_item']. "</a></span><br>";
+	$content .= '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">booking_id:<b> ' . $record['booking_id'] . "</b></span><br>";
+	$content .=  '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">search_id: <a href=' . route('search-inspector.show', $search_id ) .' target="_blank" style="color: #007bff;">' . $search_id . '</a></span>';
 
 	unset($record['search_id']);
 	unset($record['booking_item']);
