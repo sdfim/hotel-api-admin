@@ -2,10 +2,13 @@
 
 namespace Tests\Feature\API\Booking;
 
+use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Str;
 
 class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
 {
+    use WithFaker;
+
     /**
      * @test
      * @return void
@@ -57,8 +60,8 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
                                 'occupancy' => [
                                     '*' => [
                                         'adults',
-                                        // 'children',
-                                        // 'children_ages',
+//                                         'children',
+//                                         'children_ages',
                                     ],
                                 ],
                                 'destination',
@@ -78,20 +81,33 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
     {
         $createBooking = $this->createHotelBooking();
 
-        $pricingSearchRequestResponse = $this->getHotelPricingSearchData();
+        $bookingId = $createBooking['booking_id'];
+        $bookingItem = $createBooking['booking_items'][0];
 
-        $bookingItems = $this->getBookingItemsFromPricingSearchResult($pricingSearchRequestResponse);
-        $numberOfRooms = $this->getNumberOfRoomsFromPricingSearchResult($pricingSearchRequestResponse);
+        $roomsCount = count($createBooking['hotel_pricing_request_data']['occupancy']);
 
-        $bookingAddItemResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-item?booking_item=$bookingItems[0]");
+        $firstName = $this->faker->firstName;
+        $lastName = $this->faker->lastName;
 
-        $bookingId = $bookingAddItemResponse->json('data.booking_id');
+        $addPassengersRequestData = [
+            'title' => "Add passengers {$this->faker->date}",
+            'first_name' => $firstName,
+            'last_name' => $lastName,
+            'rooms' => [],
+        ];
 
-        //TODO: add call of add-passengers
+        for ($i = 0; $i < $roomsCount; $i++) {
+            $addPassengersRequestData['rooms'][$i] = [
+                'given_name' => $firstName,
+                'family_name' => $lastName
+            ];
+        }
+
+        $this->withHeaders($this->headers)
+            ->postJson("api/booking/add-passengers?booking_item=$bookingItem&booking_id=$bookingId", $addPassengersRequestData);
 
         $bookingRetrieveItemsWithPassengersResponse = $this->withHeaders($this->headers)
-            ->getJson("api/booking/retrieve-items?booking_id={$createBooking['booking_id']}");
+            ->getJson("api/booking/retrieve-items?booking_id=$bookingId");
 
         $bookingRetrieveItemsWithPassengersResponse->assertStatus(200)
             ->assertJsonStructure([
@@ -123,9 +139,11 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
                                 'affiliate_service_charge',
                             ],
                             'passengers' => [
-                                '*' => [
-                                    'given_name',
-                                    'family_name',
+                                'rooms' => [
+                                    '*' => [
+                                        'given_name',
+                                        'family_name',
+                                    ],
                                 ],
                                 'title',
                                 'last_name',
@@ -144,8 +162,8 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
                                 'occupancy' => [
                                     '*' => [
                                         'adults',
-                                        // 'children',
-                                        // 'children_ages',
+//                                        'children',
+//                                        'children_ages',
                                     ],
                                 ],
                                 'destination',

@@ -26,7 +26,8 @@ class HotelBookingApiTestCase extends ApiTestCase
 
         return [
             'booking_id' => $bookingId ?? '',
-            'booking_items' => $bookingItems
+            'booking_items' => $bookingItems,
+            'hotel_pricing_request_data' => $pricingSearchRequestResponse['data']['query']
         ];
     }
 
@@ -59,17 +60,5 @@ class HotelBookingApiTestCase extends ApiTestCase
         }
 
         return $bookingItems;
-    }
-
-    /**
-     * @param array $requestResponse
-     * @param string $supplier
-     * @param int $resultIndex
-     * @param int $roomGroupIndex
-     * @return int
-     */
-    protected function getNumberOfRoomsFromPricingSearchResult(array $requestResponse, string $supplier = 'Expedia', int $resultIndex = 0, int $roomGroupIndex = 0): int
-    {
-        return count($requestResponse['data']['results'][$supplier][$resultIndex]['room_groups'][$roomGroupIndex]['rooms']) ?? 0;
     }
 }
