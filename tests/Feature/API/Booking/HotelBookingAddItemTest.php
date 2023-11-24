@@ -121,7 +121,22 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_add_item_with_missed_or_empty_booking_item_method_response_400(): void
+    public function test_hotel_booking_add_item_with_empty_booking_item_method_response_400(): void
+    {
+        $bookingRemoveItemWithMissedBookingItemResponse = $this->withHeaders($this->headers)
+            ->postJson("api/booking/add-item?booking_item=");
+
+        $bookingRemoveItemWithMissedBookingItemResponse->assertStatus(400)
+            ->assertJson([
+                'message' => 'Invalid type'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_add_item_with_empty_booking_id_method_response_400(): void
     {
         $bookingRemoveItemWithMissedBookingItemResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-item?booking_id=");
@@ -129,6 +144,22 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
         $bookingRemoveItemWithMissedBookingItemResponse->assertStatus(400)
             ->assertJson([
                 'message' => 'Invalid booking_id'
+
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_add_item_without_parameters_method_response_400(): void
+    {
+        $bookingRemoveItemWithMissedBookingItemResponse = $this->withHeaders($this->headers)
+            ->postJson("api/booking/add-item");
+
+        $bookingRemoveItemWithMissedBookingItemResponse->assertStatus(400)
+            ->assertJson([
+                'message' => 'Invalid type'
             ]);
     }
 }

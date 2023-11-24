@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 trait HotelPricingGeneralMethodsTrait
 {
     use WithFaker;
+
     /**
      * @return array
      */

@@ -69,7 +69,7 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_remove_item_to_non_existent_or_empty_booking_id_method_response_400(): void
+    public function test_hotel_booking_remove_item_with_non_existent_booking_id_method_response_400(): void
     {
         $nonExistentBookingId = Str::uuid()->toString();
 
@@ -88,7 +88,7 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_remove_item_with_non_existent_or_empty_booking_item_method_response_400(): void
+    public function test_hotel_booking_remove_item_with_non_existent_booking_item_method_response_400(): void
     {
         $nonExistentBookingItem = Str::uuid()->toString();
 
@@ -100,6 +100,23 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
         $bookingRemoveItemWithNonExistentBookingItemResponse->assertStatus(400)
             ->assertJson([
                 'message' => 'Invalid booking_item'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_remove_item_with_empty_booking_item_method_response_400(): void
+    {
+        $createBooking = $this->createHotelBooking();
+
+        $bookingRemoveItemWithNonExistentBookingItemResponse = $this->withHeaders($this->headers)
+            ->delete("api/booking/remove-item?booking_id={$createBooking['booking_id']}&booking_item=");
+
+        $bookingRemoveItemWithNonExistentBookingItemResponse->assertStatus(400)
+            ->assertJson([
+                'message' => 'Invalid type'
             ]);
     }
 

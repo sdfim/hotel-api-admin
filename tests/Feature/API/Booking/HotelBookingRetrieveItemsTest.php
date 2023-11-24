@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\API\Booking;
 
+use Illuminate\Support\Str;
+
 class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
 {
     /**
@@ -78,10 +80,13 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
 
         $pricingSearchRequestResponse = $this->getHotelPricingSearchData();
 
-        $bookingItems = $this->getNumberOfRoomsFromPricingSearchResult($pricingSearchRequestResponse);
+        $bookingItems = $this->getBookingItemsFromPricingSearchResult($pricingSearchRequestResponse);
+        $numberOfRooms = $this->getNumberOfRoomsFromPricingSearchResult($pricingSearchRequestResponse);
 
         $bookingAddItemResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-item?booking_item=$bookingItems[0]");
+
+        $bookingId = $bookingAddItemResponse->json('data.booking_id');
 
         //TODO: add call of add-passengers
 
@@ -169,6 +174,23 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
                         'The booking id field is required.'
                     ]
                 ]
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_retrieve_items_with_non_existent_booking_id_method_response_400(): void
+    {
+        $nonExistentBookingId = Str::uuid()->toString();
+
+        $bookingRemoveItemWithMissedBookingItemResponse = $this->withHeaders($this->headers)
+            ->getJson("api/booking/retrieve-items?booking_id=$nonExistentBookingId");
+
+        $bookingRemoveItemWithMissedBookingItemResponse->assertStatus(400)
+            ->assertJson([
+                'message' => 'Invalid booking_id'
             ]);
     }
 
