@@ -7,6 +7,7 @@ use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Illuminate\Support\Facades\DB;
 
 class ApiTestCase extends TestCase
 {
@@ -47,9 +48,11 @@ class ApiTestCase extends TestCase
     protected function seederSupplier(): void
     {
         $supplier = Supplier::firstOrNew([
+			'id' => 1,
             'name' => 'Expedia',
             'description' => 'Expedia Description']);
         $supplier->save();
+		\Log::info('seederSupplier', ['supplier' => $supplier]);
     }
 
     /**

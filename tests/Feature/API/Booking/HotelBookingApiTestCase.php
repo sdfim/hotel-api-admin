@@ -4,6 +4,7 @@ namespace Tests\Feature\API\Booking;
 
 use Tests\Feature\API\ApiTestCase;
 use Tests\Feature\API\Pricing\HotelPricingGeneralMethodsTrait;
+use Illuminate\Support\Arr;
 
 class HotelBookingApiTestCase extends ApiTestCase
 {
@@ -50,7 +51,16 @@ class HotelBookingApiTestCase extends ApiTestCase
      */
     protected function getBookingItemsFromPricingSearchResult(array $requestResponse, string $supplier = 'Expedia', int $resultIndex = 0, int $roomGroupIndex = 0): array
     {
-        return array_column($requestResponse['data']['results'][$supplier][$resultIndex]['room_groups'][$roomGroupIndex]['rooms'], 'booking_item') ?? [];
+
+		$input = Arr::dot($requestResponse['data']['results'][$supplier]);
+		$output =[ ];
+		foreach($input as $key => $value){
+			if(str_contains($key, 'booking_item')){
+				$output[] = $value;
+			}
+		}
+		return $output;
+        // return array_column($requestResponse['data']['results'][$supplier][$resultIndex]['room_groups'][$roomGroupIndex]['rooms'], 'booking_item') ?? [];
     }
 
     /**

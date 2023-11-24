@@ -47,8 +47,6 @@ trait HotelPricingGeneralMethodsTrait
             $data['occupancy'][] = $occupancy;
         }
 
-		dump($data);
-
         return $data;
     }
 }

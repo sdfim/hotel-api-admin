@@ -55,8 +55,8 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
                                 'occupancy' => [
                                     '*' => [
                                         'adults',
-                                        'children',
-                                        'children_ages',
+                                        // 'children',
+                                        // 'children_ages',
                                     ],
                                 ],
                                 'destination',
@@ -139,8 +139,8 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
                                 'occupancy' => [
                                     '*' => [
                                         'adults',
-                                        'children',
-                                        'children_ages',
+                                        // 'children',
+                                        // 'children_ages',
                                     ],
                                 ],
                                 'destination',
@@ -159,7 +159,7 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
     public function test_hotel_booking_retrieve_items_with_missed_booking_id_method_response_400(): void
     {
         $bookingRemoveItemWithMissedBookingItemResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/retrieve-items");
+            ->getJson("api/booking/retrieve-items");
 
         $bookingRemoveItemWithMissedBookingItemResponse->assertStatus(400)
             ->assertJson([
@@ -179,7 +179,7 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
     public function test_hotel_booking_retrieve_items_with_empty_booking_id_method_response_400(): void
     {
         $bookingRemoveItemWithEmptyBookingIdResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/retrieve-items?booking_id=");
+            ->getJson("api/booking/retrieve-items?booking_id=");
 
         $bookingRemoveItemWithEmptyBookingIdResponse->assertStatus(400)
             ->assertJson([

@@ -195,15 +195,15 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
     {
         return [
             'amount_pay' => 'Deposit',
-            'email' => 'john@example.com',
-            'phone' => [
-                'country_code' => '1',
-                'area_code' => '487',
-                'number' => '5550077'
-            ],
             'booking_contact' => [
-                'given_name' => 'John',
-                'family_name' => 'Smith',
+                'first_name' => 'John',
+                'last_name' => 'Smith',
+				'email' => 'john@example.com',
+				'phone' => [
+					'country_code' => '1',
+					'area_code' => '487',
+					'number' => '5550077'
+				],
                 'address' => [
                     'line_1' => '555 1st St',
                     'city' => 'Seattle',
