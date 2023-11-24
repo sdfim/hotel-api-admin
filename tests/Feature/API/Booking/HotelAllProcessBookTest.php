@@ -102,7 +102,7 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
                 [
                     'adults' => 2,
                     'children' => 2,
-					'children_ages' => [5, 10]
+                    'children_ages' => [5, 10]
                 ],
                 [
                     'adults' => 3
@@ -128,7 +128,7 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
                 [
                     'adults' => 2,
                     'children' => 1,
-					'children_ages' => [5]
+                    'children_ages' => [5]
                 ],
                 [
                     'adults' => 3

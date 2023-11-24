@@ -8,6 +8,7 @@ use Illuminate\Support\Carbon;
 trait HotelPricingGeneralMethodsTrait
 {
     use WithFaker;
+
     /**
      * @return array
      */
@@ -46,8 +47,6 @@ trait HotelPricingGeneralMethodsTrait
 
             $data['occupancy'][] = $occupancy;
         }
-
-		dump($data);
 
         return $data;
     }
