@@ -86,6 +86,7 @@ class CustomBookingCommand extends Command
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
         $this->addPassengers($bookingId, $bookingItem, 2);
 
+		sleep(1);
         $this->warn('REMOVE ITEM');
         $this->removeBookingItem($bookingId, $bookingItem);
 

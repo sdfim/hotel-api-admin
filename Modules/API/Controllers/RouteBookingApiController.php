@@ -136,7 +136,7 @@ class RouteBookingApiController extends Controller
         if (is_null($this->supplier)) return response()->json(['message' => 'Invalid supplier'], 400);
 
         $dataHandler = match ($this->type) {
-            'hotel' => new HotelBookingApiHandler($this->expediaService),
+            'hotel' => new HotelBookingApiHandler(),
             'flight' => new FlightBookingApiHandler(),
             'combo' => new ComboBookingApiHandler(),
             default => response()->json(['message' => 'Invalid route'], 400),
