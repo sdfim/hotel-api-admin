@@ -15,7 +15,7 @@ class HotelBookingApiTestCase extends ApiTestCase
     protected function createHotelBooking(): array
     {
         $pricingSearchRequestResponse = $this->getHotelPricingSearchData();
-
+		
         $bookingItems = $this->getBookingItemsFromPricingSearchResult($pricingSearchRequestResponse);
 
         $bookingAddItemResponse = $this->withHeaders($this->headers)

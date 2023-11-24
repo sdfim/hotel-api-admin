@@ -14,7 +14,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
     {
         $pricingSearchRequestResponse = $this->getHotelPricingSearchData();
 
-        $bookingItems = $this->getNumberOfRoomsFromPricingSearchResult($pricingSearchRequestResponse);
+        $bookingItems = $this->getBookingItemsFromPricingSearchResult($pricingSearchRequestResponse);
 
         $bookingAddItemResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-item?booking_item=$bookingItems[0]");

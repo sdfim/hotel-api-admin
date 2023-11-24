@@ -17,15 +17,14 @@ trait HotelPricingGeneralMethodsTrait
             'type' => 'hotel',
             'currency' => $this->faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
             'supplier' => 'Expedia',
-            'hotel_name' => 'Sheraton',
             'checkin' => $currentDate = Carbon::now()->addDays(7)->toDateString(),
             'checkout' => Carbon::parse($currentDate)->addDays(rand(2, 5))->toDateString(),
             'destination' => $this->faker->randomElement([961, 302, 93, 960, 1102]),
-            'rating' => $this->faker->randomFloat(1, 1, 5.5),
+            'rating' => $this->faker->randomFloat(1, 1, 4),
             'occupancy' => [],
         ];
 
-        $roomCount = rand(1, 4);
+        $roomCount = rand(1, 2);
 
         for ($i = 0; $i < $roomCount; $i++) {
             $haveChildren = rand(0, 1);
@@ -47,6 +46,8 @@ trait HotelPricingGeneralMethodsTrait
 
             $data['occupancy'][] = $occupancy;
         }
+
+		dump($data);
 
         return $data;
     }

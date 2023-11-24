@@ -15,7 +15,7 @@ class ApiTestCase extends TestCase
     /**
      * @var array|string[]
      */
-    protected array $headers;
+    protected array $headers = [];
 
     /**
      * @return void
