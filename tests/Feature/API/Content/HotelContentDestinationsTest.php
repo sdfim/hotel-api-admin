@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\API\Content;
 
-use Feature\API\ApiTestCase;
+use Tests\Feature\API\ApiTestCase;
 
 class HotelContentDestinationsTest extends ApiTestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Feature\API\Booking;
+namespace Tests\Feature\API\Booking;
 
 use Illuminate\Support\Str;
 

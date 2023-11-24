@@ -1,8 +1,6 @@
 <?php
 
-namespace Feature\API\Booking;
-
-use Illuminate\Support\Str;
+namespace Tests\Feature\API\Booking;
 
 class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
 {
@@ -77,6 +75,13 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
     public function test_hotel_booking_retrieve_items_with_passengers_method_response_200(): void
     {
         $createBooking = $this->createHotelBooking();
+
+        $pricingSearchRequestResponse = $this->getHotelPricingSearchData();
+
+        $bookingItems = $this->getNumberOfRoomsFromPricingSearchResult($pricingSearchRequestResponse);
+
+        $bookingAddItemResponse = $this->withHeaders($this->headers)
+            ->postJson("api/booking/add-item?booking_item=$bookingItems[0]");
 
         //TODO: add call of add-passengers
 

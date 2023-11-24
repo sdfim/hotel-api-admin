@@ -1,7 +1,8 @@
 <?php
 
-namespace Feature\API;
+namespace Tests\Feature\API;
 
+use App\Models\Channel;
 use App\Models\Supplier;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -22,8 +23,22 @@ class ApiTestCase extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seederSupplier();
+        $this->auth();
         $this->headers = array_merge($this->headers, $this->getAuthorizationHeader());
+        $this->seederSupplier();
+    }
+
+    /**
+     * @return void
+     */
+    protected function auth(): void
+    {
+        $user = User::factory()->create();
+
+        $this->post(route('login'), [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
     }
 
     /**
@@ -42,8 +57,8 @@ class ApiTestCase extends TestCase
      */
     protected function getAuthorizationHeader(): array
     {
-        $user = User::factory()->create();
-        $token = $user->createToken('TestToken')->plainTextToken;
+        $channel = Channel::factory()->create();
+        $token = $channel->access_token;
         return [
             'Authorization' => 'Bearer ' . $token,
         ];

@@ -2,8 +2,7 @@
 
 namespace Tests\Feature\API\Pricing;
 
-use Feature\API\ApiTestCase;
-use Feature\API\Pricing\HotelPricingGeneralMethodsTrait;
+use Tests\Feature\API\ApiTestCase;
 use Illuminate\Support\Carbon;
 
 class HotelPricingSearchTest extends ApiTestCase

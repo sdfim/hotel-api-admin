@@ -2,20 +2,10 @@
 
 namespace Tests\Feature\API\Booking;
 
-use Feature\API\Booking\HotelBookingApiTestCase;
 use Illuminate\Support\Carbon;
 
 class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
 {
-    /**
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->auth();
-    }
-
     /**
      * @test
      * @coversNothing

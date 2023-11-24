@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\API\Booking;
 
-use Feature\API\Booking\HotelBookingApiTestCase;
 use Illuminate\Support\Str;
 
 class HotelBookingAddItemTest extends HotelBookingApiTestCase
@@ -15,7 +14,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
     {
         $pricingSearchRequestResponse = $this->getHotelPricingSearchData();
 
-        $bookingItems = $this->getBookingItems($pricingSearchRequestResponse);
+        $bookingItems = $this->getNumberOfRoomsFromPricingSearchResult($pricingSearchRequestResponse);
 
         $bookingAddItemResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-item?booking_item=$bookingItems[0]");
