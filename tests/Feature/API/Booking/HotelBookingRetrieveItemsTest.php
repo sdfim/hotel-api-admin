@@ -2,13 +2,10 @@
 
 namespace Tests\Feature\API\Booking;
 
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Str;
 
 class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
 {
-    use WithFaker;
-
     /**
      * @test
      * @return void
@@ -86,25 +83,7 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
 
         $roomsCount = count($createBooking['hotel_pricing_request_data']['occupancy']);
 
-        $firstName = $this->faker->firstName;
-        $lastName = $this->faker->lastName;
-
-        $addPassengersRequestData = [
-            'title' => "Add passengers {$this->faker->date}",
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'rooms' => [],
-        ];
-
-        for ($i = 0; $i < $roomsCount; $i++) {
-            $addPassengersRequestData['rooms'][$i] = [
-                'given_name' => $firstName,
-                'family_name' => $lastName
-            ];
-        }
-
-        $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-passengers?booking_item=$bookingItem&booking_id=$bookingId", $addPassengersRequestData);
+        $this->addPassengersToBookingItem($bookingId, $bookingItem, $roomsCount);
 
         $bookingRetrieveItemsWithPassengersResponse = $this->withHeaders($this->headers)
             ->getJson("api/booking/retrieve-items?booking_id=$bookingId");
