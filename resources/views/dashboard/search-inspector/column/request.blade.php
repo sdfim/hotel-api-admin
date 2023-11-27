@@ -21,8 +21,8 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        Request:
-                        <pre>{{json_encode(json_decode($getRecord()->request), JSON_PRETTY_PRINT) }}</pre>
+                        <span class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">Request:</span>
+                        <pre class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">{{json_encode(json_decode($getRecord()->request), JSON_PRETTY_PRINT) }}</pre>
                     </div>
                     <!-- Modal footer -->
                     <div

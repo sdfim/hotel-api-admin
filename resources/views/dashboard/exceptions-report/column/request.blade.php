@@ -32,7 +32,7 @@
                             <i class="text-xl text-gray-500 mdi mdi-close dark:text-zinc-100/60"></i>
                         </button>
                     </div>
-                    <div class="modal-body">
+                    <div class="modal-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
                         Request:
                         <div id="actions-toolbar">
                             <button

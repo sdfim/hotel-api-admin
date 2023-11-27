@@ -83,7 +83,7 @@
                                     <div class="p-3 border-b border-sky-500">
                                         <h5 class="text-sky-500 text-17">Info</h5>
                                     </div>
-                                    <div class="card-body">
+                                    <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
                                         <p class="text-gray-700 mt-2 dark:text-zinc-100">
                                             <div class="col-xs-12 col-sm-12 col-md-12">
                                                 <div class="form-group">
@@ -145,7 +145,7 @@
                                     <div class="p-3 border-b border-sky-500">
                                         <h5 class="text-sky-500 text-17">Price</h5>
                                     </div>
-                                    <div class="card-body">
+                                    <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
                                         <p class="text-gray-700 mt-2 dark:text-zinc-100">
                                             <div class="col-xs-12 col-sm-12 col-md-12">
                                                 <div class="form-group">
@@ -186,7 +186,7 @@
                                     <div class="p-3 border-b border-sky-500">
                                         <h5 class="text-sky-500 text-17">Reservation Contains</h5>
                                     </div>
-                                    <div class="card-body">
+                                    <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
                                         <p class="text-gray-700 mt-2 dark:text-zinc-100">
                                             <div class="col-xs-12 col-sm-12 col-md-12">
                                                 <div class="form-group">

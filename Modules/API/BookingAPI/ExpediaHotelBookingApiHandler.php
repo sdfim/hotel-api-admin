@@ -122,7 +122,13 @@ class ExpediaHotelBookingApiHandler
 					Storage::delete($item->client_response_path);
 					Storage::delete($item->response_path);
 				}
+
+				ApiBookingInspector::where('booking_id', $booking_id)
+					->whereIn('booking_item', $bookingItems->get()->pluck('booking_item')->toArray())
+					->where('type', 'add_passengers')->delete();
+
 				$bookingItems->delete();
+				
 				$res = [
 					'success' =>
 						[
