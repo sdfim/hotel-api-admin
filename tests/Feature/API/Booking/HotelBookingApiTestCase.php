@@ -42,16 +42,16 @@ class HotelBookingApiTestCase extends ApiTestCase
     protected function addPassengersToBookingItem(string $bookingId, string $bookingItem, int $roomsCount): bool
     {
         $addPassengersRequestData = [
-            'title' => "Add passengers {$this->faker->date}",
-            'first_name' => $this->faker->firstName('male'),
-            'last_name' => $this->faker->lastName(),
             'rooms' => [],
         ];
 
         for ($i = 0; $i < $roomsCount; $i++) {
             $addPassengersRequestData['rooms'][$i] = [
+                'title' => 'Mr',
                 'given_name' => $this->faker->firstName('male'),
-                'family_name' => $this->faker->lastName()
+                'family_name' => $this->faker->lastName(),
+                'date_of_birth' => $this->faker->dateTimeBetween('1980-01-01', '2006-12-31')
+                    ->format('Y-m-d'),
             ];
         }
 
