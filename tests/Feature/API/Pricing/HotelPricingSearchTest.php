@@ -370,8 +370,9 @@ class HotelPricingSearchTest extends ApiTestCase
         $error = [];
 
         foreach ($jsonData['occupancy'] as $index => $room) {
-            if (isset($room['children']) && isset($room['children_ages'])) {
-                $error["occupancy.$index.children_ages"] = ['The occupancy.0.children ages field is required.'];
+            if (isset($room['children']) && isset($room['children_ages']) && count($room['children_ages']) === 0) {
+                $error["occupancy.$index.children_ages"] = ["The occupancy.$index.children ages field is required."];
+				break;
             }
         }
 

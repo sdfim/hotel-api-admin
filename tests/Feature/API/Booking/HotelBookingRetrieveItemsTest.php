@@ -120,16 +120,12 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
                             'passengers' => [
                                 'rooms' => [
                                     '*' => [
+										'title',
                                         'given_name',
                                         'family_name',
+										'date_of_birth',
                                     ],
-                                ],
-                                'title',
-                                'last_name',
-                                'search_id',
-                                'booking_id',
-                                'first_name',
-                                'booking_item',
+                                ]
                             ],
                             'request' => [
                                 'type',
