@@ -24,7 +24,7 @@ class HotelBookingBookTest extends TestCase
         $response
             ->assertStatus(400)
             ->assertJson([
-                'success' => false,
+                'message' => 'Invalid booking_id',
             ]);
     }
 

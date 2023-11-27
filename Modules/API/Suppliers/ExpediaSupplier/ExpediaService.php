@@ -31,7 +31,6 @@ class ExpediaService
      */
     public function getExpediaPriceByPropertyIds(array $propertyIds, array $query): array
     {
-
         try {
 			$this->propertyPriceCall = new PropertyPriceCall($this->rapidClient, $query);
             $dataPrice = $this->propertyPriceCall->getPriceData($propertyIds);

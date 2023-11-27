@@ -129,7 +129,7 @@ class HotelAllProcessBookTest extends TestCase
             'occupancy' => [
                 [
                     'adults' => 2,
-                    'children' => 2
+                    'children_ages' => [2]
                 ],
                 [
                     'adults' => 3
@@ -154,7 +154,7 @@ class HotelAllProcessBookTest extends TestCase
             'occupancy' => [
                 [
                     'adults' => 2,
-                    'children' => 1
+                    'children_ages' => [5,1]
                 ],
                 [
                     'adults' => 3
@@ -172,17 +172,18 @@ class HotelAllProcessBookTest extends TestCase
     private function addPassengersRequest(): array
     {
         return [
-            'title' => 'mr',
-            'first_name' => 'John',
-            'last_name' => 'Portman',
             'rooms' => [
                 [
+					'title' => 'mr',
                     'given_name' => 'John',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => Carbon::now()->addYears(- rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
                 ],
                 [
+					'title' => 'mr',
                     'given_name' => 'John',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => Carbon::now()->addYears(- rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
                 ]
             ]
         ];
@@ -194,21 +195,24 @@ class HotelAllProcessBookTest extends TestCase
     private function addPassengersRequestStep2(): array
     {
         return [
-            'title' => 'mr',
-            'first_name' => 'John',
-            'last_name' => 'Portman',
             'rooms' => [
                 [
+					'title' => 'mr',
                     'given_name' => 'John',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => Carbon::now()->addYears(- rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
                 ],
                 [
+					'title' => 'mr',
                     'given_name' => 'Dana',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => Carbon::now()->addYears(- rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
                 ],
                 [
+					'title' => 'mr',
                     'given_name' => 'Mikle',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => Carbon::now()->addYears(- rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
                 ]
             ]
         ];
@@ -221,15 +225,16 @@ class HotelAllProcessBookTest extends TestCase
     {
         return [
             'amount_pay' => 'Deposit',
-            'email' => 'john@example.com',
-            'phone' => [
-                'country_code' => '1',
-                'area_code' => '487',
-                'number' => '5550077'
-            ],
+            
             'booking_contact' => [
-                'given_name' => 'John',
-                'family_name' => 'Smith',
+                'first_name' => 'John',
+                'last_name' => 'Smith',
+				'email' => 'john@example.com',
+				'phone' => [
+					'country_code' => '1',
+					'area_code' => '487',
+					'number' => '5550077'
+				],
                 'address' => [
                     'line_1' => '555 1st St',
                     'city' => 'Seattle',

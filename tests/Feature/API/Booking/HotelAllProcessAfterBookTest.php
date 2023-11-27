@@ -134,7 +134,6 @@ class HotelAllProcessAfterBookTest extends TestCase
             'occupancy' => [
                 [
                     'adults' => 2,
-                    'children' => 3,
                     'children_ages' => [4, 12, 1],
                 ],
                 [
@@ -178,17 +177,18 @@ class HotelAllProcessAfterBookTest extends TestCase
     private function addPassengersRequest(): array
     {
         return [
-            'title' => 'mr',
-            'first_name' => 'John',
-            'last_name' => 'Portman',
             'rooms' => [
                 [
+					'title' => 'mr',
                     'given_name' => 'John',
-                    'family_name' => 'Portman'
-                ],
+                    'family_name' => 'Portman',
+					'date_of_birth' => '1988-12-14'
+				],
                 [
+					'title' => 'mr',
                     'given_name' => 'John',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => '1988-12-14'
                 ]
             ]
         ];
@@ -200,21 +200,24 @@ class HotelAllProcessAfterBookTest extends TestCase
     private function addPassengersRequestStep2(): array
     {
         return [
-            'title' => 'mr',
-            'first_name' => 'John',
-            'last_name' => 'Portman',
             'rooms' => [
                 [
+					'title' => 'mr',
                     'given_name' => 'John',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => '1988-12-14'
                 ],
                 [
+					'title' => 'ms',
                     'given_name' => 'Dana',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => '1988-12-14'
                 ],
                 [
+					'title' => 'mr',
                     'given_name' => 'Mikle',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => '1988-12-14'
                 ]
             ]
         ];
@@ -227,15 +230,15 @@ class HotelAllProcessAfterBookTest extends TestCase
     {
         return [
             'amount_pay' => 'Deposit',
-            'email' => 'john@example.com',
-            'phone' => [
-                'country_code' => '1',
-                'area_code' => '487',
-                'number' => '5550077'
-            ],
             'booking_contact' => [
-                'given_name' => 'John',
-                'family_name' => 'Smith',
+                'first_name' => 'John',
+                'last_name' => 'Smith',
+				'email' => 'john@example.com',
+				'phone' => [
+					'country_code' => '1',
+					'area_code' => '487',
+					'number' => '5550077'
+				],
                 'address' => [
                     'line_1' => '555 1st St',
                     'city' => 'Seattle',
