@@ -50,6 +50,10 @@ class HotelBookingApiTestCase extends ApiTestCase
         return $addPassengersRequestResponse['success'];
     }
 
+    /**
+     * @param int $roomsCount
+     * @return array[]
+     */
     protected function generateAddPassengersData(int $roomsCount): array
     {
         $genders = ['male', 'female'];
