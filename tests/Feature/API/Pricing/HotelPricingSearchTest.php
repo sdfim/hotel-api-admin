@@ -251,27 +251,6 @@ class HotelPricingSearchTest extends ApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_pricing_search_without_rating_method_response_400()
-    {
-        $jsonData = $this->hotelSearchRequestData(['missed_rating']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
-
-        $response
-            ->assertStatus(400)
-            ->assertJson([
-                'success' => false,
-                'error' => [
-                    'rating' => [
-                        'The rating field is required.'
-                    ]
-                ]
-            ]);
-    }
-
-    /**
-     * @test
-     * @return void
-     */
     public function test_hotel_pricing_search_with_incorrect_occupancy_method_response_400()
     {
         $jsonData = $this->hotelSearchRequestData(['incorrect_occupancy']);

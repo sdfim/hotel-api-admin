@@ -24,6 +24,7 @@ use Modules\API\Suppliers\DTO\ExpediaHotelContentDetailDto;
 use Illuminate\Support\Str;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
 use OpenApi\Annotations as OA;
+use App\Models\GeneralConfiguration;
 
 /**
  * @OA\PathItem(
@@ -378,6 +379,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 			if ($validate->fails()) return $this->sendError($validate->errors());
 			
 			$filters = $request->all();
+			if (!isset($filters['rating'])) $filters['rating'] = GeneralConfiguration::latest()->first()->star_ratings ?? 3;
 
 			$search_id = (string)Str::uuid();
 
