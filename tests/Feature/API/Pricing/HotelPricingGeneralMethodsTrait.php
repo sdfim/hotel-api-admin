@@ -12,7 +12,7 @@ trait HotelPricingGeneralMethodsTrait
     /**
      * @return array
      */
-    protected function generateHotelPricingSearchRequestData(): array
+    protected function generateHotelPricingSearchData(): array
     {
         $data = [
             'type' => 'hotel',

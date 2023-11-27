@@ -41,19 +41,7 @@ class HotelBookingApiTestCase extends ApiTestCase
      */
     protected function addPassengersToBookingItem(string $bookingId, string $bookingItem, int $roomsCount): bool
     {
-        $addPassengersRequestData = [
-            'rooms' => [],
-        ];
-
-        for ($i = 0; $i < $roomsCount; $i++) {
-            $addPassengersRequestData['rooms'][$i] = [
-                'title' => 'Mr',
-                'given_name' => $this->faker->firstName('male'),
-                'family_name' => $this->faker->lastName(),
-                'date_of_birth' => $this->faker->dateTimeBetween('1980-01-01', '2006-12-31')
-                    ->format('Y-m-d'),
-            ];
-        }
+        $addPassengersRequestData = $this->generateAddPassengersData($roomsCount);
 
         $addPassengersRequestResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-passengers?booking_item=$bookingItem&booking_id=$bookingId", $addPassengersRequestData)
@@ -62,12 +50,34 @@ class HotelBookingApiTestCase extends ApiTestCase
         return $addPassengersRequestResponse['success'];
     }
 
+    protected function generateAddPassengersData(int $roomsCount): array
+    {
+        $genders = ['male', 'female'];
+
+        $addPassengersRequestData = [
+            'rooms' => [],
+        ];
+
+        for ($i = 0; $i < $roomsCount; $i++) {
+            $gender = $genders[rand(0, 1)];
+            $addPassengersRequestData['rooms'][$i] = [
+                'title' => $gender === 'male' ? 'Mr' : 'Mrs',
+                'given_name' => $this->faker->firstName($gender),
+                'family_name' => $this->faker->lastName(),
+                'date_of_birth' => $this->faker->dateTimeBetween('1980-01-01', '2006-12-31')
+                    ->format('Y-m-d'),
+            ];
+        }
+
+        return $addPassengersRequestData;
+    }
+
     /**
      * @return array
      */
     protected function getHotelPricingSearchData(): array
     {
-        $pricingSearchRequestData = $this->generateHotelPricingSearchRequestData();
+        $pricingSearchRequestData = $this->generateHotelPricingSearchData();
 
         return $this->withHeaders($this->headers)
             ->postJson('/api/pricing/search', $pricingSearchRequestData)

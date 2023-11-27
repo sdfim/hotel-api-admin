@@ -41,10 +41,10 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
 
         $secondBookingItem = $createBooking['booking_items'][rand(1, count($createBooking['booking_items']))];
 
-        $bookingAddItemToAnExistingBooking = $this->withHeaders($this->headers)
+        $bookingAddItemResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-item?booking_item=$secondBookingItem&booking_id={$createBooking['booking_id']}");
 
-        $bookingAddItemToAnExistingBooking->assertStatus(200)
+        $bookingAddItemResponse->assertStatus(200)
             ->assertJson([
                 'success' => true,
                 'data' => [
@@ -68,10 +68,10 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
         $this->withHeaders($this->headers)
             ->deleteJson("api/booking/remove-item?booking_id=$bookingId&booking_item=$firstBookingItem");
 
-        $bookingAddPreviouslyDeletedItemAgainResponse = $this->withHeaders($this->headers)
+        $bookingAddItemResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-item?booking_item=$firstBookingItem&booking_id=$bookingId");
 
-        $bookingAddPreviouslyDeletedItemAgainResponse->assertStatus(200)
+        $bookingAddItemResponse->assertStatus(200)
             ->assertJson([
                 'success' => true,
                 'data' => [
@@ -85,7 +85,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_add_item_with_non_existent_booking_item_method_response_400(): void
+    public function test_hotel_booking_add_item_with_non_existent_booking_item_and_missed_booking_id_method_response_400(): void
     {
         $nonExistentBookingItem = Str::uuid()->toString();
 
@@ -102,7 +102,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_add_item_to_non_existent_booking_id_method_response_400(): void
+    public function test_hotel_booking_add_item_to_non_existent_booking_id_and_correct_booking_item_method_response_400(): void
     {
         $nonExistentBookingId = Str::uuid()->toString();
 
@@ -121,12 +121,12 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_add_item_with_empty_booking_item_method_response_400(): void
+    public function test_hotel_booking_add_item_with_empty_booking_item_and_missed_booking_id_method_response_400(): void
     {
-        $bookingRemoveItemWithMissedBookingItemResponse = $this->withHeaders($this->headers)
+        $bookingAddItemResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-item?booking_item=");
 
-        $bookingRemoveItemWithMissedBookingItemResponse->assertStatus(400)
+        $bookingAddItemResponse->assertStatus(400)
             ->assertJson([
                 'message' => 'Invalid type'
             ]);
@@ -136,12 +136,12 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_add_item_with_empty_booking_id_method_response_400(): void
+    public function test_hotel_booking_add_item_with_empty_booking_id_and_missed_booking_item_method_response_400(): void
     {
-        $bookingRemoveItemWithMissedBookingItemResponse = $this->withHeaders($this->headers)
+        $bookingAddItemResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-item?booking_id=");
 
-        $bookingRemoveItemWithMissedBookingItemResponse->assertStatus(400)
+        $bookingAddItemResponse->assertStatus(400)
             ->assertJson([
                 'message' => 'Invalid booking_id'
 
@@ -154,10 +154,10 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_add_item_without_parameters_method_response_400(): void
     {
-        $bookingRemoveItemWithMissedBookingItemResponse = $this->withHeaders($this->headers)
+        $bookingAddItemResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-item");
 
-        $bookingRemoveItemWithMissedBookingItemResponse->assertStatus(400)
+        $bookingAddItemResponse->assertStatus(400)
             ->assertJson([
                 'message' => 'Invalid type'
             ]);

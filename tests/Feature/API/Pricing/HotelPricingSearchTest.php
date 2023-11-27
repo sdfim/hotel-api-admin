@@ -15,10 +15,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_method_response_200(): void
     {
-        $jsonData = $this->hotelSearchRequestData();
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData();
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response->assertStatus(200)
+        $hotelPricingSearchResponse->assertStatus(200)
             ->assertJson([
                 'success' => true,
             ]);
@@ -30,10 +30,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_without_type_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['type_missed']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['type_missed']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -47,10 +47,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_with_incorrect_type_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['incorrect_type']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_type']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -64,10 +64,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_with_incorrect_currency_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['incorrect_currency']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_currency']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -85,10 +85,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_with_incorrect_supplier_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['incorrect_supplier']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_supplier']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -106,10 +106,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_with_incorrect_check_in_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['incorrect_check_in']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_check_in']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -127,10 +127,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_with_incorrect_check_out_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['incorrect_check_out']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_check_out']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -148,10 +148,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_without_check_in_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['check_in_missed']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['check_in_missed']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -169,10 +169,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_without_check_out_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['check_out_missed']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['check_out_missed']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -190,10 +190,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_with_incorrect_destination_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['incorrect_destination']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_destination']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -211,10 +211,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_without_destination_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['missed_destination']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['missed_destination']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -232,10 +232,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_with_incorrect_rating_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['incorrect_rating']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_rating']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -253,10 +253,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_with_incorrect_occupancy_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['incorrect_occupancy']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_occupancy']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -274,10 +274,10 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_without_occupancy_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['missed_occupancy']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['missed_occupancy']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -293,16 +293,16 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_without_occupancy_adults_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['missed_occupancy_adults']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['missed_occupancy_adults']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
         $error = [];
 
-        foreach ($jsonData['occupancy'] as $index => $room) {
+        foreach ($hotelPricingSearchData['occupancy'] as $index => $room) {
             $errorName = "occupancy.$index.adults";
             $error[$errorName] = ["The $errorName field is required."];
         }
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -316,16 +316,16 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_with_incorrect_occupancy_adults_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['incorrect_occupancy_adults']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_occupancy_adults']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
         $error = [];
 
-        foreach ($jsonData['occupancy'] as $index => $room) {
+        foreach ($hotelPricingSearchData['occupancy'] as $index => $room) {
             $errorName = "occupancy.$index.adults";
             $error[$errorName] = ["The $errorName must be between 1 and 9."];
         }
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -339,24 +339,24 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_without_children_ages_method_response_400()
     {
-        // $jsonData = $this->hotelSearchRequestData(['missed_children_ages']);
-        // $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
-        // $error = [];
+         $hotelPricingSearchData = $this->hotelPricingSearchData(['missed_children_ages']);
+         $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
+         $error = [];
 
-        // foreach ($jsonData['occupancy'] as $index => $room) {
-        //     if (isset($room['children'])) {
-        //         $errorName = "occupancy.$index.children_ages";
-        //         $error[$errorName] = ["The " . str_replace('_', ' ', $errorName) . " field is required."];
-        //         break;
-        //     }
-        // }
+         foreach ($hotelPricingSearchData['occupancy'] as $index => $room) {
+             if (isset($room['children'])) {
+                 $errorName = "occupancy.$index.children_ages";
+                 $error[$errorName] = ["The " . str_replace('_', ' ', $errorName) . " field is required."];
+                 break;
+             }
+         }
 
-        // $response
-        //     ->assertStatus(400)
-        //     ->assertJson([
-        //         'success' => false,
-        //         'error' => $error
-        //     ]);
+         $hotelPricingSearchResponse
+             ->assertStatus(400)
+             ->assertJson([
+                 'success' => false,
+                 'error' => $error
+             ]);
     }
 
     /**
@@ -365,18 +365,18 @@ class HotelPricingSearchTest extends ApiTestCase
      */
     public function test_hotel_pricing_search_with_incorrect_children_ages_method_response_400()
     {
-        $jsonData = $this->hotelSearchRequestData(['incorrect_children_ages']);
-        $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_children_ages']);
+        $hotelPricingSearchResponse = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $hotelPricingSearchData);
         $error = [];
 
-        foreach ($jsonData['occupancy'] as $index => $room) {
+        foreach ($hotelPricingSearchData['occupancy'] as $index => $room) {
             if (isset($room['children']) && isset($room['children_ages']) && count($room['children_ages']) === 0) {
                 $error["occupancy.$index.children_ages"] = ["The occupancy.$index.children ages field is required."];
-				break;
+                break;
             }
         }
 
-        $response
+        $hotelPricingSearchResponse
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -407,9 +407,9 @@ class HotelPricingSearchTest extends ApiTestCase
      *     - 'incorrect_children_ages': Set an incorrect value for the 'children_ages' key in each room of the 'occupancy' array.
      * @return array The hotel search request data.
      */
-    private function hotelSearchRequestData(array $keysToFail = []): array
+    private function hotelPricingSearchData(array $keysToFail = []): array
     {
-        $data = $this->generateHotelPricingSearchRequestData();
+        $data = $this->generateHotelPricingSearchData();
 
         if (count($keysToFail) > 0) {
             $occupancy = &$data['occupancy'];
