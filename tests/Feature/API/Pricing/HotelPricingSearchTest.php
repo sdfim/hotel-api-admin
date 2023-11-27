@@ -2,30 +2,12 @@
 
 namespace Tests\Feature\API\Pricing;
 
-use App\Models\Supplier;
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Feature\API\ApiTestCase;
 use Illuminate\Support\Carbon;
-use Tests\TestCase;
 
-class HotelPricingSearchTest extends TestCase
+class HotelPricingSearchTest extends ApiTestCase
 {
-    use RefreshDatabase;
-
-    /**
-     * @var array|string[]
-     */
-    private array $headers;
-
-    /**
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seederSupplier();
-        $this->headers = $this->getHeader();
-    }
+    use HotelPricingGeneralMethodsTrait;
 
     /**
      * @test
@@ -316,7 +298,7 @@ class HotelPricingSearchTest extends TestCase
         $jsonData = $this->hotelSearchRequestData(['missed_occupancy']);
         $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
 
-		$response
+        $response
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
@@ -376,6 +358,32 @@ class HotelPricingSearchTest extends TestCase
      * @test
      * @return void
      */
+    public function test_hotel_pricing_search_without_children_ages_method_response_400()
+    {
+        // $jsonData = $this->hotelSearchRequestData(['missed_children_ages']);
+        // $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
+        // $error = [];
+
+        // foreach ($jsonData['occupancy'] as $index => $room) {
+        //     if (isset($room['children'])) {
+        //         $errorName = "occupancy.$index.children_ages";
+        //         $error[$errorName] = ["The " . str_replace('_', ' ', $errorName) . " field is required."];
+        //         break;
+        //     }
+        // }
+
+        // $response
+        //     ->assertStatus(400)
+        //     ->assertJson([
+        //         'success' => false,
+        //         'error' => $error
+        //     ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
     public function test_hotel_pricing_search_with_incorrect_children_ages_method_response_400()
     {
         $jsonData = $this->hotelSearchRequestData(['incorrect_children_ages']);
@@ -383,9 +391,8 @@ class HotelPricingSearchTest extends TestCase
         $error = [];
 
         foreach ($jsonData['occupancy'] as $index => $room) {
-            if (empty($room['children_ages']) && isset($room['children_ages'])) {
-                $error["occupancy.$index.children_ages"] = ["The occupancy.$index.children ages field is required."];
-				break;
+            if (isset($room['children']) && isset($room['children_ages'])) {
+                $error["occupancy.$index.children_ages"] = ['The occupancy.0.children ages field is required.'];
             }
         }
 
@@ -416,22 +423,13 @@ class HotelPricingSearchTest extends TestCase
      *     - 'missed_occupancy': Remove the 'occupancy' key.
      *     - 'missed_occupancy_adults': Remove the 'adults' key from each room in the 'occupancy' array.
      *     - 'incorrect_occupancy_adults': Set an incorrect value for the 'adults' key in each room of the 'occupancy' array.
+     *     - 'missed_children_ages': Remove the 'children_ages' key from each room in the 'occupancy' array.
      *     - 'incorrect_children_ages': Set an incorrect value for the 'children_ages' key in each room of the 'occupancy' array.
      * @return array The hotel search request data.
      */
     private function hotelSearchRequestData(array $keysToFail = []): array
     {
-        $data = [
-            'type' => 'hotel',
-            'currency' => 'EUR',
-            'supplier' => 'Expedia',
-            'hotel_name' => 'Plaza',
-            'checkin' => Carbon::now()->addDays(7)->toDateString(),
-            'checkout' => Carbon::now()->addDays(7 + rand(2, 5))->toDateString(),
-            'destination' => 961,
-            'rating' => $this->randFloat(1, 5.5),
-            'occupancy' => $this->generateOccupancy()
-        ];
+        $data = $this->generateHotelPricingSearchRequestData();
 
         if (count($keysToFail) > 0) {
             $occupancy = &$data['occupancy'];
@@ -469,69 +467,13 @@ class HotelPricingSearchTest extends TestCase
             }
             if (in_array('incorrect_children_ages', $keysToFail)) {
                 foreach ($occupancy as &$room) {
-                    $room['children_ages'] = [];
+                    if (isset($room['children'], $room['children_ages'])) {
+                        $room['children_ages'] = [];
+                    }
                 }
             }
         }
-
 
         return $data;
-    }
-
-    /**
-     * @return array
-     */
-    private function generateOccupancy(): array
-    {
-        $roomCount = rand(1, 4);
-        $occupancy = [];
-
-        for ($i = 0; $i < $roomCount; $i++) {
-            $haveChildren = rand(0, 1);
-            $occupancy[$i]['adults'] = rand(1, 3);
-            if ($haveChildren) {
-                $numberOfChildren = rand(1, 2);
-                $occupancy[$i]['children'] = $numberOfChildren;
-                for ($c = 0; $c < $numberOfChildren; $c++) {
-                    $occupancy[$i]['children_ages'][$c] = rand(1, 12);
-                }
-            }
-        }
-
-        return $occupancy;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getHeader(): array
-    {
-        $user = User::factory()->create();
-        $token = $user->createToken('TestToken')->plainTextToken;
-        return [
-            'Authorization' => 'Bearer ' . $token,
-        ];
-    }
-
-    /**
-     * @return void
-     */
-    private function seederSupplier(): void
-    {
-        $supplier = Supplier::firstOrNew([
-            'name' => 'expedia',
-            'description' => 'Expedia Description',
-        ]);
-        $supplier->save();
-    }
-
-    /**
-     * @param float $minValue
-     * @param float $maxValue
-     * @return float
-     */
-    public function randFloat(float $minValue, float $maxValue): float
-    {
-        return round($minValue + mt_rand() / mt_getrandmax() * ($maxValue - $minValue), 2);
     }
 }

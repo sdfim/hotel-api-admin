@@ -3,6 +3,7 @@
 namespace Modules\API\Suppliers\DTO;
 
 use App\Jobs\SaveBookingItems;
+use App\Models\Supplier;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -63,6 +64,11 @@ class ExpediaHotelPricingDto
 	 */
 	private array $bookingItems;
 
+	/**
+	 * @var int
+	 */
+	private int $supplierId = 1;
+
     /**
      *
      */
@@ -87,6 +93,8 @@ class ExpediaHotelPricingDto
         $ch = new Channel;
         $token = $ch->getTokenId(request()->bearerToken());
         $this->channelId = Channel::where('token_id', $token)->first()->id;
+
+		$this->supplierId = Supplier::where('name', 'Expedia')->first()->id;
 
         $pricingRules = PricingRule::where('supplier_id', 1)
             ->whereIn('property', array_keys($supplierResponse))
@@ -281,10 +289,11 @@ class ExpediaHotelPricingDto
 		$bookingItem = Str::uuid()->toString();
 		$roomResponse->setBookingItem($bookingItem);
 
+
+
 		$this->bookingItems[] = [
 			'booking_item' => $bookingItem,
-			// TODO: get id supplier from DB
-			'supplier_id' => '1',
+			'supplier_id' => $this->supplierId,
 			'search_id' => $this->search_id,
 			'booking_item_data' => json_encode([
 				'hotel_id' => $propertyGroup['giata_id'],

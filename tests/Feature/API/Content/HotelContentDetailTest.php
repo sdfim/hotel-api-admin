@@ -2,29 +2,12 @@
 
 namespace Tests\Feature\API\Content;
 
-use App\Models\Supplier;
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
+use Tests\Feature\API\ApiTestCase;
+use Illuminate\Foundation\Testing\WithFaker;
 
-class HotelContentDetailTest extends TestCase
+class HotelContentDetailTest extends ApiTestCase
 {
-    use RefreshDatabase;
-
-    /**
-     * @var array|string[]
-     */
-    private array $headers;
-
-    /**
-     * @return void
-     */
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->seederSupplier();
-        $this->headers = $this->getHeader();
-    }
+    use WithFaker;
 
     /**
      * @test
@@ -97,33 +80,10 @@ class HotelContentDetailTest extends TestCase
     {
         return [
             'type' => 'hotel',
-            'destination' => 1175,
-            'rating' => 4,
+            'destination' => $this->faker->randomElement([961, 302, 93, 960, 1102]),
+            'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
             'results_per_page' => 250,
-        ];
-    }
-
-    /**
-     * @return void
-     */
-    private function seederSupplier(): void
-    {
-        $supplier = Supplier::firstOrNew([
-            'name' => 'Expedia',
-            'description' => 'Expedia Description']);
-        $supplier->save();
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getHeader(): array
-    {
-        $user = User::factory()->create();
-        $token = $user->createToken('TestToken')->plainTextToken;
-        return [
-            'Authorization' => 'Bearer ' . $token,
         ];
     }
 }

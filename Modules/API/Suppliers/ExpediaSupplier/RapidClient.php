@@ -46,7 +46,7 @@ class RapidClient
         $this->apiKey = self::API_KEY;
         $this->sharedSecret = self::SHARED_SECRET;
         $this->rapidBaseUrl = self::BASE_URL;
-        $this->client = new Client(['debug' => fopen('./rapidClientDebug.log', 'w')]);
+        $this->client = new Client();
     }
 
     /**

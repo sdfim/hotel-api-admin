@@ -245,6 +245,7 @@ class ApiBookingInspector extends Model
     {
         return ApiBookingInspector::where('booking_item', request()->get('booking_item'))
             ->where('booking_id', request()->get('booking_id'))
+			->where('type', 'add_item')
             ->exists();
     }
 
