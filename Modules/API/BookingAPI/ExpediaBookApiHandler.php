@@ -230,6 +230,7 @@ class ExpediaBookApiHandler extends BaseController
         $list = $inspector->getAffiliateReferenceIdByChannel($token_id);
         $path = '/v3/itineraries';
 
+		$promises = [];
         foreach ($list as $item) {
             try {
                 $promises[] = $this->rapidClient->getAsync($path, $item, $this->headers());

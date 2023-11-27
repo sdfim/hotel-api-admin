@@ -186,10 +186,9 @@ class ApiBookingInspector extends Model
         $inspectors = ApiBookingInspector::where('token_id', $channel)
             ->where(function ($query) {
                 $query->where(function ($query) {
-                    $query->where('type', 'add_item')
+                    $query->where('type', 'book')
                         ->where('sub_type', 'like', 'retrieve' . '%');
-                }) // ->orWhere('type', 'retrieve_items')
-                ;
+                });
             })
             ->get();
 
