@@ -75,7 +75,7 @@ class PriceHotelRequest extends ApiRequest
                     }
                 },
             ],
-            'rating' => 'required|numeric|between:1,5.5',
+            'rating' => 'numeric|between:1,5.5',
             'occupancy' => 'required|array',
             'occupancy.*.adults' => 'required|numeric|between:1,9',
             'occupancy.*.children' => 'numeric',

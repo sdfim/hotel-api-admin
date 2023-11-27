@@ -10,7 +10,6 @@ use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\ComboBookingApiHandler;
-use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiSearchInspector;
 use Illuminate\Support\Facades\Route;
@@ -80,10 +79,6 @@ class RouteBookingApiController extends Controller
 	private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
 	
     /**
-     * @var ExpediaService
-     */
-    private ExpediaService $expediaService;
-    /**
      * @var RouteBookingApiStrategy
      */
     private RouteBookingApiStrategy $strategy;
@@ -110,12 +105,10 @@ class RouteBookingApiController extends Controller
 
     /**
      * @param RouteBookingApiStrategy $strategy
-     * @param ExpediaService $expediaService
      */
-    public function __construct(RouteBookingApiStrategy $strategy, ExpediaService $expediaService)
+    public function __construct(RouteBookingApiStrategy $strategy)
     {
         $this->strategy = $strategy;
-        $this->expediaService = $expediaService;
         $this->bookingInspector = new ApiBookingInspector();
         $this->searchInspector = new ApiSearchInspector();
         $this->type = null;

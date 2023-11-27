@@ -29,13 +29,11 @@ class BookingAddPassengersHotelRequest extends ApiRequest
         return [
             'booking_item' => 'required|size:36',
             'booking_id' => 'required|size:36',
-            'title' => 'required|string',
-			'first_name' => 'required|string',
-			'last_name' => 'required|string',
             'rooms' => 'required|array',
+			'rooms.*.title' => 'required|string',
             'rooms.*.given_name' => 'required|string',
             'rooms.*.family_name' => 'required|string',
-			'rooms.*.date_birth_adults' => 'string',
+			'rooms.*.date_of_birth' => 'required|date_format:Y-m-d|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
         ];
     }
 

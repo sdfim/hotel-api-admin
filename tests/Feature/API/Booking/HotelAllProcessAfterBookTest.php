@@ -110,7 +110,6 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
             'occupancy' => [
                 [
                     'adults' => 2,
-                    'children' => 3,
                     'children_ages' => [4, 12, 1],
                 ],
                 [
@@ -154,17 +153,18 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
     private function addPassengersRequest(): array
     {
         return [
-            'title' => 'mr',
-            'first_name' => 'John',
-            'last_name' => 'Portman',
             'rooms' => [
                 [
+					'title' => 'mr',
                     'given_name' => 'John',
-                    'family_name' => 'Portman'
-                ],
+                    'family_name' => 'Portman',
+					'date_of_birth' => '1988-12-14'
+				],
                 [
+					'title' => 'mr',
                     'given_name' => 'John',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => '1988-12-14'
                 ]
             ]
         ];
@@ -176,21 +176,24 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
     private function addPassengersRequestStep2(): array
     {
         return [
-            'title' => 'mr',
-            'first_name' => 'John',
-            'last_name' => 'Portman',
             'rooms' => [
                 [
+					'title' => 'mr',
                     'given_name' => 'John',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => '1988-12-14'
                 ],
                 [
+					'title' => 'ms',
                     'given_name' => 'Dana',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => '1988-12-14'
                 ],
                 [
+					'title' => 'mr',
                     'given_name' => 'Mikle',
-                    'family_name' => 'Portman'
+                    'family_name' => 'Portman',
+					'date_of_birth' => '1988-12-14'
                 ]
             ]
         ];

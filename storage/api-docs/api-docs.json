@@ -1123,43 +1123,39 @@
                 "title": "Booking Add Passengers Request",
                 "description": "Schema Booking Add Passengers Reques",
                 "required": [
-                    "title",
-                    "first_name",
-                    "last_name",
                     "rooms"
                 ],
                 "properties": {
-                    "title": {
-                        "type": "string",
-                        "example": "mr"
-                    },
-                    "first_name": {
-                        "type": "string",
-                        "example": "John"
-                    },
-                    "last_name": {
-                        "type": "string",
-                        "example": "Portman"
-                    },
                     "rooms": {
+                        "description": "Rooms",
                         "type": "array",
                         "items": {
                             "required": [
+                                "title",
                                 "given_name",
-                                "family_name"
+                                "family_name",
+                                "date_of_birth"
                             ],
                             "properties": {
+                                "title": {
+                                    "description": "Title",
+                                    "type": "string",
+                                    "example": "mr"
+                                },
                                 "given_name": {
+                                    "description": "Given Name",
                                     "type": "string",
                                     "example": "John"
                                 },
                                 "family_name": {
+                                    "description": "Family Name",
                                     "type": "string",
                                     "example": "Portman"
                                 },
-                                "date_birth_children": {
+                                "date_of_birth": {
+                                    "description": "Date of Birth",
                                     "type": "string",
-                                    "example": "2010-01-01"
+                                    "example": "2080-12-14"
                                 }
                             },
                             "type": "object"
@@ -3023,19 +3019,20 @@
                 }
             },
             "BookingAddPassengersRequest": {
-                "summary": "Example Booking Add Passengers Request",
+                "summary": "Example Booking Add Passengers Request Hotel",
                 "value": {
-                    "title": "mr",
-                    "first_name": "John",
-                    "last_name": "Portman",
                     "rooms": [
                         {
+                            "title": "mr",
                             "given_name": "John",
-                            "family_name": "Portman"
+                            "family_name": "Portman",
+                            "date_of_birth": "1988-12-14"
                         },
                         {
-                            "given_name": "John",
-                            "family_name": "Portman"
+                            "title": "mr",
+                            "given_name": "Diana",
+                            "family_name": "Donald",
+                            "date_of_birth": "1980-07-18"
                         }
                     ]
                 }

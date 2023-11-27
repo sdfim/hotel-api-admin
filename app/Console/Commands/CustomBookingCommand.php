@@ -165,14 +165,13 @@ class CustomBookingCommand extends Command
 		$rooms = [];
 		foreach (range(1, $count) as $index) {
 			$rooms[] = [
+				"title" => "mr",
 				"given_name" => $faker->firstName,
 				"family_name" => $faker->lastName,
+				"date_of_birth" => Carbon::now()->addYears(- rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
 			];
 		}
         $requestData += [
-            "title" => "mr",
-            "first_name" => $faker->firstName,
-            "last_name" => $faker->lastName,
             "rooms" => $rooms
         ];
 

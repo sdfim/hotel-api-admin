@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Resources\Content;
+namespace Modules\API\Resources\Content\Hotel;
 
 use OpenApi\Annotations as OA;
 
