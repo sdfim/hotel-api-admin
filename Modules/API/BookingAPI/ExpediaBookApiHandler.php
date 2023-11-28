@@ -64,7 +64,7 @@ class ExpediaBookApiHandler extends BaseController
             $response = $this->rapidClient->put($props['path'], $props['paramToken'], $body, $this->headers());
             $dataResponse = json_decode($response->getBody()->getContents());
         } catch (RequestException $e) {
-            \Log::error('ExpediaBookApiHandler | addPassengers | Booking PUT query ' . $e->getResponse()->getBody());
+            \Log::error('ExpediaBookApiHandler | changeBooking | Booking PUT query ' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
         }
 
@@ -407,4 +407,56 @@ class ExpediaBookApiHandler extends BaseController
             'Test' => 'standard',
         ];
 	}
+
+	 /**
+     * @param array $filters
+     * @return array|null
+     */
+    public function addPassengers(array $filters): array | null
+    {
+		$booking_id = $filters['booking_id'];
+		$filters['search_id'] = ApiBookingInspector::where('booking_item', $filters['booking_item'])->first()->search_id;
+
+		$bookingItem = ApiBookingInspector::where('booking_id', $booking_id)
+			->where('booking_item', $filters['booking_item'])
+			->where('type', 'add_passengers');
+
+		$apiSearchInspector = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->request;
+
+		$countRooms = count(json_decode($apiSearchInspector, true)['occupancy']);
+
+		$type = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->search_type;
+		if ($type == 'hotel')
+			for ($i = 0; $i < $countRooms; $i++) {
+				$filters['rooms'][] = $filters['passengers'][0];
+			}
+
+		if ($bookingItem->get()->count() > 0) {
+			$bookingItem->delete();
+			$status = 'Passengers updated to booking.';
+			$subType = 'updated';
+		} else {
+			$status = 'Passengers added to booking.';
+			$subType = 'add';
+		}
+
+		$res = [
+			'booking_id' => $booking_id,
+			'booking_item' => $filters['booking_item'],
+			'status' => $status,
+		];
+
+		SaveBookingInspector::dispatch([
+			$booking_id,
+			$filters,
+			[],
+			$res,
+			1,
+			'add_passengers',
+			$subType,
+			'hotel',
+		]);
+
+		return $res;
+    }
 }

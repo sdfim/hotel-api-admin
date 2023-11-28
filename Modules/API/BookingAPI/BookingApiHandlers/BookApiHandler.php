@@ -14,6 +14,8 @@ use Modules\API\BaseController;
 use Modules\API\BookingAPI\ExpediaBookApiHandler;
 use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingChangeBookHotelRequest;
+use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
+
 
 /**
  * @OA\PathItem(
@@ -30,6 +32,9 @@ class BookApiHandler extends BaseController
      *
      */
     private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
+	private string $type;
+	private string $supplier;
+
 
     public function __construct(ExpediaBookApiHandler $expedia)
     {
@@ -614,7 +619,6 @@ class BookApiHandler extends BaseController
 
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
 
-                $data = [];
                 if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
                     $res[] = $this->expedia->retrieveItem($filters, $item);
                 }
@@ -629,6 +633,112 @@ class BookApiHandler extends BaseController
         return $this->sendResponse(['result' => $res], 'success');
 
     }
+
+	/**
+	 * @param Request $request
+	 * @return JsonResponse
+	 */
+	/**
+	 * @OA\Post(
+	 *   tags={"Booking API | Cart Endpoints"},
+	 *   path="/api/booking/add-passengers",
+	 *   summary="Add passengers to a booking.",
+	 *   description="Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
+	 *     @OA\Parameter(
+	 *       name="booking_id",
+	 *       in="query",
+	 *       required=true,
+	 *       description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
+	 *       In the response object for each rate is a **booking_id** property.",
+	 *     ),
+	 *     @OA\RequestBody(
+	 *     description="JSON object containing the details of the reservation. If you don't pass booking_item(s), these passengers will be added to all booking_items that are in the cart (booking_id)",
+	 *     required=true,
+	 *     @OA\JsonContent(    
+	 *       ref="#/components/schemas/BookingAddPassengersRequest", 
+	 *       examples={
+     *           "example1": @OA\Schema(ref="#/components/examples/BookingAddPassengersRequest", example="BookingAddPassengersRequest"),
+	 *           "example2": @OA\Schema(ref="#/components/examples/BookingAddPassengersRequestAdvanced", example="BookingAddPassengersRequestAdvanced"),
+     *       },
+	 *     ),
+	 *   ),
+	 *   @OA\Response(
+	 *     response=200,
+	 *     description="OK",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BookingAddPassengersResponse",
+	 *       examples={
+	 *           "Add": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseAdd", example="BookingAddPassengersResponseAdd"),
+	 *           "Update": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseUpdate", example="BookingAddPassengersResponseUpdate"),
+	 *       },
+	 *     ),
+	 *   ),
+	 *   @OA\Response(
+	 *     response=400,
+	 *     description="Bad Request",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BookingAddPassengersResponse",
+	 *       examples={
+	 *       "Error": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseError", example="BookingAddPassengersResponseError"),
+	 *       },
+	 *     ),
+	 *   ),
+	 *   @OA\Response(
+	 *     response=401,
+	 *     description="Unauthenticated",
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/UnAuthenticatedResponse",
+	 *       examples={
+	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+	 *       }
+	 *     )
+	 *   ),
+	 *   security={{ "apiAuth": {} }}
+	 * )
+	 */
+	public function addPassengers(Request $request): JsonResponse
+	{
+		$filters = Validator::make($request->all(), (new AddPassengersRequest())->rules());
+        if ($filters->fails()) return $this->sendError($filters->errors());
+
+		$itemsInCart = ApiBookingInspector::where('booking_id', $request->booking_id)
+            ->where('type', 'add_item')
+            ->where('sub_type', 'like', 'price_check' . '%')
+            ->get();
+
+		if (isset($request->booking_items)) {
+			$bookingRequestItems = $request->booking_items;
+			foreach ($bookingRequestItems as $requestItem) {
+				if (!in_array($requestItem, $itemsInCart->pluck('booking_item')->toArray())) 
+					return $this->sendError(['error' => 'This booking_item is not in the cart.'], 'failed'); 
+			}
+		} else {
+			$bookingRequestItems = $itemsInCart->pluck('booking_item')->toArray();
+		}
+
+		try {
+			foreach ($bookingRequestItems as $booking_item) {
+
+                if (ApiBookingInspector::isBook($request->booking_id, $booking_item)) {
+                    return $this->sendError(['error' => 'Cart is empty or booked'], 'failed');
+                }
+				$supplierId = ApiBookingItem::where('booking_item', $booking_item)->first()->supplier_id;
+                $supplier = Supplier::where('id', $supplierId)->first()->name;
+
+                if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+					$filters = (array)$request->all();
+					$filters['booking_item'] = $booking_item;
+                    $res[] = $this->expedia->addPassengers($filters);
+                }
+                // TODO: Add other suppliers
+            }
+		} catch (Exception $e) {
+			\Log::error('HotelBookingApiHandler | listBookings ' . $e->getMessage());
+			return $this->sendError(['error' => $e->getMessage()], 'failed');
+		}
+
+		return $this->sendResponse(['result' => $res], 'success');
+	}
 
 	/**
      * @param Request $request

@@ -64,7 +64,7 @@ class CustomBookingCommand extends Command
         $this->info('booking_item = ' . $bookingItem);
 
         $bookingId = $this->addBookingItem($bookingItem);
-        $this->addPassengers($bookingId, $bookingItem, 2);
+		$bookingItems[] = $bookingItem;
 
         $this->warn('SEARCH 2');
         $responseData = $this->makeSearchRequest(3);
@@ -74,7 +74,10 @@ class CustomBookingCommand extends Command
         $this->info('booking_item = ' . $bookingItem);
 
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
-        $this->addPassengers($bookingId, $bookingItem, 3);
+		$bookingItems[] = $bookingItem;
+
+		$this->warn('addPassengers gtroupe for SEARCH 1, SEARCH 2');
+        $this->addPassengers($bookingId, $bookingItems, 2);
 
         $this->warn('SEARCH 3');
         $responseData = $this->makeSearchRequest(2);
@@ -84,7 +87,7 @@ class CustomBookingCommand extends Command
         $this->info('booking_item = ' . $bookingItem);
 
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
-        $this->addPassengers($bookingId, $bookingItem, 2);
+        $this->addPassengers($bookingId, [$bookingItem], 2);
 
 		sleep(1);
         $this->warn('REMOVE ITEM');
@@ -153,13 +156,12 @@ class CustomBookingCommand extends Command
         return $bookingId;
     }
 
-    private function addPassengers(string $bookingId, string $bookingItem, int $count = 1): void
+    private function addPassengers(string $bookingId, array $bookingItems, int $count = 1): void
     {
-
-        $requestData = [
-            "booking_id" => $bookingId,
-            "booking_item" => $bookingItem,
-        ];
+        $requestData["booking_id"] = $bookingId;
+		foreach ($bookingItems as $bookingItem) {
+			$requestData["booking_items"][] = $bookingItem;
+		}
 
         $faker = Faker::create();
 		$rooms = [];
@@ -172,7 +174,7 @@ class CustomBookingCommand extends Command
 			];
 		}
         $requestData += [
-            "rooms" => $rooms
+            "passengers" => $rooms
         ];
 
         $response = $this->client->post(self::BASE_URI . '/api/booking/add-passengers', $requestData);

@@ -8,13 +8,13 @@ use OpenApi\Annotations as OA;
  * @OA\Schema(
  *   schema="BookingAddPassengersRequest",
  *   title="Booking Add Passengers Request",
- *   description="Schema Booking Add Passengers Reques",
+ *   description="Schema Booking Add Passengers Request",
  *   type="object",
- *   required={"rooms"},
+ *   required={"passengers"},
  *   @OA\Property(
- *     property="rooms",
+ *     property="passengers",
  *     type="array",
- *     description="Rooms",
+ *     description="Passengers",
  *     @OA\Items(
  *       type="object",
  *       required={"title", "given_name", "family_name", "date_of_birth"},
@@ -23,7 +23,7 @@ use OpenApi\Annotations as OA;
  *         type="string",
  *         description="Title",
  *         example="mr"
- *         ),
+ *       ),
  *       @OA\Property(
  *         property="given_name",
  *         type="string",
@@ -47,35 +47,35 @@ use OpenApi\Annotations as OA;
  * ),
  * @OA\Examples(
  *     example="BookingAddPassengersRequest",
- *     summary="Example Booking Add Passengers Request Hotel",
- *     value=
- * { 
- *    "rooms": {
- *      {
- *        "title": "mr",
- *        "given_name": "John",
- *        "family_name": "Portman",
- *        "date_of_birth": "1988-12-14"
- *      },
- *      {
- *        "title": "ms",
- *        "given_name": "Diana",
- *        "family_name": "Donald",
- *        "date_of_birth": "1980-07-18"
- *      }
- *    }
- *  }
+ *     summary="Example Booking Add Passengers Request without booking_items",
+ *     value={
+ *       "passengers": {
+ *         {
+ *           "title": "mr",
+ *           "given_name": "John",
+ *           "family_name": "Portman",
+ *           "date_of_birth": "1988-12-14"
+ *         },
+ *         {
+ *           "title": "ms",
+ *           "given_name": "Diana",
+ *           "family_name": "Donald",
+ *           "date_of_birth": "1980-07-18"
+ *         }
+ *       }
+ *     }
+ *   )
  * ),
  * @OA\Schema(
- *   schema="BookingAddPassengersRequestFlight",
- *   title="Booking Add Passengers Request Flight",
- *   description="Schema Booking Add Passengers Reques Flight",
+ *   schema="BookingAddPassengersRequestAdvanced",
+ *   title="Booking Add Passengers Request Use booking_items",
+ *   description="Schema Booking Add Passengers Request Use booking_items",
  *   type="object",
  *   required={"passengers"},
  *   @OA\Property(
  *     property="passengers",
  *     type="array",
- *     description="passengers",
+ *     description="Passengers",
  *     @OA\Items(
  *       type="object",
  *       required={"title", "given_name", "family_name", "date_of_birth"},
@@ -84,7 +84,7 @@ use OpenApi\Annotations as OA;
  *         type="string",
  *         description="Title",
  *         example="mr"
- *         ),
+ *       ),
  *       @OA\Property(
  *         property="given_name",
  *         type="string",
@@ -104,34 +104,41 @@ use OpenApi\Annotations as OA;
  *         example="2080-12-14"
  *       )
  *     )
+ *   ),
+ *   @OA\Property(
+ *     property="booking_items",
+ *     type="array",
+ *     description="Booking Items",
+ *     @OA\Items(
+ *       type="string",
+ *       description="Booking Item ID"
+ *     )
  *   )
  * ),
  * @OA\Examples(
- *     example="BookingAddPassengersRequestFlight",
- *     summary="Example Booking Add Passengers Request Flight",
- *     value=
- * { 
- *    "passengers": {
- *      {
- *        "title": "mr",
- *        "given_name": "John",
- *        "family_name": "Portman",
- *        "date_of_birth": "1988-12-14"
- *      },
- *      {
- *        "title": "ms",
- *        "given_name": "Diana",
- *        "family_name": "Portman",
- *        "date_of_birth": "1980-07-18"
- *      }
- *      ,
- *      {
- *        "title": "mr",
- *        "given_name": "Donald",
- *        "family_name": "Portman",
- *        "date_of_birth": "2001-07-25"
- *      }
- *    }
+ *     example="BookingAddPassengersRequestAdvanced",
+ *     summary="Example Booking Add Passengers Request use booking_items",
+ *     value={
+ *       "booking_items": {
+ *         "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
+ *         "50b8b1a0-a07e-4450-b4cc-075742e77be8"
+ *       },
+ *       "passengers": {
+ *         {
+ *           "title": "mr",
+ *           "given_name": "John",
+ *           "family_name": "Portman",
+ *           "date_of_birth": "1988-12-14"
+ *         },
+ *         {
+ *           "title": "ms",
+ *           "given_name": "Diana",
+ *           "family_name": "Donald",
+ *           "date_of_birth": "1980-07-18"
+ *         }
+ *       }
+ *     }
+ *   )
  *  }
  * ),
  */
