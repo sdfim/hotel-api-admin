@@ -90,16 +90,15 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
         $lastName = $this->faker->lastName;
 
         $addPassengersRequestData = [
-            'title' => "Add passengers {$this->faker->date}",
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'rooms' => [],
+            'passengers' => [],
         ];
 
         for ($i = 0; $i < $roomsCount; $i++) {
-            $addPassengersRequestData['rooms'][$i] = [
+            $addPassengersRequestData['passengers'][$i] = [
+				'title' => 'mr',
                 'given_name' => $firstName,
-                'family_name' => $lastName
+                'family_name' => $lastName,
+				'date_of_birth' => "1988-12-14"
             ];
         }
 
@@ -141,15 +140,14 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
                             'passengers' => [
                                 'rooms' => [
                                     '*' => [
+										'title',
                                         'given_name',
                                         'family_name',
+										'date_of_birth'
                                     ],
                                 ],
-                                'title',
-                                'last_name',
                                 'search_id',
                                 'booking_id',
-                                'first_name',
                                 'booking_item',
                             ],
                             'request' => [

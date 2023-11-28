@@ -32,8 +32,6 @@ class BookApiHandler extends BaseController
      *
      */
     private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
-	private string $type;
-	private string $supplier;
 
 
     public function __construct(ExpediaBookApiHandler $expedia)
@@ -777,8 +775,6 @@ class BookApiHandler extends BaseController
 	{
 		$validate = Validator::make(request()->all(), [$id => 'required|size:36']);
         if ($validate->fails()) {
-			$this->type = null;
-			$this->supplier = null;
 			return false;
 		};
 		return true;

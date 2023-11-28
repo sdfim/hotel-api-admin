@@ -153,7 +153,7 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
     private function addPassengersRequest(): array
     {
         return [
-            'rooms' => [
+            'passengers' => [
                 [
 					'title' => 'mr',
                     'given_name' => 'John',
@@ -176,7 +176,7 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
     private function addPassengersRequestStep2(): array
     {
         return [
-            'rooms' => [
+            'passengers' => [
                 [
 					'title' => 'mr',
                     'given_name' => 'John',
