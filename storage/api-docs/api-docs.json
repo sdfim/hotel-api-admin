@@ -665,6 +665,9 @@
                             "examples": {
                                 "BookingAddPassengersRequest": {
                                     "$ref": "#/components/examples/BookingAddPassengersRequest"
+                                },
+                                "BookingAddPassengersRequestFlight": {
+                                    "$ref": "#/components/examples/BookingAddPassengersRequestFlight"
                                 }
                             }
                         }
@@ -1128,6 +1131,51 @@
                 "properties": {
                     "rooms": {
                         "description": "Rooms",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "title",
+                                "given_name",
+                                "family_name",
+                                "date_of_birth"
+                            ],
+                            "properties": {
+                                "title": {
+                                    "description": "Title",
+                                    "type": "string",
+                                    "example": "mr"
+                                },
+                                "given_name": {
+                                    "description": "Given Name",
+                                    "type": "string",
+                                    "example": "John"
+                                },
+                                "family_name": {
+                                    "description": "Family Name",
+                                    "type": "string",
+                                    "example": "Portman"
+                                },
+                                "date_of_birth": {
+                                    "description": "Date of Birth",
+                                    "type": "string",
+                                    "example": "2080-12-14"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "BookingAddPassengersRequestFlight": {
+                "title": "Booking Add Passengers Request Flight",
+                "description": "Schema Booking Add Passengers Reques Flight",
+                "required": [
+                    "passengers"
+                ],
+                "properties": {
+                    "passengers": {
+                        "description": "passengers",
                         "type": "array",
                         "items": {
                             "required": [
@@ -3029,10 +3077,35 @@
                             "date_of_birth": "1988-12-14"
                         },
                         {
-                            "title": "mr",
+                            "title": "ms",
                             "given_name": "Diana",
                             "family_name": "Donald",
                             "date_of_birth": "1980-07-18"
+                        }
+                    ]
+                }
+            },
+            "BookingAddPassengersRequestFlight": {
+                "summary": "Example Booking Add Passengers Request Flight",
+                "value": {
+                    "passengers": [
+                        {
+                            "title": "mr",
+                            "given_name": "John",
+                            "family_name": "Portman",
+                            "date_of_birth": "1988-12-14"
+                        },
+                        {
+                            "title": "ms",
+                            "given_name": "Diana",
+                            "family_name": "Portman",
+                            "date_of_birth": "1980-07-18"
+                        },
+                        {
+                            "title": "mr",
+                            "given_name": "Donald",
+                            "family_name": "Portman",
+                            "date_of_birth": "2001-07-25"
                         }
                     ]
                 }

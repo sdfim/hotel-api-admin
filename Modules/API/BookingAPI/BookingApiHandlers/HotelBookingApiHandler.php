@@ -273,6 +273,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 *       ref="#/components/schemas/BookingAddPassengersRequest", 
 	 *       examples={
      *           "example1": @OA\Schema(ref="#/components/examples/BookingAddPassengersRequest", example="BookingAddPassengersRequest"),
+	 *           "example2": @OA\Schema(ref="#/components/examples/BookingAddPassengersRequestFlight", example="BookingAddPassengersRequestFlight"),
      *       },
 	 *     ),
 	 *   ),
