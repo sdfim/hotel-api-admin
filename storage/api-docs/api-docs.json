@@ -503,9 +503,6 @@
                             "examples": {
                                 "BookingAddPassengersRequest": {
                                     "$ref": "#/components/examples/BookingAddPassengersRequest"
-                                },
-                                "BookingAddPassengersRequestAdvanced": {
-                                    "$ref": "#/components/examples/BookingAddPassengersRequestAdvanced"
                                 }
                             }
                         }
@@ -1130,7 +1127,8 @@
                                 "title",
                                 "given_name",
                                 "family_name",
-                                "date_of_birth"
+                                "date_of_birth",
+                                "booking_items"
                             ],
                             "properties": {
                                 "title": {
@@ -1152,63 +1150,38 @@
                                     "description": "Date of Birth",
                                     "type": "string",
                                     "example": "2080-12-14"
-                                }
-                            },
-                            "type": "object"
-                        }
-                    }
-                },
-                "type": "object"
-            },
-            "BookingAddPassengersRequestAdvanced": {
-                "title": "Booking Add Passengers Request Use booking_items",
-                "description": "Schema Booking Add Passengers Request Use booking_items",
-                "required": [
-                    "passengers"
-                ],
-                "properties": {
-                    "passengers": {
-                        "description": "Passengers",
-                        "type": "array",
-                        "items": {
-                            "required": [
-                                "title",
-                                "given_name",
-                                "family_name",
-                                "date_of_birth"
-                            ],
-                            "properties": {
-                                "title": {
-                                    "description": "Title",
-                                    "type": "string",
-                                    "example": "mr"
                                 },
-                                "given_name": {
-                                    "description": "Given Name",
-                                    "type": "string",
-                                    "example": "John"
-                                },
-                                "family_name": {
-                                    "description": "Family Name",
-                                    "type": "string",
-                                    "example": "Portman"
-                                },
-                                "date_of_birth": {
-                                    "description": "Date of Birth",
-                                    "type": "string",
-                                    "example": "2080-12-14"
+                                "booking_items": {
+                                    "description": "Booking Items",
+                                    "type": "array",
+                                    "items": {
+                                        "required": [
+                                            "booking_item",
+                                            "room"
+                                        ],
+                                        "properties": {
+                                            "booking_item": {
+                                                "description": "Booking Item",
+                                                "type": "string",
+                                                "example": "bed7af51-836a-4d7e-8f82-8efe8b1825d4"
+                                            },
+                                            "room": {
+                                                "description": "Room",
+                                                "type": "string",
+                                                "example": "1"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
                                 }
                             },
                             "type": "object"
                         }
                     },
-                    "booking_items": {
-                        "description": "Booking Items",
-                        "type": "array",
-                        "items": {
-                            "description": "Booking Item ID",
-                            "type": "string"
-                        }
+                    "booking_id": {
+                        "description": "Booking ID",
+                        "type": "string",
+                        "example": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e"
                     }
                 },
                 "type": "object"
@@ -3068,43 +3041,88 @@
                 }
             },
             "BookingAddPassengersRequest": {
-                "summary": "Example Booking Add Passengers Request without booking_items",
+                "summary": "Example Booking Add Passengers Request",
                 "value": {
                     "passengers": [
                         {
                             "title": "mr",
-                            "given_name": "John",
+                            "given_name": "Adult1",
                             "family_name": "Portman",
-                            "date_of_birth": "1988-12-14"
+                            "date_of_birth": "1988-12-14",
+                            "booking_items": [
+                                {
+                                    "booking_item": "387050aa-d06d-4587-aa67-2a32cfe2fc9e",
+                                    "room": "1"
+                                },
+                                {
+                                    "booking_item": "ec8436ac-93e8-47f6-8782-925c812c8e9f",
+                                    "room": "1"
+                                }
+                            ]
                         },
-                        {
-                            "title": "ms",
-                            "given_name": "Diana",
-                            "family_name": "Donald",
-                            "date_of_birth": "1980-07-18"
-                        }
-                    ]
-                }
-            },
-            "BookingAddPassengersRequestAdvanced": {
-                "summary": "Example Booking Add Passengers Request use booking_items",
-                "value": {
-                    "booking_items": [
-                        "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
-                        "50b8b1a0-a07e-4450-b4cc-075742e77be8"
-                    ],
-                    "passengers": [
                         {
                             "title": "mr",
-                            "given_name": "John",
+                            "given_name": "Adult2",
                             "family_name": "Portman",
-                            "date_of_birth": "1988-12-14"
+                            "date_of_birth": "1988-12-14",
+                            "booking_items": [
+                                {
+                                    "booking_item": "387050aa-d06d-4587-aa67-2a32cfe2fc9e",
+                                    "room": "1"
+                                },
+                                {
+                                    "booking_item": "ec8436ac-93e8-47f6-8782-925c812c8e9f",
+                                    "room": "1"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "mr",
+                            "given_name": "Adult3",
+                            "family_name": "Portman",
+                            "date_of_birth": "1988-12-14",
+                            "booking_items": [
+                                {
+                                    "booking_item": "387050aa-d06d-4587-aa67-2a32cfe2fc9e",
+                                    "room": "2"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "mr",
+                            "given_name": "Adult4",
+                            "family_name": "Portman",
+                            "date_of_birth": "1988-12-14",
+                            "booking_items": [
+                                {
+                                    "booking_item": "387050aa-d06d-4587-aa67-2a32cfe2fc9e",
+                                    "room": "2"
+                                }
+                            ]
                         },
                         {
                             "title": "ms",
-                            "given_name": "Diana",
+                            "given_name": "Children1",
                             "family_name": "Donald",
-                            "date_of_birth": "1980-07-18"
+                            "date_of_birth": "2010-01-18",
+                            "booking_items": [
+                                {
+                                    "booking_item": "ec8436ac-93e8-47f6-8782-925c812c8e9f",
+                                    "room": "1"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "ms",
+                            "given_name": "Children2",
+                            "family_name": "Donald",
+                            "date_of_birth": "2009-09-18",
+                            "booking_items": [
+                                {
+                                    "booking_item": "ec8436ac-93e8-47f6-8782-925c812c8e9f",
+                                    "room": "1"
+                                }
+                            ]
                         }
                     ]
                 }

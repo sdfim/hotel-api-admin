@@ -4,8 +4,10 @@ namespace Modules\API\BookingAPI\BookingApiHandlers;
 
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
+use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use Exception;
+use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,6 +17,7 @@ use Modules\API\BookingAPI\ExpediaBookApiHandler;
 use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingChangeBookHotelRequest;
 use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
+use Carbon\Carbon;
 
 
 /**
@@ -656,7 +659,6 @@ class BookApiHandler extends BaseController
 	 *       ref="#/components/schemas/BookingAddPassengersRequest", 
 	 *       examples={
      *           "example1": @OA\Schema(ref="#/components/examples/BookingAddPassengersRequest", example="BookingAddPassengersRequest"),
-	 *           "example2": @OA\Schema(ref="#/components/examples/BookingAddPassengersRequestAdvanced", example="BookingAddPassengersRequestAdvanced"),
      *       },
 	 *     ),
 	 *   ),
@@ -699,19 +701,20 @@ class BookApiHandler extends BaseController
 		$filters = Validator::make($request->all(), (new AddPassengersRequest())->rules());
         if ($filters->fails()) return $this->sendError($filters->errors());
 
+		$filters = $request->all();
+		$filtersOutput = $this->dtoAddPassengers($filters);
+		$chechChidrenAges = $this->chechChidrenAges($filtersOutput);
+		if (!empty($chechChidrenAges)) return $this->sendError($chechChidrenAges, 'failed');
+
 		$itemsInCart = ApiBookingInspector::where('booking_id', $request->booking_id)
             ->where('type', 'add_item')
             ->where('sub_type', 'like', 'price_check' . '%')
             ->get();
 
-		if (isset($request->booking_items)) {
-			$bookingRequestItems = $request->booking_items;
-			foreach ($bookingRequestItems as $requestItem) {
-				if (!in_array($requestItem, $itemsInCart->pluck('booking_item')->toArray())) 
-					return $this->sendError(['error' => 'This booking_item is not in the cart.'], 'failed'); 
-			}
-		} else {
-			$bookingRequestItems = $itemsInCart->pluck('booking_item')->toArray();
+		$bookingRequestItems = array_keys($filtersOutput);
+		foreach ($bookingRequestItems as $requestItem) {
+			if (!in_array($requestItem, $itemsInCart->pluck('booking_item')->toArray())) 
+				return $this->sendError(['error' => 'This booking_item is not in the cart.'], 'failed'); 
 		}
 
 		try {
@@ -726,7 +729,7 @@ class BookApiHandler extends BaseController
                 if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
 					$filters = (array)$request->all();
 					$filters['booking_item'] = $booking_item;
-                    $res[] = $this->expedia->addPassengers($filters);
+                    $res[] = $this->expedia->addPassengers($filters, $filtersOutput[$booking_item]);
                 }
                 // TODO: Add other suppliers
             }
@@ -778,5 +781,80 @@ class BookApiHandler extends BaseController
 			return false;
 		};
 		return true;
+	}
+
+	private function dtoAddPassengers (array $input) : array
+	{
+		foreach ($input['passengers'] as $passenger) {
+			foreach ($passenger['booking_items'] as $booking) {
+				$bookingItem = $booking['booking_item'];
+				$room = $booking['room'];
+		
+				if (isset($output[$bookingItem])) {
+					$output[$bookingItem]['rooms'][$room]['passengers'][] = [
+						"title" => $passenger['title'],
+						"given_name" => $passenger['given_name'],
+						"family_name" => $passenger['family_name'],
+						"date_of_birth" => $passenger['date_of_birth']
+					];
+				} else {
+					$output[$bookingItem] = [
+						"booking_item" => $bookingItem,
+						"rooms" => [
+							$room => [
+								"passengers" => [
+									[
+										"title" => $passenger['title'],
+										"given_name" => $passenger['given_name'],
+										"family_name" => $passenger['family_name'],
+										"date_of_birth" => $passenger['date_of_birth']
+									]
+								]
+							]
+						]
+					];
+				}
+			}
+		}
+
+		// TODO: need add validation/chech structure if it is flight
+		return $output;
+	}
+
+	private function chechChidrenAges (array $filtersOutput) : array
+	{
+		foreach ($filtersOutput as $bookingItem => $booking) {
+			$search = ApiBookingItem::where('booking_item', $bookingItem)->first();
+			if (!$search) return ['booking_item' => 'Invalid booking_item'];
+			$searchId = $search->search_id;
+			$serchData = json_decode(ApiSearchInspector::where('search_id', $searchId)->first()->request, true);
+
+			foreach ($booking['rooms'] as $room => $roomData) {
+				if (!isset($serchData['occupancy'][$room - 1]['children_ages'])) continue;
+				$childrenAges = $serchData['occupancy'][$room - 1]['children_ages'];
+				sort($childrenAges);
+				$childrenAgesInQuery = [];
+				foreach ($roomData['passengers'] as $passenger) {
+					$givenDate = Carbon::create($passenger['date_of_birth']);
+					$currentDate = Carbon::now();
+					$years = $givenDate->diffInYears($currentDate);
+					if ($years >= 18) continue;
+					$childrenAgesInQuery[] = $years;
+				}
+				sort($childrenAgesInQuery);
+				if ($childrenAges != $childrenAgesInQuery) {
+					return [
+						'type' => 'Children ages not match.',
+						'booking_item' => $bookingItem,
+						'search_id' => $searchId,
+						'room' => $room,
+						'children_ages_in_search' => implode(',', $childrenAges) ,
+						'children_ages_in_query' => implode(',', $childrenAgesInQuery)
+						];
+				}
+			}
+		}
+
+		return [];
 	}
 }

@@ -412,7 +412,7 @@ class ExpediaBookApiHandler extends BaseController
      * @param array $filters
      * @return array|null
      */
-    public function addPassengers(array $filters): array | null
+    public function addPassengers(array $filters, array $passengersData): array | null
     {
 		$booking_id = $filters['booking_id'];
 		$filters['search_id'] = ApiBookingInspector::where('booking_item', $filters['booking_item'])->first()->search_id;
@@ -427,8 +427,8 @@ class ExpediaBookApiHandler extends BaseController
 
 		$type = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->search_type;
 		if ($type == 'hotel')
-			for ($i = 0; $i < $countRooms; $i++) {
-				$filters['rooms'][] = $filters['passengers'][0];
+			for ($i = 1; $i <= $countRooms; $i++) {
+				$filters['rooms'][] = $passengersData['rooms'][$i]['passengers'];
 			}
 
 		if ($bookingItem->get()->count() > 0) {
