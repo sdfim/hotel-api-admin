@@ -343,31 +343,181 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
     {
     }
 
-/**
-*   - 'missed_booking_contact_address_state_province_code': Unset 'booking_contact'['address']['state_province_code'].
-*   - 'incorrect_booking_contact_address_state_province_code': Set an incorrect value for 'booking_contact'['address']['state_province_code'].
-*   - 'missed_booking_contact_address_postal_code': Unset 'booking_contact'['address']['postal_code'].
-*   - 'incorrect_booking_contact_address_postal_code': Set an incorrect value for 'booking_contact'['address']['postal_code'].
-*   - 'incorrect_type_booking_contact_address_postal_code': Set an incorrect type for 'booking_contact'['address']['postal_code'].
-*   - 'missed_booking_contact_address_country_code': Unset 'booking_contact'['address']['country_code'].
-*   - 'incorrect_booking_contact_address_country_code': Set an incorrect value for 'booking_contact'['address']['country_code'].
-*   - 'missed_credit_card_name_card': Unset 'credit_card'['name_card'].
-*   - 'incorrect_credit_card_name_card': Set an incorrect value for 'credit_card'['name_card'].
-*   - 'missed_credit_card_number': Unset 'credit_card'['number'].
-*   - 'incorrect_credit_card_number': Set an incorrect value for 'credit_card'['number'].
-*   - 'incorrect_type_credit_card_number': Set an incorrect type for 'credit_card'['number'].
-*   - 'missed_credit_card_card_type': Unset 'credit_card'['card_type'].
-*   - 'incorrect_credit_card_card_type': Set an incorrect value for 'credit_card'['card_type'].
-*   - 'missed_credit_card_expiry_date': Unset 'credit_card'['expiry_date'].
-*   - 'incorrect_credit_card_expiry_date': Set an incorrect value for 'credit_card'['expiry_date'].
-*   - 'past_date_credit_card_expiry_date': Set a past date for 'credit_card'['expiry_date'].
-*   - 'missed_credit_card_cvv': Unset 'credit_card'['cvv'].
-*   - 'incorrect_credit_card_cvv': Set an incorrect value for 'credit_card'['cvv'].
-*   - 'incorrect_type_credit_card_cvv': Set an incorrect type for 'credit_card'['cvv'].
-*   - 'missed_credit_card_billing_address': Unset 'credit_card'['billing_address'].
-*   - 'incorrect_credit_card_billing_address': Set an incorrect value for 'credit_card'['billing_address'].
-* /
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_missed_booking_contact_address_state_province_code_method_response_400(): void
+    {
+    }
 
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_incorrect_booking_contact_address_state_province_code_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_missed_booking_contact_address_postal_code_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_incorrect_booking_contact_address_postal_code_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_incorrect_type_booking_contact_address_postal_code_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_missed_booking_contact_address_country_code_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_incorrect_booking_contact_address_country_code_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_missed_credit_card_name_card_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_incorrect_credit_card_name_card_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_missed_credit_card_number_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_incorrect_credit_card_number_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_incorrect_type_credit_card_number_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_missed_credit_card_card_type_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_incorrect_credit_card_card_type_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_missed_credit_card_expiry_date_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_incorrect_credit_card_expiry_date_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_past_date_credit_card_expiry_date_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_missed_credit_card_cvv_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_incorrect_credit_card_cvv_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_incorrect_type_credit_card_cvv_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_missed_credit_card_billing_address_method_response_400(): void
+    {
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_book_with_incorrect_credit_card_billing_address_method_response_400(): void
+    {
+    }
 
     /**
      * @param array $keysToFail An array of keys indicating which values to modify or remove.
