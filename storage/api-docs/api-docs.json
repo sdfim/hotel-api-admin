@@ -476,6 +476,95 @@
                 ]
             }
         },
+        "/api/booking/add-passengers": {
+            "post": {
+                "tags": [
+                    "Booking API | Cart Endpoints"
+                ],
+                "summary": "Add passengers to a booking.",
+                "description": "Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
+                "operationId": "f1e7873b33ca8fb0789766e4d30dfe8f",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n\t *       In the response object for each rate is a **booking_id** property.",
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "description": "JSON object containing the details of the reservation. If you don't pass booking_item(s), these passengers will be added to all booking_items that are in the cart (booking_id)",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingAddPassengersRequest"
+                            },
+                            "examples": {
+                                "BookingAddPassengersRequest": {
+                                    "$ref": "#/components/examples/BookingAddPassengersRequest"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
+                                },
+                                "examples": {
+                                    "BookingAddPassengersResponseAdd": {
+                                        "$ref": "#/components/examples/BookingAddPassengersResponseAdd"
+                                    },
+                                    "BookingAddPassengersResponseUpdate": {
+                                        "$ref": "#/components/examples/BookingAddPassengersResponseUpdate"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
+                                },
+                                "examples": {
+                                    "BookingAddPassengersResponseError": {
+                                        "$ref": "#/components/examples/BookingAddPassengersResponseError"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/booking/add-item": {
             "post": {
                 "tags": [
@@ -603,102 +692,6 @@
                                 "examples": {
                                     "BadRequestResponse": {
                                         "$ref": "#/components/examples/BadRequestResponse"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                },
-                                "examples": {
-                                    "UnAuthenticatedResponse": {
-                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/booking/add-passengers": {
-            "post": {
-                "tags": [
-                    "Booking API | Cart Endpoints"
-                ],
-                "summary": "Add passengers to a booking.",
-                "description": "Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
-                "operationId": "0d08e953f2ed94194075f3d3e3e60b73",
-                "parameters": [
-                    {
-                        "name": "booking_id",
-                        "in": "query",
-                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n\t *       In the response object for each rate is a **booking_id** property.",
-                        "required": true
-                    },
-                    {
-                        "name": "booking_item",
-                        "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n\t *       In the response object for each rate is a **booking_item** property.",
-                        "required": true,
-                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-                    }
-                ],
-                "requestBody": {
-                    "description": "JSON object containing the details of the reservation.",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BookingAddPassengersRequest"
-                            },
-                            "examples": {
-                                "BookingAddPassengersRequest": {
-                                    "$ref": "#/components/examples/BookingAddPassengersRequest"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
-                                },
-                                "examples": {
-                                    "BookingAddPassengersResponseAdd": {
-                                        "$ref": "#/components/examples/BookingAddPassengersResponseAdd"
-                                    },
-                                    "BookingAddPassengersResponseUpdate": {
-                                        "$ref": "#/components/examples/BookingAddPassengersResponseUpdate"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
-                                },
-                                "examples": {
-                                    "BookingAddPassengersResponseError": {
-                                        "$ref": "#/components/examples/BookingAddPassengersResponseError"
                                     }
                                 }
                             }
@@ -1121,20 +1114,21 @@
             },
             "BookingAddPassengersRequest": {
                 "title": "Booking Add Passengers Request",
-                "description": "Schema Booking Add Passengers Reques",
+                "description": "Schema Booking Add Passengers Request",
                 "required": [
-                    "rooms"
+                    "passengers"
                 ],
                 "properties": {
-                    "rooms": {
-                        "description": "Rooms",
+                    "passengers": {
+                        "description": "Passengers",
                         "type": "array",
                         "items": {
                             "required": [
                                 "title",
                                 "given_name",
                                 "family_name",
-                                "date_of_birth"
+                                "date_of_birth",
+                                "booking_items"
                             ],
                             "properties": {
                                 "title": {
@@ -1156,10 +1150,38 @@
                                     "description": "Date of Birth",
                                     "type": "string",
                                     "example": "2080-12-14"
+                                },
+                                "booking_items": {
+                                    "description": "Booking Items",
+                                    "type": "array",
+                                    "items": {
+                                        "required": [
+                                            "booking_item",
+                                            "room"
+                                        ],
+                                        "properties": {
+                                            "booking_item": {
+                                                "description": "Booking Item",
+                                                "type": "string",
+                                                "example": "bed7af51-836a-4d7e-8f82-8efe8b1825d4"
+                                            },
+                                            "room": {
+                                                "description": "Room",
+                                                "type": "string",
+                                                "example": "1"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
                                 }
                             },
                             "type": "object"
                         }
+                    },
+                    "booking_id": {
+                        "description": "Booking ID",
+                        "type": "string",
+                        "example": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e"
                     }
                 },
                 "type": "object"
@@ -3019,20 +3041,88 @@
                 }
             },
             "BookingAddPassengersRequest": {
-                "summary": "Example Booking Add Passengers Request Hotel",
+                "summary": "Example Booking Add Passengers Request",
                 "value": {
-                    "rooms": [
+                    "passengers": [
                         {
                             "title": "mr",
-                            "given_name": "John",
+                            "given_name": "Adult1",
                             "family_name": "Portman",
-                            "date_of_birth": "1988-12-14"
+                            "date_of_birth": "1988-12-14",
+                            "booking_items": [
+                                {
+                                    "booking_item": "387050aa-d06d-4587-aa67-2a32cfe2fc9e",
+                                    "room": "1"
+                                },
+                                {
+                                    "booking_item": "ec8436ac-93e8-47f6-8782-925c812c8e9f",
+                                    "room": "1"
+                                }
+                            ]
                         },
                         {
                             "title": "mr",
-                            "given_name": "Diana",
+                            "given_name": "Adult2",
+                            "family_name": "Portman",
+                            "date_of_birth": "1988-12-14",
+                            "booking_items": [
+                                {
+                                    "booking_item": "387050aa-d06d-4587-aa67-2a32cfe2fc9e",
+                                    "room": "1"
+                                },
+                                {
+                                    "booking_item": "ec8436ac-93e8-47f6-8782-925c812c8e9f",
+                                    "room": "1"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "mr",
+                            "given_name": "Adult3",
+                            "family_name": "Portman",
+                            "date_of_birth": "1988-12-14",
+                            "booking_items": [
+                                {
+                                    "booking_item": "387050aa-d06d-4587-aa67-2a32cfe2fc9e",
+                                    "room": "2"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "mr",
+                            "given_name": "Adult4",
+                            "family_name": "Portman",
+                            "date_of_birth": "1988-12-14",
+                            "booking_items": [
+                                {
+                                    "booking_item": "387050aa-d06d-4587-aa67-2a32cfe2fc9e",
+                                    "room": "2"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "ms",
+                            "given_name": "Children1",
                             "family_name": "Donald",
-                            "date_of_birth": "1980-07-18"
+                            "date_of_birth": "2010-01-18",
+                            "booking_items": [
+                                {
+                                    "booking_item": "ec8436ac-93e8-47f6-8782-925c812c8e9f",
+                                    "room": "1"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "ms",
+                            "given_name": "Children2",
+                            "family_name": "Donald",
+                            "date_of_birth": "2009-09-18",
+                            "booking_items": [
+                                {
+                                    "booking_item": "ec8436ac-93e8-47f6-8782-925c812c8e9f",
+                                    "room": "1"
+                                }
+                            ]
                         }
                     ]
                 }
@@ -3042,11 +3132,18 @@
                 "value": {
                     "success": true,
                     "data": {
-                        "result": {
-                            "booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
-                            "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
-                            "status": "Passengers updated to booking."
-                        }
+                        "result": [
+                            {
+                                "booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+                                "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
+                                "status": "Passengers updated to booking."
+                            },
+                            {
+                                "booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+                                "booking_item": "50b8b1a0-a07e-4450-b4cc-075742e77be8",
+                                "status": "Passengers added to booking."
+                            }
+                        ]
                     },
                     "message": "success"
                 }
@@ -3056,11 +3153,18 @@
                 "value": {
                     "success": true,
                     "data": {
-                        "result": {
-                            "booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
-                            "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
-                            "status": "Passengers added to booking."
-                        }
+                        "result": [
+                            {
+                                "booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+                                "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
+                                "status": "Passengers added to booking."
+                            },
+                            {
+                                "booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+                                "booking_item": "50b8b1a0-a07e-4450-b4cc-075742e77be8",
+                                "status": "Passengers added to booking."
+                            }
+                        ]
                     },
                     "message": "success"
                 }
@@ -3072,7 +3176,7 @@
                     "error": {
                         "booking_id": "b1b7db09-6b53-480e-bece-53a2d5ef30d6",
                         "booking_item": "84fb55f2-5792-4958-b475-4c39ea787b5f",
-                        "status": "The number of rooms does not match the number of rooms in the search. Must be 2 rooms."
+                        "status": "This booking_item is not in the cart."
                     }
                 }
             },

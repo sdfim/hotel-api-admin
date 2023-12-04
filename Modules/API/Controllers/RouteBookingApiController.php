@@ -139,7 +139,6 @@ class RouteBookingApiController extends Controller
         return match ($this->route) {
             'addItem' => $dataHandler->addItem($request, $this->supplier),
             'removeItem' => $dataHandler->removeItem($request, $this->supplier),
-            'addPassengers' => $dataHandler->addPassengers($request, $this->supplier),
             default => response()->json(['message' => 'Invalid route'], 400),
         };
     }

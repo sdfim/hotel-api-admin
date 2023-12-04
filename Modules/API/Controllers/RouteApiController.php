@@ -148,7 +148,7 @@ class RouteApiController extends Controller
 			select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_id')
 			->where('city_name', 'like', $request->get('city').'%')
 			->limit(35)
-			->orderBy('city_name', 'asc')
+			->orderBy('city_id', 'asc')
 			->get()
 			->pluck('city_id','full_name')
 			->toArray();
@@ -165,10 +165,8 @@ class RouteApiController extends Controller
             'success' => true,
             'data' => $destinations,
         ];
-		$res = response()->json($response);
-
-        return $res;
-
+		
+		return response()->json($response);
 	}
 
     /**

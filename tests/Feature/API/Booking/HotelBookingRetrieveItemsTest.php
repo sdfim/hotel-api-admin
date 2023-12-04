@@ -83,7 +83,21 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
 
         $roomsCount = count($createBooking['hotel_pricing_request_data']['occupancy']);
 
-        $this->addPassengersToBookingItem($bookingId, $bookingItem, $roomsCount);
+        $firstName = $this->faker->firstName;
+        $lastName = $this->faker->lastName;
+
+        $addPassengersRequestData = [
+            'passengers' => [],
+        ];
+
+        for ($i = 0; $i < $roomsCount; $i++) {
+            $addPassengersRequestData['passengers'][$i] = [
+				'title' => 'mr',
+                'given_name' => $firstName,
+                'family_name' => $lastName,
+				'date_of_birth' => "1988-12-14"
+            ];
+        }
 
         $bookingRetrieveItemsResponse = $this->withHeaders($this->headers)
             ->getJson("api/booking/retrieve-items?booking_id=$bookingId");
@@ -123,9 +137,12 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
 										'title',
                                         'given_name',
                                         'family_name',
-										'date_of_birth',
+										'date_of_birth'
                                     ],
-                                ]
+                                ],
+                                'search_id',
+                                'booking_id',
+                                'booking_item',
                             ],
                             'request' => [
                                 'type',

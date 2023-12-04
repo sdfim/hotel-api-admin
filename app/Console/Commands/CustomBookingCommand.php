@@ -57,34 +57,40 @@ class CustomBookingCommand extends Command
     public function strategy1(): void
     {
         $this->warn('SEARCH 1');
-        $responseData = $this->makeSearchRequest(2);
-        $searchId = $responseData['data']['search_id'];
-		$bookingItem = $this->getBookingItem($responseData);
+        $responseData1 = $this->makeSearchRequest(2);
+		$query['1'] = $responseData1['data']['query']['occupancy'];
+        $searchId = $responseData1['data']['search_id'];
+		$bookingItem = $this->getBookingItem($responseData1);
         $this->info('search_id = ' . $searchId);
         $this->info('booking_item = ' . $bookingItem);
 
         $bookingId = $this->addBookingItem($bookingItem);
-        $this->addPassengers($bookingId, $bookingItem, 2);
+		$bookingItems['1'] = $bookingItem;
 
         $this->warn('SEARCH 2');
-        $responseData = $this->makeSearchRequest(3);
-        $searchId = $responseData['data']['search_id'];
-        $bookingItem = $this->getBookingItem($responseData);
+        $responseData2 = $this->makeSearchRequest(1);
+		$query['2'] = $responseData2['data']['query']['occupancy'];
+        $searchId = $responseData2['data']['search_id'];
+        $bookingItem = $this->getBookingItem($responseData2);
         $this->info('search_id = ' . $searchId);
         $this->info('booking_item = ' . $bookingItem);
 
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
-        $this->addPassengers($bookingId, $bookingItem, 3);
+		$bookingItems2['2'] = $bookingItem;
+
+		$this->warn('addPassengers gtroupe for SEARCH 1, SEARCH 2');
+        $this->addPassengers($bookingId, $bookingItems2, $query);
 
         $this->warn('SEARCH 3');
         $responseData = $this->makeSearchRequest(2);
+		$query2['1'] = $responseData['data']['query']['occupancy'];
         $searchId = $responseData['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData);
         $this->info('search_id = ' . $searchId);
         $this->info('booking_item = ' . $bookingItem);
 
-        $bookingId = $this->addBookingItem($bookingItem, $bookingId);
-        $this->addPassengers($bookingId, $bookingItem, 2);
+        $bookingIds['1'] = $this->addBookingItem($bookingItem, $bookingId);
+        $this->addPassengers($bookingId, $bookingIds, $query2);
 
 		sleep(1);
         $this->warn('REMOVE ITEM');
@@ -153,27 +159,56 @@ class CustomBookingCommand extends Command
         return $bookingId;
     }
 
-    private function addPassengers(string $bookingId, string $bookingItem, int $count = 1): void
+    private function addPassengers(string $bookingId, array $bookingItems, array $occupancy): void
     {
+		$faker = Faker::create();
 
-        $requestData = [
-            "booking_id" => $bookingId,
-            "booking_item" => $bookingItem,
-        ];
+		$requestData = ["passengers" => []];
 
-        $faker = Faker::create();
-		$rooms = [];
-		foreach (range(1, $count) as $index) {
-			$rooms[] = [
-				"title" => "mr",
-				"given_name" => $faker->firstName,
-				"family_name" => $faker->lastName,
-				"date_of_birth" => Carbon::now()->addYears(- rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
-			];
+		foreach ($occupancy as $key => $roomOccupancy) {
+			$roomCounter = 1;
+			foreach ($roomOccupancy as $occupant) {
+				for ($i = 0; $i < $occupant["adults"]; $i++) {
+					$passenger = [
+						"title" => "mr",
+						"given_name" => $faker->firstName,
+						"family_name" => $faker->lastName,
+						"date_of_birth" => "1988-12-14",
+						"booking_items" => [],
+					];
+
+					foreach ($bookingItems as $bookingItem) {
+						$passenger["booking_items"][] = [
+							"booking_item" => $bookingItem,
+							"room" => (string)$roomCounter,
+						];
+					}
+
+					$requestData["passengers"][] = $passenger;
+				}
+
+				if(isset($occupant["children_ages"]) && count($occupant["children_ages"]) > 0) {
+					foreach ($occupant["children_ages"] as $childAge) {
+						$passenger = [
+							"title" => "ms",
+							"given_name" => "Child",
+							"family_name" => "Donald",
+							"date_of_birth" => date("Y-m-d", strtotime("-$childAge years")),
+							"booking_items" => [
+								[
+									"booking_item" => $bookingItems[$key],
+									"room" => (string)$roomCounter,
+								],
+							],
+						];
+	
+						$requestData["passengers"][] = $passenger;
+					}
+				}
+				$roomCounter++;
+			}
 		}
-        $requestData += [
-            "rooms" => $rooms
-        ];
+		$requestData["booking_id"] = $bookingId;
 
         $response = $this->client->post(self::BASE_URI . '/api/booking/add-passengers', $requestData);
 		$this->info('addPassengers: ' . json_encode($response->json()));

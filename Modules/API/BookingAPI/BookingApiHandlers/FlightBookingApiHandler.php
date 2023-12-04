@@ -29,14 +29,4 @@ class FlightBookingApiHandler extends BaseController implements BookingApiHandle
 		return response()->json(['message' => 'This page is in development'], 503);
     }
 
-    /**
-     * @param Request $request
-     * @param string $supplier
-     * @return JsonResponse
-     */
-    public function addPassengers(Request $request, string $supplier): JsonResponse
-    {
-		return response()->json(['message' => 'This page is in development'], 503);
-    }
-
 }

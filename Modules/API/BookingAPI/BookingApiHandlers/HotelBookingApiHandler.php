@@ -12,11 +12,9 @@ use Modules\API\Requests\BookingAddItemHotelRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
 use Modules\API\Requests\BookingRemoveItemHotelRequest;
 use Modules\Inspector\SearchInspectorController;
 use Modules\API\BookingAPI\ExpediaHotelBookingApiHandler;
-use Spatie\FlareClient\Api;
 
 /**
  * @OA\PathItem(
@@ -239,99 +237,4 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
 		return $this->sendResponse(['result' => $data['success']], 'success');
 	}
-
-	/**
-	 * @param Request $request
-	 * @param string $supplier
-	 * @return JsonResponse
-	 */
-	/**
-	 * @OA\Post(
-	 *   tags={"Booking API | Cart Endpoints"},
-	 *   path="/api/booking/add-passengers",
-	 *   summary="Add passengers to a booking.",
-	 *   description="Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
-	 *     @OA\Parameter(
-	 *       name="booking_id",
-	 *       in="query",
-	 *       required=true,
-	 *       description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
-	 *       In the response object for each rate is a **booking_id** property.",
-	 *     ),
-	 *     @OA\Parameter(
-	 *       name="booking_item",
-	 *       in="query",
-	 *       required=true,
-	 *       description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
-	 *       In the response object for each rate is a **booking_item** property.",
-	 *       example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-	 *     ),
-	 *     @OA\RequestBody(
-	 *     description="JSON object containing the details of the reservation.",
-	 *     required=true,
-	 *     @OA\JsonContent(    
-	 *       ref="#/components/schemas/BookingAddPassengersRequest", 
-	 *       examples={
-     *           "example1": @OA\Schema(ref="#/components/examples/BookingAddPassengersRequest", example="BookingAddPassengersRequest"),
-     *       },
-	 *     ),
-	 *   ),
-	 *   @OA\Response(
-	 *     response=200,
-	 *     description="OK",
-	 *     @OA\JsonContent(
-	 *       ref="#/components/schemas/BookingAddPassengersResponse",
-	 *       examples={
-	 *           "Add": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseAdd", example="BookingAddPassengersResponseAdd"),
-	 *           "Update": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseUpdate", example="BookingAddPassengersResponseUpdate"),
-	 *       },
-	 *     ),
-	 *   ),
-	 *   @OA\Response(
-	 *     response=400,
-	 *     description="Bad Request",
-	 *     @OA\JsonContent(
-	 *       ref="#/components/schemas/BookingAddPassengersResponse",
-	 *       examples={
-	 *       "Error": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseError", example="BookingAddPassengersResponseError"),
-	 *       },
-	 *     ),
-	 *   ),
-	 *   @OA\Response(
-	 *     response=401,
-	 *     description="Unauthenticated",
-	 *     @OA\JsonContent(
-	 *       ref="#/components/schemas/UnAuthenticatedResponse",
-	 *       examples={
-	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-	 *       }
-	 *     )
-	 *   ),
-	 *   security={{ "apiAuth": {} }}
-	 * )
-	 */
-	public function addPassengers(Request $request, string $supplier): JsonResponse
-	{
-		$filters = Validator::make($request->all(), (new AddPassengersRequest())->rules());
-        if ($filters->fails()) return $this->sendError($filters->errors());
-
-		try {
-			// TODO: add validation for request
-			$filters = $request->all();
-
-			$data = [];
-			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
-				$data = $this->expedia->addPassengers($filters);
-			}
-			// TODO: Add other suppliers
-
-		} catch (Exception $e) {
-			\Log::error('HotelBookingApiHandler | listBookings ' . $e->getMessage());
-			return $this->sendError(['error' => $e->getMessage()], 'failed');
-		}
-
-		if (isset($data['error'])) return $this->sendError($data['error']);
-		return $this->sendResponse(['result' => $data['success']], 'success');
-	}
-
 }
