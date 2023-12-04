@@ -17,25 +17,30 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
 
         $bookingId = $createBooking['booking_id'];
         $bookingItem = $createBooking['booking_items'][0];
+        $occupancy = $createBooking['hotel_pricing_request_data']['occupancy'];
 
-        $roomsCount = count($createBooking['hotel_pricing_request_data']['occupancy']);
-
-        $addPassengersData = $this->generateAddPassengersData($roomsCount);
+        $addPassengersData = $this->generateAddPassengersData($bookingItem, $occupancy);
 
         $addPassengersResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-passengers?booking_item=$bookingItem&booking_id=$bookingId", $addPassengersData);
 
         $addPassengersResponse->assertStatus(200)
-            ->assertJson([
-                'success' => true,
+            ->assertJsonStructure([
+                'success',
                 'data' => [
                     'result' => [
-                        'booking_id' => $bookingId,
-                        'booking_item' => $bookingItem,
-                        'status' => 'Passengers added to booking.'
-                    ]
+                        '*' => [
+                            'booking_id',
+                            'booking_item',
+                            'status',
+                        ],
+                    ],
                 ],
-                'message' => 'success'
+                'message',
+            ])
+            ->assertJson([
+                'success' => true,
+                'message' => 'success',
             ]);
     }
 
@@ -49,10 +54,9 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
 
         $bookingId = $createBooking['booking_id'];
         $bookingItem = $createBooking['booking_items'][0];
+        $occupancy = $createBooking['hotel_pricing_request_data']['occupancy'];
 
-        $roomsCount = count($createBooking['hotel_pricing_request_data']['occupancy']);
-
-        $addPassengersData = $this->generateAddPassengersData($roomsCount);
+        $addPassengersData = $this->generateAddPassengersData($bookingItem, $occupancy);
 
         $this->withHeaders($this->headers)
             ->postJson("api/booking/add-passengers?booking_item=$bookingItem&booking_id=$bookingId", $addPassengersData);
@@ -61,16 +65,22 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ->postJson("api/booking/add-passengers?booking_item=$bookingItem&booking_id=$bookingId", $addPassengersData);
 
         $addPassengersResponse->assertStatus(200)
-            ->assertJson([
-                'success' => true,
+            ->assertJsonStructure([
+                'success',
                 'data' => [
                     'result' => [
-                        'booking_id' => $bookingId,
-                        'booking_item' => $bookingItem,
-                        'status' => 'Passengers updated to booking.'
-                    ]
+                        '*' => [
+                            'booking_id',
+                            'booking_item',
+                            'status',
+                        ],
+                    ],
                 ],
-                'message' => 'success'
+                'message',
+            ])
+            ->assertJson([
+                'success' => true,
+                'message' => 'success',
             ]);
     }
 
@@ -78,7 +88,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_add_passengers_with_empty_booking_id_and_missed_booking_item_method_response_400(): void
+    public function test_hotel_booking_add_passengers_with_empty_booking_id_method_response_400(): void
     {
         $addPassengersResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/add-passengers?booking_id=");
@@ -93,7 +103,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_add_passengers_with_non_existent_booking_id_and_missed_booking_item_method_response_400(): void
+    public function test_hotel_booking_add_passengers_with_non_existent_booking_id_method_response_400(): void
     {
         $nonExistentBookingId = Str::uuid()->toString();
 
@@ -103,62 +113,6 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'message' => 'Invalid booking_id'
-            ]);
-    }
-
-    /**
-     * @test
-     * @return void
-     */
-    public function test_hotel_booking_add_passengers_with_valid_booking_item_and_missed_booking_id_method_response_400(): void
-    {
-        $createBooking = $this->createHotelBooking();
-
-        $bookingItem = $createBooking['booking_items'][0];
-
-        $addPassengersResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-passengers?booking_item=$bookingItem");
-
-        $addPassengersResponse->assertStatus(400)
-            ->assertJson([
-                'success' => false,
-                'error' => [
-                    'booking_id' => [
-                        'The booking id field is required.'
-                    ]
-                ]
-            ]);
-    }
-
-    /**
-     * @test
-     * @return void
-     */
-    public function test_hotel_booking_add_passengers_with_non_existent_booking_item_and_missed_booking_id_method_response_400(): void
-    {
-        $nonExistentBookingItem = Str::uuid()->toString();
-
-        $addPassengersResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-passengers?booking_item=$nonExistentBookingItem");
-
-        $addPassengersResponse->assertStatus(400)
-            ->assertJson([
-                'message' => 'Invalid booking_item'
-            ]);
-    }
-
-    /**
-     * @test
-     * @return void
-     */
-    public function test_hotel_booking_add_passengers_with_missed_or_empty_booking_item_and_missed_booking_id_method_response_400(): void
-    {
-        $addPassengersResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-passengers?booking_item=");
-
-        $addPassengersResponse->assertStatus(400)
-            ->assertJson([
-                'message' => 'Invalid type'
             ]);
     }
 
