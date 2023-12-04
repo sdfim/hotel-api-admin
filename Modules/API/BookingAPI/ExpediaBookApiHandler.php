@@ -121,7 +121,10 @@ class ExpediaBookApiHandler extends BaseController
 		$filters['booking_contact']['family_name'] = $filters['booking_contact']['last_name'];
 		unset($filters['booking_contact']['first_name'], $filters['booking_contact']['last_name']);
 
-		$bodyArr['rooms'] = $dataPassengers['rooms'];
+		$bodyArr['rooms'] = [];
+		foreach ($dataPassengers['rooms'] as $room) {
+			$bodyArr['rooms'][] = $room[0];
+		}
 		$bodyArr['payments'][]['billing_contact'] = $filters['booking_contact'];
 
         $bodyArr['affiliate_reference_id'] = 'UJV_' . time();
@@ -131,6 +134,7 @@ class ExpediaBookApiHandler extends BaseController
         }
 
         $body = json_encode($bodyArr);
+
         try {
             $response = $this->rapidClient->post($props['path'], $props['paramToken'], $body, $this->headers());
             $dataResponse = json_decode($response->getBody()->getContents());
@@ -146,7 +150,7 @@ class ExpediaBookApiHandler extends BaseController
 
         SaveBookingInspector::dispatch([
             $booking_id,
-            $filters,
+            array_merge($filters, $bodyArr),
             $dataResponse,
             [],
             1,

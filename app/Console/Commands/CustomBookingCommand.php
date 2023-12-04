@@ -58,48 +58,49 @@ class CustomBookingCommand extends Command
     {
         $this->warn('SEARCH 1');
         $responseData1 = $this->makeSearchRequest(2);
-		$query['1'] = $responseData1['data']['query']['occupancy'];
+		$query['search_1'] = $responseData1['data']['query']['occupancy'];
         $searchId = $responseData1['data']['search_id'];
 		$bookingItem = $this->getBookingItem($responseData1);
         $this->info('search_id = ' . $searchId);
         $this->info('booking_item = ' . $bookingItem);
 
         $bookingId = $this->addBookingItem($bookingItem);
-		$bookingItems['1'] = $bookingItem;
+		$bookingItems['search_1'] = $bookingItem;
 
         $this->warn('SEARCH 2');
         $responseData2 = $this->makeSearchRequest(1);
-		$query['2'] = $responseData2['data']['query']['occupancy'];
+		$query['search_2'] = $responseData2['data']['query']['occupancy'];
         $searchId = $responseData2['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData2);
         $this->info('search_id = ' . $searchId);
         $this->info('booking_item = ' . $bookingItem);
 
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
-		$bookingItems2['2'] = $bookingItem;
+		$bookingItems['search_2'] = $bookingItem;
 
 		$this->warn('addPassengers gtroupe for SEARCH 1, SEARCH 2');
-        $this->addPassengers($bookingId, $bookingItems2, $query);
+        $this->addPassengers($bookingId, $bookingItems, $query);
 
         $this->warn('SEARCH 3');
         $responseData = $this->makeSearchRequest(2);
-		$query2['1'] = $responseData['data']['query']['occupancy'];
+		$query2['search_3'] = $responseData['data']['query']['occupancy'];
         $searchId = $responseData['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData);
         $this->info('search_id = ' . $searchId);
         $this->info('booking_item = ' . $bookingItem);
 
-        $bookingIds['1'] = $this->addBookingItem($bookingItem, $bookingId);
-        $this->addPassengers($bookingId, $bookingIds, $query2);
+        $bookingId = $this->addBookingItem($bookingItem, $bookingId);
+		$bookingItems2['search_3'] = $bookingItem;
+        $this->addPassengers($bookingId, $bookingItems2, $query2);
 
-		sleep(1);
+		sleep(3);
         $this->warn('REMOVE ITEM');
         $this->removeBookingItem($bookingId, $bookingItem);
 
         $this->warn('RETRIEVE ITEMS');
         $this->retrieveItems($bookingId);
 
-        $this->warn('BOOK');
+        $this->warn('BOOK ' . $bookingId);
         $this->book($bookingId);
     }
 
@@ -165,24 +166,22 @@ class CustomBookingCommand extends Command
 
 		$requestData = ["passengers" => []];
 
-		foreach ($occupancy as $key => $roomOccupancy) {
+		foreach ($bookingItems as $keySearch => $bookingItem) {
 			$roomCounter = 1;
-			foreach ($roomOccupancy as $occupant) {
+			foreach ($occupancy[$keySearch] as $occupant) {
 				for ($i = 0; $i < $occupant["adults"]; $i++) {
 					$passenger = [
 						"title" => "mr",
 						"given_name" => $faker->firstName,
 						"family_name" => $faker->lastName,
-						"date_of_birth" => "1988-12-14",
-						"booking_items" => [],
+						"date_of_birth" => $faker->date("Y-m-d", strtotime("-".rand(20, 60)." years")),
+						"booking_items" => [
+							[
+								"booking_item" => $bookingItems[$keySearch],
+								"room" => $roomCounter,
+							],
+						],
 					];
-
-					foreach ($bookingItems as $bookingItem) {
-						$passenger["booking_items"][] = [
-							"booking_item" => $bookingItem,
-							"room" => (string)$roomCounter,
-						];
-					}
 
 					$requestData["passengers"][] = $passenger;
 				}
@@ -196,8 +195,8 @@ class CustomBookingCommand extends Command
 							"date_of_birth" => date("Y-m-d", strtotime("-$childAge years")),
 							"booking_items" => [
 								[
-									"booking_item" => $bookingItems[$key],
-									"room" => (string)$roomCounter,
+									"booking_item" => $bookingItems[$keySearch],
+									"room" => $roomCounter,
 								],
 							],
 						];
@@ -207,7 +206,8 @@ class CustomBookingCommand extends Command
 				}
 				$roomCounter++;
 			}
-		}
+		}	
+
 		$requestData["booking_id"] = $bookingId;
 
         $response = $this->client->post(self::BASE_URI . '/api/booking/add-passengers', $requestData);

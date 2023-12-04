@@ -138,7 +138,6 @@ class BookApiHandler extends BaseController
 
                 $supplier = Supplier::where('id', $item->supplier_id)->first();
                 if ($supplier->name == self::EXPEDIA_SUPPLIER_NAME) {
-
                     $data[] = $this->expedia->book($filters, $item);
                 }
                 // TODO: Add other suppliers
