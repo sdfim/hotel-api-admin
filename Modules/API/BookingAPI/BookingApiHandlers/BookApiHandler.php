@@ -778,36 +778,62 @@ class BookApiHandler extends BaseController
 		foreach ($input['passengers'] as $passenger) {
 			foreach ($passenger['booking_items'] as $booking) {
 				$bookingItem = $booking['booking_item'];
-				$room = $booking['room'];
-		
-				if (isset($output[$bookingItem])) {
-					$output[$bookingItem]['rooms'][$room]['passengers'][] = [
-						"title" => $passenger['title'],
-						"given_name" => $passenger['given_name'],
-						"family_name" => $passenger['family_name'],
-						"date_of_birth" => $passenger['date_of_birth']
-					];
-				} else {
-					$output[$bookingItem] = [
-						"booking_item" => $bookingItem,
-						"rooms" => [
-							$room => [
-								"passengers" => [
-									[
-										"title" => $passenger['title'],
-										"given_name" => $passenger['given_name'],
-										"family_name" => $passenger['family_name'],
-										"date_of_birth" => $passenger['date_of_birth']
+
+				# type hotel
+				if (isset($booking['room'])) {
+					$room = $booking['room'];
+					if (isset($output[$bookingItem])) {
+						$output[$bookingItem]['rooms'][$room]['passengers'][] = [
+							"title" => $passenger['title'],
+							"given_name" => $passenger['given_name'],
+							"family_name" => $passenger['family_name'],
+							"date_of_birth" => $passenger['date_of_birth']
+						];
+					} else {
+						$output[$bookingItem] = [
+							"booking_item" => $bookingItem,
+							"rooms" => [
+								$room => [
+									"passengers" => [
+										[
+											"title" => $passenger['title'],
+											"given_name" => $passenger['given_name'],
+											"family_name" => $passenger['family_name'],
+											"date_of_birth" => $passenger['date_of_birth']
+										]
 									]
 								]
 							]
-						]
-					];
+						];
+					}
 				}
+				# type flight
+				else {
+					if (isset($output[$bookingItem])) {
+						$output[$bookingItem]['passengers'][] = [
+							"title" => $passenger['title'],
+							"given_name" => $passenger['given_name'],
+							"family_name" => $passenger['family_name'],
+							"date_of_birth" => $passenger['date_of_birth']
+						];
+					} else {
+						$output[$bookingItem] = [
+							"booking_item" => $bookingItem,
+							"passengers" => [
+								[
+									"title" => $passenger['title'],
+									"given_name" => $passenger['given_name'],
+									"family_name" => $passenger['family_name'],
+									"date_of_birth" => $passenger['date_of_birth']
+								]
+							]
+						];
+					}
+				}
+				
 			}
 		}
 
-		// TODO: need add validation/chech structure if it is flight
 		return $output;
 	}
 
@@ -815,10 +841,23 @@ class BookApiHandler extends BaseController
 	{
 		foreach ($filtersOutput as $bookingItem => $booking) {
 			$search = ApiBookingItem::where('booking_item', $bookingItem)->first();
-			if (!$search) return ['booking_item' => 'Invalid booking_item'];
-			$searchId = $search->search_id;
-			$searchData = json_decode(ApiSearchInspector::where('search_id', $searchId)->first()->request, true);
 
+			if (!$search) return ['booking_item' => 'Invalid booking_item'];
+
+			$type = ApiSearchInspector::where('search_id', $search->search_id)->first()->search_type;
+
+			if ($type == 'flight') continue;
+			if ($type == 'combo') continue;
+			if ($type == 'hotel') return $this->chechCounGuestsChidrenAgesHotel($bookingItem, $booking, $search->search_id);
+		}
+
+		return [];
+	}
+
+	private function chechCounGuestsChidrenAgesHotel($bookingItem, $booking, $searchId) : array
+	{
+		$searchData = json_decode(ApiSearchInspector::where('search_id', $searchId)->first()->request, true);
+			
 			foreach ($booking['rooms'] as $room => $roomData) {
 
 				$ages = [];
@@ -888,8 +927,6 @@ class BookApiHandler extends BaseController
 						];
 				}
 			}
-		}
-
 		return [];
 	}
 }
