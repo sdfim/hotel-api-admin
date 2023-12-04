@@ -36,6 +36,8 @@ class BookApiHandler extends BaseController
      */
     private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
 
+	private const AGE_ADULT = 16;
+
 
     public function __construct(ExpediaBookApiHandler $expedia)
     {
@@ -115,18 +117,7 @@ class BookApiHandler extends BaseController
 
         $filters = $request->all();
 
-        $itemsBooked = ApiBookingInspector::where('booking_id', $request->booking_id)
-            ->where('type', 'book')
-            ->where('sub_type', 'create')
-            ->get()
-            ->pluck('booking_id')
-            ->toArray();
-
-        $items = ApiBookingInspector::where('booking_id', $request->booking_id)
-            ->where('type', 'add_item')
-            ->where('sub_type', 'like', 'price_check' . '%')
-            ->whereNotIn('booking_id', $itemsBooked)
-            ->get();
+        $items = ApiBookingInspector::notBookedItems($request->booking_id);
 
         if (!$items->count()) {
             return $this->sendError(['error' => 'No items to book OR the order cart (booking_id) is complete/booked'], 'failed');
@@ -702,8 +693,8 @@ class BookApiHandler extends BaseController
 
 		$filters = $request->all();
 		$filtersOutput = $this->dtoAddPassengers($filters);
-		$chechChidrenAges = $this->chechChidrenAges($filtersOutput);
-		if (!empty($chechChidrenAges)) return $this->sendError($chechChidrenAges, 'failed');
+		$chechData = $this->chechCounGuestsChidrenAges($filtersOutput);
+		if (!empty($chechData)) return $this->sendError($chechData, 'failed');
 
 		$itemsInCart = ApiBookingInspector::where('booking_id', $request->booking_id)
             ->where('type', 'add_item')
@@ -820,24 +811,69 @@ class BookApiHandler extends BaseController
 		return $output;
 	}
 
-	private function chechChidrenAges (array $filtersOutput) : array
+	private function chechCounGuestsChidrenAges (array $filtersOutput) : array
 	{
 		foreach ($filtersOutput as $bookingItem => $booking) {
 			$search = ApiBookingItem::where('booking_item', $bookingItem)->first();
 			if (!$search) return ['booking_item' => 'Invalid booking_item'];
 			$searchId = $search->search_id;
-			$serchData = json_decode(ApiSearchInspector::where('search_id', $searchId)->first()->request, true);
+			$searchData = json_decode(ApiSearchInspector::where('search_id', $searchId)->first()->request, true);
 
 			foreach ($booking['rooms'] as $room => $roomData) {
-				if (!isset($serchData['occupancy'][$room - 1]['children_ages'])) continue;
-				$childrenAges = $serchData['occupancy'][$room - 1]['children_ages'];
+
+				$ages = [];
+				foreach ($roomData['passengers'] as $passenger) {
+					$dob = new \DateTime($passenger['date_of_birth']);
+					$now = new \DateTime();
+					$ages[] = $now->diff($dob)->y; 
+				}
+
+				$childrenCount = 0;
+				$adultsCount = 0;
+				foreach ($ages as $age) {
+					if ($age < self::AGE_ADULT) $childrenCount++;
+					else $adultsCount++;
+				}
+
+				if ($adultsCount != $searchData['occupancy'][$room - 1]['adults']) 
+					return [
+						'type' => 'The number of adults not match.',
+						'booking_item' => $bookingItem,
+						'search_id' => $searchId,
+						'room' => $room,
+						'number_adults_in_search' => $searchData['occupancy'][$room - 1]['adults'],
+						'number_adults_in_query' => $adultsCount
+						];
+				if (!isset($searchData['occupancy'][$room - 1]['children_ages']) && $childrenCount != 0)
+					return [
+						'type' => 'The number of children not match.',
+						'booking_item' => $bookingItem,
+						'search_id' => $searchId,
+						'room' => $room,
+						'number_childrens_in_search' => 0,
+						'number_childrens_in_query' => $childrenCount
+						];
+
+				if (!isset($searchData['occupancy'][$room - 1]['children_ages'])) continue;
+
+				if ($childrenCount != count($searchData['occupancy'][$room - 1]['children_ages'])) 
+					return [
+						'type' => 'The number of children not match.',
+						'booking_item' => $bookingItem,
+						'search_id' => $searchId,
+						'room' => $room,
+						'number_childrens_in_search' => count($searchData['occupancy'][$room - 1]['children_ages']),
+						'number_childrens_in_query' => $childrenCount
+						];
+
+				$childrenAges = $searchData['occupancy'][$room - 1]['children_ages'];
 				sort($childrenAges);
 				$childrenAgesInQuery = [];
 				foreach ($roomData['passengers'] as $passenger) {
 					$givenDate = Carbon::create($passenger['date_of_birth']);
 					$currentDate = Carbon::now();
 					$years = $givenDate->diffInYears($currentDate);
-					if ($years >= 18) continue;
+					if ($years >= self::AGE_ADULT) continue;
 					$childrenAgesInQuery[] = $years;
 				}
 				sort($childrenAgesInQuery);
