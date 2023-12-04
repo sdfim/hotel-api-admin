@@ -51,6 +51,23 @@ class HotelBookingApiTestCase extends ApiTestCase
     }
 
     /**
+     * @return string
+     */
+    protected function createHotelBookingAndAddPassengersToBookingItem(): string
+    {
+        $createBooking = $this->createHotelBooking();
+
+        $bookingId = $createBooking['booking_id'];
+        $bookingItem = $createBooking['booking_items'][0];
+
+        $roomsCount = count($createBooking['hotel_pricing_request_data']['occupancy']);
+
+        $this->addPassengersToBookingItem($bookingId, $bookingItem, $roomsCount);
+
+        return $bookingId;
+    }
+
+    /**
      * @param int $roomsCount
      * @return array[]
      */

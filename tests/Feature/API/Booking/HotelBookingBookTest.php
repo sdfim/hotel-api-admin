@@ -4,6 +4,7 @@ namespace Feature\API\Booking;
 
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Testing\TestResponse;
 use Tests\Feature\API\Booking\HotelBookingApiTestCase;
 use Faker\Provider\en_UG\Address;
 
@@ -15,14 +16,7 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_method_response_200(): void
     {
-        $createBooking = $this->createHotelBooking();
-
-        $bookingId = $createBooking['booking_id'];
-        $bookingItem = $createBooking['booking_items'][0];
-
-        $roomsCount = count($createBooking['hotel_pricing_request_data']['occupancy']);
-
-        $this->addPassengersToBookingItem($bookingId, $bookingItem, $roomsCount);
+        $bookingId = $this->createHotelBookingAndAddPassengersToBookingItem();
 
         $hotelBookData = $this->generateHotelBookData();
 
@@ -157,6 +151,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_amount_pay_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_amount_pay']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -165,6 +165,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_amount_pay_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_amount_pay']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -173,6 +179,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -181,6 +193,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_first_name_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_first_name']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -189,6 +207,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_booking_contact_first_name_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_booking_contact_first_name']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -197,6 +221,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_last_name_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_last_name']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -205,6 +235,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_booking_contact_last_name_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_booking_contact_last_name']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -213,6 +249,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_email_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_email']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -221,6 +263,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_booking_contact_email_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_booking_contact_email']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -229,6 +277,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_phone_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_phone']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -237,6 +291,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_phone_country_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_phone_country_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -245,6 +305,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_booking_contact_phone_country_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_booking_contact_phone_country_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -253,6 +319,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_type_booking_contact_phone_country_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_type_booking_contact_phone_country_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -261,6 +333,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_phone_area_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_phone_area_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -269,6 +347,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_booking_contact_phone_area_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_booking_contact_phone_area_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -277,6 +361,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_type_booking_contact_phone_area_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_type_booking_contact_phone_area_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -285,6 +375,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_phone_number_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_phone_number']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -293,6 +389,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_booking_contact_phone_number_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_booking_contact_phone_number']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -301,6 +403,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_type_booking_contact_phone_number_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_type_booking_contact_phone_number']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -309,6 +417,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_address_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_address']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -317,6 +431,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_address_line_1_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_address_line_1']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -325,6 +445,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_booking_contact_address_line_1_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_booking_contact_address_line_1']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -333,6 +459,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_address_city_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_address_city']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -341,6 +473,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_booking_contact_address_city_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_booking_contact_address_city']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -349,6 +487,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_address_state_province_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_address_state_province_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -357,6 +501,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_booking_contact_address_state_province_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_booking_contact_address_state_province_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -365,6 +515,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_address_postal_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_address_postal_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -373,6 +529,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_booking_contact_address_postal_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_booking_contact_address_postal_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -381,6 +543,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_type_booking_contact_address_postal_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_type_booking_contact_address_postal_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -389,6 +557,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_booking_contact_address_country_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_booking_contact_address_country_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -397,6 +571,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_booking_contact_address_country_code_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_booking_contact_address_country_code']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -405,6 +585,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_credit_card_name_card_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_credit_card_name_card']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -413,6 +599,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_credit_card_name_card_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_credit_card_name_card']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -421,6 +613,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_credit_card_number_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_credit_card_number']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -429,6 +627,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_credit_card_number_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_credit_card_number']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -437,6 +641,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_type_credit_card_number_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_type_credit_card_number']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -445,6 +655,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_credit_card_card_type_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_credit_card_card_type']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -453,6 +669,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_credit_card_card_type_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_credit_card_card_type']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -461,6 +683,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_credit_card_expiry_date_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_credit_card_expiry_date']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -469,6 +697,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_credit_card_expiry_date_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_credit_card_expiry_date']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -477,6 +711,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_past_date_credit_card_expiry_date_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['past_date_credit_card_expiry_date']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -485,6 +725,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_credit_card_cvv_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_credit_card_cvv']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -493,6 +739,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_credit_card_cvv_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_credit_card_cvv']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -501,6 +753,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_type_credit_card_cvv_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_type_credit_card_cvv']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -509,6 +767,12 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_missed_credit_card_billing_address_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_credit_card_billing_address']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
     }
 
     /**
@@ -517,6 +781,26 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_with_incorrect_credit_card_billing_address_method_response_400(): void
     {
+        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_credit_card_billing_address']);
+
+        $bookResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+            ]);
+    }
+
+    /**
+     * @param array $keysToFail
+     * @return TestResponse
+     */
+    protected function sendBookRequestWithIncorrectData(array $keysToFail = []): TestResponse
+    {
+        $bookingId = $this->createHotelBookingAndAddPassengersToBookingItem();
+
+        $wrongHotelBookData = $this->hotelBookData($keysToFail);
+
+        return $this->withHeaders($this->headers)
+            ->postJson("api/booking/book?booking_id=$bookingId", $wrongHotelBookData);
     }
 
     /**
