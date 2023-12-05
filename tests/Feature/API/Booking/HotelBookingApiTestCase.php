@@ -81,20 +81,20 @@ class HotelBookingApiTestCase extends ApiTestCase
         ];
 
         foreach ($occupancy as $roomNumber => $room) {
-            $numberOfAdultsInRoom = count($room['adults']);
-            $numberOfChildrenInRoom = count($room['children_ages']) ?? 0;
+            $numberOfAdultsInRoom = $room['adults'];
+            $numberOfChildrenInRoom = isset($room['children_ages']) ? count($room['children_ages']) : 0;
 
             for ($a = 0; $a < $numberOfAdultsInRoom; $a++) {
                 $gender = $genders[rand(0, 1)];
-                $addPassengersRequestData['passengers'] = [
-                    'title' => $gender === 'male' ? 'Mr' : 'Mrs',
+                $addPassengersRequestData['passengers'][] = [
+                    'title' => $gender === 'male' ? 'mr' : 'ms',
                     'given_name' => $this->faker->firstName($gender),
                     'family_name' => $this->faker->lastName(),
                     'date_of_birth' => $this->faker->dateTimeBetween('-60years', '-18years')->format('Y-m-d'),
                     'booking_items' => [
                         [
                             'booking_item' => $bookingItem,
-                            'room' => $roomNumber
+                            'room' => $roomNumber + 1
                         ]
                     ]
                 ];
@@ -102,15 +102,15 @@ class HotelBookingApiTestCase extends ApiTestCase
 
             for ($c = 0; $c < $numberOfChildrenInRoom; $c++) {
                 $gender = $genders[rand(0, 1)];
-                $addPassengersRequestData[] = [
-                    'title' => $gender === 'male' ? 'Mr' : 'Mrs',
+                $addPassengersRequestData['passengers'][] = [
+                    'title' => $gender === 'male' ? 'mr' : 'ms',
                     'given_name' => $this->faker->firstName($gender),
                     'family_name' => $this->faker->lastName(),
                     'date_of_birth' => Carbon::now()->subYears($room['children_ages'][$c])->toDateString(),
                     'booking_items' => [
                         [
                             'booking_item' => $bookingItem,
-                            'room' => $roomNumber
+                            'room' => $roomNumber + 1
                         ]
                     ]
                 ];

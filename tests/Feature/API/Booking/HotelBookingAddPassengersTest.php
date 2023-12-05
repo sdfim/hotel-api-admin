@@ -64,7 +64,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ->postJson("api/booking/add-passengers?booking_id=$bookingId", $addPassengersData);
 
         $addPassengersResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-passengers?booking_item=$bookingItem&booking_id=$bookingId", $addPassengersData);
+            ->postJson("api/booking/add-passengers?booking_id=$bookingId", $addPassengersData);
 
         $addPassengersResponse->assertStatus(200)
             ->assertJsonStructure([
@@ -225,6 +225,11 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.title' => [
+                        'The passengers.0.title field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -239,6 +244,11 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.title' => [
+                        'The passengers.0.title field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -253,6 +263,11 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.given_name' => [
+                        'The passengers.0.given_name field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -267,6 +282,11 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.given_name' => [
+                        'The passengers.0.given_name field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -281,6 +301,11 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.family_name' => [
+                        'The passengers.0.family_name field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -295,6 +320,11 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.family_name' => [
+                        'The passengers.0.family_name field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -309,6 +339,11 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.date_of_birth' => [
+                        'The passengers.0.date_of_birth field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -323,6 +358,11 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.date_of_birth' => [
+                        'The passengers.0.date_of_birth field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -337,6 +377,11 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.date_of_birth' => [
+                        'The passengers.0.date_of_birth does not match the format Y-m-d.'
+                    ]
+                ]
             ]);
     }
 
@@ -351,6 +396,11 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.booking_items' => [
+                        'The passengers.0.booking_items field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -365,6 +415,11 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.booking_items' => [
+                        'The passengers.0.booking_items field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -379,6 +434,11 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.booking_items.0.booking_item' => [
+                        'The passengers.0.booking_items.0.booking_item field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -393,6 +453,10 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'booking_item' => 'Invalid booking_item'
+                ],
+                'message' => 'failed'
             ]);
     }
 
@@ -407,6 +471,30 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
+                'error' => [
+                    'passengers.0.booking_items.0.booking_item' => [
+                        'The passengers.0.booking_items.0.booking_item field is required.'
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_add_passengers_with_invalid_uuid_passenger_booking_item_method_response_400(): void
+    {
+        $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['invalid_uuid_passenger_booking_item']);
+
+        $addPassengersResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'passengers.0.booking_items.0.booking_item' => [
+                        'The passengers.0.booking_items.0.booking_item must be a valid UUID.'
+                    ]
+                ]
             ]);
     }
 
@@ -450,6 +538,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
      *    - 'missed_passenger_booking_item': Indicates that the 'booking_item' key is missing for the first booking item of the first passenger in the $data array.
      *    - 'empty_passenger_booking_item': Indicates that the 'booking_item' key is empty for the first booking item of the first passenger in the $data array.
      *    - 'non_existent_passenger_booking_item': Indicates that the 'booking_item' key for the first booking item of the first passenger in the $data array contains a non-existent booking item.
+     *    - 'invalid_uuid_passenger_booking_item': Indicates that the 'booking_item' key for the first booking item of the first passenger in the $data array contains an invalid UUID.
      * @return array
      */
     protected function addPassengersData(string $bookingItem, array $occupancy, array $keysToFail = []): array
@@ -508,6 +597,10 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             if (in_array('non_existent_passenger_booking_item', $keysToFail)) {
                 $nonExistentBookingItem = Str::uuid();
                 $data['passengers'][0]['booking_items'][0]['booking_item'] = $nonExistentBookingItem;
+            }
+            if (in_array('invalid_uuid_passenger_booking_item', $keysToFail)) {
+                $invalidUuid = Str::uuid() . 't';
+                $data['passengers'][0]['booking_items'][0]['booking_item'] = $invalidUuid;
             }
         }
 
