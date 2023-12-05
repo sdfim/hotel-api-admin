@@ -262,6 +262,26 @@ class ApiBookingInspector extends Model
 
 	/**
 	 * @param string $booking_id
+	 * @return object
+	 */
+    public static function notBookedItems(string $booking_id): object
+    {
+        $itemsBooked = ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->get()
+            ->pluck('booking_id')
+            ->toArray();
+
+        return ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('type', 'add_item')
+            ->where('sub_type', 'like', 'price_check' . '%')
+            ->whereNotIn('booking_id', $itemsBooked)
+            ->get();
+    }
+
+	/**
+	 * @param string $booking_id
 	 * @param string $booking_item
 	 * @return object
 	 */

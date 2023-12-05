@@ -55,7 +55,8 @@ class ExpediaTools
 			$apiBookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
 			$supplier = Supplier::where('id', $apiBookingItem->supplier_id)->first()->name;
 
-			$passenger_surname = $passenger['rooms'][0]['family_name'] . ' ' . $passenger['rooms'][0]['given_name'];
+			$passenger_surname = ($passenger['rooms'][0][0]['family_name'] ?? '') . ' ' . 
+				($passenger['rooms'][0][0]['given_name'] ?? '');
 			
 			if ($supplier === 'Expedia') {
 				$reservationsData = $this->apiInspector->getReservationsExpediaData($filters, $apiBookingItem, $apiSearchinspector);
