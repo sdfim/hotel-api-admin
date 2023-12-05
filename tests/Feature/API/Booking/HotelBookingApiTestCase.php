@@ -90,7 +90,7 @@ class HotelBookingApiTestCase extends ApiTestCase
                     'title' => $gender === 'male' ? 'Mr' : 'Mrs',
                     'given_name' => $this->faker->firstName($gender),
                     'family_name' => $this->faker->lastName(),
-                    'date_of_birth' => $this->faker->dateTimeBetween('1980-01-01', '2006-12-31')->format('Y-m-d'),
+                    'date_of_birth' => $this->faker->dateTimeBetween('-60years', '-18years')->format('Y-m-d'),
                     'booking_items' => [
                         [
                             'booking_item' => $bookingItem,
