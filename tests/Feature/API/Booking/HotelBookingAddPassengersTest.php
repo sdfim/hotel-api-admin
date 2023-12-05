@@ -142,8 +142,21 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['children_ages_mismatch']);
 
         $addPassengersResponse->assertStatus(400)
+            ->assertJsonStructure([
+                'success',
+                'error' => [
+                    'type',
+                    'booking_item',
+                    'search_id',
+                    'room',
+                    'children_ages_in_search',
+                    'children_ages_in_query'
+                ],
+                'message'
+            ])
             ->assertJson([
                 'success' => false,
+                'message' => 'failed'
             ]);
     }
 
@@ -156,8 +169,21 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['number_of_children_mismatch']);
 
         $addPassengersResponse->assertStatus(400)
+            ->assertJsonStructure([
+                'success',
+                'error' => [
+                    'type',
+                    'booking_item',
+                    'search_id',
+                    'room',
+                    'number_of_children_in_search',
+                    'number_of_children_in_query'
+                ],
+                'message'
+            ])
             ->assertJson([
                 'success' => false,
+                'message' => 'failed'
             ]);
     }
 
@@ -170,8 +196,21 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['number_of_adults_mismatch']);
 
         $addPassengersResponse->assertStatus(400)
+            ->assertJsonStructure([
+                'success',
+                'error' => [
+                    'type',
+                    'booking_item',
+                    'search_id',
+                    'room',
+                    'number_of_adults_in_search',
+                    'number_of_adults_in_query'
+                ],
+                'message'
+            ])
             ->assertJson([
                 'success' => false,
+                'message' => 'failed'
             ]);
     }
 
