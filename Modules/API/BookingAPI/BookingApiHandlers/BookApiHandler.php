@@ -880,8 +880,8 @@ class BookApiHandler extends BaseController
 						'booking_item' => $bookingItem,
 						'search_id' => $searchId,
 						'room' => $room,
-						'number_adults_in_search' => $searchData['occupancy'][$room - 1]['adults'],
-						'number_adults_in_query' => $adultsCount
+						'number_of_adults_in_search' => $searchData['occupancy'][$room - 1]['adults'],
+						'number_of_adults_in_query' => $adultsCount
 						];
 				if (!isset($searchData['occupancy'][$room - 1]['children_ages']) && $childrenCount != 0)
 					return [
@@ -889,8 +889,8 @@ class BookApiHandler extends BaseController
 						'booking_item' => $bookingItem,
 						'search_id' => $searchId,
 						'room' => $room,
-						'number_childrens_in_search' => 0,
-						'number_childrens_in_query' => $childrenCount
+						'number_of_children_in_search' => 0,
+						'number_of_children_in_query' => $childrenCount
 						];
 
 				if (!isset($searchData['occupancy'][$room - 1]['children_ages'])) continue;
@@ -901,8 +901,8 @@ class BookApiHandler extends BaseController
 						'booking_item' => $bookingItem,
 						'search_id' => $searchId,
 						'room' => $room,
-						'number_childrens_in_search' => count($searchData['occupancy'][$room - 1]['children_ages']),
-						'number_childrens_in_query' => $childrenCount
+						'number_of_children_in_search' => count($searchData['occupancy'][$room - 1]['children_ages']),
+						'number_of_children_in_query' => $childrenCount
 						];
 
 				$childrenAges = $searchData['occupancy'][$room - 1]['children_ages'];
