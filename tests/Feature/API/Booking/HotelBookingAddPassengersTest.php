@@ -129,7 +129,12 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
 
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
-                'message' => 'Invalid type'
+                'success' => false,
+                'error' => [
+                    'booking_id' => [
+                        'The booking id field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -166,7 +171,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_add_passengers_with_number_of_children_mismatch_method_response_400(): void
     {
-        $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['number_of_children_mismatch']);
+        $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['number_of_children_mismatch'], true);
 
         $addPassengersResponse->assertStatus(400)
             ->assertJsonStructure([
@@ -454,9 +459,10 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'booking_item' => 'Invalid booking_item'
-                ],
-                'message' => 'failed'
+                    'passengers.0.booking_items.0.booking_item' => [
+                        'The passengers.0.booking_items.0.booking_item field is required.'
+                    ]
+                ]
             ]);
     }
 
@@ -472,10 +478,9 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'passengers.0.booking_items.0.booking_item' => [
-                        'The passengers.0.booking_items.0.booking_item field is required.'
-                    ]
-                ]
+                    'booking_item' => 'Invalid booking_item'
+                ],
+                'message' => 'failed'
             ]);
     }
 
@@ -500,11 +505,12 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
 
     /**
      * @param array $keysToFail
+     * @param bool $withChildren if true then children will definitely be generated, otherwise randomly true/false
      * @return TestResponse
      */
-    protected function sendAddPassengersRequestWithIncorrectData(array $keysToFail = []): TestResponse
+    protected function sendAddPassengersRequestWithIncorrectData(array $keysToFail = [], bool $withChildren = false): TestResponse
     {
-        $createBooking = $this->createHotelBooking();
+        $createBooking = $this->createHotelBooking($withChildren);
 
         $bookingId = $createBooking['booking_id'];
         $bookingItem = $createBooking['booking_items'][0];

@@ -14,11 +14,12 @@ class HotelBookingApiTestCase extends ApiTestCase
     use WithFaker;
 
     /**
+     * @param bool $withChildren if true then children will definitely be generated, otherwise randomly true/false
      * @return array
      */
-    protected function createHotelBooking(): array
+    protected function createHotelBooking(bool $withChildren = false): array
     {
-        $pricingSearchRequestResponse = $this->getHotelPricingSearchData();
+        $pricingSearchRequestResponse = $this->getHotelPricingSearchData($withChildren);
 
         $bookingItems = $this->getBookingItemsFromPricingSearchResult($pricingSearchRequestResponse);
 
@@ -121,11 +122,12 @@ class HotelBookingApiTestCase extends ApiTestCase
     }
 
     /**
+     * @param bool $withChildren if true then children will definitely be generated, otherwise randomly true/false
      * @return array
      */
-    protected function getHotelPricingSearchData(): array
+    protected function getHotelPricingSearchData(bool $withChildren = false): array
     {
-        $pricingSearchRequestData = $this->generateHotelPricingSearchData();
+        $pricingSearchRequestData = $this->generateHotelPricingSearchData($withChildren);
 
         return $this->withHeaders($this->headers)
             ->postJson('/api/pricing/search', $pricingSearchRequestData)
