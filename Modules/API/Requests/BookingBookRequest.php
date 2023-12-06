@@ -56,11 +56,10 @@ class BookingBookRequest extends ApiRequest
 			'booking_contact.first_name' => 'required|string',
 			'booking_contact.last_name' => 'required|string',
 			'booking_contact.email' => 'required|email:rfc,dns',
-			'booking_contact.phone.country_code' => 'required|numeric|int|in:' . implode(',', $phoneCountryCodes),
-			'booking_contact.phone.area_code' => 'required|numeric|int|digits:3',
-			'booking_contact.phone.number' => 'required|string',
-			'booking_contact.address.line_1' => 'required|string',
-			'booking_contact.address.city' => 'required|string',
+			'booking_contact.phone.country_code' => 'required|int|in:' . implode(',', $phoneCountryCodes),
+			'booking_contact.phone.area_code' => 'required|int|digits:3',
+            'booking_contact.phone.number' => 'required|numeric|digits_between:4,8',
+            'booking_contact.address.city' => 'required|string',
 			'booking_contact.address.state_province_code' => 'required|string',
 			'booking_contact.address.postal_code' => 'required|string',
 			'booking_contact.address.country_code' => 'required|string|in:' . implode(',', $countryCodes),
@@ -68,7 +67,7 @@ class BookingBookRequest extends ApiRequest
 
 		if (request()->has('credit_card')) {
 			$rules['credit_card.name_card'] = 'required|string';
-			$rules['credit_card.number'] = 'required|numeric|digits:16';
+			$rules['credit_card.number'] = 'required|int|digits:16';
 			$rules['credit_card.card_type'] = 'required|string|in:MSC,VISA,AMEX,DIS';
 			$rules['credit_card.expiry_date'] = 'required|date_format:m/Y|after_or_equal:today';
 			$rules['credit_card.cvv'] = 'required|numeric|digits:3';
