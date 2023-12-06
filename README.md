@@ -59,6 +59,12 @@ The response contains the `search_id` and `booking_item` which can be used in su
 **Optional Parameters:**
 
 - `booking_id`: The ID of the booking to which the item should be added.
+- If we execute such a request without specifying the booking_id, then a new cart will be created and we will receive a booking_id.
+
+- In order to put a booking_item into an existing cart (booking_id) in this endpoint we need to indicate the number of the cart in which we want to put the item
+api/booking/add-item?booking_item={booking_item}&booking_id={booking_id}
+This will add another item to the existing cart
+
 
 ## 3. Retrieve Items Endpoint
 
