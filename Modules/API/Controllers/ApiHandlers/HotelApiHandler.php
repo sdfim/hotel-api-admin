@@ -33,7 +33,7 @@ use App\Models\GeneralConfiguration;
  * )
  */
 
-class HotelApiHanlder extends BaseController implements ApiHandlerInterface
+class HotelApiHandler extends BaseController implements ApiHandlerInterface
 {
 	/**
 	 *
@@ -64,16 +64,12 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	public function __construct()
 	{
 		$this->expedia = new ExpediaHotelApiHandler();
-		$this->apiInspector = new SearchInspectorController();
 		$this->ExpediaHotelPricingDto = new ExpediaHotelPricingDto();
 		$this->ExpediaHotelContentDto = new ExpediaHotelContentDto();
 		$this->ExpediaHotelContentDetailDto = new ExpediaHotelContentDetailDto();
 		$this->propsWeight = new EnrichmentWeight();
 	}
-	/*
-     * @param Request $request
-     * @return JsonResponse
-     */
+
 	/**
 	 * @param Request $request
 	 * @param array $suppliers
@@ -191,15 +187,11 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 			return $this->sendResponse($res, 'success');
 		} catch (Exception $e) {
-			Log::error('HotelApiHanlder | search' . $e->getMessage());
+			Log::error('HotelApiHandler | search' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 	}
 
-	/*
-     * @param Request $request
-     * @return JsonResponse
-     */
 	/**
 	 * @param Request $request
 	 * @param array $suppliers
@@ -302,15 +294,11 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 			return $this->sendResponse(['results' => $results], 'success');
 		} catch (Exception $e) {
-			Log::error('HotelApiHanlder ' . $e->getMessage());
+			Log::error('HotelApiHandler ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 	}
 
-	/*
-     * @param Request $request
-     * @return JsonResponse
-     */
 	/**
 	 * @param Request $request
 	 * @param array $suppliers
@@ -368,7 +356,6 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *   security={{ "apiAuth": {} }}
 	 * )
 	 */
-
 	public function price(Request $request, array $suppliers): JsonResponse
 	{
 		try {
@@ -397,20 +384,20 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 						$expediaResponse = Cache::get($keyPricingSearch . ':content:' . self::SUPPLIER_NAME);
 					} else {
 
-						Log::info('HotelApiHanlder | price | expediaResponse | start');
+						Log::info('HotelApiHandler | price | expediaResponse | start');
 						$expediaResponse = $this->expedia->price($filters);
-						Log::info('HotelApiHanlder | price | expediaResponse | end');
+						Log::info('HotelApiHandler | price | expediaResponse | end');
 
 						Cache::put($keyPricingSearch . ':content:' . self::SUPPLIER_NAME, $expediaResponse, now()->addMinutes(60));
 					}
 
 					$dataResponse[$supplierName] = $expediaResponse;
 
-					Log::info('HotelApiHanlder | price | ExpediaToHotelResponse | start');
+					Log::info('HotelApiHandler | price | ExpediaToHotelResponse | start');
 					$dtoData = $this->ExpediaHotelPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
 					$bookingItems = $dtoData['bookingItems'];
 					$clientResponse[$supplierName] = $dtoData['response'];
-					Log::info('HotelApiHanlder | price | ExpediaToHotelResponse | end');
+					Log::info('HotelApiHandler | price | ExpediaToHotelResponse | end');
 
 					$countResponse += count($expediaResponse);
 					$countClientResponse += count($clientResponse[$supplierName]);
@@ -432,7 +419,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 				'results' => $clientResponse,
 			];
 
-			Log::info('HotelApiHanlder | price | end');
+			Log::info('HotelApiHandler | price | end');
 
 			# save data to Inspector
 			SaveSearchInspector::dispatch([
@@ -454,7 +441,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 			return $this->sendResponse($res, 'success');
 		} catch (Exception $e) {
-			Log::error('HotelApiHanlder ' . $e->getMessage());
+			Log::error('HotelApiHandler ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 	}

@@ -9,7 +9,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Modules\API\Controllers\ApiHandlers\HotelApiHanlder;
+use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
 use Modules\API\Controllers\ApiHandlers\FlightApiHandler;
 use Modules\API\Controllers\ApiHandlers\ComboApiHandler;
 
@@ -72,7 +72,7 @@ class RouteApiController extends Controller
         $suppliersIds = [$expediaId];
 
         $dataHandler = match ($type) {
-            'hotel' => new HotelApiHanlder(),
+            'hotel' => new HotelApiHandler(),
             'flight' => new FlightApiHandler(),
             'combo' => new ComboApiHandler(),
             default => response()->json(['error' => 'Invalid route'], 400),
@@ -101,7 +101,7 @@ class RouteApiController extends Controller
 	 *        type="string",
 	 *        example="londo"
 	 *        )
-	 *    ),  
+	 *    ),
 	 *   @OA\Response(
 	 *     response=200,
 	 *     description="OK",
@@ -165,7 +165,7 @@ class RouteApiController extends Controller
             'success' => true,
             'data' => $destinations,
         ];
-		
+
 		return response()->json($response);
 	}
 
