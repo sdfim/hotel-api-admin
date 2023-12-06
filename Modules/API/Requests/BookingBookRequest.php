@@ -51,31 +51,31 @@ class BookingBookRequest extends ApiRequest
             973, 974, 975, 976, 977, 979, 992, 993, 994, 995, 996, 998];
 
         $rules = [
-			'booking_id' => 'required|size:36',
-			'amount_pay' => 'required|string|in:Deposit,Full Payment',
-			'booking_contact.first_name' => 'required|string',
-			'booking_contact.last_name' => 'required|string',
-			'booking_contact.email' => 'required|email:rfc,dns',
-			'booking_contact.phone.country_code' => 'required|int|in:' . implode(',', $phoneCountryCodes),
-			'booking_contact.phone.area_code' => 'required|int|digits:3',
+            'booking_id' => 'required|size:36',
+            'amount_pay' => 'required|string|in:Deposit,Full Payment',
+            'booking_contact.first_name' => 'required|string',
+            'booking_contact.last_name' => 'required|string',
+            'booking_contact.email' => 'required|email:rfc,dns',
+            'booking_contact.phone.country_code' => 'required|int|in:' . implode(',', $phoneCountryCodes),
+            'booking_contact.phone.area_code' => 'required|int|digits:3',
             'booking_contact.phone.number' => 'required|numeric|digits_between:4,8',
             'booking_contact.address.line_1' => 'required|string|min:1|max:255',
             'booking_contact.address.city' => 'required|string|min:1|max:100',
-			'booking_contact.address.state_province_code' => 'required|string',
-			'booking_contact.address.postal_code' => 'required|string|min:1|max:7',
-			'booking_contact.address.country_code' => 'required|string|in:' . implode(',', $countryCodes),
-		];
+            'booking_contact.address.state_province_code' => ['required', 'regex:/^([A-Z]{2}|[A-Z]{2}-[A-Z]{2})$/'],
+            'booking_contact.address.postal_code' => 'required|string|between:1,7',
+            'booking_contact.address.country_code' => 'required|string|in:' . implode(',', $countryCodes),
+        ];
 
-		if (request()->has('credit_card')) {
-			$rules['credit_card.name_card'] = 'required|string';
-			$rules['credit_card.number'] = 'required|int|digits:16';
-			$rules['credit_card.card_type'] = 'required|string|in:MSC,VISA,AMEX,DIS';
-			$rules['credit_card.expiry_date'] = 'required|date_format:m/Y|after_or_equal:today';
-			$rules['credit_card.cvv'] = 'required|numeric|digits:3';
-			$rules['credit_card.billing_address'] = 'nullable|string';
-		}
+        if (request()->has('credit_card')) {
+            $rules['credit_card.name_card'] = 'required|string|between:2,255';
+            $rules['credit_card.number'] = 'required|int|digits_between:13,19';
+            $rules['credit_card.card_type'] = 'required|string|in:MSC,VISA,AMEX,DIS';
+            $rules['credit_card.expiry_date'] = 'required|date_format:m/Y|after_or_equal:today';
+            $rules['credit_card.cvv'] = 'required|numeric|digits:3';
+            $rules['credit_card.billing_address'] = 'nullable|string';
+        }
 
-		return $rules;
+        return $rules;
     }
 
     /**
