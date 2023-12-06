@@ -7,12 +7,13 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
+use \Illuminate\Http\Client\PendingRequest;
 
 class CustomBookingCommand extends Command
 {
     protected $signature = 'custom-booking-command {step}';
     protected $description = 'Command description';
-    protected $client;
+    protected PendingRequest $client;
     // protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
     // protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
