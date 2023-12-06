@@ -4,8 +4,9 @@ namespace Modules\API\BookingAPI\BookingApiHandlers;
 
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
-use App\Models\Supplier;
+use App\Repositories\ApiBookingInspectorRepository as BookingRepository ;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Modules\API\BaseController;
 use Modules\API\BookingAPI\BookingApiHandlerInterface;
 use Modules\API\Requests\BookingAddItemHotelRequest;
@@ -24,10 +25,6 @@ use Modules\API\BookingAPI\ExpediaHotelBookingApiHandler;
 class HotelBookingApiHandler extends BaseController implements BookingApiHandlerInterface
 {
 	/**
-	 * @var SearchInspectorController
-	 */
-	private SearchInspectorController $apiInspector;
-	/**
 	 * @var ExpediaHotelBookingApiHandler
 	 */
 	private ExpediaHotelBookingApiHandler $expedia;
@@ -41,7 +38,6 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	public function __construct()
 	{
-		$this->apiInspector = new SearchInspectorController();
 		$this->expedia = new ExpediaHotelBookingApiHandler();
 	}
 
@@ -74,7 +70,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 *     response=200,
 	 *     description="OK",
 	 *     @OA\JsonContent(
-	 *       ref="#/components/schemas/BookingAddItemResponse", 
+	 *       ref="#/components/schemas/BookingAddItemResponse",
 	 *		   examples={
 	 *             "example1": @OA\Schema(ref="#/components/examples/BookingAddItemResponse", example="BookingAddItemResponse"),
      *         },
@@ -107,22 +103,22 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	{
 		$validate = Validator::make($request->all(), (new BookingAddItemHotelRequest())->rules());
         if ($validate->fails()) return $this->sendError($validate->errors());
-		
+
 		$filters = $request->all();
 		$data = [];
 		try {
 			if (request()->has('booking_id')) {
 
-				if (ApiBookingInspector::isBook(request()->get('booking_id'), request()->get('booking_item'))) {
+				if (BookingRepository::isBook(request()->get('booking_id'), request()->get('booking_item'))) {
 					return $this->sendError([
 						'error' => 'booking_id - this cart is not available',
 						'message' => 'This cart is at the booking stage or beyond.'
 					]);
 				}
 
-				if (ApiBookingInspector::isDuplicate(request()->get('booking_id'), request()->get('booking_item'))) {
+				if (BookingRepository::isDuplicate(request()->get('booking_id'), request()->get('booking_item'))) {
 					return $this->sendError([
-						'error' => 'booking_item, booking_id pair is not unique.', 
+						'error' => 'booking_item, booking_id pair is not unique.',
 						'message' => 'This item is already in your cart.'
 					]);
 				}
@@ -133,8 +129,8 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 			$apiBookingItem = ApiBookingItem::where('booking_item', request()->get('booking_item'))->first()->toArray();
 			$filters['search_id'] = $apiBookingItem['search_id'];
 
-			$filters = array_merge($filters, $request->all());	
-			
+			$filters = array_merge($filters, $request->all());
+
 			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
 
 				$booking_item_data = json_decode($apiBookingItem['booking_item_data'], true);
@@ -147,7 +143,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 			}
 			// TODO: Add other suppliers
 		} catch (Exception $e) {
-			\Log::error('HotelBookingApiHandler | addItem ' . $e->getMessage());
+			Log::error('HotelBookingApiHandler | addItem ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 
@@ -186,7 +182,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 *     response=200,
 	 *     description="OK",
 	 *     @OA\JsonContent(
-	 *       ref="#/components/schemas/BookingRemoveItemResponse", 
+	 *       ref="#/components/schemas/BookingRemoveItemResponse",
 	 *		   examples={
 	 *             "example1": @OA\Schema(ref="#/components/examples/BookingRemoveItemResponse", example="BookingRemoveItemResponse"),
      *         },
@@ -229,7 +225,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 			// TODO: Add other suppliers
 
 		} catch (Exception $e) {
-			\Log::error('HotelBookingApiHandler | removeItem ' . $e->getMessage());
+			Log::error('HotelBookingApiHandler | removeItem ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 
