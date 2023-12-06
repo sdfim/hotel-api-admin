@@ -7,7 +7,6 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
-use App\Models\Channel;
 
 class CustomBookingCommand extends Command
 {
@@ -57,7 +56,7 @@ class CustomBookingCommand extends Command
     public function strategy1(): void
     {
         $this->warn('SEARCH 1');
-        $responseData1 = $this->makeSearchRequest(2);
+        $responseData1 = $this->searchRequest(2);
 		$query['search_1'] = $responseData1['data']['query']['occupancy'];
         $searchId = $responseData1['data']['search_id'];
 		$bookingItem = $this->getBookingItem($responseData1);
@@ -68,7 +67,7 @@ class CustomBookingCommand extends Command
 		$bookingItems['search_1'] = $bookingItem;
 
         $this->warn('SEARCH 2');
-        $responseData2 = $this->makeSearchRequest(1);
+        $responseData2 = $this->searchRequest(1);
 		$query['search_2'] = $responseData2['data']['query']['occupancy'];
         $searchId = $responseData2['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData2);
@@ -82,7 +81,7 @@ class CustomBookingCommand extends Command
         $this->addPassengers($bookingId, $bookingItems, $query);
 
         $this->warn('SEARCH 3');
-        $responseData = $this->makeSearchRequest(2);
+        $responseData = $this->searchRequest(2);
 		$query2['search_3'] = $responseData['data']['query']['occupancy'];
         $searchId = $responseData['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData);
@@ -104,7 +103,7 @@ class CustomBookingCommand extends Command
         $this->book($bookingId);
     }
 
-    private function makeSearchRequest(int $count = 1): array
+    private function searchRequest(int $count = 1): array
     {
         $faker = Faker::create();
         $checkin = Carbon::now()->addDays(1)->toDateString();
@@ -113,7 +112,7 @@ class CustomBookingCommand extends Command
         $occupancy = [];
         foreach (range(1, $count) as $index) {
 
-			$room["adults"] = $faker->numberBetween(1, 3);
+			$room['adults'] = $faker->numberBetween(1, 3);
 
 			if ($count % 2 != 0) $children = rand(0, 2);
 			else $children = 0;
@@ -122,21 +121,21 @@ class CustomBookingCommand extends Command
 				foreach (range(1, $children) as $index) {
 					$children_ages[] = rand(1, 17);
 				}
-				$room["children"] = $children;
-				$room["children_ages"] = $children_ages;
+				$room['children'] = $children;
+				$room['children_ages'] = $children_ages;
 			}
 
 			$occupancy[] = $room;
         }
 
         $requestData = [
-            "type" => "hotel",
+            'type' => "hotel",
 			'currency' => $faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
-			"destination" => $faker->randomElement([961, 302, 93, 960, 1102]),
-            "checkin" => $checkin,
-            "checkout" => $checkout,
-            "occupancy" => $occupancy,
-			"rating" => $faker->numberBetween(3, 5),
+			'destination' => $faker->randomElement([961, 302, 93, 960, 1102]),
+            'checkin' => $checkin,
+            'checkout' => $checkout,
+            'occupancy' => $occupancy,
+			'rating' => $faker->numberBetween(3, 5),
         ];
 
         $response = $this->client->post(self::BASE_URI . '/api/pricing/search', $requestData);
@@ -164,51 +163,51 @@ class CustomBookingCommand extends Command
     {
 		$faker = Faker::create();
 
-		$requestData = ["passengers" => []];
+		$requestData = ['passengers' => []];
 
 		foreach ($bookingItems as $keySearch => $bookingItem) {
 			$roomCounter = 1;
 			foreach ($occupancy[$keySearch] as $occupant) {
-				for ($i = 0; $i < $occupant["adults"]; $i++) {
+				for ($i = 0; $i < $occupant['adults']; $i++) {
 					$passenger = [
-						"title" => "mr",
-						"given_name" => $faker->firstName,
-						"family_name" => $faker->lastName,
-						"date_of_birth" => $faker->date("Y-m-d", strtotime("-".rand(20, 60)." years")),
-						"booking_items" => [
+						'title' => "mr",
+						'given_name' => $faker->firstName,
+						'family_name' => $faker->lastName,
+						'date_of_birth' => $faker->date("Y-m-d", strtotime("-".rand(20, 60)." years")),
+						'booking_items' => [
 							[
-								"booking_item" => $bookingItems[$keySearch],
-								"room" => $roomCounter,
+								'booking_item' => $bookingItems[$keySearch],
+								'room' => $roomCounter,
 							],
 						],
 					];
 
-					$requestData["passengers"][] = $passenger;
+					$requestData['passengers'][] = $passenger;
 				}
 
-				if(isset($occupant["children_ages"]) && count($occupant["children_ages"]) > 0) {
-					foreach ($occupant["children_ages"] as $childAge) {
+				if(isset($occupant['children_ages']) && count($occupant["children_ages"]) > 0) {
+					foreach ($occupant['children_ages'] as $childAge) {
 						$passenger = [
-							"title" => "ms",
-							"given_name" => "Child",
-							"family_name" => "Donald",
-							"date_of_birth" => date("Y-m-d", strtotime("-$childAge years")),
-							"booking_items" => [
+							'title' => "ms",
+							'given_name' => "Child",
+							'family_name' => "Donald",
+							'date_of_birth' => date("Y-m-d", strtotime("-$childAge years")),
+							'booking_items' => [
 								[
-									"booking_item" => $bookingItems[$keySearch],
-									"room" => $roomCounter,
+									'booking_item' => $bookingItems[$keySearch],
+									'room' => $roomCounter,
 								],
 							],
 						];
-	
-						$requestData["passengers"][] = $passenger;
+
+						$requestData['passengers'][] = $passenger;
 					}
 				}
 				$roomCounter++;
 			}
-		}	
+		}
 
-		$requestData["booking_id"] = $bookingId;
+		$requestData['booking_id'] = $bookingId;
 
         $response = $this->client->post(self::BASE_URI . '/api/booking/add-passengers', $requestData);
 		$this->info('addPassengers: ' . json_encode($response->json()));
@@ -217,8 +216,8 @@ class CustomBookingCommand extends Command
     private function removeBookingItem(string $bookingId, string $bookingItem): void
     {
         $requestData = [
-            "booking_id" => $bookingId,
-            "booking_item" => $bookingItem,
+            'booking_id' => $bookingId,
+            'booking_item' => $bookingItem,
         ];
 
         $response = $this->client->delete(self::BASE_URI . '/api/booking/remove-item', $requestData);
@@ -228,7 +227,7 @@ class CustomBookingCommand extends Command
     private function retrieveItems(string $bookingId): void
     {
         $requestData = [
-            "booking_id" => $bookingId,
+            'booking_id' => $bookingId,
         ];
 
         $response = $this->client->get(self::BASE_URI . '/api/booking/retrieve-items', $requestData);
@@ -240,23 +239,23 @@ class CustomBookingCommand extends Command
 		$faker = Faker::create();
 
         $requestData = [
-            "booking_id" => $bookingId,
-            "amount_pay" => "Deposit",
-            "booking_contact" => [
-                "first_name" => $faker->firstName,
-                "last_name" => $faker->lastName,
-				"email" => $faker->email,
-				"phone" => [
-					"country_code" => "1",
-					"area_code" => "487",
-					"number" => "5550077",
+            'booking_id' => $bookingId,
+            'amount_pay' => "Deposit",
+            'booking_contact' => [
+                'first_name' => $faker->firstName,
+                'last_name' => $faker->lastName,
+				'email' => $faker->email,
+				'phone' => [
+					'country_code' => "1",
+					'area_code' => "487",
+					'number' => "5550077",
 				],
-                "address" => [
-                    "line_1" => $faker->streetAddress,
-                    "city" => $faker->city,
-                    "state_province_code" => $faker->stateAbbr,
-                    "postal_code" => $faker->postcode,
-                    "country_code" => $faker->countryCode,
+                'address' => [
+                    'line_1' => $faker->streetAddress,
+                    'city' => $faker->city,
+                    'state_province_code' => $faker->stateAbbr,
+                    'postal_code' => $faker->postcode,
+                    'country_code' => $faker->countryCode,
                 ],
             ],
 		];

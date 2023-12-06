@@ -28,7 +28,7 @@ class BookingBookRequest extends ApiRequest
 			'amount_pay' => 'required|string|in:Deposit,Full Payment',
 			'booking_contact.first_name' => 'required|string',
 			'booking_contact.last_name' => 'required|string',
-			'booking_contact.email' => 'required|email',
+			'booking_contact.email' => 'required|email:rfc,dns',
 			'booking_contact.phone.country_code' => 'required|string',
 			'booking_contact.phone.area_code' => 'required|string',
 			'booking_contact.phone.number' => 'required|string',
@@ -38,16 +38,16 @@ class BookingBookRequest extends ApiRequest
 			'booking_contact.address.postal_code' => 'required|string',
 			'booking_contact.address.country_code' => 'required|string',
 		];
-	
+
 		if (request()->has('credit_card')) {
 			$rules['credit_card.name_card'] = 'required|string';
 			$rules['credit_card.number'] = 'required|numeric|digits:16';
 			$rules['credit_card.card_type'] = 'required|string|in:MSC,VISA,AMEX,DIS';
 			$rules['credit_card.expiry_date'] = 'required|date_format:m/Y|after_or_equal:today';
-			$rules['credit_card.cvv'] = 'required|numeric';
+			$rules['credit_card.cvv'] = 'required|numeric|digits:3';
 			$rules['credit_card.billing_address'] = 'nullable|string';
 		}
-	
+
 		return $rules;
     }
 
