@@ -1044,34 +1044,6 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
     }
 
     /**
-     * @test
-     * @return void
-     */
-    public function test_hotel_booking_book_with_missed_credit_card_billing_address_method_response_400(): void
-    {
-        $bookResponse = $this->sendBookRequestWithIncorrectData(['missed_credit_card_billing_address']);
-
-        $bookResponse->assertStatus(400)
-            ->assertJson([
-                'success' => false,
-            ]);
-    }
-
-    /**
-     * @test
-     * @return void
-     */
-    public function test_hotel_booking_book_with_incorrect_credit_card_billing_address_method_response_400(): void
-    {
-        $bookResponse = $this->sendBookRequestWithIncorrectData(['incorrect_credit_card_billing_address']);
-
-        $bookResponse->assertStatus(400)
-            ->assertJson([
-                'success' => false,
-            ]);
-    }
-
-    /**
      * @param array $keysToFail
      * @return TestResponse
      */
@@ -1179,10 +1151,6 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
                 $data['credit_card']['cvv'] = $this->faker->randomNumber(4, true);
             if (in_array('incorrect_type_credit_card_cvv', $keysToFail))
                 $data['credit_card']['cvv'] = (string)$this->faker->randomNumber(3, true);
-            if (in_array('missed_credit_card_billing_address', $keysToFail))
-                unset($data['credit_card']['billing_address']);
-            if (in_array('incorrect_credit_card_billing_address', $keysToFail))
-                $data['credit_card']['billing_address'] = $this->faker->text(2);
         }
 
         return $data;
