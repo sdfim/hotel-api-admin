@@ -170,7 +170,7 @@ This will add another item to the existing cart
             "booking_items": [
                 {
                     "booking_item": "26d22cfa-1456-40fb-b88f-9bd6300c4d9e",
-                    "room": 1
+                    "room": 3
                 }
             ]
         },
