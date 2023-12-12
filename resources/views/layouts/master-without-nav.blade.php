@@ -23,7 +23,7 @@
 <!-- content -->
 @yield('content')
 <!-- rtl-ltr -->
-@include('layouts.rtl-ltr')
+<!--@include('layouts.rtl-ltr')-->
 <!-- script -->
 @include('layouts.vendor-scripts')
 <!-- Scripts -->
