@@ -6,6 +6,7 @@ use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
+use App\Http\Middleware\RewriteUrls;
 use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\SetLocationHeader;
 use App\Http\Middleware\TrimStrings;
@@ -48,6 +49,7 @@ class Kernel extends HttpKernel
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
 		SetLocationHeader::class,
+        RewriteUrls::class,
     ];
 
     /**

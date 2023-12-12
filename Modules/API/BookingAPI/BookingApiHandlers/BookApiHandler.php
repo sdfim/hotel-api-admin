@@ -689,6 +689,13 @@ class BookApiHandler extends BaseController
 	 */
 	public function addPassengers(Request $request): JsonResponse
 	{
+        $determinant = $this->determinant($request);
+        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+
+        $filters = $request->all();
+        $validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
+        if ($validate->fails()) return $this->sendError($validate->errors());
+
 		$filters = Validator::make($request->all(), (new AddPassengersRequest())->rules());
         if ($filters->fails()) return $this->sendError($filters->errors());
 
@@ -749,7 +756,7 @@ class BookApiHandler extends BaseController
 		}
 
 		# check Owner token
-        if ($request->has('booking_id')) {
+      if ($request->has('booking_id')) {
 
 			if (!$this->validatedUuid('booking_id')) return ['error' => 'Invalid booking_id'];
             $bi = BookRepository::geTypeSupplierByBookingId($request->booking_id);

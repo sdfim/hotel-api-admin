@@ -10,9 +10,10 @@ trait HotelPricingGeneralMethodsTrait
     use WithFaker;
 
     /**
+     * @param bool $withChildren if true then children will definitely be generated, otherwise randomly true/false
      * @return array
      */
-    protected function generateHotelPricingSearchData(): array
+    protected function generateHotelPricingSearchData(bool $withChildren = false): array
     {
         $data = [
             'type' => 'hotel',
@@ -28,17 +29,17 @@ trait HotelPricingGeneralMethodsTrait
         $roomCount = rand(1, 2);
 
         for ($i = 0; $i < $roomCount; $i++) {
-            $haveChildren = rand(0, 1);
+            $haveChildren = $withChildren ? 1 : rand(0, 1);
             $occupancy = [
                 'adults' => rand(1, 3),
             ];
 
             if ($haveChildren) {
-                $numberOfChildren = rand(1, 2);
+                $numberOfChildren = rand(1, 3);
                 $childrenAges = [];
 
                 for ($c = 0; $c < $numberOfChildren; $c++) {
-                    $childrenAges[] = rand(1, 12);
+                    $childrenAges[] = rand(1, 15);
                 }
 
                 $occupancy['children'] = $numberOfChildren;

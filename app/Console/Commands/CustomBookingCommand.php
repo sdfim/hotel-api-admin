@@ -9,6 +9,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use \Illuminate\Http\Client\PendingRequest;
 
+
 class CustomBookingCommand extends Command
 {
     protected $signature = 'custom-booking-command {step}';
@@ -65,7 +66,7 @@ class CustomBookingCommand extends Command
     public function strategy1(): void
     {
         $this->warn('SEARCH 1');
-        $responseData1 = $this->makeSearchRequest(2);
+        $responseData1 = $this->searchRequest(2);
 		$query['search_1'] = $responseData1['data']['query']['occupancy'];
         $searchId = $responseData1['data']['search_id'];
 		$bookingItem = $this->getBookingItem($responseData1);
@@ -76,7 +77,7 @@ class CustomBookingCommand extends Command
 		$bookingItems['search_1'] = $bookingItem;
 
         $this->warn('SEARCH 2');
-        $responseData2 = $this->makeSearchRequest(1);
+        $responseData2 = $this->searchRequest(1);
 		$query['search_2'] = $responseData2['data']['query']['occupancy'];
         $searchId = $responseData2['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData2);
@@ -90,7 +91,7 @@ class CustomBookingCommand extends Command
         $this->addPassengers($bookingId, $bookingItems, $query);
 
         $this->warn('SEARCH 3');
-        $responseData = $this->makeSearchRequest(2);
+        $responseData = $this->searchRequest(2);
 		$query2['search_3'] = $responseData['data']['query']['occupancy'];
         $searchId = $responseData['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData);
@@ -134,6 +135,7 @@ class CustomBookingCommand extends Command
                 $children_ages = array_map(function() {
                     return rand(1, 17);
                 }, array_fill(0, $children, 0));
+
 				$room['children'] = $children;
 				$room['children_ages'] = $children_ages;
 			}
@@ -142,7 +144,7 @@ class CustomBookingCommand extends Command
         }
 
         $requestData = [
-            'type' => 'hotel',
+      'type' => 'hotel',
 			'currency' => $faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
 			'destination' => $faker->randomElement([961, 302, 93, 960, 1102]),
             'checkin' => $checkin,
