@@ -4,9 +4,11 @@ namespace Modules\API\Suppliers\DTO;
 
 use App\Jobs\SaveBookingItems;
 use App\Models\Supplier;
+use App\Repositories\CannelRenository;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\PricingAPI\ResponseModels\HotelResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
@@ -85,15 +87,13 @@ class ExpediaHotelPricingDto
      * @return array
      */
     public function ExpediaToHotelResponse(array $supplierResponse, array $query, string $search_id): array
-    {		
+    {
         $this->query = $query;
         $this->search_id = $search_id;
 		$this->bookingItems = [];
 
-        $ch = new Channel;
-        $token = $ch->getTokenId(request()->bearerToken());
+        $token = CannelRenository::getTokenId(request()->bearerToken());
         $this->channelId = Channel::where('token_id', $token)->first()->id;
-
 		$this->supplierId = Supplier::where('name', 'Expedia')->first()->id;
 
         $pricingRules = PricingRule::where('supplier_id', 1)
@@ -125,7 +125,7 @@ class ExpediaHotelPricingDto
         foreach ($supplierResponse as $propertyGroup) {
             $hotelResponse[] = $this->setHotelResponse($propertyGroup);
         }
-        \Log::info('ExpediaHotelPricingDto | enrichmentPricingRules - ' . $this->total_time . 's');
+        Log::info('ExpediaHotelPricingDto | enrichmentPricingRules - ' . $this->total_time . 's');
 
 		// TODO: uncomment this line after add Redis
 		// SaveBookingItems::dispatch($this->bookingItems);
@@ -243,7 +243,7 @@ class ExpediaHotelPricingDto
         $roomGroupsResponse->setRateId(intval($roomGroup['rates'][$keyLowestPricedRoom]['id']) ?? null);
         $roomGroupsResponse->setCancellationPolicies($roomGroup['rates'][$keyLowestPricedRoom]['cancel_penalties'] ?? []);
 
-		
+
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
@@ -267,10 +267,10 @@ class ExpediaHotelPricingDto
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $occupancy_pricing);
         } catch (Exception $e) {
-            \Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
+            Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
         }
 
-		if ($pricingRulesApplier['total_price'] == 0.0) \Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => 'total_price == 0.0']);
+		if ($pricingRulesApplier['total_price'] == 0.0) Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => 'total_price == 0.0']);
 
         $roomResponse = new RoomResponse();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');

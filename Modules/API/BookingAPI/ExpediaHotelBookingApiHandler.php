@@ -5,8 +5,10 @@ namespace Modules\API\BookingAPI;
 use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiSearchInspector;
+use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
@@ -20,9 +22,7 @@ class ExpediaHotelBookingApiHandler
      */
     private RapidClient $rapidClient;
 
-    /**
-     * @param ExpediaService $expediaService
-     */
+
     public function __construct()
     {
         $this->rapidClient = new RapidClient();
@@ -35,8 +35,7 @@ class ExpediaHotelBookingApiHandler
     public function addItem(array $filters): array | null
     {
         # step 1 Read Inspector, Get link 'price_check'
-        $inspector = new ApiSearchInspector();
-        $linkPriceCheck = $inspector->getLinckPriceCheck($filters);
+        $linkPriceCheck = SearchRepository::getLinkPriceCheck($filters);
 
         # step 2 Get POST link for booking
         // TODO: need check if price changed
@@ -45,7 +44,7 @@ class ExpediaHotelBookingApiHandler
             $response = $this->rapidClient->get($props['path'], $props['paramToken']);
             $dataResponse = json_decode($response->getBody()->getContents());
         } catch (RequestException $e) {
-            \Log::error('ExpediaHotelBookingApiHandler | addItem | price_check ' . $e->getResponse()->getBody());
+            Log::error('ExpediaHotelBookingApiHandler | addItem | price_check ' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
             return (array) $dataResponse;
         }
@@ -54,11 +53,7 @@ class ExpediaHotelBookingApiHandler
             return [];
         }
 
-        if (isset($filters['booking_id'])) {
-            $booking_id = $filters['booking_id'];
-        } else {
-            $booking_id = (string) Str::uuid();
-        }
+        $booking_id = $filters['booking_id'] ?? (string)Str::uuid();
 
         SaveBookingInspector::dispatch([
             $booking_id,
@@ -128,7 +123,7 @@ class ExpediaHotelBookingApiHandler
 					->where('type', 'add_passengers')->delete();
 
 				$bookingItems->delete();
-				
+
 				$res = [
 					'success' =>
 						[
@@ -137,7 +132,7 @@ class ExpediaHotelBookingApiHandler
 							'status' => 'Item removed from cart.',
 						]
 					];
-			}				
+			}
 		} catch (Exception $e) {
 			$res =  [
 				'error' => [
@@ -146,9 +141,9 @@ class ExpediaHotelBookingApiHandler
 					'status' => 'Item not removed from cart.',
 				]
 			];
-			\Log::error('ExpediaHotelBookingApiHandler | removeItem | ' . $e->getMessage());
-		}	
-		
+			Log::error('ExpediaHotelBookingApiHandler | removeItem | ' . $e->getMessage());
+		}
+
 		SaveBookingInspector::dispatch([
             $booking_id,
             $filters,
@@ -162,5 +157,5 @@ class ExpediaHotelBookingApiHandler
 
 		return $res;
     }
-   
+
 }

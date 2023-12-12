@@ -7,19 +7,19 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
+use \Illuminate\Http\Client\PendingRequest;
+
 
 class CustomBookingCommand extends Command
 {
     protected $signature = 'custom-booking-command {step}';
     protected $description = 'Command description';
-    protected $client;
+    protected PendingRequest $client;
     // protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
     // protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
     protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
     protected const BASE_URI = 'http://localhost:8008';
-
-    private string $step;
 
     public function __construct()
     {
@@ -27,24 +27,31 @@ class CustomBookingCommand extends Command
         $this->client = Http::withToken(self::TOKEN);
     }
 
-    public function handle()
+    /**
+     * @return void
+     */
+    public function handle(): void
     {
-        $this->step = $this->argument('step');
+        $step = $this->argument('step');
 
-        foreach (range(1, $this->step) as $index) {
-			$this->warn('STEP ' . $index . ' of ' . $this->step);
+        foreach (range(1, $step) as $index) {
+			$this->warn('STEP ' . $index . ' of ' . $step);
             $this->strategy1();
         }
     }
 
-	private function getBookingItem(array $responseData) : string
+    /**
+     * @param array $responseData
+     * @return string
+     */
+    private function getBookingItem(array $responseData) : string
 	{
 		$flattened = Arr::dot($responseData);
 
 		$bookingItems = [];
 		$i = 0;
 		foreach ($flattened as $key => $value) {
-			if (strpos($key, 'booking_item') !== false) {
+			if (str_contains($key, 'booking_item')) {
 				$bookingItems[$i] = $value;
 				$i++;
 			}
@@ -53,6 +60,9 @@ class CustomBookingCommand extends Command
 		return $bookingItems[rand(0, $i)];
 	}
 
+    /**
+     * @return void
+     */
     public function strategy1(): void
     {
         $this->warn('SEARCH 1');
@@ -77,7 +87,7 @@ class CustomBookingCommand extends Command
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
 		$bookingItems['search_2'] = $bookingItem;
 
-		$this->warn('addPassengers gtroupe for SEARCH 1, SEARCH 2');
+		$this->warn('addPassengers group for SEARCH 1, SEARCH 2');
         $this->addPassengers($bookingId, $bookingItems, $query);
 
         $this->warn('SEARCH 3');
@@ -103,7 +113,11 @@ class CustomBookingCommand extends Command
         $this->book($bookingId);
     }
 
-    private function searchRequest(int $count = 1): array
+    /**
+     * @param int $count
+     * @return array
+     */
+    private function makeSearchRequest(int $count = 1): array
     {
         $faker = Faker::create();
         $checkin = Carbon::now()->addDays(1)->toDateString();
@@ -118,9 +132,10 @@ class CustomBookingCommand extends Command
 			else $children = 0;
 			$children_ages = [];
 			if ($children > 0) {
-				foreach (range(1, $children) as $index) {
-					$children_ages[] = rand(1, 17);
-				}
+                $children_ages = array_map(function() {
+                    return rand(1, 17);
+                }, array_fill(0, $children, 0));
+
 				$room['children'] = $children;
 				$room['children_ages'] = $children_ages;
 			}
@@ -129,7 +144,7 @@ class CustomBookingCommand extends Command
         }
 
         $requestData = [
-            'type' => "hotel",
+      'type' => 'hotel',
 			'currency' => $faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
 			'destination' => $faker->randomElement([961, 302, 93, 960, 1102]),
             'checkin' => $checkin,
@@ -142,10 +157,15 @@ class CustomBookingCommand extends Command
         return $response->json();
     }
 
+    /**
+     * @param string $bookingItem
+     * @param string|null $bookingId
+     * @return string
+     */
     private function addBookingItem(string $bookingItem, ?string $bookingId = null): string
     {
         $requestData = [
-            "booking_item" => $bookingItem,
+            'booking_item' => $bookingItem,
         ];
 
         if ($bookingId !== null) {
@@ -159,6 +179,12 @@ class CustomBookingCommand extends Command
         return $bookingId;
     }
 
+    /**
+     * @param string $bookingId
+     * @param array $bookingItems
+     * @param array $occupancy
+     * @return void
+     */
     private function addPassengers(string $bookingId, array $bookingItems, array $occupancy): void
     {
 		$faker = Faker::create();
@@ -170,10 +196,10 @@ class CustomBookingCommand extends Command
 			foreach ($occupancy[$keySearch] as $occupant) {
 				for ($i = 0; $i < $occupant['adults']; $i++) {
 					$passenger = [
-						'title' => "mr",
+						'title' => 'mr',
 						'given_name' => $faker->firstName,
 						'family_name' => $faker->lastName,
-						'date_of_birth' => $faker->date("Y-m-d", strtotime("-".rand(20, 60)." years")),
+						'date_of_birth' => $faker->date('Y-m-d', strtotime('-'.rand(20, 60).' years')),
 						'booking_items' => [
 							[
 								'booking_item' => $bookingItems[$keySearch],
@@ -185,13 +211,13 @@ class CustomBookingCommand extends Command
 					$requestData['passengers'][] = $passenger;
 				}
 
-				if(isset($occupant['children_ages']) && count($occupant["children_ages"]) > 0) {
+				if(isset($occupant['children_ages']) && count($occupant['children_ages']) > 0) {
 					foreach ($occupant['children_ages'] as $childAge) {
 						$passenger = [
-							'title' => "ms",
-							'given_name' => "Child",
-							'family_name' => "Donald",
-							'date_of_birth' => date("Y-m-d", strtotime("-$childAge years")),
+							'title' => 'ms',
+							'given_name' => 'Child',
+							'family_name' => 'Donald',
+							'date_of_birth' => date('Y-m-d', strtotime("-$childAge years")),
 							'booking_items' => [
 								[
 									'booking_item' => $bookingItems[$keySearch],
@@ -210,9 +236,15 @@ class CustomBookingCommand extends Command
 		$requestData['booking_id'] = $bookingId;
 
         $response = $this->client->post(self::BASE_URI . '/api/booking/add-passengers', $requestData);
+
 		$this->info('addPassengers: ' . json_encode($response->json()));
     }
 
+    /**
+     * @param string $bookingId
+     * @param string $bookingItem
+     * @return void
+     */
     private function removeBookingItem(string $bookingId, string $bookingItem): void
     {
         $requestData = [
@@ -224,6 +256,10 @@ class CustomBookingCommand extends Command
 		$this->info('removeBookingItem: ' . json_encode($response->json()));
     }
 
+    /**
+     * @param string $bookingId
+     * @return void
+     */
     private function retrieveItems(string $bookingId): void
     {
         $requestData = [
@@ -234,21 +270,25 @@ class CustomBookingCommand extends Command
         $this->info('retrieveItems: ' . json_encode($response->json()));
     }
 
+    /**
+     * @param string $bookingId
+     * @return void
+     */
     private function book(string $bookingId): void
     {
 		$faker = Faker::create();
 
         $requestData = [
             'booking_id' => $bookingId,
-            'amount_pay' => "Deposit",
+            'amount_pay' => 'Deposit',
             'booking_contact' => [
                 'first_name' => $faker->firstName,
                 'last_name' => $faker->lastName,
 				'email' => $faker->email,
 				'phone' => [
-					'country_code' => "1",
-					'area_code' => "487",
-					'number' => "5550077",
+					'country_code' => '1',
+					'area_code' => '487',
+					'number' => '5550077',
 				],
                 'address' => [
                     'line_1' => $faker->streetAddress,

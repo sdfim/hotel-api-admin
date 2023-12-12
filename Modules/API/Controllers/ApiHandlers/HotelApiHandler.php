@@ -7,6 +7,7 @@ use App\Jobs\SaveSearchInspector;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Modules\API\Controllers\ApiHandlerInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,16 +33,12 @@ use App\Models\GeneralConfiguration;
  * )
  */
 
-class HotelApiHanlder extends BaseController implements ApiHandlerInterface
+class HotelApiHandler extends BaseController implements ApiHandlerInterface
 {
 	/**
 	 *
 	 */
 	private const SUPPLIER_NAME = 'Expedia';
-	/**
-	 * @var SearchInspectorController
-	 */
-	private SearchInspectorController $apiInspector;
 	/**
 	 * @var ExpediaHotelApiHandler
 	 */
@@ -67,16 +64,12 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	public function __construct()
 	{
 		$this->expedia = new ExpediaHotelApiHandler();
-		$this->apiInspector = new SearchInspectorController();
 		$this->ExpediaHotelPricingDto = new ExpediaHotelPricingDto();
 		$this->ExpediaHotelContentDto = new ExpediaHotelContentDto();
 		$this->ExpediaHotelContentDetailDto = new ExpediaHotelContentDetailDto();
 		$this->propsWeight = new EnrichmentWeight();
 	}
-	/*
-     * @param Request $request
-     * @return JsonResponse
-     */
+
 	/**
 	 * @param Request $request
 	 * @param array $suppliers
@@ -87,11 +80,11 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *   tags={"Content API"},
 	 *   path="/api/content/search",
 	 *   summary="Search Hotels",
-	 *   description="Search for hotels by destination or coordinates.",   	  
+	 *   description="Search for hotels by destination or coordinates.",
 	 *   @OA\RequestBody(
 	 *     description="JSON object containing the details of the reservation.",
 	 *     required=true,
-	 *     @OA\JsonContent(    
+	 *     @OA\JsonContent(
 	 *       oneOf={
 	 *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestDestination"),
 	 *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestCoordinates"),
@@ -142,7 +135,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 		try {
 			$validate = Validator::make($request->all(), (new SearchHotelRequest())->rules());
 			if ($validate->fails()) return $this->sendError($validate->errors());
-			
+
 			$filters = $request->all();
 
 			$keyPricingSearch = request()->get('type') . ':contentSearch:' . http_build_query(Arr::dot($filters));
@@ -194,15 +187,11 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 			return $this->sendResponse($res, 'success');
 		} catch (Exception $e) {
-			\Log::error('HotelApiHanlder | search' . $e->getMessage());
+			Log::error('HotelApiHandler | search' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 	}
 
-	/*
-     * @param Request $request
-     * @return JsonResponse
-     */
 	/**
 	 * @param Request $request
 	 * @param array $suppliers
@@ -233,7 +222,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *   	  type="integer",
 	 *   	  example=98736411
 	 *   	)
-	 *   ), 	    
+	 *   ),
 	 *   @OA\Response(
 	 *     response=200,
 	 *     description="OK",
@@ -274,7 +263,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 				'property_id' => 'required|string',
 				'type' => 'required|in:hotel,flight,combo'
 			]);
-			if ($validate->fails()) return $this->sendError($validate->errors());	
+			if ($validate->fails()) return $this->sendError($validate->errors());
 
 			$keyPricingSearch = request()->get('type') . ':contentDetail:' . http_build_query(Arr::dot($request->all()));
 
@@ -305,15 +294,11 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 			return $this->sendResponse(['results' => $results], 'success');
 		} catch (Exception $e) {
-			\Log::error('HotelApiHanlder ' . $e->getMessage());
+			Log::error('HotelApiHandler ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 	}
 
-	/*
-     * @param Request $request
-     * @return JsonResponse
-     */
 	/**
 	 * @param Request $request
 	 * @param array $suppliers
@@ -328,8 +313,8 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *   @OA\RequestBody(
 	 *     description="JSON object containing the details of the reservation.",
 	 *     required=true,
-	 *     @OA\JsonContent(    
-	 *       ref="#/components/schemas/PricingSearchRequest", 
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/PricingSearchRequest",
 	 *       examples={
 	 *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchRequestNewYork", example="PricingSearchRequestNewYork"),
 	 *           "London": @OA\Schema(ref="#/components/examples/PricingSearchRequestLondon", example="PricingSearchRequestLondon"),
@@ -341,7 +326,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *     response=200,
 	 *     description="OK",
 	 *     @OA\JsonContent(
-	 *       ref="#/components/schemas/PricingSearchResponse", 
+	 *       ref="#/components/schemas/PricingSearchResponse",
 	 *		 examples={
 	 *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchResponseNewYork", example="PricingSearchResponseNewYork"),
 	 *           "London": @OA\Schema(ref="#/components/examples/PricingSearchResponseLondon", example="PricingSearchResponseLondon"),
@@ -371,13 +356,12 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 	 *   security={{ "apiAuth": {} }}
 	 * )
 	 */
-
 	public function price(Request $request, array $suppliers): JsonResponse
 	{
 		try {
 			$validate = Validator::make($request->all(), (new PriceHotelRequest())->rules());
 			if ($validate->fails()) return $this->sendError($validate->errors());
-			
+
 			$filters = $request->all();
 			if (!isset($filters['rating'])) $filters['rating'] = GeneralConfiguration::latest()->first()->star_ratings ?? 3;
 
@@ -400,20 +384,20 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 						$expediaResponse = Cache::get($keyPricingSearch . ':content:' . self::SUPPLIER_NAME);
 					} else {
 
-						\Log::info('HotelApiHanlder | price | expediaResponse | start');
+						Log::info('HotelApiHandler | price | expediaResponse | start');
 						$expediaResponse = $this->expedia->price($filters);
-						\Log::info('HotelApiHanlder | price | expediaResponse | end');
+						Log::info('HotelApiHandler | price | expediaResponse | end');
 
 						Cache::put($keyPricingSearch . ':content:' . self::SUPPLIER_NAME, $expediaResponse, now()->addMinutes(60));
 					}
 
 					$dataResponse[$supplierName] = $expediaResponse;
 
-					\Log::info('HotelApiHanlder | price | ExpediaToHotelResponse | start');
+					Log::info('HotelApiHandler | price | ExpediaToHotelResponse | start');
 					$dtoData = $this->ExpediaHotelPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
 					$bookingItems = $dtoData['bookingItems'];
 					$clientResponse[$supplierName] = $dtoData['response'];
-					\Log::info('HotelApiHanlder | price | ExpediaToHotelResponse | end');
+					Log::info('HotelApiHandler | price | ExpediaToHotelResponse | end');
 
 					$countResponse += count($expediaResponse);
 					$countClientResponse += count($clientResponse[$supplierName]);
@@ -435,7 +419,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 				'results' => $clientResponse,
 			];
 
-			\Log::info('HotelApiHanlder | price | end');
+			Log::info('HotelApiHandler | price | end');
 
 			# save data to Inspector
 			SaveSearchInspector::dispatch([
@@ -457,7 +441,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
 			return $this->sendResponse($res, 'success');
 		} catch (Exception $e) {
-			\Log::error('HotelApiHanlder ' . $e->getMessage());
+			Log::error('HotelApiHandler ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 	}

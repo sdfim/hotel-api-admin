@@ -1,13 +1,13 @@
 <?php
+declare(strict_types=1);
 
 namespace Modules\API\BookingAPI\BookingApiHandlers;
 
-use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
+use App\Repositories\ApiBookingInspectorRepository as BookRepository;
 use Exception;
-use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -40,6 +40,9 @@ class BookApiHandler extends BaseController
 	private const AGE_ADULT = 16;
 
 
+    /**
+     * @param ExpediaBookApiHandler $expedia
+     */
     public function __construct(ExpediaBookApiHandler $expedia)
     {
         $this->expedia = $expedia;
@@ -118,7 +121,7 @@ class BookApiHandler extends BaseController
 
         $filters = $request->all();
 
-        $items = ApiBookingInspector::notBookedItems($request->booking_id);
+        $items = BookRepository::notBookedItems($request->booking_id);
 
         if (!$items->count()) {
             return $this->sendError(['error' => 'No items to book OR the order cart (booking_id) is complete/booked'], 'failed');
@@ -223,7 +226,7 @@ class BookApiHandler extends BaseController
 		$validate = Validator::make($request->all(), (new BookingChangeBookHotelRequest())->rules());
         if ($validate->fails()) return $this->sendError($validate->errors());
 
-		if (!ApiBookingInspector::isBook($request->booking_id, $request->booking_item)) {
+		if (!BookRepository::isBook($request->booking_id, $request->booking_item)) {
 			return $this->sendError(['error' => 'booking_id and/or booking_item not yet booked'], 'failed');
 		}
 
@@ -392,10 +395,10 @@ class BookApiHandler extends BaseController
 		$validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
         if ($validate->fails()) return $this->sendError($validate->errors());
 
-        $itemsBooked = ApiBookingInspector::bookedItems($request->booking_id);
+        $itemsBooked = BookRepository::bookedItems($request->booking_id);
         $data = [];
         foreach ($itemsBooked as $item) {
-			if (!ApiBookingInspector::isBook($request->booking_id, $item->booking_item)) {
+			if (!BookRepository::isBook($request->booking_id, $item->booking_item)) {
 				$data[] = ['error' => 'booking_id and/or booking_item not yet booked'];
 				continue;
 			}
@@ -495,16 +498,16 @@ class BookApiHandler extends BaseController
         if ($validate->fails()) return $this->sendError($validate->errors());
 
 		if (isset($request->booking_item)) {
-			$itemsBooked = ApiBookingInspector::bookedItem($request->booking_id, $request->booking_item);
+			$itemsBooked = BookRepository::bookedItem($request->booking_id, $request->booking_item);
 		} else {
-			$itemsBooked = ApiBookingInspector::bookedItems($request->booking_id);
+			$itemsBooked = BookRepository::bookedItems($request->booking_id);
 		}
 
 		// TODO: add validation for request
         $filters = $request->all();
         $data = [];
         foreach ($itemsBooked as $item) {
-			if (!ApiBookingInspector::isBook($request->booking_id, $item->booking_item)) {
+			if (!BookRepository::isBook($request->booking_id, $item->booking_item)) {
 				$data[] = ['error' => 'booking_id and/or booking_item not yet booked'];
 				continue;
 			}
@@ -596,16 +599,13 @@ class BookApiHandler extends BaseController
 		$validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
         if ($validate->fails()) return $this->sendError($validate->errors());
 
-        $itemsInCart = ApiBookingInspector::where('booking_id', $request->booking_id)
-            ->where('type', 'add_item')
-            ->where('sub_type', 'like', 'price_check' . '%')
-            ->get();
+        $itemsInCart = BookRepository::getItemsInCart($request->booking_id);
 
         $res = [];
         try {
             foreach ($itemsInCart as $item) {
 
-                if (ApiBookingInspector::isBook($request->booking_id, $item->booking_item)) {
+                if (BookRepository::isBook($request->booking_id, $item->booking_item)) {
                     return $this->sendError(['error' => 'Cart is empty or booked'], 'failed');
                 }
 
@@ -701,13 +701,10 @@ class BookApiHandler extends BaseController
 
 		$filters = $request->all();
 		$filtersOutput = $this->dtoAddPassengers($filters);
-		$chechData = $this->chechCounGuestsChidrenAges($filtersOutput);
-		if (!empty($chechData)) return $this->sendError($chechData, 'failed');
+		$checkData = $this->checkCountGuestsChildrenAges($filtersOutput);
+		if (!empty($checkData)) return $this->sendError($checkData, 'failed');
 
-		$itemsInCart = ApiBookingInspector::where('booking_id', $request->booking_id)
-            ->where('type', 'add_item')
-            ->where('sub_type', 'like', 'price_check' . '%')
-            ->get();
+        $itemsInCart = BookRepository::getItemsInCart($request->booking_id);
 
 		$bookingRequestItems = array_keys($filtersOutput);
 		foreach ($bookingRequestItems as $requestItem) {
@@ -716,16 +713,17 @@ class BookApiHandler extends BaseController
 		}
 
 		try {
+            $result = [];
 			foreach ($bookingRequestItems as $booking_item) {
 
-                if (ApiBookingInspector::isBook($request->booking_id, $booking_item)) {
+                if (BookRepository::isBook($request->booking_id, $booking_item)) {
                     return $this->sendError(['error' => 'Cart is empty or booked'], 'failed');
                 }
 				$supplierId = ApiBookingItem::where('booking_item', $booking_item)->first()->supplier_id;
                 $supplier = Supplier::where('id', $supplierId)->first()->name;
 
                 if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
-					$filters = (array)$request->all();
+					$filters = $request->all();
 					$filters['booking_item'] = $booking_item;
                     $res[] = $this->expedia->addPassengers($filters, $filtersOutput[$booking_item]);
                 }
@@ -741,48 +739,56 @@ class BookApiHandler extends BaseController
 
 	/**
      * @param Request $request
-     * @return void
+     * @return array
      */
     private function determinant(Request $request): array
     {
 		$requestTokenId = PersonalAccessToken::findToken($request->bearerToken())->id;
 		$dbTokenId = null;
 
-		# chek Owner token
+		# check Owner token
 		if($request->has('booking_item')) {
 			if (!$this->validatedUuid('booking_item')) return [];
-			$apiBookingItem = ApiBookingItem::where('booking_item', $request->get('booking_item'))->with('search')->first();
+			$apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->with('search')->first();
 			if (!$apiBookingItem) return ['error' => 'Invalid booking_item'];
 			$dbTokenId = $apiBookingItem->search->token_id;
 			if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
 		}
 
-		# chek Owner token
-        if ($request->has('booking_id')) {
+		# check Owner token
+      if ($request->has('booking_id')) {
 
 			if (!$this->validatedUuid('booking_id')) return ['error' => 'Invalid booking_id'];
-            $bi = (new ApiBookingInspector())->geTypeSupplierByBookingId($request->get('booking_id'));
+            $bi = BookRepository::geTypeSupplierByBookingId($request->booking_id);
 			if (empty($bi)) return ['error' => 'Invalid booking_id'];
 			$dbTokenId = $bi['token_id'];
 
-			// dd($request->get('booking_id'), $requestTokenId, $dbTokenId, ($dbTokenId !== $requestTokenId));
 			if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
         }
 
 		return [];
     }
 
-	private function validatedUuid($id) : bool
+    /**
+     * @param $id
+     * @return bool
+     */
+    private function validatedUuid($id) : bool
 	{
 		$validate = Validator::make(request()->all(), [$id => 'required|size:36']);
         if ($validate->fails()) {
 			return false;
-		};
+		}
 		return true;
 	}
 
-	private function dtoAddPassengers (array $input) : array
+    /**
+     * @param array $input
+     * @return array
+     */
+    private function dtoAddPassengers (array $input) : array
 	{
+        $output = [];
 		foreach ($input['passengers'] as $passenger) {
 			foreach ($passenger['booking_items'] as $booking) {
 				$bookingItem = $booking['booking_item'];
@@ -792,22 +798,22 @@ class BookApiHandler extends BaseController
 					$room = $booking['room'];
 					if (isset($output[$bookingItem])) {
 						$output[$bookingItem]['rooms'][$room]['passengers'][] = [
-							"title" => $passenger['title'],
-							"given_name" => $passenger['given_name'],
-							"family_name" => $passenger['family_name'],
-							"date_of_birth" => $passenger['date_of_birth']
+							'title' => $passenger['title'],
+							'given_name' => $passenger['given_name'],
+							'family_name' => $passenger['family_name'],
+							'date_of_birth' => $passenger['date_of_birth']
 						];
 					} else {
 						$output[$bookingItem] = [
-							"booking_item" => $bookingItem,
-							"rooms" => [
+							'booking_item' => $bookingItem,
+							'rooms' => [
 								$room => [
-									"passengers" => [
+									'passengers' => [
 										[
-											"title" => $passenger['title'],
-											"given_name" => $passenger['given_name'],
-											"family_name" => $passenger['family_name'],
-											"date_of_birth" => $passenger['date_of_birth']
+											'title' => $passenger['title'],
+											'given_name' => $passenger['given_name'],
+											'family_name' => $passenger['family_name'],
+											'date_of_birth' => $passenger['date_of_birth']
 										]
 									]
 								]
@@ -816,23 +822,23 @@ class BookApiHandler extends BaseController
 					}
 				}
 				# type flight
-				else {
+                if (!isset($booking['room'])) {
 					if (isset($output[$bookingItem])) {
 						$output[$bookingItem]['passengers'][] = [
-							"title" => $passenger['title'],
-							"given_name" => $passenger['given_name'],
-							"family_name" => $passenger['family_name'],
-							"date_of_birth" => $passenger['date_of_birth']
+							'title' => $passenger['title'],
+							'given_name' => $passenger['given_name'],
+							'family_name' => $passenger['family_name'],
+							'date_of_birth' => $passenger['date_of_birth']
 						];
 					} else {
 						$output[$bookingItem] = [
-							"booking_item" => $bookingItem,
-							"passengers" => [
+							'booking_item' => $bookingItem,
+							'passengers' => [
 								[
-									"title" => $passenger['title'],
-									"given_name" => $passenger['given_name'],
-									"family_name" => $passenger['family_name'],
-									"date_of_birth" => $passenger['date_of_birth']
+									'title' => $passenger['title'],
+									'given_name' => $passenger['given_name'],
+									'family_name' => $passenger['family_name'],
+									'date_of_birth' => $passenger['date_of_birth']
 								]
 							]
 						];
@@ -845,7 +851,11 @@ class BookApiHandler extends BaseController
 		return $output;
 	}
 
-	private function chechCounGuestsChidrenAges (array $filtersOutput) : array
+    /**
+     * @param array $filtersOutput
+     * @return array|string[]
+     */
+    private function checkCountGuestsChildrenAges (array $filtersOutput) : array
 	{
 		foreach ($filtersOutput as $bookingItem => $booking) {
 			$search = ApiBookingItem::where('booking_item', $bookingItem)->first();
@@ -856,13 +866,19 @@ class BookApiHandler extends BaseController
 
 			if ($type == 'flight') continue;
 			if ($type == 'combo') continue;
-			if ($type == 'hotel') return $this->chechCounGuestsChidrenAgesHotel($bookingItem, $booking, $search->search_id);
+			if ($type == 'hotel') return $this->checkCountGuestsChildrenAgesHotel($bookingItem, $booking, $search->search_id);
 		}
 
 		return [];
 	}
 
-	private function chechCounGuestsChidrenAgesHotel($bookingItem, $booking, $searchId) : array
+    /**
+     * @param $bookingItem
+     * @param $booking
+     * @param $searchId
+     * @return array
+     */
+    private function checkCountGuestsChildrenAgesHotel($bookingItem, $booking, $searchId) : array
 	{
 		$searchData = json_decode(ApiSearchInspector::where('search_id', $searchId)->first()->request, true);
 
@@ -870,9 +886,9 @@ class BookApiHandler extends BaseController
 
 				$ages = [];
 				foreach ($roomData['passengers'] as $passenger) {
-					$dob = new \DateTime($passenger['date_of_birth']);
-					$now = new \DateTime();
-					$ages[] = $now->diff($dob)->y;
+                    $dob = Carbon::parse($passenger['date_of_birth']);
+                    $now = Carbon::now();
+                    $ages[] = $now->diffInYears($dob);
 				}
 
 				$childrenCount = 0;

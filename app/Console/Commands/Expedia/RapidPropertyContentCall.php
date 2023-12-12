@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Expedia;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\ExpediaSupplier\PropertyCallFactory;
 
 class RapidPropertyContentCall extends Command
@@ -47,7 +48,7 @@ class RapidPropertyContentCall extends Command
         $stream = $propertyContentCall->stream();
         $size = $propertyContentCall->size();
 
-        \Log::debug('RapidPropertyContentCall', [
+        Log::debug('RapidPropertyContentCall', [
             'stream' => $stream,
             'size' => $size
         ]);

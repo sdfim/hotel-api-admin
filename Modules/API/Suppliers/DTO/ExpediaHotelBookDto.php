@@ -12,7 +12,7 @@ class ExpediaHotelBookDto
 	/**
 	 * @return array $filters
 	 */
-	public function ExpediaToHotelBookResponseModel(array $filters) : array
+	public static function ExpediaToHotelBookResponseModel(array $filters) : array
 	{
 		$bookringItem = ApiBookingItem::where('booking_item', $filters['booking_item'])
 			->with('supplier')
