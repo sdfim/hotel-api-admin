@@ -460,7 +460,6 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'booking_contact.phone.country_code' => [
-                        'The booking contact.phone.country code must be an integer.',
                         'The selected booking contact.phone.country code is invalid.'
                     ]
                 ]
@@ -1161,11 +1160,9 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
             if (in_array('empty_amount_pay', $keysToFail)) $data['amount_pay'] = '';
             if (in_array('missed_booking_contact', $keysToFail)) unset($data['booking_contact']);
             if (in_array('missed_booking_contact_first_name', $keysToFail)) unset($data['booking_contact']['first_name']);
-            if (in_array('empty_booking_contact_first_name', $keysToFail))
-                $data['booking_contact']['first_name'] = $this->faker->text(2);
+            if (in_array('empty_booking_contact_first_name', $keysToFail)) $data['booking_contact']['first_name'] = '';
             if (in_array('missed_booking_contact_last_name', $keysToFail)) unset($data['booking_contact']['last_name']);
-            if (in_array('empty_booking_contact_last_name', $keysToFail))
-                $data['booking_contact']['last_name'] = $this->faker->text(2);
+            if (in_array('empty_booking_contact_last_name', $keysToFail)) $data['booking_contact']['last_name'] = '';
             if (in_array('missed_booking_contact_email', $keysToFail)) unset($data['booking_contact']['email']);
             if (in_array('empty_booking_contact_email', $keysToFail)) $data['booking_contact']['email'] = '';
             if (in_array('incorrect_booking_contact_email', $keysToFail))
@@ -1178,50 +1175,50 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
             if (in_array('incorrect_booking_contact_phone_country_code', $keysToFail))
                 $data['booking_contact']['phone']['country_code'] = $this->faker->randomNumber(4, true);
             if (in_array('incorrect_type_booking_contact_phone_country_code', $keysToFail))
-                $data['booking_contact']['phone']['country_code'] = $this->faker->text(4);
+                $data['booking_contact']['phone']['country_code'] = Str::random(4);
             if (in_array('missed_booking_contact_phone_area_code', $keysToFail))
                 unset($data['booking_contact']['phone']['area_code']);
             if (in_array('incorrect_booking_contact_phone_area_code', $keysToFail))
                 $data['booking_contact']['phone']['area_code'] = $this->faker->randomNumber(4, true);
             if (in_array('incorrect_type_booking_contact_phone_area_code', $keysToFail))
-                $data['booking_contact']['phone']['area_code'] = $this->faker->text(4);
+                $data['booking_contact']['phone']['area_code'] = Str::random(4);
             if (in_array('missed_booking_contact_phone_number', $keysToFail))
                 unset($data['booking_contact']['phone']['number']);
             if (in_array('empty_booking_contact_phone_number', $keysToFail))
                 $data['booking_contact']['phone']['number'] = '';
             if (in_array('incorrect_booking_contact_phone_number', $keysToFail))
-                $data['booking_contact']['phone']['number'] = (string)$this->faker->randomNumber(10, true);
+                $data['booking_contact']['phone']['number'] = (int)$this->faker->numerify('###########');
             if (in_array('incorrect_type_booking_contact_phone_number', $keysToFail))
                 $data['booking_contact']['phone']['number'] = $this->faker->text(8);
             if (in_array('missed_booking_contact_address', $keysToFail)) unset($data['booking_contact']['address']);
             if (in_array('missed_booking_contact_address_line_1', $keysToFail))
                 unset($data['booking_contact']['address']['line_1']);
             if (in_array('incorrect_booking_contact_address_line_1', $keysToFail))
-                $data['booking_contact']['address']['line_1'] = $this->faker->text(256);
+                $data['booking_contact']['address']['line_1'] = Str::random(256);
             if (in_array('missed_booking_contact_address_city', $keysToFail))
                 unset($data['booking_contact']['address']['city']);
             if (in_array('incorrect_booking_contact_address_city', $keysToFail))
-                $data['booking_contact']['address']['city'] = $this->faker->text(101);
+                $data['booking_contact']['address']['city'] = Str::random(101);
             if (in_array('missed_booking_contact_address_state_province_code', $keysToFail))
                 unset($data['booking_contact']['address']['state_province_code']);
             if (in_array('incorrect_booking_contact_address_state_province_code', $keysToFail))
-                $data['booking_contact']['address']['state_province_code'] = $this->faker->text(3);
+                $data['booking_contact']['address']['state_province_code'] = Str::random(3);
             if (in_array('missed_booking_contact_address_postal_code', $keysToFail))
                 unset($data['booking_contact']['address']['postal_code']);
             if (in_array('incorrect_booking_contact_address_postal_code', $keysToFail))
-                $data['booking_contact']['address']['postal_code'] = $this->faker->randomNumber(8, true);
+                $data['booking_contact']['address']['postal_code'] = Str::random(8);
             if (in_array('missed_booking_contact_address_country_code', $keysToFail))
                 unset($data['booking_contact']['address']['country_code']);
             if (in_array('incorrect_booking_contact_address_country_code', $keysToFail))
-                $data['booking_contact']['address']['country_code'] = $this->faker->text(3);
+                $data['booking_contact']['address']['country_code'] = Str::random(3);
             if (in_array('missed_credit_card_name_card', $keysToFail))
                 unset($data['credit_card']['name_card']);
             if (in_array('incorrect_credit_card_name_card', $keysToFail))
-                $data['credit_card']['name_card'] = $this->faker->text(1);
+                $data['credit_card']['name_card'] = Str::random(1);
             if (in_array('missed_credit_card_number', $keysToFail))
                 unset($data['credit_card']['number']);
             if (in_array('incorrect_credit_card_number', $keysToFail))
-                $data['credit_card']['number'] = $this->faker->randomNumber(12);
+                $data['credit_card']['number'] = (int)$this->faker->numerify('############');
             if (in_array('incorrect_type_credit_card_number', $keysToFail))
                 $data['credit_card']['number'] = $this->faker->text(12);
             if (in_array('missed_credit_card_card_type', $keysToFail))
@@ -1231,7 +1228,7 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
             if (in_array('missed_credit_card_expiry_date', $keysToFail))
                 unset($data['credit_card']['expiry_date']);
             if (in_array('incorrect_credit_card_expiry_date', $keysToFail))
-                $data['credit_card']['expiry_date'] = $this->faker->text(4);
+                $data['credit_card']['expiry_date'] = Str::random(4);
             if (in_array('past_date_credit_card_expiry_date', $keysToFail))
                 $data['credit_card']['expiry_date'] = Carbon::now()->subMonths(rand(1, 12))->format('m/Y');
             if (in_array('missed_credit_card_cvv', $keysToFail))
@@ -1239,7 +1236,7 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
             if (in_array('incorrect_credit_card_cvv', $keysToFail))
                 $data['credit_card']['cvv'] = $this->faker->randomNumber(4, true);
             if (in_array('incorrect_type_credit_card_cvv', $keysToFail))
-                $data['credit_card']['cvv'] = $this->faker->text(3);
+                $data['credit_card']['cvv'] = Str::random(3);
         }
 
         return $data;
@@ -1256,7 +1253,7 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
             'booking_contact' => [
                 'first_name' => $this->faker->firstName,
                 'last_name' => $this->faker->lastName,
-                'email' => $this->faker->email,
+                'email' => $this->faker->freeEmail,
                 'phone' => [
                     'country_code' => 1,
                     'area_code' => $this->faker->numberBetween(201, 989),
