@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Casts\Json;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BaseController;
@@ -133,7 +134,7 @@ class BookApiHandler extends BaseController
                 }
                 // TODO: Add other suppliers
             } catch (Exception $e) {
-                \Log::error('BookApiHandler | book ' . $e->getMessage());
+                Log::error('BookApiHandler | book ' . $e->getMessage());
                 $data[] = [
                     'booking_id' => $item->booking_id,
                     'booking_item' => $item->booking_item,
@@ -218,7 +219,7 @@ class BookApiHandler extends BaseController
     {
 		$determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
-		
+
 		$validate = Validator::make($request->all(), (new BookingChangeBookHotelRequest())->rules());
         if ($validate->fails()) return $this->sendError($validate->errors());
 
@@ -239,7 +240,7 @@ class BookApiHandler extends BaseController
             // TODO: Add other suppliers
 
         } catch (Exception $e) {
-            \Log::error('BookApiHandler | changeItems ' . $e->getMessage());
+            Log::error('BookApiHandler | changeItems ' . $e->getMessage());
             return $this->sendError(['error' => $e->getMessage()], 'failed');
         }
 
@@ -314,7 +315,7 @@ class BookApiHandler extends BaseController
         if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
 
 		$validate = Validator::make($request->all(), [
-			'supplier' => 'required|string', 
+			'supplier' => 'required|string',
 			'type' => 'required|string|in:hotel,flight,combo'
 		]);
 		if ($validate->fails()) return $this->sendError($validate->errors());
@@ -327,7 +328,7 @@ class BookApiHandler extends BaseController
             }
             // TODO: Add other suppliers
         } catch (Exception $e) {
-            \Log::error('HotelBookingApiHanlder | listBookings ' . $e->getMessage());
+            Log::error('HotelBookingApiHanlder | listBookings ' . $e->getMessage());
             return $this->sendError(['error' => $e->getMessage()], 'failed');
         }
 
@@ -407,7 +408,7 @@ class BookApiHandler extends BaseController
                 // TODO: Add other suppliers
 
             } catch (Exception $e) {
-                \Log::error('BookApiHandler | retrieveBooking ' . $e->getMessage());
+                Log::error('BookApiHandler | retrieveBooking ' . $e->getMessage());
                 $data[] = [
                     'booking_id' => $item['booking_id'],
                     'booking_item' => $item['booking_item'],
@@ -498,7 +499,7 @@ class BookApiHandler extends BaseController
 		} else {
 			$itemsBooked = ApiBookingInspector::bookedItems($request->booking_id);
 		}
-		
+
 		// TODO: add validation for request
         $filters = $request->all();
         $data = [];
@@ -516,7 +517,7 @@ class BookApiHandler extends BaseController
                 // TODO: Add other suppliers
 
             } catch (Exception $e) {
-                \Log::error('BookApiHandler | cancelBooking ' . $e->getMessage());
+                Log::error('BookApiHandler | cancelBooking ' . $e->getMessage());
                 $data[] = [
                     'booking_id' => $item['booking_id'],
                     'booking_item' => $item['booking_item'],
@@ -617,7 +618,7 @@ class BookApiHandler extends BaseController
             }
 
         } catch (Exception $e) {
-            \Log::error('HotelBookingApiHandler | retrieveItems ' . $e->getMessage());
+            Log::error('HotelBookingApiHandler | retrieveItems ' . $e->getMessage());
             return $this->sendError(['error' => $e->getMessage()], 'failed');
         }
 
@@ -645,8 +646,8 @@ class BookApiHandler extends BaseController
 	 *     @OA\RequestBody(
 	 *     description="JSON object containing the details of the reservation. If you don't pass booking_item(s), these passengers will be added to all booking_items that are in the cart (booking_id)",
 	 *     required=true,
-	 *     @OA\JsonContent(    
-	 *       ref="#/components/schemas/BookingAddPassengersRequest", 
+	 *     @OA\JsonContent(
+	 *       ref="#/components/schemas/BookingAddPassengersRequest",
 	 *       examples={
      *           "example1": @OA\Schema(ref="#/components/examples/BookingAddPassengersRequest", example="BookingAddPassengersRequest"),
      *       },
@@ -688,6 +689,13 @@ class BookApiHandler extends BaseController
 	 */
 	public function addPassengers(Request $request): JsonResponse
 	{
+        $determinant = $this->determinant($request);
+        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+
+        $filters = $request->all();
+        $validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
+        if ($validate->fails()) return $this->sendError($validate->errors());
+
 		$filters = Validator::make($request->all(), (new AddPassengersRequest())->rules());
         if ($filters->fails()) return $this->sendError($filters->errors());
 
@@ -703,8 +711,8 @@ class BookApiHandler extends BaseController
 
 		$bookingRequestItems = array_keys($filtersOutput);
 		foreach ($bookingRequestItems as $requestItem) {
-			if (!in_array($requestItem, $itemsInCart->pluck('booking_item')->toArray())) 
-				return $this->sendError(['error' => 'This booking_item is not in the cart.'], 'failed'); 
+			if (!in_array($requestItem, $itemsInCart->pluck('booking_item')->toArray()))
+				return $this->sendError(['error' => 'This booking_item is not in the cart.'], 'failed');
 		}
 
 		try {
@@ -724,7 +732,7 @@ class BookApiHandler extends BaseController
                 // TODO: Add other suppliers
             }
 		} catch (Exception $e) {
-			\Log::error('HotelBookingApiHandler | listBookings ' . $e->getMessage());
+			Log::error('HotelBookingApiHandler | listBookings ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 
@@ -740,7 +748,7 @@ class BookApiHandler extends BaseController
 		$requestTokenId = PersonalAccessToken::findToken($request->bearerToken())->id;
 		$dbTokenId = null;
 
-		# chek Owner token 
+		# chek Owner token
 		if($request->has('booking_item')) {
 			if (!$this->validatedUuid('booking_item')) return [];
 			$apiBookingItem = ApiBookingItem::where('booking_item', $request->get('booking_item'))->with('search')->first();
@@ -749,9 +757,9 @@ class BookApiHandler extends BaseController
 			if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
 		}
 
-		# chek Owner token 
+		# chek Owner token
         if ($request->has('booking_id')) {
-			
+
 			if (!$this->validatedUuid('booking_id')) return ['error' => 'Invalid booking_id'];
             $bi = (new ApiBookingInspector())->geTypeSupplierByBookingId($request->get('booking_id'));
 			if (empty($bi)) return ['error' => 'Invalid booking_id'];
@@ -830,7 +838,7 @@ class BookApiHandler extends BaseController
 						];
 					}
 				}
-				
+
 			}
 		}
 
@@ -857,14 +865,14 @@ class BookApiHandler extends BaseController
 	private function chechCounGuestsChidrenAgesHotel($bookingItem, $booking, $searchId) : array
 	{
 		$searchData = json_decode(ApiSearchInspector::where('search_id', $searchId)->first()->request, true);
-			
+
 			foreach ($booking['rooms'] as $room => $roomData) {
 
 				$ages = [];
 				foreach ($roomData['passengers'] as $passenger) {
 					$dob = new \DateTime($passenger['date_of_birth']);
 					$now = new \DateTime();
-					$ages[] = $now->diff($dob)->y; 
+					$ages[] = $now->diff($dob)->y;
 				}
 
 				$childrenCount = 0;
@@ -874,7 +882,7 @@ class BookApiHandler extends BaseController
 					else $adultsCount++;
 				}
 
-				if ($adultsCount != $searchData['occupancy'][$room - 1]['adults']) 
+				if ($adultsCount != $searchData['occupancy'][$room - 1]['adults'])
 					return [
 						'type' => 'The number of adults not match.',
 						'booking_item' => $bookingItem,
@@ -895,7 +903,7 @@ class BookApiHandler extends BaseController
 
 				if (!isset($searchData['occupancy'][$room - 1]['children_ages'])) continue;
 
-				if ($childrenCount != count($searchData['occupancy'][$room - 1]['children_ages'])) 
+				if ($childrenCount != count($searchData['occupancy'][$room - 1]['children_ages']))
 					return [
 						'type' => 'The number of children not match.',
 						'booking_item' => $bookingItem,
