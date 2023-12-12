@@ -89,7 +89,7 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
                     'error' => 'Passengers not found.',
                     'booking_item' => $bookingItem
                 ],
-                'message' => 'success'
+                'message' => 'error'
             ]);
     }
 
@@ -1266,7 +1266,7 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
                     'line_1' => $this->faker->streetAddress,
                     'city' => $this->faker->city,
                     'state_province_code' => Address::stateAbbr(),
-                    'postal_code' => $this->faker->postcode,
+                    'postal_code' => Address::postcode(),
                     'country_code' => 'US',
                 ],
             ]
@@ -1277,7 +1277,7 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
                 'name_card' => $this->faker->creditCardType,
                 'number' => (int)$this->faker->creditCardNumber,
                 'card_type' => $this->faker->randomElement(['MSC', 'VISA', 'AMEX', 'DIS']),
-                'expiry_date' => $this->faker->creditCardExpirationDate,
+                'expiry_date' => $this->faker->creditCardExpirationDateString(true, 'm/Y'),
                 'cvv' => $this->faker->randomNumber(3),
                 'billing_address' => $this->faker->streetAddress,
             ];
