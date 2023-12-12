@@ -35,7 +35,7 @@
                                 <label for="email"
                                        class="text-gray-600 dark:text-gray-100 font-medium mb-2 block">Email
                                     <span class="text-red-600">*</span></label>
-                                <input type="email" name="email" value="admin@themesbrand.com"
+                                <input type="email" name="email"
                                        class="w-full rounded placeholder:text-sm py-2 border-gray-100 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-gray-100 dark:placeholder:text-zinc-100/60"
                                        id="email" placeholder="Enter email" required>
                                 @error('email')
@@ -59,7 +59,7 @@
                                 </div>
 
                                 <div class="flex" x-data="{ inputType: 'password' }">
-                                    <input :type="inputType" name="password" id="password" value="12345678"
+                                    <input :type="inputType" name="password" id="password"
                                            class="w-full rounded ltr:rounded-r-none rtl:rounded-l-none placeholder:text-sm py-2 border-gray-100 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-gray-100 dark:placeholder:text-zinc-100/60"
                                            placeholder="Enter password" aria-label="Password"
                                            aria-describedby="password-addon" required>
