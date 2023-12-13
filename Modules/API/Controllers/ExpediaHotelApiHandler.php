@@ -3,8 +3,11 @@
 namespace Modules\API\Controllers;
 
 use App\Models\ExpediaContent;
+use App\Repositories\ExpediaContentRepositories;
+use App\Repositories\ExpediaContentRepositories as ExpediaRepositories;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Tools\Geography;
@@ -53,7 +56,7 @@ class ExpediaHotelApiHandler
                 $filters['ids'] = $expedia->getIdsByCoordinate($minMaxCoordinate);
             }
 
-            $fields = isset($filters['fullList']) ? $expedia->getFullListFields() : $expedia->getShortListFields();
+            $fields = isset($filters['fullList']) ? ExpediaContent::getFullListFields() : ExpediaContent::getShortListFields();
             $query = $expedia->select();
 
             $searchBuilder = new HotelSearchBuilder($query);
@@ -86,7 +89,7 @@ class ExpediaHotelApiHandler
 
             $ids = collect($results)->pluck('property_id')->toArray();
 
-            $results = $expedia->dtoDbToResponse($results, $fields);
+            $results = ExpediaRepositories::dtoDbToResponse($results, $fields);
 
         } catch (Exception $e) {
             \Log::error('ExpediaHotelApiHandler | preSearchData'.$e->getMessage());
@@ -150,6 +153,6 @@ class ExpediaHotelApiHandler
             ->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
             ->where('property_id', $expedia_id)->get();
 
-        return $expedia->dtoDbToResponse($results, $expedia->getFullListFields());
+        return ExpediaRepositories::dtoDbToResponse($results, ExpediaContent::getFullListFields());
     }
 }

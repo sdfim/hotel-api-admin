@@ -26,7 +26,7 @@ class ApiBookingItem extends Model
      *
      * @return string
      */
-    public function getKeyType()
+    public function getKeyType(): string
     {
         return 'string';
     }
@@ -41,6 +41,9 @@ class ApiBookingItem extends Model
 		'created_at'
 	];
 
+    /**
+     * @return BelongsTo
+     */
     public function search(): BelongsTo
     {
         return $this->belongsTo(ApiSearchInspector::class, 'search_id', 'search_id');
@@ -52,8 +55,13 @@ class ApiBookingItem extends Model
     {
         return $this->belongsTo(Supplier::class);
     }
-	
-	protected static function boot()
+
+    /**
+     * Bootstrap the model and its traits.
+     *
+     * @return void
+     */
+    protected static function boot(): void
     {
         parent::boot();
 

@@ -3,6 +3,7 @@
 namespace App\Console\Commands\Expedia;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\ExpediaSupplier\PropertyCallFactory;
 
 class RapidPropertyPriceCall extends Command
@@ -45,7 +46,7 @@ class RapidPropertyPriceCall extends Command
 
         $dataPrice = $propertyPriceCall->getPriceData($propertyIds);
 
-        \Log::debug('RapidPropertyPriceCall', ['value' => json_encode($dataPrice)]);
+        Log::debug('RapidPropertyPriceCall', ['value' => json_encode($dataPrice)]);
 
         $execution_time = (microtime(true) - $start_time);
         $this->info('Import completed. ' . round($execution_time, 2) . " seconds");

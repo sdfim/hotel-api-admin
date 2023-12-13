@@ -2,6 +2,8 @@
 
 namespace Modules\Inspector;
 
+use App\Repositories\CannelRenository;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Channel;
 use App\Models\ApiSearchInspector;
@@ -23,8 +25,7 @@ class SearchInspectorController extends BaseInspectorController
         try {
             $this->current_time = microtime(true);
 
-            $ch = new Channel;
-            $token_id = $ch->getTokenId(request()->bearerToken());
+            $token_id = CannelRenository::getTokenId(request()->bearerToken());
             $query = json_encode($query);
             $content = json_encode($content);
             $clientContent = json_encode($clientContent);
@@ -38,10 +39,10 @@ class SearchInspectorController extends BaseInspectorController
 			// check if inspector not exists
             if (!$inspector) {
 				Storage::put($path, $content);
-				\Log::debug('SearchInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
+				Log::debug('SearchInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
 
 				Storage::put($client_path, $clientContent);
-				\Log::debug('SearchInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
+				Log::debug('SearchInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
 			}
 
             $data = [
@@ -57,12 +58,12 @@ class SearchInspectorController extends BaseInspectorController
             ];
 
             $inspector = ApiSearchInspector::insert($data);
-            \Log::debug('SearchInspectorController save to DB: ' . $this->executionTime() . ' seconds');
+            Log::debug('SearchInspectorController save to DB: ' . $this->executionTime() . ' seconds');
 
-            return $inspector ? true : false;
+            return (bool)$inspector;
 
         } catch (\Exception $e) {
-            \Log::error('Error save ApiSearchInspector: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
+            Log::error('Error save ApiSearchInspector: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
 
             return false;
         }

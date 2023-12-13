@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use App\Models\GiataGeography;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 class DownloadGiataGeographyData extends Command
 {
@@ -106,11 +107,11 @@ class DownloadGiataGeographyData extends Command
                 foreach ($country['Locales'] as $locale) {
                     if (is_array($locale)) {
                         foreach ($locale as $item) {
-                            \Log::info('DownloadGiataGeographyData parseLocale item array locale', ['locale' => $item]);
+                            Log::info('DownloadGiataGeographyData parseLocale item array locale', ['locale' => $item]);
                             $this->parseLocale($item, $current_country);
                         }
                     } else {
-                        \Log::info('DownloadGiataGeographyData parseLocale locale', ['locale' => $locale]);
+                        Log::info('DownloadGiataGeographyData parseLocale locale', ['locale' => $locale]);
                         $this->parseLocale($locale, $current_country);
                     }
                 }

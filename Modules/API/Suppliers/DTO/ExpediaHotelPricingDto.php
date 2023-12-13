@@ -7,9 +7,11 @@ use App\Models\Channel;
 use App\Models\GiataGeography;
 use App\Models\PricingRule;
 use App\Models\Supplier;
+use App\Repositories\CannelRenository;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\PricingAPI\ResponseModels\HotelResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
@@ -235,7 +237,7 @@ class ExpediaHotelPricingDto
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $occupancy_pricing);
         } catch (Exception $e) {
-            \Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
+            Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
         }
 
         if ($pricingRulesApplier['total_price'] == 0.0) {

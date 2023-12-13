@@ -7,13 +7,14 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
-use App\Models\Channel;
+use \Illuminate\Http\Client\PendingRequest;
+
 
 class CustomBookingCommand extends Command
 {
     protected $signature = 'custom-booking-command {step}';
     protected $description = 'Command description';
-    protected $client;
+    protected PendingRequest $client;
     // protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
     // protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
@@ -65,7 +66,7 @@ class CustomBookingCommand extends Command
     public function strategy1(): void
     {
         $this->warn('SEARCH 1');
-        $responseData1 = $this->makeSearchRequest(2);
+        $responseData1 = $this->searchRequest(2);
 		$query['search_1'] = $responseData1['data']['query']['occupancy'];
         $searchId = $responseData1['data']['search_id'];
 		$bookingItem = $this->getBookingItem($responseData1);
@@ -76,7 +77,7 @@ class CustomBookingCommand extends Command
 		$bookingItems['search_1'] = $bookingItem;
 
         $this->warn('SEARCH 2');
-        $responseData2 = $this->makeSearchRequest(1);
+        $responseData2 = $this->searchRequest(1);
 		$query['search_2'] = $responseData2['data']['query']['occupancy'];
         $searchId = $responseData2['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData2);
@@ -86,11 +87,11 @@ class CustomBookingCommand extends Command
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
 		$bookingItems['search_2'] = $bookingItem;
 
-		$this->warn('addPassengers gtroupe for SEARCH 1, SEARCH 2');
+		$this->warn('addPassengers group for SEARCH 1, SEARCH 2');
         $this->addPassengers($bookingId, $bookingItems, $query);
 
         $this->warn('SEARCH 3');
-        $responseData = $this->makeSearchRequest(2);
+        $responseData = $this->searchRequest(2);
 		$query2['search_3'] = $responseData['data']['query']['occupancy'];
         $searchId = $responseData['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData);
@@ -125,7 +126,7 @@ class CustomBookingCommand extends Command
         $occupancy = [];
         foreach (range(1, $count) as $index) {
 
-			$room["adults"] = $faker->numberBetween(1, 3);
+			$room['adults'] = $faker->numberBetween(1, 3);
 
 			if ($count % 2 != 0) $children = rand(0, 2);
 			else $children = 0;
@@ -234,6 +235,7 @@ class CustomBookingCommand extends Command
 		$requestData['booking_id'] = $bookingId;
 
         $response = $this->client->post(self::BASE_URI . '/api/booking/add-passengers', $requestData);
+
 		$this->info('addPassengers: ' . json_encode($response->json()));
     }
 
