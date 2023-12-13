@@ -2,10 +2,7 @@
 
 namespace Feature\API\Booking;
 
-use Carbon\Carbon;
-use Faker\Provider\en_UG\Address;
 use Illuminate\Support\Str;
-use Illuminate\Testing\TestResponse;
 use Tests\Feature\API\Booking\HotelBookingApiTestCase;
 
 class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
@@ -15,6 +12,34 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
      * @return void
      */
     public function test_hotel_booking_cancel_booking_method_response_200(): void
+    {
+        $hotelBook = $this->createHotelBookingAndAddPassengersToBookingItemAndHotelBook();
+
+        $bookingId = $hotelBook['booking_id'];
+
+        $cancelBookingResponse = $this->withHeaders($this->headers)
+            ->deleteJson("api/booking/cancel-booking?booking_id=$bookingId");
+
+        $cancelBookingResponse->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'data' => [
+                    'result' => [
+                        [
+                            'booking_item' => '',
+                            'status' => 'Room is already cancelled.'
+                        ]
+                    ]
+                ],
+                'message' => 'success'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_cancel_booking_item_method_response_200(): void
     {
         $hotelBook = $this->createHotelBookingAndAddPassengersToBookingItemAndHotelBook();
 
@@ -31,7 +56,7 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
                     'result' => [
                         [
                             'booking_item' => $bookingItem,
-                            'status' => 'Room is already cancelled.'
+                            'status' => 'Room is cancelled.'
                         ]
                     ]
                 ],
@@ -39,4 +64,120 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_attempting_to_cancel_previously_cancelled_booking_again_method_response_200(): void
+    {
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_attempting_to_cancel_previously_cancelled_booking_item_again_method_response_200(): void
+    {
+
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_cancel_item_with_non_existent_booking_id_and_booking_item_method_response_400(): void
+    {
+        $nonExistentBookingId = Str::uuid()->toString();
+
+        $createBooking = $this->createHotelBooking();
+
+        $bookingCancelItemResponse = $this->withHeaders($this->headers)
+            ->deleteJson("api/booking/cancel-booking?booking_id=$nonExistentBookingId&booking_item={$createBooking['booking_items'][0]}");
+
+        $bookingCancelItemResponse->assertStatus(400)
+            ->assertJson([
+                'message' => 'Invalid booking_id'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_cancel_item_with_non_existent_booking_item_and_booking_id_method_response_400(): void
+    {
+        $nonExistentBookingItem = Str::uuid()->toString();
+
+        $createBooking = $this->createHotelBooking();
+
+        $bookingCancelItemResponse = $this->withHeaders($this->headers)
+            ->deleteJson("api/booking/cancel-booking?booking_id={$createBooking['booking_id']}&booking_item=$nonExistentBookingItem");
+
+        $bookingCancelItemResponse->assertStatus(400)
+            ->assertJson([
+                'message' => 'Invalid booking_item'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_cancel_item_with_empty_booking_item_and_correct_booking_id_method_response_400(): void
+    {
+        $createBooking = $this->createHotelBooking();
+
+        $bookingCancelItemResponse = $this->withHeaders($this->headers)
+            ->deleteJson("api/booking/cancel-booking?booking_id={$createBooking['booking_id']}&booking_item=");
+
+        $bookingCancelItemResponse->assertStatus(400)
+            ->assertJson([
+                'message' => 'Invalid type'
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_cancel_item_with_missed_booking_id_and_correct_booking_item_method_response_400(): void
+    {
+        $createBooking = $this->createHotelBooking();
+
+        $bookingCancelItemResponse = $this->withHeaders($this->headers)
+            ->deleteJson("api/booking/cancel-booking?booking_item={$createBooking['booking_items'][0]}");
+
+        $bookingCancelItemResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'booking_id' => [
+                        'The booking id field is required.'
+                    ]
+                ]
+            ]);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_hotel_booking_cancel_item_with_missed_booking_item_and_correct_booking_id_method_response_400(): void
+    {
+        $createBooking = $this->createHotelBooking();
+
+        $bookingCancelItemResponse = $this->withHeaders($this->headers)
+            ->deleteJson("api/booking/cancel-booking?booking_id={$createBooking['booking_id']}");
+
+        $bookingCancelItemResponse->assertStatus(400)
+            ->assertJson([
+                'success' => false,
+                'error' => [
+                    'booking_item' => [
+                        'The booking item field is required.'
+                    ]
+                ]
+            ]);
+    }
 }
