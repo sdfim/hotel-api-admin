@@ -132,10 +132,9 @@ class CustomBookingCommand extends Command
 			else $children = 0;
 			$children_ages = [];
 			if ($children > 0) {
-                $children_ages = array_map(function() {
-                    return rand(1, 17);
-                }, array_fill(0, $children, 0));
-
+				foreach (range(1, $children) as $index) {
+					$children_ages[] = rand(1, 17);
+				}
 				$room['children'] = $children;
 				$room['children_ages'] = $children_ages;
 			}
@@ -144,7 +143,7 @@ class CustomBookingCommand extends Command
         }
 
         $requestData = [
-      'type' => 'hotel',
+            'type' => 'hotel',
 			'currency' => $faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
 			'destination' => $faker->randomElement([961, 302, 93, 960, 1102]),
             'checkin' => $checkin,
