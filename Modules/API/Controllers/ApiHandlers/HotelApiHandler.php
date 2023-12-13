@@ -273,7 +273,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     {
         try {
             $validate = Validator::make($request->all(), [
-                'property_id' => 'required|string',
+                'property_id' => 'required|int|digits_between:5,12',
                 'type' => 'required|in:hotel,flight,combo',
             ]);
             if ($validate->fails()) {
@@ -294,8 +294,13 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     $supplierName = Supplier::find($supplier)->name;
                     if ($supplierName == self::SUPPLIER_NAME) {
                         $data = $this->expedia->detail($request);
+
                         $dataResponse[$supplierName] = $data;
-                        $clientResponse[$supplierName] = $this->ExpediaHotelContentDetailDto->ExpediaToContentDetailResponse($data->first(), $request->input('property_id'));
+                        if (count($data) > 0) {
+                            $clientResponse[$supplierName] = $this->ExpediaHotelContentDetailDto->ExpediaToContentDetailResponse($data->first(), $request->input('property_id'));
+                        } else {
+                            $clientResponse[$supplierName] = [];
+                        }
                     }
                     // TODO: Add other suppliers
                 }

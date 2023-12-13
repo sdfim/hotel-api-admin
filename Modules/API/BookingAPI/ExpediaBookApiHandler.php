@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\BaseController;
 use Modules\API\Suppliers\DTO\ExpediaHotelBookDto;
+use Modules\API\Suppliers\DTO\ExpediaHotelBookingRetrieveBookingDto;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 
 class ExpediaBookApiHandler extends BaseController
@@ -260,18 +261,14 @@ class ExpediaBookApiHandler extends BaseController
         $booking_id = $filters['booking_id'];
         $filters['search_id'] = $bookingInspector->search_id;
 		$filters['booking_item'] = $bookingInspector->booking_item;
-        $dataResponse = [];
         $json_response = json_decode(Storage::get($bookingInspector->response_path));
 
         $linkRetrieveItem = $json_response->links->retrieve->href;
-
         $props = $this->getPathParamsFromLink($linkRetrieveItem);
-
         $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
-        $dataResponse = json_decode($response->getBody()->getContents());
+        $dataResponse = json_decode($response->getBody()->getContents(), true);
 
-        // TODO: need create DTO for $clientDataResponse
-        $clientDataResponse = $dataResponse;
+        $clientDataResponse = ExpediaHotelBookingRetrieveBookingDto::ExpediaRetrieveBookingToHotelBookResponseModel($filters, $dataResponse);
 
         SaveBookingInspector::dispatch([
             $booking_id,
@@ -284,7 +281,11 @@ class ExpediaBookApiHandler extends BaseController
             $bookingInspector->search_type, // hotel | flight | combo
         ]);
 
-        return (array) $dataResponse;
+        if (isset($filters['supplier_data']) && $filters['supplier_data'] == 'true') {
+            return (array)$dataResponse;
+        } else {
+            return $clientDataResponse;
+        }
     }
 
     /**

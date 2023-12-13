@@ -257,4 +257,16 @@ class ApiBookingInspectorRepository
             ->where('sub_type', 'like', 'price_check' . '%')
             ->get();
     }
+
+    /**
+     * @param string $booking_item
+     * @return object|null
+     */
+    public static function getBookItemsByBookingItem(string $booking_item): object|null
+    {
+        return ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'book')
+            ->where('sub_type', 'retrieve')
+            ->first();
+    }
 }

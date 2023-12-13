@@ -66,7 +66,7 @@ class CustomBookingCommand extends Command
     public function strategy1(): void
     {
         $this->warn('SEARCH 1');
-        $responseData1 = $this->searchRequest(2);
+        $responseData1 = $this->makeSearchRequest(2);
 		$query['search_1'] = $responseData1['data']['query']['occupancy'];
         $searchId = $responseData1['data']['search_id'];
 		$bookingItem = $this->getBookingItem($responseData1);
@@ -77,7 +77,7 @@ class CustomBookingCommand extends Command
 		$bookingItems['search_1'] = $bookingItem;
 
         $this->warn('SEARCH 2');
-        $responseData2 = $this->searchRequest(1);
+        $responseData2 = $this->makeSearchRequest(1);
 		$query['search_2'] = $responseData2['data']['query']['occupancy'];
         $searchId = $responseData2['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData2);
@@ -91,7 +91,7 @@ class CustomBookingCommand extends Command
         $this->addPassengers($bookingId, $bookingItems, $query);
 
         $this->warn('SEARCH 3');
-        $responseData = $this->searchRequest(2);
+        $responseData = $this->makeSearchRequest(2);
 		$query2['search_3'] = $responseData['data']['query']['occupancy'];
         $searchId = $responseData['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData);
@@ -293,7 +293,7 @@ class CustomBookingCommand extends Command
                     'line_1' => $faker->streetAddress,
                     'city' => $faker->city,
                     'state_province_code' => $faker->stateAbbr,
-                    'postal_code' => $faker->postcode,
+                    'postal_code'  => $faker->lexify(str_repeat('?', rand(1, 7))), //$faker->postcode,
                     'country_code' => $faker->countryCode,
                 ],
             ],

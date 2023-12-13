@@ -52,6 +52,16 @@ class ApiSearchInspectorRepository
     }
 
     /**
+     * @param string $search_id
+     * @return array
+     */
+    public static function getRequest(string $search_id): array
+    {
+        $search = ApiSearchInspector::where('search_id', $search_id)->first();
+        return $search->request ? json_decode($search->request, true) : [];
+    }
+
+    /**
      * @param $filters
      * @return array
      */
