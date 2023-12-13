@@ -4,181 +4,210 @@ namespace Modules\API\PricingAPI\ResponseModels;
 
 class RoomResponse
 {
-    /**
-     * @var string
-     */
     private string $giata_room_code;
-    /**
-     * @var string
-     */
+
     private string $giata_room_name;
-    /**
-     * @var string
-     */
+
     private string $supplier_room_name;
-    /**
-     * @var int
-     */
-    private int $supplier_room_code;
-    /**
-     * @var string
-     */
+
+    private int $supplier_room_id;
+
     private string $per_day_rate_breakdown;
-    /**
-     * @var int
-     */
+
     private int $supplier_bed_groups;
-    /**
-     * @var array
-     */
+
     private array $links;
-	/**
-	 * @var float
-	 */
-	private float $total_price;
-	/**
-	 * @var float
-	 */
-	private float $total_tax;
-	/**
-	 * @var float
-	 */
-	private float $total_fees;
-	/**
-	 * @var float
-	 */
-	private float $total_net;
-	/**
-	 * @var float
-	 */
-	private float $affiliate_service_charge;
-	/**
-	 * @var string
-	 */
-	private string $booking_item;
-	/**
-	 * @var string
-	 */
-	private string $currency;
 
-	/**
-	 * @param string $currency
-	 * @return void
-	 */
-	public function setCurrency(string $currency): void
-	{
-		$this->currency = $currency;
-	}
+    private float $total_price;
 
-	/**
-	 * @return string
-	 */
-	public function getCurrency(): string
-	{
-		return $this->currency;
-	}
+    private float $total_tax;
 
-	/**
-	 * @param string $booking_item
-	 * @return void
-	 */
-	public function setBookingItem(string $booking_item): void
-	{
-		$this->booking_item = $booking_item;
-	}
+    private float $total_fees;
 
-	/**
-	 * @return string
-	 */
-	public function getBookingItem(): string
-	{
-		return $this->booking_item;
-	}
+    private float $total_net;
 
-	/**
-	 * @param float $total_price
-	 * @return void
-	 */
-	public function setTotalPrice(float $total_price): void
-	{
-		$this->total_price = $total_price;
-	}
+    private float $affiliate_service_charge;
 
-	/**
-	 * @return float
-	 */
-	public function getTotalPrice(): float
-	{
-		return $this->total_price;
-	}
+    private string $booking_item;
 
-	/**
-	 * @param float $total_tax
-	 * @return void
-	 */
-	public function setTotalTax(float $total_tax): void
-	{
-		$this->total_tax = $total_tax;
-	}
+    private string $currency;
 
-	/**
-	 * @return float
-	 */
-	public function getTotalTax(): float
-	{
-		return $this->total_tax;
-	}
+    private string $room_type;
 
-	/**
-	 * @param float $total_fees
-	 * @return void
-	 */
-	public function setTotalFees(float $total_fees): void
-	{
-		$this->total_fees = $total_fees;
-	}
+    private int $rate_id;
 
-	/**
-	 * @return float
-	 */
-	public function getTotalFees(): float
-	{
-		return $this->total_fees;
-	}
+    private string $rate_description;
 
-	/**
-	 * @param float $affiliate_service_charge
-	 * @return void
-	 */
-	public function setAffiliateServiceCharge(float $affiliate_service_charge): void
-	{
-		$this->affiliate_service_charge = $affiliate_service_charge;
-	}
+    /**
+     * @param string $room_type
+     * @return void
+     */
+    public function setRoomType(string $room_type): void
+    {
+        $this->room_type = $room_type;
+    }
 
-	/**
-	 * @return float
-	 */
-	public function getAffiliateServiceCharge(): float
-	{
-		return $this->affiliate_service_charge;
-	}
+    /**
+     * @return string
+     */
+    public function getRoomType(): string
+    {
+        return $this->room_type;
+    }
 
-	/**
-	 * @param float $total_net
-	 * @return void
-	 */
-	public function setTotalNet(float $total_net): void
-	{
-		$this->total_net = $total_net;
-	}
+    /**
+     * @param string $rate_id
+     * @return void
+     */
+    public function setRateId(string $rate_id): void
+    {
+        $this->rate_id = $rate_id;
+    }
 
-	/**
-	 * @return float
-	 */
-	public function getTotalNet(): float
-	{
-		return $this->total_net;
-	}
+
+    /**
+     * @return int
+     */
+    public function getRateId(): int
+    {
+        return $this->rate_id;
+    }
+
+    /**
+     * @param string $rate_description
+     * @return void
+     */
+    public function setRateDescription(string $rate_description): void
+    {
+        $this->rate_description = $rate_description;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRateDescription(): string
+    {
+        return $this->rate_description;
+    }
+
+    /**
+     * @param string $currency
+     * @return void
+     */
+    public function setCurrency(string $currency): void
+    {
+        $this->currency = $currency;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCurrency(): string
+    {
+        return $this->currency;
+    }
+
+    /**
+     * @param string $booking_item
+     * @return void
+     */
+    public function setBookingItem(string $booking_item): void
+    {
+        $this->booking_item = $booking_item;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBookingItem(): string
+    {
+        return $this->booking_item;
+    }
+
+    /**
+     * @param float $total_price
+     * @return void
+     */
+    public function setTotalPrice(float $total_price): void
+    {
+        $this->total_price = $total_price;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalPrice(): float
+    {
+        return $this->total_price;
+    }
+
+    /**
+     * @param float $total_tax
+     * @return void
+     */
+    public function setTotalTax(float $total_tax): void
+    {
+        $this->total_tax = $total_tax;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalTax(): float
+    {
+        return $this->total_tax;
+    }
+
+    /**
+     * @param float $total_fees
+     * @return void
+     */
+    public function setTotalFees(float $total_fees): void
+    {
+        $this->total_fees = $total_fees;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalFees(): float
+    {
+        return $this->total_fees;
+    }
+
+    /**
+     * @param float $affiliate_service_charge
+     * @return void
+     */
+    public function setAffiliateServiceCharge(float $affiliate_service_charge): void
+    {
+        $this->affiliate_service_charge = $affiliate_service_charge;
+    }
+
+    /**
+     * @return float
+     */
+    public function getAffiliateServiceCharge(): float
+    {
+        return $this->affiliate_service_charge;
+    }
+
+    /**
+     * @param float $total_net
+     * @return void
+     */
+    public function setTotalNet(float $total_net): void
+    {
+        $this->total_net = $total_net;
+    }
+
+    /**
+     * @return float
+     */
+    public function getTotalNet(): float
+    {
+        return $this->total_net;
+    }
 
     /**
      * @param array $links
@@ -215,12 +244,12 @@ class RoomResponse
     }
 
     /**
-     * @param int $supplier_room_code
+     * @param int $supplier_room_id
      * @return void
      */
-    public function setSupplierRoomCode(int $supplier_room_code): void
+    public function setSupplierRoomCode(int $supplier_room_id): void
     {
-        $this->supplier_room_code = $supplier_room_code;
+        $this->supplier_room_id = $supplier_room_id;
     }
 
     /**
@@ -228,7 +257,7 @@ class RoomResponse
      */
     public function getSupplierRoomCode(): int
     {
-        return $this->supplier_room_code;
+        return $this->supplier_room_id;
     }
 
     /**
@@ -309,16 +338,19 @@ class RoomResponse
             'giata_room_name' => $this->getGiataRoomName(),
             'supplier_room_name' => $this->getSupplierRoomName(),
             'per_day_rate_breakdown' => $this->getPerDayRateBreakdown(),
-            // 'supplier_room_code' => $this->getSupplierRoomCode(),
+            'supplier_room_id' => $this->getSupplierRoomCode(),
             // 'supplier_bed_groups' => $this->getSupplierBedGroups(),
-			'total_price' => $this->getTotalPrice(),
-			'total_tax' => $this->getTotalTax(),
-			'total_fees' => $this->getTotalFees(),
-			'total_net' => $this->getTotalNet(),
-			'affiliate_service_charge' => $this->getAffiliateServiceCharge(),
-			'currency' => $this->getCurrency(),
+            'room_type' => $this->getRoomType(),
+            'rate_id' => $this->getRateId(),
+            'rate_description' => $this->getRateDescription(),
+            'total_price' => $this->getTotalPrice(),
+            'total_tax' => $this->getTotalTax(),
+            'total_fees' => $this->getTotalFees(),
+            'total_net' => $this->getTotalNet(),
+            'affiliate_service_charge' => $this->getAffiliateServiceCharge(),
+            'currency' => $this->getCurrency(),
             // 'links' => $this->getLinks(),
-			'booking_item' => $this->getBookingItem(),
+            'booking_item' => $this->getBookingItem(),
         ];
     }
 }
