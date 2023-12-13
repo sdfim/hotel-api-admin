@@ -285,7 +285,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingRetrieveBookingResponse"
+                                },
+                                "examples": {
+                                    "BookingRetrieveBookingResponse": {
+                                        "$ref": "#/components/examples/BookingRetrieveBookingResponse"
+                                    }
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "Unauthenticated",
@@ -727,7 +739,7 @@
                 ],
                 "summary": "Search Hotels",
                 "description": "Search for hotels by destination or coordinates.",
-                "operationId": "ea91c3820c47ac4933ae8dec40a05430",
+                "operationId": "5af502f242dd441cf71b77e34f3c3e32",
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
                     "required": true,
@@ -821,7 +833,7 @@
                 ],
                 "summary": "Delail Hotels",
                 "description": "Get detailed information about a hotel.",
-                "operationId": "8f91e35b0de03886e343d85976850e9e",
+                "operationId": "dbc9d1437c7b26a6abf9ce43b58e957b",
                 "parameters": [
                     {
                         "name": "type",
@@ -905,7 +917,7 @@
                 ],
                 "summary": "Search Price Hotels",
                 "description": "The **'/api/pricing/search'** endpoint, when used for hotel pricing, <br> is a critical part of a hotel booking API. <br> It enables users and developers to search for and obtain detailed pricing information related to hotel accommodations.",
-                "operationId": "c75b4cb1d8a7b7d741ee54e92451a0a5",
+                "operationId": "f8406b0ec4e71bd3a4ba68f7e0958831",
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
                     "required": true,
@@ -1817,6 +1829,345 @@
                                     }
                                 },
                                 "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "description": "Message (e.g., 'success').",
+                        "type": "string",
+                        "example": "success"
+                    }
+                },
+                "type": "object"
+            },
+            "BookingRetrieveBookingResponse": {
+                "title": "Booking Retrieve Booking Response",
+                "description": "Schema Booking Retrieve Booking Response",
+                "required": [
+                    "success",
+                    "data"
+                ],
+                "properties": {
+                    "success": {
+                        "description": "Success (e.g., 'true').",
+                        "type": "boolean",
+                        "example": "true"
+                    },
+                    "data": {
+                        "required": [
+                            "result"
+                        ],
+                        "properties": {
+                            "result": {
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "status",
+                                        "booking_id",
+                                        "booking_item",
+                                        "supplier",
+                                        "hotel_name",
+                                        "rooms",
+                                        "cancellation_terms",
+                                        "rate",
+                                        "total_price",
+                                        "total_tax",
+                                        "total_fees",
+                                        "total_net",
+                                        "affiliate_service_charge",
+                                        "currency",
+                                        "per_night_breakdown",
+                                        "board_basis",
+                                        "supplier_book_id",
+                                        "billing_contact",
+                                        "billing_email",
+                                        "billing_phone",
+                                        "query"
+                                    ],
+                                    "properties": {
+                                        "status": {
+                                            "description": "Status (e.g., 'booked').",
+                                            "type": "string",
+                                            "example": "booked"
+                                        },
+                                        "booking_id": {
+                                            "description": "Booking ID (e.g., '649b72dd-4b18-46fd-89d7-681b190df32d').",
+                                            "type": "string",
+                                            "example": "649b72dd-4b18-46fd-89d7-681b190df32d"
+                                        },
+                                        "booking_item": {
+                                            "description": "Booking Item (e.g., '925dc8ff-0456-439a-b5d0-549a3c360156').",
+                                            "type": "string",
+                                            "example": "925dc8ff-0456-439a-b5d0-549a3c360156"
+                                        },
+                                        "supplier": {
+                                            "description": "Supplier (e.g., 'Expedia').",
+                                            "type": "string",
+                                            "example": "Expedia"
+                                        },
+                                        "hotel_name": {
+                                            "description": "Hotel Name (e.g., 'Majestic Hotel-Spa Paris (94423175)').",
+                                            "type": "string",
+                                            "example": "Majestic Hotel-Spa Paris (94423175)"
+                                        },
+                                        "rooms": {
+                                            "type": "array",
+                                            "items": {
+                                                "required": [
+                                                    "checkin",
+                                                    "checkout",
+                                                    "number_of_adults",
+                                                    "given_name",
+                                                    "family_name",
+                                                    "room_name",
+                                                    "room_type"
+                                                ],
+                                                "properties": {
+                                                    "checkin": {
+                                                        "description": "Checkin (e.g., '2023-12-14').",
+                                                        "type": "string",
+                                                        "example": "2023-12-14"
+                                                    },
+                                                    "checkout": {
+                                                        "description": "Checkout (e.g., '2023-12-16').",
+                                                        "type": "string",
+                                                        "example": "2023-12-16"
+                                                    },
+                                                    "number_of_adults": {
+                                                        "description": "Number Of Adults (e.g., '3').",
+                                                        "type": "integer",
+                                                        "example": "3"
+                                                    },
+                                                    "given_name": {
+                                                        "description": "Given Name (e.g., 'Laurianne').",
+                                                        "type": "string",
+                                                        "example": "Laurianne"
+                                                    },
+                                                    "family_name": {
+                                                        "description": "Family Name (e.g., 'Bernier').",
+                                                        "type": "string",
+                                                        "example": "Bernier"
+                                                    },
+                                                    "room_name": {
+                                                        "description": "Room Name (e.g., 'Suite Prestige').",
+                                                        "type": "string",
+                                                        "example": "Suite Prestige"
+                                                    },
+                                                    "room_type": {
+                                                        "description": "Room Type (e.g., '').",
+                                                        "type": "string",
+                                                        "example": ""
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "cancellation_terms": {
+                                            "description": "Cancellation Terms (e.g., '').",
+                                            "type": "string",
+                                            "example": ""
+                                        },
+                                        "rate": {
+                                            "description": "Rate (e.g., '240031839').",
+                                            "type": "string",
+                                            "example": "240031839"
+                                        },
+                                        "total_price": {
+                                            "description": "Total Price (e.g., '632192').",
+                                            "type": "integer",
+                                            "example": "632192"
+                                        },
+                                        "total_tax": {
+                                            "description": "Total Tax (e.g., '57472').",
+                                            "type": "integer",
+                                            "example": "57472"
+                                        },
+                                        "total_fees": {
+                                            "description": "Total Fees (e.g., '33.04').",
+                                            "type": "number",
+                                            "example": "33.04"
+                                        },
+                                        "total_net": {
+                                            "description": "Total Net (e.g., '574720').",
+                                            "type": "integer",
+                                            "example": "574720"
+                                        },
+                                        "affiliate_service_charge": {
+                                            "description": "Affiliate Service Charge (e.g., '0').",
+                                            "type": "integer",
+                                            "example": "0"
+                                        },
+                                        "currency": {
+                                            "description": "Currency (e.g., 'JPY').",
+                                            "type": "string",
+                                            "example": "JPY"
+                                        },
+                                        "per_night_breakdown": {
+                                            "description": "Per Night Breakdown (e.g., '316096').",
+                                            "type": "integer",
+                                            "example": "316096"
+                                        },
+                                        "board_basis": {
+                                            "description": "Board Basis (e.g., '').",
+                                            "type": "string",
+                                            "example": ""
+                                        },
+                                        "supplier_book_id": {
+                                            "description": "Supplier Book ID (e.g., '7588412814912').",
+                                            "type": "string",
+                                            "example": "7588412814912"
+                                        },
+                                        "billing_contact": {
+                                            "required": [
+                                                "given_name",
+                                                "family_name",
+                                                "address"
+                                            ],
+                                            "properties": {
+                                                "given_name": {
+                                                    "description": "Given Name (e.g., 'Norma').",
+                                                    "type": "string",
+                                                    "example": "Norma"
+                                                },
+                                                "family_name": {
+                                                    "description": "Family Name (e.g., 'McDermott').",
+                                                    "type": "string",
+                                                    "example": "McDermott"
+                                                },
+                                                "address": {
+                                                    "required": [
+                                                        "line_1",
+                                                        "city",
+                                                        "state_province_code",
+                                                        "postal_code",
+                                                        "country_code"
+                                                    ],
+                                                    "properties": {
+                                                        "line_1": {
+                                                            "description": "Line 1 (e.g., '96107 Hassie Green').",
+                                                            "type": "string",
+                                                            "example": "96107 Hassie Green"
+                                                        },
+                                                        "city": {
+                                                            "description": "City (e.g., 'Ceasarchester').",
+                                                            "type": "string",
+                                                            "example": "Ceasarchester"
+                                                        },
+                                                        "state_province_code": {
+                                                            "description": "State Province Code (e.g., 'IA').",
+                                                            "type": "string",
+                                                            "example": "IA"
+                                                        },
+                                                        "postal_code": {
+                                                            "description": "Postal Code (e.g., '08042').",
+                                                            "type": "string",
+                                                            "example": "08042"
+                                                        },
+                                                        "country_code": {
+                                                            "description": "Country Code (e.g., 'AD').",
+                                                            "type": "string",
+                                                            "example": "AD"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "billing_email": {
+                                            "description": "Billing Email (e.g., '').",
+                                            "type": "string",
+                                            "example": ""
+                                        },
+                                        "billing_phone": {
+                                            "required": [
+                                                "country_code",
+                                                "area_code",
+                                                "number"
+                                            ],
+                                            "properties": {
+                                                "country_code": {
+                                                    "description": "Country Code (e.g., '1').",
+                                                    "type": "string",
+                                                    "example": "1"
+                                                },
+                                                "area_code": {
+                                                    "description": "Area Code (e.g., '487').",
+                                                    "type": "string",
+                                                    "example": "487"
+                                                },
+                                                "number": {
+                                                    "description": "Number (e.g., '5550077').",
+                                                    "type": "string",
+                                                    "example": "5550077"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "query": {
+                                            "required": [
+                                                "type",
+                                                "rating",
+                                                "checkin",
+                                                "checkout",
+                                                "currency",
+                                                "occupancy",
+                                                "destination"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "description": "Type (e.g., 'hotel').",
+                                                    "type": "string",
+                                                    "example": "hotel"
+                                                },
+                                                "rating": {
+                                                    "description": "Rating (e.g., '5').",
+                                                    "type": "integer",
+                                                    "example": "5"
+                                                },
+                                                "checkin": {
+                                                    "description": "Checkin (e.g., '2023-12-14').",
+                                                    "type": "string",
+                                                    "example": "2023-12-14"
+                                                },
+                                                "checkout": {
+                                                    "description": "Checkout (e.g., '2023-12-16').",
+                                                    "type": "string",
+                                                    "example": "2023-12-16"
+                                                },
+                                                "currency": {
+                                                    "description": "Currency (e.g., 'JPY').",
+                                                    "type": "string",
+                                                    "example": "JPY"
+                                                },
+                                                "occupancy": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "required": [
+                                                            "adults"
+                                                        ],
+                                                        "properties": {
+                                                            "adults": {
+                                                                "description": "Adults (e.g., '3').",
+                                                                "type": "integer",
+                                                                "example": "3"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "destination": {
+                                                    "description": "Destination (e.g., '93').",
+                                                    "type": "integer",
+                                                    "example": "93"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
                             }
                         },
                         "type": "object"
@@ -3350,6 +3701,151 @@
                             "booking_item": "f8287abe-52be-43a2-8354-b8c4327786a4",
                             "status": "This item is not in the cart"
                         }
+                    },
+                    "message": "success"
+                }
+            },
+            "BookingRetrieveBookingResponse": {
+                "summary": "Example Booking Retrieve Booking Response",
+                "value": {
+                    "success": true,
+                    "data": {
+                        "result": [
+                            {
+                                "status": "booked",
+                                "booking_id": "649b72dd-4b18-46fd-89d7-681b190df32d",
+                                "booking_item": "925dc8ff-0456-439a-b5d0-549a3c360156",
+                                "supplier": "Expedia",
+                                "hotel_name": "Majestic Hotel-Spa Paris (94423175)",
+                                "rooms": [
+                                    {
+                                        "checkin": "2023-12-14",
+                                        "checkout": "2023-12-16",
+                                        "number_of_adults": 3,
+                                        "given_name": "Laurianne",
+                                        "family_name": "Bernier",
+                                        "room_name": "Suite Prestige",
+                                        "room_type": ""
+                                    },
+                                    {
+                                        "checkin": "2023-12-14",
+                                        "checkout": "2023-12-16",
+                                        "number_of_adults": 1,
+                                        "given_name": "Kacey",
+                                        "family_name": "Rath",
+                                        "room_name": "Suite Prestige",
+                                        "room_type": ""
+                                    }
+                                ],
+                                "cancellation_terms": "",
+                                "rate": "240031839",
+                                "total_price": 632192,
+                                "total_tax": 57472,
+                                "total_fees": 33.04,
+                                "total_net": 574720,
+                                "affiliate_service_charge": 0,
+                                "currency": "JPY",
+                                "per_night_breakdown": 316096,
+                                "board_basis": "",
+                                "supplier_book_id": "7588412814912",
+                                "billing_contact": {
+                                    "given_name": "Norma",
+                                    "family_name": "McDermott",
+                                    "address": {
+                                        "line_1": "96107 Hassie Green",
+                                        "city": "Ceasarchester",
+                                        "state_province_code": "IA",
+                                        "postal_code": "08042",
+                                        "country_code": "AD"
+                                    }
+                                },
+                                "billing_email": "torrey.hodkiewicz@gmail.com",
+                                "billing_phone": {
+                                    "country_code": "1",
+                                    "area_code": "487",
+                                    "number": "5550077"
+                                },
+                                "query": {
+                                    "type": "hotel",
+                                    "rating": 5,
+                                    "checkin": "2023-12-14",
+                                    "checkout": "2023-12-16",
+                                    "currency": "JPY",
+                                    "occupancy": [
+                                        {
+                                            "adults": 3
+                                        },
+                                        {
+                                            "adults": 1
+                                        }
+                                    ],
+                                    "destination": 93
+                                }
+                            },
+                            {
+                                "status": "booked",
+                                "booking_id": "649b72dd-4b18-46fd-89d7-681b190df32d",
+                                "booking_item": "e54b926b-ab8e-4b1f-9a02-65f687de5b8b",
+                                "supplier": "Expedia",
+                                "hotel_name": "Beverly Wilshire,  A Four Seasons Hotel (63898582)",
+                                "rooms": [
+                                    {
+                                        "checkin": "2023-12-14",
+                                        "checkout": "2023-12-17",
+                                        "number_of_adults": 1,
+                                        "given_name": "Conrad",
+                                        "family_name": "Daniel",
+                                        "room_name": "Studio Suite, Accessible (Bw King)",
+                                        "room_type": ""
+                                    }
+                                ],
+                                "cancellation_terms": "",
+                                "rate": "206191181",
+                                "total_price": 521451,
+                                "total_tax": 69567,
+                                "total_fees": 0,
+                                "total_net": 451884,
+                                "affiliate_service_charge": 0,
+                                "currency": "JPY",
+                                "per_night_breakdown": 173817,
+                                "board_basis": "",
+                                "supplier_book_id": "7992195226011",
+                                "billing_contact": {
+                                    "given_name": "Norma",
+                                    "family_name": "McDermott",
+                                    "address": {
+                                        "line_1": "96107 Hassie Green",
+                                        "city": "Ceasarchester",
+                                        "state_province_code": "IA",
+                                        "postal_code": "08042",
+                                        "country_code": "AD"
+                                    }
+                                },
+                                "billing_email": "torrey.hodkiewicz@gmail.com",
+                                "billing_phone": {
+                                    "country_code": "1",
+                                    "area_code": "487",
+                                    "number": "5550077"
+                                },
+                                "query": {
+                                    "type": "hotel",
+                                    "rating": 5,
+                                    "checkin": "2023-12-14",
+                                    "checkout": "2023-12-17",
+                                    "currency": "JPY",
+                                    "occupancy": [
+                                        {
+                                            "adults": 1,
+                                            "children": 1,
+                                            "children_ages": [
+                                                6
+                                            ]
+                                        }
+                                    ],
+                                    "destination": 960
+                                }
+                            }
+                        ]
                     },
                     "message": "success"
                 }

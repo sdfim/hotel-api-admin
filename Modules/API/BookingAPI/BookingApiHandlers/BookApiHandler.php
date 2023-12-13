@@ -362,6 +362,12 @@ class BookApiHandler extends BaseController
      *    @OA\Response(
      *      response=200,
      *      description="OK",
+     *     @OA\JsonContent(
+     *     ref="#/components/schemas/BookingRetrieveBookingResponse",
+     *     examples={
+     *     "example1": @OA\Schema(ref="#/components/examples/BookingRetrieveBookingResponse", example="BookingRetrieveBookingResponse"),
+     *     }
+     *     )
      *    ),
      *    @OA\Response(
 	 *     response=401,
