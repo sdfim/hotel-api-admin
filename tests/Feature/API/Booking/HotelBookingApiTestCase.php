@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\API\Booking;
 
+use Faker\Provider\en_UG\Address;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
 use Tests\Feature\API\ApiTestCase;
@@ -52,10 +53,20 @@ class HotelBookingApiTestCase extends ApiTestCase
         return $addPassengersRequestResponse['success'];
     }
 
+    protected function hotelBook(string $bookingId): bool
+    {
+        $hotelBookData = $this->generateHotelBookData();
+
+        $bookResponse = $this->withHeaders($this->headers)
+            ->postJson("api/booking/book?booking_id=$bookingId", $hotelBookData);
+
+        return $bookResponse['success'];
+    }
+
     /**
-     * @return string
+     * @return array{booking_id: string, booking_item: string} Associative array with booking information.
      */
-    protected function createHotelBookingAndAddPassengersToBookingItem(): string
+    protected function createHotelBookingAndAddPassengersToBookingItem(): array
     {
         $createBooking = $this->createHotelBooking();
 
@@ -65,7 +76,28 @@ class HotelBookingApiTestCase extends ApiTestCase
 
         $this->addPassengersToBookingItem($bookingId, $bookingItem, $occupancy);
 
-        return $bookingId;
+        return [
+            'booking_id' => $bookingId,
+            'booking_item' => $bookingItem,
+        ];
+    }
+
+    /**
+     * @return array{booking_id: string, booking_item: string} Associative array with booking information.
+     */
+    protected function createHotelBookingAndAddPassengersToBookingItemAndHotelBook(): array
+    {
+        $bookingWithPassengers = $this->createHotelBookingAndAddPassengersToBookingItem();
+
+        $bookingId = $bookingWithPassengers['booking_id'];
+        $bookingItem = $bookingWithPassengers['booking_item'];
+
+        $this->hotelBook($bookingId);
+
+        return [
+            'booking_id' => $bookingId,
+            'booking_item' => $bookingItem,
+        ];
     }
 
     /**
@@ -119,6 +151,47 @@ class HotelBookingApiTestCase extends ApiTestCase
         }
 
         return $addPassengersRequestData;
+    }
+
+    /**
+     * @param bool $withCreditCard
+     * @return array
+     */
+    protected function generateHotelBookData(bool $withCreditCard = true): array
+    {
+        $data = [
+            'amount_pay' => $this->faker->randomElement(['Deposit', 'Full Payment']),
+            'booking_contact' => [
+                'first_name' => $this->faker->firstName,
+                'last_name' => $this->faker->lastName,
+                'email' => $this->faker->freeEmail,
+                'phone' => [
+                    'country_code' => 1,
+                    'area_code' => $this->faker->numberBetween(201, 989),
+                    'number' => $this->faker->numerify('########'),
+                ],
+                'address' => [
+                    'line_1' => $this->faker->streetAddress,
+                    'city' => $this->faker->city,
+                    'state_province_code' => Address::stateAbbr(),
+                    'postal_code' => Address::postcode(),
+                    'country_code' => 'US',
+                ],
+            ]
+        ];
+
+        if ($withCreditCard) {
+            $data['credit_card'] = [
+                'name_card' => $this->faker->creditCardType,
+                'number' => (int)$this->faker->creditCardNumber,
+                'card_type' => $this->faker->randomElement(['MSC', 'VISA', 'AMEX', 'DIS']),
+                'expiry_date' => $this->faker->creditCardExpirationDateString(true, 'm/Y'),
+                'cvv' => $this->faker->randomNumber(3),
+                'billing_address' => $this->faker->streetAddress,
+            ];
+        }
+
+        return $data;
     }
 
     /**
