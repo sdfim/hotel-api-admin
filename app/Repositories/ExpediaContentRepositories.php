@@ -72,6 +72,10 @@ class ExpediaContentRepositories
             ->name;
     }
 
+    /**
+     * @param int $hotel_id
+     * @return array
+     */
     public static function getHotelImagesByHotelId(int $hotel_id): array
     {
         $expedia = ExpediaContent::where('property_id', $hotel_id)
@@ -92,6 +96,10 @@ class ExpediaContentRepositories
         return $images;
     }
 
+    /**
+     * @param array $minMaxCoordinate
+     * @return array
+     */
     public static function getIdsByCoordinate(array $minMaxCoordinate): array
     {
         return GiataProperty::where('giata_properties.latitude', '>', $minMaxCoordinate['min_latitude'])

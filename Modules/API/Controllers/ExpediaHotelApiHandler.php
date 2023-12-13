@@ -144,12 +144,7 @@ class ExpediaHotelApiHandler
 
     public function detail(Request $request): object
     {
-        $expedia = new ExpediaContent();
-        $expedia_id = $expedia->getExpediaIdByGiataId($request->get('property_id'));
-
-        $results = $expedia
-            ->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
-            ->where('property_id', $expedia_id)->get();
+        $results = ExpediaRepositories::getDetailByGiataId($request->get('property_id'));
 
         return ExpediaRepositories::dtoDbToResponse($results, ExpediaContent::getFullListFields());
     }
