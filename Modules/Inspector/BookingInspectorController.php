@@ -2,7 +2,7 @@
 
 namespace Modules\Inspector;
 
-use App\Repositories\CannelRenository;
+use App\Repositories\ChannelRenository;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Channel;
@@ -30,7 +30,7 @@ class BookingInspectorController extends BaseInspectorController
         try {
             $this->current_time = microtime(true);
 
-            $token_id = CannelRenository::getTokenId(request()->bearerToken());
+            $token_id = ChannelRenository::getTokenId(request()->bearerToken());
             $search_id = $query['search_id'];
 			$booking_item = $query['booking_item'] ?? null;
             $query = json_encode($query);

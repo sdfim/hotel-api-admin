@@ -8,7 +8,7 @@ use App\Models\Reservation;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Models\ExpediaContent;
-use App\Repositories\CannelRenository;
+use App\Repositories\ChannelRenository;
 use Exception;
 use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
 use App\Repositories\ExpediaContentRepositories as ExpediaRepository;
@@ -33,7 +33,7 @@ class ExpediaTools
     public function saveAddItemToReservations(string $booking_id, array $filters, array $passenger): void
     {
         try {
-            $token_id = CannelRenository::getTokenId(request()->bearerToken());
+            $token_id = ChannelRenository::getTokenId(request()->bearerToken());
             $channel_id = Channel::where('token_id', $token_id)->first()->id;
 
 			$apiSearchInspector = ApiSearchInspector::where('search_id', $filters['search_id'])->first();

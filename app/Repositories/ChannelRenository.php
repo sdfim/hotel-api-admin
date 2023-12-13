@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Channel;
 
-class CannelRenository
+class ChannelRenository
 {
     /**
      * @param $token

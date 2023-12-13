@@ -30,7 +30,7 @@ use OpenApi\Annotations as OA;
  * path="/api/content",
  * )
  */
-class HotelApiHanlder extends BaseController implements ApiHandlerInterface
+class HotelApiHandler extends BaseController implements ApiHandlerInterface
 {
     private const SUPPLIER_NAME = 'Expedia';
 
@@ -189,7 +189,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
             return $this->sendResponse($res, 'success');
         } catch (Exception $e) {
-            \Log::error('HotelApiHanlder | search'.$e->getMessage());
+            \Log::error('HotelApiHandler | search'.$e->getMessage());
 
             return $this->sendError(['error' => $e->getMessage()], 'failed');
         }
@@ -312,7 +312,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
             return $this->sendResponse(['results' => $results], 'success');
         } catch (Exception $e) {
-            \Log::error('HotelApiHanlder '.$e->getMessage());
+            \Log::error('HotelApiHandler '.$e->getMessage());
 
             return $this->sendError(['error' => $e->getMessage()], 'failed');
         }
@@ -417,20 +417,20 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
                         $expediaResponse = Cache::get($keyPricingSearch.':content:'.self::SUPPLIER_NAME);
                     } else {
 
-                        \Log::info('HotelApiHanlder | price | expediaResponse | start');
+                        \Log::info('HotelApiHandler | price | expediaResponse | start');
                         $expediaResponse = $this->expedia->price($filters);
-                        \Log::info('HotelApiHanlder | price | expediaResponse | end');
+                        \Log::info('HotelApiHandler | price | expediaResponse | end');
 
                         Cache::put($keyPricingSearch.':content:'.self::SUPPLIER_NAME, $expediaResponse, now()->addMinutes(60));
                     }
 
                     $dataResponse[$supplierName] = $expediaResponse;
 
-                    \Log::info('HotelApiHanlder | price | ExpediaToHotelResponse | start');
+                    \Log::info('HotelApiHandler | price | ExpediaToHotelResponse | start');
                     $dtoData = $this->ExpediaHotelPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id);
                     $bookingItems = $dtoData['bookingItems'];
                     $clientResponse[$supplierName] = $dtoData['response'];
-                    \Log::info('HotelApiHanlder | price | ExpediaToHotelResponse | end');
+                    \Log::info('HotelApiHandler | price | ExpediaToHotelResponse | end');
 
                     $countResponse += count($expediaResponse);
                     $countClientResponse += count($clientResponse[$supplierName]);
@@ -452,7 +452,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
                 'results' => $clientResponse,
             ];
 
-            \Log::info('HotelApiHanlder | price | end');
+            \Log::info('HotelApiHandler | price | end');
 
             // save data to Inspector
             SaveSearchInspector::dispatch([
@@ -479,7 +479,7 @@ class HotelApiHanlder extends BaseController implements ApiHandlerInterface
 
             return $this->sendResponse($res, 'success');
         } catch (Exception $e) {
-            \Log::error('HotelApiHanlder '.$e->getMessage());
+            \Log::error('HotelApiHandler '.$e->getMessage());
 
             return $this->sendError(['error' => $e->getMessage()], 'failed');
         }

@@ -2,7 +2,7 @@
 
 namespace Modules\Inspector;
 
-use App\Repositories\CannelRenository;
+use App\Repositories\ChannelRenository;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Channel;
@@ -25,7 +25,7 @@ class SearchInspectorController extends BaseInspectorController
         try {
             $this->current_time = microtime(true);
 
-            $token_id = CannelRenository::getTokenId(request()->bearerToken());
+            $token_id = ChannelRenository::getTokenId(request()->bearerToken());
             $query = json_encode($query);
             $content = json_encode($content);
             $clientContent = json_encode($clientContent);

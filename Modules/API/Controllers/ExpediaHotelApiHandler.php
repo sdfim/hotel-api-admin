@@ -3,15 +3,12 @@
 namespace Modules\API\Controllers;
 
 use App\Models\ExpediaContent;
-use App\Repositories\ExpediaContentRepositories;
 use App\Repositories\ExpediaContentRepositories as ExpediaRepositories;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Tools\Geography;
-
 
 class ExpediaHotelApiHandler
 {
@@ -49,7 +46,7 @@ class ExpediaHotelApiHandler
             $expedia = new ExpediaContent();
 
             if (isset($filters['destination'])) {
-                $filters['ids'] = $expedia->getIdsByDestinationGiata($filters['destination']);
+                $filters['ids'] = ExpediaRepositories::getIdsByDestinationGiata($filters['destination']);
             } else {
                 $geography = new Geography();
                 $minMaxCoordinate = $geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
@@ -116,7 +113,7 @@ class ExpediaHotelApiHandler
 
     public function price(array $filters): ?array
     {
-        $output = [];
+
         try {
             $preSearchData = $this->preSearchData($filters);
             $filters = $preSearchData['filters'] ?? null;
@@ -124,6 +121,7 @@ class ExpediaHotelApiHandler
             // get PriceData from RapidAPI Expedia
             $priceData = $this->expediaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
 
+            $output = [];
             // add price to response
             foreach ($preSearchData['results']->toArray() as $value) {
                 if (isset($priceData[$value['property_id']])) {

@@ -9,7 +9,7 @@ use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
-use App\Repositories\CannelRenository;
+use App\Repositories\ChannelRenository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -222,7 +222,7 @@ class ExpediaBookApiHandler extends BaseController
      */
     public function listBookings(): array | null
     {
-        $token_id = CannelRenository::getTokenId(request()->bearerToken());
+        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
 
         # step 1 Read Booking Inspector, Get link  GET method from 'add_item | post_book'
         $list = BookingRepository::getAffiliateReferenceIdByChannel($token_id);

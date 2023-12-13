@@ -7,7 +7,7 @@ use App\Models\Channel;
 use App\Models\GiataGeography;
 use App\Models\PricingRule;
 use App\Models\Supplier;
-use App\Repositories\CannelRenository;
+use App\Repositories\ChannelRenository;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -60,8 +60,7 @@ class ExpediaHotelPricingDto
         $this->search_id = $search_id;
         $this->bookingItems = [];
 
-        $ch = new Channel();
-        $token = $ch->getTokenId(request()->bearerToken());
+        $token = ChannelRenository::getTokenId(request()->bearerToken());
         $this->channelId = Channel::where('token_id', $token)->first()->id;
 
         $this->supplierId = Supplier::where('name', 'Expedia')->first()->id;
