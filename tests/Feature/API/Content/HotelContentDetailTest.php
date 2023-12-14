@@ -16,9 +16,13 @@ class HotelContentDetailTest extends ApiTestCase
     public function test_hotel_detail_method_response_true()
     {
         $hotelSearchData = $this->hotelSearchData();
+
         $hotelSearchResponse = $this->withHeaders($this->headers)->postJson('/api/content/search', $hotelSearchData);
+
         $hotelInfo = $hotelSearchResponse['data']['results'];
+
         $hotelInfo = $hotelInfo['Expedia'][0];
+
         $hotelId = $hotelInfo['giata_hotel_code'];
 
         $hotelDetailResponse = $this->withHeaders($this->headers)->get("/api/content/detail?property_id=$hotelId&type=hotel");

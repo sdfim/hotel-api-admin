@@ -155,16 +155,16 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
         return [
             'passengers' => [
                 [
-					'title' => 'mr',
+                    'title' => 'mr',
                     'given_name' => 'John',
                     'family_name' => 'Portman',
-					'date_of_birth' => '1988-12-14'
-				],
+                    'date_of_birth' => '1988-12-14'
+                ],
                 [
-					'title' => 'mr',
+                    'title' => 'mr',
                     'given_name' => 'John',
                     'family_name' => 'Portman',
-					'date_of_birth' => '1988-12-14'
+                    'date_of_birth' => '1988-12-14'
                 ]
             ]
         ];
@@ -178,22 +178,22 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
         return [
             'passengers' => [
                 [
-					'title' => 'mr',
+                    'title' => 'mr',
                     'given_name' => 'John',
                     'family_name' => 'Portman',
-					'date_of_birth' => '1988-12-14'
+                    'date_of_birth' => '1988-12-14'
                 ],
                 [
-					'title' => 'ms',
+                    'title' => 'ms',
                     'given_name' => 'Dana',
                     'family_name' => 'Portman',
-					'date_of_birth' => '1988-12-14'
+                    'date_of_birth' => '1988-12-14'
                 ],
                 [
-					'title' => 'mr',
+                    'title' => 'mr',
                     'given_name' => 'Mikle',
                     'family_name' => 'Portman',
-					'date_of_birth' => '1988-12-14'
+                    'date_of_birth' => '1988-12-14'
                 ]
             ]
         ];

@@ -39,10 +39,12 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
     {
         $createBooking = $this->createHotelBooking();
 
+        $bookingId = $createBooking['booking_id'];
+
         $secondBookingItem = $createBooking['booking_items'][rand(1, count($createBooking['booking_items']))];
 
         $bookingAddItemResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-item?booking_item=$secondBookingItem&booking_id={$createBooking['booking_id']}");
+            ->postJson("api/booking/add-item?booking_item=$secondBookingItem&booking_id=$bookingId");
 
         $bookingAddItemResponse->assertStatus(200)
             ->assertJson([
@@ -63,6 +65,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
         $createBooking = $this->createHotelBooking();
 
         $bookingId = $createBooking['booking_id'];
+
         $firstBookingItem = $createBooking['booking_items'][0];
 
         $this->withHeaders($this->headers)
@@ -108,8 +111,10 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
 
         $createBooking = $this->createHotelBooking();
 
+        $bookingItem = $createBooking['booking_items'][0];
+
         $bookingAddItemResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-item?booking_item={$createBooking['booking_items'][0]}&booking_id=$nonExistentBookingId");
+            ->postJson("api/booking/add-item?booking_item=$bookingItem&booking_id=$nonExistentBookingId");
 
         $bookingAddItemResponse->assertStatus(400)
             ->assertJson([

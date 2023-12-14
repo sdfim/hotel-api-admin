@@ -126,7 +126,7 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
             'occupancy' => [
                 [
                     'adults' => 2,
-                    'children_ages' => [5,1]
+                    'children_ages' => [5, 1]
                 ],
                 [
                     'adults' => 3
@@ -146,16 +146,16 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
         return [
             'rooms' => [
                 [
-					'title' => 'mr',
+                    'title' => 'mr',
                     'given_name' => 'John',
                     'family_name' => 'Portman',
-					'date_of_birth' => Carbon::now()->addYears(- rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
+                    'date_of_birth' => Carbon::now()->addYears(-rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
                 ],
                 [
-					'title' => 'mr',
+                    'title' => 'mr',
                     'given_name' => 'John',
                     'family_name' => 'Portman',
-					'date_of_birth' => Carbon::now()->addYears(- rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
+                    'date_of_birth' => Carbon::now()->addYears(-rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
                 ]
             ]
         ];
@@ -169,22 +169,22 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
         return [
             'rooms' => [
                 [
-					'title' => 'mr',
+                    'title' => 'mr',
                     'given_name' => 'John',
                     'family_name' => 'Portman',
-					'date_of_birth' => Carbon::now()->addYears(- rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
+                    'date_of_birth' => Carbon::now()->addYears(-rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
                 ],
                 [
-					'title' => 'mr',
+                    'title' => 'mr',
                     'given_name' => 'Dana',
                     'family_name' => 'Portman',
-					'date_of_birth' => Carbon::now()->addYears(- rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
+                    'date_of_birth' => Carbon::now()->addYears(-rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
                 ],
                 [
-					'title' => 'mr',
+                    'title' => 'mr',
                     'given_name' => 'Mikle',
                     'family_name' => 'Portman',
-					'date_of_birth' => Carbon::now()->addYears(- rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
+                    'date_of_birth' => Carbon::now()->addYears(-rand(18, 70))->addMonths(rand(1, 12))->addDays(rand(1, 30))->toDateString(),
                 ]
             ]
         ];
