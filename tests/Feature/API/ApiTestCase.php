@@ -5,8 +5,8 @@ namespace Tests\Feature\API;
 use App\Models\Channel;
 use App\Models\Supplier;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class ApiTestCase extends TestCase
 {
