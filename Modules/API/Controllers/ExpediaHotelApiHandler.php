@@ -50,8 +50,8 @@ class ExpediaHotelApiHandler
             } else {
                 $geography = new Geography();
                 $minMaxCoordinate = $geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
-                $filters['ids'] = $expedia->getIdsByCoordinate($minMaxCoordinate);
-            }
+                $filters['ids'] = ExpediaRepositories::getIdsByCoordinate($minMaxCoordinate);
+            };
 
             $fields = isset($filters['fullList']) ? ExpediaContent::getFullListFields() : ExpediaContent::getShortListFields();
             $query = $expedia->select();
