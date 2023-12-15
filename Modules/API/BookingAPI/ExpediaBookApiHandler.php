@@ -130,6 +130,14 @@ class ExpediaBookApiHandler extends BaseController
             $bodyArr['payments'][$key]['type'] = self::PAYMENTS_TYPE;
         }
 
+        $special_requests = $filters['special_requests'] ?? [];
+        foreach ($special_requests as $special_request) {
+            if ($special_request['booking_item'] == $filters['booking_item'] &&
+                isset($bodyArr['rooms'][$special_request['room'] - 1])) {
+                $bodyArr['rooms'][$special_request['room'] - 1]['special_requests'] = $special_request['special_request'];
+            }
+        }
+
         $body = json_encode($bodyArr);
 
         try {

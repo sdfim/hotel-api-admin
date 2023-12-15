@@ -127,10 +127,19 @@ class BookApiHandler extends BaseController
             return $this->sendError(['error' => 'No items to book OR the order cart (booking_id) is complete/booked'], 'failed');
         }
 
+        if (isset($request->special_requests)) {
+            $arrItems = $items->pluck('booking_item')->toArray();
+            foreach ($request->special_requests as $item) {
+                if (!in_array($item['booking_item'], $arrItems)) {
+                    return $this->sendError(['error' => 'special_requests must be in valid booking_item. ' .
+                        'Valid booking_items: ' . implode(',', $arrItems)], 'failed');
+                }
+            }
+        }
+
         $data = [];
         foreach ($items as $item) {
             try {
-
                 $supplier = Supplier::where('id', $item->supplier_id)->first();
                 if ($supplier->name == self::EXPEDIA_SUPPLIER_NAME) {
                     $data[] = $this->expedia->book($filters, $item);
