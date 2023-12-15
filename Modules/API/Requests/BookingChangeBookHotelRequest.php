@@ -28,11 +28,11 @@ class BookingChangeBookHotelRequest extends ApiRequest
 			'booking_id' => 'required|size:36',
 			'booking_item' => 'required|size:36',
             'query' => 'required|array',
-            'query.given_name' => 'required|string|max:255',
-            'query.family_name' => 'required|string|max:255',
+            'query.given_name' => 'required|string|between:1,255',
+            'query.family_name' => 'required|string|between:1,255',
             'query.smoking' => 'required|boolean',
             'query.special_request' => 'string|max:255',
-            'query.loyalty_id' => 'string|max:10', 
+            'query.loyalty_id' => 'string|max:10',
         ];
     }
 

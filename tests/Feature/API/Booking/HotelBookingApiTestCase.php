@@ -101,6 +101,19 @@ class HotelBookingApiTestCase extends ApiTestCase
     }
 
     /**
+     * @param bool $withChildren if true then children will definitely be generated, otherwise randomly true/false
+     * @return array
+     */
+    protected function getHotelPricingSearchData(bool $withChildren = false): array
+    {
+        $pricingSearchRequestData = $this->generateHotelPricingSearchData($withChildren);
+
+        return $this->withHeaders($this->headers)
+            ->postJson('/api/pricing/search', $pricingSearchRequestData)
+            ->json();
+    }
+
+    /**
      * @param string $bookingItem
      * @param array $occupancy
      * @return array[]
@@ -195,16 +208,22 @@ class HotelBookingApiTestCase extends ApiTestCase
     }
 
     /**
-     * @param bool $withChildren if true then children will definitely be generated, otherwise randomly true/false
-     * @return array
+     * @param bool $randomSmoking
+     * When set to true, it indicates that the smoking preference should be randomly assigned (either true or false)
+     * using the rand(0, 1) function. If set to false (the default), the smoking preference will be explicitly set to false.
+     * @return array[]
      */
-    protected function getHotelPricingSearchData(bool $withChildren = false): array
+    protected function generateChangeBookingData(bool $randomSmoking = false): array
     {
-        $pricingSearchRequestData = $this->generateHotelPricingSearchData($withChildren);
-
-        return $this->withHeaders($this->headers)
-            ->postJson('/api/pricing/search', $pricingSearchRequestData)
-            ->json();
+        return [
+            'query' => [
+                'given_name' => $this->faker->firstName,
+                'family_name' => $this->faker->lastName,
+                'smoking' => $randomSmoking && rand(0, 1),
+                'special_request' => $this->faker->text(255),
+                'loyalty_id' => $this->faker->text(10)
+            ]
+        ];
     }
 
     /**
