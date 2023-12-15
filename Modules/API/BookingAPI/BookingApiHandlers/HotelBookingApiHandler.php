@@ -4,19 +4,18 @@ namespace Modules\API\BookingAPI\BookingApiHandlers;
 
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
-use App\Models\Supplier;
+use App\Repositories\ApiBookingInspectorRepository as BookingRepository ;
 use Exception;
+use Illuminate\Support\Facades\Log;
 use Modules\API\BaseController;
 use Modules\API\BookingAPI\BookingApiHandlerInterface;
 use Modules\API\Requests\BookingAddItemHotelRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
 use Modules\API\Requests\BookingRemoveItemHotelRequest;
 use Modules\Inspector\SearchInspectorController;
 use Modules\API\BookingAPI\ExpediaHotelBookingApiHandler;
-use Spatie\FlareClient\Api;
 
 /**
  * @OA\PathItem(
@@ -25,10 +24,6 @@ use Spatie\FlareClient\Api;
  */
 class HotelBookingApiHandler extends BaseController implements BookingApiHandlerInterface
 {
-	/**
-	 * @var SearchInspectorController
-	 */
-	private SearchInspectorController $apiInspector;
 	/**
 	 * @var ExpediaHotelBookingApiHandler
 	 */
@@ -43,7 +38,6 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 */
 	public function __construct()
 	{
-		$this->apiInspector = new SearchInspectorController();
 		$this->expedia = new ExpediaHotelBookingApiHandler();
 	}
 
@@ -76,7 +70,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 *     response=200,
 	 *     description="OK",
 	 *     @OA\JsonContent(
-	 *       ref="#/components/schemas/BookingAddItemResponse", 
+	 *       ref="#/components/schemas/BookingAddItemResponse",
 	 *		   examples={
 	 *             "example1": @OA\Schema(ref="#/components/examples/BookingAddItemResponse", example="BookingAddItemResponse"),
      *         },
@@ -109,22 +103,22 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	{
 		$validate = Validator::make($request->all(), (new BookingAddItemHotelRequest())->rules());
         if ($validate->fails()) return $this->sendError($validate->errors());
-		
+
 		$filters = $request->all();
 		$data = [];
 		try {
 			if (request()->has('booking_id')) {
 
-				if (ApiBookingInspector::isBook(request()->get('booking_id'), request()->get('booking_item'))) {
+				if (BookingRepository::isBook(request()->get('booking_id'), request()->get('booking_item'))) {
 					return $this->sendError([
 						'error' => 'booking_id - this cart is not available',
 						'message' => 'This cart is at the booking stage or beyond.'
 					]);
 				}
 
-				if (ApiBookingInspector::isDuplicate(request()->get('booking_id'), request()->get('booking_item'))) {
+				if (BookingRepository::isDuplicate(request()->get('booking_id'), request()->get('booking_item'))) {
 					return $this->sendError([
-						'error' => 'booking_item, booking_id pair is not unique.', 
+						'error' => 'booking_item, booking_id pair is not unique.',
 						'message' => 'This item is already in your cart.'
 					]);
 				}
@@ -135,8 +129,8 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 			$apiBookingItem = ApiBookingItem::where('booking_item', request()->get('booking_item'))->first()->toArray();
 			$filters['search_id'] = $apiBookingItem['search_id'];
 
-			$filters = array_merge($filters, $request->all());	
-			
+			$filters = array_merge($filters, $request->all());
+
 			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
 
 				$booking_item_data = json_decode($apiBookingItem['booking_item_data'], true);
@@ -149,7 +143,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 			}
 			// TODO: Add other suppliers
 		} catch (Exception $e) {
-			\Log::error('HotelBookingApiHandler | addItem ' . $e->getMessage());
+			Log::error('HotelBookingApiHandler | addItem ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 
@@ -188,7 +182,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 	 *     response=200,
 	 *     description="OK",
 	 *     @OA\JsonContent(
-	 *       ref="#/components/schemas/BookingRemoveItemResponse", 
+	 *       ref="#/components/schemas/BookingRemoveItemResponse",
 	 *		   examples={
 	 *             "example1": @OA\Schema(ref="#/components/examples/BookingRemoveItemResponse", example="BookingRemoveItemResponse"),
      *         },
@@ -231,7 +225,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 			// TODO: Add other suppliers
 
 		} catch (Exception $e) {
-			\Log::error('HotelBookingApiHandler | removeItem ' . $e->getMessage());
+			Log::error('HotelBookingApiHandler | removeItem ' . $e->getMessage());
 			return $this->sendError(['error' => $e->getMessage()], 'failed');
 		}
 
@@ -239,99 +233,4 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
 		return $this->sendResponse(['result' => $data['success']], 'success');
 	}
-
-	/**
-	 * @param Request $request
-	 * @param string $supplier
-	 * @return JsonResponse
-	 */
-	/**
-	 * @OA\Post(
-	 *   tags={"Booking API | Cart Endpoints"},
-	 *   path="/api/booking/add-passengers",
-	 *   summary="Add passengers to a booking.",
-	 *   description="Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
-	 *     @OA\Parameter(
-	 *       name="booking_id",
-	 *       in="query",
-	 *       required=true,
-	 *       description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
-	 *       In the response object for each rate is a **booking_id** property.",
-	 *     ),
-	 *     @OA\Parameter(
-	 *       name="booking_item",
-	 *       in="query",
-	 *       required=true,
-	 *       description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
-	 *       In the response object for each rate is a **booking_item** property.",
-	 *       example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-	 *     ),
-	 *     @OA\RequestBody(
-	 *     description="JSON object containing the details of the reservation.",
-	 *     required=true,
-	 *     @OA\JsonContent(    
-	 *       ref="#/components/schemas/BookingAddPassengersRequest", 
-	 *       examples={
-     *           "example1": @OA\Schema(ref="#/components/examples/BookingAddPassengersRequest", example="BookingAddPassengersRequest"),
-     *       },
-	 *     ),
-	 *   ),
-	 *   @OA\Response(
-	 *     response=200,
-	 *     description="OK",
-	 *     @OA\JsonContent(
-	 *       ref="#/components/schemas/BookingAddPassengersResponse",
-	 *       examples={
-	 *           "Add": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseAdd", example="BookingAddPassengersResponseAdd"),
-	 *           "Update": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseUpdate", example="BookingAddPassengersResponseUpdate"),
-	 *       },
-	 *     ),
-	 *   ),
-	 *   @OA\Response(
-	 *     response=400,
-	 *     description="Bad Request",
-	 *     @OA\JsonContent(
-	 *       ref="#/components/schemas/BookingAddPassengersResponse",
-	 *       examples={
-	 *       "Error": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseError", example="BookingAddPassengersResponseError"),
-	 *       },
-	 *     ),
-	 *   ),
-	 *   @OA\Response(
-	 *     response=401,
-	 *     description="Unauthenticated",
-	 *     @OA\JsonContent(
-	 *       ref="#/components/schemas/UnAuthenticatedResponse",
-	 *       examples={
-	 *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-	 *       }
-	 *     )
-	 *   ),
-	 *   security={{ "apiAuth": {} }}
-	 * )
-	 */
-	public function addPassengers(Request $request, string $supplier): JsonResponse
-	{
-		$filters = Validator::make($request->all(), (new AddPassengersRequest())->rules());
-        if ($filters->fails()) return $this->sendError($filters->errors());
-
-		try {
-			// TODO: add validation for request
-			$filters = $request->all();
-
-			$data = [];
-			if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
-				$data = $this->expedia->addPassengers($filters);
-			}
-			// TODO: Add other suppliers
-
-		} catch (Exception $e) {
-			\Log::error('HotelBookingApiHandler | listBookings ' . $e->getMessage());
-			return $this->sendError(['error' => $e->getMessage()], 'failed');
-		}
-
-		if (isset($data['error'])) return $this->sendError($data['error']);
-		return $this->sendResponse(['result' => $data['success']], 'success');
-	}
-
 }

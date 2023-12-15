@@ -34,6 +34,9 @@
                             "examples": {
                                 "BookingBookRequest": {
                                     "$ref": "#/components/examples/BookingBookRequest"
+                                },
+                                "BookingBookRequestExpedia": {
+                                    "$ref": "#/components/examples/BookingBookRequestExpedia"
                                 }
                             }
                         }
@@ -282,7 +285,19 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingRetrieveBookingResponse"
+                                },
+                                "examples": {
+                                    "BookingRetrieveBookingResponse": {
+                                        "$ref": "#/components/examples/BookingRetrieveBookingResponse"
+                                    }
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "Unauthenticated",
@@ -473,6 +488,95 @@
                 ]
             }
         },
+        "/api/booking/add-passengers": {
+            "post": {
+                "tags": [
+                    "Booking API | Cart Endpoints"
+                ],
+                "summary": "Add passengers to a booking.",
+                "description": "Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
+                "operationId": "f1e7873b33ca8fb0789766e4d30dfe8f",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n\t *       In the response object for each rate is a **booking_id** property.",
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "description": "JSON object containing the details of the reservation. If you don't pass booking_item(s), these passengers will be added to all booking_items that are in the cart (booking_id)",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingAddPassengersRequest"
+                            },
+                            "examples": {
+                                "BookingAddPassengersRequest": {
+                                    "$ref": "#/components/examples/BookingAddPassengersRequest"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
+                                },
+                                "examples": {
+                                    "BookingAddPassengersResponseAdd": {
+                                        "$ref": "#/components/examples/BookingAddPassengersResponseAdd"
+                                    },
+                                    "BookingAddPassengersResponseUpdate": {
+                                        "$ref": "#/components/examples/BookingAddPassengersResponseUpdate"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
+                                },
+                                "examples": {
+                                    "BookingAddPassengersResponseError": {
+                                        "$ref": "#/components/examples/BookingAddPassengersResponseError"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/booking/add-item": {
             "post": {
                 "tags": [
@@ -628,102 +732,6 @@
                 ]
             }
         },
-        "/api/booking/add-passengers": {
-            "post": {
-                "tags": [
-                    "Booking API | Cart Endpoints"
-                ],
-                "summary": "Add passengers to a booking.",
-                "description": "Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
-                "operationId": "0d08e953f2ed94194075f3d3e3e60b73",
-                "parameters": [
-                    {
-                        "name": "booking_id",
-                        "in": "query",
-                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n\t *       In the response object for each rate is a **booking_id** property.",
-                        "required": true
-                    },
-                    {
-                        "name": "booking_item",
-                        "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n\t *       In the response object for each rate is a **booking_item** property.",
-                        "required": true,
-                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-                    }
-                ],
-                "requestBody": {
-                    "description": "JSON object containing the details of the reservation.",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BookingAddPassengersRequest"
-                            },
-                            "examples": {
-                                "BookingAddPassengersRequest": {
-                                    "$ref": "#/components/examples/BookingAddPassengersRequest"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
-                                },
-                                "examples": {
-                                    "BookingAddPassengersResponseAdd": {
-                                        "$ref": "#/components/examples/BookingAddPassengersResponseAdd"
-                                    },
-                                    "BookingAddPassengersResponseUpdate": {
-                                        "$ref": "#/components/examples/BookingAddPassengersResponseUpdate"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
-                                },
-                                "examples": {
-                                    "BookingAddPassengersResponseError": {
-                                        "$ref": "#/components/examples/BookingAddPassengersResponseError"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                },
-                                "examples": {
-                                    "UnAuthenticatedResponse": {
-                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            }
-        },
         "/api/content/search": {
             "post": {
                 "tags": [
@@ -731,7 +739,7 @@
                 ],
                 "summary": "Search Hotels",
                 "description": "Search for hotels by destination or coordinates.",
-                "operationId": "ea91c3820c47ac4933ae8dec40a05430",
+                "operationId": "5af502f242dd441cf71b77e34f3c3e32",
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
                     "required": true,
@@ -825,7 +833,7 @@
                 ],
                 "summary": "Delail Hotels",
                 "description": "Get detailed information about a hotel.",
-                "operationId": "8f91e35b0de03886e343d85976850e9e",
+                "operationId": "dbc9d1437c7b26a6abf9ce43b58e957b",
                 "parameters": [
                     {
                         "name": "type",
@@ -909,7 +917,7 @@
                 ],
                 "summary": "Search Price Hotels",
                 "description": "The **'/api/pricing/search'** endpoint, when used for hotel pricing, <br> is a critical part of a hotel booking API. <br> It enables users and developers to search for and obtain detailed pricing information related to hotel accommodations.",
-                "operationId": "c75b4cb1d8a7b7d741ee54e92451a0a5",
+                "operationId": "f8406b0ec4e71bd3a4ba68f7e0958831",
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
                     "required": true,
@@ -1118,49 +1126,74 @@
             },
             "BookingAddPassengersRequest": {
                 "title": "Booking Add Passengers Request",
-                "description": "Schema Booking Add Passengers Reques",
+                "description": "Schema Booking Add Passengers Request",
                 "required": [
-                    "title",
-                    "first_name",
-                    "last_name",
-                    "rooms"
+                    "passengers"
                 ],
                 "properties": {
-                    "title": {
-                        "type": "string",
-                        "example": "mr"
-                    },
-                    "first_name": {
-                        "type": "string",
-                        "example": "John"
-                    },
-                    "last_name": {
-                        "type": "string",
-                        "example": "Portman"
-                    },
-                    "rooms": {
+                    "passengers": {
+                        "description": "Passengers",
                         "type": "array",
                         "items": {
                             "required": [
+                                "title",
                                 "given_name",
-                                "family_name"
+                                "family_name",
+                                "date_of_birth",
+                                "booking_items"
                             ],
                             "properties": {
+                                "title": {
+                                    "description": "Title",
+                                    "type": "string",
+                                    "example": "mr"
+                                },
                                 "given_name": {
+                                    "description": "Given Name",
                                     "type": "string",
                                     "example": "John"
                                 },
                                 "family_name": {
+                                    "description": "Family Name",
                                     "type": "string",
                                     "example": "Portman"
                                 },
-                                "date_birth_children": {
+                                "date_of_birth": {
+                                    "description": "Date of Birth",
                                     "type": "string",
-                                    "example": "2010-01-01"
+                                    "example": "2080-12-14"
+                                },
+                                "booking_items": {
+                                    "description": "Booking Items",
+                                    "type": "array",
+                                    "items": {
+                                        "required": [
+                                            "booking_item",
+                                            "room"
+                                        ],
+                                        "properties": {
+                                            "booking_item": {
+                                                "description": "Booking Item",
+                                                "type": "string",
+                                                "example": "bed7af51-836a-4d7e-8f82-8efe8b1825d4"
+                                            },
+                                            "room": {
+                                                "description": "Room",
+                                                "type": "string",
+                                                "example": "1"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
                                 }
                             },
                             "type": "object"
                         }
+                    },
+                    "booking_id": {
+                        "description": "Booking ID",
+                        "type": "string",
+                        "example": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e"
                     }
                 },
                 "type": "object"
@@ -1220,49 +1253,199 @@
                 "properties": {
                     "amount_pay": {
                         "type": "string",
+                        "enum": [
+                            "Deposit",
+                            "Full Payment"
+                        ],
                         "example": "Deposit"
                     },
-                    "email": {
-                        "description": "Email",
-                        "type": "string",
-                        "example": "john@example.com"
-                    },
-                    "phone": {
+                    "booking_contact": {
                         "required": [
-                            "country_code",
-                            "area_code",
-                            "number"
+                            "first_name",
+                            "last_name",
+                            "email",
+                            "phone",
+                            "address"
                         ],
                         "properties": {
-                            "country_code": {
+                            "first_name": {
                                 "type": "string",
-                                "example": "1"
+                                "example": "John"
                             },
-                            "area_code": {
+                            "last_name": {
                                 "type": "string",
-                                "example": "487"
+                                "example": "Smith"
                             },
-                            "number": {
+                            "email": {
                                 "type": "string",
-                                "example": "5550077"
+                                "format": "email",
+                                "example": "john@example.com"
+                            },
+                            "phone": {
+                                "required": [
+                                    "country_code",
+                                    "area_code",
+                                    "number"
+                                ],
+                                "properties": {
+                                    "country_code": {
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "area_code": {
+                                        "type": "string",
+                                        "example": "487"
+                                    },
+                                    "number": {
+                                        "type": "string",
+                                        "example": "5550077"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "address": {
+                                "required": [
+                                    "line_1",
+                                    "city",
+                                    "state_province_code",
+                                    "postal_code",
+                                    "country_code"
+                                ],
+                                "properties": {
+                                    "line_1": {
+                                        "type": "string",
+                                        "example": "555 1st St"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "Seattle"
+                                    },
+                                    "state_province_code": {
+                                        "type": "string",
+                                        "example": "WA"
+                                    },
+                                    "postal_code": {
+                                        "type": "string",
+                                        "example": "98121"
+                                    },
+                                    "country_code": {
+                                        "type": "string",
+                                        "example": "US"
+                                    }
+                                },
+                                "type": "object"
                             }
                         },
                         "type": "object"
                     },
+                    "credit_card": {
+                        "required": [
+                            "name_card",
+                            "number",
+                            "card_type",
+                            "expiry_date",
+                            "cvv",
+                            "billing_address"
+                        ],
+                        "properties": {
+                            "name_card": {
+                                "type": "string",
+                                "example": "Visa"
+                            },
+                            "number": {
+                                "type": "integer",
+                                "example": 4001919257537193
+                            },
+                            "card_type": {
+                                "type": "string",
+                                "enum": [
+                                    "VISA",
+                                    "MSC",
+                                    "AMEX",
+                                    "DIS"
+                                ],
+                                "example": "VISA"
+                            },
+                            "expiry_date": {
+                                "type": "string",
+                                "format": "m/Y",
+                                "example": "09/2026"
+                            },
+                            "cvv": {
+                                "type": "integer",
+                                "example": 123
+                            },
+                            "billing_address": {
+                                "type": "string",
+                                "example": ""
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "BookingBookRequestExpedia": {
+                "title": "Booking Book Request Expedia",
+                "description": "Schema Booking Book Request Expedia",
+                "required": [
+                    "amount_pay",
+                    "email",
+                    "phone",
+                    "booking_contact"
+                ],
+                "properties": {
+                    "amount_pay": {
+                        "type": "string",
+                        "enum": [
+                            "Deposit",
+                            "Full Payment"
+                        ],
+                        "example": "Deposit"
+                    },
                     "booking_contact": {
                         "required": [
-                            "given_name",
-                            "family_name",
+                            "first_name",
+                            "last_name",
+                            "email",
+                            "phone",
                             "address"
                         ],
                         "properties": {
-                            "given_name": {
+                            "first_name": {
                                 "type": "string",
                                 "example": "John"
                             },
-                            "family_name": {
+                            "last_name": {
                                 "type": "string",
                                 "example": "Smith"
+                            },
+                            "email": {
+                                "type": "string",
+                                "format": "email",
+                                "example": "john@example.com"
+                            },
+                            "phone": {
+                                "required": [
+                                    "country_code",
+                                    "area_code",
+                                    "number"
+                                ],
+                                "properties": {
+                                    "country_code": {
+                                        "type": "string",
+                                        "example": "1"
+                                    },
+                                    "area_code": {
+                                        "type": "string",
+                                        "example": "487"
+                                    },
+                                    "number": {
+                                        "type": "string",
+                                        "example": "5550077"
+                                    }
+                                },
+                                "type": "object"
                             },
                             "address": {
                                 "required": [
@@ -1646,6 +1829,345 @@
                                     }
                                 },
                                 "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "description": "Message (e.g., 'success').",
+                        "type": "string",
+                        "example": "success"
+                    }
+                },
+                "type": "object"
+            },
+            "BookingRetrieveBookingResponse": {
+                "title": "Booking Retrieve Booking Response",
+                "description": "Schema Booking Retrieve Booking Response",
+                "required": [
+                    "success",
+                    "data"
+                ],
+                "properties": {
+                    "success": {
+                        "description": "Success (e.g., 'true').",
+                        "type": "boolean",
+                        "example": "true"
+                    },
+                    "data": {
+                        "required": [
+                            "result"
+                        ],
+                        "properties": {
+                            "result": {
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "status",
+                                        "booking_id",
+                                        "booking_item",
+                                        "supplier",
+                                        "hotel_name",
+                                        "rooms",
+                                        "cancellation_terms",
+                                        "rate",
+                                        "total_price",
+                                        "total_tax",
+                                        "total_fees",
+                                        "total_net",
+                                        "affiliate_service_charge",
+                                        "currency",
+                                        "per_night_breakdown",
+                                        "board_basis",
+                                        "supplier_book_id",
+                                        "billing_contact",
+                                        "billing_email",
+                                        "billing_phone",
+                                        "query"
+                                    ],
+                                    "properties": {
+                                        "status": {
+                                            "description": "Status (e.g., 'booked').",
+                                            "type": "string",
+                                            "example": "booked"
+                                        },
+                                        "booking_id": {
+                                            "description": "Booking ID (e.g., '649b72dd-4b18-46fd-89d7-681b190df32d').",
+                                            "type": "string",
+                                            "example": "649b72dd-4b18-46fd-89d7-681b190df32d"
+                                        },
+                                        "booking_item": {
+                                            "description": "Booking Item (e.g., '925dc8ff-0456-439a-b5d0-549a3c360156').",
+                                            "type": "string",
+                                            "example": "925dc8ff-0456-439a-b5d0-549a3c360156"
+                                        },
+                                        "supplier": {
+                                            "description": "Supplier (e.g., 'Expedia').",
+                                            "type": "string",
+                                            "example": "Expedia"
+                                        },
+                                        "hotel_name": {
+                                            "description": "Hotel Name (e.g., 'Majestic Hotel-Spa Paris (94423175)').",
+                                            "type": "string",
+                                            "example": "Majestic Hotel-Spa Paris (94423175)"
+                                        },
+                                        "rooms": {
+                                            "type": "array",
+                                            "items": {
+                                                "required": [
+                                                    "checkin",
+                                                    "checkout",
+                                                    "number_of_adults",
+                                                    "given_name",
+                                                    "family_name",
+                                                    "room_name",
+                                                    "room_type"
+                                                ],
+                                                "properties": {
+                                                    "checkin": {
+                                                        "description": "Checkin (e.g., '2023-12-14').",
+                                                        "type": "string",
+                                                        "example": "2023-12-14"
+                                                    },
+                                                    "checkout": {
+                                                        "description": "Checkout (e.g., '2023-12-16').",
+                                                        "type": "string",
+                                                        "example": "2023-12-16"
+                                                    },
+                                                    "number_of_adults": {
+                                                        "description": "Number Of Adults (e.g., '3').",
+                                                        "type": "integer",
+                                                        "example": "3"
+                                                    },
+                                                    "given_name": {
+                                                        "description": "Given Name (e.g., 'Laurianne').",
+                                                        "type": "string",
+                                                        "example": "Laurianne"
+                                                    },
+                                                    "family_name": {
+                                                        "description": "Family Name (e.g., 'Bernier').",
+                                                        "type": "string",
+                                                        "example": "Bernier"
+                                                    },
+                                                    "room_name": {
+                                                        "description": "Room Name (e.g., 'Suite Prestige').",
+                                                        "type": "string",
+                                                        "example": "Suite Prestige"
+                                                    },
+                                                    "room_type": {
+                                                        "description": "Room Type (e.g., '').",
+                                                        "type": "string",
+                                                        "example": ""
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "cancellation_terms": {
+                                            "description": "Cancellation Terms (e.g., '').",
+                                            "type": "string",
+                                            "example": ""
+                                        },
+                                        "rate": {
+                                            "description": "Rate (e.g., '240031839').",
+                                            "type": "string",
+                                            "example": "240031839"
+                                        },
+                                        "total_price": {
+                                            "description": "Total Price (e.g., '632192').",
+                                            "type": "integer",
+                                            "example": "632192"
+                                        },
+                                        "total_tax": {
+                                            "description": "Total Tax (e.g., '57472').",
+                                            "type": "integer",
+                                            "example": "57472"
+                                        },
+                                        "total_fees": {
+                                            "description": "Total Fees (e.g., '33.04').",
+                                            "type": "number",
+                                            "example": "33.04"
+                                        },
+                                        "total_net": {
+                                            "description": "Total Net (e.g., '574720').",
+                                            "type": "integer",
+                                            "example": "574720"
+                                        },
+                                        "affiliate_service_charge": {
+                                            "description": "Affiliate Service Charge (e.g., '0').",
+                                            "type": "integer",
+                                            "example": "0"
+                                        },
+                                        "currency": {
+                                            "description": "Currency (e.g., 'JPY').",
+                                            "type": "string",
+                                            "example": "JPY"
+                                        },
+                                        "per_night_breakdown": {
+                                            "description": "Per Night Breakdown (e.g., '316096').",
+                                            "type": "integer",
+                                            "example": "316096"
+                                        },
+                                        "board_basis": {
+                                            "description": "Board Basis (e.g., '').",
+                                            "type": "string",
+                                            "example": ""
+                                        },
+                                        "supplier_book_id": {
+                                            "description": "Supplier Book ID (e.g., '7588412814912').",
+                                            "type": "string",
+                                            "example": "7588412814912"
+                                        },
+                                        "billing_contact": {
+                                            "required": [
+                                                "given_name",
+                                                "family_name",
+                                                "address"
+                                            ],
+                                            "properties": {
+                                                "given_name": {
+                                                    "description": "Given Name (e.g., 'Norma').",
+                                                    "type": "string",
+                                                    "example": "Norma"
+                                                },
+                                                "family_name": {
+                                                    "description": "Family Name (e.g., 'McDermott').",
+                                                    "type": "string",
+                                                    "example": "McDermott"
+                                                },
+                                                "address": {
+                                                    "required": [
+                                                        "line_1",
+                                                        "city",
+                                                        "state_province_code",
+                                                        "postal_code",
+                                                        "country_code"
+                                                    ],
+                                                    "properties": {
+                                                        "line_1": {
+                                                            "description": "Line 1 (e.g., '96107 Hassie Green').",
+                                                            "type": "string",
+                                                            "example": "96107 Hassie Green"
+                                                        },
+                                                        "city": {
+                                                            "description": "City (e.g., 'Ceasarchester').",
+                                                            "type": "string",
+                                                            "example": "Ceasarchester"
+                                                        },
+                                                        "state_province_code": {
+                                                            "description": "State Province Code (e.g., 'IA').",
+                                                            "type": "string",
+                                                            "example": "IA"
+                                                        },
+                                                        "postal_code": {
+                                                            "description": "Postal Code (e.g., '08042').",
+                                                            "type": "string",
+                                                            "example": "08042"
+                                                        },
+                                                        "country_code": {
+                                                            "description": "Country Code (e.g., 'AD').",
+                                                            "type": "string",
+                                                            "example": "AD"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "billing_email": {
+                                            "description": "Billing Email (e.g., '').",
+                                            "type": "string",
+                                            "example": ""
+                                        },
+                                        "billing_phone": {
+                                            "required": [
+                                                "country_code",
+                                                "area_code",
+                                                "number"
+                                            ],
+                                            "properties": {
+                                                "country_code": {
+                                                    "description": "Country Code (e.g., '1').",
+                                                    "type": "string",
+                                                    "example": "1"
+                                                },
+                                                "area_code": {
+                                                    "description": "Area Code (e.g., '487').",
+                                                    "type": "string",
+                                                    "example": "487"
+                                                },
+                                                "number": {
+                                                    "description": "Number (e.g., '5550077').",
+                                                    "type": "string",
+                                                    "example": "5550077"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "query": {
+                                            "required": [
+                                                "type",
+                                                "rating",
+                                                "checkin",
+                                                "checkout",
+                                                "currency",
+                                                "occupancy",
+                                                "destination"
+                                            ],
+                                            "properties": {
+                                                "type": {
+                                                    "description": "Type (e.g., 'hotel').",
+                                                    "type": "string",
+                                                    "example": "hotel"
+                                                },
+                                                "rating": {
+                                                    "description": "Rating (e.g., '5').",
+                                                    "type": "integer",
+                                                    "example": "5"
+                                                },
+                                                "checkin": {
+                                                    "description": "Checkin (e.g., '2023-12-14').",
+                                                    "type": "string",
+                                                    "example": "2023-12-14"
+                                                },
+                                                "checkout": {
+                                                    "description": "Checkout (e.g., '2023-12-16').",
+                                                    "type": "string",
+                                                    "example": "2023-12-16"
+                                                },
+                                                "currency": {
+                                                    "description": "Currency (e.g., 'JPY').",
+                                                    "type": "string",
+                                                    "example": "JPY"
+                                                },
+                                                "occupancy": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "required": [
+                                                            "adults"
+                                                        ],
+                                                        "properties": {
+                                                            "adults": {
+                                                                "description": "Adults (e.g., '3').",
+                                                                "type": "integer",
+                                                                "example": "3"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "destination": {
+                                                    "description": "Destination (e.g., '93').",
+                                                    "type": "integer",
+                                                    "example": "93"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
                             }
                         },
                         "type": "object"
@@ -2872,17 +3394,86 @@
             "BookingAddPassengersRequest": {
                 "summary": "Example Booking Add Passengers Request",
                 "value": {
-                    "title": "mr",
-                    "first_name": "John",
-                    "last_name": "Portman",
-                    "rooms": [
+                    "passengers": [
                         {
-                            "given_name": "John",
-                            "family_name": "Portman"
+                            "title": "mr",
+                            "given_name": "Adult1",
+                            "family_name": "Portman",
+                            "date_of_birth": "1988-12-14",
+                            "booking_items": [
+                                {
+                                    "booking_item": "387050aa-d06d-4587-aa67-2a32cfe2fc9e",
+                                    "room": "1"
+                                },
+                                {
+                                    "booking_item": "ec8436ac-93e8-47f6-8782-925c812c8e9f",
+                                    "room": "1"
+                                }
+                            ]
                         },
                         {
-                            "given_name": "John",
-                            "family_name": "Portman"
+                            "title": "mr",
+                            "given_name": "Adult2",
+                            "family_name": "Portman",
+                            "date_of_birth": "1988-12-14",
+                            "booking_items": [
+                                {
+                                    "booking_item": "387050aa-d06d-4587-aa67-2a32cfe2fc9e",
+                                    "room": "1"
+                                },
+                                {
+                                    "booking_item": "ec8436ac-93e8-47f6-8782-925c812c8e9f",
+                                    "room": "1"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "mr",
+                            "given_name": "Adult3",
+                            "family_name": "Portman",
+                            "date_of_birth": "1988-12-14",
+                            "booking_items": [
+                                {
+                                    "booking_item": "387050aa-d06d-4587-aa67-2a32cfe2fc9e",
+                                    "room": "2"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "mr",
+                            "given_name": "Adult4",
+                            "family_name": "Portman",
+                            "date_of_birth": "1988-12-14",
+                            "booking_items": [
+                                {
+                                    "booking_item": "387050aa-d06d-4587-aa67-2a32cfe2fc9e",
+                                    "room": "2"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "ms",
+                            "given_name": "Children1",
+                            "family_name": "Donald",
+                            "date_of_birth": "2010-01-18",
+                            "booking_items": [
+                                {
+                                    "booking_item": "ec8436ac-93e8-47f6-8782-925c812c8e9f",
+                                    "room": "1"
+                                }
+                            ]
+                        },
+                        {
+                            "title": "ms",
+                            "given_name": "Children2",
+                            "family_name": "Donald",
+                            "date_of_birth": "2009-09-18",
+                            "booking_items": [
+                                {
+                                    "booking_item": "ec8436ac-93e8-47f6-8782-925c812c8e9f",
+                                    "room": "1"
+                                }
+                            ]
                         }
                     ]
                 }
@@ -2892,11 +3483,18 @@
                 "value": {
                     "success": true,
                     "data": {
-                        "result": {
-                            "booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
-                            "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
-                            "status": "Passengers updated to booking."
-                        }
+                        "result": [
+                            {
+                                "booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+                                "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
+                                "status": "Passengers updated to booking."
+                            },
+                            {
+                                "booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+                                "booking_item": "50b8b1a0-a07e-4450-b4cc-075742e77be8",
+                                "status": "Passengers added to booking."
+                            }
+                        ]
                     },
                     "message": "success"
                 }
@@ -2906,11 +3504,18 @@
                 "value": {
                     "success": true,
                     "data": {
-                        "result": {
-                            "booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
-                            "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
-                            "status": "Passengers added to booking."
-                        }
+                        "result": [
+                            {
+                                "booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+                                "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
+                                "status": "Passengers added to booking."
+                            },
+                            {
+                                "booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+                                "booking_item": "50b8b1a0-a07e-4450-b4cc-075742e77be8",
+                                "status": "Passengers added to booking."
+                            }
+                        ]
                     },
                     "message": "success"
                 }
@@ -2922,7 +3527,7 @@
                     "error": {
                         "booking_id": "b1b7db09-6b53-480e-bece-53a2d5ef30d6",
                         "booking_item": "84fb55f2-5792-4958-b475-4c39ea787b5f",
-                        "status": "The number of rooms does not match the number of rooms in the search. Must be 2 rooms."
+                        "status": "This booking_item is not in the cart."
                     }
                 }
             },
@@ -2930,15 +3535,46 @@
                 "summary": "Example Booking Book Request",
                 "value": {
                     "amount_pay": "Deposit",
-                    "email": "john@example.com",
-                    "phone": {
-                        "country_code": "1",
-                        "area_code": "487",
-                        "number": "5550077"
-                    },
                     "booking_contact": {
-                        "given_name": "John",
-                        "family_name": "Smith",
+                        "first_name": "John",
+                        "last_name": "Smith",
+                        "email": "john@example.com",
+                        "phone": {
+                            "country_code": "1",
+                            "area_code": "487",
+                            "number": "5550077"
+                        },
+                        "address": {
+                            "line_1": "555 1st St",
+                            "city": "Seattle",
+                            "state_province_code": "WA",
+                            "postal_code": "98121",
+                            "country_code": "US"
+                        }
+                    },
+                    "credit_card": {
+                        "name_card": "Visa",
+                        "number": 4001919257537193,
+                        "card_type": "VISA",
+                        "expiry_date": "09/2026",
+                        "cvv": 123,
+                        "billing_address": ""
+                    }
+                }
+            },
+            "BookingBookRequestExpedia": {
+                "summary": "Example Booking Book Request Expedia",
+                "value": {
+                    "amount_pay": "Deposit",
+                    "booking_contact": {
+                        "first_name": "John",
+                        "last_name": "Smith",
+                        "email": "john@example.com",
+                        "phone": {
+                            "country_code": "1",
+                            "area_code": "487",
+                            "number": "5550077"
+                        },
                         "address": {
                             "line_1": "555 1st St",
                             "city": "Seattle",
@@ -2957,7 +3593,7 @@
                         {
                             "status": "booked",
                             "booking_id": "b1b7db09-6b53-480e-bece-53a2d5ef30d6",
-                            "bookring_item": "84fb55f2-5792-4958-b475-4c39ea787b5f",
+                            "booking_item": "84fb55f2-5792-4958-b475-4c39ea787b5f",
                             "supplier": "Expedia",
                             "hotel_name": "Sheraton New York Times Square Hotel (60295986)",
                             "rooms": {
@@ -3069,6 +3705,151 @@
                     "message": "success"
                 }
             },
+            "BookingRetrieveBookingResponse": {
+                "summary": "Example Booking Retrieve Booking Response",
+                "value": {
+                    "success": true,
+                    "data": {
+                        "result": [
+                            {
+                                "status": "booked",
+                                "booking_id": "649b72dd-4b18-46fd-89d7-681b190df32d",
+                                "booking_item": "925dc8ff-0456-439a-b5d0-549a3c360156",
+                                "supplier": "Expedia",
+                                "hotel_name": "Majestic Hotel-Spa Paris (94423175)",
+                                "rooms": [
+                                    {
+                                        "checkin": "2023-12-14",
+                                        "checkout": "2023-12-16",
+                                        "number_of_adults": 3,
+                                        "given_name": "Laurianne",
+                                        "family_name": "Bernier",
+                                        "room_name": "Suite Prestige",
+                                        "room_type": ""
+                                    },
+                                    {
+                                        "checkin": "2023-12-14",
+                                        "checkout": "2023-12-16",
+                                        "number_of_adults": 1,
+                                        "given_name": "Kacey",
+                                        "family_name": "Rath",
+                                        "room_name": "Suite Prestige",
+                                        "room_type": ""
+                                    }
+                                ],
+                                "cancellation_terms": "",
+                                "rate": "240031839",
+                                "total_price": 632192,
+                                "total_tax": 57472,
+                                "total_fees": 33.04,
+                                "total_net": 574720,
+                                "affiliate_service_charge": 0,
+                                "currency": "JPY",
+                                "per_night_breakdown": 316096,
+                                "board_basis": "",
+                                "supplier_book_id": "7588412814912",
+                                "billing_contact": {
+                                    "given_name": "Norma",
+                                    "family_name": "McDermott",
+                                    "address": {
+                                        "line_1": "96107 Hassie Green",
+                                        "city": "Ceasarchester",
+                                        "state_province_code": "IA",
+                                        "postal_code": "08042",
+                                        "country_code": "AD"
+                                    }
+                                },
+                                "billing_email": "torrey.hodkiewicz@gmail.com",
+                                "billing_phone": {
+                                    "country_code": "1",
+                                    "area_code": "487",
+                                    "number": "5550077"
+                                },
+                                "query": {
+                                    "type": "hotel",
+                                    "rating": 5,
+                                    "checkin": "2023-12-14",
+                                    "checkout": "2023-12-16",
+                                    "currency": "JPY",
+                                    "occupancy": [
+                                        {
+                                            "adults": 3
+                                        },
+                                        {
+                                            "adults": 1
+                                        }
+                                    ],
+                                    "destination": 93
+                                }
+                            },
+                            {
+                                "status": "booked",
+                                "booking_id": "649b72dd-4b18-46fd-89d7-681b190df32d",
+                                "booking_item": "e54b926b-ab8e-4b1f-9a02-65f687de5b8b",
+                                "supplier": "Expedia",
+                                "hotel_name": "Beverly Wilshire,  A Four Seasons Hotel (63898582)",
+                                "rooms": [
+                                    {
+                                        "checkin": "2023-12-14",
+                                        "checkout": "2023-12-17",
+                                        "number_of_adults": 1,
+                                        "given_name": "Conrad",
+                                        "family_name": "Daniel",
+                                        "room_name": "Studio Suite, Accessible (Bw King)",
+                                        "room_type": ""
+                                    }
+                                ],
+                                "cancellation_terms": "",
+                                "rate": "206191181",
+                                "total_price": 521451,
+                                "total_tax": 69567,
+                                "total_fees": 0,
+                                "total_net": 451884,
+                                "affiliate_service_charge": 0,
+                                "currency": "JPY",
+                                "per_night_breakdown": 173817,
+                                "board_basis": "",
+                                "supplier_book_id": "7992195226011",
+                                "billing_contact": {
+                                    "given_name": "Norma",
+                                    "family_name": "McDermott",
+                                    "address": {
+                                        "line_1": "96107 Hassie Green",
+                                        "city": "Ceasarchester",
+                                        "state_province_code": "IA",
+                                        "postal_code": "08042",
+                                        "country_code": "AD"
+                                    }
+                                },
+                                "billing_email": "torrey.hodkiewicz@gmail.com",
+                                "billing_phone": {
+                                    "country_code": "1",
+                                    "area_code": "487",
+                                    "number": "5550077"
+                                },
+                                "query": {
+                                    "type": "hotel",
+                                    "rating": 5,
+                                    "checkin": "2023-12-14",
+                                    "checkout": "2023-12-17",
+                                    "currency": "JPY",
+                                    "occupancy": [
+                                        {
+                                            "adults": 1,
+                                            "children": 1,
+                                            "children_ages": [
+                                                6
+                                            ]
+                                        }
+                                    ],
+                                    "destination": 960
+                                }
+                            }
+                        ]
+                    },
+                    "message": "success"
+                }
+            },
             "BookingRetrieveItemsResponse": {
                 "summary": "Example of Booking Retrieve Items Response",
                 "value": {
@@ -3101,12 +3882,16 @@
                                 "passengers": {
                                     "rooms": [
                                         {
+                                            "title": "mr",
                                             "given_name": "John",
-                                            "family_name": "Portman"
+                                            "family_name": "Portman",
+                                            "date_of_birth": "1980-01-01"
                                         },
                                         {
+                                            "title": "mr",
                                             "given_name": "John",
-                                            "family_name": "Portman"
+                                            "family_name": "Portman",
+                                            "date_of_birth": "1980-01-01"
                                         }
                                     ],
                                     "title": "mr",

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Resources\Booking;
+namespace Modules\API\Resources\Booking\Hotel;
 
 use OpenApi\Annotations as OA;
 
@@ -16,7 +16,6 @@ use OpenApi\Annotations as OA;
  *     type="boolean",
  *     description="Success status",
  *     example=true
- *     
  *     ),
  *     @OA\Property(
  *       property="result",
@@ -57,10 +56,17 @@ use OpenApi\Annotations as OA;
  * 	"success": true,
  * 	"data": {
  * 		"result": {
- * 			"booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
+ * 		{
+ * 			"booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
  * 			"booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
  * 			"status": "Passengers updated to booking."
- * 		}
+ * 		},
+ * 		{
+ * 			"booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+ * 			"booking_item": "50b8b1a0-a07e-4450-b4cc-075742e77be8",
+ * 			"status": "Passengers added to booking."
+ * 		},
+ * 	  }
  * 	},
  * 	"message": "success"
  * }
@@ -73,10 +79,17 @@ use OpenApi\Annotations as OA;
  * 	"success": true,
  * 	"data": {
  * 		"result": {
- * 			"booking_id": "5abcab52-00b0-423c-aafe-2fed6f6d1f4e",
+ * 		{
+ * 			"booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
  * 			"booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
  * 			"status": "Passengers added to booking."
- * 		}
+ * 		},
+ * 		{
+ * 			"booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+ * 			"booking_item": "50b8b1a0-a07e-4450-b4cc-075742e77be8",
+ * 			"status": "Passengers added to booking."
+ * 		},
+ * 	  }
  * 	},
  * 	"message": "success"
  * }
@@ -90,7 +103,7 @@ use OpenApi\Annotations as OA;
  *     "error": {
  *         "booking_id": "b1b7db09-6b53-480e-bece-53a2d5ef30d6",
  *         "booking_item": "84fb55f2-5792-4958-b475-4c39ea787b5f",
- *         "status": "The number of rooms does not match the number of rooms in the search. Must be 2 rooms."
+ *         "status": "This booking_item is not in the cart."
  *     }
  * }
  * )

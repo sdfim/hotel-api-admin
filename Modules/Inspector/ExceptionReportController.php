@@ -2,6 +2,7 @@
 
 namespace Modules\Inspector;
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\ApiExceptionReport;
 
@@ -25,7 +26,7 @@ class ExceptionReportController extends BaseInspectorController
             $path = 'exception_report_' . $level . '/' . date("Y-m-d") . '/' . $hash . '.json';
 
             Storage::put($path, $content);
-            \Log::debug('ExceptionReportController save to Storage: ' . $this->executionTime() . ' seconds');
+            Log::debug('ExceptionReportController save to Storage: ' . $this->executionTime() . ' seconds');
 
             $data = [
                 'report_id' => $uuid,
@@ -37,12 +38,12 @@ class ExceptionReportController extends BaseInspectorController
             ];
 
             $inspector = ApiExceptionReport::create($data);
-            \Log::debug('ExceptionReportController save to DB: ' . $this->executionTime() . ' seconds');
+            Log::debug('ExceptionReportController save to DB: ' . $this->executionTime() . ' seconds');
 
             return $inspector ? $uuid : false;
 
         } catch (\Exception $e) {
-            \Log::error('Error save ExceptionReportController: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
+            Log::error('Error save ExceptionReportController: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
 
             return false;
         }

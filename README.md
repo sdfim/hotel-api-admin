@@ -1,66 +1,247 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# API Documentation
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 1. Search Endpoint
 
-## About Laravel
+**Endpoint:** `api/content/search`
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**Method:** `POST`
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Request Body:**
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```json
+{
+  "type": "hotel",
+  "checkin": "2023-12-15",
+  "checkout": "2023-12-25",
+  "destination": 961,
+  "occupancy": [
+    {
+      "adults": 2
+    }
+  ]
+}
+```
 
-## Learning Laravel
+**Optional Parameters:**
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- `supplier`: The supplier name (e.g., "Expedia").
+- `currency`: The currency code (e.g., "USD").
+- `rating`: The minimum hotel rating (e.g., 4.0).
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+**Multiple Rooms:**
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```json
+"occupancy": [
+  {
+    "adults": 2,
+    "children_ages": [2,2]
+  },
+  {
+    "adults": 3
+  },
+  {
+    "adults": 1,
+    "children_ages": [2,0]
+  }
+]
+```
 
-## Laravel Sponsors
+**Response:**
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+The response contains the `search_id` and `booking_item` which can be used in subsequent endpoints.
 
-### Premium Partners
+## 2. Add Item Endpoint
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+**Endpoint:** `api/booking/add-item?booking_item={booking_item}`
 
-## Contributing
+**Method:** `POST`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+**Optional Parameters:**
 
-## Code of Conduct
+- `booking_id`: The ID of the booking to which the item should be added.
+- If we execute such a request without specifying the booking_id, then a new cart will be created and we will receive a booking_id.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- In order to put a booking_item into an existing cart (booking_id) in this endpoint we need to indicate the number of the cart in which we want to put the item
+api/booking/add-item?booking_item={booking_item}&booking_id={booking_id}
+This will add another item to the existing cart
 
-## Security Vulnerabilities
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 3. Retrieve Items Endpoint
 
-## License
+**Endpoint:** `api/booking/retrieve-items?booking_id={booking_id}`
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**Method:** `GET`
+
+- To see what is in a specific basket we use an endpoint api/booking/retrieve-items
+- At this point we can check whether Passengers are added for all booking_item.
+
+## 4. Remove Item Endpoint
+
+**Endpoint:** `api/booking/remove-item?booking_id={booking_id}&booking_item={booking_item}`
+
+**Method:** `DELETE`
+
+- Using this endpoint we can remove any item from the cart
+
+
+## 5. Add Passengers Endpoint
+
+**Endpoint:** `api/booking/add-passengers?booking_id={booking_id}`
+
+**Method:** `POST`
+
+**Request Body:**
+
+- In the example above we searched for three rooms.
+- In the first room we have two adults and two children.
+- In the second room there are three adults.
+- In the third room we have one adult and two children.
+
+- in this case, adding passengers for such an item may look like this:
+
+```json
+{
+    "passengers": [
+        {
+            "title": "mr",
+            "given_name": "Adult_1",
+            "family_name": "Gutkowski",
+            "date_of_birth": "1977-09-17",
+            "booking_items": [
+                {
+                    "booking_item": "26d22cfa-1456-40fb-b88f-9bd6300c4d9e",
+                    "room": 1
+                }
+            ]
+        },
+        {
+            "title": "mr",
+            "given_name": "Adult_2",
+            "family_name": "Jacobs",
+            "date_of_birth": "1980-08-23",
+            "booking_items": [
+                {
+                    "booking_item": "26d22cfa-1456-40fb-b88f-9bd6300c4d9e",
+                    "room": 1
+                }
+            ]
+        },
+        {
+            "title": "mr",
+            "given_name": "Adult_1",
+            "family_name": "Murray",
+            "date_of_birth": "1966-07-23",
+            "booking_items": [
+                {
+                    "booking_item": "26d22cfa-1456-40fb-b88f-9bd6300c4d9e",
+                    "room": 2
+                }
+            ]
+        },
+        {
+            "title": "mr",
+            "given_name": "Adult_2",
+            "family_name": "Cormier",
+            "date_of_birth": "1972-04-12",
+            "booking_items": [
+                {
+                    "booking_item": "26d22cfa-1456-40fb-b88f-9bd6300c4d9e",
+                    "room": 2
+                }
+            ]
+        },
+        {
+            "title": "mr",
+            "given_name": "Adult_3",
+            "family_name": "Tillman",
+            "date_of_birth": "1967-03-25",
+            "booking_items": [
+                {
+                    "booking_item": "26d22cfa-1456-40fb-b88f-9bd6300c4d9e",
+                    "room": 2
+                }
+            ]
+        },
+        {
+            "title": "mr",
+            "given_name": "Adult_1",
+            "family_name": "Beahan",
+            "date_of_birth": "1978-10-26",
+            "booking_items": [
+                {
+                    "booking_item": "26d22cfa-1456-40fb-b88f-9bd6300c4d9e",
+                    "room": 3
+                }
+            ]
+        },
+        {
+            "title": "mr",
+            "given_name": "Children_1",
+            "family_name": "Langosh",
+            "date_of_birth": "2021-11-06",
+            "booking_items": [
+                {
+                    "booking_item": "26d22cfa-1456-40fb-b88f-9bd6300c4d9e",
+                    "room": 1
+                }
+            ]
+        },
+        {
+            "title": "mr",
+            "given_name": "Children_2",
+            "family_name": "Langosh",
+            "date_of_birth": "2021-10-06",
+            "booking_items": [
+                {
+                    "booking_item": "26d22cfa-1456-40fb-b88f-9bd6300c4d9e",
+                    "room": 1
+                }
+            ]
+        },
+        {
+            "title": "mr",
+            "given_name": "Children_1",
+            "family_name": "Langosh",
+            "date_of_birth": "2021-11-06",
+            "booking_items": [
+                {
+                    "booking_item": "26d22cfa-1456-40fb-b88f-9bd6300c4d9e",
+                    "room": 3
+                }
+            ]
+        },
+        {
+            "title": "mr",
+            "given_name": "Children_2",
+            "family_name": "Langosh",
+            "date_of_birth": "2023-01-06",
+            "booking_items": [
+                {
+                    "booking_item": "26d22cfa-1456-40fb-b88f-9bd6300c4d9e",
+                    "room": 3
+                }
+            ]
+        }
+    ]
+}
+
+```
+
+**Notes:**
+
+- The number of adults, number of children, and the age of children when adding passengers must correspond to the parameters specified during the search.
+- The same passenger can be in different rooms.
+- The same passenger can be in different booking items.
+- The endpoint call can be performed multiple times with the same parameters; in this case, passenger data will be updated.
+- With one request you can add passengers for one or several booking items.
+
+## 6. Book Endpoint
+
+**Endpoint:** `api/booking/book?booking_id={booking_id}`
+
+**Method:** `POST`
+
+**Notes:**
+
+- After you add passengers for all booking items that are in the cart, you can go to this endpoint.
+- Use endpoint `api/booking/retrieve-items?booking_id={booking_id}` to check that passengers have been added for all booking items.

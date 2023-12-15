@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Resources\Booking;
+namespace Modules\API\Resources\Booking\Hotel;
 
 use OpenApi\Annotations as OA;
 
@@ -183,12 +183,16 @@ use OpenApi\Annotations as OA;
  *                 "passengers": {
  *                     "rooms": {
  *                         {
+ *                         	   "title": "mr",
  *                             "given_name": "John",
- *                             "family_name": "Portman"
+ *                             "family_name": "Portman",
+ *                             "date_of_birth": "1980-01-01",
  *                         },
  *                         {
+ *                         	   "title": "mr",
  *                             "given_name": "John",
- *                             "family_name": "Portman"
+ *                             "family_name": "Portman",
+ *                             "date_of_birth": "1980-01-01",
  *                         }
  *                     },
  *                     "title": "mr",

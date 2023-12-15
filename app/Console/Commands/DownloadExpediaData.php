@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Process;
 use GuzzleHttp\Client;
 use App\Models\GeneralConfiguration;
+use App\Models\Supplier;
 
 class DownloadExpediaData extends Command
 {
@@ -67,7 +68,7 @@ class DownloadExpediaData extends Command
     /**
      * @var int
      */
-    protected int $expedia_id;
+    protected int $expedia_id = 1;
     /**
      * @var string|null
      */
@@ -76,6 +77,7 @@ class DownloadExpediaData extends Command
      * @var string
      */
     protected string $savePath;
+
 
     /**
      * Create a new command instance.
@@ -87,8 +89,6 @@ class DownloadExpediaData extends Command
         parent::__construct();
         $this->rapidClient = $rapidClient;
         $this->apiExceptionReport = new ExceptionReportController();
-        // TODO: get expedia_id from suppliers table
-        $this->expedia_id = 1;
         $this->current_time['main'] = microtime(true);
         $this->current_time['step'] = microtime(true);
         $this->current_time['report'] = microtime(true);
@@ -101,6 +101,8 @@ class DownloadExpediaData extends Command
      */
     public function handle(): void
     {
+		$this->expedia_id = Supplier::where('name', 'Expedia')->first()->id;
+
         $this->type = $this->argument('type'); // content
         $this->step = $this->argument('step'); // 1, 2, 3, 4
         $this->report_id = Str::uuid()->toString();

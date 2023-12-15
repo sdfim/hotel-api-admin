@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Resources\Booking;
+namespace Modules\API\Resources\Booking\Hotel;
 
 use OpenApi\Annotations as OA;
 
@@ -207,7 +207,7 @@ use OpenApi\Annotations as OA;
  * 		{
  * 			"status": "booked",
  * 			"booking_id": "b1b7db09-6b53-480e-bece-53a2d5ef30d6",
- * 			"bookring_item": "84fb55f2-5792-4958-b475-4c39ea787b5f",
+ * 			"booking_item": "84fb55f2-5792-4958-b475-4c39ea787b5f",
  * 			"supplier": "Expedia",
  * 			"hotel_name": "Sheraton New York Times Square Hotel (60295986)",
  * 			"rooms": {

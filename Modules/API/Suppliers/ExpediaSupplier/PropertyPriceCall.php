@@ -4,6 +4,7 @@ namespace Modules\API\Suppliers\ExpediaSupplier;
 
 use Exception;
 use GuzzleHttp\Promise;
+use Illuminate\Support\Facades\Log;
 
 class PropertyPriceCall
 {
@@ -202,7 +203,7 @@ class PropertyPriceCall
             try {
                 $promises[$keyChunk] = $this->client->getAsync(self::PROPERTY_CONTENT_PATH, $queryParameters);
             } catch (Exception $e) {
-                \Log::error('Error while creating promise: ' . $e->getMessage());
+                Log::error('Error while creating promise: ' . $e->getMessage());
             }
         }
 
@@ -210,17 +211,16 @@ class PropertyPriceCall
             // $responses = Promise\Utils::unwrap($promises);
             $resolvedResponses = Promise\Utils::settle($promises)->wait();
 
-			$responses = [];
             foreach ($resolvedResponses as $response) {
                 if ($response['state'] === 'fulfilled') {
                     $data = $response['value']->getBody()->getContents();
                     $responses = array_merge($responses, json_decode($data, true));
                 } else {
-                    \Log::error('Promise for property_id ' . $this->propertyId . ' failed: ' . $response['reason']->getMessage());
+                    Log::error('Promise for property_id ' . $this->propertyId . ' failed: ' . $response['reason']->getMessage());
                 }
             }
         } catch (Exception $e) {
-            \Log::error('Error while processing promises: ' . $e->getMessage());
+            Log::error('Error while processing promises: ' . $e->getMessage());
         }
 
 		$res = [];

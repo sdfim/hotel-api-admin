@@ -31,11 +31,11 @@ use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
 |
 */
 
-Route::get('/', function () {
+Route::get('/admin/', function () {
     if (!Auth::check()) {
-        return redirect('/admin/login');
+        return redirect(config('app.url').'/admin/login');
     } else {
-        return redirect('/admin/reservations');
+        return redirect(config('app.url').'/admin/reservations');
     }
 })->name('root');
 

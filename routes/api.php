@@ -30,7 +30,7 @@ Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'booking'], function (
 	Route::post('/add-item',	[RouteBookingApiController::class, 'handle'])->name('addItem');
 	Route::delete('/remove-item', 	[RouteBookingApiController::class, 'handle'])->name('removeItem');
 	Route::get('/retrieve-items', [BookApiHandler::class, 'retrieveItems'])->name('retrieveItems');
-	Route::post('/add-passengers', 	[RouteBookingApiController::class, 'handle'])->name('addPassengers');
+	Route::post('/add-passengers', 	[BookApiHandler::class, 'addPassengers'])->name('addPassengers');
 
 	Route::post('/book', [BookApiHandler::class, 'book'])->name('book');
 	Route::get('/list-bookings', [BookApiHandler::class, 'listBookings'])->name('listBookings');

@@ -15,7 +15,7 @@ class HotelBookResponseModel
 	/**
 	 * @var string
 	 */
-	private string $bookring_item;	
+	private string $booking_item;
 	/**
 	 * @var string
 	 */
@@ -30,7 +30,7 @@ class HotelBookResponseModel
 	private array $rooms;
 	/**
 	 * @var string
-	 */	
+	 */
 	private string $cancellation_terms;
 	/**
 	 * @var string
@@ -64,7 +64,7 @@ class HotelBookResponseModel
 	 * @var string
 	 */
 	private float $per_night_breakdown;
-	
+
 	/**
 	 * @param string $status
 	 * @return void
@@ -100,20 +100,20 @@ class HotelBookResponseModel
 	}
 
 	/**
-	 * @param string $bookring_item
+	 * @param string $booking_item
 	 * @return void
 	 */
-	public function setBookringItem(string $bookring_item): void
+	public function setBookringItem(string $booking_item): void
 	{
-		$this->bookring_item = $bookring_item;
+		$this->booking_item = $booking_item;
 	}
-	
+
 	/**
 	 * @return string
 	 */
 	public function getBookringItem(): string
 	{
-		return $this->bookring_item;
+		return $this->booking_item;
 	}
 
 	/**
@@ -175,7 +175,7 @@ class HotelBookResponseModel
 	{
 		$this->cancellation_terms = $cancellation_terms;
 	}
-	
+
 	/**
 	 * @return string
 	 */
@@ -328,7 +328,7 @@ class HotelBookResponseModel
 		return [
 			'status' => $this->getStatus(),
 			'booking_id' => $this->getBookingId(),
-			'bookring_item' => $this->getBookringItem(),
+			'booking_item' => $this->getBookringItem(),
 			'supplier' => $this->getSupplier(),
 			'hotel_name' => $this->getHotelName(),
 			'rooms' => $this->getRooms(),

@@ -48,7 +48,48 @@ class HotelResponse
      * @var array
      */
     private array $room_groups;
+    /**
+     * @var string
+     */
+    private string $hotel_name;
+    /**
+     * @var string
+     */
+    private string $board_basis;
 
+    /**
+     * @return string
+     */
+    public function getHotelName(): string
+    {
+        return $this->hotel_name;
+    }
+
+    /**
+     * @param string $hotel_name
+     * @return void
+     */
+    public function setHotelName(string $hotel_name): void
+    {
+        $this->hotel_name = $hotel_name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getBoardBasis(): string
+    {
+        return $this->board_basis;
+    }
+
+    /**
+     * @param string $board_basis
+     * @return void
+     */
+    public function setBoardBasis(string $board_basis): void
+    {
+        $this->board_basis = $board_basis;
+    }
 
     /**
      * @param int $giata_hotel_id
@@ -244,6 +285,8 @@ class HotelResponse
     {
         return [
             'giata_hotel_id' => $this->getGiataHotelId(),
+            'hotel_name' => $this->getHotelName(),
+            'board_basis' => $this->getBoardBasis(),
             'supplier' => $this->getSupplier(),
             'supplier_hotel_id' => $this->getSupplierHotelId(),
             'destination' => $this->getDestination(),
@@ -253,7 +296,7 @@ class HotelResponse
             'pay_now_available' => $this->getPayNowAvailable(),
             'non_refundable_rates' => $this->getNonRefundableRates(),
             'refundable_rates' => $this->getRefundableRates(),
-            'room_groups' => $this->getRoomGroups()
+            'room_groups' => $this->getRoomGroups(),
         ];
     }
 
