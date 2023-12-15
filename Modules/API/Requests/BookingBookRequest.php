@@ -75,6 +75,12 @@ class BookingBookRequest extends ApiRequest
             $rules['credit_card.billing_address'] = 'nullable|string';
         }
 
+        if (request()->has('special_requests')) {
+            $rules['special_requests'] = 'array';
+            $rules['special_requests.*.booking_item'] = 'required|size:36';
+            $rules['special_requests.*.special_request'] = 'required|string|max:255';
+        }
+
         return $rules;
     }
 
