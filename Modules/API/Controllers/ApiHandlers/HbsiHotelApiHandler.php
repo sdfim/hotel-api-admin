@@ -53,7 +53,7 @@ class HbsiHotelApiHandler
             $results = $response->json();
 
         // TODO: This is an asynchronous call, we need to implement it with the RabbitMQ queue for write the data in the database
-        // $results = $this->fetchHotelAssets($results);
+         $results = $this->fetchHotelAssets($results);
 
         } else {
             Log::error('IceHBSIClient | search | error', [
