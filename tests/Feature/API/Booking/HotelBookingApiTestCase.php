@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\API\Booking;
 
+use Faker\Provider\en_UG\Address;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;
 use Tests\Feature\API\ApiTestCase;
@@ -52,10 +53,20 @@ class HotelBookingApiTestCase extends ApiTestCase
         return $addPassengersRequestResponse['success'];
     }
 
+    protected function hotelBook(string $bookingId): bool
+    {
+        $hotelBookData = $this->generateHotelBookData();
+
+        $bookResponse = $this->withHeaders($this->headers)
+            ->postJson("api/booking/book?booking_id=$bookingId", $hotelBookData);
+
+        return $bookResponse['success'];
+    }
+
     /**
-     * @return string
+     * @return array{booking_id: string, booking_item: string} Associative array with booking information.
      */
-    protected function createHotelBookingAndAddPassengersToBookingItem(): string
+    protected function createHotelBookingAndAddPassengersToBookingItem(): array
     {
         $createBooking = $this->createHotelBooking();
 
@@ -65,7 +76,41 @@ class HotelBookingApiTestCase extends ApiTestCase
 
         $this->addPassengersToBookingItem($bookingId, $bookingItem, $occupancy);
 
-        return $bookingId;
+        return [
+            'booking_id' => $bookingId,
+            'booking_item' => $bookingItem,
+        ];
+    }
+
+    /**
+     * @return array{booking_id: string, booking_item: string} Associative array with booking information.
+     */
+    protected function createHotelBookingAndAddPassengersToBookingItemAndHotelBook(): array
+    {
+        $bookingWithPassengers = $this->createHotelBookingAndAddPassengersToBookingItem();
+
+        $bookingId = $bookingWithPassengers['booking_id'];
+        $bookingItem = $bookingWithPassengers['booking_item'];
+
+        $this->hotelBook($bookingId);
+
+        return [
+            'booking_id' => $bookingId,
+            'booking_item' => $bookingItem,
+        ];
+    }
+
+    /**
+     * @param bool $withChildren if true then children will definitely be generated, otherwise randomly true/false
+     * @return array
+     */
+    protected function getHotelPricingSearchData(bool $withChildren = false): array
+    {
+        $pricingSearchRequestData = $this->generateHotelPricingSearchData($withChildren);
+
+        return $this->withHeaders($this->headers)
+            ->postJson('/api/pricing/search', $pricingSearchRequestData)
+            ->json();
     }
 
     /**
@@ -122,16 +167,63 @@ class HotelBookingApiTestCase extends ApiTestCase
     }
 
     /**
-     * @param bool $withChildren if true then children will definitely be generated, otherwise randomly true/false
+     * @param bool $withCreditCard
      * @return array
      */
-    protected function getHotelPricingSearchData(bool $withChildren = false): array
+    protected function generateHotelBookData(bool $withCreditCard = true): array
     {
-        $pricingSearchRequestData = $this->generateHotelPricingSearchData($withChildren);
+        $data = [
+            'amount_pay' => $this->faker->randomElement(['Deposit', 'Full Payment']),
+            'booking_contact' => [
+                'first_name' => $this->faker->firstName,
+                'last_name' => $this->faker->lastName,
+                'email' => $this->faker->freeEmail,
+                'phone' => [
+                    'country_code' => 1,
+                    'area_code' => $this->faker->numberBetween(201, 989),
+                    'number' => $this->faker->numerify('########'),
+                ],
+                'address' => [
+                    'line_1' => $this->faker->streetAddress,
+                    'city' => $this->faker->city,
+                    'state_province_code' => Address::stateAbbr(),
+                    'postal_code' => Address::postcode(),
+                    'country_code' => 'US',
+                ],
+            ]
+        ];
 
-        return $this->withHeaders($this->headers)
-            ->postJson('/api/pricing/search', $pricingSearchRequestData)
-            ->json();
+        if ($withCreditCard) {
+            $data['credit_card'] = [
+                'name_card' => $this->faker->creditCardType,
+                'number' => (int)$this->faker->creditCardNumber,
+                'card_type' => $this->faker->randomElement(['MSC', 'VISA', 'AMEX', 'DIS']),
+                'expiry_date' => $this->faker->creditCardExpirationDateString(true, 'm/Y'),
+                'cvv' => $this->faker->randomNumber(3),
+                'billing_address' => $this->faker->streetAddress,
+            ];
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param bool $randomSmoking
+     * When set to true, it indicates that the smoking preference should be randomly assigned (either true or false)
+     * using the rand(0, 1) function. If set to false (the default), the smoking preference will be explicitly set to false.
+     * @return array[]
+     */
+    protected function generateChangeBookingData(bool $randomSmoking = false): array
+    {
+        return [
+            'query' => [
+                'given_name' => $this->faker->firstName,
+                'family_name' => $this->faker->lastName,
+                'smoking' => $randomSmoking && rand(0, 1),
+                'special_request' => $this->faker->text(255),
+                'loyalty_id' => $this->faker->text(10)
+            ]
+        ];
     }
 
     /**

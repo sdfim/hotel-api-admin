@@ -15,10 +15,11 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
         $createBooking = $this->createHotelBooking();
 
         $bookingId = $createBooking['booking_id'];
+
         $firstBookingItem = $createBooking['booking_items'][0];
 
         $bookingRemoveItemResponse = $this->withHeaders($this->headers)
-            ->delete("api/booking/remove-item?booking_id=$bookingId&booking_item=$firstBookingItem");
+            ->deleteJson("api/booking/remove-item?booking_id=$bookingId&booking_item=$firstBookingItem");
 
         $bookingRemoveItemResponse->assertStatus(200)
             ->assertJson([
@@ -43,13 +44,14 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
         $createBooking = $this->createHotelBooking();
 
         $bookingId = $createBooking['booking_id'];
+
         $firstBookingItem = $createBooking['booking_items'][0];
 
         $this->withHeaders($this->headers)
-            ->delete("api/booking/remove-item?booking_id=$bookingId&booking_item=$firstBookingItem");
+            ->deleteJson("api/booking/remove-item?booking_id=$bookingId&booking_item=$firstBookingItem");
 
         $bookingRemoveItemResponse = $this->withHeaders($this->headers)
-            ->delete("api/booking/remove-item?booking_id=$bookingId&booking_item=$firstBookingItem");
+            ->deleteJson("api/booking/remove-item?booking_id=$bookingId&booking_item=$firstBookingItem");
 
         $bookingRemoveItemResponse->assertStatus(200)
             ->assertJson([
@@ -75,8 +77,10 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
 
         $createBooking = $this->createHotelBooking();
 
+        $bookingItem = $createBooking['booking_items'][0];
+
         $bookingRemoveItemResponse = $this->withHeaders($this->headers)
-            ->delete("api/booking/remove-item?booking_id=$nonExistentBookingId&booking_item={$createBooking['booking_items'][0]}");
+            ->deleteJson("api/booking/remove-item?booking_id=$nonExistentBookingId&booking_item=$bookingItem");
 
         $bookingRemoveItemResponse->assertStatus(400)
             ->assertJson([
@@ -94,8 +98,10 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
 
         $createBooking = $this->createHotelBooking();
 
+        $bookingId = $createBooking['booking_id'];
+
         $bookingRemoveItemResponse = $this->withHeaders($this->headers)
-            ->delete("api/booking/remove-item?booking_id={$createBooking['booking_id']}&booking_item=$nonExistentBookingItem");
+            ->deleteJson("api/booking/remove-item?booking_id=$bookingId&booking_item=$nonExistentBookingItem");
 
         $bookingRemoveItemResponse->assertStatus(400)
             ->assertJson([
@@ -111,8 +117,10 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
     {
         $createBooking = $this->createHotelBooking();
 
+        $bookingId = $createBooking['booking_id'];
+
         $bookingRemoveItemResponse = $this->withHeaders($this->headers)
-            ->delete("api/booking/remove-item?booking_id={$createBooking['booking_id']}&booking_item=");
+            ->deleteJson("api/booking/remove-item?booking_id=$bookingId&booking_item=");
 
         $bookingRemoveItemResponse->assertStatus(400)
             ->assertJson([
@@ -128,8 +136,10 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
     {
         $createBooking = $this->createHotelBooking();
 
+        $bookingItem = $createBooking['booking_items'][0];
+
         $bookingRemoveItemResponse = $this->withHeaders($this->headers)
-            ->delete("api/booking/remove-item?booking_item={$createBooking['booking_items'][0]}");
+            ->deleteJson("api/booking/remove-item?booking_item=$bookingItem");
 
         $bookingRemoveItemResponse->assertStatus(400)
             ->assertJson([
@@ -150,8 +160,10 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
     {
         $createBooking = $this->createHotelBooking();
 
+        $bookingId = $createBooking['booking_id'];
+
         $bookingRemoveItemResponse = $this->withHeaders($this->headers)
-            ->delete("api/booking/remove-item?booking_id={$createBooking['booking_id']}");
+            ->deleteJson("api/booking/remove-item?booking_id=$bookingId");
 
         $bookingRemoveItemResponse->assertStatus(400)
             ->assertJson([

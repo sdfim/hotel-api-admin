@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Tests\Feature\API\Booking\HotelBookingApiTestCase;
-use Faker\Provider\en_UG\Address;
 
 class HotelBookingBookTest extends HotelBookingApiTestCase
 {
@@ -16,7 +15,7 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     public function test_hotel_booking_book_method_response_200(): void
     {
-        $bookingId = $this->createHotelBookingAndAddPassengersToBookingItem();
+        $bookingId = $this->createHotelBookingAndAddPassengersToBookingItem()['booking_id'];
 
         $hotelBookData = $this->generateHotelBookData();
 
@@ -85,11 +84,10 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
         $bookResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'data' => [
+                'error' => [
                     'error' => 'Passengers not found.',
                     'booking_item' => $bookingItem
-                ],
-                'message' => 'error'
+                ]
             ]);
     }
 
@@ -1090,7 +1088,7 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
      */
     protected function sendBookRequestWithIncorrectData(array $keysToFail = []): TestResponse
     {
-        $bookingId = $this->createHotelBookingAndAddPassengersToBookingItem();
+        $bookingId = $this->createHotelBookingAndAddPassengersToBookingItem()['booking_id'];
 
         $wrongHotelBookData = $this->hotelBookData($keysToFail);
 
@@ -1237,47 +1235,6 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
                 $data['credit_card']['cvv'] = $this->faker->randomNumber(4, true);
             if (in_array('incorrect_type_credit_card_cvv', $keysToFail))
                 $data['credit_card']['cvv'] = Str::random(3);
-        }
-
-        return $data;
-    }
-
-    /**
-     * @param bool $withCreditCard
-     * @return array
-     */
-    protected function generateHotelBookData(bool $withCreditCard = true): array
-    {
-        $data = [
-            'amount_pay' => $this->faker->randomElement(['Deposit', 'Full Payment']),
-            'booking_contact' => [
-                'first_name' => $this->faker->firstName,
-                'last_name' => $this->faker->lastName,
-                'email' => $this->faker->freeEmail,
-                'phone' => [
-                    'country_code' => 1,
-                    'area_code' => $this->faker->numberBetween(201, 989),
-                    'number' => $this->faker->numerify('########'),
-                ],
-                'address' => [
-                    'line_1' => $this->faker->streetAddress,
-                    'city' => $this->faker->city,
-                    'state_province_code' => Address::stateAbbr(),
-                    'postal_code' => Address::postcode(),
-                    'country_code' => 'US',
-                ],
-            ]
-        ];
-
-        if ($withCreditCard) {
-            $data['credit_card'] = [
-                'name_card' => $this->faker->creditCardType,
-                'number' => (int)$this->faker->creditCardNumber,
-                'card_type' => $this->faker->randomElement(['MSC', 'VISA', 'AMEX', 'DIS']),
-                'expiry_date' => $this->faker->creditCardExpirationDateString(true, 'm/Y'),
-                'cvv' => $this->faker->randomNumber(3),
-                'billing_address' => $this->faker->streetAddress,
-            ];
         }
 
         return $data;
