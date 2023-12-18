@@ -2,12 +2,10 @@
 
 namespace Tests\Feature\API\Booking;
 
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Str;
 
 class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
 {
-    use WithFaker;
 
     /**
      * @test
