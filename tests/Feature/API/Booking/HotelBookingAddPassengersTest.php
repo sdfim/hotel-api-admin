@@ -55,7 +55,9 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
         $createBooking = $this->createHotelBooking();
 
         $bookingId = $createBooking['booking_id'];
+
         $bookingItem = $createBooking['booking_items'][0];
+
         $occupancy = $createBooking['hotel_pricing_request_data']['occupancy'];
 
         $addPassengersData = $this->generateAddPassengersData($bookingItem, $occupancy);
