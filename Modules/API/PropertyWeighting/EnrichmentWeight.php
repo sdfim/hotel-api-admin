@@ -7,9 +7,6 @@ use Illuminate\Support\Facades\Log;
 
 class EnrichmentWeight
 {
-    /**
-     * @var float|string
-     */
     protected float|string $current_time;
 
     public function __construct()
@@ -40,7 +37,7 @@ class EnrichmentWeight
             }
         }
 
-        Log::info('EnrichmentWeight | enrichmentContent  - ' . $this->executionTime() . 's');
+        Log::info('EnrichmentWeight | enrichmentContent  - '.$this->executionTime().'s');
 
         return $clientResponse;
     }
@@ -54,12 +51,12 @@ class EnrichmentWeight
     {
         $this->executionTime();
 
-        # step1 !isset supplier_id
+        // step1 !isset supplier_id
         $s1Weights = PropertyWeighting::where('supplier_id', null)->get();
         $s1WeightsProps = $s1Weights->pluck('property')->toArray();
         $s1WeightsVol = $s1Weights->pluck('weight', 'property')->toArray();
 
-        # step2 isset supplier_id
+        // step2 isset supplier_id
         $s2Weights = PropertyWeighting::whereNot('supplier_id', null)->get();
         $s2WeightsProps = $s2Weights->pluck('property')->toArray();
         $s2WeightsVol = $s2Weights->pluck('weight', 'property')->toArray();
@@ -77,7 +74,7 @@ class EnrichmentWeight
             }
         }
 
-        Log::info('EnrichmentWeight | api/pricing/search - ' . $this->executionTime() . 's');
+        Log::info('EnrichmentWeight | api/pricing/search - '.$this->executionTime().'s');
 
         return $clientResponse;
     }
