@@ -5,6 +5,7 @@ use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportChartController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
 use Modules\AdministrationSuite\Http\Controllers\GeographyController;
+use Modules\AdministrationSuite\Http\Controllers\IceHbsiController;
 use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\BookingItemsController;
@@ -59,6 +60,7 @@ Route::prefix('admin')->group(function () {
         Route::resource('reservations', ReservationsController::class)->except(['delete', 'store', 'create']);
         Route::resource('property-weighting', PropertyWeightingController::class)->only(['index', 'create', 'show', 'edit']);
         Route::resource('giata', GiataController::class)->except(['delete', 'store', 'create']);
+        Route::resource('ice-hbsi', IceHbsiController::class)->except(['delete', 'store', 'create']);
         Route::resource('expedia', ExpediaController::class)->except(['delete', 'store', 'create']);
         Route::get('/expedia-charts', [ExpediaController::class, 'charts'])->name('expedia_charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->except(['index', 'update', 'create']);

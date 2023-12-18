@@ -3,6 +3,7 @@
 namespace Modules\API\Controllers\ApiHandlers;
 
 use App\Models\GiataGeography;
+use App\Models\IceHbsiPropery;
 use App\Models\MapperHbsiGiata;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Request;
@@ -28,10 +29,6 @@ class HbsiHotelApiHandler
         $this->client = new IceHBSIClient();
     }
 
-    /**
-     * @param array $filters
-     * @return array
-     */
     public function search(array $filters): array
     {
         $geografyData = GiataGeography::where('city_id', $filters['destination'])->first();
@@ -52,8 +49,33 @@ class HbsiHotelApiHandler
         if ($response->successful()) {
             $results = $response->json();
 
-        // TODO: This is an asynchronous call, we need to implement it with the RabbitMQ queue for write the data in the database
-         $results = $this->fetchHotelAssets($results);
+            $ids = array_column($results['results'], 'listingID');
+            $existingProperties = IceHbsiPropery::whereIn('code', $ids)->get();
+            $existingPropertiesIds = $existingProperties->pluck('code')->toArray();
+
+            $resultsExistingProperties = [];
+            foreach ($existingProperties as $existingProperty) {
+                $resultsExistingProperties[$existingProperty->code] = $existingProperty;
+            }
+
+            $missingProperties = [];
+            foreach ($results['results'] as $key => $result) {
+                if (! in_array($result['listingID'], $existingPropertiesIds)) {
+                    $missingProperties['results'][] = $result;
+                    unset($results['results'][$key]);
+                } else {
+                    $results['results'][$key]['images'] = $resultsExistingProperties[$result['listingID']]->images;
+                    $results['results'][$key]['amenities'] = $resultsExistingProperties[$result['listingID']]->amenities;
+                }
+            }
+
+            // This is an asynchronous call to fetch the hotel assets
+            $resultsFromIseAsync = ['results' => []];
+            if (! empty($missingProperties)) {
+                $resultsFromIseAsync = $this->fetchHotelAssets($missingProperties);
+            }
+
+            $results['results'] = array_merge($resultsFromIseAsync['results'], $results['results']);
 
         } else {
             Log::error('IceHBSIClient | search | error', [
@@ -85,6 +107,7 @@ class HbsiHotelApiHandler
         });
 
         $icePortalAssetDto = new IcePortalAssetDto();
+        $batch = [];
         foreach ($responses as $key => $response) {
             $responseData = $response->json();
             Log::info('IceHBSIClient | search | response', [
@@ -93,9 +116,35 @@ class HbsiHotelApiHandler
             ]);
             $asset = $icePortalAssetDto->IcePortalToAssets($responseData['results']);
             if (isset($results['results'][$key])) {
+                if (! isset($results['results'][$key]['listingID'])) continue;
+
                 $results['results'][$key]['images'] = $asset['hotelImages'];
                 $results['results'][$key]['amenities'] = $asset['hotelAmenities'];
+
+                $batch[] = [
+                    'code' => $results['results'][$key]['listingID'],
+                    'supplier_id' => $results['results'][$key]['supplierId'],
+                    'name' => $results['results'][$key]['name'],
+                    'city' => $results['results'][$key]['address']['city'] ?? null,
+                    'state' => $results['results'][$key]['address']['state'] ?? null,
+                    'country' => $results['results'][$key]['country'] ?? null,
+                    'addressLine1' => $results['results'][$key]['address']['addressLine1'] ?? null,
+                    'phone' => $results['results'][$key]['phone'] ?? null,
+                    'latitude' => $results['results'][$key]['address']['latitude'] ?? null,
+                    'longitude' => $results['results'][$key]['address']['longitude'] ?? null,
+                    'editDate' => $results['results'][$key]['editDate'] ?? null,
+                    'amenities' => json_encode($asset['hotelAmenities']),
+                    'images' => json_encode($asset['hotelImages']),
+                ];
             }
+        }
+        try {
+            IceHbsiPropery::insert($batch);
+        } catch (\Exception $e) {
+            Log::error('IceHBSIClient | search | error', [
+                'message' => $e->getMessage(),
+                'error' => $e->getTraceAsString(),
+            ]);
         }
 
         return $results;
