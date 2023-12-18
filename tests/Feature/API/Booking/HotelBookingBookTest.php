@@ -84,11 +84,10 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
         $bookResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'data' => [
+                'error' => [
                     'error' => 'Passengers not found.',
                     'booking_item' => $bookingItem
-                ],
-                'message' => 'error'
+                ]
             ]);
     }
 

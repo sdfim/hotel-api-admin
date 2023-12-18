@@ -156,6 +156,12 @@ class BookApiHandler extends BaseController
             }
         }
 
+        foreach ($data as $item) {
+            if (isset($item['error'])) {
+                return $this->sendError($item);
+            }
+        }
+
         return $this->sendResponse($data, 'success');
     }
 
