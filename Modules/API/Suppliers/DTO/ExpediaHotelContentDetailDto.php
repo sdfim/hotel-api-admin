@@ -9,11 +9,7 @@ use Psr\Container\NotFoundExceptionInterface;
 
 class ExpediaHotelContentDetailDto
 {
-
     /**
-     * @param object $supplierResponse
-     * @param int $giata_id
-     * @return array
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -27,8 +23,8 @@ class ExpediaHotelContentDetailDto
         }
         $viewAmenities = request()->get('category_amenities') === 'true';
 
-        $address = $supplierResponse->address['line_1'] . ', ' .
-            $supplierResponse->address['city'] . ' - ' .
+        $address = $supplierResponse->address['line_1'].', '.
+            $supplierResponse->address['city'].' - '.
             $supplierResponse->address['postal_code'];
 
         $hotelResponse = new ContentDetailResponse();
@@ -40,7 +36,7 @@ class ExpediaHotelContentDetailDto
         $hotelResponse->setLatitude($supplierResponse->location['coordinates']['latitude']);
         $hotelResponse->setLongitude($supplierResponse->location['coordinates']['longitude']);
         $hotelResponse->setRating($supplierResponse->rating);
-		$amenities = $supplierResponse->amenities ? json_decode(json_encode($supplierResponse->amenities), true) : [];
+        $amenities = $supplierResponse->amenities ? json_decode(json_encode($supplierResponse->amenities), true) : [];
         if ($viewAmenities) {
             $hotelResponse->setAmenities($amenities);
         } else {
@@ -62,11 +58,11 @@ class ExpediaHotelContentDetailDto
         foreach ($supplierResponse->rooms as $room) {
             $amenities = $room->amenities ? json_decode(json_encode($room->amenities), true) : [];
             $images = [];
-			if (isset($room->images)) {
-				foreach ($room->images as $image) {
-					$images[] = $image->links->{'350px'}->href;
-				}
-			}
+            if (isset($room->images)) {
+                foreach ($room->images as $image) {
+                    $images[] = $image->links->{'350px'}->href;
+                }
+            }
             $roomResponse = new ContentDetailRoomsResponse();
             $roomResponse->setSupplierRoomId($room->id);
             $roomResponse->setSupplierRoomName($room->name);
