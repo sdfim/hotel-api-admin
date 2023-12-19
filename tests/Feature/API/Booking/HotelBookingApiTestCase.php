@@ -53,9 +53,15 @@ class HotelBookingApiTestCase extends ApiTestCase
         return $addPassengersRequestResponse['success'];
     }
 
-    protected function hotelBook(string $bookingId): bool
+    /**
+     * @param string $bookingId
+     * @param string $bookingItem
+     * @param array $occupancy
+     * @return bool
+     */
+    protected function hotelBook(string $bookingId, string $bookingItem, array $occupancy): bool
     {
-        $hotelBookData = $this->generateHotelBookData();
+        $hotelBookData = $this->generateHotelBookData($bookingItem, $occupancy);
 
         $bookResponse = $this->withHeaders($this->headers)
             ->postJson("api/booking/book?booking_id=$bookingId", $hotelBookData);
@@ -64,7 +70,7 @@ class HotelBookingApiTestCase extends ApiTestCase
     }
 
     /**
-     * @return array{booking_id: string, booking_item: string} Associative array with booking information.
+     * @return array{booking_id: string, booking_item: string, occupancy: array} Associative array with booking information.
      */
     protected function createHotelBookingAndAddPassengersToBookingItem(): array
     {
@@ -79,11 +85,12 @@ class HotelBookingApiTestCase extends ApiTestCase
         return [
             'booking_id' => $bookingId,
             'booking_item' => $bookingItem,
+            'occupancy' => $occupancy
         ];
     }
 
     /**
-     * @return array{booking_id: string, booking_item: string} Associative array with booking information.
+     * @return array{booking_id: string, booking_item: string, occupancy: array} Associative array with booking information.
      */
     protected function createHotelBookingAndAddPassengersToBookingItemAndHotelBook(): array
     {
@@ -91,12 +98,14 @@ class HotelBookingApiTestCase extends ApiTestCase
 
         $bookingId = $bookingWithPassengers['booking_id'];
         $bookingItem = $bookingWithPassengers['booking_item'];
+        $occupancy = $bookingWithPassengers['occupancy'];
 
-        $this->hotelBook($bookingId);
+        $this->hotelBook($bookingId, $bookingItem, $occupancy);
 
         return [
             'booking_id' => $bookingId,
             'booking_item' => $bookingItem,
+            'occupancy' => $occupancy
         ];
     }
 
@@ -167,10 +176,18 @@ class HotelBookingApiTestCase extends ApiTestCase
     }
 
     /**
+     * @param string $bookingItem
+     * @param array $occupancy
      * @param bool $withCreditCard
+     * @param bool $withSpecialRequests
      * @return array
      */
-    protected function generateHotelBookData(bool $withCreditCard = true): array
+    protected function generateHotelBookData(
+        string $bookingItem,
+        array  $occupancy,
+        bool   $withCreditCard = true,
+        bool   $withSpecialRequests = true
+    ): array
     {
         $data = [
             'amount_pay' => $this->faker->randomElement(['Deposit', 'Full Payment']),
@@ -202,6 +219,29 @@ class HotelBookingApiTestCase extends ApiTestCase
                 'cvv' => $this->faker->randomNumber(3),
                 'billing_address' => $this->faker->streetAddress,
             ];
+        }
+
+        if ($withSpecialRequests) {
+            foreach ($occupancy as $roomNumber => $room) {
+                $numberOfAdultsInRoom = $room['adults'];
+                $numberOfChildrenInRoom = isset($room['children_ages']) ? count($room['children_ages']) : 0;
+
+                for ($a = 0; $a < $numberOfAdultsInRoom; $a++) {
+                    $data['special_requests'][] = [
+                        'booking_item' => $bookingItem,
+                        'room' => $roomNumber + 1,
+                        'special_request' => $this->faker->text(255)
+                    ];
+                }
+
+                for ($c = 0; $c < $numberOfChildrenInRoom; $c++) {
+                    $data['special_requests'][] = [
+                        'booking_item' => $bookingItem,
+                        'room' => $roomNumber + 1,
+                        'special_request' => $this->faker->text(255)
+                    ];
+                }
+            }
         }
 
         return $data;
