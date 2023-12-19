@@ -16,7 +16,7 @@ class HbsiHotelApiHandler
 {
     private IceHBSIClient $client;
 
-    private const RESULT_PER_PAGE = 1000;
+    private const RESULT_PER_PAGE = 500;
 
     private const PAGE = 1;
 
@@ -43,7 +43,8 @@ class HbsiHotelApiHandler
             'includeSignaturePhoto' => 'true',
             'propertyType' => $filters['type'] ?? 'hotel',
             'page' => $filters['page'] ?? self::PAGE,
-            'pageSize' => $filters['results_per_page'] ?? self::RESULT_PER_PAGE,
+            'pageSize' => isset($filters['results_per_page']) && $filters['results_per_page'] <= 500 ?
+                $filters['results_per_page'] : self::RESULT_PER_PAGE,
         ]);
 
         if ($response->successful()) {
@@ -109,6 +110,7 @@ class HbsiHotelApiHandler
         $icePortalAssetDto = new IcePortalAssetDto();
         $batch = [];
         foreach ($responses as $key => $response) {
+
             $responseData = $response->json();
             Log::info('IceHBSIClient | search | response', [
                 'response' => $responseData,
