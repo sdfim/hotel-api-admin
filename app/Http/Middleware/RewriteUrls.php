@@ -19,9 +19,8 @@ class RewriteUrls
     {
         $path = $request->path();
         if (! str_contains($path, 'log-viewer')) {
-            URL::forceRootUrl(config('app.url').'/admin');
+            URL::forceRootUrl(config('app.url'));
         }
-
         return $next($request);
     }
 }
