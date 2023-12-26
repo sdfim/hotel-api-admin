@@ -1,11 +1,10 @@
 <?php
 
-namespace Feature\API\Booking;
+namespace Tests\Feature\API\Booking;
 
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
-use Tests\Feature\API\Booking\HotelBookingApiTestCase;
 
 class HotelBookingBookTest extends HotelBookingApiTestCase
 {

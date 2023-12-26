@@ -1,10 +1,9 @@
 <?php
 
-namespace Feature\API\Booking;
+namespace Tests\Feature\API\Booking;
 
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
-use Tests\Feature\API\Booking\HotelBookingApiTestCase;
 
 class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
 {
