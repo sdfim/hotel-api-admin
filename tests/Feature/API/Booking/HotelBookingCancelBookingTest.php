@@ -1,9 +1,8 @@
 <?php
 
-namespace Feature\API\Booking;
+namespace Tests\Feature\API\Booking;
 
 use Illuminate\Support\Str;
-use Tests\Feature\API\Booking\HotelBookingApiTestCase;
 
 class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
 {
