@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class IceHbsiPropery extends Model
+class IcePortalPropery extends Model
 {
     use HasFactory;
 
@@ -54,6 +54,6 @@ class IceHbsiPropery extends Model
 
     public function mapperHbsiGiata()
     {
-        return $this->hasMany(MapperHbsiGiata::class, 'hbsi_id', 'code');
+        return $this->hasMany(MapperIcePortalGiata::class, 'ice_portal_id', 'code');
     }
 }

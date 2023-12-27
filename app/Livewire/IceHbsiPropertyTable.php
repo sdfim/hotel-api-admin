@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\IceHbsiPropery;
+use App\Models\IcePortalPropery;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
@@ -22,7 +22,7 @@ class IceHbsiPropertyTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(IceHbsiPropery::query())
+            ->query(IcePortalPropery::query())
             ->columns([
                 TextColumn::make('code')
                     ->sortable()

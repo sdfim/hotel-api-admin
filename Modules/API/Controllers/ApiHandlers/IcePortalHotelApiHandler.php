@@ -3,8 +3,8 @@
 namespace Modules\API\Controllers\ApiHandlers;
 
 use App\Models\GiataGeography;
-use App\Models\IceHbsiPropery;
-use App\Models\MapperHbsiGiata;
+use App\Models\IcePortalPropery;
+use App\Models\MapperIcePortalGiata;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\DTO\IcePortalAssetDto;
 use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
 
-class HbsiHotelApiHandler
+class IcePortalHotelApiHandler
 {
     private IceHBSIClient $client;
 
@@ -22,7 +22,7 @@ class HbsiHotelApiHandler
 
     private const RATING = 4;
 
-    private const BHSI_MTYPE = 34347;
+    private const ICE_MTYPE = 34347;
 
     public function __construct()
     {
@@ -36,11 +36,12 @@ class HbsiHotelApiHandler
         $results = ['$results' => [], 'count' => '0'];
 
         $response = $this->client->get('/v1/listings', [
-            'mType' => self::BHSI_MTYPE,
+            'mType' => self::ICE_MTYPE,
             'countryCode' => $geografyData->country_code ?? 'US',
             'city' => $geografyData->city_name ?? 'New York',
             'info' => 'full',
             'includeSignaturePhoto' => 'true',
+            'isPublished' => 'true',
             'propertyType' => $filters['type'] ?? 'hotel',
             'page' => $filters['page'] ?? self::PAGE,
             'pageSize' => isset($filters['results_per_page']) && $filters['results_per_page'] <= 500 ?
@@ -51,7 +52,7 @@ class HbsiHotelApiHandler
             $results = $response->json();
 
             $ids = array_column($results['results'], 'listingID');
-            $existingProperties = IceHbsiPropery::whereIn('code', $ids)->get();
+            $existingProperties = IcePortalPropery::whereIn('code', $ids)->get();
             $existingPropertiesIds = $existingProperties->pluck('code')->toArray();
 
             $resultsExistingProperties = [];
@@ -141,7 +142,7 @@ class HbsiHotelApiHandler
             }
         }
         try {
-            IceHbsiPropery::insert($batch);
+            IcePortalPropery::insert($batch);
         } catch (\Exception $e) {
             Log::error('IceHBSIClient | search | error', [
                 'message' => $e->getMessage(),
@@ -158,14 +159,14 @@ class HbsiHotelApiHandler
      */
     public function detail(Request $request): array
     {
-        $id = MapperHbsiGiata::where('giata_id', $request->get('property_id'))->first();
+        $id = MapperIcePortalGiata::where('giata_id', $request->get('property_id'))->first();
 
         if (! $id) {
             return [];
         }
 
-        $response = $this->client->get('/v1/listings/'.$id->hbsi_id.'/', [
-            'mType' => self::BHSI_MTYPE,
+        $response = $this->client->get('/v1/listings/'.$id->ice_portal_id.'/', [
+            'mType' => self::ICE_MTYPE,
         ]);
 
         $results = [];
