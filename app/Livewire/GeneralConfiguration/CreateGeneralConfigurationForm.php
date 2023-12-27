@@ -79,7 +79,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->maxValue(120)
                     ->required(),
                 Select::make('currently_suppliers')
-                    ->label('Include these suppliers in the search')
+                    ->label('Include these suppliers in the search (PricingApi)')
                     ->multiple()
                     ->options(Supplier::all()->pluck('name', 'id'))
                     ->required(),
@@ -88,6 +88,10 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->numeric()
                     ->minValue(7)
                     ->maxValue(365)
+                    ->required(),
+                Select::make('content_supplier')
+                    ->label('Include this supplier in your search as a content supplier (ContentApi)')
+                    ->options(['Expedia' => 'Expedia', 'IcePortal' => 'IcePortal',  'Expedia, IcePortal' => 'Expedia, IcePortal'])
                     ->required(),
                 TextInput::make('time_inspector_retained')
                     ->label('How Long Inspector Data is retained, days')
@@ -126,6 +130,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
             $general_configuration_row->time_supplier_requests = $request->time_supplier_requests;
             $general_configuration_row->time_reservations_kept = $request->time_reservations_kept;
             $general_configuration_row->currently_suppliers = $request->currently_suppliers;
+            $general_configuration_row->content_supplier = $request->content_supplier;
             $general_configuration_row->time_inspector_retained = $request->time_inspector_retained;
             $general_configuration_row->star_ratings = $request->star_ratings;
             $general_configuration_row->stop_bookings = $request->stop_bookings;
@@ -138,6 +143,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
             $general_configuration[0]->time_supplier_requests = $request->time_supplier_requests;
             $general_configuration[0]->time_reservations_kept = $request->time_reservations_kept;
             $general_configuration[0]->currently_suppliers = $request->currently_suppliers;
+            $general_configuration[0]->content_supplier = $request->content_supplier;
             $general_configuration[0]->time_inspector_retained = $request->time_inspector_retained;
             $general_configuration[0]->star_ratings = $request->star_ratings;
             $general_configuration[0]->stop_bookings = $request->stop_bookings;

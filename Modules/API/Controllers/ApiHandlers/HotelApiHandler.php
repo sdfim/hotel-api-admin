@@ -41,13 +41,13 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
     private const SUPPLIER_NAME_EXPEDIA = 'Expedia';
 
-    private const SUPPLIER_NAME_HBSI = 'HBSI';
+    private const SUPPLIER_NAME_ICE_PORTAL = 'IcePortal';
 
     private SearchInspectorController $apiInspector;
 
     private ExpediaHotelApiHandler $expedia;
 
-    private HbsiHotelApiHandler $hbsi;
+    private IcePortalHotelApiHandler $icePortal;
 
     private ExpediaHotelPricingDto $ExpediaHotelPricingDto;
 
@@ -153,6 +153,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             $filters = $request->all();
 
+            $supplierNames = explode(', ', GeneralConfiguration::select('content_supplier')->pluck('content_supplier')->toArray()[0]);
+
             $keyPricingSearch = request()->get('type').':contentSearch:'.http_build_query(Arr::dot($filters));
 
             if (Cache::has($keyPricingSearch.':content') && Cache::has($keyPricingSearch.':clientContent')) {
@@ -160,12 +162,10 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $content = Cache::get($keyPricingSearch.':content');
                 $clientContent = Cache::get($keyPricingSearch.':clientContent');
             } else {
-
                 $dataResponse = [];
                 $clientResponse = [];
                 $count = [];
-                foreach ($suppliers as $supplier) {
-                    $supplierName = Supplier::find($supplier)->name;
+                foreach ($supplierNames as $supplierName) {
 
                     if (isset($request->supplier) && $request->supplier != $supplierName) {
                         continue;
@@ -180,21 +180,21 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $clientResponse[$supplierName] = $this->ExpediaHotelContentDto->ExpediaToContentSearchResponse($data);
                         Log::debug('HotelApiHandler | search | Expedia | runtime '.$this->duration('Expedia'));
                     }
-                    if ($supplierName == self::SUPPLIER_NAME_HBSI) {
-                        $this->start('HBSI');
-                        $this->hbsi = new HbsiHotelApiHandler();
-                        $supplierData = $this->hbsi->search($filters);
+                    if ($supplierName == self::SUPPLIER_NAME_ICE_PORTAL) {
+                        $this->start('ICE_PORTAL');
+                        $this->icePortal = new IcePortalHotelApiHandler();
+                        $supplierData = $this->icePortal->search($filters);
                         $data = $supplierData['results'];
                         $count[] = $supplierData['count'];
                         $propertyRepository = new GiataPropertyRepository();
-                        $dataWithGiata = $propertyRepository->associateByGiata($data, 'HBSI');
+                        $dataWithGiata = $propertyRepository->associateByGiata($data, 'ICE_PORTAL');
                         $dataResponse[$supplierName] = $dataWithGiata;
                         if ($request->supplier_data == 'true') {
                             $clientResponse[$supplierName] = $dataWithGiata;
                         } else {
                             $clientResponse[$supplierName] = $this->HbsiHotelContentDto->HbsiToContentSearchResponse($dataWithGiata);
                         }
-                        Log::debug('HotelApiHandler | search | HBSI | runtime '.$this->duration('HBSI'));
+                        Log::debug('HotelApiHandler | search | ICE_PORTAL | runtime '.$this->duration('ICE_PORTAL'));
                     }
                     // TODO: Add other suppliers
                 }
@@ -221,6 +221,17 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $res = $content;
             } else {
                 $res = $clientContent;
+            }
+
+            $res['count'] = $res['count'][0];
+            if (count($supplierNames) > 1) {
+                $contentSupplier = $request->supplier ?? 'Expedia';
+                $res['results']['general'] = $res['results'][$contentSupplier] ?? [];
+                $res['content_supplier'] = $contentSupplier;
+            } else {
+                $res['results']['general'] = $res['results'][$supplierNames[0]] ?? [];
+                unset($res['results'][$supplierNames[0]]);
+                $res['content_supplier'] = $supplierNames[0];
             }
 
             return $this->sendResponse($res, 'success');
@@ -316,6 +327,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 return $this->sendError($validate->errors());
             }
 
+            $supplierNames = explode(', ', GeneralConfiguration::select('content_supplier')->pluck('content_supplier')->toArray()[0]);
+
             $keyPricingSearch = request()->get('type').':contentDetail:'.http_build_query(Arr::dot($request->all()));
 
             if (Cache::has($keyPricingSearch.':dataResponse') && Cache::has($keyPricingSearch.':clientResponse')) {
@@ -326,8 +339,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                 $dataResponse = [];
                 $clientResponse = [];
-                foreach ($suppliers as $supplier) {
-                    $supplierName = Supplier::find($supplier)->name;
+                foreach ($supplierNames  as $supplierName) {
+//                    $supplierName = Supplier::find($supplier)->name;
 
                     if (isset($request->supplier) && $request->supplier != $supplierName) {
                         continue;
@@ -343,9 +356,9 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                             $clientResponse[$supplierName] = [];
                         }
                     }
-                    if ($supplierName == self::SUPPLIER_NAME_HBSI) {
-                        $this->hbsi = new HbsiHotelApiHandler();
-                        $data = $this->hbsi->detail($request);
+                    if ($supplierName == self::SUPPLIER_NAME_ICE_PORTAL) {
+                        $this->icePortal = new IcePortalHotelApiHandler();
+                        $data = $this->icePortal->detail($request);
 
                         $dataResponse[$supplierName] = $data;
                         if (count($data) > 0) {
@@ -367,7 +380,16 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $results = $clientResponse;
             }
 
-            return $this->sendResponse(['results' => $results], 'success');
+            if (count($supplierNames) > 1) {
+                $contentSupplier = $request->supplier ?? 'Expedia';
+                $results['general'] = $results[$contentSupplier] ?? [];
+            } else {
+                $results['general'] = $results[$supplierNames[0]] ?? [];
+                unset($results[$supplierNames[0]]);
+                $contentSupplier = $supplierNames[0];
+            }
+
+            return $this->sendResponse(['results' => $results, 'content_supplier' => $contentSupplier], 'success');
         } catch (Exception $e) {
             \Log::error('HotelApiHandler '.$e->getMessage());
 

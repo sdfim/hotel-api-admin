@@ -3,7 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\GiataProperty;
-use App\Models\MapperHbsiGiata;
+use App\Models\MapperIcePortalGiata;
 use App\Traits\Timer;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Tools\GiataPropertySearch;
@@ -20,7 +20,7 @@ class GiataPropertyRepository
 
     private GiataPropertySearch $giataPropertySearch;
 
-    private array $batchHbsi = [];
+    private array $batchIcePortal = [];
 
     private array $listBatchHbsi = [];
 
@@ -59,28 +59,28 @@ class GiataPropertyRepository
         $this->giataPropertySearch = new GiataPropertySearch();
         $this->availableElasticSearch = $this->giataPropertySearch->available();
 
-        if ($supplier == 'HBSI') {
+        if ($supplier == 'ICE_PORTAL') {
 
             $hotelsIds = array_column($supplierData, 'listingID');
 
-            $mapperHbsiGiataTable = MapperHbsiGiata::whereIn('hbsi_id', $hotelsIds)->get();
-            $mapperHbsiGiata = [];
-            foreach ($mapperHbsiGiataTable as $item) {
-                $mapperHbsiGiata[$item->getRawOriginal('hbsi_id')] = [
+            $mapperIcePortalGiataTable = MapperIcePortalGiata::whereIn('ice_portal_id', $hotelsIds)->get();
+            $mapperIcePortalGiata = [];
+            foreach ($mapperIcePortalGiataTable as $item) {
+                $mapperIcePortalGiata[$item->getRawOriginal('ice_portal_id')] = [
                     'giata_code' => $item->getRawOriginal('giata_id'),
                     'perc' => $item->getRawOriginal('perc'),
                 ];
             }
 
             foreach ($supplierData as &$hotel) {
-                if (isset($mapperHbsiGiata[$hotel['listingID']])) {
-                    $hotel['giata_id'] = $mapperHbsiGiata[$hotel['listingID']]['giata_code'];
-                    $hotel['perc'] = $mapperHbsiGiata[$hotel['listingID']]['perc'];
+                if (isset($mapperIcePortalGiata[$hotel['listingID']])) {
+                    $hotel['giata_id'] = $mapperIcePortalGiata[$hotel['listingID']]['giata_code'];
+                    $hotel['perc'] = $mapperIcePortalGiata[$hotel['listingID']]['perc'];
                 } else {
                     if (! isset($hotel['address']['latitude'])) {
                         continue;
                     }
-                    $res = $this->getGiataCode('HBSI', (int) $hotel['listingID'], $hotel['name'], floatval($hotel['address']['latitude']));
+                    $res = $this->getGiataCode('ICE_PORTAL', (int) $hotel['listingID'], $hotel['name'], floatval($hotel['address']['latitude']));
                     $this->insertBatch();
                     $hotel['giata_id'] = $res['code'];
                     $hotel['perc'] = $res['perc'];
@@ -118,9 +118,9 @@ class GiataPropertyRepository
             }
         }
 
-        if ($supplier == 'HBSI' && ! in_array($id.'_'.$code, $this->listBatchHbsi)) {
-            $this->batchHbsi[] = [
-                'hbsi_id' => $id,
+        if ($supplier == 'ICE_PORTAL' && ! in_array($id.'_'.$code, $this->listBatchHbsi)) {
+            $this->batchIcePortal[] = [
+                'ice_portal_id' => $id,
                 'giata_id' => $code,
                 'perc' => $perc,
             ];
@@ -149,10 +149,10 @@ class GiataPropertyRepository
      */
     private function insertBatch(bool $insertAnyway = false): void
     {
-        if ($insertAnyway || count($this->batchHbsi) > self::BATCH_SIZE) {
+        if ($insertAnyway || count($this->batchIcePortal) > self::BATCH_SIZE) {
             // InsertBatchData::dispatch($this->batchBooking, $this->batchHotels);
-            MapperHbsiGiata::insert($this->batchHbsi);
-            $this->batchHbsi = [];
+            MapperIcePortalGiata::insert($this->batchIcePortal);
+            $this->batchIcePortal = [];
         }
     }
 

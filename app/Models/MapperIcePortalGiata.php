@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MapperHbsiGiata extends Model
+class MapperIcePortalGiata extends Model
 {
     use HasFactory;
 
@@ -13,7 +13,7 @@ class MapperHbsiGiata extends Model
      * @var string[]
      */
     protected $fillable = [
-        'hbsi_id',
+        'ice_portal_id',
         'giata_id',
         'perc',
     ];
@@ -36,6 +36,6 @@ class MapperHbsiGiata extends Model
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
-        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api').'.'.'mapper_hbsi_giatas';
+        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api').'.'.'mapper_ice_portal_giatas';
     }
 }
