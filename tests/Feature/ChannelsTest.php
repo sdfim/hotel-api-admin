@@ -11,7 +11,6 @@ use Livewire\Livewire;
 use App\Livewire\Channels\UpdateChannelsForm;
 use App\Livewire\Channels\CreateChannelsForm;
 
-
 class ChannelsTest extends TestCase
 {
     use RefreshDatabase;
@@ -37,9 +36,11 @@ class ChannelsTest extends TestCase
     public function test_possibility_of_creating_channel(): void
     {
         $this->auth();
+
         $channels = Channel::factory()->create();
 
         $response = $this->get(route('channels.create', $channels->id));
+
         $response->assertStatus(200);
     }
 
@@ -50,7 +51,9 @@ class ChannelsTest extends TestCase
     public function test_possibility_of_storing_new_channel(): void
     {
         $this->auth();
+
         $token = auth()->user()->createToken('New Channel Name');
+
         $response = $this->post('/admin/channels', [
             'token_id' => $token->accessToken->id,
             'access_token' => $token->plainTextToken,
@@ -93,7 +96,9 @@ class ChannelsTest extends TestCase
         $this->auth();
 
         $channels = Channel::factory()->create();
+
         $response = $this->get(route('channels.edit', $channels->id));
+
         $response->assertStatus(200);
     }
 
@@ -108,8 +113,11 @@ class ChannelsTest extends TestCase
         $channel = Channel::factory()->create();
 
         $response = $this->get(route('channels.show', $channel->id));
+
         $response->assertStatus(200);
+
         $response->assertSee($channel->name);
+
         $response->assertSee($channel->description);
     }
 
@@ -129,7 +137,7 @@ class ChannelsTest extends TestCase
         // $response->assertRedirect('/admin/channels');
         $this->assertDatabaseMissing('channels', ['id' => $channel->id]);
     }
-    
+
     /**
      * @test
      * @return void

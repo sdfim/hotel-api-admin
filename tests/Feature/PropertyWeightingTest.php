@@ -12,7 +12,6 @@ use App\Models\PropertyWeighting;
 use Livewire\Livewire;
 use App\Livewire\PropertyWeighting\UpdatePropertyWeighting;
 
-
 class PropertyWeightingTest extends TestCase
 {
     use RefreshDatabase;
@@ -47,6 +46,7 @@ class PropertyWeightingTest extends TestCase
         $this->auth();
 
         $supplier = Supplier::factory()->create();
+
         $data = [
             'property' => $this->faker->numberBetween(1, 10000),
             'weight' => 1,
@@ -70,6 +70,7 @@ class PropertyWeightingTest extends TestCase
         $this->auth();
 
         $response = $this->get('/admin/property-weighting');
+
         $response->assertStatus(200);
     }
 
@@ -81,6 +82,7 @@ class PropertyWeightingTest extends TestCase
     {
         $this->auth();
         $response = $this->get('/admin/property-weighting/create');
+
         $response->assertStatus(200);
     }
 
@@ -95,9 +97,10 @@ class PropertyWeightingTest extends TestCase
         $propertyWeighting = PropertyWeighting::factory()->create();
 
         $response = $this->get(route('property-weighting.show', $propertyWeighting->id));
+
         $response->assertStatus(200);
     }
-    
+
     /**
      * @test
      * @return void
@@ -105,11 +108,13 @@ class PropertyWeightingTest extends TestCase
     public function test_possibility_of_updating_an_existing_property_weighting(): void
     {
         $this->auth();
+
         $property_weighting = PropertyWeighting::factory()->create();
+
         $supplier = Supplier::factory()->create();
 
         Livewire::test(UpdatePropertyWeighting::class, ['propertyWeighting' => $property_weighting])
-            ->set('data.property',$this->faker->numberBetween(1, 10000))
+            ->set('data.property', $this->faker->numberBetween(1, 10000))
             ->set('data.weight', 2)
             ->set('data.supplier_id', $supplier->id)
             ->call('edit')

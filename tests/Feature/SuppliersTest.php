@@ -23,6 +23,7 @@ class SuppliersTest extends TestCase
     public function test_validation_of_supplier_form_as_well_as_new_supplier_creating(): void
     {
         $this->auth();
+
         Livewire::test(CreateSuppliersForm::class)
             ->set('data', [
                 'name' => '',
@@ -54,6 +55,7 @@ class SuppliersTest extends TestCase
         $this->auth();
 
         $response = $this->get('/admin/suppliers');
+
         $response->assertStatus(200);
     }
 
@@ -68,6 +70,7 @@ class SuppliersTest extends TestCase
         $suppliers = Supplier::factory()->create();
 
         $response = $this->get(route('suppliers.create', $suppliers->id));
+
         $response->assertStatus(200);
     }
 
@@ -104,8 +107,11 @@ class SuppliersTest extends TestCase
         $suppliers = Supplier::factory()->create();
 
         $response = $this->get(route('suppliers.show', $suppliers->id));
+
         $response->assertStatus(200);
+
         $response->assertSee($suppliers->name);
+
         $response->assertSee($suppliers->description);
 
     }
@@ -119,7 +125,9 @@ class SuppliersTest extends TestCase
         $this->auth();
 
         $suppliers = Supplier::factory()->create();
+
         $response = $this->get(route('suppliers.edit', $suppliers->id));
+
         $response->assertStatus(200);
     }
 
@@ -131,8 +139,11 @@ class SuppliersTest extends TestCase
     public function test_possibility_of_destroying_an_existing_supplier(): void
     {
         $this->auth();
+
         $suppliers = Supplier::factory()->create();
+
         $suppliers->delete();
+
         $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);
     }
 
@@ -143,7 +154,9 @@ class SuppliersTest extends TestCase
     public function test_possibility_of_updating_an_existing_supplier(): void
     {
         $this->auth();
+
         $suppliers = Supplier::factory()->create();
+
         Livewire::test(UpdateSuppliersForm::class, ['suppliers' => $suppliers])
             ->set('data.name', 'Updated Supplier Name')
             ->set('data.description', 'Updated Supplier Description')

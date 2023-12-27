@@ -59,6 +59,7 @@ class TwoFactorAuthenticationSettingsTest extends TestCase
         $component->call('regenerateRecoveryCodes');
 
         $this->assertCount(8, $user->recoveryCodes());
+
         $this->assertCount(8, array_diff($user->recoveryCodes(), $user->fresh()->recoveryCodes()));
     }
 

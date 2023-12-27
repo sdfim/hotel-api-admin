@@ -16,6 +16,7 @@ class ExceptionReportsTest extends TestCase
         $this->auth();
 
         $response = $this->get('/admin/exceptions-report');
+
         $response->assertStatus(200);
     }
 

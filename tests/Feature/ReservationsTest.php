@@ -33,11 +33,17 @@ class ReservationsTest extends TestCase
      */
     public function test_possibility_of_showing_an_existing_reservation_record(): void
     {
-        // $this->auth();
-        // $channel = Channel::factory()->create();
-        // $reservations = Reservation::factory()->create(['reservation_contains' => json_encode([]), 'channel_id' => $channel->id]);
-        // $response = $this->get("/admin/reservations/$reservations->id");
-        // $response->assertStatus(200);
+        $this->auth();
+
+        $channel = Channel::factory()->create();
+
+        $reservations = Reservation::factory()->create([
+            'channel_id' => $channel->id,
+        ]);
+
+        $response = $this->get("/admin/reservations/$reservations->id");
+
+        $response->assertStatus(200);
     }
 
     /**

@@ -72,7 +72,7 @@ class GeneralConfigurationTest extends TestCase
     protected function generate_test_data(): array
     {
         return [
-			'time_supplier_requests' => 3,
+            'time_supplier_requests' => 3,
             'time_reservations_kept' => 7,
             'currently_suppliers' => json_encode(['1']),
             'time_inspector_retained' => 60,
@@ -81,7 +81,7 @@ class GeneralConfigurationTest extends TestCase
         ];
     }
 
-    
+
     /**
      * @return void
      */
