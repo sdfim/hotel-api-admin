@@ -28,7 +28,7 @@ class MapperIcePortalGiata extends Model
      */
     protected $connection;
 
-    protected $primaryKey = ['expedia_id', 'giata_id'];
+    protected $primaryKey = ['ice_portal_id', 'giata_id'];
 
     public $incrementing = false;
 

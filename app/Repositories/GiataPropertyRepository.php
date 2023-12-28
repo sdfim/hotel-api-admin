@@ -12,7 +12,7 @@ class GiataPropertyRepository
 {
     use Timer;
 
-    private const BATCH_SIZE = 50;
+    private const BATCH_SIZE = 200;
 
     private const MIN_PERC = 65;
 
