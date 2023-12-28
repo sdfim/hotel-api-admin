@@ -25,11 +25,9 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
     {
         parent::setUp();
 
-        $expedia = ExpediaContent::take(10)->get();
+        $this->expedia = ExpediaContent::take(10)->get();
 
-        if (!$expedia && env('APP_ENV') === 'testing') $expedia = ExpediaContent::factory()->count(10)->create();
-
-        $this->expedia = $expedia;
+        if (!$this->expedia && env('SECOND_DB_HOST') === 'mysql') $this->expedia = ExpediaContent::factory()->count(10)->create();
     }
 
     /**

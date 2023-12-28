@@ -25,11 +25,9 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
     {
         parent::setUp();
 
-        $giata = GiataProperty::take(10)->get();
+        $this->giata = GiataProperty::take(10)->get();
 
-        if (!$giata && env('APP_ENV') === 'testing') $giata = GiataProperty::factory()->count(10)->create();
-
-        $this->giata = $giata;
+        if (!$this->giata && env('SECOND_DB_HOST') === 'mysql') $this->giata = GiataProperty::factory()->count(10)->create();
     }
 
     /**
