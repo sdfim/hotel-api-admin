@@ -1,16 +1,13 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\BaseAuthorizedActions;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use JsonException;
 use Tests\TestCase;
 
 class PasswordConfirmationTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @test
      * @return void

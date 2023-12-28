@@ -1,9 +1,8 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\BaseAuthorizedActions;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Http\Livewire\ApiTokenManager;
@@ -12,8 +11,6 @@ use Tests\TestCase;
 
 class ApiTokenPermissionsTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @test
      * @return void

@@ -1,27 +1,18 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\CustomAuthorizedActions;
 
 use App\Models\Channel;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-use App\Models\User;
 use App\Models\Reservation;
 
-class ReservationsTest extends TestCase
+class ReservationsTestCustom extends CustomAuthorizedActionsTestCase
 {
-    use RefreshDatabase;
-    use WithFaker;
-
     /**
      * @test
      * @return void
      */
     public function test_reservation_index_is_opening(): void
     {
-        $this->auth();
-
         $response = $this->get('/admin/reservations');
 
         $response->assertStatus(200);
@@ -33,8 +24,6 @@ class ReservationsTest extends TestCase
      */
     public function test_possibility_of_showing_an_existing_reservation_record(): void
     {
-        $this->auth();
-
         $channel = Channel::factory()->create();
 
         $reservations = Reservation::factory()->create([
@@ -44,18 +33,5 @@ class ReservationsTest extends TestCase
         $response = $this->get("/admin/reservations/$reservations->id");
 
         $response->assertStatus(200);
-    }
-
-    /**
-     * @return void
-     */
-    public function auth(): void
-    {
-        $user = User::factory()->create();
-
-        $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
     }
 }

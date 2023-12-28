@@ -1,21 +1,17 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\CustomAuthorizedActions;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use App\Models\PricingRule;
 use App\Models\Supplier;
-use App\Models\User;
 use Livewire\Livewire;
 use App\Livewire\PricingRules\CreatePricingRules;
 use App\Livewire\PricingRules\UpdatePricingRules;
 use App\Models\Channel;
 
-class PricingRulesTest extends TestCase
+class PricingRulesTestCustom extends CustomAuthorizedActionsTestCase
 {
-    use RefreshDatabase;
     use WithFaker;
 
     /**
@@ -24,8 +20,6 @@ class PricingRulesTest extends TestCase
      */
     public function test_pricing_rules_index_is_opening(): void
     {
-        $this->auth();
-
         $response = $this->get('/admin/pricing_rules');
 
         $response->assertStatus(200);
@@ -37,8 +31,6 @@ class PricingRulesTest extends TestCase
      */
     public function test_pricing_rules_creating_is_opening(): void
     {
-        $this->auth();
-
         $response = $this->get('/admin/pricing_rules/create');
 
         $response->assertStatus(200);
@@ -50,8 +42,6 @@ class PricingRulesTest extends TestCase
      */
     public function test_pricing_rules_showing_is_opening(): void
     {
-        $this->auth();
-
         $pricingRule = PricingRule::factory()->create();
 
         $response = $this->get(route('pricing_rules.show', $pricingRule->id));
@@ -65,8 +55,6 @@ class PricingRulesTest extends TestCase
      */
     public function test_validation_of_pricing_rules_form_during_creation(): void
     {
-        $this->auth();
-
         Livewire::test(CreatePricingRules::class)
             ->set('data', [
                 'name' => '',
@@ -112,8 +100,6 @@ class PricingRulesTest extends TestCase
      */
     public function test_pricing_rules_form_validation_and_possibility_of_creating_new_pricing_rule(): void
     {
-        $this->auth();
-
         $supplier = Supplier::factory()->create();
 
         $channels = Channel::factory()->create();
@@ -158,8 +144,6 @@ class PricingRulesTest extends TestCase
      */
     public function test_possibility_of_updating_an_existing_pricing_rule(): void
     {
-        $this->auth();
-
         $pricingRules = PricingRule::factory()->create();
 
         $supplier = Supplier::factory()->create();
@@ -199,25 +183,10 @@ class PricingRulesTest extends TestCase
      */
     public function test_possibility_of_destroying_an_existing_pricing_rule(): void
     {
-        $this->auth();
-
         $pricingRule = PricingRule::factory()->create();
 
         $pricingRule->delete();
 
         $this->assertDatabaseMissing('pricing_rules', ['id' => $pricingRule->id]);
-    }
-
-    /**
-     * @return void
-     */
-    public function auth(): void
-    {
-        $user = User::factory()->create();
-
-        $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
     }
 }

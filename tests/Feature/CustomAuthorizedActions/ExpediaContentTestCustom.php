@@ -1,18 +1,14 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\CustomAuthorizedActions;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use App\Livewire\ExpediaTable;
 use App\Models\ExpediaContent;
 use Livewire\Livewire;
-use App\Models\User;
 
-class ExpediaContentTest extends TestCase
+class ExpediaContentTestCustom extends CustomAuthorizedActionsTestCase
 {
-    use RefreshDatabase;
     use WithFaker;
 
     /**
@@ -21,8 +17,6 @@ class ExpediaContentTest extends TestCase
      */
     public function test_expedia_table_index_is_opening(): void
     {
-        $this->auth();
-
         $response = $this->get('/admin/expedia');
 
         $response->assertStatus(200);
@@ -34,8 +28,6 @@ class ExpediaContentTest extends TestCase
      */
     public function test_expedia_table_is_rendering_as_well_as_city_with_search_name(): void
     {
-        $this->auth();
-
         $expedia = ExpediaContent::take(10)->get();
 
         livewire::test(ExpediaTable::class)->assertSuccessful();
@@ -57,8 +49,6 @@ class ExpediaContentTest extends TestCase
      */
     public function test_possibility_of_filtering_by_name(): void
     {
-        $this->auth();
-
         $expedia = ExpediaContent::take(10)->get();
 
         $nameToFilter = $expedia->first()->name;
@@ -85,18 +75,5 @@ class ExpediaContentTest extends TestCase
             ->searchTable('city')
             ->assertCanSeeTableRecords($expedia->where($this->faker->city, $cityToFilter))
             ->assertCanNotSeeTableRecords($expedia->where('city', '!=', $cityToFilter1));
-    }
-
-    /**
-     * @return void
-     */
-    public function auth(): void
-    {
-        $user = User::factory()->create();
-
-        $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
     }
 }

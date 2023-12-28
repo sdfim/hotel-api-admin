@@ -1,18 +1,14 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\CustomAuthorizedActions;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use App\Livewire\GiataTable;
 use App\Models\GiataProperty;
-use App\Models\User;
 use Livewire\Livewire;
 
-class GiataPropertyTest extends TestCase
+class GiataPropertyTestCustom extends CustomAuthorizedActionsTestCase
 {
-    use RefreshDatabase;
     use WithFaker;
 
     /**
@@ -21,8 +17,6 @@ class GiataPropertyTest extends TestCase
      */
     public function test_giata_table_index_is_opening(): void
     {
-        $this->auth();
-
         $response = $this->get('/admin/giata');
 
         $response->assertStatus(200);
@@ -34,8 +28,6 @@ class GiataPropertyTest extends TestCase
      */
     public function test_giata_table_is_rendering_as_well_as_city_with_search_name(): void
     {
-        $this->auth();
-
         $giata = GiataProperty::take(10)->get();
 
         livewire::test(GiataTable::class)->assertSuccessful();
@@ -99,18 +91,5 @@ class GiataPropertyTest extends TestCase
             ->searchTable($address)
             ->assertCanSeeTableRecords($giata->where('address', $address))
             ->assertCanNotSeeTableRecords($giata->where('address', '!=', $address));
-    }
-
-    /**
-     * @return void
-     */
-    public function auth(): void
-    {
-        $user = User::factory()->create();
-
-        $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
     }
 }

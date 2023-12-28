@@ -1,28 +1,19 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\CustomAuthorizedActions;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use App\Livewire\GeneralConfiguration\CreateGeneralConfigurationForm;
 use App\Models\GeneralConfiguration;
 use Livewire\Livewire;
-use App\Models\User;
 
-class GeneralConfigurationTest extends TestCase
+class GeneralConfigurationTestCustom extends CustomAuthorizedActionsTestCase
 {
-    use RefreshDatabase;
-    use WithFaker;
-
     /**
      * @test
      * @return void
      */
     public function test_general_configuration_index_is_opening(): void
     {
-        $this->auth();
-
         $response = $this->get('/admin/general-configuration');
 
         $response->assertStatus(200);
@@ -34,8 +25,6 @@ class GeneralConfigurationTest extends TestCase
      */
     public function test_possibility_of_inserting_into_general_configuration(): void
     {
-        $this->auth();
-
         $data = $this->generate_test_data();
 
         Livewire::test(CreateGeneralConfigurationForm::class)
@@ -52,8 +41,6 @@ class GeneralConfigurationTest extends TestCase
      */
     public function test_possibility_of_updating_of_general_configuration(): void
     {
-        $this->auth();
-
         $general_configuration = GeneralConfiguration::factory()->create();
 
         $data = $this->generate_test_data();
@@ -79,19 +66,5 @@ class GeneralConfigurationTest extends TestCase
             'star_ratings' => 4,
             'stop_bookings' => 1,
         ];
-    }
-
-
-    /**
-     * @return void
-     */
-    public function auth(): void
-    {
-        $user = User::factory()->create();
-
-        $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
     }
 }
