@@ -24,7 +24,7 @@ class GiataPropertyFactory extends Factory
      */
     public function definition(): array
     {
-        $addressLine = "Delhy No. $this->faker->numberBetween(1, 100), Viln $this->faker->word";
+        $addressLine = "Delhy No. {$this->faker->numberBetween(1, 100)}, Viln {$this->faker->word}";
 
         return [
             'code' => $this->faker->numberBetween(1, 100000),
