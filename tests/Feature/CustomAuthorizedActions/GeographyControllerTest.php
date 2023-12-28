@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
-class GeographyControllerTestCustom extends CustomAuthorizedActionsTestCase
+class GeographyControllerTest extends CustomAuthorizedActionsTestCase
 {
     /**
      * @test

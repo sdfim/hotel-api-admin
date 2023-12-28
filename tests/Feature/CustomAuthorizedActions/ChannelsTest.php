@@ -8,7 +8,7 @@ use Livewire\Livewire;
 use App\Livewire\Channels\UpdateChannelsForm;
 use App\Livewire\Channels\CreateChannelsForm;
 
-class ChannelsTestCustom extends CustomAuthorizedActionsTestCase
+class ChannelsTest extends CustomAuthorizedActionsTestCase
 {
     use WithFaker;
 

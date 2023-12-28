@@ -5,7 +5,7 @@ namespace Tests\Feature\CustomAuthorizedActions;
 use App\Models\Channel;
 use App\Models\Reservation;
 
-class ReservationsTestCustom extends CustomAuthorizedActionsTestCase
+class ReservationsTest extends CustomAuthorizedActionsTestCase
 {
     /**
      * @test

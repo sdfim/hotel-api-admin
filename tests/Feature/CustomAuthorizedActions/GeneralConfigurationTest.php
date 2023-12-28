@@ -6,7 +6,7 @@ use App\Livewire\GeneralConfiguration\CreateGeneralConfigurationForm;
 use App\Models\GeneralConfiguration;
 use Livewire\Livewire;
 
-class GeneralConfigurationTestCustom extends CustomAuthorizedActionsTestCase
+class GeneralConfigurationTest extends CustomAuthorizedActionsTestCase
 {
     /**
      * @test

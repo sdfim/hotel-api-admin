@@ -10,7 +10,7 @@ use App\Livewire\PricingRules\CreatePricingRules;
 use App\Livewire\PricingRules\UpdatePricingRules;
 use App\Models\Channel;
 
-class PricingRulesTestCustom extends CustomAuthorizedActionsTestCase
+class PricingRulesTest extends CustomAuthorizedActionsTestCase
 {
     use WithFaker;
 

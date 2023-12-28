@@ -9,7 +9,7 @@ use App\Models\PropertyWeighting;
 use Livewire\Livewire;
 use App\Livewire\PropertyWeighting\UpdatePropertyWeighting;
 
-class PropertyWeightingTestCustom extends CustomAuthorizedActionsTestCase
+class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
 {
     use WithFaker;
 

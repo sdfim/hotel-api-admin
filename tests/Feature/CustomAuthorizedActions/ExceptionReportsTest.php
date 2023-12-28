@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
-class ExceptionReportsTestCustom extends CustomAuthorizedActionsTestCase
+class ExceptionReportsTest extends CustomAuthorizedActionsTestCase
 {
     /**
      * @test

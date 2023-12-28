@@ -8,7 +8,7 @@ use App\Livewire\Suppliers\CreateSuppliersForm;
 use Livewire\Livewire;
 use App\Livewire\Suppliers\UpdateSuppliersForm;
 
-class SuppliersTestCustom extends CustomAuthorizedActionsTestCase
+class SuppliersTest extends CustomAuthorizedActionsTestCase
 {
     use WithFaker;
 
