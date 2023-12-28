@@ -82,11 +82,9 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
     {
         $cityToFilter = $this->expedia[0]->city;
 
-        $cityToFilter1 = $this->expedia[1]->city;
-
         livewire::test(ExpediaTable::class)
             ->searchTable('city')
             ->assertCanSeeTableRecords($this->expedia->where('city', $cityToFilter))
-            ->assertCanNotSeeTableRecords($this->expedia->where('city', '!=', $cityToFilter1));
+            ->assertCanNotSeeTableRecords($this->expedia->where('city', '!=', $cityToFilter));
     }
 }
