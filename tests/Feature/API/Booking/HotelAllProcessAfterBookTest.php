@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\API\Booking;
 
+use Faker\Factory as Faker;
 use Illuminate\Support\Carbon;
 
 class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
@@ -31,8 +32,7 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
         dump($booking_id);
 
         # step 3 add passenger api/booking/add-passengers
-        $jsonData = $this->addPassengersRequest();
-        $jsonData = array_merge($jsonData, ['booking_id' => $booking_id, 'booking_item' => $booking_item]);
+        $jsonData = $this->addPassengersRequest($booking_id, [$booking_item], [$jsonData['occupancy']]);
         $response = $this->withHeaders($this->headers)->postJson('/api/booking/add-passengers', $jsonData);
         $responseArr = $response->json();
         dump($responseArr);
@@ -148,56 +148,64 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
     }
 
     /**
-     * @return array
+     * @param string $bookingId
+     * @param array $bookingItems
+     * @param array $occupancy
+     * @return array[]
      */
-    private function addPassengersRequest(): array
+    private function addPassengersRequest(string $bookingId, array $bookingItems, array $occupancy): array
     {
-        return [
-            'passengers' => [
-                [
-                    'title' => 'mr',
-                    'given_name' => 'John',
-                    'family_name' => 'Portman',
-                    'date_of_birth' => '1988-12-14'
-                ],
-                [
-                    'title' => 'mr',
-                    'given_name' => 'John',
-                    'family_name' => 'Portman',
-                    'date_of_birth' => '1988-12-14'
-                ]
-            ]
-        ];
+        $faker = Faker::create();
+
+        $requestData = ['passengers' => []];
+
+        foreach ($bookingItems as $keySearch => $bookingItem) {
+            $roomCounter = 1;
+            foreach ($occupancy[$keySearch] as $occupant) {
+                for ($i = 0; $i < $occupant['adults']; $i++) {
+                    $passenger = [
+                        'title' => 'mr',
+                        'given_name' => $faker->firstName,
+                        'family_name' => $faker->lastName,
+                        'date_of_birth' => $faker->date('Y-m-d', strtotime('-'.rand(20, 60).' years')),
+                        'booking_items' => [
+                            [
+                                'booking_item' => $bookingItems[$keySearch],
+                                'room' => $roomCounter,
+                            ],
+                        ],
+                    ];
+
+                    $requestData['passengers'][] = $passenger;
+                }
+
+                if(isset($occupant['children_ages']) && count($occupant['children_ages']) > 0) {
+                    foreach ($occupant['children_ages'] as $childAge) {
+                        $passenger = [
+                            'title' => 'ms',
+                            'given_name' => 'Child',
+                            'family_name' => 'Donald',
+                            'date_of_birth' => date('Y-m-d', strtotime("-$childAge years")),
+                            'booking_items' => [
+                                [
+                                    'booking_item' => $bookingItems[$keySearch],
+                                    'room' => $roomCounter,
+                                ],
+                            ],
+                        ];
+
+                        $requestData['passengers'][] = $passenger;
+                    }
+                }
+                $roomCounter++;
+            }
+        }
+
+        $requestData['booking_id'] = $bookingId;
+
+        return $requestData;
     }
 
-    /**
-     * @return array
-     */
-    private function addPassengersRequestStep2(): array
-    {
-        return [
-            'passengers' => [
-                [
-                    'title' => 'mr',
-                    'given_name' => 'John',
-                    'family_name' => 'Portman',
-                    'date_of_birth' => '1988-12-14'
-                ],
-                [
-                    'title' => 'ms',
-                    'given_name' => 'Dana',
-                    'family_name' => 'Portman',
-                    'date_of_birth' => '1988-12-14'
-                ],
-                [
-                    'title' => 'mr',
-                    'given_name' => 'Mikle',
-                    'family_name' => 'Portman',
-                    'date_of_birth' => '1988-12-14'
-                ]
-            ]
-        ];
-    }
 
     /**
      * @return array
@@ -209,7 +217,7 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
             'booking_contact' => [
                 'first_name' => 'John',
                 'last_name' => 'Smith',
-                'email' => 'john@example.com',
+                'email' => 'john@google.com',
                 'phone' => [
                     'country_code' => '1',
                     'area_code' => '487',
