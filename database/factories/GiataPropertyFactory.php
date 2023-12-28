@@ -24,24 +24,28 @@ class GiataPropertyFactory extends Factory
      */
     public function definition(): array
     {
+        $addressLine = "Delhy No. $this->faker->numberBetween(1, 100), Viln $this->faker->word";
 
         return [
-            'code' => $this->faker->numberBetween(1, 10000), // Пример значения для code
-            'last_updated' => $this->faker->dateTimeThisDecade, // Пример значения для last_updated
+            'code' => $this->faker->numberBetween(1, 10000),
+            'last_updated' => $this->faker->dateTimeThisDecade,
             'name' => $this->faker->name,
             'chain' => '{}',
             'city' => $this->faker->city,
             'locale' => $this->faker->locale,
             'address' => '{
                 "CityName": "New Delhi",
-                "AddressLine":"Delhy No. ' . $this->faker->numberBetween(1, 100) . ', Viln ' . $this->faker->word . '",
+                "AddressLine": "'. $addressLine .'",
                 "PostalCode": "110037",
                 "@attributes": {
                     "UseType": "7",
-                    "FormattedInd": "true"
+                    "FormattedInd": "true",
                 },
                 "CountryName": "IN"
             }',
+            'mapper_address' => $addressLine,
+            'mapper_postal_code' => '110037',
+            'mapper_phone_number' => '+911171558800',
             'phone' => [
                 '{
                     "@attributes": {
@@ -63,6 +67,8 @@ class GiataPropertyFactory extends Factory
                     "PositionAccuracy": "1"
                 }
             }',
+            'latitude' => '28.550831',
+            'longitude' => '77.120576',
             'url' => '{}',
             'cross_references' => '[
                 {
@@ -230,7 +236,7 @@ class GiataPropertyFactory extends Factory
                                 "HotelCode": "DEL30000-0617-TF"
                             }
                         },
-                        
+
                     ],
                     "@attributes": {
                         "Code": "TUR1",

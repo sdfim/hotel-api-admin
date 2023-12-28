@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
-class ContentControllerTestCustom extends CustomAuthorizedActionsTestCase
+class ContentControllerTest extends CustomAuthorizedActionsTestCase
 {
     /**
      * @test

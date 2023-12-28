@@ -2,14 +2,35 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Testing\WithFaker;
 use App\Livewire\ExpediaTable;
 use App\Models\ExpediaContent;
 use Livewire\Livewire;
+use Illuminate\Database\Eloquent\Collection;
 
 class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 {
     use WithFaker;
+
+    /**
+     * @var Model|Collection|ExpediaContent|null
+     */
+    private Collection|ExpediaContent|Model|null $expedia = null;
+
+    /**
+     * @return void
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $expedia = ExpediaContent::take(10)->get();
+
+        if (!$expedia && env('APP_ENV') === 'testing') $expedia = ExpediaContent::factory()->count(10)->create();
+
+        $this->expedia = $expedia;
+    }
 
     /**
      * @test
@@ -28,19 +49,17 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      */
     public function test_expedia_table_is_rendering_as_well_as_city_with_search_name(): void
     {
-//        $expedia = ExpediaContent::take(10)->get();
-//
-//        livewire::test(ExpediaTable::class)->assertSuccessful();
-//
-//        livewire::test(ExpediaTable::class)
-//            ->assertCanRenderTableColumn('city');
-//
-//        $name = $expedia->first()->name;
-//
-//        livewire::test(ExpediaTable::class)
-//            ->searchTable($name)
-//            ->assertCanSeeTableRecords($expedia->where($this->faker->name, $name))
-//            ->assertCanNotSeeTableRecords($expedia->where('name', '!=', $name));
+        livewire::test(ExpediaTable::class)->assertSuccessful();
+
+        livewire::test(ExpediaTable::class)
+            ->assertCanRenderTableColumn('city');
+
+        $name = $this->expedia->first()->name;
+
+        livewire::test(ExpediaTable::class)
+            ->searchTable($name)
+            ->assertCanSeeTableRecords($this->expedia->where($this->faker->name, $name))
+            ->assertCanNotSeeTableRecords($this->expedia->where('name', '!=', $name));
     }
 
     /**
@@ -49,14 +68,12 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_filtering_by_name(): void
     {
-//        $expedia = ExpediaContent::take(10)->get();
-//
-//        $nameToFilter = $expedia->first()->name;
-//
-//        livewire::test(ExpediaTable::class)
-//            ->searchTable('name')
-//            ->assertCanSeeTableRecords($expedia->where($this->faker->name, $nameToFilter))
-//            ->assertCanNotSeeTableRecords($expedia->where('name', '!=', $nameToFilter));
+        $nameToFilter = $this->expedia->first()->name;
+
+        livewire::test(ExpediaTable::class)
+            ->searchTable('name')
+            ->assertCanSeeTableRecords($this->expedia->where($this->faker->name, $nameToFilter))
+            ->assertCanNotSeeTableRecords($this->expedia->where('name', '!=', $nameToFilter));
     }
 
     /**
@@ -65,15 +82,13 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_filtering_by_city(): void
     {
-//        $expedia = ExpediaContent::take(10)->get();
-//
-//        $cityToFilter = $expedia[0]->city;
-//
-//        $cityToFilter1 = $expedia[1]->city;
-//
-//        livewire::test(ExpediaTable::class)
-//            ->searchTable('city')
-//            ->assertCanSeeTableRecords($expedia->where($this->faker->city, $cityToFilter))
-//            ->assertCanNotSeeTableRecords($expedia->where('city', '!=', $cityToFilter1));
+        $cityToFilter = $this->expedia[0]->city;
+
+        $cityToFilter1 = $this->expedia[1]->city;
+
+        livewire::test(ExpediaTable::class)
+            ->searchTable('city')
+            ->assertCanSeeTableRecords($this->expedia->where($this->faker->city, $cityToFilter))
+            ->assertCanNotSeeTableRecords($this->expedia->where('city', '!=', $cityToFilter1));
     }
 }

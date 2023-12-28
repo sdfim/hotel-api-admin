@@ -167,10 +167,10 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
                         'title' => 'mr',
                         'given_name' => $faker->firstName,
                         'family_name' => $faker->lastName,
-                        'date_of_birth' => $faker->date('Y-m-d', strtotime('-'.rand(20, 60).' years')),
+                        'date_of_birth' => $faker->date('Y-m-d', strtotime('-' . rand(20, 60) . ' years')),
                         'booking_items' => [
                             [
-                                'booking_item' => $bookingItems[$keySearch],
+                                'booking_item' => $bookingItem,
                                 'room' => $roomCounter,
                             ],
                         ],
@@ -179,7 +179,7 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
                     $requestData['passengers'][] = $passenger;
                 }
 
-                if(isset($occupant['children_ages']) && count($occupant['children_ages']) > 0) {
+                if (isset($occupant['children_ages']) && count($occupant['children_ages']) > 0) {
                     foreach ($occupant['children_ages'] as $childAge) {
                         $passenger = [
                             'title' => 'ms',
@@ -188,7 +188,7 @@ class HotelAllProcessAfterBookTest extends HotelBookingApiTestCase
                             'date_of_birth' => date('Y-m-d', strtotime("-$childAge years")),
                             'booking_items' => [
                                 [
-                                    'booking_item' => $bookingItems[$keySearch],
+                                    'booking_item' => $bookingItem,
                                     'room' => $roomCounter,
                                 ],
                             ],

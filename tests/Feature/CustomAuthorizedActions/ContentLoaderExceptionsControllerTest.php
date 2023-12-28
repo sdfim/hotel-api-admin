@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
-class ContentLoaderExceptionsControllerTestCustom extends CustomAuthorizedActionsTestCase
+class ContentLoaderExceptionsControllerTest extends CustomAuthorizedActionsTestCase
 {
     /**
      * @test
