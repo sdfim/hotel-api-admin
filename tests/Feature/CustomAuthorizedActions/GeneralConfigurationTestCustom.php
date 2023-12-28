@@ -63,6 +63,7 @@ class GeneralConfigurationTestCustom extends CustomAuthorizedActionsTestCase
             'time_reservations_kept' => 7,
             'currently_suppliers' => json_encode(['1']),
             'time_inspector_retained' => 60,
+            'content_supplier' => 'Expedia',
             'star_ratings' => 4,
             'stop_bookings' => 1,
         ];
