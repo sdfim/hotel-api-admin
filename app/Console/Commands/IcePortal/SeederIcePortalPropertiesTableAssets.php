@@ -17,13 +17,12 @@ class SeederIcePortalPropertiesTableAssets extends Command
     // protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
     protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
-
     protected const BASE_URI = 'http://localhost:8008';
 
     public function __construct()
     {
         parent::__construct();
-        $this->client = Http::withToken(self::TOKEN)->timeout(120);
+        $this->client = Http::withToken(self::TOKEN)->timeout(3600);
     }
 
     /**
@@ -31,17 +30,23 @@ class SeederIcePortalPropertiesTableAssets extends Command
      */
     public function handle(): void
     {
+        $i = 0;
         foreach ($this->cities() as $city) {
+            $i++;
             $startTime = microtime(true);
-            $this->warn($city.' started');
+            $this->warn($city.' started '.$i.' of '.count($this->cities()).' cities');
 
             $codeCity = $this->getcityCode($city);
             $this->info($city.' codeCity '.$codeCity);
 
+            if ($codeCity === 0) {
+                $this->error($city.' error '.$codeCity);
+                continue;
+            }
+
             $data = $this->makeSearch($codeCity);
             if ($data['success'] === 0 || ! isset($data['data']['results']) || is_null($data)) {
                 $this->error($city.' error '.$codeCity);
-
                 continue;
             }
             $runTime = microtime(true) - $startTime;
@@ -66,7 +71,7 @@ class SeederIcePortalPropertiesTableAssets extends Command
 
         $response = $this->client->post(self::BASE_URI.'/api/content/search', $requestData);
 
-        return $response->json();
+        return $response->json() ?? [];
     }
 
     /**

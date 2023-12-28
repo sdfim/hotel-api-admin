@@ -31,16 +31,18 @@ class GiataPropertyRepository
     /**
      * @param string $hotelName
      * @param float $latitude
+     * @param string $city
      * @return array
      */
-    public function search(string $hotelName, float $latitude): array
+    public function search(string $hotelName, float $latitude, string $city): array
     {
+        $hotelName = explode(', ', $hotelName)[0];
         $hotelNameSearch = str_replace(['&', '~', '(', ')', '@', '*', '+', ',', '-', 'The', 'Hotel', '  '], '', $hotelName);
 
         $latitude = bcdiv(strval($latitude), '1', 1);
 
         if ($this->availableElasticSearch) {
-            return $this->giataPropertySearch->search($hotelName, $latitude);
+            return $this->giataPropertySearch->search($hotelName, $latitude, $city);
         }
 
         return GiataProperty::where('latitude', 'like', $latitude.'%')
@@ -77,10 +79,13 @@ class GiataPropertyRepository
                     $hotel['giata_id'] = $mapperIcePortalGiata[$hotel['listingID']]['giata_code'];
                     $hotel['perc'] = $mapperIcePortalGiata[$hotel['listingID']]['perc'];
                 } else {
-                    if (! isset($hotel['address']['latitude'])) {
-                        continue;
-                    }
-                    $res = $this->getGiataCode('ICE_PORTAL', (int) $hotel['listingID'], $hotel['name'], floatval($hotel['address']['latitude']));
+                    $res = $this->getGiataCode(
+                        'ICE_PORTAL',
+                        (int) $hotel['listingID'],
+                        $hotel['name'],
+                        floatval($hotel['address']['latitude'] ?? 0),
+                        $hotel['address']['city']
+                    );
                     $this->insertBatch();
                     $hotel['giata_id'] = $res['code'];
                     $hotel['perc'] = $res['perc'];
@@ -98,13 +103,13 @@ class GiataPropertyRepository
      * @param int $id
      * @param string $hotelName
      * @param float $latitude
-     * @param bool $isElasticType
+     * @param string $city
      * @return array
      */
-    public function getGiataCode(string $supplier, int $id, string $hotelName, float $latitude, bool $isElasticType = true): array
+    public function getGiataCode(string $supplier, int $id, string $hotelName, float $latitude, string $city): array
     {
         $this->start();
-        $giata = $this->search($hotelName, $latitude);
+        $giata = $this->search($hotelName, $latitude, $city);
 
         $perc = 0;
         $code = 0;

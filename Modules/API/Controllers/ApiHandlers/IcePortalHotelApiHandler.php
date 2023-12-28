@@ -130,7 +130,7 @@ class IcePortalHotelApiHandler
                     'name' => $results['results'][$key]['name'],
                     'city' => $results['results'][$key]['address']['city'] ?? null,
                     'state' => $results['results'][$key]['address']['state'] ?? null,
-                    'country' => $results['results'][$key]['country'] ?? null,
+                    'country' => $results['results'][$key]['address']['country'] ?? null,
                     'addressLine1' => $results['results'][$key]['address']['addressLine1'] ?? null,
                     'phone' => $results['results'][$key]['phone'] ?? null,
                     'latitude' => $results['results'][$key]['address']['latitude'] ?? null,
