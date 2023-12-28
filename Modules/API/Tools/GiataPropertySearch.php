@@ -2,7 +2,6 @@
 
 namespace Modules\API\Tools;
 
-use Modules\API\Tools\SearchInterface;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use OpenSearch\ClientBuilder;
@@ -35,7 +34,7 @@ class GiataPropertySearch implements SearchInterface
         return $response->ok();
     }
 
-    public function search(string $name, float $latitude): array
+    public function search(string $name, float $latitude, string $city): array
     {
         $connection = config('open-search.connection');
         $index = config("open-search.connections.$connection.index");
@@ -57,30 +56,54 @@ class GiataPropertySearch implements SearchInterface
                 ])->build();
         }
 
-        $params = [
-            'index' => $index,
-            'body' => [
-                'query' => [
-                    'bool' => [
-                        'must' => [
-                            [
-                                'match' => [
-                                    'name' => $name,
+        if ($latitude != 0) {
+            $params = [
+                'index' => $index,
+                'body' => [
+                    'query' => [
+                        'bool' => [
+                            'must' => [
+                                [
+                                    'match' => [
+                                        'name' => $name,
+                                    ],
                                 ],
-                            ],
-                            [
-                                'range' => [
-                                    'latitude' => [
-                                        'gte' => $latitude - 0.1,  // Adjust the range as needed
-                                        'lte' => $latitude + 0.1,  // Adjust the range as needed
+                                [
+                                    'range' => [
+                                        'latitude' => [
+                                            'gte' => $latitude - 0.1,  // Adjust the range as needed
+                                            'lte' => $latitude + 0.1,  // Adjust the range as needed
+                                        ],
                                     ],
                                 ],
                             ],
                         ],
                     ],
                 ],
-            ],
-        ];
+            ];
+        } else {
+            $params = [
+                'index' => $index,
+                'body' => [
+                    'query' => [
+                        'bool' => [
+                            'must' => [
+                                [
+                                    'match' => [
+                                        'name' => $name,
+                                    ],
+                                ],
+                                [
+                                    'match' => [
+                                        'city' => $city,
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ];
+        }
 
         $response = $client->search($params);
 

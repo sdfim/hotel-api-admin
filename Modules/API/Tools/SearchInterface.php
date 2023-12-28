@@ -4,6 +4,12 @@ namespace Modules\API\Tools;
 
 interface SearchInterface
 {
-    public function search(string $name, float $latitude): array;
+    /**
+     * @param string $name
+     * @param float $latitude
+     * @param string $city
+     * @return array
+     */
+    public function search(string $name, float $latitude, string $city): array;
 
 }

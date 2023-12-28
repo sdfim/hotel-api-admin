@@ -68,4 +68,5 @@ class GeneralConfigurationTestCustom extends CustomAuthorizedActionsTestCase
             'stop_bookings' => 1,
         ];
     }
+
 }
