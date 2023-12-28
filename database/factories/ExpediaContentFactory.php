@@ -26,7 +26,7 @@ class ExpediaContentFactory extends Factory
     {
 
         return [
-            'property_id' => $this->faker->unique()->numberBetween(1, 10000),
+            'property_id' => $this->faker->unique()->numberBetween(1, 100000),
             'rating' => $this->faker->randomFloat(2, 1, 5),
             'name' => $this->faker->name,
             'city' => $this->faker->city,

@@ -27,7 +27,7 @@ class GiataPropertyFactory extends Factory
         $addressLine = "Delhy No. $this->faker->numberBetween(1, 100), Viln $this->faker->word";
 
         return [
-            'code' => $this->faker->numberBetween(1, 10000),
+            'code' => $this->faker->numberBetween(1, 100000),
             'last_updated' => $this->faker->dateTimeThisDecade,
             'name' => $this->faker->name,
             'chain' => '{}',
