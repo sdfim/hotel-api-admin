@@ -1,4 +1,3 @@
-
 @php
     $record = json_decode($getRecord()->reservation_contains, true);
 
@@ -10,7 +9,7 @@
 	unset($record['search_id']);
 	unset($record['booking_item']);
 	unset($record['booking_id']);
-	
+
 	$array = [];
     if (is_array($record)) {
         foreach ($record as $key => $value) {
@@ -18,7 +17,7 @@
 				foreach ($value as $key => $item) {
 					if ($key === 'booking_item') continue;
 					$array[$key] = $item;
-				}			
+				}
 			} else if ($key !== 'hotel_images') $array[$key] = $value;
 		}
     }
@@ -36,7 +35,7 @@
 		}
 	}
 	$tooltip = $tooltipCol1 . $tooltipCol2 . '</div></div>';
-	
+
 @endphp
 
 <div x-data="{ tooltip: false }" style="padding: 5px;">

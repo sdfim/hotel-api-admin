@@ -3,14 +3,13 @@
     {{ __('Reservation Details') }}
 @endsection
 @section('css')
-    <link rel="stylesheet" href="{{ URL::asset('build/libs/glightbox/css/glightbox.min.css') }}">
+    <link rel="stylesheet" href="{{ URL::asset('build/libs/glightbox/css/glightbox.min.css') }}"/>
 @endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6 text-gray-700 dark:text-gray-100">
         <div class="card dark:bg-zinc-800 dark:border-zinc-600 ">
             <div class="card-body pb-0">
-                <h6 class="mb-1 text-15" x-data="{ message: '{{ $text['show'] }}' }"
-                    x-text="message"></h6>
+                <h6 class="mb-1 text-15" x-data="{ message: '{{ $text['show'] }}' }" x-text="message"></h6>
             </div>
             @php
                 $field = json_decode($reservation->reservation_contains, true);

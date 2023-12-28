@@ -21,85 +21,85 @@
                             </div>
                         </div>
                     </div>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Name:</strong>
-                            {{ $pricingRule->name }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Property:</strong>
-                            {{ $pricingRule->property }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Destination:</strong>
-                            {{ $pricingRule->destination }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Travel Date:</strong>
-                            {{ $pricingRule->travel_date }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Days until Travel:</strong>
-                            {{ $pricingRule->days }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Nights:</strong>
-                            {{ $pricingRule->nights }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Supplier:</strong>
-                            {{ $pricingRule->supplier_id}}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Rate Code:</strong>
-                            {{ $pricingRule->rate_code }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Room type:</strong>
-                            {{ $pricingRule->room_type }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Total Guests:</strong>
-                            {{ $pricingRule->total_guests }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Room Guests:</strong>
-                            {{ $pricingRule->room_guests }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Number of Rooms:</strong>
-                            {{ $pricingRule->number_rooms }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Meal Plan / Board Basis:</strong>
-                            {{ $pricingRule->meal_plan }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Rating:</strong>
-                            {{ $pricingRule->rating }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Create:</strong>
-                            {{ $pricingRule->created_at }}
-                        </div>
-                        <x-section-border/>
-                        <div class="mt-10 sm:mt-0">
-                            <strong>Update:</strong>
-                            {{ $pricingRule->updated_at }}
-                        </div>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Name:</strong>
+                        {{ $pricingRule->name }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Property:</strong>
+                        {{ $pricingRule->property }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Destination:</strong>
+                        {{ $pricingRule->destination }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Travel Date:</strong>
+                        {{ $pricingRule->travel_date }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Days until Travel:</strong>
+                        {{ $pricingRule->days }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Nights:</strong>
+                        {{ $pricingRule->nights }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Supplier:</strong>
+                        {{ $pricingRule->supplier_id}}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Rate Code:</strong>
+                        {{ $pricingRule->rate_code }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Room type:</strong>
+                        {{ $pricingRule->room_type }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Total Guests:</strong>
+                        {{ $pricingRule->total_guests }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Room Guests:</strong>
+                        {{ $pricingRule->room_guests }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Number of Rooms:</strong>
+                        {{ $pricingRule->number_rooms }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Meal Plan / Board Basis:</strong>
+                        {{ $pricingRule->meal_plan }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Rating:</strong>
+                        {{ $pricingRule->rating }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Create:</strong>
+                        {{ $pricingRule->created_at }}
+                    </div>
+                    <x-section-border/>
+                    <div class="mt-10 sm:mt-0">
+                        <strong>Update:</strong>
+                        {{ $pricingRule->updated_at }}
+                    </div>
                     <x-section-border/>
                 </div>
 

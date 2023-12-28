@@ -15,7 +15,7 @@
 				}
 			}
 			$arr = Arr::dot($fields);
-			
+
 			$destinationIcon = '<i class="fa-solid fa-house" style="color: #4466f0;"></i>';
 			$ratingIcon = '<i class="fa-solid fa-star"></i>';
 			$rating = '';
@@ -25,13 +25,13 @@
 						$rating .= $ratingIcon;
 					}
 				}
-				if ($key === 'destination') $str1 =  $destinationIcon . ' ' . $value  . ' <span style="color: #FFD700;"> ' . $rating . '</span>';		
+				if ($key === 'destination') $str1 =  $destinationIcon . ' ' . $value  . ' <span style="color: #FFD700;"> ' . $rating . '</span>';
 				if ($key === 'checkin') $str0 = $value . " - ";
 				if ($key === 'checkout') $str0 .= $value;
 			}
 			$str = '<div  class="p-2 text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight" ><p>' . $str0 . ' ' . $str1 . '</p><p>rooms: ' . json_encode($rooms) . '</p></div>';
 		}
     @endphp
-    
+
 @endif
 {!! $str !!}

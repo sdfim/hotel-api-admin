@@ -38,14 +38,14 @@
                         <span data-key="t-reservations"> Reservations</span>
                     </a>
                 </li>
-				<li>
+                <li>
                     <a href="{{ Route('pricing_rules.index') }}"
                        class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-network-3"></i>
                         <span data-key="t-pricing-rules"> Pricing Rule</span>
                     </a>
                 </li>
-				<li>
+                <li>
                     <a href="{{ Route('property-weighting.index') }}"
                        class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-weight"></i>
@@ -121,7 +121,7 @@
                                 ICE Portal
                             </a>
                         </li>
-						<li>
+                        <li>
                             <a href="{{ Route('expedia_charts') }}"
                                class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                 Charts
@@ -143,7 +143,7 @@
                         <span data-key="t-log-viewer"> Log Viewer</span>
                     </a>
                 </li>
-				<li>
+                <li>
                     <a href="{{ url(config('app.url').'/admin/api/documentation') }}"
                        class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-document-edit"></i>
