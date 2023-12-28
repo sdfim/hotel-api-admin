@@ -3,6 +3,7 @@
 namespace Tests\Feature\BaseAuthorizedActions;
 
 use App\Models\User;
+use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
@@ -53,7 +54,8 @@ class EmailVerificationTest extends TestCase
         Event::assertDispatched(Verified::class);
 
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
-        // $response->assertRedirect(RouteServiceProvider::HOME . '?verified=1');
+
+        $response->assertRedirect(RouteServiceProvider::HOME . '?verified=1');
     }
 
     /**

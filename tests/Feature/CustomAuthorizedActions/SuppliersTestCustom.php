@@ -77,7 +77,7 @@ class SuppliersTestCustom extends CustomAuthorizedActionsTestCase
 
         $response = $this->post(route('suppliers.store'), $data);
 
-        // $response->assertRedirect(route('suppliers.index'));
+        $response->assertRedirect(route('suppliers.index'));
 
         $this->assertDatabaseHas('suppliers', $data);
 

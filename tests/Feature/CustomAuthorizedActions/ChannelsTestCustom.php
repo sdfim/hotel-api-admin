@@ -52,8 +52,11 @@ class ChannelsTestCustom extends CustomAuthorizedActionsTestCase
         ]);
 
         $response->assertStatus(302);
-        // $response->assertRedirect('/admin/channels');
-        $this->assertDatabaseHas('channels', ['name' => 'New Channel Name']); // Check if the data is in the database
+
+        $response->assertRedirect('/admin/channels');
+
+        // Check if the data is in the database
+        $this->assertDatabaseHas('channels', ['name' => 'New Channel Name']);
     }
 
     /**
@@ -68,7 +71,8 @@ class ChannelsTestCustom extends CustomAuthorizedActionsTestCase
         ];
 
         $response = $this->post(route('channels.store'), $data);
-        // $response->assertRedirect(route('channels.index'));
+
+        $response->assertRedirect(route('channels.index'));
 
         $this->assertDatabaseHas('channels', $data);
 
@@ -116,7 +120,9 @@ class ChannelsTestCustom extends CustomAuthorizedActionsTestCase
         $response = $this->delete("/admin/channels/$channel->id");
 
         $response->assertStatus(302);
-        // $response->assertRedirect('/admin/channels');
+
+        $response->assertRedirect('/admin/channels');
+
         $this->assertDatabaseMissing('channels', ['id' => $channel->id]);
     }
 
