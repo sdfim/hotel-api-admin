@@ -56,7 +56,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
         livewire::test(ExpediaTable::class)
             ->searchTable($name)
-            ->assertCanSeeTableRecords($this->expedia->where($this->faker->name, $name))
+            ->assertCanSeeTableRecords($this->expedia->where('name', $name))
             ->assertCanNotSeeTableRecords($this->expedia->where('name', '!=', $name));
     }
 
@@ -70,7 +70,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
         livewire::test(ExpediaTable::class)
             ->searchTable('name')
-            ->assertCanSeeTableRecords($this->expedia->where($this->faker->name, $nameToFilter))
+            ->assertCanSeeTableRecords($this->expedia->where('name', $nameToFilter))
             ->assertCanNotSeeTableRecords($this->expedia->where('name', '!=', $nameToFilter));
     }
 
@@ -86,7 +86,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
         livewire::test(ExpediaTable::class)
             ->searchTable('city')
-            ->assertCanSeeTableRecords($this->expedia->where($this->faker->city, $cityToFilter))
+            ->assertCanSeeTableRecords($this->expedia->where('city', $cityToFilter))
             ->assertCanNotSeeTableRecords($this->expedia->where('city', '!=', $cityToFilter1));
     }
 }

@@ -58,7 +58,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
         livewire::test(GiataTable::class)
             ->searchTable($name)
-            ->assertCanSeeTableRecords($this->giata->where($this->faker->name, $name))
+            ->assertCanSeeTableRecords($this->giata->where('name', $name))
             ->assertDontSee($name1);
     }
 
