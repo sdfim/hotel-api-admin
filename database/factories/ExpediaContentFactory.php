@@ -27,13 +27,14 @@ class ExpediaContentFactory extends Factory
 
         return [
             'property_id' => $this->faker->unique()->numberBetween(1, 10000),
-            'rating' => $this->faker->randomFloat(2, 1, 5), 
+            'rating' => $this->faker->randomFloat(2, 1, 5),
             'name' => $this->faker->name,
             'city' => $this->faker->city,
             'latitude' => $this->faker->latitude,
             'longitude' => $this->faker->longitude,
             'phone' => $this->faker->phoneNumber,
             'total_occupancy' => $this->faker->word,
+            'is_active' => rand(0, 1),
             'address' => '{
                 "city": "New Delhi",
                 "line_1": "Plot No. ' . $this->faker->numberBetween(1, 100) . ', GMR' . $this->faker->word . '",
