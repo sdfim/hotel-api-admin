@@ -27,7 +27,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
         $this->giata = GiataProperty::take(10)->get();
 
-        if (!$this->giata->isEmpty() && env('SECOND_DB_HOST') === 'mysql') $this->giata = GiataProperty::factory()->count(10)->create();
+        if ($this->giata->isEmpty() && env('SECOND_DB_HOST') === 'mysql') $this->giata = GiataProperty::factory()->count(10)->create();
     }
 
     /**
