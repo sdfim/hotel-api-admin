@@ -131,12 +131,12 @@ class RouteApiController extends Controller
         }
 
         $giataGeography = GiataGeography::select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_id')
-                ->where('city_name', 'like', $request->get('city').'%')
-                ->limit(35)
-                ->orderBy('city_id', 'asc')
-                ->get()
-                ->pluck('city_id', 'full_name')
-                ->toArray();
+            ->where('city_name', 'like', $request->get('city').'%')
+            ->limit(35)
+            ->orderBy('city_id', 'asc')
+            ->get()
+            ->pluck('city_id', 'full_name')
+            ->toArray();
 
         $destinations = [];
         foreach ($giataGeography as $key => $value) {
@@ -154,11 +154,19 @@ class RouteApiController extends Controller
         return response()->json($response);
     }
 
+    /**
+     * @param $value
+     * @return bool
+     */
     public static function isTypeValid($value): bool
     {
         return in_array($value, [self::TYPE_HOTEL, self::TYPE_FLIGHT, self::TYPE_COMBO], true);
     }
 
+    /**
+     * @param $value
+     * @return bool
+     */
     public static function isRouteValid($value): bool
     {
         return in_array($value, [self::ROUTE_SEARCH, self::ROUTE_DETAIL, self::ROUTE_PRICE], true);

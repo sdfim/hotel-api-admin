@@ -41,6 +41,7 @@ class IceHbsiPropertyTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->searchable(isIndividual: true),
                 TextColumn::make('name')
+                    ->html()
                     ->toggleable()
                     ->sortable()
                     ->searchable(isIndividual: true),

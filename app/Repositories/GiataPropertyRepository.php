@@ -110,7 +110,7 @@ class GiataPropertyRepository
         $code = 0;
         $resName = '';
         foreach ($giata as $item) {
-            similar_text($item['name'], $hotelName, $perc1);
+            similar_text(strtolower($item['name']), strtolower($hotelName), $perc1);
             if ($perc1 > $perc) {
                 $perc = $perc1;
                 $code = $item['code'];
