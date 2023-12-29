@@ -109,6 +109,7 @@ class GiataPropertyRepository
     public function getGiataCode(string $supplier, int $id, string $hotelName, float $latitude, string $city): array
     {
         $this->start();
+        $hotelName = iconv('UTF-8', 'ISO-8859-1//TRANSLIT//IGNORE', $hotelName);
         $giata = $this->search($hotelName, $latitude, $city);
         if (empty($giata)) $giata = $this->search($hotelName, 0, $city);
 
@@ -124,7 +125,7 @@ class GiataPropertyRepository
             }
         }
 
-        if ($supplier == 'ICE_PORTAL' && ! in_array($id.'_'.$code, $this->listBatchHbsi)) {
+        if ($supplier == 'ICE_PORTAL' && ! in_array($id.'_'.$code, $this->listBatchHbsi) && $perc !== 0) {
             $this->batchIcePortal[] = [
                 'ice_portal_id' => $id,
                 'giata_id' => $code,

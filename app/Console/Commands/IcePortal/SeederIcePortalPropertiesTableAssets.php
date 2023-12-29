@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands\IcePortal;
 
+use App\Models\GiataProperty;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class SeederIcePortalPropertiesTableAssets extends Command
@@ -31,11 +33,20 @@ class SeederIcePortalPropertiesTableAssets extends Command
     {
         $p =  $this->argument('p');
         $this->info('seeder-ice-portal-assets started '.$p);
+        if ($p === 'all') {
+            $ct = DB::table('ujv_api.giata_properties')
+                ->distinct()
+                ->pluck('city');
+            $count = count($ct);
+        } else {
+            $ct = $this->cities($p);
+            $count = count($ct);
+        }
         $i = 0;
-        foreach ($this->cities($p) as $city) {
+        foreach ($ct as $city) {
             $i++;
             $startTime = microtime(true);
-            $this->warn($city.' started '.$i.' of '.count($this->cities($p)).' cities');
+            $this->warn($city.' started '.$i.' of '.$count.' cities');
 
             $codeCity = $this->getcityCode($city);
             $this->info($city.' codeCity '.$codeCity);
@@ -276,6 +287,56 @@ class SeederIcePortalPropertiesTableAssets extends Command
             'Cleveland',
             'Tampa',
             'Bakersfield',
+        ];
+        $cities[4] = [
+            'Amsterdam',
+            'Vienna',
+            'Zurich',
+            'Stockholm',
+            'Copenhagen',
+            'Dublin',
+            'Brussels',
+            'Prague',
+            'Warsaw',
+            'Budapest',
+            'Athens',
+            'Istanbul',
+            'Dubai',
+            'Marrakech',
+            'Cairo',
+            'Cape Town',
+            'Nairobi',
+            'Mauritius',
+            'Havana',
+            'Mexico City',
+            'Buenos Aires',
+            'Santiago',
+            'Lima',
+            'Quito',
+            'Bogota',
+            'Caracas',
+            'Panama City',
+            'Guatemala City',
+            'San Salvador',
+            'San Jose',
+            'Helsinki',
+            'Oslo',
+            'Reykjavik',
+            'Bucharest',
+            'Sofia',
+            'Ljubljana',
+            'Vilnius',
+            'Riga',
+            'Tallinn',
+            'Hanoi',
+            'Ho Chi Minh City',
+            'Phnom Penh',
+            'Kuala Lumpur',
+            'Jakarta',
+            'Manila',
+            'Auckland',
+            'Wellington',
+            'Christchurch',
         ];
         return $cities[$p] ?? [];
     }

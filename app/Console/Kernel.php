@@ -21,6 +21,8 @@ class Kernel extends ConsoleKernel
 
 //        $schedule->command('test-speed-db')->cron('10 * * * *');
         $schedule->command('test-command-time')->cron('10 * * * *');
+
+        $schedule->command('seeder-ice-portal-assets all')->cron('0 6 * * *');
     }
 
     /**
