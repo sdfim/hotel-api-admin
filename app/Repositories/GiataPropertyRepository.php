@@ -110,6 +110,7 @@ class GiataPropertyRepository
     {
         $this->start();
         $giata = $this->search($hotelName, $latitude, $city);
+        if (empty($giata)) $giata = $this->search($hotelName, 0, $city);
 
         $perc = 0;
         $code = 0;
