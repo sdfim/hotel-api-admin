@@ -64,7 +64,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      * @test
      * @return void
      */
-    public function test_possibility_of_filtering_by_name(): void
+    public function test_possibility_of_searching_by_name(): void
     {
         $name = $this->expedia->first()->name;
 
@@ -78,7 +78,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      * @test
      * @return void
      */
-    public function test_possibility_of_filtering_by_city(): void
+    public function test_possibility_of_searching_by_city(): void
     {
         $city = $this->expedia->last()->city;
 
