@@ -8,8 +8,7 @@ use Illuminate\Support\Facades\Http;
 
 class SeederIcePortalPropertiesTableAssets extends Command
 {
-    protected $signature = 'seeder-ice-portal-assets';
-
+    protected $signature = 'seeder-ice-portal-assets {p}';
     protected $description = 'Command description';
 
     protected PendingRequest $client;
@@ -30,11 +29,13 @@ class SeederIcePortalPropertiesTableAssets extends Command
      */
     public function handle(): void
     {
+        $p =  $this->argument('p');
+        $this->info('seeder-ice-portal-assets started '.$p);
         $i = 0;
-        foreach ($this->cities() as $city) {
+        foreach ($this->cities($p) as $city) {
             $i++;
             $startTime = microtime(true);
-            $this->warn($city.' started '.$i.' of '.count($this->cities()).' cities');
+            $this->warn($city.' started '.$i.' of '.count($this->cities($p)).' cities');
 
             $codeCity = $this->getcityCode($city);
             $this->info($city.' codeCity '.$codeCity);
@@ -89,9 +90,9 @@ class SeederIcePortalPropertiesTableAssets extends Command
     /**
      * @return string[]
      */
-    private function cities(): array
+    private function cities(int $p): array
     {
-        return [
+        $cities[1] = [
             'Rome',
             'Milan',
             'Venice',
@@ -172,5 +173,110 @@ class SeederIcePortalPropertiesTableAssets extends Command
             'Sao Paulo',
             'Salvador',
         ];
+        $cities[2] = [
+            'Aurora',
+            'Anaheim',
+            'Santa Ana',
+            'Corpus Christi',
+            'Riverside',
+            'St. Louis',
+            'Lexington',
+            'Stockton',
+            'Pittsburgh',
+            'Saint Paul',
+            'Anchorage',
+            'Cincinnati',
+            'Henderson',
+            'Greensboro',
+            'Plano',
+            'Newark',
+            'Toledo',
+            'Lincoln',
+            'Orlando',
+            'Chula Vista',
+            'Jersey City',
+            'Chandler',
+            'Madison',
+            'Lubbock',
+            'Durham',
+            'Fort Wayne',
+            'St. Petersburg',
+            'Laredo',
+            'Buffalo',
+            'Reno',
+            'Gilbert',
+            'Glendale',
+            'Winston-Salem',
+            'North Las Vegas',
+            'Norfolk',
+            'Chesapeake',
+            'Garland',
+            'Irving',
+            'Hialeah',
+            'Fremont',
+            'Boise',
+            'Richmond',
+            'Baton Rouge',
+            'Spokane',
+            'Des Moines',
+            'Montgomery',
+            'Tacoma',
+            'Shreveport',
+            'San Bernardino',
+            'Modesto',
+        ];
+        $cities[3] = [
+            'Phoenix',
+            'Dallas',
+            'Houston',
+            'San Antonio',
+            'Austin',
+            'Fort Worth',
+            'San Jose',
+            'Jacksonville',
+            'Columbus',
+            'Charlotte',
+            'Indianapolis',
+            'San Francisco',
+            'Columbus',
+            'Fort Worth',
+            'El Paso',
+            'Detroit',
+            'Memphis',
+            'Seattle',
+            'Denver',
+            'Washington',
+            'Boston',
+            'Nashville',
+            'Baltimore',
+            'Oklahoma City',
+            'Louisville',
+            'Portland',
+            'Las Vegas',
+            'Milwaukee',
+            'Albuquerque',
+            'Tucson',
+            'Fresno',
+            'Sacramento',
+            'Long Beach',
+            'Kansas City',
+            'Mesa',
+            'Virginia Beach',
+            'Atlanta',
+            'Colorado Springs',
+            'Raleigh',
+            'Omaha',
+            'Miami',
+            'Oakland',
+            'Tulsa',
+            'Minneapolis',
+            'Wichita',
+            'New Orleans',
+            'Arlington',
+            'Cleveland',
+            'Tampa',
+            'Bakersfield',
+        ];
+        return $cities[$p] ?? [];
     }
 }
