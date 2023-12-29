@@ -20,9 +20,9 @@
             <directory>app/Livewire</directory>
             <directory>Modules/AdministrationSuite</directory>
         </include>
-        <!--		<exclude>-->
-        <!--			<directory>app/Livewire/Charts</directory>-->
-        <!--		</exclude>-->
+        <exclude>
+            <directory>app/Livewire/Charts</directory>
+        </exclude>
     </source>
     <php>
         <ini name="memory_limit" value="2048M"/>
