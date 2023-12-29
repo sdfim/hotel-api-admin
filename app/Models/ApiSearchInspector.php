@@ -17,10 +17,18 @@ class ApiSearchInspector extends Model
      * @var string
      */
     protected $table = 'api_search_inspector';
-	protected $primaryKey = 'search_id';
-	public $incrementing = false;
 
-	 /**
+    /**
+     * @var string
+     */
+    protected $primaryKey = 'search_id';
+
+    /**
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
      * Get the auto-incrementing key type.
      *
      * @return string
@@ -52,7 +60,7 @@ class ApiSearchInspector extends Model
         return $this->belongsTo(PersonalAccessToken::class);
     }
 
-	/**
+    /**
      * Get the search for the bookingItem.
      */
     public function bookingItem(): HasMany
@@ -60,7 +68,7 @@ class ApiSearchInspector extends Model
         return $this->hasMany(ApiBookingItem::class, 'search_id', 'search_id');
     }
 
-	/**
+    /**
      * Get the search for the bookingInspector.
      */
     public function apiBookingInspector(): HasMany
@@ -79,7 +87,7 @@ class ApiSearchInspector extends Model
 
         static::deleted(function ($model) {
             Storage::delete($model->response_path);
-			Storage::delete($model->client_response_path);
+            Storage::delete($model->client_response_path);
         });
     }
 }

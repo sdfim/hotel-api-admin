@@ -15,8 +15,14 @@ class GiataProperty extends Model
      */
     protected $connection;
 
+    /**
+     * @var string
+     */
     protected $primaryKey = 'code';
 
+    /**
+     * @var bool
+     */
     public $incrementing = false;
 
     /**
@@ -52,18 +58,27 @@ class GiataProperty extends Model
         'cross_references' => 'json',
     ];
 
+    /**
+     * @param array $attributes
+     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
-        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api').'.'.'giata_properties';
+        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'giata_properties';
     }
 
+    /**
+     * @return HasOne
+     */
     public function mapperExpediaGiata(): HasOne
     {
         return $this->hasOne(MapperExpediaGiata::class, 'giata_code', 'code');
     }
 
+    /**
+     * @return HasOne
+     */
     public function giataGeography(): HasOne
     {
         return $this->hasOne(GiataGeography::class, 'city_id', 'city_id');

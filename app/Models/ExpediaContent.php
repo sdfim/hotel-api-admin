@@ -15,21 +15,33 @@ class ExpediaContent extends Model
      * @var mixed
      */
     protected $connection;
-	protected $primaryKey = 'property_id';
-	public $incrementing = false;
-	public const TABLE = 'expedia_content_main';
 
-	/**
+    /**
+     * @var string
+     */
+    protected $primaryKey = 'property_id';
+
+    /**
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
+     *
+     */
+    public const TABLE = 'expedia_content_main';
+
+    /**
      * @var string[]
      */
     protected $fillable = [
         'property_id',
-		'name',
-		'address',
-		'ratings',
-		'location',
-		'latitude',
-		'longitude',
+        'name',
+        'address',
+        'ratings',
+        'location',
+        'latitude',
+        'longitude',
     ];
 
     /**
@@ -94,5 +106,4 @@ class ExpediaContent extends Model
     {
         return $this->hasOne(ExpediaContentSlave::class, 'expedia_property_id', 'property_id');
     }
-
 }

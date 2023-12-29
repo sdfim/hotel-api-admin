@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class IcePortalPropery extends Model
 {
@@ -14,8 +15,14 @@ class IcePortalPropery extends Model
      */
     protected $connection;
 
+    /**
+     * @var string
+     */
     protected $primaryKey = 'code';
 
+    /**
+     * @var bool
+     */
     public $incrementing = false;
 
     /**
@@ -45,13 +52,19 @@ class IcePortalPropery extends Model
         'amenities' => 'json',
     ];
 
+    /**
+     * @param array $attributes
+     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
-        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api').'.'.'ice_hbsi_properties';
+        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'ice_hbsi_properties';
     }
 
+    /**
+     * @return HasMany
+     */
     public function mapperHbsiGiata()
     {
         return $this->hasMany(MapperIcePortalGiata::class, 'ice_portal_id', 'code');
