@@ -10,22 +10,22 @@
         </testsuite>
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
-			<exclude>tests/Feature/API</exclude>
+            <exclude>tests/Feature/API</exclude>
         </testsuite>
     </testsuites>
     <source>
         <include>
             <directory>app/Providers</directory>
-			<directory>app/Actions</directory>
+            <directory>app/Actions</directory>
             <directory>app/Livewire</directory>
             <directory>Modules/AdministrationSuite</directory>
         </include>
-		<exclude>
-			<directory>app/Livewire/Charts</directory>
-		</exclude>
+        <exclude>
+            <directory>app/Livewire/Charts</directory>
+        </exclude>
     </source>
     <php>
-        <ini name="memory_limit" value="2048M" />
+        <ini name="memory_limit" value="2048M"/>
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_DRIVER" value="array"/>

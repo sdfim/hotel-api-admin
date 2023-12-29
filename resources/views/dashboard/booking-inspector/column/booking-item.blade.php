@@ -5,7 +5,7 @@
     }else{
         $str = '';
     }
-	
+
 @endphp
 
 <div class="m-5">{!! $str !!}</div>

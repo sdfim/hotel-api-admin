@@ -1,9 +1,8 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\BaseAuthorizedActions;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
 use Laravel\Jetstream\Http\Livewire\TwoFactorAuthenticationForm;
 use Livewire\Livewire;
@@ -11,8 +10,6 @@ use Tests\TestCase;
 
 class TwoFactorAuthenticationSettingsTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @test
      * @return void
@@ -59,6 +56,7 @@ class TwoFactorAuthenticationSettingsTest extends TestCase
         $component->call('regenerateRecoveryCodes');
 
         $this->assertCount(8, $user->recoveryCodes());
+
         $this->assertCount(8, array_diff($user->recoveryCodes(), $user->fresh()->recoveryCodes()));
     }
 

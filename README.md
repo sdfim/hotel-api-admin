@@ -303,24 +303,19 @@ If the .env.testing file is not present, the variables from the `.env` file will
 (see `.env.example` for guidance).
 This file should be created manually if it doesn't exist.
 
-It is convenient to use the `RDS` when running tests because it contains a full data set.
+Using `RDS`(or its local copy) for running tests is convenient due to its inclusion of a full dataset.
 However, the project has specific considerations for testing.
 
-When running tests from the `tests/Feature/API` folder, we should exclusively use `RDS` data credentials.
-For all other test classes or folders with test classes,
-we must use a local database to avoid creating fake records in the real or production data.
-This precaution is necessary because some `Feature` tests generate fake data using `Factories`
-and clear the database after testing is complete.
+It's essential to refrain from using `Factories` in tests for `Models`
+(tables) located in the second database(`RDS` or its `local copy`).
+It is crucial to refrain from using fake data in the tables of the second database(`RDS` or its `local copy`).
 
-To implement this, we need to run tests for the `API`(`tests/Feature/API` folder) separately from other tests.
-For ease of use, we can have two identical sections in the `.env.testing` file with variable keys
-for connecting to the second database(can be either an `RDS` database or a local database, this database may contain 
-a copy of data from `RDS`, but often it is empty, especially considering that the database in `RDS` is typically large, 
-as is the case in our situation).
+Additionally, if the `use RefreshDatabase;` trait is being employed, it is advisable to set up a separate test database 
+for the initial connection to avoid losing all data from the local database.
+This precaution is necessary because, after all tests are executed, the `php artisan migrate:fresh --seed` 
+command is run.
 
-It is necessary to comment on or expand the necessary settings before starting the tests.
-
-The provided sample should be used when running `API` tests:
+The provided sample should be used when running tests with `RDS` database in the second DB connection:
 
 ```dotenv
 DB_CONNECTION=mysql
@@ -345,7 +340,8 @@ SECOND_DB_PASSWORD=rds-password
 #SECOND_DB_PASSWORD=mysqlsecretpasswd
 ```
 
-The provided sample should be used for tests `other than API` tests:
+The provided sample should be utilized when running tests with a local copy of the `RDS` 
+database in the second database connection:
 
 ```dotenv
 DB_CONNECTION=mysql
@@ -356,7 +352,7 @@ DB_USERNAME=admin
 DB_PASSWORD=mysqlsecretpasswd
 
 #DB_CONNECTION_2=mysql2
-#SECOND_DB_HOST=ujv-rds-dev.************.us-east-1.rds.amazonaws.com
+#SECOND_DB_HOST=ujv-rds-db.************.us-east-1.rds.amazonaws.com
 #SECOND_DB_PORT=3306
 #SECOND_DB_DATABASE=ujv_api
 #SECOND_DB_USERNAME=admin

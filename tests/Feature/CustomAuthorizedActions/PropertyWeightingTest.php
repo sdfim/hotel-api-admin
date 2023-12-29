@@ -1,21 +1,16 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\CustomAuthorizedActions;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use App\Livewire\PropertyWeighting\CreatePropertyWeighting;
 use App\Models\Supplier;
-use App\Models\User;
 use App\Models\PropertyWeighting;
 use Livewire\Livewire;
 use App\Livewire\PropertyWeighting\UpdatePropertyWeighting;
 
-
-class PropertyWeightingTest extends TestCase
+class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
 {
-    use RefreshDatabase;
     use WithFaker;
 
     /**
@@ -24,8 +19,6 @@ class PropertyWeightingTest extends TestCase
      */
     public function test_validation_of_property_weighting_form_during_creation(): void
     {
-        $this->auth();
-
         Livewire::test(CreatePropertyWeighting::class)
             ->set('data', [
                 'property' => '',
@@ -44,9 +37,8 @@ class PropertyWeightingTest extends TestCase
      */
     public function test_property_weighting_form_validation_and_possibility_of_creating_new_property_weighting(): void
     {
-        $this->auth();
-
         $supplier = Supplier::factory()->create();
+
         $data = [
             'property' => $this->faker->numberBetween(1, 10000),
             'weight' => 1,
@@ -67,9 +59,8 @@ class PropertyWeightingTest extends TestCase
      */
     public function test_property_weighting_index_is_opening(): void
     {
-        $this->auth();
-
         $response = $this->get('/admin/property-weighting');
+
         $response->assertStatus(200);
     }
 
@@ -79,8 +70,8 @@ class PropertyWeightingTest extends TestCase
      */
     public function test_property_weighting_creating_is_opening(): void
     {
-        $this->auth();
         $response = $this->get('/admin/property-weighting/create');
+
         $response->assertStatus(200);
     }
 
@@ -90,26 +81,25 @@ class PropertyWeightingTest extends TestCase
      */
     public function test_property_weighting_showing_is_opening(): void
     {
-        $this->auth();
-
         $propertyWeighting = PropertyWeighting::factory()->create();
 
         $response = $this->get(route('property-weighting.show', $propertyWeighting->id));
+
         $response->assertStatus(200);
     }
-    
+
     /**
      * @test
      * @return void
      */
     public function test_possibility_of_updating_an_existing_property_weighting(): void
     {
-        $this->auth();
         $property_weighting = PropertyWeighting::factory()->create();
+
         $supplier = Supplier::factory()->create();
 
         Livewire::test(UpdatePropertyWeighting::class, ['propertyWeighting' => $property_weighting])
-            ->set('data.property',$this->faker->numberBetween(1, 10000))
+            ->set('data.property', $this->faker->numberBetween(1, 10000))
             ->set('data.weight', 2)
             ->set('data.supplier_id', $supplier->id)
             ->call('edit')
@@ -117,19 +107,6 @@ class PropertyWeightingTest extends TestCase
         $this->assertDatabaseHas('property_weightings', [
             'id' => $property_weighting->id,
             'supplier_id' => $supplier->id,
-        ]);
-    }
-
-    /**
-     * @return void
-     */
-    public function auth(): void
-    {
-        $user = User::factory()->create();
-
-        $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
         ]);
     }
 }
