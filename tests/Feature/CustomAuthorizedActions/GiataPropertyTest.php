@@ -4,15 +4,12 @@ namespace Tests\Feature\CustomAuthorizedActions;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\WithFaker;
 use App\Livewire\GiataTable;
 use App\Models\GiataProperty;
 use Livewire\Livewire;
 
 class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 {
-    use WithFaker;
-
     /**
      * @var Collection|GiataProperty|Model|null
      */

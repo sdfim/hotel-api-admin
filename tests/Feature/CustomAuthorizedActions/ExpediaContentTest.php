@@ -3,7 +3,6 @@
 namespace Tests\Feature\CustomAuthorizedActions;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Testing\WithFaker;
 use App\Livewire\ExpediaTable;
 use App\Models\ExpediaContent;
 use Livewire\Livewire;
@@ -11,8 +10,6 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 {
-    use WithFaker;
-
     /**
      * @var Model|Collection|ExpediaContent|null
      */
