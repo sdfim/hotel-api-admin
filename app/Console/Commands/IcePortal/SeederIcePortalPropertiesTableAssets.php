@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\IcePortal;
 
-use App\Models\GiataProperty;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\DB;
@@ -11,14 +10,17 @@ use Illuminate\Support\Facades\Http;
 class SeederIcePortalPropertiesTableAssets extends Command
 {
     protected $signature = 'seeder-ice-portal-assets {p}';
+
     protected $description = 'Command description';
 
     protected PendingRequest $client;
+
     protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
+
     protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
-//    protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
-//    protected const BASE_URI = 'http://localhost:8008';
+    //    protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
+    //    protected const BASE_URI = 'http://localhost:8008';
 
     public function __construct()
     {
@@ -26,12 +28,9 @@ class SeederIcePortalPropertiesTableAssets extends Command
         $this->client = Http::withToken(self::TOKEN)->timeout(3600);
     }
 
-    /**
-     * @return void
-     */
     public function handle(): void
     {
-        $p =  $this->argument('p');
+        $p = $this->argument('p');
         $this->info('seeder-ice-portal-assets started '.$p);
         if ($p === 'all') {
             $ct = DB::table('ujv_api.giata_properties')
@@ -45,6 +44,9 @@ class SeederIcePortalPropertiesTableAssets extends Command
         $i = 0;
         foreach ($ct as $city) {
             $i++;
+            // temporary
+            if ($i < 1000) continue;
+
             $startTime = microtime(true);
             $this->warn($city.' started '.$i.' of '.$count.' cities');
 
@@ -53,25 +55,25 @@ class SeederIcePortalPropertiesTableAssets extends Command
 
             if ($codeCity === 0) {
                 $this->error($city.' error '.$codeCity);
+
                 continue;
             }
 
             $data = $this->makeSearch($codeCity);
             if ($data['success'] === 0 || ! isset($data['data']['results']) || is_null($data)) {
                 $this->error($city.' error '.$codeCity);
+
                 continue;
             }
             $runTime = microtime(true) - $startTime;
             $this->info($city.' completed '.$codeCity.' - '.$data['success'].
-                ' count: '.count($data['data']['results']['general']).
+                ' count: '.(isset($data['data']['results']['IcePortal']) ?
+                    count($data['data']['results']['IcePortal']) :
+                    count($data['data']['results']['general'])).
                 ' runTime: '.$runTime.' seconds');
         }
     }
 
-    /**
-     * @param int $codeCity
-     * @return array
-     */
     private function makeSearch(int $codeCity = 961): array
     {
         $requestData = [
@@ -86,10 +88,6 @@ class SeederIcePortalPropertiesTableAssets extends Command
         return $response->json() ?? [];
     }
 
-    /**
-     * @param string $city
-     * @return int
-     */
     private function getcityCode(string $city): int
     {
         $response = $this->client->get(self::BASE_URI.'/api/content/destinations', ['city' => $city]);
@@ -338,6 +336,7 @@ class SeederIcePortalPropertiesTableAssets extends Command
             'Wellington',
             'Christchurch',
         ];
+
         return $cities[$p] ?? [];
     }
 }
