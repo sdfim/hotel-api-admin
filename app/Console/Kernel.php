@@ -13,16 +13,16 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         # Expedia Content download archive, unzip, parse json, write to DB
-        $schedule->command('download-expedia-data content 12345')->cron('0 1 * * *');
-
-        $schedule->command('purge-baskets')->cron('0 1 * * *');
-        $schedule->command('purge-inspectors')->cron('0 1 * * *');
-        $schedule->command('purge-pricing-rules')->cron('0 1 * * *');
-
-//        $schedule->command('test-speed-db')->cron('10 * * * *');
-        $schedule->command('test-command-time')->cron('10 * * * *');
-
-        $schedule->command('seeder-ice-portal-assets all')->cron('0 6 * * *');
+//        $schedule->command('download-expedia-data content 12345')->cron('0 1 * * *');
+//
+//        $schedule->command('purge-baskets')->cron('0 1 * * *');
+//        $schedule->command('purge-inspectors')->cron('0 1 * * *');
+//        $schedule->command('purge-pricing-rules')->cron('0 1 * * *');
+//
+////        $schedule->command('test-speed-db')->cron('10 * * * *');
+//        $schedule->command('test-command-time')->cron('10 * * * *');
+//
+//        $schedule->command('seeder-ice-portal-assets all')->cron('0 6 * * *');
     }
 
     /**
