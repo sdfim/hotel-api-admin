@@ -14,11 +14,11 @@ class SeederIcePortalPropertiesTableAssets extends Command
     protected $description = 'Command description';
 
     protected PendingRequest $client;
-    // protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
-    // protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
+    protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
+    protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
-    protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
-    protected const BASE_URI = 'http://localhost:8008';
+//    protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
+//    protected const BASE_URI = 'http://localhost:8008';
 
     public function __construct()
     {
