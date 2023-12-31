@@ -45,7 +45,7 @@ class SeederIcePortalPropertiesTableAssets extends Command
         foreach ($ct as $city) {
             $i++;
             // temporary
-            if ($i < 1000) continue;
+            if ($i < 40000) continue;
 
             $startTime = microtime(true);
             $this->warn($city.' started '.$i.' of '.$count.' cities');
