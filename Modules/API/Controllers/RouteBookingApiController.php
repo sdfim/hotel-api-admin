@@ -16,85 +16,49 @@ use App\Models\ApiBookingInspector;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 
+
 class RouteBookingApiController extends Controller
 {
-    /**
-     *
-     */
-    private const DEFAULT_SUPPLIER = 'expedia';
-    /**
-     *
-     */
     private const TYPE_HOTEL = 'hotel';
-    /**
-     *
-     */
+
     private const TYPE_FLIGHT = 'flight';
-    /**
-     *
-     */
+
     private const TYPE_COMBO = 'combo';
-    /**
-     *
-     */
+
     private const ROUTE_ADD_ITEM = 'addItem';
-    /**
-     *
-     */
+
     private const ROUTE_REMOVE_ITEM = 'removeItem';
-    /**
-     *
-     */
+
     private const ROUTE_CHANGE_ITEMS = 'changeItems';
-    /**
-     *
-     */
+
     private const ROUTE_RETRIEVE_ITEMS = 'retrieveItems';
-    /**
-     *
-     */
+
     private const ROUTE_ADD_PASSENGERS = 'addPassengers';
-    /**
-     *
-     */
+
     private const ROUTE_BOOK = 'book';
-    /**
-     *
-     */
+
     private const ROUTE_LIST_BOOKINGS = 'listBookings';
-    /**
-     *
-     */
+
     private const ROUTE_RETRIEVE_BOOKING = 'retrieveBooking';
-    /**
-     *
-     */
+
     private const ROUTE_CANCEL_BOOKING = 'cancelBooking';
-	/**
-	 *
-	 */
+
 	private const ROUTE_CHANGE_BOOKING = 'changeBooking';
+
     /**
      * @var string|null
      */
     private string|null $type;
+
     /**
      * @var string|null
      */
     private string|null $supplier;
+
     /**
      * @var string|null
      */
     private string|null $route;
-    /**
-     * @param RouteBookingApiStrategy $strategy
-     */
-    public function __construct(RouteBookingApiStrategy $strategy)
-    {
-        $this->type = null;
-        $this->supplier = null;
-        $this->route = null;
-    }
 
     /**
      * @param Request $request
@@ -115,7 +79,6 @@ class RouteBookingApiController extends Controller
             default => response()->json(['message' => 'Invalid route'], 400),
         };
 
-
         return match ($this->route) {
             'addItem' => $dataHandler->addItem($request, $this->supplier),
             'removeItem' => $dataHandler->removeItem($request, $this->supplier),
@@ -133,9 +96,8 @@ class RouteBookingApiController extends Controller
         $this->supplier = $request->get('supplier') ?? null;
 
 		$requestTokenId = PersonalAccessToken::findToken($request->bearerToken())->id;
-		$dbTokenId = null;
 
-		# Autodetect type by booking_item and chek Owner token
+		# Autodetect type by booking_item and check Owner token
 		if($request->has('booking_item')) {
 			if (!$this->validatedUuid('booking_item')) return [];
 			$apiBookingItem = ApiBookingItem::where('booking_item', $request->get('booking_item'))->with('search')->first();
@@ -146,7 +108,7 @@ class RouteBookingApiController extends Controller
 			$this->type = SearchRepository::geTypeBySearchId($apiBookingItem->search_id);
 		}
 
-		# Autodetect type and supplier by booking_id and chek Owner token
+		# Autodetect type and supplier by booking_id and check Owner token
         if ($request->has('booking_id')) {
 			if (!$this->validatedUuid('booking_id')) return ['error' => 'Invalid booking_id'];
             $bi = BookingRepository::geTypeSupplierByBookingId($request->get('booking_id'));

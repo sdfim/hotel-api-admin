@@ -4,7 +4,6 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
-use Modules\API\Controllers\ExpediaHotelApiHandler;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Suppliers\ExpediaSupplier\PropertyCallFactory;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;

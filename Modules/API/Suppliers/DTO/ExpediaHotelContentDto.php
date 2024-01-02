@@ -4,13 +4,13 @@ namespace Modules\API\Suppliers\DTO;
 
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponse;
 
-class ExpediaHotelContentDto
+class ExpediaHotelContentDto implements SupplierContentDtoInterface
 {
     /**
      * @param array $supplierResponse
-     * @return array
+     * @return ContentSearchResponse[]
      */
-    public function ExpediaToContentSearchResponse(array $supplierResponse): array
+    public function SupplierToContentSearchResponse(array $supplierResponse): array
     {
         $contentSearchResponse = [];
 

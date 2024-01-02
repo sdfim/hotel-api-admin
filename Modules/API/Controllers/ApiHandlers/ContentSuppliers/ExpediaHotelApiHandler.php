@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Controllers;
+namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
 
 use App\Models\ExpediaContent;
 use App\Repositories\ExpediaContentRepositories as ExpediaRepositories;
@@ -31,7 +31,8 @@ class ExpediaHotelApiHandler
     }
 
     /**
-     * @param  Request  $request
+     * @param array $filters
+     * @return array|null
      */
     public function preSearchData(array $filters): ?array
     {

@@ -1,10 +1,12 @@
 <?php
 
-namespace Modules\API\Controllers\ApiHandlers;
+namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
 
 use App\Models\GiataGeography;
 use App\Models\IcePortalPropery;
 use App\Models\MapperIcePortalGiata;
+use App\Repositories\GiataPropertyRepository;
+use App\Repositories\IcePortalRepository;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -29,16 +31,37 @@ class IcePortalHotelApiHandler
         $this->client = new IceHBSIClient();
     }
 
+    /**
+     * @param array $filters
+     * @return array
+     */
     public function search(array $filters): array
     {
-        $geografyData = GiataGeography::where('city_id', $filters['destination'])->first();
+        $geographyData = GiataGeography::where('city_id', $filters['destination'])->first();
 
+        $propertyRepository = new GiataPropertyRepository();
+
+        $results = IcePortalRepository::dataByCity($geographyData->city_name);
+        if (count($results) > 0 && !request()->supplier_data) return $results;
+
+        return $this->icePortalHttpRequest($geographyData, $filters, $propertyRepository);
+    }
+
+    /**
+     * @param GiataGeography $geographyData
+     * @param array $filters
+     * @param GiataPropertyRepository $propertyRepository
+     * @return array
+     */
+    public function icePortalHttpRequest(GiataGeography $geographyData, array $filters, GiataPropertyRepository $propertyRepository): array
+    {
         $results = ['$results' => [], 'count' => '0'];
 
+        $ct = microtime(true);
         $response = $this->client->get('/v1/listings', [
             'mType' => self::ICE_MTYPE,
-            'countryCode' => $geografyData->country_code ?? 'US',
-            'city' => $geografyData->city_name ?? 'New York',
+            'countryCode' => $geographyData->country_code ?? 'US',
+            'city' => $geographyData->city_name ?? 'New York',
             'info' => 'full',
             'includeSignaturePhoto' => 'true',
             'isPublished' => 'true',
@@ -46,6 +69,9 @@ class IcePortalHotelApiHandler
             'page' => $filters['page'] ?? self::PAGE,
             'pageSize' => isset($filters['results_per_page']) && $filters['results_per_page'] <= 500 ?
                 $filters['results_per_page'] : self::RESULT_PER_PAGE,
+        ]);
+        Log::info('IceHBSIClient | search | runtime /v1/listings', [
+            'runtime' => microtime(true) - $ct . ' seconds',
         ]);
 
         if ($response->successful()) {
@@ -74,10 +100,16 @@ class IcePortalHotelApiHandler
             // This is an asynchronous call to fetch the hotel assets
             $resultsFromIseAsync = ['results' => []];
             if (! empty($missingProperties)) {
+                $ct = microtime(true);
                 $resultsFromIseAsync = $this->fetchHotelAssets($missingProperties);
+                Log::info('IceHBSIClient | search | runtime fetchHotelAssets', [
+                    'runtime' => microtime(true) - $ct . ' seconds',
+                ]);
             }
 
             $results['results'] = array_merge($resultsFromIseAsync['results'], $results['results']);
+
+            $results['results'] = $propertyRepository->associateByGiata($results['results'], 'ICE_PORTAL');
 
         } else {
             Log::error('IceHBSIClient | search | error', [

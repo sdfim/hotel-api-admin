@@ -15,8 +15,6 @@ use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
 
 class RouteApiController extends Controller
 {
-    private const DEFAULT_SUPPLIER = 'expedia';
-
     private const TYPE_HOTEL = 'hotel';
 
     private const TYPE_FLIGHT = 'flight';
@@ -47,7 +45,7 @@ class RouteApiController extends Controller
             ], 400);
         }
 
-        $suppliersIds = GeneralConfiguration::select('currently_suppliers')->get()->toArray()['0']['currently_suppliers'] ?? [1];
+        $suppliersIds = GeneralConfiguration::pluck('currently_suppliers')->first() ?? [1];
 
         $dataHandler = match ($type) {
             'hotel' => new HotelApiHandler(),
@@ -57,8 +55,8 @@ class RouteApiController extends Controller
         };
 
         return match ($route) {
-            'search' => $dataHandler->search($request, $suppliersIds),
-            'detail' => $dataHandler->detail($request, $suppliersIds),
+            'search' => $dataHandler->search($request),
+            'detail' => $dataHandler->detail($request),
             'price' => $dataHandler->price($request, $suppliersIds),
             default => response()->json(['error' => 'Invalid route'], 400),
         };

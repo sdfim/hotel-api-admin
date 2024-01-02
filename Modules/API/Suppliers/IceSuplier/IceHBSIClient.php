@@ -2,7 +2,10 @@
 
 namespace Modules\API\Suppliers\IceSuplier;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use \GuzzleHttp\Promise\PromiseInterface;
+use \Illuminate\Http\Client\Response;
 
 class IceHBSIClient
 {
@@ -30,6 +33,10 @@ class IceHBSIClient
      */
     private function getToken(): string
     {
+        if (Cache::has('ice_portal_token')) {
+            return Cache::get('ice_portal_token');
+        }
+
         $response = Http::asForm()->post($this->tokenUrl, [
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
@@ -37,23 +44,39 @@ class IceHBSIClient
         ]);
 
         if ($response->successful()) {
+            Cache::put('ice_portal_token', $response->json()['access_token'], 24 * 60 * 60);
+
             return $response->json()['access_token'];
         }
 
-        throw new \Exception('Unable to retrieve token');
+        throw new Exception('Unable to retrieve token');
     }
 
-    public function get(string $endpoint, array $query = [])
+    /**
+     * @param string $endpoint
+     * @param array $query
+     * @return PromiseInterface|Response
+     */
+    public function get(string $endpoint, array $query = []): PromiseInterface|Response
     {
         return Http::withToken($this->token)->get($this->baseUrl.$endpoint, $query);
     }
 
-    public function post(string $endpoint, array $data = [])
+    /**
+     * @param string $endpoint
+     * @param array $data
+     * @return PromiseInterface|Response
+     */
+    public function post(string $endpoint, array $data = []): PromiseInterface|Response
     {
         return Http::withToken($this->token)->post($this->baseUrl.$endpoint, $data);
     }
 
-    public function pool($callback)
+    /**
+     * @param $callback
+     * @return array
+     */
+    public function pool($callback): array
     {
         return Http::pool($callback);
     }
@@ -74,6 +97,4 @@ class IceHBSIClient
     {
         return $this->baseUrl.$endpoint;
     }
-
-    // Add other methods (put, delete, etc.) as needed
 }
