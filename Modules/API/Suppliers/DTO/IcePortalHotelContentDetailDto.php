@@ -8,7 +8,7 @@ use Modules\API\ContentAPI\ResponseModels\ContentDetailResponse;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponse;
 use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
 
-class HbsiHotelContentDetailDto
+class IcePortalHotelContentDetailDto
 {
     private IceHBSIClient $client;
 

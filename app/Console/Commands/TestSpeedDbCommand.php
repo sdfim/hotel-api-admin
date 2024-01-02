@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use DB;
 use Illuminate\Console\Command;
-use Modules\API\Controllers\ExpediaHotelApiHandler;
+use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelApiHandler;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 
 
@@ -37,7 +37,7 @@ class TestSpeedDbCommand extends Command
         ");
 
 		$this->info('query for view table Expedia: ' . $this->executionTime('start') . ' sec');
-		
+
 		$this->current_time['main-search'] = microtime(true);
 
 		$querySearchMain1 = DB::select("
@@ -76,5 +76,5 @@ class TestSpeedDbCommand extends Command
 		$this->info("querySearchMain request: ". json_encode($request));
 
     }
-	
+
 }

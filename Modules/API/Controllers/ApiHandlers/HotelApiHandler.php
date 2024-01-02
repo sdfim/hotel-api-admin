@@ -6,7 +6,6 @@ use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveSearchInspector;
 use App\Models\GeneralConfiguration;
 use App\Models\Supplier;
-use App\Repositories\GiataPropertyRepository;
 use App\Traits\Timer;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -18,15 +17,16 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Modules\API\BaseController;
 use Modules\API\Controllers\ApiHandlerInterface;
-use Modules\API\Controllers\ExpediaHotelApiHandler;
+use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelApiHandler;
+use Modules\API\Controllers\ApiHandlers\ContentSuppliers\IcePortalHotelApiHandler;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
 use Modules\API\Requests\PriceHotelRequest;
 use Modules\API\Requests\SearchHotelRequest;
 use Modules\API\Suppliers\DTO\ExpediaHotelContentDetailDto;
 use Modules\API\Suppliers\DTO\ExpediaHotelContentDto;
 use Modules\API\Suppliers\DTO\ExpediaHotelPricingDto;
-use Modules\API\Suppliers\DTO\HbsiHotelContentDetailDto;
-use Modules\API\Suppliers\DTO\HbsiHotelContentDto;
+use Modules\API\Suppliers\DTO\IcePortalHotelContentDetailDto;
+use Modules\API\Suppliers\DTO\IcePortalHotelContentDto;
 use Modules\Inspector\SearchInspectorController;
 use OpenApi\Annotations as OA;
 
@@ -53,9 +53,9 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
     private ExpediaHotelContentDto $ExpediaHotelContentDto;
 
-    private HbsiHotelContentDto $HbsiHotelContentDto;
+    private IcePortalHotelContentDto $IcePortalHotelContentDto;
 
-    private HbsiHotelContentDetailDto $HbsiHotelContentDetailDto;
+    private IcePortalHotelContentDetailDto $HbsiHotelContentDetailDto;
 
     private ExpediaHotelContentDetailDto $ExpediaHotelContentDetailDto;
 
@@ -65,12 +65,13 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     ) {
         $this->start();
         $this->expedia = new ExpediaHotelApiHandler();
+        $this->icePortal = new IcePortalHotelApiHandler();
         $this->apiInspector = new SearchInspectorController();
         $this->ExpediaHotelPricingDto = new ExpediaHotelPricingDto();
         $this->ExpediaHotelContentDto = new ExpediaHotelContentDto();
         $this->ExpediaHotelContentDetailDto = new ExpediaHotelContentDetailDto();
-        $this->HbsiHotelContentDto = new HbsiHotelContentDto();
-        $this->HbsiHotelContentDetailDto = new HbsiHotelContentDetailDto();
+        $this->IcePortalHotelContentDto = new IcePortalHotelContentDto();
+        $this->HbsiHotelContentDetailDto = new IcePortalHotelContentDetailDto();
         $this->propsWeight = new EnrichmentWeight();
     }
 
@@ -143,17 +144,14 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
      *   security={{ "apiAuth": {} }}
      * )
      */
-    public function search(Request $request, array $suppliers): JsonResponse
+    public function search(Request $request): JsonResponse
     {
         try {
             $validate = Validator::make($request->all(), (new SearchHotelRequest())->rules());
-            if ($validate->fails()) {
-                return $this->sendError($validate->errors());
-            }
-
+            if ($validate->fails()) return $this->sendError($validate->errors());
             $filters = $request->all();
 
-            $supplierNames = explode(', ', GeneralConfiguration::select('content_supplier')->pluck('content_supplier')->toArray()[0]);
+            $supplierNames = explode(', ', GeneralConfiguration::pluck('content_supplier')->toArray()[0]);
 
             $keyPricingSearch = request()->get('type').':contentSearch:'.http_build_query(Arr::dot($filters));
 
@@ -167,36 +165,29 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $count = [];
                 foreach ($supplierNames as $supplierName) {
 
-                    if (isset($request->supplier) && $request->supplier != $supplierName) {
-                        continue;
-                    }
+                    if (isset($request->supplier) && $request->supplier != $supplierName) continue;
+
+                    $this->start($supplierName);
 
                     if ($supplierName == self::SUPPLIER_NAME_EXPEDIA) {
-                        $this->start('Expedia');
-                        $supplierData = $this->expedia->search($filters);
+                        $supplierContent = $this->expedia;
+                        $supplierContentDto = $this->ExpediaHotelContentDto;
+                    }
+                    if ($supplierName == self::SUPPLIER_NAME_ICE_PORTAL) {
+                        $supplierContent = $this->icePortal;
+                        $supplierContentDto = $this->IcePortalHotelContentDto;
+                    }
+
+                    if ($supplierContent === null || $supplierContentDto === null) {
+                        throw new \Exception('Supplier content or DTO is not set');
+                    } else {
+                        $supplierData = $supplierContent->search($filters);
                         $data = $supplierData['results'];
                         $count[] = $supplierData['count'];
                         $dataResponse[$supplierName] = $data;
-                        $clientResponse[$supplierName] = $this->ExpediaHotelContentDto->ExpediaToContentSearchResponse($data);
-                        Log::debug('HotelApiHandler | search | Expedia | runtime '.$this->duration('Expedia'));
+                        $clientResponse[$supplierName] = $supplierContentDto->SupplierToContentSearchResponse($data);
+                        Log::debug('HotelApiHandler | search | '. $supplierName .' | runtime '.$this->duration($supplierName));
                     }
-                    if ($supplierName == self::SUPPLIER_NAME_ICE_PORTAL) {
-                        $this->start('ICE_PORTAL');
-                        $this->icePortal = new IcePortalHotelApiHandler();
-                        $supplierData = $this->icePortal->search($filters);
-                        $data = $supplierData['results'];
-                        $count[] = $supplierData['count'];
-                        $propertyRepository = new GiataPropertyRepository();
-                        $dataWithGiata = $propertyRepository->associateByGiata($data, 'ICE_PORTAL');
-                        $dataResponse[$supplierName] = $dataWithGiata;
-                        if ($request->supplier_data == 'true') {
-                            $clientResponse[$supplierName] = $dataWithGiata;
-                        } else {
-                            $clientResponse[$supplierName] = $this->HbsiHotelContentDto->HbsiToContentSearchResponse($dataWithGiata);
-                        }
-                        Log::debug('HotelApiHandler | search | ICE_PORTAL | runtime '.$this->duration('ICE_PORTAL'));
-                    }
-                    // TODO: Add other suppliers
                 }
 
                 // enrichment Property Weighting
@@ -217,11 +208,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 Cache::put($keyPricingSearch.':clientContent', $clientContent, now()->addMinutes(60));
             }
 
-            if ($request->input('supplier_data') == 'true') {
-                $res = $content;
-            } else {
-                $res = $clientContent;
-            }
+            if ($request->input('supplier_data') == 'true') $res = $content;
+            else $res = $clientContent;
 
             $res['count'] = $res['count'][0];
             if (count($supplierNames) > 1) {
@@ -242,7 +230,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         }
     }
 
-    /*
+    /**
      * @param Request $request
      * @return JsonResponse
      */
@@ -315,7 +303,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
      *   security={{ "apiAuth": {} }}
      * )
      */
-    public function detail(Request $request, array $suppliers): JsonResponse
+    public function detail(Request $request): JsonResponse
     {
         try {
             $validate = Validator::make($request->all(), [
@@ -327,7 +315,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 return $this->sendError($validate->errors());
             }
 
-            $supplierNames = explode(', ', GeneralConfiguration::select('content_supplier')->pluck('content_supplier')->toArray()[0]);
+            $supplierNames = explode(', ', GeneralConfiguration::pluck('content_supplier')->toArray()[0]);
 
             $keyPricingSearch = request()->get('type').':contentDetail:'.http_build_query(Arr::dot($request->all()));
 
@@ -484,7 +472,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $countResponse = 0;
             $countClientResponse = 0;
             foreach ($suppliers as $supplier) {
-                $supplierName = Supplier::find($supplier)->name;
+                $supplierName = Supplier::find($supplier)->name ?? null;
 
                 if (isset($request->supplier) && $request->supplier != $supplierName) {
                     continue;

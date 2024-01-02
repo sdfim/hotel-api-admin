@@ -4,13 +4,13 @@ namespace Modules\API\Suppliers\DTO;
 
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponse;
 
-class HbsiHotelContentDto
+class IcePortalHotelContentDto implements SupplierContentDtoInterface
 {
     /**
      * @param array $supplierResponse
-     * @return array
+     * @return ContentSearchResponse[]
      */
-    public function HbsiToContentSearchResponse(array $supplierResponse): array
+    public function SupplierToContentSearchResponse(array $supplierResponse): array
     {
         $contentSearchResponse = [];
 
@@ -21,11 +21,11 @@ class HbsiHotelContentDto
             $hotelResponse->setDescription($hotel['description'] ?? '');
             $hotelResponse->setHotelName($hotel['name']);
             $hotelResponse->setDistance($hotel['distance'] ?? '');
-            $hotelResponse->setLatitude($hotel['address']['latitude'] ?? '');
-            $hotelResponse->setLongitude($hotel['address']['longitude'] ?? '');
+            $hotelResponse->setLatitude($hotel['address']['latitude'] ?? $hotel['latitude'] ?? '');
+            $hotelResponse->setLongitude($hotel['address']['longitude'] ?? $hotel['latitude'] ?? '');
             $hotelResponse->setRating($hotel['rating'] ?? '');
             $hotelResponse->setAmenities($hotel['amenities'] ?? []);
-            $hotelResponse->setGiataDestination($hotel['address']['city'] ?? '');
+            $hotelResponse->setGiataDestination($hotel['address']['city'] ?? $hotel['city'] ?? '');
             $hotelResponse->setUserRating($hotel['rating'] ?? '');
 
             $contentSearchResponse[] = array_merge($hotelResponse->toArray(), ['perc' => $hotel['perc'] ?? 0]);
