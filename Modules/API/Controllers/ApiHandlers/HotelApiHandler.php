@@ -151,7 +151,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             if ($validate->fails()) return $this->sendError($validate->errors());
             $filters = $request->all();
 
-            $supplierNames = explode(', ', GeneralConfiguration::pluck('content_supplier')->toArray()[0]);
+            $supplierNames = explode(', ', (GeneralConfiguration::pluck('content_supplier')->toArray()[0] ?? 'Expedia'));
 
             $keyPricingSearch = request()->get('type').':contentSearch:'.http_build_query(Arr::dot($filters));
 
