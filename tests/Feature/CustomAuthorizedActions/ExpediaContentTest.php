@@ -169,7 +169,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
             ->assertCanSeeTableRecords($this->expedia->filter(function ($item) use ($address) {
                 return $item->address['line_1'] === $address;
             }))
-            ->assertCanSeeTableRecords($this->expedia->filter(function ($item) use ($address) {
+            ->assertCanNotSeeTableRecords($this->expedia->filter(function ($item) use ($address) {
                 return $item->address['line_1'] !== $address;
             }));
     }
