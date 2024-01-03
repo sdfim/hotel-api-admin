@@ -6,6 +6,7 @@ use App\Models\ExpediaContent;
 use App\Repositories\ExpediaContentRepositories as ExpediaRepositories;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Tools\Geography;
@@ -102,7 +103,8 @@ class ExpediaHotelApiHandler
     }
 
     /**
-     * @param  Request  $request
+     * @param array $filters
+     * @return array
      */
     public function search(array $filters): array
     {
@@ -112,6 +114,10 @@ class ExpediaHotelApiHandler
         return ['results' => $results, 'count' => $preSearchData['count']];
     }
 
+    /**
+     * @param array $filters
+     * @return array|null
+     */
     public function price(array $filters): ?array
     {
 
@@ -143,6 +149,10 @@ class ExpediaHotelApiHandler
         }
     }
 
+    /**
+     * @param Request $request
+     * @return object|Collection
+     */
     public function detail(Request $request): object
     {
         $results = ExpediaRepositories::getDetailByGiataId($request->get('property_id'));
