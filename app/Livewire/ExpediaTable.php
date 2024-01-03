@@ -53,7 +53,6 @@ class ExpediaTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('city')
-                    ->numeric()
                     ->sortable()
                     ->searchable(isIndividual: true)
                     ->toggleable(),

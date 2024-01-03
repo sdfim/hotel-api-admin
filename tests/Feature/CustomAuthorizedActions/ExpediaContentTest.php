@@ -42,19 +42,34 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      * @test
      * @return void
      */
-    public function test_expedia_table_is_rendering_as_well_as_city_with_search_name(): void
+    public function test_expedia_table_is_rendering_with_its_columns(): void
     {
         livewire::test(ExpediaTable::class)->assertSuccessful();
 
         livewire::test(ExpediaTable::class)
-            ->assertCanRenderTableColumn('city');
+            ->assertCanRenderTableColumn('property_id')
+            ->assertCanRenderTableColumn('name')
+            ->assertCanRenderTableColumn('rating')
+            ->assertCanRenderTableColumn('city')
+            ->assertCanRenderTableColumn('latitude')
+            ->assertCanRenderTableColumn('longitude')
+            ->assertCanRenderTableColumn('phone')
+            ->assertCanRenderTableColumn('address')
+            ->assertCanRenderTableColumn('is_active');
+    }
 
-        $name = $this->expedia->first()->name;
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_searching_by_property_id(): void
+    {
+        $propertyId = $this->expedia->first()->property_id;
 
         livewire::test(ExpediaTable::class)
-            ->searchTable($name)
-            ->assertCanSeeTableRecords($this->expedia->where('name', $name))
-            ->assertCanNotSeeTableRecords($this->expedia->where('name', '!=', $name));
+            ->searchTableColumns(['property_id' => $propertyId])
+            ->assertCanSeeTableRecords($this->expedia->where('property_id', $propertyId))
+            ->assertCanNotSeeTableRecords($this->expedia->where('property_id', '!=', $propertyId));
     }
 
     /**
@@ -63,10 +78,10 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_searching_by_name(): void
     {
-        $name = $this->expedia->first()->name;
+        $name = $this->expedia[9]->name;
 
         livewire::test(ExpediaTable::class)
-            ->searchTable($name)
+            ->searchTableColumns(['name' => $name])
             ->assertCanSeeTableRecords($this->expedia->where('name', $name))
             ->assertCanNotSeeTableRecords($this->expedia->where('name', '!=', $name));
     }
@@ -75,13 +90,99 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      * @test
      * @return void
      */
-    public function test_possibility_of_searching_by_city(): void
+    public function test_possibility_of_searching_by_rating(): void
     {
-        $city = $this->expedia->last()->city;
+        $rating = $this->expedia[rand(0, 9)]->rating;
 
         livewire::test(ExpediaTable::class)
-            ->searchTable($city)
+            ->searchTableColumns(['rating' => $rating])
+            ->assertCanSeeTableRecords($this->expedia->where('rating', $rating))
+            ->assertCanNotSeeTableRecords($this->expedia->where('rating', '!=', $rating));
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_searching_by_city(): void
+    {
+        $city = $this->expedia[9]->city;
+
+        livewire::test(ExpediaTable::class)
+            ->searchTableColumns(['city' => $city])
             ->assertCanSeeTableRecords($this->expedia->where('city', $city))
             ->assertCanNotSeeTableRecords($this->expedia->where('city', '!=', $city));
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_searching_by_latitude(): void
+    {
+        $latitude = $this->expedia->first()->latitude;
+
+        livewire::test(ExpediaTable::class)
+            ->searchTableColumns(['latitude' => $latitude])
+            ->assertCanSeeTableRecords($this->expedia->where('latitude', $latitude))
+            ->assertCanNotSeeTableRecords($this->expedia->where('latitude', '!=', $latitude));
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_searching_by_longitude(): void
+    {
+        $longitude = $this->expedia->first()->longitude;
+
+        livewire::test(ExpediaTable::class)
+            ->searchTableColumns(['longitude' => $longitude])
+            ->assertCanSeeTableRecords($this->expedia->where('longitude', $longitude))
+            ->assertCanNotSeeTableRecords($this->expedia->where('longitude', '!=', $longitude));
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_searching_by_phone(): void
+    {
+        $phone = $this->expedia->first()->phone;
+
+        livewire::test(ExpediaTable::class)
+            ->searchTableColumns(['phone' => $phone])
+            ->assertCanSeeTableRecords($this->expedia->where('phone', $phone))
+            ->assertCanNotSeeTableRecords($this->expedia->where('phone', '!=', $phone));
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_searching_by_address(): void
+    {
+        $address = $this->expedia[rand(0, 9)]->address;
+
+        livewire::test(ExpediaTable::class)
+            ->searchTableColumns(['address' => $address])
+            ->assertCanSeeTableRecords($this->expedia->where('address', $address))
+            ->assertCanNotSeeTableRecords($this->expedia->where('address', '!=', $address));
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function test_possibility_of_searching_by_is_active(): void
+    {
+        $isActive = $this->expedia[rand(0, 9)]->is_active;
+
+        $this->expedia[rand(0, 9)]->is_active = !$isActive;
+
+        livewire::test(ExpediaTable::class)
+            ->searchTableColumns(['is_active' => $isActive])
+            ->assertCanSeeTableRecords($this->expedia->where('is_active', $isActive))
+            ->assertCanNotSeeTableRecords($this->expedia->where('is_active', '!=', $isActive) ?? []);
     }
 }
