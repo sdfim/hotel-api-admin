@@ -106,7 +106,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_searching_by_city(): void
     {
-        $city = $this->expedia[9]->city;
+        $city = $this->expedia[rand(0, 9)]->city;
 
         livewire::test(ExpediaTable::class)
             ->searchTableColumns(['city' => $city])
@@ -120,7 +120,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_searching_by_latitude(): void
     {
-        $latitude = $this->expedia->first()->latitude;
+        $latitude = $this->expedia[rand(0, 9)]->latitude;
 
         livewire::test(ExpediaTable::class)
             ->searchTableColumns(['latitude' => $latitude])
@@ -134,7 +134,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_searching_by_longitude(): void
     {
-        $longitude = $this->expedia->first()->longitude;
+        $longitude = $this->expedia[rand(0, 9)]->longitude;
 
         livewire::test(ExpediaTable::class)
             ->searchTableColumns(['longitude' => $longitude])
@@ -162,12 +162,16 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_searching_by_address(): void
     {
-        $address = $this->expedia[rand(0, 9)]->address;
+        $address = $this->expedia[rand(0, 9)]->address['line_1'];
 
         livewire::test(ExpediaTable::class)
             ->searchTableColumns(['address' => $address])
-            ->assertCanSeeTableRecords($this->expedia->where('address', $address))
-            ->assertCanNotSeeTableRecords($this->expedia->where('address', '!=', $address));
+            ->assertCanSeeTableRecords($this->expedia->filter(function ($item) use ($address) {
+                return $item->address['line_1'] === $address;
+            }))
+            ->assertCanSeeTableRecords($this->expedia->filter(function ($item) use ($address) {
+                return $item->address['line_1'] !== $address;
+            }));
     }
 
     /**
