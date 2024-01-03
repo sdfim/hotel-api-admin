@@ -167,7 +167,7 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'latitude' => ['The latitude field is required.']
+                    'latitude' => ['The latitude field is required when destination is not present.']
                 ]
             ]);
     }
@@ -187,7 +187,7 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'latitude' => ['The latitude must be between -90 and 90.']
+                    'latitude' => ['The latitude must be at least -90.']
                 ]
             ]);
     }
@@ -207,7 +207,7 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'longitude' => ['The longitude field is required.']
+                    'longitude' => ['The longitude field is required when destination is not present.']
                 ]
             ]);
     }
@@ -227,7 +227,7 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'longitude' => ['The longitude must be between -180 and 180.']
+                    'longitude' => ['The longitude must be at least -180.']
                 ]
             ]);
     }
@@ -247,7 +247,7 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'radius' => ['The radius field is required.']
+                    'radius' => ['The radius field is required when destination is not present.']
                 ]
             ]);
     }
