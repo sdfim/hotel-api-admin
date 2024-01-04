@@ -27,16 +27,7 @@ class EnrichmentWeightContentSearchTest  extends TestCase
         $enrichmentWeight = new EnrichmentWeight();
         $result = $enrichmentWeight->enrichmentContent($mockClientResponse, 'type');
 
-        $expectedResult = [
-            'supplier1' => [
-                ['giata_hotel_code' => 1, 'weight' => 1],
-                ['giata_hotel_code' => 2, 'weight' => 2],
-            ],
-            'supplier2' => [
-                ['giata_hotel_code' => 3, 'weight' => 0],
-                ['giata_hotel_code' => 4, 'weight' => 0],
-            ],
-        ];
+        $expectedResult = $this->getExpectedResult();
 
         $this->assertEquals($expectedResult, $result);
     }
@@ -56,18 +47,40 @@ class EnrichmentWeightContentSearchTest  extends TestCase
         $enrichmentWeight = new EnrichmentWeight();
         $result = $enrichmentWeight->enrichmentContent($mockClientResponse, 'type');
 
-        $expectedResult = [
-            'supplier1' => [
-                ['giata_hotel_code' => 1, 'weight' => 0],
-                ['giata_hotel_code' => 2, 'weight' => 0],
-            ],
-            'supplier2' => [
-                ['giata_hotel_code' => 3, 'weight' => 1],
-                ['giata_hotel_code' => 4, 'weight' => 2],
-            ],
-        ];
+        $expectedResult = $this->getExpectedResult(false);
 
         $this->assertNotEquals($expectedResult, $result);
+    }
+
+    /**
+     * @param bool $type
+     * @return array
+     */
+    private function getExpectedResult(bool $type = true): array
+    {
+        if ($type) {
+            return [
+                'supplier1' => [
+                    ['giata_hotel_code' => 1, 'weight' => 1],
+                    ['giata_hotel_code' => 2, 'weight' => 2],
+                ],
+                'supplier2' => [
+                    ['giata_hotel_code' => 3, 'weight' => 0],
+                    ['giata_hotel_code' => 4, 'weight' => 0],
+                ],
+            ];
+        } else {
+            return [
+                'supplier1' => [
+                    ['giata_hotel_code' => 1, 'weight' => 0],
+                    ['giata_hotel_code' => 2, 'weight' => 0],
+                ],
+                'supplier2' => [
+                    ['giata_hotel_code' => 3, 'weight' => 1],
+                    ['giata_hotel_code' => 4, 'weight' => 2],
+                ],
+            ];
+        }
     }
 
     /**
