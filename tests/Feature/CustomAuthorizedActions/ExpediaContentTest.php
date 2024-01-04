@@ -164,7 +164,9 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_searching_by_address(): void
     {
-        $address = $this->expedia[rand(0, 9)]->address['line_1'];
+        $address = $this->expedia[rand(0, 9)]->address;
+
+        is_array($address) ? $address = $address['line_1'] : $address = json_decode($address, true)['line_1'];
 
         livewire::test(ExpediaTable::class)
             ->searchTableColumns(['address' => $address])
