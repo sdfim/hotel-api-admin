@@ -22,9 +22,10 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
     {
         parent::setUp();
 
-        $this->expedia = ExpediaContent::take(10)->get();
+        $this->expedia = ExpediaContent::take(10)->orderBy('rating', 'desc')->get();
 
-        if ($this->expedia->isEmpty() && env('SECOND_DB_HOST') === 'mysql') $this->expedia = ExpediaContent::factory()->count(10)->create();
+        if ($this->expedia->isEmpty() && env('SECOND_DB_HOST') === 'mysql')
+            $this->expedia = ExpediaContent::factory()->count(10)->create()->sortByDesc('rating');
     }
 
     /**
@@ -96,6 +97,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
         livewire::test(ExpediaTable::class)
             ->searchTableColumns(['rating' => $rating])
+            ->sortTable('rating', 'desc')
             ->assertCanSeeTableRecords($this->expedia->where('rating', $rating))
             ->assertCanNotSeeTableRecords($this->expedia->where('rating', '!=', $rating));
     }
@@ -106,7 +108,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_searching_by_city(): void
     {
-        $city = $this->expedia[rand(0, 9)]->city;
+        $city = $this->expedia[9]->city;
 
         livewire::test(ExpediaTable::class)
             ->searchTableColumns(['city' => $city])
@@ -182,11 +184,10 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
     {
         $isActive = $this->expedia[rand(0, 9)]->is_active;
 
-        $this->expedia[rand(0, 9)]->is_active = !$isActive;
-
         livewire::test(ExpediaTable::class)
             ->searchTableColumns(['is_active' => $isActive])
+            ->sortTable('rating', 'desc')
             ->assertCanSeeTableRecords($this->expedia->where('is_active', $isActive))
-            ->assertCanNotSeeTableRecords($this->expedia->where('is_active', '!=', $isActive) ?? []);
+            ->assertCanNotSeeTableRecords($this->expedia->where('is_active', '!=', $isActive));
     }
 }
