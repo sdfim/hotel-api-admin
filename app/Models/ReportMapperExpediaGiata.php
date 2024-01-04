@@ -9,14 +9,18 @@ class ReportMapperExpediaGiata extends Model
 {
     use HasFactory;
 
-	protected $connection;
+    /**
+     * @var mixed
+     */
+    protected $connection;
 
-	public function __construct(array $attributes = [])
+    /**
+     * @param array $attributes
+     */
+    public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
         $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'report_mapper_expedia_giata';
     }
-
-
 }

@@ -32,6 +32,7 @@ class GiataPropertyFactory extends Factory
             'name' => $this->faker->name,
             'chain' => '{}',
             'city' => $this->faker->city,
+            'city_id' => $this->faker->numberBetween(1, 100000),
             'locale' => $this->faker->locale,
             'address' => '{
                 "CityName": "New Delhi",

@@ -6,7 +6,6 @@ use App\Models\ExpediaContent;
 use Exception;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -53,7 +52,6 @@ class ExpediaTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('city')
-                    ->numeric()
                     ->sortable()
                     ->searchable(isIndividual: true)
                     ->toggleable(),
@@ -144,10 +142,6 @@ class ExpediaTable extends Component implements HasForms, HasTable
                         }
                         return 'Multiple Giata ID';
                     })
-            ])
-            ->actions([])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 
