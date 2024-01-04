@@ -7,7 +7,7 @@ use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 
 class ExpediaPricingRulesApplierTest extends TestCase
 {
-    private $expediaPricingRulesApplier;
+    private ExpediaPricingRulesApplier $expediaPricingRulesApplier;
 
     /**
      * This method is called before each test.
@@ -76,14 +76,14 @@ class ExpediaPricingRulesApplierTest extends TestCase
             'occupancy' => [
                 [
                     'adults' => 2,
-                    'children_ages' => [2,2]
+                    'children_ages' => [2, 2]
                 ],
                 [
                     'adults' => 3
                 ],
                 [
                     'adults' => 1,
-                    'children_ages' => [2,0]
+                    'children_ages' => [2, 0]
                 ]
             ]
         ];
@@ -153,7 +153,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
     /**
      * @return array[]
      */
-    private function getRoomsPricingArray() : array
+    private function getRoomsPricingArray(): array
     {
         return [
             '2-2,2' => [

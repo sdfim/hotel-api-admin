@@ -26,7 +26,7 @@ class ComboBookingApiHandler extends BaseController implements BookingApiHandler
      */
     public function removeItem(Request $request, string $supplier): JsonResponse
     {
-		return response()->json(['message' => 'This page is in development'], 503);
+        return response()->json(['message' => 'This page is in development'], 503);
     }
-    
+
 }

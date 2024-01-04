@@ -14,7 +14,7 @@ class ExpediaController extends Controller
         return view('dashboard.expedia.index');
     }
 
-	public function charts(): View
+    public function charts(): View
     {
         return view('dashboard.expedia.charts');
     }

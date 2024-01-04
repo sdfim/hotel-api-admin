@@ -2,9 +2,7 @@
 
 namespace Modules\API\PropertyWeighting;
 
-use App\Models\PropertyWeighting;
 use App\Repositories\PropertyWeightingRepository;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Log;
 
 class EnrichmentWeight
@@ -39,7 +37,7 @@ class EnrichmentWeight
             }
         }
 
-        Log::info('EnrichmentWeight | enrichmentContent  - '.$this->executionTime().'s');
+        Log::info('EnrichmentWeight | enrichmentContent  - ' . $this->executionTime() . 's');
 
         return $clientResponse;
     }
@@ -76,7 +74,7 @@ class EnrichmentWeight
             }
         }
 
-        Log::info('EnrichmentWeight | api/pricing/search - '.$this->executionTime().'s');
+        Log::info('EnrichmentWeight | api/pricing/search - ' . $this->executionTime() . 's');
 
         return $clientResponse;
     }

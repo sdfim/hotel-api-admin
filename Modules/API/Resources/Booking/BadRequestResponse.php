@@ -18,7 +18,7 @@ use OpenApi\Annotations as OA;
  *     example="Invalid type"
  *   )
  * ),
-* @OA\Examples(
+ * @OA\Examples(
  *     example="BadRequestResponse",
  *     summary="Example of BadRequest",
  *     value=
@@ -27,7 +27,6 @@ use OpenApi\Annotations as OA;
  * }
  * )
  */
-
 class BadRequestResponse
 {
 }

@@ -24,8 +24,8 @@ class BookingAddItemHotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
-			'booking_item' => 'required|size:36',
-			'booking_id' => 'sometimes|size:36',
+            'booking_item' => 'required|size:36',
+            'booking_id' => 'sometimes|size:36',
         ];
     }
 

@@ -4,6 +4,7 @@ namespace Tests\Unit\Hotel\Pricing;
 
 use App\Repositories\PropertyWeightingRepository;
 use Illuminate\Support\Collection;
+use Mockery;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
@@ -21,7 +22,7 @@ class EnrichmentWeightPricingTest extends TestCase
         $mockClientResponse = $this->createMockClientResponse();
         $mockWeights = $this->createMockWeights();
 
-        $mockPropertyWeightingRepository = \Mockery::mock('overload:' . PropertyWeightingRepository::class);
+        $mockPropertyWeightingRepository = Mockery::mock('overload:' . PropertyWeightingRepository::class);
         $mockPropertyWeightingRepository->shouldReceive('getWeights')->andReturn($mockWeights);
         $mockPropertyWeightingRepository->shouldReceive('getWeightsNot')->andReturn($mockWeights);
 
@@ -51,7 +52,7 @@ class EnrichmentWeightPricingTest extends TestCase
         $mockPropertyWeightingRepository->shouldReceive('getWeightsNot')->andReturn($mockWeights); - аналогично предыдущей строке,
             но для метода getWeightsNot.
         */
-        $mockPropertyWeightingRepository = \Mockery::mock('overload:' . PropertyWeightingRepository::class);
+        $mockPropertyWeightingRepository = Mockery::mock('overload:' . PropertyWeightingRepository::class);
         $mockPropertyWeightingRepository->shouldReceive('getWeights')->andReturn($mockWeights);
         $mockPropertyWeightingRepository->shouldReceive('getWeightsNot')->andReturn($mockWeights);
 
@@ -117,8 +118,8 @@ class EnrichmentWeightPricingTest extends TestCase
     protected function createMockWeights(): Collection
     {
         return collect([
-            (object) ['property' => 1, 'weight' => 1],
-            (object) ['property' => 2, 'weight' => 2],
+            (object)['property' => 1, 'weight' => 1],
+            (object)['property' => 2, 'weight' => 2],
         ]);
     }
 

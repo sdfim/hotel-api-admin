@@ -20,7 +20,7 @@ class FlightApiHandler extends BaseController implements ApiHandlerInterface
      */
     public function search(Request $request): JsonResponse
     {
-		return response()->json(['message' => 'This page is in development'], 503);
+        return response()->json(['message' => 'This page is in development'], 503);
     }
 
     /**
@@ -29,7 +29,7 @@ class FlightApiHandler extends BaseController implements ApiHandlerInterface
      */
     public function detail(Request $request): JsonResponse
     {
-		return response()->json(['message' => 'This page is in development'], 503);
+        return response()->json(['message' => 'This page is in development'], 503);
     }
 
     /**
@@ -39,6 +39,6 @@ class FlightApiHandler extends BaseController implements ApiHandlerInterface
      */
     public function price(Request $request, array $suppliers): JsonResponse
     {
-		return response()->json(['message' => 'This page is in development'], 503);
+        return response()->json(['message' => 'This page is in development'], 503);
     }
 }

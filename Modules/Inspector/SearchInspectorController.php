@@ -31,19 +31,19 @@ class SearchInspectorController extends BaseInspectorController
             $clientContent = json_encode($clientContent);
             $hash = md5($query);
 
-			$generalPath = self::PATH_INSPECTORS . 'search_inspector/'  . date("Y-m-d") . '/' . $type . '_' . $hash;
+            $generalPath = self::PATH_INSPECTORS . 'search_inspector/' . date("Y-m-d") . '/' . $type . '_' . $hash;
             $path = $generalPath . '.json';
             $client_path = $generalPath . '.client.json';
 
             $inspector = ApiSearchInspector::where('response_path', $path)->first();
-			// check if inspector not exists
+            // check if inspector not exists
             if (!$inspector) {
-				Storage::put($path, $content);
-				Log::debug('SearchInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
+                Storage::put($path, $content);
+                Log::debug('SearchInspectorController save to Storage: ' . $this->executionTime() . ' seconds');
 
-				Storage::put($client_path, $clientContent);
-				Log::debug('SearchInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
-			}
+                Storage::put($client_path, $clientContent);
+                Log::debug('SearchInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
+            }
 
             $data = [
                 'search_id' => $search_id,
@@ -54,7 +54,7 @@ class SearchInspectorController extends BaseInspectorController
                 'request' => $query,
                 'response_path' => $path,
                 'client_response_path' => $client_path,
-				'created_at' => date('Y-m-d H:i:s'),
+                'created_at' => date('Y-m-d H:i:s'),
             ];
 
             $inspector = ApiSearchInspector::insert($data);

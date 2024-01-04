@@ -312,7 +312,7 @@ use OpenApi\Annotations as OA;
  * )
  * )
  * ),
- *    @OA\Property(
+ * @OA\Property(
  *     property="message",
  *     type="string",
  *     description="Message (e.g., 'success').",

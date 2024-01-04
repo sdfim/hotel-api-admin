@@ -9,7 +9,7 @@ class BaseInspectorController
      */
     protected string|float $current_time;
 
-	protected const PATH_INSPECTORS = 'inspectors/';
+    protected const PATH_INSPECTORS = 'inspectors/';
 
     /**
      * @return string|float

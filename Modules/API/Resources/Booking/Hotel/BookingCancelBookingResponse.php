@@ -54,20 +54,19 @@ use OpenApi\Annotations as OA;
  *     summary="Example Booking Remove Item Response",
  *     value=
  * {
- * 	"success": true,
- * 	"data": {
- * 		"result": {
- * 			{
- * 				"booking_item": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
- * 				"status": "Room is already cancelled."
- * 			}
- * 		}
- * 	},
- * 	"message": "success"
+ *    "success": true,
+ *    "data": {
+ *        "result": {
+ *            {
+ *                "booking_item": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c",
+ *                "status": "Room is already cancelled."
+ *            }
+ *        }
+ *    },
+ *    "message": "success"
  * }
  * )
  */
-
 class BookingCancelBookingResponse
 {
 }

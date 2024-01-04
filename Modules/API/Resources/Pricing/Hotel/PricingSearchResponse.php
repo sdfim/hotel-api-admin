@@ -257,7 +257,7 @@ use OpenApi\Annotations as OA;
  *             ),
  *             @OA\Property(
  *               property="opaque",
- *               description="Opaque.", *             
+ *               description="Opaque.", *
  *               type="boolean",
  *               example="false"
  *             ),
@@ -963,10 +963,6 @@ use OpenApi\Annotations as OA;
  * }
  * )
  */
-
-
-
-
 class PricingSearchResponse
 {
 }

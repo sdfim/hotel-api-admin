@@ -9,7 +9,7 @@ use Modules\API\Validate\ApiRequest;
 
 class BookingChangeBookHotelRequest extends ApiRequest
 {
-     /**
+    /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
@@ -25,8 +25,8 @@ class BookingChangeBookHotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
-			'booking_id' => 'required|size:36',
-			'booking_item' => 'required|size:36',
+            'booking_id' => 'required|size:36',
+            'booking_item' => 'required|size:36',
             'query' => 'required|array',
             'query.given_name' => 'required|string|between:1,255',
             'query.family_name' => 'required|string|between:1,255',

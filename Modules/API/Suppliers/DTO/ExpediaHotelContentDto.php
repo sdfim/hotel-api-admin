@@ -43,7 +43,7 @@ class ExpediaHotelContentDto implements SupplierContentDtoInterface
             $hotelResponse->setLongitude($hotel['location']['coordinates']['longitude']);
             $hotelResponse->setRating($hotel['rating']);
             $amenities = $hotel['amenities'] ? json_decode(json_encode($hotel['amenities']), true) : [];
-            if (! is_array($amenities)) {
+            if (!is_array($amenities)) {
                 $amenities = [];
             }
             $hotelResponse->setAmenities(array_map(function ($amenity) {

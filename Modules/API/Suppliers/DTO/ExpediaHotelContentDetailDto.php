@@ -23,8 +23,8 @@ class ExpediaHotelContentDetailDto
         }
         $viewAmenities = request()->get('category_amenities') === 'true';
 
-        $address = $supplierResponse->address['line_1'].', '.
-            $supplierResponse->address['city'].' - '.
+        $address = $supplierResponse->address['line_1'] . ', ' .
+            $supplierResponse->address['city'] . ' - ' .
             $supplierResponse->address['postal_code'];
 
         $hotelResponse = new ContentDetailResponse();

@@ -71,8 +71,8 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         if ($b2b) {
             foreach ($this->requestArray['occupancy'] as $room) {
                 $totalNumberOfGuestsInRoom = (int)array_sum($room);
-				$key = isset($room['children_ages']) ? $room['adults'] . '-' . implode(',', $room['children_ages']) : $room['adults'];
-				$roomTotals = self::calculateRoomTotals($roomsPricingArray[$key]);
+                $key = isset($room['children_ages']) ? $room['adults'] . '-' . implode(',', $room['children_ages']) : $room['adults'];
+                $roomTotals = self::calculateRoomTotals($roomsPricingArray[$key]);
                 $result['total_price'] += $roomTotals['total_price'];
                 $result['total_tax'] += $roomTotals['total_tax'];
                 $result['total_fees'] += $roomTotals['total_fees'];

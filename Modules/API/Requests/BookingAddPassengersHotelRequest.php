@@ -9,12 +9,12 @@ use Modules\API\Validate\ApiRequest;
 
 class BookingAddPassengersHotelRequest extends ApiRequest
 {
-     /**
+    /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
         return false;
     }
@@ -26,8 +26,8 @@ class BookingAddPassengersHotelRequest extends ApiRequest
      */
     public function rules(): array
     {
-		return [
-			'booking_id' => 'required|size:36',
+        return [
+            'booking_id' => 'required|size:36',
 
             'passengers' => 'required|array',
             'passengers.*.title' => 'required|in:mr,Mr,MR,ms,Ms,MS,Mrs,MRS,mrs,Miss,MISS,miss,Dr,dr,DR,Prof,prof,PROF',

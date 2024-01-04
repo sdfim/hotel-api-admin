@@ -9,19 +9,19 @@ class ExpediaService
     /**
      * @var PropertyPriceCall
      */
-    private  $propertyPriceCall;
+    private $propertyPriceCall;
 
-	/**
-	 * @var RapidClient
-	 */
-	private $rapidClient;
+    /**
+     * @var RapidClient
+     */
+    private $rapidClient;
 
     /**
      * @param PropertyCallFactory $rapidCallFactory
      */
     public function __construct()
     {
-		$this->rapidClient = new RapidClient();
+        $this->rapidClient = new RapidClient();
     }
 
     /**
@@ -32,7 +32,7 @@ class ExpediaService
     public function getExpediaPriceByPropertyIds(array $propertyIds, array $query): array
     {
         try {
-			$this->propertyPriceCall = new PropertyPriceCall($this->rapidClient, $query);
+            $this->propertyPriceCall = new PropertyPriceCall($this->rapidClient, $query);
             $dataPrice = $this->propertyPriceCall->getPriceData($propertyIds);
         } catch (Exception $e) {
             \Log::error('ExpediaService | getExpediaPriceByPropertyIds' . $e->getMessage());

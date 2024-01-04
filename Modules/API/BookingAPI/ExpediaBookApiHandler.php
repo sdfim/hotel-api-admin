@@ -23,7 +23,7 @@ use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 
 class ExpediaBookApiHandler extends BaseController
 {
-	private const PAYMENTS_TYPE = 'affiliate_collect';
+    private const PAYMENTS_TYPE = 'affiliate_collect';
     /**
      * @var RapidClient
      */
@@ -38,7 +38,7 @@ class ExpediaBookApiHandler extends BaseController
      * @param array $filters
      * @return array|null
      */
-    public function changeBooking(array $filters): array | null
+    public function changeBooking(array $filters): array|null
     {
         # step 1 Get room_id from ApiBookingItem
         $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
@@ -79,7 +79,7 @@ class ExpediaBookApiHandler extends BaseController
             'hotel',
         ]);
 
-        return (array) $dataResponse;
+        return (array)$dataResponse;
     }
 
     /**
@@ -87,14 +87,14 @@ class ExpediaBookApiHandler extends BaseController
      * @param ApiBookingInspector $bookingInspector
      * @return array|null
      */
-    public function book(array $filters, ApiBookingInspector $bookingInspector): array | null
+    public function book(array $filters, ApiBookingInspector $bookingInspector): array|null
     {
         $booking_id = $bookingInspector->booking_id;
-		$filters['search_id'] = $bookingInspector->search_id;
+        $filters['search_id'] = $bookingInspector->search_id;
         $filters['booking_item'] = $bookingInspector->booking_item;
 
-		$passengers = BookingRepository::getPassengers($booking_id, $filters['booking_item']);
-		$dataPassengers = [];
+        $passengers = BookingRepository::getPassengers($booking_id, $filters['booking_item']);
+        $dataPassengers = [];
         if (!$passengers) {
             return [
                 'error' => 'Passengers not found.',
@@ -102,7 +102,7 @@ class ExpediaBookApiHandler extends BaseController
             ];
         } else {
             $passengersArr = $passengers->toArray();
-			$dataPassengers = json_decode($passengersArr['request'], true);
+            $dataPassengers = json_decode($passengersArr['request'], true);
         }
 
         $queryHold = $filters['query']['hold'] ?? false;
@@ -112,17 +112,17 @@ class ExpediaBookApiHandler extends BaseController
 
         $props = $this->getPathParamsFromLink($linkBookItineraries);
 
-		$bodyArr['email'] = $filters['booking_contact']['email'];
-		$bodyArr['phone'] = $filters['booking_contact']['phone'];
-		$filters['booking_contact']['given_name'] = $filters['booking_contact']['first_name'];
-		$filters['booking_contact']['family_name'] = $filters['booking_contact']['last_name'];
-		unset($filters['booking_contact']['first_name'], $filters['booking_contact']['last_name']);
+        $bodyArr['email'] = $filters['booking_contact']['email'];
+        $bodyArr['phone'] = $filters['booking_contact']['phone'];
+        $filters['booking_contact']['given_name'] = $filters['booking_contact']['first_name'];
+        $filters['booking_contact']['family_name'] = $filters['booking_contact']['last_name'];
+        unset($filters['booking_contact']['first_name'], $filters['booking_contact']['last_name']);
 
-		$bodyArr['rooms'] = [];
-		foreach ($dataPassengers['rooms'] as $room) {
-			$bodyArr['rooms'][] = $room[0];
-		}
-		$bodyArr['payments'][]['billing_contact'] = $filters['booking_contact'];
+        $bodyArr['rooms'] = [];
+        foreach ($dataPassengers['rooms'] as $room) {
+            $bodyArr['rooms'][] = $room[0];
+        }
+        $bodyArr['payments'][]['billing_contact'] = $filters['booking_contact'];
 
         $bodyArr['affiliate_reference_id'] = 'UJV_' . time();
 
@@ -146,7 +146,7 @@ class ExpediaBookApiHandler extends BaseController
         } catch (RequestException $e) {
             Log::error('ExpediaBookApiHandler | book | create' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
-            return (array) $dataResponse;
+            return (array)$dataResponse;
         }
 
         if (!$dataResponse) {
@@ -161,26 +161,26 @@ class ExpediaBookApiHandler extends BaseController
             1,
             'book',
             'create' . ($queryHold ? ':hold' : ''),
-            $bookingInspector->search_type,	// hotel | flight | combo
+            $bookingInspector->search_type,    // hotel | flight | combo
         ]);
 
-		# Save Book data to Reservation
-		SaveReservations::dispatch($booking_id, $filters, $dataPassengers);
+        # Save Book data to Reservation
+        SaveReservations::dispatch($booking_id, $filters, $dataPassengers);
 
-		$itinerary_id = $dataResponse->itinerary_id;
+        $itinerary_id = $dataResponse->itinerary_id;
         $linkBookRetrieves = $dataResponse->links->retrieve->href;
 
         # Booking GET query - Retrieve Booking
         $props = $this->getPathParamsFromLink($linkBookRetrieves);
-		$clientResponse = [];
+        $clientResponse = [];
         try {
             $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
             $dataResponse = json_decode($response->getBody()->getContents());
-			$clientResponse = $dataResponse ? ExpediaHotelBookDto::ExpediaToHotelBookResponseModel($filters) : [];
+            $clientResponse = $dataResponse ? ExpediaHotelBookDto::ExpediaToHotelBookResponseModel($filters) : [];
         } catch (RequestException $e) {
             Log::error('ExpediaBookApiHandler | book | retrieve ' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
-            return (array) $dataResponse;
+            return (array)$dataResponse;
         }
 
         if (!$dataResponse) {
@@ -189,27 +189,27 @@ class ExpediaBookApiHandler extends BaseController
 
         $viewSupplierData = $filters['supplier_data'] ?? false;
         if ($viewSupplierData) {
-            $res = (array) $dataResponse;
+            $res = (array)$dataResponse;
         } else {
             $res = $clientResponse + [
-                // 'booking_id' => $booking_id,
-                // 'search_id' => $filters['search_id'],
-                // 'booking_item' => $filters['booking_item'],
-                'links' => [
-                    'remove' => [
-                        'method' => 'DELETE',
-                        'href' => '/api/booking/cancel-booking?booking_id=' . $booking_id . '&booking_item=' . $filters['booking_item'],
+                    // 'booking_id' => $booking_id,
+                    // 'search_id' => $filters['search_id'],
+                    // 'booking_item' => $filters['booking_item'],
+                    'links' => [
+                        'remove' => [
+                            'method' => 'DELETE',
+                            'href' => '/api/booking/cancel-booking?booking_id=' . $booking_id . '&booking_item=' . $filters['booking_item'],
+                        ],
+                        'change' => [
+                            'method' => 'PUT',
+                            'href' => '/api/booking/change-booking?booking_id=' . $booking_id . '&booking_item=' . $filters['booking_item'],
+                        ],
+                        'retrieve' => [
+                            'method' => 'GET',
+                            'href' => '/api/booking/retrieve-booking?booking_id=' . $booking_id,
+                        ],
                     ],
-                    'change' => [
-                        'method' => 'PUT',
-                        'href' => '/api/booking/change-booking?booking_id=' . $booking_id . '&booking_item=' . $filters['booking_item'],
-                    ],
-                    'retrieve' => [
-                        'method' => 'GET',
-                        'href' => '/api/booking/retrieve-booking?booking_id=' . $booking_id,
-                    ],
-                ],
-            ];
+                ];
         }
 
         SaveBookingInspector::dispatch([
@@ -220,7 +220,7 @@ class ExpediaBookApiHandler extends BaseController
             1,
             'book',
             'retrieve' . ($queryHold ? ':hold' : ''),
-            $bookingInspector->search_type,	// hotel | flight | combo
+            $bookingInspector->search_type,    // hotel | flight | combo
         ]);
 
         return $res;
@@ -229,7 +229,7 @@ class ExpediaBookApiHandler extends BaseController
     /**
      * @return array|null
      */
-    public function listBookings(): array | null
+    public function listBookings(): array|null
     {
         $token_id = ChannelRenository::getTokenId(request()->bearerToken());
 
@@ -237,7 +237,7 @@ class ExpediaBookApiHandler extends BaseController
         $list = BookingRepository::getAffiliateReferenceIdByChannel($token_id);
         $path = '/v3/itineraries';
 
-		$promises = [];
+        $promises = [];
         foreach ($list as $item) {
             try {
                 $promises[] = $this->rapidClient->getAsync($path, $item, $this->headers());
@@ -264,11 +264,11 @@ class ExpediaBookApiHandler extends BaseController
      * @param ApiBookingInspector $bookingInspector
      * @return array|null
      */
-    public function retrieveBooking(array $filters, ApiBookingInspector $bookingInspector): array | null
+    public function retrieveBooking(array $filters, ApiBookingInspector $bookingInspector): array|null
     {
         $booking_id = $filters['booking_id'];
         $filters['search_id'] = $bookingInspector->search_id;
-		$filters['booking_item'] = $bookingInspector->booking_item;
+        $filters['booking_item'] = $bookingInspector->booking_item;
         $json_response = json_decode(Storage::get($bookingInspector->response_path));
 
         $linkRetrieveItem = $json_response->links->retrieve->href;
@@ -302,10 +302,10 @@ class ExpediaBookApiHandler extends BaseController
      * @return array|null
      * @throws GuzzleException
      */
-    public function cancelBooking(array $filters, ApiBookingInspector $bookingInspector): array | null
+    public function cancelBooking(array $filters, ApiBookingInspector $bookingInspector): array|null
     {
         # step 1 Get room_id from ApiBookingItem
-		$apiBookingItem = ApiBookingItem::where('booking_item', $bookingInspector->booking_item)->first();
+        $apiBookingItem = ApiBookingItem::where('booking_item', $bookingInspector->booking_item)->first();
         $room_id = json_decode($apiBookingItem->booking_item_data, true)['room_id'];
 
         # step 2 Read Booking Inspector, Get link  DELETE method from 'add_item | get_book'
@@ -322,7 +322,7 @@ class ExpediaBookApiHandler extends BaseController
             'room_id' => $room_id,
         ];
         $body = json_encode($bodyArr);
-		$dataResponse = [];
+        $dataResponse = [];
         try {
             $response = $this->rapidClient->delete($props['path'], $props['paramToken'], $body, $this->headers());
             $dataResponse = json_decode($response->getBody()->getContents());
@@ -339,7 +339,7 @@ class ExpediaBookApiHandler extends BaseController
                 'booking_item' => $bookingInspector->booking_item,
                 'status' => $responseErrorArr['message'],
             ];
-			$dataResponse = $responseErrorArr['message'];
+            $dataResponse = $responseErrorArr['message'];
         }
 
         SaveBookingInspector::dispatch([
@@ -350,7 +350,7 @@ class ExpediaBookApiHandler extends BaseController
             1,
             'cancel_booking',
             'true',
-            $bookingInspector->search_type,	// hotel | flight | combo
+            $bookingInspector->search_type,    // hotel | flight | combo
         ]);
 
         return $res;
@@ -361,32 +361,32 @@ class ExpediaBookApiHandler extends BaseController
      * @param ApiBookingInspector $bookingInspector
      * @return array|null
      */
-    public function retrieveItem(array $filters, ApiBookingInspector $bookingInspector): array | null
+    public function retrieveItem(array $filters, ApiBookingInspector $bookingInspector): array|null
     {
         $apiBookingItem = ApiBookingItem::where('booking_item', $bookingInspector->booking_item)->first();
         $booking_item_data = json_decode($apiBookingItem->booking_item_data, true);
-		$booking_pricing_data = json_decode($apiBookingItem->booking_pricing_data, true);
+        $booking_pricing_data = json_decode($apiBookingItem->booking_pricing_data, true);
 
         $searchInspector = ApiSearchInspector::where('search_id', $bookingInspector->search_id)->first();
 
-		$passengers = BookingRepository::getPassengers($bookingInspector->booking_id, $bookingInspector->booking_item);
-		$dataPassengers = [];
+        $passengers = BookingRepository::getPassengers($bookingInspector->booking_id, $bookingInspector->booking_item);
+        $dataPassengers = [];
         if ($passengers) {
             $passengersArr = $passengers->toArray();
-			$dataPassengers = json_decode($passengersArr['request'], true);
+            $dataPassengers = json_decode($passengersArr['request'], true);
         }
 
-		$supplier_id = $apiBookingItem->supplier_id;
-		$supplier = Supplier::find($supplier_id)->name;
+        $supplier_id = $apiBookingItem->supplier_id;
+        $supplier = Supplier::find($supplier_id)->name;
 
         return [
             'booking_id' => $bookingInspector->booking_id,
             'booking_item' => $bookingInspector->booking_item,
             'search_id' => $bookingInspector->search_id,
-			'supplier' => $supplier,
+            'supplier' => $supplier,
             'supplier_data' => $booking_item_data,
-			'pricing_data' => $booking_pricing_data,
-			'passengers' => $dataPassengers,
+            'pricing_data' => $booking_pricing_data,
+            'passengers' => $dataPassengers,
             'request' => json_decode($searchInspector->request, true),
         ];
     }
@@ -408,66 +408,66 @@ class ExpediaBookApiHandler extends BaseController
     /**
      * @return string[]
      */
-    private function headers() : array
-	{
-		return [
+    private function headers(): array
+    {
+        return [
             'Customer-Ip' => '5.5.5.5',
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
             'Test' => 'standard',
         ];
-	}
+    }
 
     /**
      * @param array $filters
      * @param array $passengersData
      * @return array|null
      */
-    public function addPassengers(array $filters, array $passengersData): array | null
+    public function addPassengers(array $filters, array $passengersData): array|null
     {
-		$booking_id = $filters['booking_id'];
-		$filters['search_id'] = ApiBookingInspector::where('booking_item', $filters['booking_item'])->first()->search_id;
+        $booking_id = $filters['booking_id'];
+        $filters['search_id'] = ApiBookingInspector::where('booking_item', $filters['booking_item'])->first()->search_id;
 
-		$bookingItem = ApiBookingInspector::where('booking_id', $booking_id)
-			->where('booking_item', $filters['booking_item'])
-			->where('type', 'add_passengers');
+        $bookingItem = ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('booking_item', $filters['booking_item'])
+            ->where('type', 'add_passengers');
 
-		$apiSearchInspector = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->request;
+        $apiSearchInspector = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->request;
 
-		$countRooms = count(json_decode($apiSearchInspector, true)['occupancy']);
+        $countRooms = count(json_decode($apiSearchInspector, true)['occupancy']);
 
-		$type = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->search_type;
-		if ($type == 'hotel')
-			for ($i = 1; $i <= $countRooms; $i++) {
-				$filters['rooms'][] = $passengersData['rooms'][$i]['passengers'];
-			}
+        $type = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->search_type;
+        if ($type == 'hotel')
+            for ($i = 1; $i <= $countRooms; $i++) {
+                $filters['rooms'][] = $passengersData['rooms'][$i]['passengers'];
+            }
 
-		if ($bookingItem->get()->count() > 0) {
-			$bookingItem->delete();
-			$status = 'Passengers updated to booking.';
-			$subType = 'updated';
-		} else {
-			$status = 'Passengers added to booking.';
-			$subType = 'add';
-		}
+        if ($bookingItem->get()->count() > 0) {
+            $bookingItem->delete();
+            $status = 'Passengers updated to booking.';
+            $subType = 'updated';
+        } else {
+            $status = 'Passengers added to booking.';
+            $subType = 'add';
+        }
 
-		$res = [
-			'booking_id' => $booking_id,
-			'booking_item' => $filters['booking_item'],
-			'status' => $status,
-		];
+        $res = [
+            'booking_id' => $booking_id,
+            'booking_item' => $filters['booking_item'],
+            'status' => $status,
+        ];
 
-		SaveBookingInspector::dispatch([
-			$booking_id,
-			$filters,
-			[],
-			$res,
-			1,
-			'add_passengers',
-			$subType,
-			'hotel',
-		]);
+        SaveBookingInspector::dispatch([
+            $booking_id,
+            $filters,
+            [],
+            $res,
+            1,
+            'add_passengers',
+            $subType,
+            'hotel',
+        ]);
 
-		return $res;
+        return $res;
     }
 }

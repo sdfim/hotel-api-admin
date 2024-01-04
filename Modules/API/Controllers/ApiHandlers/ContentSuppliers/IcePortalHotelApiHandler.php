@@ -88,7 +88,7 @@ class IcePortalHotelApiHandler
 
             $missingProperties = [];
             foreach ($results['results'] as $key => $result) {
-                if (! in_array($result['listingID'], $existingPropertiesIds)) {
+                if (!in_array($result['listingID'], $existingPropertiesIds)) {
                     $missingProperties['results'][] = $result;
                     unset($results['results'][$key]);
                 } else {
@@ -99,7 +99,7 @@ class IcePortalHotelApiHandler
 
             // This is an asynchronous call to fetch the hotel assets
             $resultsFromIseAsync = ['results' => []];
-            if (! empty($missingProperties)) {
+            if (!empty($missingProperties)) {
                 $ct = microtime(true);
                 $resultsFromIseAsync = $this->fetchHotelAssets($missingProperties);
                 Log::info('IceHBSIClient | search | runtime fetchHotelAssets', [
@@ -131,7 +131,7 @@ class IcePortalHotelApiHandler
             Log::info('IceHBSIClient | search | results', $results);
             foreach ($results['results'] as $key => $result) {
                 $pool->withToken($this->client->fetchToken())
-                    ->get($this->client->url('/v1/listings/'.$result['listingID'].'/assets'), [
+                    ->get($this->client->url('/v1/listings/' . $result['listingID'] . '/assets'), [
                         'includeDisabledAssets' => 'true',
                         'includeNotApprovedAssets' => 'true',
                         'page' => '1',
@@ -151,7 +151,7 @@ class IcePortalHotelApiHandler
             ]);
             $asset = $icePortalAssetDto->IcePortalToAssets($responseData['results']);
             if (isset($results['results'][$key])) {
-                if (! isset($results['results'][$key]['listingID'])) continue;
+                if (!isset($results['results'][$key]['listingID'])) continue;
 
                 $results['results'][$key]['images'] = $asset['hotelImages'];
                 $results['results'][$key]['amenities'] = $asset['hotelAmenities'];
@@ -193,11 +193,11 @@ class IcePortalHotelApiHandler
     {
         $id = MapperIcePortalGiata::where('giata_id', $request->get('property_id'))->first();
 
-        if (! $id) {
+        if (!$id) {
             return [];
         }
 
-        $response = $this->client->get('/v1/listings/'.$id->ice_portal_id.'/', [
+        $response = $this->client->get('/v1/listings/' . $id->ice_portal_id . '/', [
             'mType' => self::ICE_MTYPE,
         ]);
 

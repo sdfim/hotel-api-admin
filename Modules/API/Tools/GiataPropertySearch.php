@@ -107,6 +107,6 @@ class GiataPropertySearch implements SearchInterface
 
         $response = $client->search($params);
 
-        return array_map(fn ($result): array => $result['_source'], $response['hits']['hits']);
+        return array_map(fn($result): array => $result['_source'], $response['hits']['hits']);
     }
 }

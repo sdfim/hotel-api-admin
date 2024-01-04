@@ -191,14 +191,14 @@ class PropertyPriceCall
     {
         $responses = [];
 
-		$batchSize = 250;
-		$chunkPropertyIds = array_chunk($propertyIds, $batchSize);
+        $batchSize = 250;
+        $chunkPropertyIds = array_chunk($propertyIds, $batchSize);
 
-		foreach ($chunkPropertyIds as $keyChunk => $chunk) {
+        foreach ($chunkPropertyIds as $keyChunk => $chunk) {
             $this->propertyId = $chunk;
             $queryParameters = $this->queryParameters();
 
-			// dd($queryParameters);
+            // dd($queryParameters);
 
             try {
                 $promises[$keyChunk] = $this->client->getAsync(self::PROPERTY_CONTENT_PATH, $queryParameters);
@@ -223,10 +223,10 @@ class PropertyPriceCall
             Log::error('Error while processing promises: ' . $e->getMessage());
         }
 
-		$res = [];
-		foreach ($responses as $response) {
-			$res[$response['property_id']] = $response;
-		}
+        $res = [];
+        foreach ($responses as $response) {
+            $res[$response['property_id']] = $response;
+        }
 
         return $res;
     }
@@ -250,11 +250,11 @@ class PropertyPriceCall
         $queryParams[self::CURRENCY] = $this->currency;
 
         foreach ($this->occupancy as $room) {
-			if (isset($room['children_ages'])) {
-				$queryParams[self::OCCUPANCY][] = $room['adults'] .'-'. implode(',', $room['children_ages']);
-			} else {
-            	$queryParams[self::OCCUPANCY][] = $room['adults'];
-			}
+            if (isset($room['children_ages'])) {
+                $queryParams[self::OCCUPANCY][] = $room['adults'] . '-' . implode(',', $room['children_ages']);
+            } else {
+                $queryParams[self::OCCUPANCY][] = $room['adults'];
+            }
         }
         $queryParams[self::RATE_PLAN_COUNT] = $this->ratePlanCount;
         $queryParams[self::SALES_CHANNEL] = $this->salesChannel;

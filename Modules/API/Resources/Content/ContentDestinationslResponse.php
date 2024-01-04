@@ -79,10 +79,6 @@ use OpenApi\Annotations as OA;
  * }
  * )
  */
-
-
-
-
 class ContentDestinationslResponse
 {
 }

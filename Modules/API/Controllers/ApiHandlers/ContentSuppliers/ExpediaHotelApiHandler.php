@@ -24,7 +24,7 @@ class ExpediaHotelApiHandler
     private const RATING = 4;
 
     /**
-     * @param  ExpediaService  $expediaService
+     * @param ExpediaService $expediaService
      */
     public function __construct()
     {
@@ -76,7 +76,7 @@ class ExpediaHotelApiHandler
             if (isset($filters['hotel_name'])) {
                 $hotelNameArr = explode(' ', $filters['hotel_name']);
                 foreach ($hotelNameArr as $hotelName) {
-                    $results->where('expedia_content_main.name', 'like', '%'.$hotelName.'%');
+                    $results->where('expedia_content_main.name', 'like', '%' . $hotelName . '%');
                 }
             }
 
@@ -91,13 +91,13 @@ class ExpediaHotelApiHandler
             $results = ExpediaRepositories::dtoDbToResponse($results, $fields);
 
         } catch (Exception $e) {
-            \Log::error('ExpediaHotelApiHandler | preSearchData'.$e->getMessage());
+            \Log::error('ExpediaHotelApiHandler | preSearchData' . $e->getMessage());
 
             return null;
         }
 
         $endTime = microtime(true) - $timeStart;
-        \Log::info('ExpediaHotelApiHandler | preSearchData | end mysql query '.$endTime.' seconds');
+        \Log::info('ExpediaHotelApiHandler | preSearchData | end mysql query ' . $endTime . ' seconds');
 
         return ['ids' => $ids ?? 0, 'results' => $results, 'filters' => $filters ?? null, 'count' => $count ?? 0];
     }
@@ -134,16 +134,16 @@ class ExpediaHotelApiHandler
                 if (isset($priceData[$value['property_id']])) {
                     $prices_property = $priceData[$value['property_id']];
                     $output[$value['giata_id']] = [
-                        'giata_id' => $value['giata_id'],
-                        'hotel_name' => $value['name'],
-                    ] + $prices_property;
+                            'giata_id' => $value['giata_id'],
+                            'hotel_name' => $value['name'],
+                        ] + $prices_property;
                 }
             }
 
             return $output ?? null;
 
         } catch (Exception $e) {
-            \Log::error('ExpediaHotelApiHandler '.$e->getMessage());
+            \Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
 
             return null;
         }

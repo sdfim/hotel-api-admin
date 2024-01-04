@@ -41,7 +41,7 @@ use OpenApi\Annotations as OA;
  *       )
  *     )
  *   ),
- *   @OA\Property(
+ * @OA\Property(
  *     property="message",
  *     type="string",
  *     description="Message",
@@ -53,22 +53,22 @@ use OpenApi\Annotations as OA;
  *   summary="Example Booking Add Passengers Response Update",
  *   value=
  *   {
- * 	"success": true,
- * 	"data": {
- * 		"result": {
- * 		{
- * 			"booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
- * 			"booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
- * 			"status": "Passengers updated to booking."
- * 		},
- * 		{
- * 			"booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
- * 			"booking_item": "50b8b1a0-a07e-4450-b4cc-075742e77be8",
- * 			"status": "Passengers added to booking."
- * 		},
- * 	  }
- * 	},
- * 	"message": "success"
+ *    "success": true,
+ *    "data": {
+ *        "result": {
+ *        {
+ *            "booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+ *            "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
+ *            "status": "Passengers updated to booking."
+ *        },
+ *        {
+ *            "booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+ *            "booking_item": "50b8b1a0-a07e-4450-b4cc-075742e77be8",
+ *            "status": "Passengers added to booking."
+ *        },
+ *      }
+ *    },
+ *    "message": "success"
  * }
  * )
  * @OA\Examples(
@@ -76,22 +76,22 @@ use OpenApi\Annotations as OA;
  *     summary="Example Booking Add Passengers Response",
  *     value=
  * {
- * 	"success": true,
- * 	"data": {
- * 		"result": {
- * 		{
- * 			"booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
- * 			"booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
- * 			"status": "Passengers added to booking."
- * 		},
- * 		{
- * 			"booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
- * 			"booking_item": "50b8b1a0-a07e-4450-b4cc-075742e77be8",
- * 			"status": "Passengers added to booking."
- * 		},
- * 	  }
- * 	},
- * 	"message": "success"
+ *    "success": true,
+ *    "data": {
+ *        "result": {
+ *        {
+ *            "booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+ *            "booking_item": "bed7af51-836a-4d7e-8f82-8efe8b1825d4",
+ *            "status": "Passengers added to booking."
+ *        },
+ *        {
+ *            "booking_id": "590ef3a6-4e7b-4efc-8310-75182f57dc3d",
+ *            "booking_item": "50b8b1a0-a07e-4450-b4cc-075742e77be8",
+ *            "status": "Passengers added to booking."
+ *        },
+ *      }
+ *    },
+ *    "message": "success"
  * }
  * ),
  * @OA\Examples(
@@ -108,7 +108,6 @@ use OpenApi\Annotations as OA;
  * }
  * )
  */
-
 class BookingAddPassengersResponse
 {
 }

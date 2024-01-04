@@ -7,8 +7,8 @@ use Illuminate\Http\JsonResponse;
 
 /**
  * @OA\Info(
- *	title="UJV API Documentation",
- *	version="1.0.0"
+ *    title="UJV API Documentation",
+ *    version="1.0.0"
  * )
  * @OA\SecurityScheme(
  *     type="http",
@@ -36,7 +36,6 @@ use Illuminate\Http\JsonResponse;
  *   description="API Endpoints of Booking (reservation)"
  * ),
  */
-
 class BaseController extends Controller
 {
     /**

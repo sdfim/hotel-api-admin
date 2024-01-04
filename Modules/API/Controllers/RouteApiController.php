@@ -32,13 +32,13 @@ class RouteApiController extends Controller
         $type = $request->get('type');
         $route = Route::currentRouteName();
 
-        if (! self::isTypeValid($type)) {
+        if (!self::isTypeValid($type)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid type',
             ], 400);
         }
-        if (! self::isRouteValid($route)) {
+        if (!self::isRouteValid($route)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid route',
@@ -129,7 +129,7 @@ class RouteApiController extends Controller
         }
 
         $giataGeography = GiataGeography::select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_id')
-            ->where('city_name', 'like', $request->get('city').'%')
+            ->where('city_name', 'like', $request->get('city') . '%')
             ->limit(35)
             ->orderBy('city_id', 'asc')
             ->get()

@@ -59,7 +59,7 @@ class IceHBSIClient
      */
     public function get(string $endpoint, array $query = []): PromiseInterface|Response
     {
-        return Http::withToken($this->token)->get($this->baseUrl.$endpoint, $query);
+        return Http::withToken($this->token)->get($this->baseUrl . $endpoint, $query);
     }
 
     /**
@@ -69,7 +69,7 @@ class IceHBSIClient
      */
     public function post(string $endpoint, array $data = []): PromiseInterface|Response
     {
-        return Http::withToken($this->token)->post($this->baseUrl.$endpoint, $data);
+        return Http::withToken($this->token)->post($this->baseUrl . $endpoint, $data);
     }
 
     /**
@@ -95,6 +95,6 @@ class IceHBSIClient
      */
     public function url(string $endpoint): string
     {
-        return $this->baseUrl.$endpoint;
+        return $this->baseUrl . $endpoint;
     }
 }

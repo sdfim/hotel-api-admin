@@ -134,7 +134,7 @@ use OpenApi\Annotations as OA;
  *            }
  *          }
  *        },
- *    
+ *
  *        {
  *          "title": "ms",
  *          "given_name": "Children1",
@@ -163,7 +163,6 @@ use OpenApi\Annotations as OA;
  *    }
  * ),
  */
-
 class BookingAddPassengersRequest
 {
 }
