@@ -131,7 +131,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
             'rate_code' => rand(1000, 10000),
             'room_type' => 'test type',
             'meal_plan' => 'test meal plan',
-            'rating' => $this->faker->randomFloat(2, 2.5, 4.0),
+            'rating' => $this->faker->randomFloat(2, 2.5, 4),
             'price_value_to_apply' => rand(1, 100),
             'rule_start_date' => $today,
             'rule_expiration_date' => $today->copy()->addDays(rand(30, 60)),
