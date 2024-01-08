@@ -77,13 +77,13 @@ class PropertyPriceCall
 
     // Call parameters
     /**
-     * @var
+     * @var RapidClient|null
      */
-    private $client;
+    private RapidClient|null $client;
     /**
-     * @var
+     * @var string|int|null
      */
-    private $propertyId;
+    private string|int|null $propertyId;
     /**
      * @var string|mixed
      */

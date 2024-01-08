@@ -4,21 +4,23 @@ namespace App\Traits;
 
 use App\Models\Role;
 use App\Models\Permission;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 trait HasRolesAndPermissions
 {
     /**
-     * @return mixed
+     * @return BelongsToMany
      */
-    public function roles ()
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'users_roles');
     }
 
     /**
-     * @return mixed
+     * @return BelongsToMany
      */
-    public function permissions ()
+    public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(Permission::class, 'users_permissions');
     }
@@ -27,7 +29,7 @@ trait HasRolesAndPermissions
      * @param mixed ...$roles
      * @return bool
      */
-    public function hasRole (...$roles)
+    public function hasRole(...$roles): bool
     {
         foreach ($roles as $role) {
             if ($this->roles->contains('slug', $role)) {
@@ -41,7 +43,7 @@ trait HasRolesAndPermissions
      * @param $permission
      * @return bool
      */
-    public function hasPermission ($permission)
+    public function hasPermission($permission): bool
     {
         return (bool)$this->permissions->where('slug', $permission)->count();
     }
@@ -50,7 +52,7 @@ trait HasRolesAndPermissions
      * @param $permission
      * @return bool
      */
-    public function hasPermissionTo ($permission)
+    public function hasPermissionTo($permission): bool
     {
         return $this->hasPermissionThroughRole($permission) || $this->hasPermission($permission->slug);
     }
@@ -59,7 +61,7 @@ trait HasRolesAndPermissions
      * @param $permission
      * @return bool
      */
-    public function hasPermissionThroughRole ($permission)
+    public function hasPermissionThroughRole($permission): bool
     {
         foreach ($permission->roles as $role) {
             if ($this->roles->contains($role)) {
@@ -73,7 +75,7 @@ trait HasRolesAndPermissions
      * @param array $permissions
      * @return mixed
      */
-    public function getAllPermissions (array $permissions)
+    public function getAllPermissions(array $permissions): mixed
     {
         return Permission::whereIn('slug', $permissions)->get();
     }
@@ -82,7 +84,7 @@ trait HasRolesAndPermissions
      * @param mixed ...$permissions
      * @return $this
      */
-    public function givePermissionsTo (...$permissions)
+    public function givePermissionsTo(...$permissions): static
     {
         $permissions = $this->getAllPermissions($permissions);
         if ($permissions === null) {
@@ -96,7 +98,7 @@ trait HasRolesAndPermissions
      * @param mixed ...$permissions
      * @return $this
      */
-    public function deletePermissions (...$permissions)
+    public function deletePermissions(...$permissions): static
     {
         $permissions = $this->getAllPermissions($permissions);
         $this->permissions()->detach($permissions);
@@ -104,10 +106,10 @@ trait HasRolesAndPermissions
     }
 
     /**
-     * @param mixed ...$permissions
-     * @return HasRolesAndPermissions
+     * @param ...$permissions
+     * @return User
      */
-    public function refreshPermissions (...$permissions)
+    public function refreshPermissions(...$permissions): User
     {
         $this->permissions()->detach();
         return $this->givePermissionsTo($permissions);

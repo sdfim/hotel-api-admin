@@ -11,5 +11,4 @@ interface SearchInterface
      * @return array
      */
     public function search(string $name, float $latitude, string $city): array;
-
 }

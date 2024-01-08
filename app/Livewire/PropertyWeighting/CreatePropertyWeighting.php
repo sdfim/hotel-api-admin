@@ -48,10 +48,10 @@ class CreatePropertyWeighting extends Component implements HasForms
                     ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
                         ->where('name', 'like', "%$search%")
-						->orWhere('code', $search)
-						->limit(30)
-						->pluck('full_name', 'code')
-						->toArray()
+                        ->orWhere('code', $search)
+                        ->limit(30)
+                        ->pluck('full_name', 'code')
+                        ->toArray()
                     )
                     ->live()
                     ->required()
@@ -61,7 +61,7 @@ class CreatePropertyWeighting extends Component implements HasForms
                     ->options(Supplier::all()->pluck('name', 'id')),
                 TextInput::make('weight')
                     ->label('Weight')
-					->type('number')
+                    ->type('number')
                     ->required()
                     ->maxLength(12),
 

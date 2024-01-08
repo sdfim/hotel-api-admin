@@ -3,7 +3,6 @@
 namespace App\Jobs;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -33,8 +32,8 @@ class SaveReservations implements ShouldQueue
     public function __construct($booking_id, $filters, $dataPassengers)
     {
         $this->booking_id = $booking_id;
-		$this->filters = $filters;
-		$this->dataPassengers = $dataPassengers;
+        $this->filters = $filters;
+        $this->dataPassengers = $dataPassengers;
     }
 
     /**
@@ -43,6 +42,6 @@ class SaveReservations implements ShouldQueue
     public function handle(): void
     {
         $expediaTools = new ExpediaTools();
-		$expediaTools->saveAddItemToReservations($this->booking_id, $this->filters, $this->dataPassengers);
+        $expediaTools->saveAddItemToReservations($this->booking_id, $this->filters, $this->dataPassengers);
     }
 }

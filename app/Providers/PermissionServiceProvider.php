@@ -14,7 +14,7 @@ class PermissionServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register ()
+    public function register()
     {
         //
     }
@@ -24,7 +24,7 @@ class PermissionServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot ()
+    public function boot(): void
     {
         try {
             Permission::get()->map(function ($permission) {
@@ -34,7 +34,6 @@ class PermissionServiceProvider extends ServiceProvider
             });
         } catch (Exception $e) {
             report($e);
-            return false;
         }
     }
 }

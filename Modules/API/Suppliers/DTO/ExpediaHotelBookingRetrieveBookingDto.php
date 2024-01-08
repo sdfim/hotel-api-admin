@@ -32,34 +32,34 @@ class ExpediaHotelBookingRetrieveBookingDto
             ];
         }
 
-        $ResponseModel = new ResponseModel();
-        $ResponseModel->setStatus($saveResponse['status']);
-        $ResponseModel->setBookingId($saveResponse['booking_id']);
-        $ResponseModel->setBookringItem($saveResponse['booking_item']);
-        $ResponseModel->setSupplier($saveResponse['supplier']);
-        $ResponseModel->setHotelName($saveResponse['hotel_name']);
+        $responseModel = new ResponseModel();
+        $responseModel->setStatus($saveResponse['status']);
+        $responseModel->setBookingId($saveResponse['booking_id']);
+        $responseModel->setBookringItem($saveResponse['booking_item']);
+        $responseModel->setSupplier($saveResponse['supplier']);
+        $responseModel->setHotelName($saveResponse['hotel_name']);
 
-        $ResponseModel->setRooms($rooms);
+        $responseModel->setRooms($rooms);
 
-        $ResponseModel->setCancellationTerms($saveResponse['cancellation_terms']);
-        $ResponseModel->setRate($saveResponse['rate']);
-        $ResponseModel->setTotalPrice($saveResponse['total_price']);
-        $ResponseModel->setTotalTax($saveResponse['total_tax']);
-        $ResponseModel->setTotalFees($saveResponse['total_fees']);
-        $ResponseModel->setTotalNet($saveResponse['total_net']);
-        $ResponseModel->setAffiliateServiceCharge($saveResponse['affiliate_service_charge']);
-        $ResponseModel->setCurrency($saveResponse['currency']);
-        $ResponseModel->setPerNightBreakdown($saveResponse['per_night_breakdown']);
-        $ResponseModel->setBoardBasis('');
-//        $ResponseModel->setRoomName('');
-//        $ResponseModel->setRoomType('');
-        $ResponseModel->setQuery($query);
-        $ResponseModel->setSupplierBookId($dataResponse['itinerary_id'] ?? '');
-        $ResponseModel->setBillingContact($dataResponse['billing_contact'] ?? '');
-        $ResponseModel->setBillingEmail($dataResponse['email'] ?? '');
-        $ResponseModel->setBillingPhone($dataResponse['phone'] ?? '');
+        $responseModel->setCancellationTerms($saveResponse['cancellation_terms']);
+        $responseModel->setRate($saveResponse['rate']);
+        $responseModel->setTotalPrice($saveResponse['total_price']);
+        $responseModel->setTotalTax($saveResponse['total_tax']);
+        $responseModel->setTotalFees($saveResponse['total_fees']);
+        $responseModel->setTotalNet($saveResponse['total_net']);
+        $responseModel->setAffiliateServiceCharge($saveResponse['affiliate_service_charge']);
+        $responseModel->setCurrency($saveResponse['currency']);
+        $responseModel->setPerNightBreakdown($saveResponse['per_night_breakdown']);
+        $responseModel->setBoardBasis('');
+//        $responseModel->setRoomName('');
+//        $responseModel->setRoomType('');
+        $responseModel->setQuery($query);
+        $responseModel->setSupplierBookId($dataResponse['itinerary_id'] ?? '');
+        $responseModel->setBillingContact($dataResponse['billing_contact'] ?? '');
+        $responseModel->setBillingEmail($dataResponse['email'] ?? '');
+        $responseModel->setBillingPhone($dataResponse['phone'] ?? '');
 
 
-        return $ResponseModel->toRetrieveArray();
+        return $responseModel->toRetrieveArray();
     }
 }

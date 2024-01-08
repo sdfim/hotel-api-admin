@@ -69,7 +69,6 @@ class ApiSearchInspectorRepository
     {
         $search_id = $filters['search_id'];
         $hotel_id = $filters['hotel_id']; // giata_id
-        $room_id = $filters['room_id']; // expedia
 
         $search_id = ApiSearchInspector::where('search_id', $search_id)->first();
         $json_response = json_decode(Storage::get($search_id->client_response_path));
@@ -102,7 +101,6 @@ class ApiSearchInspectorRepository
      */
     public static function getReservationsExpediaData($filters, ApiBookingItem $apiBookingItem, ApiSearchInspector $searchInspector): array
     {
-        $booking_item = $filters['booking_item'];
         $booking_item_data = json_decode($apiBookingItem->booking_item_data, true);
         $client_response = json_decode(Storage::get($searchInspector->client_response_path), true);
 

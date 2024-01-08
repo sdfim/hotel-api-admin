@@ -19,7 +19,7 @@ class EnrichmentWeight
      * @param string $type
      * @return array
      */
-    public function enrichmentContent(array $clientResponse, string $type): array
+    public function enrichmentContent(array $clientResponse, string $type = ''): array
     {
         $this->executionTime();
 
@@ -47,7 +47,7 @@ class EnrichmentWeight
      * @param string $type
      * @return array
      */
-    public function enrichmentPricing(array $clientResponse, string $type): array
+    public function enrichmentPricing(array $clientResponse, string $type = ''): array
     {
         $this->executionTime();
 

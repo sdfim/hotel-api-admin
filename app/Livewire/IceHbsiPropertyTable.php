@@ -6,11 +6,11 @@ use App\Models\IcePortalPropery;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\View\View;
 use Livewire\Component;
 
 class IceHbsiPropertyTable extends Component implements HasForms, HasTable
@@ -72,12 +72,10 @@ class IceHbsiPropertyTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->sortable()
                     ->searchable(isIndividual: true),
-            ])
-            ->actions([])
-            ->bulkActions([]);
+            ]);
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.ice-hbsi-property-table');
     }

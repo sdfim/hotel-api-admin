@@ -17,16 +17,34 @@ use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
 
 class IcePortalHotelApiHandler
 {
+    /**
+     * @var IceHBSIClient
+     */
     private IceHBSIClient $client;
 
+    /**
+     *
+     */
     private const RESULT_PER_PAGE = 500;
 
+    /**
+     *
+     */
     private const PAGE = 1;
 
+    /**
+     *
+     */
     private const RATING = 4;
 
+    /**
+     *
+     */
     private const ICE_MTYPE = 34347;
 
+    /**
+     *
+     */
     public function __construct()
     {
         $this->client = new IceHBSIClient();

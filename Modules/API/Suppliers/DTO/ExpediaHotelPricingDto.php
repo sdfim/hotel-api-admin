@@ -204,7 +204,6 @@ class ExpediaHotelPricingDto
     public function setRoomGroupsResponse(array $roomGroup, $propertyGroup): array
     {
         $giataId = $propertyGroup['giata_id'];
-        $pricingRulesApplier = [];
 
         $roomGroupsResponse = new RoomGroupsResponse();
 

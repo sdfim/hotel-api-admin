@@ -13,13 +13,19 @@ class SaveBookingItems implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-	/**
-	 * @var array
-	 */
-	private array $bookingItems;
+    /**
+     * @var array
+     */
+    private array $bookingItems;
 
-	public int $tries = 5;
-	public int $retryAfter = 250;
+    /**
+     * @var int
+     */
+    public int $tries = 5;
+    /**
+     * @var int
+     */
+    public int $retryAfter = 250;
 
     /**
      * Create a new job instance.

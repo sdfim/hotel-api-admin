@@ -18,7 +18,7 @@ class RewriteUrls
     public function handle(Request $request, Closure $next): mixed
     {
         $path = $request->path();
-        if (! str_contains($path, 'log-viewer')) {
+        if (!str_contains($path, 'log-viewer')) {
             URL::forceRootUrl(config('app.url'));
         }
         return $next($request);

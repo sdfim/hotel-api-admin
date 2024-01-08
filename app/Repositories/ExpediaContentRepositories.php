@@ -18,7 +18,7 @@ class ExpediaContentRepositories
     {
         return collect($results)->map(function ($item) use ($fields) {
             foreach ($fields as $key) {
-                if (! is_string($item->$key)) {
+                if (!is_string($item->$key)) {
                     continue;
                 }
                 if (str_contains($item->$key, '{')) {

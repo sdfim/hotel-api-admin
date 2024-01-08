@@ -37,16 +37,16 @@ class ExpediaTable extends Component implements HasForms, HasTable
                 TextColumn::make('property_id')
                     ->sortable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
-						return $query
-							->where('property_id', $search);
-					}, isIndividual: true)
+                        return $query
+                            ->where('property_id', $search);
+                    }, isIndividual: true)
                     ->toggleable(),
-				ViewColumn::make('name')
-					->toggleable()
-					->sortable()
-					->searchable(isIndividual: true)
-					->view('dashboard.expedia.column.name-field'),
-				TextColumn::make('rating')
+                ViewColumn::make('name')
+                    ->toggleable()
+                    ->sortable()
+                    ->searchable(isIndividual: true)
+                    ->view('dashboard.expedia.column.name-field'),
+                TextColumn::make('rating')
                     ->numeric()
                     ->searchable(isIndividual: true)
                     ->sortable()
@@ -55,57 +55,51 @@ class ExpediaTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->searchable(isIndividual: true)
                     ->toggleable(),
-				TextColumn::make('latitude')
+                TextColumn::make('latitude')
                     ->numeric()
                     ->searchable(isIndividual: true)
                     ->sortable()
                     ->toggleable(),
-				TextColumn::make('longitude')
+                TextColumn::make('longitude')
                     ->numeric()
                     ->searchable(isIndividual: true)
                     ->sortable()
                     ->toggleable(),
-				TextColumn::make('phone')
+                TextColumn::make('phone')
                     ->numeric()
                     ->searchable(isIndividual: true)
                     ->sortable()
                     ->toggleable(),
                 ViewColumn::make('address')
-					->view('dashboard.expedia.column.address-field')
+                    ->view('dashboard.expedia.column.address-field')
                     ->searchable(isIndividual: true)
                     ->toggleable(),
                 ViewColumn::make('mapperGiataExpedia.giata_id')
-					->label('Giata id')
-					->view('dashboard.expedia.column.giata_id')
+                    ->label('Giata id')
+                    ->view('dashboard.expedia.column.giata_id')
                     ->searchable(isIndividual: true),
                 TextColumn::make('mapperGiataExpedia.step')
                     ->searchable(isIndividual: true)
                     ->label(new HtmlString('Strategy<br> Mapper'))
-					->badge()
+                    ->badge()
                     ->color(fn(string $state): string => match ($state) {
-                        '1' => 'success',
-                        '2' => 'success',
-                        '3' => 'info',
-						'4' => 'info',
-						'5' => 'info',
-						'6' => 'info',
-						'7' => 'info',
-						'10' => 'success',
+                        '1', '2', '10' => 'success',
+                        '3', '4', '5', '6', '7' => 'info',
                         default => 'gray',
                     })
                     ->toggleable(),
-				TextColumn::make('is_active')
+                TextColumn::make('is_active')
                     ->searchable(isIndividual: true)
                     ->label('Active')
-					->badge()
+                    ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         '1' => 'success',
                         default => 'gray',
                     })
                     ->toggleable(),
                 ViewColumn::make('edit')
-					->view('dashboard.expedia.column.add-giata')
-					->toggleable(),
+                    ->view('dashboard.expedia.column.add-giata')
+                    ->toggleable(),
             ])
             ->filters([
                 Filter::make('is_empty')

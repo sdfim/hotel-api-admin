@@ -12,20 +12,41 @@ class GiataPropertyRepository
 {
     use Timer;
 
+    /**
+     *
+     */
     private const BATCH_SIZE = 200;
 
+    /**
+     *
+     */
     private const MIN_PERC = 65;
 
+    /**
+     * @var bool
+     */
     private bool $availableElasticSearch;
 
+    /**
+     * @var GiataPropertySearch
+     */
     private GiataPropertySearch $giataPropertySearch;
 
+    /**
+     * @var array
+     */
     private array $batchIcePortal = [];
 
+    /**
+     * @var array
+     */
     private array $listBatchHbsi = [];
 
-    public function __construct(
-    ) {
+    /**
+     *
+     */
+    public function __construct()
+    {
     }
 
     /**
@@ -45,7 +66,7 @@ class GiataPropertyRepository
             return $this->giataPropertySearch->search($hotelName, $latitude, $city);
         }
 
-        return GiataProperty::where('latitude', 'like', $latitude.'%')
+        return GiataProperty::where('latitude', 'like', $latitude . '%')
             ->whereRaw('MATCH(name) AGAINST(? IN BOOLEAN MODE)', $hotelNameSearch)
             ->get()
             ->toArray();
@@ -81,7 +102,7 @@ class GiataPropertyRepository
                 } else {
                     $res = $this->getGiataCode(
                         'ICE_PORTAL',
-                        (int) $hotel['listingID'],
+                        (int)$hotel['listingID'],
                         $hotel['name'],
                         floatval($hotel['address']['latitude'] ?? 0),
                         $hotel['address']['city']
@@ -125,16 +146,16 @@ class GiataPropertyRepository
             }
         }
 
-        if ($supplier == 'ICE_PORTAL' && ! in_array($id.'_'.$code, $this->listBatchHbsi) && $perc !== 0) {
+        if ($supplier == 'ICE_PORTAL' && !in_array($id . '_' . $code, $this->listBatchHbsi) && $perc !== 0) {
             $this->batchIcePortal[] = [
                 'ice_portal_id' => $id,
                 'giata_id' => $code,
                 'perc' => $perc,
             ];
-            $this->listBatchHotels[] = $id.'_'.$code;
+            $this->listBatchHotels[] = $id . '_' . $code;
         }
 
-        Log::debug('GiataPropertyRepository | getGiataCode | runtime '.$this->duration(), [
+        Log::debug('GiataPropertyRepository | getGiataCode | runtime ' . $this->duration(), [
             'supplier' => $supplier,
             'count' => count($giata),
             'id' => $id,

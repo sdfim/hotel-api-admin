@@ -4,7 +4,6 @@ namespace Modules\API\Suppliers\ExpediaSupplier;
 
 class PropertyCallFactory
 {
-
     /**
      * @var RapidClient
      */

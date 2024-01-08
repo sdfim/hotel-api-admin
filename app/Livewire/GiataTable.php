@@ -4,7 +4,6 @@ namespace App\Livewire;
 
 use App\Models\GiataProperty;
 use Exception;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -12,7 +11,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\View\View;
 use Illuminate\Database\Eloquent\Builder;
@@ -40,19 +38,19 @@ class GiataTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable()
                     ->searchable(query: function (Builder $query, string $search): Builder {
-						return $query
-							->where('code', $search);
-					}, isIndividual: true),
-				ViewColumn::make('name')
-					->toggleable()
-					->sortable()
-					->searchable(isIndividual: true)
-					->view('dashboard.giata.column.name-field'),
+                        return $query
+                            ->where('code', $search);
+                    }, isIndividual: true),
+                ViewColumn::make('name')
+                    ->toggleable()
+                    ->sortable()
+                    ->searchable(isIndividual: true)
+                    ->view('dashboard.giata.column.name-field'),
                 TextColumn::make('city')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-				TextColumn::make('city_id')
+                TextColumn::make('city_id')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
@@ -60,23 +58,23 @@ class GiataTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-				TextColumn::make('latitude')
+                TextColumn::make('latitude')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-				TextColumn::make('longitude')
+                TextColumn::make('longitude')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-				TextColumn::make('mapper_address')
-					->label('Address')
+                TextColumn::make('mapper_address')
+                    ->label('Address')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-				TextColumn::make('mapper_phone_number')
-					->label('Phone')
-					->toggleable()
-					->searchable(isIndividual: true),
+                TextColumn::make('mapper_phone_number')
+                    ->label('Phone')
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
             ])
             ->actions([
                 ActionGroup::make([

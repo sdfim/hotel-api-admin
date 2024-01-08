@@ -48,7 +48,7 @@ class Kernel extends HttpKernel
         ValidatePostSize::class,
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
-		SetLocationHeader::class,
+        SetLocationHeader::class,
         RewriteUrls::class,
     ];
 

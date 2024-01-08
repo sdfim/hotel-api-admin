@@ -11,5 +11,4 @@ interface SupplierContentDtoInterface
      * @return ContentSearchResponse[]
      */
     public function SupplierToContentSearchResponse(array $supplierResponse): array;
-
 }

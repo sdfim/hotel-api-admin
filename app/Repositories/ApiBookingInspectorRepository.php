@@ -13,7 +13,7 @@ class ApiBookingInspectorRepository
      * @param int $room_id
      * @return string|null
      */
-    public static function getLinkDeleteItem(string $booking_id, string $booking_item, int $room_id): string | null
+    public static function getLinkDeleteItem(string $booking_id, string $booking_item, int $room_id): string|null
     {
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('booking_item', $booking_item)
@@ -45,7 +45,7 @@ class ApiBookingInspectorRepository
      * @param int $room_id
      * @return string|null
      */
-    public static function getLinkPutMethod(string $booking_id, int $room_id): string | null
+    public static function getLinkPutMethod(string $booking_id, int $room_id): string|null
     {
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve' . '%')
@@ -70,7 +70,7 @@ class ApiBookingInspectorRepository
      * @param $filters
      * @return string|null
      */
-    public static function getItineraryId($filters): null | string
+    public static function getItineraryId($filters): null|string
     {
         $booking_id = $filters['booking_id'];
 
@@ -88,7 +88,7 @@ class ApiBookingInspectorRepository
      * @param $filters
      * @return string|null
      */
-    public static function getSearchId($filters): null | string
+    public static function getSearchId($filters): null|string
     {
         $booking_id = $filters['booking_id'];
 
@@ -104,7 +104,7 @@ class ApiBookingInspectorRepository
      * @param $booking_id
      * @return string|null
      */
-    public function getLinkRetrieveItem($booking_id): string | null
+    public function getLinkRetrieveItem($booking_id): string|null
     {
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'create' . '%')
@@ -120,7 +120,7 @@ class ApiBookingInspectorRepository
      * @param $channel
      * @return array|null
      */
-    public static function getAffiliateReferenceIdByChannel($channel): array | null
+    public static function getAffiliateReferenceIdByChannel($channel): array|null
     {
         $inspectors = ApiBookingInspector::where('token_id', $channel)
             ->where(function ($query) {

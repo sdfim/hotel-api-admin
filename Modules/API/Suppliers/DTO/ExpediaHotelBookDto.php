@@ -29,26 +29,26 @@ class ExpediaHotelBookDto
 
         $hotelName = GiataProperty::where('code', $booking_item_data['hotel_id'])->first()->name;
 
-        $HotelBookResponseModel = new HotelBookResponseModel();
-        $HotelBookResponseModel->setStatus('booked');
-        $HotelBookResponseModel->setBookingId($filters['booking_id']);
-        $HotelBookResponseModel->setBookringItem($filters['booking_item']);
-        $HotelBookResponseModel->setSupplier($bookringItem->supplier->name);
-        $HotelBookResponseModel->setHotelName($hotelName . ' (' . $booking_item_data['hotel_id'] . ')');
-        $HotelBookResponseModel->setRooms([
+        $hotelBookResponseModel = new HotelBookResponseModel();
+        $hotelBookResponseModel->setStatus('booked');
+        $hotelBookResponseModel->setBookingId($filters['booking_id']);
+        $hotelBookResponseModel->setBookringItem($filters['booking_item']);
+        $hotelBookResponseModel->setSupplier($bookringItem->supplier->name);
+        $hotelBookResponseModel->setHotelName($hotelName . ' (' . $booking_item_data['hotel_id'] . ')');
+        $hotelBookResponseModel->setRooms([
             'room_name' => $booking_pricing_data['supplier_room_name'],
             'meal_plan' => '',
         ]);
-        $HotelBookResponseModel->setCancellationTerms('');
-        $HotelBookResponseModel->setRate($booking_item_data['rate']);
-        $HotelBookResponseModel->setTotalPrice($booking_pricing_data['total_price']);
-        $HotelBookResponseModel->setTotalTax($booking_pricing_data['total_tax']);
-        $HotelBookResponseModel->setTotalFees($booking_pricing_data['total_fees']);
-        $HotelBookResponseModel->setTotalNet($booking_pricing_data['total_net']);
-        $HotelBookResponseModel->setAffiliateServiceCharge($booking_pricing_data['affiliate_service_charge']);
-        $HotelBookResponseModel->setCurrency($booking_pricing_data['currency']);
-        $HotelBookResponseModel->setPerNightBreakdown(round(($booking_pricing_data['total_price'] / (int)$nights), 2));
+        $hotelBookResponseModel->setCancellationTerms('');
+        $hotelBookResponseModel->setRate($booking_item_data['rate']);
+        $hotelBookResponseModel->setTotalPrice($booking_pricing_data['total_price']);
+        $hotelBookResponseModel->setTotalTax($booking_pricing_data['total_tax']);
+        $hotelBookResponseModel->setTotalFees($booking_pricing_data['total_fees']);
+        $hotelBookResponseModel->setTotalNet($booking_pricing_data['total_net']);
+        $hotelBookResponseModel->setAffiliateServiceCharge($booking_pricing_data['affiliate_service_charge']);
+        $hotelBookResponseModel->setCurrency($booking_pricing_data['currency']);
+        $hotelBookResponseModel->setPerNightBreakdown(round(($booking_pricing_data['total_price'] / (int)$nights), 2));
 
-        return $HotelBookResponseModel->toArray();
+        return $hotelBookResponseModel->toArray();
     }
 }

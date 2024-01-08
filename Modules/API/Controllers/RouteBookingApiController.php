@@ -15,7 +15,6 @@ use Modules\API\BookingAPI\BookingApiHandlers\ComboBookingApiHandler;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 
-
 class RouteBookingApiController extends Controller
 {
     /**

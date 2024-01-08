@@ -86,6 +86,7 @@ class ExpediaBookApiHandler extends BaseController
      * @param array $filters
      * @param ApiBookingInspector $bookingInspector
      * @return array|null
+     * @throws Exception
      */
     public function book(array $filters, ApiBookingInspector $bookingInspector): array|null
     {
@@ -94,7 +95,7 @@ class ExpediaBookApiHandler extends BaseController
         $filters['booking_item'] = $bookingInspector->booking_item;
 
         $passengers = BookingRepository::getPassengers($booking_id, $filters['booking_item']);
-        $dataPassengers = [];
+
         if (!$passengers) {
             return [
                 'error' => 'Passengers not found.',
@@ -167,12 +168,11 @@ class ExpediaBookApiHandler extends BaseController
         # Save Book data to Reservation
         SaveReservations::dispatch($booking_id, $filters, $dataPassengers);
 
-        $itinerary_id = $dataResponse->itinerary_id;
         $linkBookRetrieves = $dataResponse->links->retrieve->href;
 
         # Booking GET query - Retrieve Booking
         $props = $this->getPathParamsFromLink($linkBookRetrieves);
-        $clientResponse = [];
+
         try {
             $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
             $dataResponse = json_decode($response->getBody()->getContents());
@@ -322,7 +322,7 @@ class ExpediaBookApiHandler extends BaseController
             'room_id' => $room_id,
         ];
         $body = json_encode($bodyArr);
-        $dataResponse = [];
+
         try {
             $response = $this->rapidClient->delete($props['path'], $props['paramToken'], $body, $this->headers());
             $dataResponse = json_decode($response->getBody()->getContents());

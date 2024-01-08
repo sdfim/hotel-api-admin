@@ -194,24 +194,25 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $keyPricingSearch = request()->get('type') . ':contentSearch:' . http_build_query(Arr::dot($filters));
 
             if (Cache::has($keyPricingSearch . ':content') && Cache::has($keyPricingSearch . ':clientContent')) {
-
                 $content = Cache::get($keyPricingSearch . ':content');
                 $clientContent = Cache::get($keyPricingSearch . ':clientContent');
             } else {
                 $dataResponse = [];
                 $clientResponse = [];
                 $count = [];
-                foreach ($supplierNames as $supplierName) {
+                $supplierContent = null;
+                $supplierContentDto = null;
 
+                foreach ($supplierNames as $supplierName) {
                     if (isset($request->supplier) && $request->supplier != $supplierName) continue;
 
                     $this->start($supplierName);
 
-                    if ($supplierName == self::SUPPLIER_NAME_EXPEDIA) {
+                    if ($supplierName === self::SUPPLIER_NAME_EXPEDIA) {
                         $supplierContent = $this->expedia;
                         $supplierContentDto = $this->ExpediaHotelContentDto;
                     }
-                    if ($supplierName == self::SUPPLIER_NAME_ICE_PORTAL) {
+                    if ($supplierName === self::SUPPLIER_NAME_ICE_PORTAL) {
                         $supplierContent = $this->icePortal;
                         $supplierContentDto = $this->IcePortalHotelContentDto;
                     }

@@ -91,7 +91,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->required(),
                 Select::make('content_supplier')
                     ->label('Include this supplier in your search as a content supplier (ContentApi)')
-                    ->options(['Expedia' => 'Expedia', 'IcePortal' => 'IcePortal',  'Expedia, IcePortal' => 'Expedia, IcePortal'])
+                    ->options(['Expedia' => 'Expedia', 'IcePortal' => 'IcePortal', 'Expedia, IcePortal' => 'Expedia, IcePortal'])
                     ->required(),
                 TextInput::make('time_inspector_retained')
                     ->label('How Long Inspector Data is retained, days')
@@ -110,7 +110,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->label('Stop bookings with in a number of hours from time of search execution, hours')
                     ->numeric()
                     ->minValue(1)
-                    ->maxValue(365*24)
+                    ->maxValue(365 * 24)
                     ->required(),
             ])
             ->statePath('data')

@@ -12,7 +12,6 @@ use Illuminate\Support\Str;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Illuminate\Support\Facades\Storage;
 
-
 class ExpediaHotelBookingApiHandler
 {
     /**
@@ -92,7 +91,6 @@ class ExpediaHotelBookingApiHandler
         $booking_item = $filters['booking_item'];
 
         try {
-
             $bookItems = ApiBookingInspector::where('booking_id', $booking_id)
                 ->where('type', 'book')
                 ->get()->pluck('booking_id')->toArray();
