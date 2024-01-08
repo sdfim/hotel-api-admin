@@ -14,9 +14,18 @@ class SaveReservations implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-	private $booking_id;
-	private $filters;
-	private $dataPassengers;
+    /**
+     * @var string
+     */
+    private string $booking_id;
+    /**
+     * @var array
+     */
+    private array $filters;
+    /**
+     * @var array
+     */
+    private array $dataPassengers;
 
     /**
      * Create a new job instance.

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,7 +12,7 @@ return new class extends Migration
     {
         $connection = env('DB_CONNECTION_2', 'mysql2');
 
-        if (! Schema::connection($connection)->hasTable('mapper_ice_portal_giatas')) {
+        if (!Schema::connection($connection)->hasTable('mapper_ice_portal_giatas')) {
             Schema::connection($connection)->create('mapper_ice_portal_giatas', function (Blueprint $table) {
                 $table->integer('ice_portal_id')->index();
                 $table->integer('giata_id')->index();

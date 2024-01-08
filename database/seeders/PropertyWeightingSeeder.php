@@ -2,11 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\PropertyWeighting;
 use App\Models\GiataProperty;
-
 
 class PropertyWeightingSeeder extends Seeder
 {
@@ -17,20 +15,20 @@ class PropertyWeightingSeeder extends Seeder
     public function run(): void
     {
         $giataIds = GiataProperty::where('city', 'New York')->pluck('code')->all();
-		$issetIds = PropertyWeighting::whereIn('property', $giataIds)->pluck('property')->all();
+        $issetIds = PropertyWeighting::whereIn('property', $giataIds)->pluck('property')->all();
         $today = now();
-		$data = [];
+        $data = [];
 
-		foreach ($giataIds as $key => $giataId) {
-			if (in_array($giataId, $issetIds)) continue;
-			$weight['property'] = $giataId;
-			$weight['weight'] = rand(1, 10000);
-			if ($key % 2 == 0)  $weight['supplier_id'] = 1;
-			else  $weight['supplier_id'] = null;
+        foreach ($giataIds as $key => $giataId) {
+            if (in_array($giataId, $issetIds)) continue;
+            $weight['property'] = $giataId;
+            $weight['weight'] = rand(1, 10000);
+            if ($key % 2 == 0) $weight['supplier_id'] = 1;
+            else  $weight['supplier_id'] = null;
             $weight['created_at'] = $today;
             $weight['updated_at'] = $today;
-			$data[] = $weight;
-		}
-		PropertyWeighting::insert($data);
+            $data[] = $weight;
+        }
+        PropertyWeighting::insert($data);
     }
 }

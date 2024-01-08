@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             SupplierExpediaSeeder::class,
             ChannelSeeder::class,
             GeneralConfigurationSeeder::class,
-			PropertyWeightingSeeder::class,
+            PropertyWeightingSeeder::class,
             PricingRuleSeeder::class
         ]);
     }

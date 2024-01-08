@@ -129,7 +129,7 @@ class ExpediaHotelPricingDto
         foreach ($supplierResponse as $propertyGroup) {
             $hotelResponse[] = $this->setHotelResponse($propertyGroup);
         }
-        \Log::info('ExpediaHotelPricingDto | enrichmentPricingRules - ' . $this->total_time . 's');
+        Log::info('ExpediaHotelPricingDto | enrichmentPricingRules - ' . $this->total_time . 's');
 
         // TODO: uncomment this line after add Redis
         // SaveBookingItems::dispatch($this->bookingItems);
@@ -275,7 +275,7 @@ class ExpediaHotelPricingDto
         }
 
         if ($pricingRulesApplier['total_price'] == 0.0) {
-            \Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => 'total_price == 0.0']);
+            Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => 'total_price == 0.0']);
         }
 
         $roomResponse = new RoomResponse();

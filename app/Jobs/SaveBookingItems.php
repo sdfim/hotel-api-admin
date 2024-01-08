@@ -4,7 +4,6 @@ namespace App\Jobs;
 
 use App\Models\ApiBookingItem;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -19,9 +18,9 @@ class SaveBookingItems implements ShouldQueue
 	 */
 	private array $bookingItems;
 
-	public $tries = 5;
-	public $retryAfter = 250;
-	
+	public int $tries = 5;
+	public int $retryAfter = 250;
+
     /**
      * Create a new job instance.
      */

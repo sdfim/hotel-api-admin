@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use App\Models\ExpediaContent;
 use App\Models\User;
 
-
 class TestCommand extends Command
 {
     /**

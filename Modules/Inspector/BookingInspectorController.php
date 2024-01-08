@@ -3,9 +3,9 @@
 namespace Modules\Inspector;
 
 use App\Repositories\ChannelRenository;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Channel;
 use App\Models\ApiBookingInspector;
 
 class BookingInspectorController extends BaseInspectorController
@@ -72,7 +72,7 @@ class BookingInspectorController extends BaseInspectorController
 
             return $booking ? $booking->id : false;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error save ApiSearchInspector: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
 
             return false;

@@ -3,6 +3,7 @@
 namespace Modules\Inspector;
 
 use App\Repositories\ChannelRenository;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Channel;
@@ -62,7 +63,7 @@ class SearchInspectorController extends BaseInspectorController
 
             return (bool)$inspector;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error save ApiSearchInspector: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
 
             return false;

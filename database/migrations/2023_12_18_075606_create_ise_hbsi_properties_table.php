@@ -4,14 +4,13 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
-        if (! Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->hasTable('ice_hbsi_properties')) {
+        if (!Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->hasTable('ice_hbsi_properties')) {
             Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->create('ice_hbsi_properties', function (Blueprint $table) {
                 $table->integer('code')->index()->unique();
                 $table->integer('supplier_id');

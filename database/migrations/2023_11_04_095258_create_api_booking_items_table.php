@@ -4,17 +4,16 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         Schema::create('api_booking_items', function (Blueprint $table) {
-			$table->uuid('booking_item')->primary();
+            $table->uuid('booking_item')->primary();
 
-			$table->uuid('search_id');
+            $table->uuid('search_id');
             $table->foreign('search_id')
                 ->references('search_id')
                 ->on('api_search_inspector')
@@ -28,7 +27,7 @@ return new class extends Migration
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
 
-			$table->json('booking_item_data');
+            $table->json('booking_item_data');
 
             $table->timestamp('created_at')->useCurrent();
         });

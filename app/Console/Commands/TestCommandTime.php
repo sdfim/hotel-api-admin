@@ -4,9 +4,6 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Carbon\Carbon;
-use App\Models\ExpediaContent;
-use App\Models\User;
-
 
 class TestCommandTime extends Command
 {

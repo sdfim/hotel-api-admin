@@ -53,7 +53,7 @@ class ExpediaHotelApiHandler
     public function preSearchData(array $filters): ?array
     {
         $timeStart = microtime(true);
-        \Log::info('ExpediaHotelApiHandler | preSearchData | start mysql query');
+        Log::info('ExpediaHotelApiHandler | preSearchData | start mysql query');
 
         $resultsPerPage = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
         $page = $filters['page'] ?? self::PAGE;
@@ -106,13 +106,13 @@ class ExpediaHotelApiHandler
             $results = ExpediaRepositories::dtoDbToResponse($results, $fields);
 
         } catch (Exception $e) {
-            \Log::error('ExpediaHotelApiHandler | preSearchData' . $e->getMessage());
+            Log::error('ExpediaHotelApiHandler | preSearchData' . $e->getMessage());
 
             return null;
         }
 
         $endTime = microtime(true) - $timeStart;
-        \Log::info('ExpediaHotelApiHandler | preSearchData | end mysql query ' . $endTime . ' seconds');
+        Log::info('ExpediaHotelApiHandler | preSearchData | end mysql query ' . $endTime . ' seconds');
 
         return ['ids' => $ids ?? 0, 'results' => $results, 'filters' => $filters ?? null, 'count' => $count ?? 0];
     }
@@ -158,7 +158,7 @@ class ExpediaHotelApiHandler
             return $output ?? null;
 
         } catch (Exception $e) {
-            \Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
+            Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
 
             return null;
         }

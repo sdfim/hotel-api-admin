@@ -2,6 +2,8 @@
 
 namespace Modules\API\Suppliers\ExpediaSupplier;
 
+use Illuminate\Support\Facades\Log;
+
 use Exception;
 
 class ExpediaService
@@ -34,7 +36,7 @@ class ExpediaService
             $this->propertyPriceCall = new PropertyPriceCall($this->rapidClient, $query);
             $dataPrice = $this->propertyPriceCall->getPriceData($propertyIds);
         } catch (Exception $e) {
-            \Log::error('ExpediaService | getExpediaPriceByPropertyIds' . $e->getMessage());
+            Log::error('ExpediaService | getExpediaPriceByPropertyIds' . $e->getMessage());
             return [];
         }
 

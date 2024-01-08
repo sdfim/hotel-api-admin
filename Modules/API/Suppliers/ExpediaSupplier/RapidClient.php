@@ -8,6 +8,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Promise\PromiseInterface as promise;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\ResponseInterface;
+use Illuminate\Support\Facades\Log;
 
 class RapidClient
 {
@@ -168,7 +169,7 @@ class RapidClient
         try {
             $res = $this->client->sendAsync($request);
         } catch (Exception $e) {
-            \Log::error('Error while creating promise: ' . $e->getMessage());
+            Log::error('Error while creating promise: ' . $e->getMessage());
         }
 
         return $res;

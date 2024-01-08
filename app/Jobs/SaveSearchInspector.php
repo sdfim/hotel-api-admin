@@ -2,12 +2,14 @@
 
 namespace App\Jobs;
 
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Modules\Inspector\SearchInspectorController;
+use Illuminate\Support\Facades\Log;
 
 class SaveSearchInspector implements ShouldQueue
 {
@@ -41,8 +43,8 @@ class SaveSearchInspector implements ShouldQueue
 
 		try {
 			$this->searchInspector->save($search_id, $filters, $content, $clientContent, $supplierIds, $type, $search_type);
-		} catch (\Exception $e) {
-			\Log::error('SaveSearchInspector: ' . $e->getMessage());
+		} catch (Exception $e) {
+			Log::error('SaveSearchInspector: ' . $e->getMessage());
 		}
 
     }
