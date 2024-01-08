@@ -6,7 +6,6 @@ use App\Models\Reservation;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\FontWeight;
-use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\ViewAction;
@@ -108,7 +107,6 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([])
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
@@ -121,9 +119,6 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         ->icon('heroicon-s-x-circle')
                         ->color('danger')
                 ])->color('gray'),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 

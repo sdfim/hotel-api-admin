@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -80,9 +79,6 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                         ->label('View response')
                         ->color('info')
                 ])
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
             ])
             ->filters([
                 Filter::make('is_book')

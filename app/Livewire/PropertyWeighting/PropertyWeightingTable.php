@@ -6,7 +6,6 @@ use App\Models\PropertyWeighting;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
@@ -49,7 +48,6 @@ class PropertyWeightingTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable(),
             ])
-            ->filters([])
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
@@ -60,9 +58,6 @@ class PropertyWeightingTable extends Component implements HasForms, HasTable
                         ->requiresConfirmation()
                         ->action(fn(PropertyWeighting $record) => $record->delete())
                 ])
-            ])
-            ->bulkActions([
-                BulkActionGroup::make([]),
             ]);
     }
 

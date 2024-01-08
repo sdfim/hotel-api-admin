@@ -5,7 +5,6 @@ namespace App\Livewire;
 use App\Models\Channel;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -47,7 +46,6 @@ class ChannelsTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([])
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
@@ -58,9 +56,6 @@ class ChannelsTable extends Component implements HasForms, HasTable
                         ->requiresConfirmation()
                         ->action(fn(Channel $record) => $record->delete())
                 ])
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 

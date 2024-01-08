@@ -6,7 +6,6 @@ use App\Models\ApiExceptionReport;
 use Exception;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -69,10 +68,6 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
                         'Warning' => 'Warning',
                         'success' => 'Success',
                     ])
-            ])
-            ->actions([])
-            ->bulkActions([
-                BulkActionGroup::make([]),
             ]);
     }
 

@@ -66,19 +66,7 @@ class BookingItemsTable extends Component implements HasForms, HasTable
                     ->label('Pricing data')
                     ->view('dashboard.booking-items.column.booking-pricing-data'),
 
-            ])
-            ->filters([])
-            // ->actions([
-            //     ViewAction::make()
-            //         ->url(fn(ApiSearchInspector $record): string => route('search-inspector.show', $record))
-            //         ->label('View response')
-            //         ->color('info'),
-
-            // ])
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([]),
-            // ])
-            ;
+            ]);
     }
 
     /**

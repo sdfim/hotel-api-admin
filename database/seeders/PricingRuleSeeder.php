@@ -66,7 +66,7 @@ class PricingRuleSeeder extends Seeder
             ];
 
             $pricingRule['number_rooms'] = 3;
-            $pricingRule['room_guests'] = $pricingRule['number_rooms'] > 1 ? $pricingRule['number_rooms'] - 1 : 0;
+            $pricingRule['room_guests'] = $pricingRule['number_rooms'] - 1;
             $pricingRule['total_guests'] = 10;
             $pricingRule['price_value_type_to_apply'] = $priceValueTypeToApplyOptions[rand(0, 1)];
             $pricingRule['price_type_to_apply'] = $priceTypeToApplyOptions[rand(0, 2)];

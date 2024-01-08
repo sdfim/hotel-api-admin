@@ -65,19 +65,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->searchable(isIndividual: true)
                     ->sortable(),
-            ])
-            ->filters([])
-            // ->actions([
-            //     ViewAction::make()
-            //         ->url(fn(ApiSearchInspector $record): string => route('search-inspector.show', $record))
-            //         ->label('View response')
-            //         ->color('info'),
-
-            // ])
-            // ->bulkActions([
-            //     Tables\Actions\BulkActionGroup::make([]),
-            // ])
-            ;
+            ]);
     }
 
     /**

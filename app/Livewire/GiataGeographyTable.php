@@ -5,7 +5,6 @@ namespace App\Livewire;
 use App\Models\GiataGeography;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -55,11 +54,6 @@ class GiataGeographyTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
-            ])
-            ->filters([])
-            ->actions([])
-            ->bulkActions([
-                BulkActionGroup::make([]),
             ]);
     }
 

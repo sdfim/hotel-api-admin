@@ -6,7 +6,6 @@ use App\Models\GiataProperty;
 use Exception;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -82,9 +81,6 @@ class GiataTable extends Component implements HasForms, HasTable
                         ->url(fn(GiataProperty $record): string => route('giata.show', $record->code))
                         ->color('info'),
                 ])
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 

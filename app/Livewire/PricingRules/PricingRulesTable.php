@@ -5,7 +5,6 @@ namespace App\Livewire\PricingRules;
 use App\Models\PricingRule;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -116,7 +115,6 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([])
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
@@ -127,9 +125,6 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                         ->requiresConfirmation()
                         ->action(fn(PricingRule $record) => $record->delete())
                 ])
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 

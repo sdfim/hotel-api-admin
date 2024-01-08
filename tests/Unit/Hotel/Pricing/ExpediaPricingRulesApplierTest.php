@@ -2,11 +2,14 @@
 
 namespace Tests\Unit\Hotel\Pricing;
 
+use Illuminate\Foundation\Testing\WithFaker;
 use PHPUnit\Framework\TestCase;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 
 class ExpediaPricingRulesApplierTest extends TestCase
 {
+    use WithFaker;
+
     private ExpediaPricingRulesApplier $expediaPricingRulesApplier;
 
     /**
@@ -128,7 +131,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
             'rate_code' => rand(1000, 10000),
             'room_type' => 'test type',
             'meal_plan' => 'test meal plan',
-            'rating' => $this->randomFloat(2.5, 4.0),
+            'rating' => $this->faker->randomFloat(2, 2.5, 4.0),
             'price_value_to_apply' => rand(1, 100),
             'rule_start_date' => $today,
             'rule_expiration_date' => $today->copy()->addDays(rand(30, 60)),
@@ -137,7 +140,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
         ];
 
         $pricingRule['number_rooms'] = 3;
-        $pricingRule['room_guests'] = $pricingRule['number_rooms'] > 1 ? $pricingRule['number_rooms'] - 1 : 0;
+        $pricingRule['room_guests'] = $pricingRule['number_rooms'];
         $pricingRule['total_guests'] = 10;
         $pricingRule['price_value_type_to_apply'] = $priceValueTypeToApplyOptions[rand(0, 1)];
         $pricingRule['price_type_to_apply'] = $priceTypeToApplyOptions[rand(0, 2)];
@@ -411,17 +414,5 @@ class ExpediaPricingRulesApplierTest extends TestCase
                 ]
             ]
         ];
-    }
-
-    /**
-     * @param float $min
-     * @param float $max
-     * @param int $precision
-     * @return float|int
-     */
-    private function randomFloat(float $min, float $max, int $precision = 2): float|int
-    {
-        $factor = pow(10, $precision);
-        return mt_rand($min * $factor, $max * $factor) / $factor;
     }
 }

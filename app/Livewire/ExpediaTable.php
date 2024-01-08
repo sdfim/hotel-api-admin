@@ -118,23 +118,6 @@ class ExpediaTable extends Component implements HasForms, HasTable
                             return null;
                         }
                         return 'Without Giata ID';
-                    }),
-                Filter::make('is_multiple')
-                    ->form([
-                        Checkbox::make('is_multiple')
-                            ->label('Multiple Giata ID')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if ($data['is_multiple']) {
-                            return $query->with('mapperGiataExpedia')
-                                ->withCount('mapperGiataExpedia')
-                                ->has('mapperGiataExpedia', '>');
-                        } else return $query;
-                    })->indicateUsing(function (array $data): ?string {
-                        if (!$data['is_multiple']) {
-                            return null;
-                        }
-                        return 'Multiple Giata ID';
                     })
             ]);
     }
