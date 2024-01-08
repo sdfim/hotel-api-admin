@@ -2,6 +2,7 @@
 
 namespace Modules\API\Tools;
 
+use Exception;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use OpenSearch\ClientBuilder;
@@ -19,7 +20,7 @@ class GiataPropertySearch implements SearchInterface
             } else {
                 $response = Http::get(config("open-search.connections.$connection.host"));
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('GiataPropertySearch | available | open-search.connections ', [
                 'message' => $e->getMessage(),
                 '$connection' => $connection,

@@ -2,7 +2,6 @@
 
 namespace Modules\API\Suppliers\DTO;
 
-use App\Jobs\SaveBookingItems;
 use App\Models\Channel;
 use App\Models\GiataGeography;
 use App\Models\PricingRule;
@@ -20,28 +19,64 @@ use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 
 class ExpediaHotelPricingDto
 {
+    /**
+     * @var ExpediaPricingRulesApplier
+     */
     private ExpediaPricingRulesApplier $pricingRulesApplier;
 
+    /**
+     * @var array
+     */
     private array $query;
 
+    /**
+     * @var string
+     */
     private string $search_id;
 
+    /**
+     * @var string
+     */
     private string $currency;
 
+    /**
+     * @var float
+     */
     private float $current_time;
 
+    /**
+     * @var float
+     */
     private float $total_time;
 
+    /**
+     * @var array|null
+     */
     private ?array $pricingRules;
 
+    /**
+     * @var int
+     */
     private int $channelId;
 
+    /**
+     * @var GiataGeography|null
+     */
     private ?GiataGeography $destinationData;
 
+    /**
+     * @var array
+     */
     private array $bookingItems;
 
+    /**
+     * @var int
+     */
     private int $supplierId = 1;
 
+    /**
+     *
+     */
     public function __construct()
     {
         $this->current_time = microtime(true);

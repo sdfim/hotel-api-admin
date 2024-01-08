@@ -15,18 +15,40 @@ use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
 
 class RouteApiController extends Controller
 {
+    /**
+     *
+     */
     private const TYPE_HOTEL = 'hotel';
 
+    /**
+     *
+     */
     private const TYPE_FLIGHT = 'flight';
 
+    /**
+     *
+     */
     private const TYPE_COMBO = 'combo';
 
+    /**
+     *
+     */
     private const ROUTE_SEARCH = 'search';
 
+    /**
+     *
+     */
     private const ROUTE_DETAIL = 'detail';
 
+    /**
+     *
+     */
     private const ROUTE_PRICE = 'price';
 
+    /**
+     * @param Request $request
+     * @return mixed
+     */
     public function handle(Request $request): mixed
     {
         $type = $request->get('type');

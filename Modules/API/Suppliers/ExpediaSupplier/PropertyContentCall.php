@@ -64,38 +64,38 @@ class PropertyContentCall
 
     // Call parameters
     /**
-     * @var
+     * @var string|mixed
      */
     private $client;
     /**
      * @var mixed
      */
-    private $language;
+    private mixed $language;
     /**
      * @var mixed
      */
-    private $supplySource;
+    private mixed $supplySource;
     /**
      * @var mixed
      */
-    private $countryCodes;
+    private mixed $countryCodes;
     /**
      * @var mixed
      */
-    private $categoryIdExcludes;
+    private mixed $categoryIdExcludes;
     /**
      * @var float|mixed
      */
-    private $propertyRatingMin;
+    private mixed $propertyRatingMin;
     /**
      * @var float|mixed
      */
-    private $propertyRatingMax;
+    private mixed $propertyRatingMax;
 
     /**
-     * @var
+     * @var string|mixed
      */
-    private $token;
+    private mixed $token;
 
     /**
      * @param $client

@@ -25,7 +25,7 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
      */
     private string $supplier_book_id;
     /**
-     * @var string
+     * @var array
      */
     private array $billing_contact;
     /**
@@ -33,7 +33,7 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
      */
     private string $billing_email;
     /**
-     * @var string
+     * @var array
      */
     private array $billing_phone;
 

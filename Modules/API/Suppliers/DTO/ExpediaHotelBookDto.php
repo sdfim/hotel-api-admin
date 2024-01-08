@@ -4,6 +4,7 @@ namespace Modules\API\Suppliers\DTO;
 
 use App\Models\GiataProperty;
 use DateTime;
+use Exception;
 use Modules\API\BookingAPI\ResponseModels\HotelBookResponseModel;
 use App\Models\ApiBookingItem;
 
@@ -11,6 +12,7 @@ class ExpediaHotelBookDto
 {
     /**
      * @return array $filters
+     * @throws Exception
      */
     public static function ExpediaToHotelBookResponseModel(array $filters): array
     {

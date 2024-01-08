@@ -28,6 +28,8 @@ use Modules\API\Suppliers\DTO\ExpediaHotelPricingDto;
 use Modules\API\Suppliers\DTO\IcePortalHotelContentDetailDto;
 use Modules\API\Suppliers\DTO\IcePortalHotelContentDto;
 use Modules\Inspector\SearchInspectorController;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use OpenApi\Annotations as OA;
 
 /**
@@ -39,28 +41,64 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 {
     use Timer;
 
+    /**
+     *
+     */
     private const SUPPLIER_NAME_EXPEDIA = 'Expedia';
 
+    /**
+     *
+     */
     private const SUPPLIER_NAME_ICE_PORTAL = 'IcePortal';
 
+    /**
+     * @var SearchInspectorController
+     */
     private SearchInspectorController $apiInspector;
 
+    /**
+     * @var ExpediaHotelApiHandler
+     */
     private ExpediaHotelApiHandler $expedia;
 
+    /**
+     * @var IcePortalHotelApiHandler
+     */
     private IcePortalHotelApiHandler $icePortal;
 
+    /**
+     * @var ExpediaHotelPricingDto
+     */
     private ExpediaHotelPricingDto $ExpediaHotelPricingDto;
 
+    /**
+     * @var ExpediaHotelContentDto
+     */
     private ExpediaHotelContentDto $ExpediaHotelContentDto;
 
+    /**
+     * @var IcePortalHotelContentDto
+     */
     private IcePortalHotelContentDto $IcePortalHotelContentDto;
 
+    /**
+     * @var IcePortalHotelContentDetailDto
+     */
     private IcePortalHotelContentDetailDto $HbsiHotelContentDetailDto;
 
+    /**
+     * @var ExpediaHotelContentDetailDto
+     */
     private ExpediaHotelContentDetailDto $ExpediaHotelContentDetailDto;
 
+    /**
+     * @var EnrichmentWeight
+     */
     private EnrichmentWeight $propsWeight;
 
+    /**
+     *
+     */
     public function __construct()
     {
         $this->start();
@@ -179,7 +217,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     }
 
                     if ($supplierContent === null || $supplierContentDto === null) {
-                        throw new \Exception('Supplier content or DTO is not set');
+                        throw new Exception('Supplier content or DTO is not set');
                     } else {
                         $supplierData = $supplierContent->search($filters);
                         $data = $supplierData['results'];
@@ -223,7 +261,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             }
 
             return $this->sendResponse($res, 'success');
-        } catch (Exception $e) {
+        } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             \Log::error('HotelApiHandler | search' . $e->getMessage());
 
             return $this->sendError(['error' => $e->getMessage()], 'failed');
@@ -378,7 +416,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             }
 
             return $this->sendResponse(['results' => $results, 'content_supplier' => $contentSupplier], 'success');
-        } catch (Exception $e) {
+        } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             \Log::error('HotelApiHandler ' . $e->getMessage());
 
             return $this->sendError(['error' => $e->getMessage()], 'failed');
@@ -545,7 +583,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $res['search_id'] = $search_id;
 
             return $this->sendResponse($res, 'success');
-        } catch (Exception $e) {
+        } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             \Log::error('HotelApiHandler ' . $e->getMessage());
 
             return $this->sendError(['error' => $e->getMessage()], 'failed');

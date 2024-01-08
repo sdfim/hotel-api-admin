@@ -9,15 +9,14 @@ class ExpediaService
     /**
      * @var PropertyPriceCall
      */
-    private $propertyPriceCall;
+    private PropertyPriceCall $propertyPriceCall;
 
     /**
      * @var RapidClient
      */
-    private $rapidClient;
+    private RapidClient $rapidClient;
 
     /**
-     * @param PropertyCallFactory $rapidCallFactory
      */
     public function __construct()
     {
@@ -25,7 +24,7 @@ class ExpediaService
     }
 
     /**
-     * @param array $queryIds
+     * @param array $propertyIds
      * @param array $query
      * @return array
      */

@@ -12,37 +12,75 @@ use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\ComboBookingApiHandler;
-use App\Models\ApiBookingInspector;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 
 
 class RouteBookingApiController extends Controller
 {
+    /**
+     *
+     */
     private const TYPE_HOTEL = 'hotel';
 
+    /**
+     *
+     */
     private const TYPE_FLIGHT = 'flight';
 
+    /**
+     *
+     */
     private const TYPE_COMBO = 'combo';
 
+    /**
+     *
+     */
     private const ROUTE_ADD_ITEM = 'addItem';
 
+    /**
+     *
+     */
     private const ROUTE_REMOVE_ITEM = 'removeItem';
 
+    /**
+     *
+     */
     private const ROUTE_CHANGE_ITEMS = 'changeItems';
 
+    /**
+     *
+     */
     private const ROUTE_RETRIEVE_ITEMS = 'retrieveItems';
 
+    /**
+     *
+     */
     private const ROUTE_ADD_PASSENGERS = 'addPassengers';
 
+    /**
+     *
+     */
     private const ROUTE_BOOK = 'book';
 
+    /**
+     *
+     */
     private const ROUTE_LIST_BOOKINGS = 'listBookings';
 
+    /**
+     *
+     */
     private const ROUTE_RETRIEVE_BOOKING = 'retrieveBooking';
 
+    /**
+     *
+     */
     private const ROUTE_CANCEL_BOOKING = 'cancelBooking';
 
+    /**
+     *
+     */
     private const ROUTE_CHANGE_BOOKING = 'changeBooking';
 
     /**
@@ -140,7 +178,7 @@ class RouteBookingApiController extends Controller
             $this->type = null;
             $this->supplier = null;
             return false;
-        };
+        }
         return true;
     }
 

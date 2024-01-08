@@ -2,7 +2,6 @@
 
 namespace Modules\API\BookingAPI\BookingApiHandlers;
 
-use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use Exception;
@@ -14,8 +13,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Modules\API\Requests\BookingRemoveItemHotelRequest;
-use Modules\Inspector\SearchInspectorController;
 use Modules\API\BookingAPI\ExpediaHotelBookingApiHandler;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 
 /**
  * @OA\PathItem(
@@ -142,7 +142,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
                 $data = $this->expedia->addItem($filters);
             }
             // TODO: Add other suppliers
-        } catch (Exception $e) {
+        } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             Log::error('HotelBookingApiHandler | addItem ' . $e->getMessage());
             return $this->sendError(['error' => $e->getMessage()], 'failed');
         }

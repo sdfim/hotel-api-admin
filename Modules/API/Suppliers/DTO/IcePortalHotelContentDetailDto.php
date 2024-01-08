@@ -10,8 +10,14 @@ use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
 
 class IcePortalHotelContentDetailDto
 {
+    /**
+     * @var IceHBSIClient
+     */
     private IceHBSIClient $client;
 
+    /**
+     *
+     */
     public function __construct()
     {
         $this->client = new IceHBSIClient();

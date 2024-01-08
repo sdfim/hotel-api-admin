@@ -3,7 +3,6 @@
 namespace Modules\API\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
 

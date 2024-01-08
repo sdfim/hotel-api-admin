@@ -8,7 +8,6 @@ use App\Repositories\ApiSearchInspectorRepository;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\BookingAPI\ResponseModels\HotelRetrieveBookingResponseModel as ResponseModel;
 
-
 class ExpediaHotelBookingRetrieveBookingDto
 {
     /**

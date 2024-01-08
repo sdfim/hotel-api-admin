@@ -7,14 +7,11 @@ use App\Models\Channel;
 use App\Models\Reservation;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
-use App\Models\ExpediaContent;
 use App\Repositories\ChannelRenository;
 use Exception;
 use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
 use App\Repositories\ExpediaContentRepositories as ExpediaRepository;
 use Illuminate\Support\Facades\Log;
-
-;
 
 class ExpediaTools
 {
@@ -28,6 +25,7 @@ class ExpediaTools
     /**
      * @param string $booking_id
      * @param array $filters
+     * @param array $passenger
      * @return void
      */
     public function saveAddItemToReservations(string $booking_id, array $filters, array $passenger): void

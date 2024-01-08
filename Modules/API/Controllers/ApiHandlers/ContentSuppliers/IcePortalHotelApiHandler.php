@@ -7,6 +7,7 @@ use App\Models\IcePortalPropery;
 use App\Models\MapperIcePortalGiata;
 use App\Repositories\GiataPropertyRepository;
 use App\Repositories\IcePortalRepository;
+use Exception;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -129,7 +130,7 @@ class IcePortalHotelApiHandler
     {
         $responses = Http::pool(function (Pool $pool) use ($results) {
             Log::info('IceHBSIClient | search | results', $results);
-            foreach ($results['results'] as $key => $result) {
+            foreach ($results['results'] as $result) {
                 $pool->withToken($this->client->fetchToken())
                     ->get($this->client->url('/v1/listings/' . $result['listingID'] . '/assets'), [
                         'includeDisabledAssets' => 'true',
@@ -175,7 +176,7 @@ class IcePortalHotelApiHandler
         }
         try {
             IcePortalPropery::insert($batch);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('IceHBSIClient | search | error', [
                 'message' => $e->getMessage(),
                 'error' => $e->getTraceAsString(),

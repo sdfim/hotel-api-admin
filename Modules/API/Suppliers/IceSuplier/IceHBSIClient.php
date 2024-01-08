@@ -2,23 +2,42 @@
 
 namespace Modules\API\Suppliers\IceSuplier;
 
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
-use \GuzzleHttp\Promise\PromiseInterface;
-use \Illuminate\Http\Client\Response;
+use GuzzleHttp\Promise\PromiseInterface;
+use Illuminate\Http\Client\Response;
 
 class IceHBSIClient
 {
+    /**
+     * @var string
+     */
     private string $clientId;
 
+    /**
+     * @var string
+     */
     private string $clientSecret;
 
+    /**
+     * @var string
+     */
     private string $baseUrl;
 
+    /**
+     * @var string
+     */
     private string $tokenUrl;
 
+    /**
+     * @var string
+     */
     private string $token;
 
+    /**
+     * @throws Exception
+     */
     public function __construct()
     {
         $this->clientId = 'cassawave.api';
@@ -29,7 +48,7 @@ class IceHBSIClient
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function getToken(): string
     {
@@ -82,7 +101,7 @@ class IceHBSIClient
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function fetchToken(): string
     {

@@ -4,38 +4,89 @@ namespace Modules\API\PricingAPI\ResponseModels;
 
 class RoomResponse
 {
+    /**
+     * @var string
+     */
     private string $giata_room_code;
 
+    /**
+     * @var string
+     */
     private string $giata_room_name;
 
+    /**
+     * @var string
+     */
     private string $supplier_room_name;
 
+    /**
+     * @var int
+     */
     private int $supplier_room_id;
 
+    /**
+     * @var string
+     */
     private string $per_day_rate_breakdown;
 
+    /**
+     * @var int
+     */
     private int $supplier_bed_groups;
 
+    /**
+     * @var array
+     */
     private array $links;
 
+    /**
+     * @var float
+     */
     private float $total_price;
 
+    /**
+     * @var float
+     */
     private float $total_tax;
 
+    /**
+     * @var float
+     */
     private float $total_fees;
 
+    /**
+     * @var float
+     */
     private float $total_net;
 
+    /**
+     * @var float
+     */
     private float $affiliate_service_charge;
 
+    /**
+     * @var string
+     */
     private string $booking_item;
 
+    /**
+     * @var string
+     */
     private string $currency;
 
+    /**
+     * @var string
+     */
     private string $room_type;
 
+    /**
+     * @var int
+     */
     private int $rate_id;
 
+    /**
+     * @var string
+     */
     private string $rate_description;
 
     /**

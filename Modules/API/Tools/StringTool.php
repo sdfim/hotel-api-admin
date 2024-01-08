@@ -5,10 +5,9 @@ namespace Modules\API\Tools;
 class StringTool
 {
     /**
-     * @param float $latitude
-     * @param float $longitude
-     * @param float $radius
-     * @return array
+     * @param string $originalString
+     * @param int $maxLineLength
+     * @return string
      */
     public static function lineBreak(string $originalString, int $maxLineLength = 30): string
     {

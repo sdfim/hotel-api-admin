@@ -6,25 +6,40 @@ use App\Models\ExpediaContent;
 use App\Repositories\ExpediaContentRepositories as ExpediaRepositories;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Tools\Geography;
+use Illuminate\Support\Facades\Log;
 
 class ExpediaHotelApiHandler
 {
+    /**
+     * @var ExpediaService
+     */
     private ExpediaService $expediaService;
 
+    /**
+     * @var float|string
+     */
     protected float|string $current_time;
 
+    /**
+     *
+     */
     private const RESULT_PER_PAGE = 1000;
 
+    /**
+     *
+     */
     private const PAGE = 1;
 
+    /**
+     *
+     */
     private const RATING = 4;
 
     /**
-     * @param ExpediaService $expediaService
+     *
      */
     public function __construct()
     {
@@ -53,7 +68,7 @@ class ExpediaHotelApiHandler
                 $geography = new Geography();
                 $minMaxCoordinate = $geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
                 $filters['ids'] = ExpediaRepositories::getIdsByCoordinate($minMaxCoordinate);
-            };
+            }
 
             $fields = isset($filters['fullList']) ? ExpediaContent::getFullListFields() : ExpediaContent::getShortListFields();
             $query = $expedia->select();
@@ -151,7 +166,7 @@ class ExpediaHotelApiHandler
 
     /**
      * @param Request $request
-     * @return object|Collection
+     * @return object
      */
     public function detail(Request $request): object
     {

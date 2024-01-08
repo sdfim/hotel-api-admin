@@ -61,7 +61,7 @@ class HotelBookResponseModel
      */
     private string $currency;
     /**
-     * @var string
+     * @var float
      */
     private float $per_night_breakdown;
 
