@@ -44,6 +44,7 @@ class ExpediaContentRepositories
 
         return $query->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
             ->select('mapper_expedia_giatas.expedia_id')
+            ->whereNotNull('mapper_expedia_giatas.expedia_id')
             ->get()
             ->pluck('expedia_id')
             ->toArray();
