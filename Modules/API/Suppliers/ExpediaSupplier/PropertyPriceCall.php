@@ -11,68 +11,39 @@ class PropertyPriceCall
     # https://developers.expediagroup.com/docs/rapid/lodging/shopping#get-/properties/availability
 
     // Path
-    /**
-     *
-     */
     private const PROPERTY_CONTENT_PATH = "v3/properties/availability";
 
     // Query parameters keys
-    /**
-     *
-     */
+
     private const LANGUAGE = "language";
-    /**
-     *
-     */
+
     private const COUNTRY_CODE = "country_code";
-    /**
-     *
-     */
+
     private const PROPERTY_ID = "property_id";
-    /**
-     *
-     */
+
     private const CHECKIN = "checkin";
-    /**
-     *
-     */
+
     private const CHECKOUT = "checkout";
-    /**
-     *
-     */
+
     private const CURRENCY = "currency";
-    /**
-     *
-     */
+
     private const OCCUPANCY = "occupancy";
-    /**
-     *
-     */
+
     private const RATE_PLAN_COUNT = "rate_plan_count";
-    /**
-     *
-     */
+
     private const SALES_CHANNEL = "sales_channel";
-    /**
-     *
-     */
+
     private const SALES_ENVIRONMENT = "sales_environment";
-    /**
-     *
-     */
+
     private const RATE_OPTION = "rate_option";
-    /**
-     *
-     */
+
     private const BILLING_TERMS = "billing_terms";
-    /**
-     *
-     */
+
     private const PAYMENT_TERMS = "payment_terms";
-    /**
-     *
-     */
+
     private const PARTNER_POINT_SALE = "partner_point_of_sale";
+
+    private const  BATCH_SIZE = 250;
 
 
     // Call parameters
@@ -81,9 +52,9 @@ class PropertyPriceCall
      */
     private RapidClient|null $client;
     /**
-     * @var string|int|null
+     * @var array
      */
-    private string|int|null $propertyId;
+    private array $propertyChunk;
     /**
      * @var string|mixed
      */
@@ -191,14 +162,11 @@ class PropertyPriceCall
     {
         $responses = [];
 
-        $batchSize = 250;
-        $chunkPropertyIds = array_chunk($propertyIds, $batchSize);
+        $chunkPropertyIds = array_chunk($propertyIds, self::BATCH_SIZE);
 
         foreach ($chunkPropertyIds as $keyChunk => $chunk) {
-            $this->propertyId = $chunk;
+            $this->propertyChunk = $chunk;
             $queryParameters = $this->queryParameters();
-
-            // dd($queryParameters);
 
             try {
                 $promises[$keyChunk] = $this->client->getAsync(self::PROPERTY_CONTENT_PATH, $queryParameters);
@@ -216,7 +184,10 @@ class PropertyPriceCall
                     $data = $response['value']->getBody()->getContents();
                     $responses = array_merge($responses, json_decode($data, true));
                 } else {
-                    Log::error('Promise for property_id ' . $this->propertyId . ' failed: ' . $response['reason']->getMessage());
+                    Log::error('PropertyPriceCall | getPriceData ', [
+                        'propertyChunk' => $this->propertyChunk,
+                        'reason' => $response['reason']->getMessage()
+                    ]);
                 }
             }
         } catch (Exception $e) {
@@ -224,8 +195,10 @@ class PropertyPriceCall
         }
 
         $res = [];
-        foreach ($responses as $response) {
-            $res[$response['property_id']] = $response;
+        if (!empty($responses)) {
+            foreach ($responses as $response) {
+                $res[$response['property_id']] = $response;
+            }
         }
 
         return $res;
@@ -240,7 +213,7 @@ class PropertyPriceCall
         $queryParams = [];
 
         // Add required parameters
-        $queryParams[self::PROPERTY_ID] = $this->propertyId;
+        $queryParams[self::PROPERTY_ID] = $this->propertyChunk;
         $queryParams[self::LANGUAGE] = $this->language;
         $queryParams[self::COUNTRY_CODE] = $this->countryCode;
 
