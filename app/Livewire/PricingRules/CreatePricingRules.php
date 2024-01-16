@@ -2,6 +2,7 @@
 
 namespace App\Livewire\PricingRules;
 
+use Filament\Forms\Components\Section;
 use Livewire\Component;
 use App\Models\Channel;
 use App\Models\GiataProperty;
@@ -53,90 +54,123 @@ class CreatePricingRules extends Component implements HasForms
                 '2xl' => 3,
             ])
             ->schema([
-                Select::make('supplier_id')
-                    ->label('Supplier')
-                    ->options(Supplier::all()->pluck('name', 'id'))
-                    ->required(),
-                Select::make('channel_id')
-                    ->label('Channel')
-                    ->options(Channel::all()->pluck('name', 'id'))
-                    ->required(),
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(191),
-                Select::make('property')
-                    ->searchable()
-                    ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
-                        DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
-                        ->where('name', 'like', "%$search%")->limit(30)->pluck('full_name', 'code')->toArray()
-                    )
-                    ->afterStateUpdated(function (Get $get, Set $set) {
-                        $set('destination', null);
-                        $destination = GiataProperty::select('city')->where('code', $get('property'))->first();
-                        $set('destination', $destination->city ?? '');
-                    })
-                    ->live()
-                    ->required()
-                    ->unique(),
-                TextInput::make('destination')
-                    ->readOnly()
-                    ->required(),
-                DateTimePicker::make('travel_date')
-                    ->required()
-                    ->default(now()),
-                DateTimePicker::make('rule_start_date')
-                    ->required()
-                    ->default(now()),
-                DateTimePicker::make('rule_expiration_date')
-                    ->required()
-                    ->default(now()),
-                TextInput::make('days')
-                    ->numeric(),
-                TextInput::make('nights')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('rating')
-                    ->required()
-                    ->maxLength(191),
-                TextInput::make('total_guests')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('number_rooms')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('room_guests')
-                    ->numeric(),
-                TextInput::make('rate_code')
-                    ->maxLength(191),
-                TextInput::make('room_type')
-                    ->maxLength(191),
-                TextInput::make('meal_plan')
-                    ->maxLength(191),
-                Select::make('price_value_type_to_apply')
-                    ->options([
-                        'fixed_value' => 'Fixed Value',
-                        'percentage' => 'Percentage',
+                Section::make()
+                    ->schema([
+                        Select::make('supplier_id')
+                            ->label('Supplier')
+                            ->options(Supplier::all()->pluck('name', 'id')),
+                        Select::make('channel_id')
+                            ->label('Channel')
+                            ->options(Channel::all()->pluck('name', 'id')),
+                        TextInput::make('name')
+                            ->maxLength(191)
+                            ->required()
+                            ->unique(),
+                        Select::make('property')
+                            ->searchable()
+                            ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
+                                DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
+                                ->where('name', 'like', "%$search%")->limit(30)->pluck('full_name', 'code')->toArray()
+                            )
+                            ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
+                                DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
+                                ->where('code', $value)->first()->full_name)
+                            ->afterStateUpdated(function (Get $get, Set $set) {
+                                $set('destination', null);
+                                $destination = GiataProperty::select('city')->where('code', $get('property'))->first();
+                                $set('destination', $destination->city ?? '');
+                            })
+                            ->live()
+                            ->unique(),
+                        TextInput::make('destination')
+                            ->readOnly(),
                     ])
-                    ->required()
-                    ->live(),
-                TextInput::make('price_value_to_apply')
-                    ->numeric()
-                    ->required(),
-                Select::make('price_type_to_apply')
-                    ->options([
-                        'total_price' => 'Total Price',
-                        'net_price' => 'Net Price',
-                        'rate_price' => 'Rate Price',
+                    ->columns(3),
+                Section::make()
+                    ->schema([
+                        DateTimePicker::make('travel_date_from'),
+                        DateTimePicker::make('travel_date_to'),
+                        DateTimePicker::make('rule_start_date')
+                            ->label('Booking Window From')
+                            ->required(),
+                        DateTimePicker::make('rule_expiration_date')
+                            ->label('Booking Window To')
+                            ->required()
                     ])
-                    ->required(),
-                Select::make('price_value_fixed_type_to_apply')
-                    ->options([
-                        'per_guest' => 'Per Guest',
-                        'per_room' => 'Per Room',
-                        'per_night' => 'Per Night',
+                    ->columns(4),
+                Section::make()
+                    ->schema([
+                        TextInput::make('total_guests')
+                            ->live()
+                            ->numeric(),
+                        Select::make('total_guests_comparison_sign')
+                            ->label('Compare')
+                            ->options([
+                                '=' => '=',
+                                '<' => '<',
+                                '>' => '>',
+                            ])
+                            ->default('=')
+                            ->disabled(fn(Get $get): bool|null => !$get('total_guests'))
+                            ->required(fn(Get $get): bool|null => $get('total_guests'))
                     ])
-                    ->visible(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
-                    ->required(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
+                    ->columns(3),
+                Section::make()
+                    ->schema([
+                        TextInput::make('days_until_travel')
+                            ->numeric(),
+                        TextInput::make('nights')
+                            ->numeric(),
+                        TextInput::make('rating')
+                            ->maxLength(191),
+                        TextInput::make('number_rooms')
+                            ->numeric(),
+//                TextInput::make('room_guests')
+//                    ->numeric(),
+                        TextInput::make('rate_code')
+                            ->maxLength(191),
+                        TextInput::make('room_type')
+                            ->maxLength(191),
+                        TextInput::make('meal_plan')
+                            ->maxLength(191)
+                    ])
+                    ->columns(7),
+                Section::make()
+                    ->schema([
+                        Select::make('price_value_type_to_apply')
+                            ->label('Price value type')
+                            ->options([
+                                'fixed_value' => 'Fixed Value',
+                                'percentage' => 'Percentage',
+                            ])
+                            ->live()
+                            ->required()
+                            ->afterStateUpdated(function (?string $state, Set $set) {
+                                if ($state !== 'fixed_value') $set('price_value_fixed_type_to_apply', null);
+                            }),
+                        TextInput::make('price_value_to_apply')
+                            ->label('Price value')
+                            ->numeric()
+                            ->required(),
+                        Select::make('price_type_to_apply')
+                            ->label('Price type')
+                            ->options([
+                                'total_price' => 'Total Price',
+                                'net_price' => 'Net Price',
+                                'rate_price' => 'Rate Price',
+                            ])
+                            ->required(),
+                        Select::make('price_value_fixed_type_to_apply')
+                            ->label('Price Value Fixed Type')
+                            ->options([
+                                'per_guest' => 'Per Guest',
+                                'per_room' => 'Per Room',
+                                'per_night' => 'Per Night',
+                            ])
+                            ->disabled(fn(Get $get): bool => $get('price_value_type_to_apply') !== 'fixed_value')
+                            ->required(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
+                    ])
+                    ->columns(4)
             ])
             ->statePath('data')
             ->model(PricingRule::class);
