@@ -4,10 +4,10 @@ namespace Tests\Feature\API\Booking;
 
 use Faker\Provider\en_UG\Address;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Tests\Feature\API\ApiTestCase;
 use Tests\Feature\API\Pricing\HotelPricingGeneralMethodsTrait;
-use Illuminate\Support\Arr;
 
 class HotelBookingApiTestCase extends ApiTestCase
 {

@@ -8,7 +8,6 @@ use App\Repositories\ChannelRenository;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\Response;
 
 class FakeDataEndpoints
 {
@@ -56,7 +55,6 @@ class FakeDataEndpoints
                 case 'api/booking/add-passengers': return response($this->addPassengers(), 200, ['Content-Type' => 'application/json']);
 
                 case 'api/booking/book': return response($this->book(), 200, ['Content-Type' => 'application/json']);
-
             }
         }
 

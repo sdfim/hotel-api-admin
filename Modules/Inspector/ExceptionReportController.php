@@ -2,10 +2,10 @@
 
 namespace Modules\Inspector;
 
+use App\Models\ApiExceptionReport;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use App\Models\ApiExceptionReport;
 
 class ExceptionReportController extends BaseInspectorController
 {

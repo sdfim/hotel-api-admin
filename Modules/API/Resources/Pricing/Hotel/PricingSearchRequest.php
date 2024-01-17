@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Pricing\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="PricingSearchRequest",

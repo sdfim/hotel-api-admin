@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\API\Content;
 
-use Tests\Feature\API\ApiTestCase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\Feature\API\ApiTestCase;
 
 class HotelContentSearchTest extends ApiTestCase
 {

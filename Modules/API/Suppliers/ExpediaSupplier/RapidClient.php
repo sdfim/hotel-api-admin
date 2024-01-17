@@ -7,8 +7,8 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Promise\PromiseInterface as promise;
 use GuzzleHttp\Psr7\Request;
-use Psr\Http\Message\ResponseInterface;
 use Illuminate\Support\Facades\Log;
+use Psr\Http\Message\ResponseInterface;
 
 class RapidClient
 {

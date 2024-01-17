@@ -3,11 +3,11 @@
 namespace Tests\Unit\Hotel\Pricing;
 
 use App\Repositories\PropertyWeightingRepository;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Mockery;
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
+use Tests\TestCase;
 
 class EnrichmentWeightPricingTest extends TestCase
 {

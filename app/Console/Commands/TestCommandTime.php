@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class TestCommandTime extends Command
 {

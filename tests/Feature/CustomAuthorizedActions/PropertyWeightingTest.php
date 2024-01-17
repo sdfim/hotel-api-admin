@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
-use Illuminate\Foundation\Testing\WithFaker;
 use App\Livewire\PropertyWeighting\CreatePropertyWeighting;
-use App\Models\Supplier;
-use App\Models\PropertyWeighting;
-use Livewire\Livewire;
 use App\Livewire\PropertyWeighting\UpdatePropertyWeighting;
+use App\Models\PropertyWeighting;
+use App\Models\Supplier;
+use Illuminate\Foundation\Testing\WithFaker;
+use Livewire\Livewire;
 
 class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
 {

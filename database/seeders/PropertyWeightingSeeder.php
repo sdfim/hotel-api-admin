@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\PropertyWeighting;
 use App\Models\GiataProperty;
+use App\Models\PropertyWeighting;
+use Illuminate\Database\Seeder;
 
 class PropertyWeightingSeeder extends Seeder
 {

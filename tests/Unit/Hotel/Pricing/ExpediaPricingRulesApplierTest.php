@@ -3,8 +3,8 @@
 namespace Tests\Unit\Hotel\Pricing;
 
 use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
+use Tests\TestCase;
 
 class ExpediaPricingRulesApplierTest extends TestCase
 {

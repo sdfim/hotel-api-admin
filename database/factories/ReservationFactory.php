@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Reservation;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Reservation;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Str;
 

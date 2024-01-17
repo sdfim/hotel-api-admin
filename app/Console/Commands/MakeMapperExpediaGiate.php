@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\ExpediaContent;
 use App\Models\GiataProperty;
 use App\Models\MapperExpediaGiata;
 use App\Models\ReportMapperExpediaGiata;
+use Illuminate\Console\Command;
 
 class MakeMapperExpediaGiate extends Command
 {

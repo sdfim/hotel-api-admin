@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Console\Command;
 use App\Models\GiataGeography;
 use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
 class DownloadGiataGeographyData extends Command

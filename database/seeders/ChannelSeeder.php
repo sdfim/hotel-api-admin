@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Channel;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Auth;
 
 class ChannelSeeder extends Seeder

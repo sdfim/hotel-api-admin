@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Booking\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="BookingChangeBookingResponse",
