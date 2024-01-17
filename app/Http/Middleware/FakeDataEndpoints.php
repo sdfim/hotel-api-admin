@@ -39,7 +39,8 @@ class FakeDataEndpoints
                 ->where('type', 'book')->where('sub_type', 'retrieve')->inRandomOrder()->first();
 //            dd($add_passengers);
             switch ($path) {
-                case 'api/pricing/search': return response()->json(json_decode(Storage::get($searchInspector->client_response_path), true));
+                case 'api/pricing/search':
+                    return response()->json(json_decode(Storage::get($searchInspector->client_response_path), true));
 
 //                case 'api/booking/add-item': return response()->json(json_decode(Storage::get($add_item->response_path), true));
 //                case 'api/booking/retrieve-items': return response()->json(json_decode(Storage::get($retrieve_items->client_response_path), true));
@@ -48,20 +49,25 @@ class FakeDataEndpoints
 
 //                case 'api/booking/book': return response()->json(json_decode(Storage::get($book->client_response_path), true));
 
-                case 'api/booking/add-item': return response($this->addItem(), 200, ['Content-Type' => 'application/json']);
+                case 'api/booking/add-item':
+                    return response($this->addItem(), 200, ['Content-Type' => 'application/json']);
 
-                case 'api/booking/retrieve-items': return response($this->retrieveItems(), 200, ['Content-Type' => 'application/json']);
-                case 'api/booking/remove-item': return response($this->removeItem(), 200, ['Content-Type' => 'application/json']);
-                case 'api/booking/add-passengers': return response($this->addPassengers(), 200, ['Content-Type' => 'application/json']);
+                case 'api/booking/retrieve-items':
+                    return response($this->retrieveItems(), 200, ['Content-Type' => 'application/json']);
+                case 'api/booking/remove-item':
+                    return response($this->removeItem(), 200, ['Content-Type' => 'application/json']);
+                case 'api/booking/add-passengers':
+                    return response($this->addPassengers(), 200, ['Content-Type' => 'application/json']);
 
-                case 'api/booking/book': return response($this->book(), 200, ['Content-Type' => 'application/json']);
+                case 'api/booking/book':
+                    return response($this->book(), 200, ['Content-Type' => 'application/json']);
             }
         }
 
         return $next($request);
     }
 
-    private function addItem (): string
+    private function addItem(): string
     {
         return '{
           "success": true,
@@ -158,7 +164,7 @@ class FakeDataEndpoints
         }';
     }
 
-    private function addPassengers (): string
+    private function addPassengers(): string
     {
         return '{
             "booking_id": "21f654e6-d5ca-406e-afe4-8159e0fdeb8e",
@@ -167,7 +173,7 @@ class FakeDataEndpoints
         }';
     }
 
-    private function book (): string
+    private function book(): string
     {
         return '{
             "status": "booked",
