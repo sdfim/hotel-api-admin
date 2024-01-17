@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Console\Command;
 use App\Models\ExpediaContent;
 use App\Models\GiataProperty;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class MakeMapperExpediaGiateClearMuliple extends Command
 {

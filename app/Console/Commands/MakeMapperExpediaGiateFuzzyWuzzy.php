@@ -2,12 +2,12 @@
 
 namespace App\Console\Commands;
 
-use Exception;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Console\Command;
 use App\Models\ExpediaContent;
 use App\Models\GiataProperty;
 use App\Models\MapperExpediaGiata;
+use Exception;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Cache;
 
 class MakeMapperExpediaGiateFuzzyWuzzy extends Command
 {

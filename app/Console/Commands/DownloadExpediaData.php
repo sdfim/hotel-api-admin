@@ -2,20 +2,20 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Exception;
-use GuzzleHttp\Exception\GuzzleException;
-use Illuminate\Console\Command;
-use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use App\Models\ExpediaContent;
 use App\Models\ExpediaContentSlave;
-use Modules\Inspector\ExceptionReportController;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Process;
-use GuzzleHttp\Client;
 use App\Models\GeneralConfiguration;
 use App\Models\Supplier;
+use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Console\Command;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Process;
+use Illuminate\Support\Str;
+use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
+use Modules\Inspector\ExceptionReportController;
 
 class DownloadExpediaData extends Command
 {

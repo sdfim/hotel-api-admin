@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
-use Illuminate\Foundation\Testing\WithFaker;
-use App\Models\Supplier;
 use App\Livewire\Suppliers\CreateSuppliersForm;
-use Livewire\Livewire;
 use App\Livewire\Suppliers\UpdateSuppliersForm;
+use App\Models\Supplier;
+use Illuminate\Foundation\Testing\WithFaker;
+use Livewire\Livewire;
 
 class SuppliersTest extends CustomAuthorizedActionsTestCase
 {

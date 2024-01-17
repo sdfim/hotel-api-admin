@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelApiHandler;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 

@@ -7,6 +7,7 @@ use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,10 +16,9 @@ use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BaseController;
 use Modules\API\BookingAPI\ExpediaBookApiHandler;
+use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
 use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingChangeBookHotelRequest;
-use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
-use Carbon\Carbon;
 
 
 /**

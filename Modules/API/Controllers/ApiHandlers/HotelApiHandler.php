@@ -30,7 +30,6 @@ use Modules\API\Suppliers\DTO\IcePortalHotelContentDto;
 use Modules\Inspector\SearchInspectorController;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use OpenApi\Annotations as OA;
 
 /**
  * @OA\PathItem(

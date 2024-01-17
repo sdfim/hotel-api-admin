@@ -7,13 +7,13 @@ use Exception;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
-use Filament\Tables\Columns\ViewColumn;
-use Filament\Tables\Filters\SelectFilter;
 
 class ApiExceptionReportsTable extends Component implements HasForms, HasTable
 {

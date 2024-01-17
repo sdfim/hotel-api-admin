@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->dateTimeTz('travel_date')->nullable()->change();
             $table->foreignId('supplier_id')->nullable()->change();
             $table->foreignId('channel_id')->nullable()->change();
+            $table->float('rating', 5)->change();
             $table->dateTimeTz('travel_date_to')->nullable()->after('travel_date');
             $table->string('total_guests_comparison_sign', 1)->after('total_guests')->nullable();
             $table->renameColumn('days', 'days_until_travel');
@@ -37,6 +38,7 @@ return new class extends Migration {
             $table->dateTimeTz('travel_date_from')->nullable(false)->change();
             $table->foreignId('supplier_id')->nullable(false)->change();
             $table->foreignId('channel_id')->nullable(false)->change();
+            $table->string('rating')->change();
             $table->renameColumn('travel_date_from', 'travel_date');
             $table->dropColumn('travel_date_to');
             $table->dropColumn('total_guests_comparison_sign');

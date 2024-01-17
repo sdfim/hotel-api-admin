@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Model;
 use App\Livewire\GiataTable;
 use App\Models\GiataProperty;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
 use Livewire\Livewire;
 
 class GiataPropertyTest extends CustomAuthorizedActionsTestCase

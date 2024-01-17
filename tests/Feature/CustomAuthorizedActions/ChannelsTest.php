@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
-use Illuminate\Foundation\Testing\WithFaker;
-use App\Models\Channel;
-use Livewire\Livewire;
-use App\Livewire\Channels\UpdateChannelsForm;
 use App\Livewire\Channels\CreateChannelsForm;
+use App\Livewire\Channels\UpdateChannelsForm;
+use App\Models\Channel;
+use Illuminate\Foundation\Testing\WithFaker;
+use Livewire\Livewire;
 
 class ChannelsTest extends CustomAuthorizedActionsTestCase
 {

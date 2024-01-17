@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Models\PricingRule;
+use Illuminate\Console\Command;
 
 class PurgePricingRules extends Command
 {

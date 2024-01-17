@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Content\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="ContentDetailResponse",

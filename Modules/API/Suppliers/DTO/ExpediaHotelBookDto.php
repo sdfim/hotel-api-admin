@@ -2,11 +2,11 @@
 
 namespace Modules\API\Suppliers\DTO;
 
+use App\Models\ApiBookingItem;
 use App\Models\GiataProperty;
 use DateTime;
 use Exception;
 use Modules\API\BookingAPI\ResponseModels\HotelBookResponseModel;
-use App\Models\ApiBookingItem;
 
 class ExpediaHotelBookDto
 {

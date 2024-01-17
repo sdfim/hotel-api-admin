@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Livewire\ExpediaTable;
 use App\Models\ExpediaContent;
-use Livewire\Livewire;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Livewire\Livewire;
 
 class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 {

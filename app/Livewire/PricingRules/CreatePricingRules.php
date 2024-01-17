@@ -2,13 +2,12 @@
 
 namespace App\Livewire\PricingRules;
 
-use Filament\Forms\Components\Section;
-use Livewire\Component;
 use App\Models\Channel;
 use App\Models\GiataProperty;
 use App\Models\PricingRule;
 use App\Models\Supplier;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -17,10 +16,11 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
+use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 
 class CreatePricingRules extends Component implements HasForms
@@ -122,7 +122,7 @@ class CreatePricingRules extends Component implements HasForms
                         TextInput::make('nights')
                             ->numeric(),
                         TextInput::make('rating')
-                            ->maxLength(191),
+                            ->numeric(),
                         TextInput::make('number_rooms')
                             ->numeric(),
 //                TextInput::make('room_guests')

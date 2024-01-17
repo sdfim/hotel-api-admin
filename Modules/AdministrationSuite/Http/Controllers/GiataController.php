@@ -2,8 +2,8 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use Illuminate\Contracts\View\View;
 use App\Models\GiataProperty;
+use Illuminate\Contracts\View\View;
 
 class GiataController extends Controller
 {

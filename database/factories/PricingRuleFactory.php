@@ -27,29 +27,38 @@ class PricingRuleFactory extends Factory
     public function definition(): array
     {
         $supplier = Supplier::factory()->create();
-        $channels = Channel::factory()->create();
+
+        $channel = Channel::factory()->create();
+
+        $today = now();
+
+        $priceValueTypeToApply = $this->faker->randomElement(['fixed_value', 'percentage']);
+
         return [
-            'name' => $this->faker->name,
-            'property' => $this->faker->word,
-            'destination' => $this->faker->word,
-            'travel_date' => date('Y-m-d H:i:s'),
-            'days' => 7,
-            'nights' => 5,
-            'supplier_id' => $supplier->id,
-            'rate_code' => $this->faker->word,
-            'room_type' => $this->faker->word,
-            'total_guests' => 2,
-            'room_guests' => 2,
-            'number_rooms' => 1,
+            'channel_id' => $channel->id,
+            'days_until_travel' => rand(1, 30),
+            'destination' => 'New York',
             'meal_plan' => $this->faker->word,
-            'rating' => $this->faker->word,
-            'price_type_to_apply' => $this->faker->word,
-            'price_value_type_to_apply' => $this->faker->word,
-            'price_value_to_apply' => 2.5,
-            'price_value_fixed_type_to_apply' => null,
-            'channel_id' => $channels->id,
-            'rule_start_date' => date('Y-m-d H:i:s'),
-            'rule_expiration_date' => date('Y-m-d H:i:s')
+            'name' => $this->faker->name,
+            'nights' => rand(1, 13),
+            'number_rooms' => rand(1, 3),
+            'price_type_to_apply' => $this->faker->randomElement(['total_price', 'net_price', 'rate_price']),
+            'price_value_fixed_type_to_apply' => $priceValueTypeToApply === 'fixed_value' ?
+                $this->faker->randomElement(['per_guest', 'per_room', 'per_night']) : null,
+            'price_value_to_apply' => rand(1, 100),
+            'price_value_type_to_apply' => $priceValueTypeToApply,
+            'property' => $this->faker->numberBetween(1, 100000),
+            'rating' => $this->faker->randomFloat(2, 1, 5.5),
+            'rate_code' => $this->faker->word,
+            'room_guests' => 2,
+            'room_type' => $this->faker->word,
+            'rule_expiration_date' => $today->copy()->addDays(rand(30, 60))->toDateString(),
+            'rule_start_date' => $today->toDateString(),
+            'supplier_id' => $supplier->id,
+            'total_guests' => rand(1, 12),
+            'total_guests_comparison_sign' => $this->faker->randomElement(['=', '<', '>']),
+            'travel_date_from' => $today->copy()->addDay()->toDateString(),
+            'travel_date_to' => $today->copy()->addDays(rand(3, 7))->toDateString(),
         ];
     }
 }
