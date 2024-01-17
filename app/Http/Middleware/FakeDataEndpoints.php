@@ -38,6 +38,7 @@ class FakeDataEndpoints
             $book = ApiBookingInspector::whereBetween('created_at', ['2023-12-16', '2024-01-03'])
                 ->where('type', 'book')->where('sub_type', 'retrieve')->inRandomOrder()->first();
 //            dd($add_passengers);
+
             switch ($path) {
                 case 'api/pricing/search':
                     return response()->json(json_decode(Storage::get($searchInspector->client_response_path), true));
