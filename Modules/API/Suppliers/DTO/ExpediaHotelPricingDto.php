@@ -12,7 +12,7 @@ use Modules\API\PricingAPI\ResponseModels\HotelResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
-use Modules\Services\PricingRulesService;
+use Modules\API\Tools\PricingRulesTools;
 
 class ExpediaHotelPricingDto
 {
@@ -57,9 +57,9 @@ class ExpediaHotelPricingDto
     private int $supplierId = 1;
 
     /**
-     * @var PricingRulesService
+     * @var PricingRulesTools
      */
-    private PricingRulesService $pricingRulesService;
+    private PricingRulesTools $pricingRulesService;
 
     /**
      *
@@ -68,7 +68,7 @@ class ExpediaHotelPricingDto
     {
         $this->current_time = microtime(true);
         $this->total_time = 0.0;
-        $this->pricingRulesService = new PricingRulesService();
+        $this->pricingRulesService = new PricingRulesTools();
     }
 
     /**

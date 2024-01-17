@@ -81,16 +81,30 @@ class UpdatePricingRules extends Component implements HasForms
                             )
                             ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
                                 DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
-                                ->where('code', $value)->first()->full_name)
+                                ->where('code', $value)->first()->full_name
+                            )
                             ->afterStateUpdated(function (Get $get, Set $set) {
                                 $set('destination', null);
-                                $destination = GiataProperty::select('city')->where('code', $get('property'))->first();
-                                $set('destination', $destination->city ?? '');
+                                $cityId = GiataProperty::select('city_id')->where('code', $get('property'))->first()->city_id ?? null;
+                                $set('destination', $cityId);
                             })
                             ->live()
                             ->unique(ignorable: $this->record),
-                        TextInput::make('destination')
-                            ->readOnly(),
+                        Select::make('destination')
+                            ->searchable()
+                            ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
+                                DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
+                                ->where('city', 'like', "%$search%")->limit(30)->pluck('full_name', 'city_id')->toArray()
+                            )
+                            ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
+                                DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'))
+                                ->where('city_id', $value)->first()->full_name
+                            )
+                            ->afterStateUpdated(function (Get $get, Set $set) {
+                                $set('property', null);
+                            })
+                            ->live()
+                            ->unique(ignorable: $this->record),
                     ])
                     ->columns(3),
                 Section::make()

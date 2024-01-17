@@ -3,6 +3,7 @@
 namespace Modules\API\PricingRules\Expedia;
 
 use Modules\API\PricingRules\PricingRulesApplierInterface;
+use Modules\API\Tools\GeneralTools;
 
 class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
 {
@@ -51,7 +52,8 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         ];
 
         $numberOfNights = count($roomsPricingArray[$firstRoomCapacityKey]['nightly']);
-        $totalNumberOfGuestsInAllRooms = self::countTotalNumberOfGuestsInAllRooms($this->requestArray['occupancy']);
+        $generalTools = new GeneralTools();
+        $totalNumberOfGuestsInAllRooms = $generalTools->calcTotalNumberOfGuestsInAllRooms($this->requestArray['occupancy']);
         $requiredRoomCount = count($this->requestArray['occupancy']);
 
         // Previously, we attempted to locate and pass a pricing rule based on factors such as supplier, channel, property,
@@ -166,23 +168,6 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         $result['affiliate_service_charge'] = round($result['affiliate_service_charge'], 2);
 
         return $result;
-    }
-
-    /**
-     * @param array $rooms
-     * @return int
-     */
-    public static function countTotalNumberOfGuestsInAllRooms(array $rooms): int
-    {
-        $totalNumberOfGuests = 0;
-
-        foreach ($rooms as $room) {
-            foreach ($room as $roomGuestsNumber) {
-                $totalNumberOfGuests += (int)$roomGuestsNumber;
-            }
-        }
-
-        return $totalNumberOfGuests;
     }
 
     /**

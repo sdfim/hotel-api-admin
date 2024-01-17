@@ -10,7 +10,7 @@ class Geography
      * @param float $radius
      * @return array
      */
-    public static function calculateBoundingBox(float $latitude, float $longitude, float $radius): array
+    public function calculateBoundingBox(float $latitude, float $longitude, float $radius): array
     {
         $earthRadius = 6371;
 
