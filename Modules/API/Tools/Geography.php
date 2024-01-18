@@ -46,7 +46,7 @@ class Geography
      * @param float $radius
      * @return string|int|null
      */
-    public function findTheClosestDestinationInRadius(float $latitude, float $longitude, float $radius): string|int|null
+    public function findTheClosestCityInRadius(float $latitude, float $longitude, float $radius): string|int|null
     {
         $destinationCoordinates = $this->calculateBoundingBox($latitude, $longitude, $radius);
 

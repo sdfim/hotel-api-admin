@@ -40,7 +40,7 @@ class PricingRulesTools
         if ($latitude && $longitude && $radius) {
             $geography = new Geography();
 
-            $destination = $geography->findTheClosestDestinationInRadius($latitude, $longitude, $radius);
+            $destination = $geography->findTheClosestCityInRadius($latitude, $longitude, $radius);
         }
 
         $totalGusts = $generalTools->calcTotalNumberOfGuestsInAllRooms($query['occupancy']);
