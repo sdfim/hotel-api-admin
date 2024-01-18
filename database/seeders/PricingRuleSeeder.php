@@ -50,7 +50,7 @@ class PricingRuleSeeder extends Seeder
             $pricingRule = [
                 'channel_id' => $channelId,
                 'days_until_travel' => rand(1, 30),
-                'destination' => 'New York',
+                'destination' => 961, //New York
                 'meal_plan' => $this->faker->word,
                 'name' => "Rule for $giataId",
                 'nights' => rand(1, 13),
