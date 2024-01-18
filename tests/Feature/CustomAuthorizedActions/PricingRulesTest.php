@@ -108,7 +108,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
         $data = [
             'channel_id' => $channel->id,
             'days_until_travel' => rand(1, 30),
-            'destination' => 'New York',
+            'destination' => $this->faker->numberBetween(1, 100000),
             'meal_plan' => $this->faker->word,
             'name' => $this->faker->name,
             'nights' => rand(1, 13),
@@ -159,7 +159,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
         Livewire::test(UpdatePricingRules::class, ['pricingRules' => $pricingRules])
             ->set('data.channel_id', $channel->id)
             ->set('data.days_until_travel', rand(1, 30))
-            ->set('data.destination', 'New York')
+            ->set('data.destination', $this->faker->numberBetween(1, 100000))
             ->set('data.meal_plan', $this->faker->word)
             ->set('data.name', $this->faker->name)
             ->set('data.nights', rand(1, 13))

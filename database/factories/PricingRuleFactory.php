@@ -37,7 +37,7 @@ class PricingRuleFactory extends Factory
         return [
             'channel_id' => $channel->id,
             'days_until_travel' => rand(1, 30),
-            'destination' => 'New York',
+            'destination' => $this->faker->numberBetween(1, 100000),
             'meal_plan' => $this->faker->word,
             'name' => $this->faker->name,
             'nights' => rand(1, 13),

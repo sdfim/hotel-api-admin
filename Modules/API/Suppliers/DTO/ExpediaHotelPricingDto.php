@@ -2,11 +2,7 @@
 
 namespace Modules\API\Suppliers\DTO;
 
-use App\Models\Channel;
 use App\Models\GiataGeography;
-use App\Models\PricingRule;
-use App\Models\Supplier;
-use App\Repositories\ChannelRenository;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +12,7 @@ use Modules\API\PricingAPI\ResponseModels\HotelResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
+use Modules\API\Tools\PricingRulesTools;
 
 class ExpediaHotelPricingDto
 {
@@ -23,11 +20,6 @@ class ExpediaHotelPricingDto
      * @var ExpediaPricingRulesApplier
      */
     private ExpediaPricingRulesApplier $pricingRulesApplier;
-
-    /**
-     * @var array
-     */
-    private array $query;
 
     /**
      * @var string
@@ -50,16 +42,6 @@ class ExpediaHotelPricingDto
     private float $total_time;
 
     /**
-     * @var array|null
-     */
-    private ?array $pricingRules;
-
-    /**
-     * @var int
-     */
-    private int $channelId;
-
-    /**
      * @var GiataGeography|null
      */
     private ?GiataGeography $destinationData;
@@ -75,12 +57,18 @@ class ExpediaHotelPricingDto
     private int $supplierId = 1;
 
     /**
+     * @var PricingRulesTools
+     */
+    private PricingRulesTools $pricingRulesService;
+
+    /**
      *
      */
     public function __construct()
     {
         $this->current_time = microtime(true);
         $this->total_time = 0.0;
+        $this->pricingRulesService = new PricingRulesTools();
     }
 
     /**
@@ -91,35 +79,18 @@ class ExpediaHotelPricingDto
      */
     public function ExpediaToHotelResponse(array $supplierResponse, array $query, string $search_id): array
     {
-        $this->query = $query;
         $this->search_id = $search_id;
         $this->bookingItems = [];
 
-        $token = ChannelRenository::getTokenId(request()->bearerToken());
-        $this->channelId = Channel::where('token_id', $token)->first()->id;
+        $pricingRules = $this->pricingRulesService->rules($query);
 
-        $this->supplierId = Supplier::where('name', 'Expedia')->first()->id;
-
-        $pricingRules = PricingRule::where('supplier_id', 1)
-            ->whereIn('property', array_keys($supplierResponse))
-            ->where('channel_id', $this->channelId)
-            ->where('rating', '>=', (float)$query['rating'])
-            ->whereDate('rule_start_date', '<=', $query['checkin'])
-            ->whereDate('rule_expiration_date', '>=', $query['checkout'])
-            ->get()
-            ->toArray();
-
-        $this->pricingRules = [];
         foreach ($pricingRules as $pricingRule) {
-            $this->pricingRules[$pricingRule['property']] = $pricingRule;
-        }
-        foreach ($pricingRules as $pricingRule) {
-            $this->pricingRules[$pricingRule['property']] = $pricingRule;
+            $pricingRules[$pricingRule['property']] = $pricingRule;
         }
 
-        $this->pricingRulesApplier = new ExpediaPricingRulesApplier($query, $this->pricingRules);
+        $this->pricingRulesApplier = new ExpediaPricingRulesApplier($query, $pricingRules);
 
-        $this->destinationData = GiataGeography::where('city_id', $this->query['destination'])
+        $this->destinationData = GiataGeography::where('city_id', $query['destination'])
             ->select([
                 DB::raw("CONCAT(city_name, ', ', locale_name, ', ', country_name) as full_location"),
             ])
