@@ -3,7 +3,6 @@
 namespace Modules\API\Tools;
 
 use App\Models\Channel;
-use App\Models\GiataProperty;
 use App\Models\PricingRule;
 use App\Models\Supplier;
 use App\Repositories\ChannelRenository;
@@ -41,15 +40,7 @@ class PricingRulesTools
         if ($latitude && $longitude && $radius) {
             $geography = new Geography();
 
-            $destinationCoordinates = $geography->calculateBoundingBox($latitude, $longitude, $radius);
-
-            $destination = GiataProperty::whereBetween('latitude', [
-                $destinationCoordinates['min_latitude'], $destinationCoordinates['max_latitude']
-            ])
-                ->whereBetween('longitude', [
-                    $destinationCoordinates['min_longitude'], $destinationCoordinates['max_longitude']
-                ])
-                ->first()->city_id ?? null;
+            $destination = $geography->findTheClosestDestinationInRadius($latitude, $longitude, $radius);
         }
 
         $totalGusts = $generalTools->calcTotalNumberOfGuestsInAllRooms($query['occupancy']);
