@@ -7,7 +7,7 @@ use App\Models\GiataProperty;
 use App\Models\PricingRule;
 use App\Models\Supplier;
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -54,7 +54,59 @@ class CreatePricingRules extends Component implements HasForms
                 '2xl' => 3,
             ])
             ->schema([
-                Section::make()
+                Fieldset::make('General settings')
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('Rule name')
+                            ->maxLength(191)
+                            ->unique()
+                            ->required(),
+                        DateTimePicker::make('rule_start_date')
+                            ->required(),
+                        DateTimePicker::make('rule_expiration_date')
+                            ->required()
+                    ])
+                    ->columns(3),
+                Fieldset::make('Price settings')
+                    ->schema([
+                        Select::make('price_type_to_apply')
+                            ->label('Price type')
+                            ->options([
+                                'total_price' => 'Total Price',
+                                'net_price' => 'Net Price',
+                                'rate_price' => 'Rate Price',
+                            ])
+                            ->required(),
+                        TextInput::make('price_value_to_apply')
+                            ->label('Price value')
+                            ->numeric()
+                            ->required()
+                            ->suffix(function (Get $get) {
+                                return match ($get('price_value_type_to_apply')) {
+                                    null, '' => false,
+                                    'fixed_value' => '$',
+                                    'percentage' => '%',
+                                };
+                            }),
+                        Select::make('price_value_type_to_apply')
+                            ->label('Price value type')
+                            ->options([
+                                'fixed_value' => 'Fixed Value',
+                                'percentage' => 'Percentage',
+                            ])
+                            ->live()
+                            ->required(),
+                        Select::make('price_value_fixed_type_to_apply')
+                            ->label('Price Value Fixed Type')
+                            ->options([
+                                'per_guest' => 'Per Guest',
+                                'per_room' => 'Per Room',
+                                'per_night' => 'Per Night',
+                            ])
+                            ->required()
+                    ])
+                    ->columns(4),
+                Fieldset::make('Will be replaced with repeater')
                     ->schema([
                         Select::make('supplier_id')
                             ->label('Supplier')
@@ -62,10 +114,6 @@ class CreatePricingRules extends Component implements HasForms
                         Select::make('channel_id')
                             ->label('Channel')
                             ->options(Channel::all()->pluck('name', 'id')),
-                        TextInput::make('name')
-                            ->maxLength(191)
-                            ->required()
-                            ->unique(),
                         Select::make('property')
                             ->searchable()
                             ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
@@ -98,22 +146,8 @@ class CreatePricingRules extends Component implements HasForms
                             })
                             ->live()
                             ->unique(),
-                    ])
-                    ->columns(3),
-                Section::make()
-                    ->schema([
                         DateTimePicker::make('travel_date_from'),
                         DateTimePicker::make('travel_date_to'),
-                        DateTimePicker::make('rule_start_date')
-                            ->label('Booking Window From')
-                            ->required(),
-                        DateTimePicker::make('rule_expiration_date')
-                            ->label('Booking Window To')
-                            ->required()
-                    ])
-                    ->columns(4),
-                Section::make()
-                    ->schema([
                         TextInput::make('total_guests')
                             ->live()
                             ->numeric(),
@@ -128,8 +162,8 @@ class CreatePricingRules extends Component implements HasForms
                             ->disabled(fn(Get $get): bool|null => !$get('total_guests'))
                             ->required(fn(Get $get): bool|null => $get('total_guests'))
                     ])
-                    ->columns(3),
-                Section::make()
+                    ->columns(4),
+                Fieldset::make('Will be replaced with repeater')
                     ->schema([
                         TextInput::make('days_until_travel')
                             ->numeric(),
@@ -139,8 +173,6 @@ class CreatePricingRules extends Component implements HasForms
                             ->numeric(),
                         TextInput::make('number_rooms')
                             ->numeric(),
-//                TextInput::make('room_guests')
-//                    ->numeric(),
                         TextInput::make('rate_code')
                             ->maxLength(191),
                         TextInput::make('room_type')
@@ -149,42 +181,6 @@ class CreatePricingRules extends Component implements HasForms
                             ->maxLength(191)
                     ])
                     ->columns(7),
-                Section::make()
-                    ->schema([
-                        Select::make('price_value_type_to_apply')
-                            ->label('Price value type')
-                            ->options([
-                                'fixed_value' => 'Fixed Value',
-                                'percentage' => 'Percentage',
-                            ])
-                            ->live()
-                            ->required()
-                            ->afterStateUpdated(function (?string $state, Set $set) {
-                                if ($state !== 'fixed_value') $set('price_value_fixed_type_to_apply', null);
-                            }),
-                        TextInput::make('price_value_to_apply')
-                            ->label('Price value')
-                            ->numeric()
-                            ->required(),
-                        Select::make('price_type_to_apply')
-                            ->label('Price type')
-                            ->options([
-                                'total_price' => 'Total Price',
-                                'net_price' => 'Net Price',
-                                'rate_price' => 'Rate Price',
-                            ])
-                            ->required(),
-                        Select::make('price_value_fixed_type_to_apply')
-                            ->label('Price Value Fixed Type')
-                            ->options([
-                                'per_guest' => 'Per Guest',
-                                'per_room' => 'Per Room',
-                                'per_night' => 'Per Night',
-                            ])
-                            ->disabled(fn(Get $get): bool => $get('price_value_type_to_apply') !== 'fixed_value')
-                            ->required(fn(Get $get): bool => $get('price_value_type_to_apply') === 'fixed_value')
-                    ])
-                    ->columns(4)
             ])
             ->statePath('data')
             ->model(PricingRule::class);
