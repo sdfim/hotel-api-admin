@@ -45,8 +45,6 @@ class PricingRuleSeeder extends Seeder
         foreach ($giataIds as $giataId) {
             if (in_array($giataId, $issetIds)) continue;
 
-            $priceValueTypeToApply = $this->faker->randomElement($priceValueTypeToApplyOptions);
-
             $pricingRule = [
                 'channel_id' => $channelId,
                 'days_until_travel' => rand(1, 30),
@@ -56,10 +54,9 @@ class PricingRuleSeeder extends Seeder
                 'nights' => rand(1, 13),
                 'number_rooms' => rand(1, 3),
                 'price_type_to_apply' => $this->faker->randomElement($priceTypeToApplyOptions),
-                'price_value_fixed_type_to_apply' => $priceValueTypeToApply === 'fixed_value' ?
-                    $this->faker->randomElement($priceValueFixedTypeToApplyOptions) : null,
+                'price_value_fixed_type_to_apply' => $this->faker->randomElement($priceValueFixedTypeToApplyOptions),
                 'price_value_to_apply' => rand(1, 100),
-                'price_value_type_to_apply' => $priceValueTypeToApply,
+                'price_value_type_to_apply' => $this->faker->randomElement($priceValueTypeToApplyOptions),
                 'property' => $giataId,
                 'rating' => $this->faker->randomFloat(2, 1, 5.5),
                 'rate_code' => $this->faker->word,
