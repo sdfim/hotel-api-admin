@@ -32,8 +32,6 @@ class PricingRuleFactory extends Factory
 
         $today = now();
 
-        $priceValueTypeToApply = $this->faker->randomElement(['fixed_value', 'percentage']);
-
         return [
             'channel_id' => $channel->id,
             'days_until_travel' => rand(1, 30),
@@ -43,10 +41,9 @@ class PricingRuleFactory extends Factory
             'nights' => rand(1, 13),
             'number_rooms' => rand(1, 3),
             'price_type_to_apply' => $this->faker->randomElement(['total_price', 'net_price', 'rate_price']),
-            'price_value_fixed_type_to_apply' => $priceValueTypeToApply === 'fixed_value' ?
-                $this->faker->randomElement(['per_guest', 'per_room', 'per_night']) : null,
+            'price_value_fixed_type_to_apply' => $this->faker->randomElement(['per_guest', 'per_room', 'per_night']),
             'price_value_to_apply' => rand(1, 100),
-            'price_value_type_to_apply' => $priceValueTypeToApply,
+            'price_value_type_to_apply' => $this->faker->randomElement(['fixed_value', 'percentage']),
             'property' => $this->faker->numberBetween(1, 100000),
             'rating' => $this->faker->randomFloat(2, 1, 5.5),
             'rate_code' => $this->faker->word,

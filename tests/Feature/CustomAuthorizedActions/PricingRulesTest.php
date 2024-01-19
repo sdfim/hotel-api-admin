@@ -103,8 +103,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $today = now();
 
-        $priceValueTypeToApply = $this->faker->randomElement(['fixed_value', 'percentage']);
-
         $data = [
             'channel_id' => $channel->id,
             'days_until_travel' => rand(1, 30),
@@ -114,10 +112,9 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
             'nights' => rand(1, 13),
             'number_rooms' => rand(1, 3),
             'price_type_to_apply' => $this->faker->randomElement(['total_price', 'net_price', 'rate_price']),
-            'price_value_fixed_type_to_apply' => $priceValueTypeToApply === 'fixed_value' ?
-                $this->faker->randomElement(['per_guest', 'per_room', 'per_night']) : null,
+            'price_value_fixed_type_to_apply' => $this->faker->randomElement(['per_guest', 'per_room', 'per_night']),
             'price_value_to_apply' => rand(1, 100),
-            'price_value_type_to_apply' => $priceValueTypeToApply,
+            'price_value_type_to_apply' => $this->faker->randomElement(['fixed_value', 'percentage']),
             'property' => $this->faker->numberBetween(1, 100000),
             'rating' => $this->faker->randomFloat(2, 1, 5.5),
             'rate_code' => $this->faker->word,
@@ -154,8 +151,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $today = now();
 
-        $priceValueTypeToApply = $this->faker->randomElement(['fixed_value', 'percentage']);
-
         Livewire::test(UpdatePricingRules::class, ['pricingRules' => $pricingRules])
             ->set('data.channel_id', $channel->id)
             ->set('data.days_until_travel', rand(1, 30))
@@ -165,10 +160,9 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
             ->set('data.nights', rand(1, 13))
             ->set('data.number_rooms', rand(1, 3))
             ->set('data.price_type_to_apply', $this->faker->randomElement(['total_price', 'net_price', 'rate_price']))
-            ->set('data.price_value_fixed_type_to_apply', $priceValueTypeToApply === 'fixed_value' ?
-                $this->faker->randomElement(['per_guest', 'per_room', 'per_night']) : null)
+            ->set('data.price_value_fixed_type_to_apply', $this->faker->randomElement(['per_guest', 'per_room', 'per_night']))
             ->set('data.price_value_to_apply', rand(1, 100))
-            ->set('data.price_value_type_to_apply', $priceValueTypeToApply)
+            ->set('data.price_value_type_to_apply', $this->faker->randomElement(['fixed_value', 'percentage']))
             ->set('data.property', $this->faker->numberBetween(1, 100000))
             ->set('data.rate_code', $this->faker->word)
             ->set('data.rating', $this->faker->randomFloat(2, 1, 5.5))
