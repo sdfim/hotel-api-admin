@@ -1,25 +1,25 @@
 <?php
 
-use Modules\AdministrationSuite\Http\Controllers\ContentController;
-use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportController;
-use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportChartController;
-use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
-use Modules\AdministrationSuite\Http\Controllers\GeographyController;
-use Modules\AdministrationSuite\Http\Controllers\IceHbsiController;
-use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\BookingItemsController;
+use Modules\AdministrationSuite\Http\Controllers\ChannelsController;
+use Modules\AdministrationSuite\Http\Controllers\ContentController;
+use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportChartController;
+use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportController;
+use Modules\AdministrationSuite\Http\Controllers\ExpediaController;
+use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
+use Modules\AdministrationSuite\Http\Controllers\GeographyController;
+use Modules\AdministrationSuite\Http\Controllers\GiataController;
+use Modules\AdministrationSuite\Http\Controllers\IceHbsiController;
+use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
 use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
 use Modules\AdministrationSuite\Http\Controllers\PropertyMappingController;
-use Modules\AdministrationSuite\Http\Controllers\ReservationsController;
 use Modules\AdministrationSuite\Http\Controllers\PropertyWeightingController;
-use Modules\AdministrationSuite\Http\Controllers\ChannelsController;
+use Modules\AdministrationSuite\Http\Controllers\ReservationsController;
+use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
-use Modules\AdministrationSuite\Http\Controllers\ExpediaController;
-use Modules\AdministrationSuite\Http\Controllers\GiataController;
-use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,9 +34,9 @@ use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
 
 Route::get('/admin/', function () {
     if (!Auth::check()) {
-        return redirect(config('app.url').'/admin/login');
+        return redirect(config('app.url') . '/admin/login');
     } else {
-        return redirect(config('app.url').'/admin/reservations');
+        return redirect(config('app.url') . '/admin/reservations');
     }
 })->name('root');
 

@@ -2,10 +2,10 @@
 
 namespace Modules\API\Controllers\ApiHandlers;
 
-use Modules\API\Controllers\ApiHandlerInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\API\BaseController;
+use Modules\API\Controllers\ApiHandlerInterface;
 
 class FlightApiHandler extends BaseController implements ApiHandlerInterface
 {

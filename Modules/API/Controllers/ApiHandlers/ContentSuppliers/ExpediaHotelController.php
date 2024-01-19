@@ -6,10 +6,10 @@ use App\Models\ExpediaContent;
 use App\Repositories\ExpediaContentRepository as ExpediaRepository;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Tools\Geography;
-use Illuminate\Support\Facades\Log;
 
 class ExpediaHotelController
 {

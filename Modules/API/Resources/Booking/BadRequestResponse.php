@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Booking;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="BadRequestResponse",

@@ -3,8 +3,8 @@
 namespace Modules\API\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
-use Modules\API\Validate\ApiRequest;
 use Illuminate\Support\Facades\Auth;
+use Modules\API\Validate\ApiRequest;
 
 class DetailHotelRequest extends ApiRequest
 {

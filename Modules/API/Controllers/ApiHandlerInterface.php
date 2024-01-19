@@ -2,8 +2,8 @@
 
 namespace Modules\API\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 interface ApiHandlerInterface
 {

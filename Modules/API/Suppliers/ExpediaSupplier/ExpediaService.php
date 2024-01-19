@@ -2,9 +2,8 @@
 
 namespace Modules\API\Suppliers\ExpediaSupplier;
 
-use Illuminate\Support\Facades\Log;
-
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class ExpediaService
 {

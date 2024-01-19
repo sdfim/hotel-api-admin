@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\PendingRequest;
 
 
 class CustomBookingCommand extends Command

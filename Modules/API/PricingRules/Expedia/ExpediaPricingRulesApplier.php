@@ -3,6 +3,7 @@
 namespace Modules\API\PricingRules\Expedia;
 
 use Modules\API\PricingRules\PricingRulesApplierInterface;
+use Modules\API\Tools\GeneralTools;
 
 class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
 {
@@ -51,7 +52,8 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         ];
 
         $numberOfNights = count($roomsPricingArray[$firstRoomCapacityKey]['nightly']);
-        $totalNumberOfGuestsInAllRooms = self::countTotalNumberOfGuestsInAllRooms($this->requestArray['occupancy']);
+        $generalTools = new GeneralTools();
+        $totalNumberOfGuestsInAllRooms = $generalTools->calcTotalNumberOfGuestsInAllRooms($this->requestArray['occupancy']);
         $requiredRoomCount = count($this->requestArray['occupancy']);
 
         // Previously, we attempted to locate and pass a pricing rule based on factors such as supplier, channel, property,
@@ -72,7 +74,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
             foreach ($this->requestArray['occupancy'] as $room) {
                 $totalNumberOfGuestsInRoom = (int)array_sum($room);
                 $key = isset($room['children_ages']) ? $room['adults'] . '-' . implode(',', $room['children_ages']) : $room['adults'];
-                $roomTotals = self::calculateRoomTotals($roomsPricingArray[$key]);
+                $roomTotals = $this->calculateRoomTotals($roomsPricingArray[$key]);
                 $result['total_price'] += $roomTotals['total_price'];
                 $result['total_tax'] += $roomTotals['total_tax'];
                 $result['total_fees'] += $roomTotals['total_fees'];
@@ -103,7 +105,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
         } else {
             foreach ($this->requestArray['occupancy'] as $room) {
                 $totalNumberOfGuestsInRoom = (int)array_sum($room);
-                $roomTotals = self::calculateRoomTotals($roomsPricingArray[$totalNumberOfGuestsInRoom]);
+                $roomTotals = $this->calculateRoomTotals($roomsPricingArray[$totalNumberOfGuestsInRoom]);
                 // these values are calculated in the same way for all cases below, therefore they are moved to the top from each closure
                 $result['total_tax'] += $roomTotals['total_tax'];
                 $result['total_fees'] += $roomTotals['total_fees'];
@@ -169,27 +171,10 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
     }
 
     /**
-     * @param array $rooms
-     * @return int
-     */
-    public static function countTotalNumberOfGuestsInAllRooms(array $rooms): int
-    {
-        $totalNumberOfGuests = 0;
-
-        foreach ($rooms as $room) {
-            foreach ($room as $roomGuestsNumber) {
-                $totalNumberOfGuests += (int)$roomGuestsNumber;
-            }
-        }
-
-        return $totalNumberOfGuests;
-    }
-
-    /**
      * @param array $roomPricing
      * @return array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int}
      */
-    public static function calculateRoomTotals(array $roomPricing): array
+    private function calculateRoomTotals(array $roomPricing): array
     {
         // in case when there is no any discount total_net = rate_price(amount of rates each night)
         /**

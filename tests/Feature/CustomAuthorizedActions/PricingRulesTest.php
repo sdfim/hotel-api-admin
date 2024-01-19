@@ -2,13 +2,13 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
-use Illuminate\Foundation\Testing\WithFaker;
-use App\Models\PricingRule;
-use App\Models\Supplier;
-use Livewire\Livewire;
 use App\Livewire\PricingRules\CreatePricingRules;
 use App\Livewire\PricingRules\UpdatePricingRules;
 use App\Models\Channel;
+use App\Models\PricingRule;
+use App\Models\Supplier;
+use Illuminate\Foundation\Testing\WithFaker;
+use Livewire\Livewire;
 
 class PricingRulesTest extends CustomAuthorizedActionsTestCase
 {
@@ -57,40 +57,37 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
     {
         Livewire::test(CreatePricingRules::class)
             ->set('data', [
-                'name' => '',
-                'property' => '',
-                'destination' => '',
-                'travel_date' => '',
-                'nights' => '',
                 'channel_id' => '',
+                'days_until_travel' => '',
+                'destination' => '',
+                'name' => '',
+                'nights' => '',
+                'number_rooms' => '',
+                'price_type_to_apply' => '',
+                'price_value_fixed_type_to_apply' => '',
+                'price_value_to_apply' => '',
+                'price_value_type_to_apply' => '',
+                'property' => '',
+                'rating' => null,
+                'rate_code' => '',
+//            'room_guests' => 2,
+                'room_type' => '',
+                'rule_expiration_date' => '',
+                'rule_start_date' => '',
                 'supplier_id' => '',
                 'total_guests' => '',
-                'number_rooms' => '',
-                'rating' => '',
-                'price_type_to_apply' => '',
-                'price_value_type_to_apply' => '',
-                'price_value_to_apply' => '',
-                'price_value_fixed_type_to_apply' => '',
-                'rule_start_date' => '',
-                'rule_expiration_date' => '',
+                'total_guests_comparison_sign' => '',
+                'travel_date_from' => '',
+                'travel_date_to' => '',
             ])
             ->call('create')
             ->assertHasErrors([
                 'data.name',
-                'data.property',
-                'data.destination',
-                'data.travel_date',
-                'data.nights',
-                'data.channel_id',
-                'data.supplier_id',
-                'data.total_guests',
-                'data.number_rooms',
-                'data.rating',
                 'data.price_type_to_apply',
-                'data.price_value_type_to_apply',
                 'data.price_value_to_apply',
-                'data.rule_start_date',
+                'data.price_value_type_to_apply',
                 'data.rule_expiration_date',
+                'data.rule_start_date',
             ]);
     }
 
@@ -102,32 +99,34 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
     {
         $supplier = Supplier::factory()->create();
 
-        $channels = Channel::factory()->create();
+        $channel = Channel::factory()->create();
 
         $today = now();
 
         $data = [
-            'name' => $this->faker->name,
-            'property' => $this->faker->word,
-            'destination' => $this->faker->word,
-            'travel_date' => date('Y-m-d H:i:s'),
-            'days' => 7,
-            'nights' => 5,
-            'supplier_id' => $supplier->id,
-            'rate_code' => $this->faker->word,
-            'room_type' => $this->faker->word,
-            'total_guests' => 2,
-            'room_guests' => 2,
-            'number_rooms' => 1,
+            'channel_id' => $channel->id,
+            'days_until_travel' => rand(1, 30),
+            'destination' => $this->faker->numberBetween(1, 100000),
             'meal_plan' => $this->faker->word,
-            'rating' => $this->faker->word,
-            'price_type_to_apply' => $this->faker->word,
-            'price_value_type_to_apply' => $this->faker->word,
-            'price_value_to_apply' => 2.5,
-            'price_value_fixed_type_to_apply' => null,
-            'channel_id' => $channels->id,
-            'rule_start_date' => $today,
-            'rule_expiration_date' => $today->copy()->addDays(rand(30, 60)),
+            'name' => $this->faker->name,
+            'nights' => rand(1, 13),
+            'number_rooms' => rand(1, 3),
+            'price_type_to_apply' => $this->faker->randomElement(['total_price', 'net_price', 'rate_price']),
+            'price_value_fixed_type_to_apply' => $this->faker->randomElement(['per_guest', 'per_room', 'per_night']),
+            'price_value_to_apply' => rand(1, 100),
+            'price_value_type_to_apply' => $this->faker->randomElement(['fixed_value', 'percentage']),
+            'property' => $this->faker->numberBetween(1, 100000),
+            'rating' => $this->faker->randomFloat(2, 1, 5.5),
+            'rate_code' => $this->faker->word,
+//            'room_guests' => 2,
+            'room_type' => $this->faker->word,
+            'rule_expiration_date' => $today->copy()->addDays(rand(30, 60))->toDateTimeString(),
+            'rule_start_date' => $today->toDateTimeString(),
+            'supplier_id' => $supplier->id,
+            'total_guests' => rand(1, 12),
+            'total_guests_comparison_sign' => $this->faker->randomElement(['=', '<', '>']),
+            'travel_date_from' => $today->copy()->addDay()->toDateTimeString(),
+            'travel_date_to' => $today->copy()->addDays(rand(3, 7))->toDateTimeString(),
         ];
 
         Livewire::test(CreatePricingRules::class)
@@ -150,24 +149,32 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $channel = Channel::factory()->create();
 
+        $today = now();
+
         Livewire::test(UpdatePricingRules::class, ['pricingRules' => $pricingRules])
-            ->set('data.name', $this->faker->name)
-            ->set('data.property', $this->faker->numberBetween(1, 10000))
-            ->set('data.destination', 'Updated Pricing Rule Destination')
-            ->set('data.travel_date', now())
-            ->set('data.days', 7)
-            ->set('data.nights', 6)
-            ->set('data.supplier_id', $supplier->id)
             ->set('data.channel_id', $channel->id)
-            ->set('data.rate_code', 'dret1')
-            ->set('data.room_type', 'vip')
-            ->set('data.total_guests', 2)
-            ->set('data.room_guests', 2)
-            ->set('data.number_rooms', 1)
-            ->set('data.meal_plan', 'plan')
-            ->set('data.rating', 'rating')
-            ->set('rule_start_date', '12.12.2024')
-            ->set('rule_expiration_date', '29.12.2024')
+            ->set('data.days_until_travel', rand(1, 30))
+            ->set('data.destination', $this->faker->numberBetween(1, 100000))
+            ->set('data.meal_plan', $this->faker->word)
+            ->set('data.name', $this->faker->name)
+            ->set('data.nights', rand(1, 13))
+            ->set('data.number_rooms', rand(1, 3))
+            ->set('data.price_type_to_apply', $this->faker->randomElement(['total_price', 'net_price', 'rate_price']))
+            ->set('data.price_value_fixed_type_to_apply', $this->faker->randomElement(['per_guest', 'per_room', 'per_night']))
+            ->set('data.price_value_to_apply', rand(1, 100))
+            ->set('data.price_value_type_to_apply', $this->faker->randomElement(['fixed_value', 'percentage']))
+            ->set('data.property', $this->faker->numberBetween(1, 100000))
+            ->set('data.rate_code', $this->faker->word)
+            ->set('data.rating', $this->faker->randomFloat(2, 1, 5.5))
+//            ->set('data.room_guests', 2)
+            ->set('data.room_type', $this->faker->word)
+            ->set('data.supplier_id', $supplier->id)
+            ->set('data.total_guests', rand(1, 12))
+            ->set('data.total_guests_comparison_sign', $this->faker->randomElement(['=', '<', '>']))
+            ->set('rule_expiration_date', $today->copy()->addDays(rand(30, 60))->toDateString())
+            ->set('rule_start_date', $today->toDateString())
+            ->set('data.travel_date_from', $today->copy()->addDay()->toDateString())
+            ->set('data.travel_date_to', $today->copy()->addDays(rand(3, 7))->toDateString())
             ->call('edit')
             ->assertRedirect(route('pricing_rules.index'));
 

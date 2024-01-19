@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\ExpediaContent;
 use Exception;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
@@ -11,12 +12,11 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
-use Filament\Forms\Components\Checkbox;
 use Filament\Tables\Table;
-use Illuminate\View\View;
 use Illuminate\Database\Eloquent\Builder;
-use Livewire\Component;
 use Illuminate\Support\HtmlString;
+use Illuminate\View\View;
+use Livewire\Component;
 
 class ExpediaTable extends Component implements HasForms, HasTable
 {

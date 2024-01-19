@@ -7,9 +7,12 @@ use App\Models\GiataProperty;
 use App\Models\PricingRule;
 use App\Models\Supplier;
 use Illuminate\Database\Seeder;
+use Illuminate\Foundation\Testing\WithFaker;
 
 class PricingRuleSeeder extends Seeder
 {
+    use WithFaker;
+
     /**
      * Run the database seeds.
      */
@@ -37,58 +40,45 @@ class PricingRuleSeeder extends Seeder
         $giataIds = GiataProperty::where('city_id', 961)->pluck('code')->all();
         $issetIds = PricingRule::whereIn('property', $giataIds)->pluck('property')->all();
         $today = now();
-        $data = [];
+        $pricingRules = [];
 
         foreach ($giataIds as $giataId) {
             if (in_array($giataId, $issetIds)) continue;
 
-            $days = rand(3, 5);
-            $nights = $days > 1 ? $days - 1 : 1;
+            $priceValueTypeToApply = $this->faker->randomElement($priceValueTypeToApplyOptions);
 
             $pricingRule = [
-                'name' => "Rule for $giataId",
-                'property' => $giataId,
-                'destination' => 'New York',
-                'travel_date' => $today,
-                'supplier_id' => $supplierId,
                 'channel_id' => $channelId,
-                'days' => 3,
-                'nights' => $nights,
-                'rate_code' => rand(1000, 10000),
-                'room_type' => 'test type',
-                'meal_plan' => 'test meal plan',
-                'rating' => $this->randFloat(2.5, 4.0),
+                'days_until_travel' => rand(1, 30),
+                'destination' => 961, //New York
+                'meal_plan' => $this->faker->word,
+                'name' => "Rule for $giataId",
+                'nights' => rand(1, 13),
+                'number_rooms' => rand(1, 3),
+                'price_type_to_apply' => $this->faker->randomElement($priceTypeToApplyOptions),
+                'price_value_fixed_type_to_apply' => $priceValueTypeToApply === 'fixed_value' ?
+                    $this->faker->randomElement($priceValueFixedTypeToApplyOptions) : null,
                 'price_value_to_apply' => rand(1, 100),
-                'rule_start_date' => $today,
-                'rule_expiration_date' => $today->copy()->addDays(rand(30, 60)),
+                'price_value_type_to_apply' => $priceValueTypeToApply,
+                'property' => $giataId,
+                'rating' => $this->faker->randomFloat(2, 1, 5.5),
+                'rate_code' => $this->faker->word,
+                'room_guests' => 2,
+                'room_type' => $this->faker->word,
+                'rule_expiration_date' => $today->copy()->addDays(rand(30, 60))->toDateString(),
+                'rule_start_date' => $today->toDateString(),
+                'supplier_id' => $supplierId,
+                'total_guests' => rand(1, 12),
+                'total_guests_comparison_sign' => $this->faker->randomElement(['=', '<', '>']),
+                'travel_date_from' => $today->copy()->addDay()->toDateString(),
+                'travel_date_to' => $today->copy()->addDays(rand(3, 7))->toDateString(),
                 'created_at' => $today,
                 'updated_at' => $today,
             ];
 
-            $pricingRule['number_rooms'] = 3;
-            $pricingRule['room_guests'] = $pricingRule['number_rooms'] - 1;
-            $pricingRule['total_guests'] = 10;
-            $pricingRule['price_value_type_to_apply'] = $priceValueTypeToApplyOptions[rand(0, 1)];
-            $pricingRule['price_type_to_apply'] = $priceTypeToApplyOptions[rand(0, 2)];
-            if ($pricingRule['price_value_type_to_apply'] === 'fixed_value') {
-                $pricingRule['price_value_fixed_type_to_apply'] = $priceValueFixedTypeToApplyOptions[rand(0, 2)];
-            } else {
-                $pricingRule['price_value_fixed_type_to_apply'] = null;
-            }
-
-            $data[] = $pricingRule;
+            $pricingRules[] = $pricingRule;
         }
 
-        PricingRule::insert($data);
-    }
-
-    /**
-     * @param float $minValue
-     * @param float $maxValue
-     * @return float
-     */
-    private function randFloat(float $minValue, float $maxValue): float
-    {
-        return round($minValue + mt_rand() / mt_getrandmax() * ($maxValue - $minValue), 2);
+        PricingRule::insert($pricingRules);
     }
 }

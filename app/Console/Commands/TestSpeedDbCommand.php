@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Facades\DB;
 use Illuminate\Console\Command;
 use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelController;
+use Illuminate\Support\Facades\DB;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 
 class TestSpeedDbCommand extends Command

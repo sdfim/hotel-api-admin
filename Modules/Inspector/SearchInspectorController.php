@@ -2,11 +2,11 @@
 
 namespace Modules\Inspector;
 
+use App\Models\ApiSearchInspector;
 use App\Repositories\ChannelRenository;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use App\Models\ApiSearchInspector;
 
 class SearchInspectorController extends BaseInspectorController
 {

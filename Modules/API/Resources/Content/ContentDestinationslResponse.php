@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Content;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="ContentDestinationslResponse",

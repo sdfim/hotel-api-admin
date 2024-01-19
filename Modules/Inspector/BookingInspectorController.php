@@ -2,11 +2,11 @@
 
 namespace Modules\Inspector;
 
+use App\Models\ApiBookingInspector;
 use App\Repositories\ChannelRenository;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use App\Models\ApiBookingInspector;
 
 class BookingInspectorController extends BaseInspectorController
 {

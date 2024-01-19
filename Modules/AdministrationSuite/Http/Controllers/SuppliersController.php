@@ -4,8 +4,8 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 
 use App\Models\Supplier;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\View\View;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class SuppliersController extends Controller
 {

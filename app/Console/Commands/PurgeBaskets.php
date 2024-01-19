@@ -3,9 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\ApiBookingInspector;
-use Illuminate\Console\Command;
 use App\Models\GeneralConfiguration;
 use App\Models\Reservation;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 
 class PurgeBaskets extends Command

@@ -8,9 +8,9 @@ use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
 use Exception;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
-use Illuminate\Support\Facades\Storage;
 
 class ExpediaHotelBookingApiHandler
 {

@@ -2,6 +2,8 @@
 
 namespace Modules\API\Tools;
 
+use App\Models\GiataProperty;
+
 class Geography
 {
     /**
@@ -38,4 +40,22 @@ class Geography
         ];
     }
 
+    /**
+     * @param float $latitude
+     * @param float $longitude
+     * @param float $radius
+     * @return string|int|null
+     */
+    public function findTheClosestCityInRadius(float $latitude, float $longitude, float $radius): string|int|null
+    {
+        $destinationCoordinates = $this->calculateBoundingBox($latitude, $longitude, $radius);
+
+        return GiataProperty::whereBetween('latitude', [
+            $destinationCoordinates['min_latitude'], $destinationCoordinates['max_latitude']
+        ])
+            ->whereBetween('longitude', [
+                $destinationCoordinates['min_longitude'], $destinationCoordinates['max_longitude']
+            ])
+            ->first()->city_id ?? null;
+    }
 }

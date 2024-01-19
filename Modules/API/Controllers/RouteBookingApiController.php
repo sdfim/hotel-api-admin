@@ -5,15 +5,15 @@ namespace Modules\API\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\ApiBookingItem;
 use App\Models\Supplier;
-use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
+use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
 use Illuminate\Http\Request;
-use Laravel\Sanctum\PersonalAccessToken;
-use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
-use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
-use Modules\API\BookingAPI\BookingApiHandlers\ComboBookingApiHandler;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Sanctum\PersonalAccessToken;
+use Modules\API\BookingAPI\BookingApiHandlers\ComboBookingApiHandler;
+use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
+use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
 
 class RouteBookingApiController extends Controller
 {
