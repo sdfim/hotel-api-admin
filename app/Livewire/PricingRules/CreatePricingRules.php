@@ -8,13 +8,14 @@ use App\Models\PricingRule;
 use App\Models\Supplier;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
-use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -106,81 +107,227 @@ class CreatePricingRules extends Component implements HasForms
                             ->required()
                     ])
                     ->columns(4),
-                Fieldset::make('Will be replaced with repeater')
+                Fieldset::make('Rules')
                     ->schema([
-                        Select::make('supplier_id')
-                            ->label('Supplier')
-                            ->options(Supplier::all()->pluck('name', 'id')),
-                        Select::make('channel_id')
-                            ->label('Channel')
-                            ->options(Channel::all()->pluck('name', 'id')),
-                        Select::make('property')
-                            ->searchable()
-                            ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
-                                DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
-                                ->where('name', 'like', "%$search%")->limit(30)->pluck('full_name', 'code')->toArray()
-                            )
-                            ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
-                                DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
-                                ->where('code', $value)->first()->full_name
-                            )
-                            ->afterStateUpdated(function (Get $get, Set $set) {
-                                $set('destination', null);
-                                $cityId = GiataProperty::select('city_id')->where('code', $get('property'))->first()->city_id ?? null;
-                                $set('destination', $cityId);
-                            })
-                            ->live()
-                            ->unique(),
-                        Select::make('destination')
-                            ->searchable()
-                            ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
-                                DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
-                                ->where('city', 'like', "%$search%")->limit(30)->pluck('full_name', 'city_id')->toArray()
-                            )
-                            ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
-                                DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'))
-                                ->where('city_id', $value)->first()->full_name
-                            )
-                            ->afterStateUpdated(function (Get $get, Set $set) {
-                                $set('property', null);
-                            })
-                            ->live()
-                            ->unique(),
-                        DateTimePicker::make('travel_date_from'),
-                        DateTimePicker::make('travel_date_to'),
-                        TextInput::make('total_guests')
-                            ->live()
-                            ->numeric(),
-                        Select::make('total_guests_comparison_sign')
-                            ->label('Compare')
-                            ->options([
-                                '=' => '=',
-                                '<' => '<',
-                                '>' => '>',
+                        Repeater::make('rules')
+                            ->schema([
+
+                                Select::make('field')
+                                    ->options([
+                                        'supplier_id' => 'Supplier ID',
+                                        'channel_id' => 'Channel ID',
+                                        'property' => 'Property',
+                                        'destination' => 'Destination',
+                                        'travel_date' => 'Travel date',
+                                        'booking_date' => 'Booking date',
+                                        'total_guests' => 'Total guests',
+                                        'days_until_departure' => 'Days until departure',
+                                        'nights' => 'Nights',
+                                        'rating' => 'Rating',
+                                        'number_of_rooms' => 'Number of rooms',
+                                        'rate_code' => 'Rate code',
+                                        'room_type' => 'Room type',
+                                        'meal_plan' => 'Meal plan / Board basis'
+                                    ])
+                                    ->live()
+                                    ->required()
+                                    ->afterStateUpdated(fn(Select $component) => $component
+                                        ->getContainer()
+                                        ->getComponent('dynamicFieldValue')
+                                        ->getChildComponentContainer()
+                                        ->fill()
+                                    ),
+                                Select::make('compare')
+                                    ->options(fn(Get $get): array => match ($get('field')) {
+                                        'supplier_id', 'channel_id', 'property', 'destination', 'rate_code', 'room_type', 'meal_plan' => [
+                                            '=' => '=',
+                                        ],
+                                        default => [
+                                            '=' => '=',
+                                            '<' => '<',
+                                            '>' => '>',
+                                            'between' => 'between'
+                                        ],
+                                    })
+                                    ->required(),
+                                Grid::make()
+                                    ->schema(fn(Get $get): array => match ($get('field')) {
+                                        'supplier_id' => [
+                                            Select::make('value_from')
+                                                ->label('Supplier ID')
+                                                ->placeholder('Value of the rule you need to comparison')
+                                                ->options(Supplier::all()->pluck('name', 'id'))
+                                                ->required(),
+                                            TextInput::make('value_to')
+                                                ->label('Value to')
+                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
+                                                ->readOnly()
+                                        ],
+                                        'channel_id' => [
+                                            Select::make('value_from')
+                                                ->label('Channel ID')
+                                                ->placeholder('Value of the rule you need to comparison')
+                                                ->options(Channel::all()->pluck('name', 'id'))
+                                                ->required(),
+                                            TextInput::make('value_to')
+                                                ->label('Value to')
+                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
+                                                ->readOnly()
+                                        ],
+                                        'property' => [
+                                            Select::make('property')
+                                                ->label('Property')
+                                                ->placeholder('Value of the rule you need to comparison')
+                                                ->searchable()
+                                                ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
+                                                    DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
+                                                    ->where('name', 'like', "%$search%")->limit(30)->pluck('full_name', 'code')->toArray()
+                                                )
+                                                ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
+                                                    DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
+                                                    ->where('code', $value)->first()->full_name
+                                                )
+                                                ->required(),
+                                            TextInput::make('value_to')
+                                                ->label('Value to')
+                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
+                                                ->readOnly()
+                                        ],
+                                        'destination' => [
+                                            Select::make('destination')
+                                                ->label('Destination')
+                                                ->searchable()
+                                                ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
+                                                    DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
+                                                    ->where('city', 'like', "%$search%")->limit(30)->pluck('full_name', 'city_id')->toArray()
+                                                )
+                                                ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
+                                                    DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'))
+                                                    ->where('city_id', $value)->first()->full_name
+                                                )
+                                                ->required(),
+                                            TextInput::make('value_to')
+                                                ->label('Value to')
+                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
+                                                ->readOnly()
+                                        ],
+                                        'travel_date' => [
+                                            DateTimePicker::make('value_from')
+                                                ->label('Travel date from')
+                                                ->required(),
+                                            DateTimePicker::make('value_to')
+                                                ->label('Travel date to')
+                                                ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                        ],
+                                        'booking_date' => [
+                                            DateTimePicker::make('value_from')
+                                                ->label('Booking date from')
+                                                ->required(),
+                                            DateTimePicker::make('value_to')
+                                                ->label('Booking date to')
+                                                ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                        ],
+                                        'total_guests' => [
+                                            TextInput::make('value_from')
+                                                ->label('Total guests from')
+                                                ->numeric()
+                                                ->required(),
+                                            TextInput::make('value_to')
+                                                ->label('Total guests to')
+                                                ->numeric()
+                                                ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                        ],
+                                        'days_until_departure' => [
+                                            TextInput::make('value_from')
+                                                ->label('Days until departure from')
+                                                ->numeric()
+                                                ->required(),
+                                            TextInput::make('value_to')
+                                                ->label('Days until departure to')
+                                                ->numeric()
+                                                ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                        ],
+                                        'nights' => [
+                                            TextInput::make('value_from')
+                                                ->label('Nights from')
+                                                ->numeric()
+                                                ->required(),
+                                            TextInput::make('value_to')
+                                                ->label('Nights to')
+                                                ->numeric()
+                                                ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                        ],
+                                        'rating' => [
+                                            TextInput::make('value_from')
+                                                ->label('Rating from')
+                                                ->numeric()
+                                                ->minValue(fn(): float => 1.0)
+                                                ->maxValue(fn(): float => 5.5)
+                                                ->required(),
+                                            TextInput::make('value_to')
+                                                ->label('Rating to')
+                                                ->numeric()
+                                                ->minValue(fn(): float => 1.0)
+                                                ->maxValue(fn(): float => 5.5)
+                                                ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                        ],
+                                        'number_of_rooms' => [
+                                            TextInput::make('value_from')
+                                                ->label('Number of rooms from')
+                                                ->numeric()
+                                                ->required(),
+                                            TextInput::make('value_to')
+                                                ->label('Number of rooms to')
+                                                ->numeric()
+                                                ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                        ],
+                                        'rate_code' => [
+                                            TextInput::make('value_from')
+                                                ->label('Rate code from')
+                                                ->maxLength(191)
+                                                ->required(),
+                                            TextInput::make('value_to')
+                                                ->label('Value to')
+                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
+                                                ->readOnly()
+                                        ],
+                                        'room_type' => [
+                                            TextInput::make('value_from')
+                                                ->label('Room type from')
+                                                ->maxLength(191)
+                                                ->required(),
+                                            TextInput::make('value_to')
+                                                ->label('Value to')
+                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
+                                                ->readOnly()
+                                        ],
+                                        'meal_plan' => [
+                                            TextInput::make('value_from')
+                                                ->label('Meal plan from')
+                                                ->maxLength(191)
+                                                ->required(),
+                                            TextInput::make('value_to')
+                                                ->label('Value to')
+                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
+                                                ->readOnly()
+                                        ],
+                                        default => []
+                                    })
+                                    ->columns()
+                                    ->columnStart(3)
+                                    ->key('dynamicFieldValue')
+
                             ])
-                            ->default('=')
-                            ->disabled(fn(Get $get): bool|null => !$get('total_guests'))
-                            ->required(fn(Get $get): bool|null => $get('total_guests'))
+                            ->columns(4)
                     ])
-                    ->columns(4),
-                Fieldset::make('Will be replaced with repeater')
-                    ->schema([
-                        TextInput::make('days_until_travel')
-                            ->numeric(),
-                        TextInput::make('nights')
-                            ->numeric(),
-                        TextInput::make('rating')
-                            ->numeric(),
-                        TextInput::make('number_rooms')
-                            ->numeric(),
-                        TextInput::make('rate_code')
-                            ->maxLength(191),
-                        TextInput::make('room_type')
-                            ->maxLength(191),
-                        TextInput::make('meal_plan')
-                            ->maxLength(191)
-                    ])
-                    ->columns(7),
+                    ->columns(1)
             ])
             ->statePath('data')
             ->model(PricingRule::class);

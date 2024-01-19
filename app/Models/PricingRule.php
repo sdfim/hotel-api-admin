@@ -14,29 +14,21 @@ class PricingRule extends Model
      * @var string[]
      */
     protected $fillable = [
-        'channel_id',
-        'days_until_travel',
-        'destination',
-        'meal_plan',
         'name',
-        'nights',
-        'number_rooms',
         'price_type_to_apply',
         'price_value_fixed_type_to_apply',
         'price_value_to_apply',
         'price_value_type_to_apply',
-        'property',
-        'rate_code',
-        'rating',
-        'room_guests',
-        'room_type',
+        'rules',
         'rule_expiration_date',
-        'rule_start_date',
-        'supplier_id',
-        'total_guests',
-        'total_guests_comparison_sign',
-        'travel_date_from',
-        'travel_date_to',
+        'rule_start_date'
+    ];
+
+    /**
+     * @var array
+     */
+    protected $casts = [
+        'rules' => 'array'
     ];
 
     /**
