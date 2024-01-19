@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\DTO\IcePortalAssetDto;
 use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
 
-class IcePortalHotelApiHandler
+class IcePortalHotelController
 {
     /**
      * @var IceHBSIClient

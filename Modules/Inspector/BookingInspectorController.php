@@ -11,18 +11,22 @@ use App\Models\ApiBookingInspector;
 class BookingInspectorController extends BaseInspectorController
 {
     /**
-     * @param $booking_id
-     * @param $query
-     * @param $content
-     * @param $client_content
-     * @param $supplier_id
-     * @param $type
-     * @param $subType
-     * @param $search_type
+     * @param $data
      * @return string|bool
      */
-    public function save($booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type): string|bool
+    public function save($data): string|bool
     {
+        /**
+         * @param string $booking_id
+         * @param array $query
+         * @param array $content
+         * @param array $client_content
+         * @param int $supplier_id
+         * @param string $type
+         * @param string $subType
+         * @param string $search_type
+         */
+        [$booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type] = $data;
 
         Log::debug('BookingInspectorController save query: ', [
             'query' => $query,

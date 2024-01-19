@@ -10,7 +10,7 @@ use App\Models\Supplier;
 use App\Repositories\ChannelRenository;
 use Exception;
 use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
-use App\Repositories\ExpediaContentRepositories as ExpediaRepository;
+use App\Repositories\ExpediaContentRepository as ExpediaRepository;
 use Illuminate\Support\Facades\Log;
 
 class ExpediaTools

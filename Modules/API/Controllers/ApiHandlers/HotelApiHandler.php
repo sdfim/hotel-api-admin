@@ -17,8 +17,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Modules\API\BaseController;
 use Modules\API\Controllers\ApiHandlerInterface;
-use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelApiHandler;
-use Modules\API\Controllers\ApiHandlers\ContentSuppliers\IcePortalHotelApiHandler;
+use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelController;
+use Modules\API\Controllers\ApiHandlers\ContentSuppliers\IcePortalHotelController;
+use Modules\API\Controllers\ApiHandlers\PricingSuppliers\HbsiHotelController;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
 use Modules\API\Requests\PriceHotelRequest;
 use Modules\API\Requests\SearchHotelRequest;
@@ -27,6 +28,7 @@ use Modules\API\Suppliers\DTO\ExpediaHotelContentDto;
 use Modules\API\Suppliers\DTO\ExpediaHotelPricingDto;
 use Modules\API\Suppliers\DTO\IcePortalHotelContentDetailDto;
 use Modules\API\Suppliers\DTO\IcePortalHotelContentDto;
+use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\Inspector\SearchInspectorController;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -41,76 +43,37 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 {
     use Timer;
 
-    /**
-     *
-     */
     private const SUPPLIER_NAME_EXPEDIA = 'Expedia';
+    private const SUPPLIER_NAME_HBSI = 'HBSI';
 
-    /**
-     *
-     */
     private const SUPPLIER_NAME_ICE_PORTAL = 'IcePortal';
 
-    /**
-     * @var SearchInspectorController
-     */
-    private SearchInspectorController $apiInspector;
 
     /**
-     * @var ExpediaHotelApiHandler
+     * @param ExpediaHotelController $expedia
+     * @param IcePortalHotelController $icePortal
+     * @param SearchInspectorController $apiInspector
+     * @param ExpediaHotelPricingDto $ExpediaHotelPricingDto
+     * @param ExpediaHotelContentDto $ExpediaHotelContentDto
+     * @param IcePortalHotelContentDto $IcePortalHotelContentDto
+     * @param IcePortalHotelContentDetailDto $HbsiHotelContentDetailDto
+     * @param ExpediaHotelContentDetailDto $ExpediaHotelContentDetailDto
+     * @param EnrichmentWeight $propsWeight
      */
-    private ExpediaHotelApiHandler $expedia;
-
-    /**
-     * @var IcePortalHotelApiHandler
-     */
-    private IcePortalHotelApiHandler $icePortal;
-
-    /**
-     * @var ExpediaHotelPricingDto
-     */
-    private ExpediaHotelPricingDto $ExpediaHotelPricingDto;
-
-    /**
-     * @var ExpediaHotelContentDto
-     */
-    private ExpediaHotelContentDto $ExpediaHotelContentDto;
-
-    /**
-     * @var IcePortalHotelContentDto
-     */
-    private IcePortalHotelContentDto $IcePortalHotelContentDto;
-
-    /**
-     * @var IcePortalHotelContentDetailDto
-     */
-    private IcePortalHotelContentDetailDto $HbsiHotelContentDetailDto;
-
-    /**
-     * @var ExpediaHotelContentDetailDto
-     */
-    private ExpediaHotelContentDetailDto $ExpediaHotelContentDetailDto;
-
-    /**
-     * @var EnrichmentWeight
-     */
-    private EnrichmentWeight $propsWeight;
-
-    /**
-     *
-     */
-    public function __construct()
+    public function __construct(
+        private readonly ExpediaHotelController         $expedia = new ExpediaHotelController(),
+        private readonly IcePortalHotelController       $icePortal = new IcePortalHotelController(),
+        private readonly SearchInspectorController      $apiInspector = new SearchInspectorController(),
+        private readonly ExpediaHotelPricingDto         $ExpediaHotelPricingDto = new ExpediaHotelPricingDto(),
+        private readonly ExpediaHotelContentDto         $ExpediaHotelContentDto = new ExpediaHotelContentDto(),
+        private readonly IcePortalHotelContentDto       $IcePortalHotelContentDto = new IcePortalHotelContentDto(),
+        private readonly IcePortalHotelContentDetailDto $HbsiHotelContentDetailDto = new IcePortalHotelContentDetailDto(),
+        private readonly ExpediaHotelContentDetailDto   $ExpediaHotelContentDetailDto = new ExpediaHotelContentDetailDto(),
+        private readonly EnrichmentWeight               $propsWeight = new EnrichmentWeight(),
+        private readonly HbsiHotelController            $hbsi = new HbsiHotelController(),
+    )
     {
         $this->start();
-        $this->expedia = new ExpediaHotelApiHandler();
-        $this->icePortal = new IcePortalHotelApiHandler();
-        $this->apiInspector = new SearchInspectorController();
-        $this->ExpediaHotelPricingDto = new ExpediaHotelPricingDto();
-        $this->ExpediaHotelContentDto = new ExpediaHotelContentDto();
-        $this->ExpediaHotelContentDetailDto = new ExpediaHotelContentDetailDto();
-        $this->IcePortalHotelContentDto = new IcePortalHotelContentDto();
-        $this->HbsiHotelContentDetailDto = new IcePortalHotelContentDetailDto();
-        $this->propsWeight = new EnrichmentWeight();
     }
 
     /*
@@ -384,7 +347,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         }
                     }
                     if ($supplierName == self::SUPPLIER_NAME_ICE_PORTAL) {
-                        $this->icePortal = new IcePortalHotelApiHandler();
+                        $this->icePortal = new IcePortalHotelController();
                         $data = $this->icePortal->detail($request);
 
                         $dataResponse[$supplierName] = $data;
@@ -511,7 +474,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $countResponse = 0;
             $countClientResponse = 0;
             foreach ($suppliers as $supplier) {
-                $supplierName = Supplier::find($supplier)->name ?? null;
+                $supplierName = Supplier::find($supplier)?->name;
 
                 if (isset($request->supplier) && $request->supplier != $supplierName) {
                     continue;
@@ -540,11 +503,29 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     $countResponse += count($expediaResponse);
                     $countClientResponse += count($clientResponse[$supplierName]);
                 }
-                // TODO: Add other suppliers
+
+                if ($supplierName == self::SUPPLIER_NAME_HBSI) {
+
+                    $hbsiResponse = $this->hbsi->price($filters);
+
+                    $dataResponse[$supplierName] = $hbsiResponse['array'];
+                    $dataOriginal[$supplierName] = $hbsiResponse['original'];
+
+                    // temporary
+                    $clientResponse[$supplierName] = $hbsiResponse['array'];
+
+//                    $dtoData = $this->ExpediaHotelPricingDto->ExpediaToHotelResponse($hbsiResponse['array'], $filters, $search_id);
+//                    $bookingItems = $dtoData['bookingItems'];
+//                    $clientResponse[$supplierName] = $dtoData['response'];
+
+                    $countResponse += count($hbsiResponse['array']);
+                    $countClientResponse += count($clientResponse[$supplierName]);
+
+                }
             }
 
             // enrichment Property Weighting
-            $clientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
+//            $clientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
 
             $content = [
                 'count' => $countResponse,
@@ -558,16 +539,10 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             ];
 
             Log::info('HotelApiHandler | price | end');
-
+                        
             // save data to Inspector
             SaveSearchInspector::dispatch([
-                $search_id,
-                $filters,
-                $content,
-                $clientContent,
-                $suppliers,
-                'search',
-                'hotel',
+                $search_id, $filters, $dataOriginal ?? [], $content, $clientContent, $suppliers, 'price', 'hotel',
             ]);
 
             if (isset($bookingItems)) {
