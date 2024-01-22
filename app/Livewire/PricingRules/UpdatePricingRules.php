@@ -71,8 +71,16 @@ class UpdatePricingRules extends Component implements HasForms
                             ->unique(ignorable: $this->record)
                             ->required(),
                         DateTimePicker::make('rule_start_date')
+                            ->native(false)
+                            ->time(false)
+                            ->format('Y-m-d')
+                            ->displayFormat('d-m-Y')
                             ->required(),
                         DateTimePicker::make('rule_expiration_date')
+                            ->native(false)
+                            ->time(false)
+                            ->format('Y-m-d')
+                            ->displayFormat('d-m-Y')
                             ->required()
                     ])
                     ->columns(3),
@@ -191,9 +199,9 @@ class UpdatePricingRules extends Component implements HasForms
                                                     DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
                                                     ->where('name', 'like', "%$search%")->limit(30)->pluck('full_name', 'code')->toArray()
                                                 )
-                                                ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
-                                                    DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
-                                                    ->where('code', $value)->first()->full_name
+                                                ->getOptionLabelUsing(fn(array $values): ?array => GiataProperty::select(
+                                                    DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
+                                                    ->whereIn('code', $values)->pluck('full_name', 'code')->toArray()
                                                 )
                                                 ->required(),
                                             TextInput::make('value_to')
@@ -209,9 +217,9 @@ class UpdatePricingRules extends Component implements HasForms
                                                     DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
                                                     ->where('city', 'like', "%$search%")->limit(30)->pluck('full_name', 'city_id')->toArray()
                                                 )
-                                                ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
-                                                    DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'))
-                                                    ->where('city_id', $value)->first()->full_name
+                                                ->getOptionLabelsUsing(fn(array $values): ?array => GiataProperty::select(
+                                                    DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
+                                                    ->whereIn('city_id', $values)->pluck('full_name', 'city_id')->toArray()
                                                 )
                                                 ->required(),
                                             TextInput::make('value_to')
@@ -221,18 +229,32 @@ class UpdatePricingRules extends Component implements HasForms
                                         'travel_date' => [
                                             DateTimePicker::make('value_from')
                                                 ->label('Travel date from')
+                                                ->native(false)
+                                                ->time(false)
+                                                ->format('Y-m-d')
+                                                ->displayFormat('d-m-Y')
                                                 ->required(),
                                             DateTimePicker::make('value_to')
                                                 ->label('Travel date to')
+                                                ->native(false)
+                                                ->time(false)
+                                                ->format('Y-m-d')
+                                                ->displayFormat('d-m-Y')
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
                                                 ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
                                         ],
                                         'booking_date' => [
                                             DateTimePicker::make('value_from')
                                                 ->label('Booking date from')
+                                                ->time(false)
+                                                ->format('Y-m-d')
+                                                ->displayFormat('d-m-Y')
                                                 ->required(),
                                             DateTimePicker::make('value_to')
                                                 ->label('Booking date to')
+                                                ->time(false)
+                                                ->format('Y-m-d')
+                                                ->displayFormat('d-m-Y')
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
                                                 ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
                                         ],
