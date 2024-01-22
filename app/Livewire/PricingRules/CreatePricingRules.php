@@ -16,6 +16,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -78,17 +79,15 @@ class CreatePricingRules extends Component implements HasForms
                                 'rate_price' => 'Rate Price',
                             ])
                             ->required(),
-                        TextInput::make('price_value_to_apply')
-                            ->label('Price value')
-                            ->numeric()
-                            ->required()
-                            ->suffix(function (Get $get) {
-                                return match ($get('price_value_type_to_apply')) {
-                                    null, '' => false,
-                                    'fixed_value' => '$',
-                                    'percentage' => '%',
-                                };
-                            }),
+                        Select::make('price_value_type_to_apply')
+                            ->label('Price value type')
+                            ->options([
+                                'fixed_value' => 'Fixed Value',
+                                'percentage' => 'Percentage',
+                            ])
+                            ->live()
+                            ->afterStateUpdated(fn(?string $state, Set $set) => $state ?: $set('price_value_to_apply', null))
+                            ->required(),
                         Select::make('price_value_type_to_apply')
                             ->label('Price value type')
                             ->options([
@@ -111,7 +110,6 @@ class CreatePricingRules extends Component implements HasForms
                     ->schema([
                         Repeater::make('rules')
                             ->schema([
-
                                 Select::make('field')
                                     ->options([
                                         'supplier_id' => 'Supplier ID',
@@ -146,38 +144,38 @@ class CreatePricingRules extends Component implements HasForms
                                             '=' => '=',
                                             '<' => '<',
                                             '>' => '>',
-                                            'between' => 'between'
+                                            'between' => 'between',
                                         ],
                                     })
-                                    ->required(),
+                                    ->live()
+                                    ->required()
+                                    ->afterStateUpdated(fn(?string $state, Set $set) => $state === 'between' ?: $set('value_to', null)),
                                 Grid::make()
                                     ->schema(fn(Get $get): array => match ($get('field')) {
                                         'supplier_id' => [
                                             Select::make('value_from')
                                                 ->label('Supplier ID')
-                                                ->placeholder('Value of the rule you need to comparison')
                                                 ->options(Supplier::all()->pluck('name', 'id'))
+                                                ->multiple()
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
-                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
                                                 ->readOnly()
                                         ],
                                         'channel_id' => [
                                             Select::make('value_from')
                                                 ->label('Channel ID')
-                                                ->placeholder('Value of the rule you need to comparison')
                                                 ->options(Channel::all()->pluck('name', 'id'))
+                                                ->multiple()
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
-                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
                                                 ->readOnly()
                                         ],
                                         'property' => [
                                             Select::make('property')
                                                 ->label('Property')
-                                                ->placeholder('Value of the rule you need to comparison')
+                                                ->multiple()
                                                 ->searchable()
                                                 ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
                                                     DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
@@ -190,12 +188,12 @@ class CreatePricingRules extends Component implements HasForms
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
-                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
                                                 ->readOnly()
                                         ],
                                         'destination' => [
                                             Select::make('destination')
                                                 ->label('Destination')
+                                                ->multiple()
                                                 ->searchable()
                                                 ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
                                                     DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
@@ -208,7 +206,6 @@ class CreatePricingRules extends Component implements HasForms
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
-                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
                                                 ->readOnly()
                                         ],
                                         'travel_date' => [
@@ -323,8 +320,8 @@ class CreatePricingRules extends Component implements HasForms
                                     ->columns()
                                     ->columnStart(3)
                                     ->key('dynamicFieldValue')
-
                             ])
+                            ->required()
                             ->columns(4)
                     ])
                     ->columns(1)

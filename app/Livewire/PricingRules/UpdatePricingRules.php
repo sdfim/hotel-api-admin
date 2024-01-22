@@ -16,6 +16,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -67,7 +68,7 @@ class UpdatePricingRules extends Component implements HasForms
                         TextInput::make('name')
                             ->label('Rule name')
                             ->maxLength(191)
-                            ->unique()
+                            ->unique(ignorable: $this->record)
                             ->required(),
                         DateTimePicker::make('rule_start_date')
                             ->required(),
@@ -89,11 +90,11 @@ class UpdatePricingRules extends Component implements HasForms
                             ->label('Price value')
                             ->numeric()
                             ->required()
-                            ->suffix(function (Get $get) {
+                            ->suffixIcon(function (Get $get) {
                                 return match ($get('price_value_type_to_apply')) {
                                     null, '' => false,
-                                    'fixed_value' => '$',
-                                    'percentage' => '%',
+                                    'fixed_value' => 'heroicon-o-banknotes',
+                                    'percentage' => 'heroicon-o-receipt-percent',
                                 };
                             }),
                         Select::make('price_value_type_to_apply')
@@ -103,7 +104,8 @@ class UpdatePricingRules extends Component implements HasForms
                                 'percentage' => 'Percentage',
                             ])
                             ->live()
-                            ->required(),
+                            ->required()
+                            ->afterStateUpdated(fn(?string $state, Set $set) => $state ?: $set('price_value_to_apply', null)),
                         Select::make('price_value_fixed_type_to_apply')
                             ->label('Price Value Fixed Type')
                             ->options([
@@ -118,7 +120,6 @@ class UpdatePricingRules extends Component implements HasForms
                     ->schema([
                         Repeater::make('rules')
                             ->schema([
-
                                 Select::make('field')
                                     ->options([
                                         'supplier_id' => 'Supplier ID',
@@ -153,38 +154,38 @@ class UpdatePricingRules extends Component implements HasForms
                                             '=' => '=',
                                             '<' => '<',
                                             '>' => '>',
-                                            'between' => 'between'
+                                            'between' => 'between',
                                         ],
                                     })
-                                    ->required(),
+                                    ->live()
+                                    ->required()
+                                    ->afterStateUpdated(fn(?string $state, Set $set) => $state === 'between' ?: $set('value_to', null)),
                                 Grid::make()
                                     ->schema(fn(Get $get): array => match ($get('field')) {
                                         'supplier_id' => [
                                             Select::make('value_from')
                                                 ->label('Supplier ID')
-                                                ->placeholder('Value of the rule you need to comparison')
                                                 ->options(Supplier::all()->pluck('name', 'id'))
+                                                ->multiple()
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
-                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
                                                 ->readOnly()
                                         ],
                                         'channel_id' => [
                                             Select::make('value_from')
                                                 ->label('Channel ID')
-                                                ->placeholder('Value of the rule you need to comparison')
                                                 ->options(Channel::all()->pluck('name', 'id'))
+                                                ->multiple()
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
-                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
                                                 ->readOnly()
                                         ],
                                         'property' => [
                                             Select::make('property')
                                                 ->label('Property')
-                                                ->placeholder('Value of the rule you need to comparison')
+                                                ->multiple()
                                                 ->searchable()
                                                 ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
                                                     DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
@@ -197,12 +198,12 @@ class UpdatePricingRules extends Component implements HasForms
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
-                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
                                                 ->readOnly()
                                         ],
                                         'destination' => [
                                             Select::make('destination')
                                                 ->label('Destination')
+                                                ->multiple()
                                                 ->searchable()
                                                 ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
                                                     DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
@@ -215,7 +216,6 @@ class UpdatePricingRules extends Component implements HasForms
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
-                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
                                                 ->readOnly()
                                         ],
                                         'travel_date' => [
@@ -302,7 +302,6 @@ class UpdatePricingRules extends Component implements HasForms
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
-                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
                                                 ->readOnly()
                                         ],
                                         'room_type' => [
@@ -312,7 +311,6 @@ class UpdatePricingRules extends Component implements HasForms
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
-                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
                                                 ->readOnly()
                                         ],
                                         'meal_plan' => [
@@ -322,7 +320,6 @@ class UpdatePricingRules extends Component implements HasForms
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
-                                                ->placeholder('Second value of the rule you need to comparison(to set range)')
                                                 ->readOnly()
                                         ],
                                         default => []
@@ -330,8 +327,8 @@ class UpdatePricingRules extends Component implements HasForms
                                     ->columns()
                                     ->columnStart(3)
                                     ->key('dynamicFieldValue')
-
                             ])
+                            ->required()
                             ->columns(4)
                     ])
                     ->columns(1)
