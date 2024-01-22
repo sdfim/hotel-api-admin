@@ -1,8 +1,9 @@
 <?php
 
-namespace Modules\API\Suppliers\DTO;
+namespace Modules\API\Suppliers\DTO\Expedia;
 
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponse;
+use Modules\API\Suppliers\DTO\SupplierContentDtoInterface;
 
 class ExpediaHotelContentDto implements SupplierContentDtoInterface
 {

@@ -80,9 +80,14 @@ class RoomResponse
     private string $room_type;
 
     /**
-     * @var int
+     * @var string
      */
-    private int $rate_id;
+    private string $rate_id;
+
+    /**
+     * @var string
+     */
+    private string $rate_plan_code;
 
     /**
      * @var string
@@ -115,11 +120,27 @@ class RoomResponse
         $this->rate_id = $rate_id;
     }
 
+    /**
+     * @param string $rate_plan_code
+     * @return void
+     */
+    public function setRatePlanCode(string $rate_plan_code): void
+    {
+        $this->rate_plan_code = $rate_plan_code;
+    }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getRateId(): int
+    public function getRatePlanCode(): string
+    {
+        return $this->rate_plan_code;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRateId(): string
     {
         return $this->rate_id;
     }
@@ -295,18 +316,18 @@ class RoomResponse
     }
 
     /**
-     * @param int $supplier_room_id
+     * @param int|string $supplier_room_id
      * @return void
      */
-    public function setSupplierRoomCode(int $supplier_room_id): void
+    public function setSupplierRoomCode(int|string $supplier_room_id): void
     {
         $this->supplier_room_id = $supplier_room_id;
     }
 
     /**
-     * @return int
+     * @return int|string
      */
-    public function getSupplierRoomCode(): int
+    public function getSupplierRoomCode(): int|string
     {
         return $this->supplier_room_id;
     }
@@ -393,6 +414,7 @@ class RoomResponse
             // 'supplier_bed_groups' => $this->getSupplierBedGroups(),
             'room_type' => $this->getRoomType(),
             'rate_id' => $this->getRateId(),
+            'rate_plan_code' => $this->getRatePlanCode() ?? '',
             'rate_description' => $this->getRateDescription(),
             'total_price' => $this->getTotalPrice(),
             'total_tax' => $this->getTotalTax(),

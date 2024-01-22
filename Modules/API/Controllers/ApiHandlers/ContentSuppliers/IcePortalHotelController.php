@@ -12,7 +12,7 @@ use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Modules\API\Suppliers\DTO\IcePortalAssetDto;
+use Modules\API\Suppliers\DTO\IcePortal\IcePortalAssetDto;
 use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
 
 class IcePortalHotelController

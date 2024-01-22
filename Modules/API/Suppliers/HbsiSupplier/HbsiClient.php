@@ -41,14 +41,14 @@ class HbsiClient
      */
     public function getHbsiPriceByPropertyIds(array $hotelIds, array $filters) : ?array
     {
-        $body = $this->makeRequest($this->hotelAvailRQ($hotelIds,$filters), 'HotelAvailRQ');
-        $response = $this->client->request('POST', self::URL, ['headers' => $this->headers, 'body' => $body]);
+        $bodyQuery = $this->makeRequest($this->hotelAvailRQ($hotelIds, $filters), 'HotelAvailRQ');
+        $response = $this->client->request('POST', self::URL, ['headers' => $this->headers, 'body' => $bodyQuery]);
         $body = $response->getBody();
 
         if ($this->isXml($body)) {
             try {
                 return  [
-                    'request' => $body,
+                    'request' => $bodyQuery,
                     'response' => new SimpleXMLElement($body, LIBXML_NOCDATA)
                 ];
             } catch (\Exception $e) {

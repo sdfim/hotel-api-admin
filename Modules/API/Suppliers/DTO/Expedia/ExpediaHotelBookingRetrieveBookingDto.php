@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Modules\API\Suppliers\DTO;
+namespace Modules\API\Suppliers\DTO\Expedia;
 
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiSearchInspectorRepository;

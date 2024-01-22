@@ -36,9 +36,8 @@ class SearchInspectorController extends BaseInspectorController
             $query = json_encode($query);
             $content = is_array($content) ? json_encode($content) : $content;
             $clientContent = json_encode($clientContent);
-            $hash = md5($query);
 
-            $generalPath = self::PATH_INSPECTORS . 'search_inspector/' . date("Y-m-d") . '/' . $type . '_' . $hash;
+            $generalPath = self::PATH_INSPECTORS . 'search_inspector/' . date("Y-m-d") . '/' . $type . '_' . $search_id;
             $path = $generalPath . '.json';
             $client_path = $generalPath . '.client.json';
             $original_path = $generalPath . '.original.json';

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Suppliers\DTO;
+namespace Modules\API\Suppliers\DTO\Expedia;
 
 use App\Models\GiataGeography;
 use Exception;

@@ -1,8 +1,9 @@
 <?php
 
-namespace Modules\API\Suppliers\DTO;
+namespace Modules\API\Suppliers\DTO\IcePortal;
 
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponse;
+use Modules\API\Suppliers\DTO\SupplierContentDtoInterface;
 
 class IcePortalHotelContentDto implements SupplierContentDtoInterface
 {

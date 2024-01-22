@@ -17,8 +17,8 @@ use GuzzleHttp\Promise;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\BaseController;
-use Modules\API\Suppliers\DTO\ExpediaHotelBookDto;
-use Modules\API\Suppliers\DTO\ExpediaHotelBookingRetrieveBookingDto;
+use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookDto;
+use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookingRetrieveBookingDto;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 
 class ExpediaBookApiHandler extends BaseController
