@@ -17,7 +17,6 @@ return new class extends Migration {
             $table->string('price_value_type_to_apply', 40);
             $table->float('price_value_to_apply');
             $table->string('price_value_fixed_type_to_apply', 40);
-            $table->json('rules');
             $table->dateTimeTz('rule_start_date')->default(now());
             $table->dateTimeTz('rule_expiration_date')->default(now());
             $table->timestamps();

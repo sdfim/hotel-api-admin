@@ -87,6 +87,17 @@ class CreatePricingRules extends Component implements HasForms
                                 'rate_price' => 'Rate Price',
                             ])
                             ->required(),
+                        TextInput::make('price_value_to_apply')
+                            ->label('Price value')
+                            ->numeric()
+                            ->required()
+                            ->suffixIcon(function (Get $get) {
+                                return match ($get('price_value_type_to_apply')) {
+                                    null, '' => false,
+                                    'fixed_value' => 'heroicon-o-banknotes',
+                                    'percentage' => 'heroicon-o-receipt-percent',
+                                };
+                            }),
                         Select::make('price_value_type_to_apply')
                             ->label('Price value type')
                             ->options([
@@ -94,16 +105,8 @@ class CreatePricingRules extends Component implements HasForms
                                 'percentage' => 'Percentage',
                             ])
                             ->live()
-                            ->afterStateUpdated(fn(?string $state, Set $set) => $state ?: $set('price_value_to_apply', null))
-                            ->required(),
-                        Select::make('price_value_type_to_apply')
-                            ->label('Price value type')
-                            ->options([
-                                'fixed_value' => 'Fixed Value',
-                                'percentage' => 'Percentage',
-                            ])
-                            ->live()
-                            ->required(),
+                            ->required()
+                            ->afterStateUpdated(fn(?string $state, Set $set) => $state ?: $set('price_value_to_apply', null)),
                         Select::make('price_value_fixed_type_to_apply')
                             ->label('Price Value Fixed Type')
                             ->options([
@@ -114,9 +117,10 @@ class CreatePricingRules extends Component implements HasForms
                             ->required()
                     ])
                     ->columns(4),
-                Fieldset::make('Rules')
+                Fieldset::make('')
                     ->schema([
-                        Repeater::make('rules')
+                        Repeater::make('conditions')
+                            ->relationship()
                             ->schema([
                                 Select::make('field')
                                     ->options([
@@ -164,7 +168,6 @@ class CreatePricingRules extends Component implements HasForms
                                             Select::make('value_from')
                                                 ->label('Supplier ID')
                                                 ->options(Supplier::all()->pluck('name', 'id'))
-                                                ->multiple()
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
@@ -174,24 +177,22 @@ class CreatePricingRules extends Component implements HasForms
                                             Select::make('value_from')
                                                 ->label('Channel ID')
                                                 ->options(Channel::all()->pluck('name', 'id'))
-                                                ->multiple()
                                                 ->required(),
                                             TextInput::make('value_to')
                                                 ->label('Value to')
                                                 ->readOnly()
                                         ],
                                         'property' => [
-                                            Select::make('property')
+                                            Select::make('value_from')
                                                 ->label('Property')
-                                                ->multiple()
                                                 ->searchable()
                                                 ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
                                                     DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
                                                     ->where('name', 'like', "%$search%")->limit(30)->pluck('full_name', 'code')->toArray()
                                                 )
-                                                ->getOptionLabelUsing(fn(array $values): ?array => GiataProperty::select(
-                                                    DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
-                                                    ->whereIn('code', $values)->pluck('full_name', 'code')->toArray()
+                                                ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
+                                                    DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
+                                                    ->where('code', $value)->first()->full_name
                                                 )
                                                 ->required(),
                                             TextInput::make('value_to')
@@ -199,17 +200,16 @@ class CreatePricingRules extends Component implements HasForms
                                                 ->readOnly()
                                         ],
                                         'destination' => [
-                                            Select::make('destination')
+                                            Select::make('value_from')
                                                 ->label('Destination')
-                                                ->multiple()
                                                 ->searchable()
                                                 ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
                                                     DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
                                                     ->where('city', 'like', "%$search%")->limit(30)->pluck('full_name', 'city_id')->toArray()
                                                 )
-                                                ->getOptionLabelsUsing(fn(array $values): ?array => GiataProperty::select(
-                                                    DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
-                                                    ->whereIn('city_id', $values)->pluck('full_name', 'city_id')->toArray()
+                                                ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
+                                                    DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'))
+                                                    ->where('city_id', $value)->first()->full_name
                                                 )
                                                 ->required(),
                                             TextInput::make('value_to')
