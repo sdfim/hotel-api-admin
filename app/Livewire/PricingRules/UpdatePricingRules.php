@@ -175,53 +175,50 @@ class UpdatePricingRules extends Component implements HasForms
                                             Select::make('value_from')
                                                 ->label('Supplier ID')
                                                 ->options(Supplier::all()->pluck('name', 'id'))
-                                                ->required(),
-                                            TextInput::make('value_to')
-                                                ->label('Value to')
-                                                ->readOnly()
+                                                ->required()
                                         ],
                                         'channel_id' => [
                                             Select::make('value_from')
                                                 ->label('Channel ID')
                                                 ->options(Channel::all()->pluck('name', 'id'))
-                                                ->required(),
-                                            TextInput::make('value_to')
-                                                ->label('Value to')
-                                                ->readOnly()
+                                                ->required()
                                         ],
                                         'property' => [
                                             Select::make('value_from')
                                                 ->label('Property')
                                                 ->searchable()
-                                                ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
-                                                    DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
-                                                    ->where('name', 'like', "%$search%")->limit(30)->pluck('full_name', 'code')->toArray()
-                                                )
-                                                ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
-                                                    DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
-                                                    ->where('code', $value)->first()->full_name
-                                                )
-                                                ->required(),
-                                            TextInput::make('value_to')
-                                                ->label('Value to')
-                                                ->readOnly()
+                                                ->getSearchResultsUsing(function (string $search): ?array {
+                                                    $result = GiataProperty::select(
+                                                        DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
+                                                        ->where('name', 'like', "%$search%")->limit(30);
+                                                    return $result->pluck('full_name', 'code')->toArray() ?? [];
+                                                })
+                                                ->getOptionLabelUsing(function ($value): ?string {
+                                                    $result = GiataProperty::select(
+                                                        DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
+                                                        ->where('code', $value)->first();
+
+                                                    return $result->full_name ?? null;
+                                                })
+                                                ->required()
                                         ],
                                         'destination' => [
                                             Select::make('value_from')
                                                 ->label('Destination')
                                                 ->searchable()
-                                                ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
-                                                    DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
-                                                    ->where('city', 'like', "%$search%")->limit(30)->pluck('full_name', 'city_id')->toArray()
-                                                )
-                                                ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
-                                                    DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'))
-                                                    ->where('city_id', $value)->first()->full_name
-                                                )
-                                                ->required(),
-                                            TextInput::make('value_to')
-                                                ->label('Value to')
-                                                ->readOnly()
+                                                ->getSearchResultsUsing(function (string $search): array {
+                                                    $result = GiataProperty::select(
+                                                        DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
+                                                        ->where('city', 'like', "%$search%")->limit(30);
+                                                    return $result->pluck('full_name', 'city_id')->toArray() ?? [];
+                                                })
+                                                ->getOptionLabelUsing(function ($value): ?string {
+                                                    $result = GiataProperty::select(
+                                                        DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'))
+                                                        ->where('city_id', $value)->first();
+                                                    return $result->full_name ?? '';
+                                                })
+                                                ->required()
                                         ],
                                         'travel_date' => [
                                             DateTimePicker::make('value_from')
@@ -243,12 +240,14 @@ class UpdatePricingRules extends Component implements HasForms
                                         'booking_date' => [
                                             DateTimePicker::make('value_from')
                                                 ->label('Booking date from')
+                                                ->native(false)
                                                 ->time(false)
                                                 ->format('Y-m-d')
                                                 ->displayFormat('d-m-Y')
                                                 ->required(),
                                             DateTimePicker::make('value_to')
                                                 ->label('Booking date to')
+                                                ->native(false)
                                                 ->time(false)
                                                 ->format('Y-m-d')
                                                 ->displayFormat('d-m-Y')
@@ -318,28 +317,19 @@ class UpdatePricingRules extends Component implements HasForms
                                             TextInput::make('value_from')
                                                 ->label('Rate code from')
                                                 ->maxLength(191)
-                                                ->required(),
-                                            TextInput::make('value_to')
-                                                ->label('Value to')
-                                                ->readOnly()
+                                                ->required()
                                         ],
                                         'room_type' => [
                                             TextInput::make('value_from')
                                                 ->label('Room type from')
                                                 ->maxLength(191)
-                                                ->required(),
-                                            TextInput::make('value_to')
-                                                ->label('Value to')
-                                                ->readOnly()
+                                                ->required()
                                         ],
                                         'meal_plan' => [
                                             TextInput::make('value_from')
                                                 ->label('Meal plan from')
                                                 ->maxLength(191)
-                                                ->required(),
-                                            TextInput::make('value_to')
-                                                ->label('Value to')
-                                                ->readOnly()
+                                                ->required()
                                         ],
                                         default => []
                                     })
