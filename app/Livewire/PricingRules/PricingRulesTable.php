@@ -31,32 +31,8 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(PricingRule::query())
             ->columns([
-                TextColumn::make('suppliers.name')
-                    ->sortable()
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('channels.name')
-                    ->label('Channel name')
-                    ->sortable()
-                    ->searchable()
-                    ->toggleable(),
                 TextColumn::make('name')
                     ->searchable()
-                    ->toggleable(),
-                TextColumn::make('property')
-                    ->label('Property code')
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('giataProperties.name')
-                    ->label('Property name')
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('destination')
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('travel_date')
-                    ->dateTime()
-                    ->sortable()
                     ->toggleable(),
                 TextColumn::make('rule_start_date')
                     ->dateTime()
@@ -66,38 +42,6 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
-                TextColumn::make('days')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(),
-                TextColumn::make('nights')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(),
-                TextColumn::make('rate_code')
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('room_type')
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('total_guests')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(),
-                TextColumn::make('room_guests')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(),
-                TextColumn::make('number_rooms')
-                    ->numeric()
-                    ->sortable()
-                    ->toggleable(),
-                TextColumn::make('meal_plan')
-                    ->searchable()
-                    ->toggleable(),
-                TextColumn::make('rating')
-                    ->searchable()
-                    ->toggleable(),
                 TextColumn::make('price_type_to_apply')
                     ->toggleable(),
                 TextColumn::make('price_value_type_to_apply')
@@ -106,6 +50,8 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->toggleable(),
                 TextColumn::make('price_value_fixed_type_to_apply')
                     ->toggleable(),
+//                TextColumn::make('rules')
+//                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
