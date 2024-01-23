@@ -72,21 +72,21 @@ class PricingRulesTools
             $q->whereNot('field', 'supplier_id')
                 ->orWhere(function (Builder $q) use ($supplierId) {
                     $q->where('field', 'supplier_id')
-                        ->where('compare')
+                        ->where('compare', '=')
                         ->where('value_from', $supplierId);
                 });
 
             $q->whereNot('field', 'channel_id')
                 ->orWhere(function (Builder $q) use ($channelId) {
                     $q->where('field', 'channel_id')
-                        ->where('compare')
+                        ->where('compare', '=')
                         ->where('value_from', $channelId);
                 });
 
             $q->whereNot('field', 'destination')
                 ->orWhere(function (Builder $q) use ($destination) {
                     $q->where('field', 'destination')
-                        ->where('compare')
+                        ->where('compare', '=')
                         ->where('value_from', $destination);
                 });
 
