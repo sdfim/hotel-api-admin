@@ -18,6 +18,7 @@ class PricingRuleCondition extends Model
         'field',
         'compare',
         'value_from',
-        'value_to'
+        'value_to',
+        'pricing_rule_id'
     ];
 }

@@ -4,6 +4,7 @@ namespace Tests\Unit\Hotel\Pricing;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
+use Modules\API\Tools\PricingRulesTools;
 use Tests\TestCase;
 
 class ExpediaPricingRulesApplierTest extends TestCase
@@ -97,58 +98,19 @@ class ExpediaPricingRulesApplierTest extends TestCase
      */
     public function createMockPricingRule(): array
     {
-        $priceValueTypeToApplyOptions = [
-            'fixed_value',
-            'percentage'
-        ];
-
-        $priceTypeToApplyOptions = [
-            'total_price',
-            'net_price',
-            'rate_price'
-        ];
-
-        $priceValueFixedTypeToApplyOptions = [
-            'per_guest',
-            'per_room',
-            'per_night'
-        ];
-
         $channelId = 1;     // Channel::first()->id;
+
         $supplierId = 1;    // Supplier::first()->id;
+
         $giataId = 1;       // GiataProperty::where('city_id', 961)->first()->code;
-        $today = now();
 
-        $pricingRule = [
-            'name' => 'Rule for $giataId',
-            'property' => $giataId,
-            'destination' => 'New York',
-            'travel_date' => $today,
-            'supplier_id' => $supplierId,
-            'channel_id' => $channelId,
-            'days' => 3,
-            'nights' => 2,
-            'rate_code' => rand(1000, 10000),
-            'room_type' => 'test type',
-            'meal_plan' => 'test meal plan',
-            'rating' => $this->faker->randomFloat(2, 2.5, 4),
-            'price_value_to_apply' => rand(1, 100),
-            'rule_start_date' => $today,
-            'rule_expiration_date' => $today->copy()->addDays(rand(30, 60)),
-            'created_at' => $today,
-            'updated_at' => $today,
-        ];
+        $pricingRulesTools = new PricingRulesTools();
 
-        $pricingRule['number_rooms'] = 3;
-        $pricingRule['room_guests'] = $pricingRule['number_rooms'];
-        $pricingRule['total_guests'] = 10;
-        $pricingRule['price_value_type_to_apply'] = $priceValueTypeToApplyOptions[rand(0, 1)];
-        $pricingRule['price_type_to_apply'] = $priceTypeToApplyOptions[rand(0, 2)];
-        if ($pricingRule['price_value_type_to_apply'] === 'fixed_value') {
-            $pricingRule['price_value_fixed_type_to_apply'] = $priceValueFixedTypeToApplyOptions[rand(0, 2)];
-        } else {
-            $pricingRule['price_value_fixed_type_to_apply'] = null;
-        }
+        $pricingRule = $pricingRulesTools->generatePricingRuleData('Test rule');
+
+        $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData(1, $supplierId, $channelId, $giataId);
+
+        $pricingRule['conditions'] = $pricingRuleConditionsData;
 
         return $pricingRule;
     }

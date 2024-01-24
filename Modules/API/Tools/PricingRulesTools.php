@@ -6,11 +6,29 @@ use App\Models\Channel;
 use App\Models\PricingRule;
 use App\Models\Supplier;
 use App\Repositories\ChannelRenository;
+use Faker\Factory;
+use Faker\Generator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 
 class PricingRulesTools
 {
+    /**
+     * @var Generator
+     */
+    public Generator $faker;
+
+    /**
+     * @var Carbon
+     */
+    public Carbon $today;
+
+    public function __construct()
+    {
+        $this->faker = Factory::create();
+        $this->today = Carbon::now();
+    }
+
     /**
      * @param array $query
      * @return array
@@ -270,5 +288,155 @@ class PricingRulesTools
                 $q->where('rule_start_date', '<=', $query['checkin'])
                     ->where('rule_expiration_date', '>=', $query['checkout']);
             })->get()->toArray();
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getManipulablePriceTypeKeys(): array
+    {
+        return ['total_price', 'net_price', 'rate_price'];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPriceValueTypeKeys(): array
+    {
+        return ['fixed_value', 'percentage'];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPriceValueTargetKeys(): array
+    {
+        return ['per_guest', 'per_room', 'per_night'];
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPricingRuleConditionFields(): array
+    {
+        return [
+            'supplier_id',
+            'channel_id',
+            'property',
+            'destination',
+            'travel_date',
+            'booking_date',
+            'total_guests',
+            'days_until_departure',
+            'nights',
+            'rating',
+            'number_of_rooms',
+            'rate_code',
+            'room_type',
+            'meal_plan'
+        ];
+    }
+
+    /**
+     * @param $name
+     * @return array
+     */
+    public function generatePricingRuleData($name): array
+    {
+        return [
+            'name' => "Pricing rule $name",
+            'rule_start_date' => $this->today->copy()->toDateString(),
+            'rule_expiration_date' => $this->today->copy()->addDays(rand(30, 60))->toDateString(),
+            'manipulable_price_type' => $this->faker->randomElement($this->getManipulablePriceTypeKeys()),
+            'price_value' => rand(1, 100),
+            'price_value_type' => $this->faker->randomElement($this->getPriceValueTypeKeys()),
+            'price_value_target' => $this->faker->randomElement($this->getPriceValueTargetKeys())
+        ];
+    }
+
+    /**
+     * @param int $pricingRuleId
+     * @param int $supplierId
+     * @param int $channelId
+     * @param int $giataId
+     * @return array
+     */
+    public function generatePricingRuleConditionsData(int $pricingRuleId, int $supplierId, int $channelId, int $giataId): array
+    {
+        $pricingRuleConditionsData = [];
+
+        $pricingRuleConditionFields = $this->getPricingRuleConditionFields();
+
+        $randPricingRuleConditionFields = $this->faker->randomElements($pricingRuleConditionFields, rand(0, 13));
+
+        foreach ($randPricingRuleConditionFields as $field) {
+            $compare = match ($field) {
+                'supplier_id', 'channel_id', 'property', 'destination', 'rate_code', 'room_type', 'meal_plan' => '=',
+                default => $this->faker->randomElement(['=', '<', '>', 'between'])
+            };
+
+            $condition = [
+                'field' => $field,
+                'compare' => $compare,
+                'pricing_rule_id' => $pricingRuleId
+            ];
+
+            if (in_array($field, ['supplier_id', 'channel_id', 'property', 'destination', 'rate_code', 'room_type', 'meal_plan'])) {
+                $condition['value_from'] = match ($field) {
+                    'supplier_id' => $supplierId,
+                    'channel_id' => $channelId,
+                    'property' => $giataId,
+                    'destination' => 961, //New York
+                    'rate_code', 'room_type', 'meal_plan' => $this->faker->word
+                };
+            } else if (in_array($field, ['travel_date', 'booking_date'])) {
+                $condition['value_from'] = $this->today->copy()->addDay()->toDateString();
+
+                $condition['value_to'] = match ($compare) {
+                    '=', '<', '>' => null,
+                    'between' => $this->today->copy()->addDays(rand(2, 7))->toDateString()
+                };
+            } else if ($field === 'total_guests') {
+                $condition['value_from'] = rand(3, 4);
+
+                $condition['value_to'] = match ($compare) {
+                    '=', '<', '>' => null,
+                    'between' => rand(5, 8)
+                };
+            } else if ($field === 'days_until_departure') {
+                $condition['value_from'] = rand(1, 8);
+
+                $condition['value_to'] = match ($compare) {
+                    '=', '<', '>' => null,
+                    'between' => rand(9, 16)
+                };
+            } else if ($field === 'nights') {
+                $condition['value_from'] = rand(1, 6);
+
+                $condition['value_to'] = match ($compare) {
+                    '=', '<', '>' => null,
+                    'between' => rand(7, 14)
+                };
+            } else if ($field === 'rating') {
+                $condition['value_from'] = $this->faker->randomFloat(2, 1.0, 3.0);
+
+                $condition['value_to'] = match ($compare) {
+                    '=', '<', '>' => null,
+                    'between' => $this->faker->randomFloat(2, 3.1, 5.5)
+                };
+            } else {
+                // 'number_of_rooms'
+                $condition['value_from'] = 1;
+
+                $condition['value_to'] = match ($compare) {
+                    '=', '<', '>' => null,
+                    'between' => rand(2, 3)
+                };
+            }
+
+            $pricingRuleConditionsData[] = $condition;
+        }
+
+        return $pricingRuleConditionsData;
     }
 }

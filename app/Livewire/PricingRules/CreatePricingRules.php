@@ -79,26 +79,26 @@ class CreatePricingRules extends Component implements HasForms
                     ->columns(3),
                 Fieldset::make('Price settings')
                     ->schema([
-                        Select::make('price_type_to_apply')
-                            ->label('Price type')
+                        Select::make('manipulable_price_type')
+                            ->label('Manipulable price type')
                             ->options([
                                 'total_price' => 'Total Price',
                                 'net_price' => 'Net Price',
                                 'rate_price' => 'Rate Price',
                             ])
                             ->required(),
-                        TextInput::make('price_value_to_apply')
+                        TextInput::make('price_value')
                             ->label('Price value')
                             ->numeric()
                             ->required()
                             ->suffixIcon(function (Get $get) {
-                                return match ($get('price_value_type_to_apply')) {
+                                return match ($get('price_value_type')) {
                                     null, '' => false,
                                     'fixed_value' => 'heroicon-o-banknotes',
                                     'percentage' => 'heroicon-o-receipt-percent',
                                 };
                             }),
-                        Select::make('price_value_type_to_apply')
+                        Select::make('price_value_type')
                             ->label('Price value type')
                             ->options([
                                 'fixed_value' => 'Fixed Value',
@@ -106,9 +106,9 @@ class CreatePricingRules extends Component implements HasForms
                             ])
                             ->live()
                             ->required()
-                            ->afterStateUpdated(fn(?string $state, Set $set) => $state ?: $set('price_value_to_apply', null)),
-                        Select::make('price_value_fixed_type_to_apply')
-                            ->label('Price Value Fixed Type')
+                            ->afterStateUpdated(fn(?string $state, Set $set) => $state ?: $set('price_value', null)),
+                        Select::make('price_value_target')
+                            ->label('Price value target')
                             ->options([
                                 'per_guest' => 'Per Guest',
                                 'per_room' => 'Per Room',

@@ -6,6 +6,7 @@ use App\Models\Channel;
 use App\Models\PricingRule;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Modules\API\Tools\PricingRulesTools;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PricingRules>
@@ -26,36 +27,22 @@ class PricingRuleFactory extends Factory
      */
     public function definition(): array
     {
-        $supplier = Supplier::factory()->create();
+        $giataIds = [10000011, 10000044, 10000066, 10000171, 10000215, 10000273, 10000320, 10000353, 10000433, 10000560];
 
-        $channel = Channel::factory()->create();
+        $supplierId = Supplier::factory()->create()->id;
 
-        $today = now();
+        $channelId = Channel::factory()->create()->id;
 
-        return [
-            'channel_id' => $channel->id,
-            'days_until_travel' => rand(1, 30),
-            'destination' => $this->faker->numberBetween(1, 100000),
-            'meal_plan' => $this->faker->word,
-            'name' => $this->faker->name,
-            'nights' => rand(1, 13),
-            'number_rooms' => rand(1, 3),
-            'price_type_to_apply' => $this->faker->randomElement(['total_price', 'net_price', 'rate_price']),
-            'price_value_fixed_type_to_apply' => $this->faker->randomElement(['per_guest', 'per_room', 'per_night']),
-            'price_value_to_apply' => rand(1, 100),
-            'price_value_type_to_apply' => $this->faker->randomElement(['fixed_value', 'percentage']),
-            'property' => $this->faker->numberBetween(1, 100000),
-            'rating' => $this->faker->randomFloat(2, 1, 5.5),
-            'rate_code' => $this->faker->word,
-            'room_guests' => 2,
-            'room_type' => $this->faker->word,
-            'rule_expiration_date' => $today->copy()->addDays(rand(30, 60))->toDateString(),
-            'rule_start_date' => $today->toDateString(),
-            'supplier_id' => $supplier->id,
-            'total_guests' => rand(1, 12),
-            'total_guests_comparison_sign' => $this->faker->randomElement(['=', '<', '>']),
-            'travel_date_from' => $today->copy()->addDay()->toDateString(),
-            'travel_date_to' => $today->copy()->addDays(rand(3, 7))->toDateString(),
-        ];
+        $giataId = $giataIds[rand(0, 9)];
+
+        $pricingRulesTools = new PricingRulesTools();
+
+        $pricingRule = $pricingRulesTools->generatePricingRuleData('Test rule');
+
+        $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData(1,$supplierId, $channelId, $giataId);
+
+        $pricingRule['conditions'] = $pricingRuleConditionsData;
+
+        return $pricingRule;
     }
 }

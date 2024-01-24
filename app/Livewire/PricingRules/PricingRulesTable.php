@@ -32,7 +32,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             ->query(PricingRule::query())
             ->columns([
                 TextColumn::make('name')
-                    ->searchable()
+                    ->searchable(isIndividual: true)
                     ->toggleable(),
                 TextColumn::make('rule_start_date')
                     ->dateTime()
@@ -42,13 +42,13 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable(),
-                TextColumn::make('price_type_to_apply')
+                TextColumn::make('manipulable_price_type')
                     ->toggleable(),
-                TextColumn::make('price_value_type_to_apply')
+                TextColumn::make('price_value_type')
                     ->toggleable(),
-                TextColumn::make('price_value_to_apply')
+                TextColumn::make('price_value')
                     ->toggleable(),
-                TextColumn::make('price_value_fixed_type_to_apply')
+                TextColumn::make('price_value_target')
                     ->toggleable(),
 //                TextColumn::make('rules')
 //                    ->toggleable(),
