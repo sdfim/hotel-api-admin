@@ -185,13 +185,15 @@ class GiataPropertyRepository
     }
 
     /**
-     * @return void
+     * @return int
      */
-    public function logSearchType(): void
+    public function getCityIdByCoordinate(array $minMaxCoordinate): ?int
     {
-        $searchType = match ($this->availableElasticSearch) {
-            true => 'ElasticSearch/OpenSearch',
-            false => 'Eloquent'
-        };
+        return GiataProperty::where('latitude', '>', $minMaxCoordinate['min_latitude'])
+            ->where('latitude', '<', $minMaxCoordinate['max_latitude'])
+            ->where('longitude', '>', $minMaxCoordinate['min_longitude'])
+            ->where('longitude', '<', $minMaxCoordinate['max_longitude'])
+            ->first()
+            ->city_id;
     }
 }

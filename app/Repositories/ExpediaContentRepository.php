@@ -7,7 +7,7 @@ use App\Models\GiataProperty;
 use Illuminate\Support\Collection;
 
 
-class ExpediaContentRepositories
+class ExpediaContentRepository
 {
     /**
      * @param $results

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Suppliers\DTO;
+namespace Modules\API\Suppliers\DTO\Expedia;
 
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponse;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponse;

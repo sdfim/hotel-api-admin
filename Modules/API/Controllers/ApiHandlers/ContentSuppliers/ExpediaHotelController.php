@@ -3,7 +3,7 @@
 namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
 
 use App\Models\ExpediaContent;
-use App\Repositories\ExpediaContentRepositories as ExpediaRepositories;
+use App\Repositories\ExpediaContentRepository as ExpediaRepository;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -11,7 +11,7 @@ use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Tools\Geography;
 
-class ExpediaHotelApiHandler
+class ExpediaHotelController
 {
     /**
      * @var ExpediaService
@@ -63,11 +63,11 @@ class ExpediaHotelApiHandler
             $expedia = new ExpediaContent();
 
             if (isset($filters['destination'])) {
-                $filters['ids'] = ExpediaRepositories::getIdsByDestinationGiata($filters['destination']);
+                $filters['ids'] = ExpediaRepository::getIdsByDestinationGiata($filters['destination']);
             } else {
                 $geography = new Geography();
                 $minMaxCoordinate = $geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
-                $filters['ids'] = ExpediaRepositories::getIdsByCoordinate($minMaxCoordinate);
+                $filters['ids'] = ExpediaRepository::getIdsByCoordinate($minMaxCoordinate);
             }
 
             $fields = isset($filters['fullList']) ? ExpediaContent::getFullListFields() : ExpediaContent::getShortListFields();
@@ -103,7 +103,7 @@ class ExpediaHotelApiHandler
 
             $ids = collect($results)->pluck('property_id')->toArray();
 
-            $results = ExpediaRepositories::dtoDbToResponse($results, $fields);
+            $results = ExpediaRepository::dtoDbToResponse($results, $fields);
 
         } catch (Exception $e) {
             Log::error('ExpediaHotelApiHandler | preSearchData' . $e->getMessage());
@@ -155,12 +155,11 @@ class ExpediaHotelApiHandler
                 }
             }
 
-            return $output ?? null;
+            return $output;
 
         } catch (Exception $e) {
             Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
-
-            return null;
+            return [];
         }
     }
 
@@ -170,8 +169,8 @@ class ExpediaHotelApiHandler
      */
     public function detail(Request $request): object
     {
-        $results = ExpediaRepositories::getDetailByGiataId($request->get('property_id'));
+        $results = ExpediaRepository::getDetailByGiataId($request->get('property_id'));
 
-        return ExpediaRepositories::dtoDbToResponse($results, ExpediaContent::getFullListFields());
+        return ExpediaRepository::dtoDbToResponse($results, ExpediaContent::getFullListFields());
     }
 }

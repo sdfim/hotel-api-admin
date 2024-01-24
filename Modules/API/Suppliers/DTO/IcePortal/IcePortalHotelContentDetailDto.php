@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\API\Suppliers\DTO;
+namespace Modules\API\Suppliers\DTO\IcePortal;
 
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponse;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponse;

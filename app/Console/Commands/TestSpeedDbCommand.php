@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelController;
 use Illuminate\Support\Facades\DB;
-use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelApiHandler;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 
 class TestSpeedDbCommand extends Command
@@ -86,7 +86,7 @@ class TestSpeedDbCommand extends Command
             "results_per_page" => 250,
         ];
 
-        $querySearchMain = (new ExpediaHotelApiHandler())->preSearchData($request);
+        $querySearchMain = (new ExpediaHotelController())->preSearchData($request);
         $this->info("query for Search endpoit as ORM & methods: " . $this->executionTime("start") . " sec" . ' count: ' . $querySearchMain['count']);
 
         $this->info("querySearchMain request: " . json_encode($request));

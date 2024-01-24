@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\API\Suppliers\DTO;
+namespace Modules\API\Suppliers\DTO\IcePortal;
 
 use Illuminate\Support\Facades\Log;
 

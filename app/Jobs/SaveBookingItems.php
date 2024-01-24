@@ -14,26 +14,12 @@ class SaveBookingItems implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * @var array
-     */
-    private array $bookingItems;
-
-    /**
-     * @var int
-     */
-    public int $tries = 5;
-    /**
-     * @var int
-     */
-    public int $retryAfter = 250;
-
-    /**
      * Create a new job instance.
      */
-    public function __construct(array $bookingItems)
-    {
-        $this->bookingItems = $bookingItems;
-    }
+    public function __construct(
+        private readonly array $bookingItems
+    )
+    {}
 
     /**
      * Execute the job.

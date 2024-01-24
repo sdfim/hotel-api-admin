@@ -49,14 +49,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                 TextColumn::make('suppliers')
                     ->toggleable()
                     ->formatStateUsing(function (ApiSearchInspector $record): string {
-                        $suppliers_name_string = '';
-                        $suppliers_array = explode(',', $record->suppliers);
-                        for ($i = 0; $i < count($suppliers_array); $i++) {
-                            $supplier = Supplier::find($suppliers_array[$i]);
-                            $suppliers_name_string .= $supplier->name . ', ';
-                        }
-                        // remove all spaces and commas from the end of the line if present
-                        return rtrim($suppliers_name_string, " ,");
+                        return Supplier::whereIn('id', explode(',', $record->suppliers))->pluck('name')->implode(', ');
                     })
                     ->searchable(query: function (Builder $query, string $search): Builder {
                         return $query->whereIn('suppliers', explode(',', $search));

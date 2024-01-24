@@ -14,34 +14,24 @@ class SaveReservations implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * @var string
-     */
-    private string $booking_id;
-    /**
-     * @var array
-     */
-    private array $filters;
-    /**
-     * @var array
-     */
-    private array $dataPassengers;
-
-    /**
      * Create a new job instance.
+     * @param int $booking_id
+     * @param array $filters
+     * @param array $dataPassengers
+     * @param ExpediaTools $expediaTools
      */
-    public function __construct($booking_id, $filters, $dataPassengers)
-    {
-        $this->booking_id = $booking_id;
-        $this->filters = $filters;
-        $this->dataPassengers = $dataPassengers;
-    }
-
+    public function __construct(
+        private readonly int   $booking_id,
+        private readonly array $filters,
+        private readonly array $dataPassengers,
+        private readonly ExpediaTools $expediaTools = new ExpediaTools(),
+    )
+    {}
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        $expediaTools = new ExpediaTools();
-        $expediaTools->saveAddItemToReservations($this->booking_id, $this->filters, $this->dataPassengers);
+        $this->expediaTools->saveAddItemToReservations($this->booking_id, $this->filters, $this->dataPassengers);
     }
 }
