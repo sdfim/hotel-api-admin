@@ -118,24 +118,10 @@
                                 @php
                                 $path = str_replace('json', 'original.json', $inspector->response_path);
                                 $file_original = Storage::get($path);
-                                $response = json_decode($file_original, true)['HBSI']['response'];
-                                $request = json_decode($file_original, true)['HBSI']['request'];
-
-                                $xml = new \SimpleXMLElement($request);
-                                $prettyXml = $xml->asXML();
-
-                                // $prettyXml->preserveWhiteSpace = false;
-                                // $prettyXml->formatOutput = true;
-
-
                                 if($file_original == ''){
                                     $file_original = json_encode([]);
                                 }
                                 @endphp
-                                <pre>{{ $prettyXml }}</pre>
-                                <pre>{!! htmlspecialchars($request) !!}</pre>
-<!--                                <pre lang="xml" >{{ $response }}</pre>-->
-
                                 <div id="actions-toolbar">
                                     <button
                                         class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"

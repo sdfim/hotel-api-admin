@@ -79,8 +79,8 @@ class HbsiHotelController
 
             return [
                 'original' => [
-                    'response' => $xmlPriceData['response']->asXML(),
                     'request' => $xmlPriceData['request'],
+                    'response' => $xmlPriceData['response']->asXML(),
                 ],
                 'array' => $groupedPriceData,
             ];
