@@ -15,10 +15,13 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BaseController;
-use Modules\API\BookingAPI\ExpediaBookApiHandler;
+use Modules\API\BookingAPI\Controllers\ExpediaBookApiController;
+use Modules\API\BookingAPI\Controllers\HbsiBookApiController;
 use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
 use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingChangeBookHotelRequest;
+use Modules\Enums\SupplierNameEnum;
+use Modules\Enums\TypeRequestEnum;
 
 
 /**
@@ -28,25 +31,15 @@ use Modules\API\Requests\BookingChangeBookHotelRequest;
  */
 class BookApiHandler extends BaseController
 {
-    /**
-     * @var ExpediaBookApiHandler
-     */
-    private ExpediaBookApiHandler $expedia;
-    /**
-     *
-     */
-    private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
-
     private const AGE_ADULT = 16;
 
-
     /**
-     * @param ExpediaBookApiHandler $expedia
+     * @param ExpediaBookApiController $expedia
      */
-    public function __construct(ExpediaBookApiHandler $expedia)
-    {
-        $this->expedia = $expedia;
-    }
+    public function __construct(
+        private readonly ExpediaBookApiController $expedia,
+        private readonly HbsiBookApiController    $hbsi
+    ) {}
 
     /**
      * @param Request $request
@@ -141,7 +134,7 @@ class BookApiHandler extends BaseController
         foreach ($items as $item) {
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first();
-                if ($supplier->name == self::EXPEDIA_SUPPLIER_NAME) {
+                if ($supplier->name === SupplierNameEnum::EXPEDIA->value) {
                     $data[] = $this->expedia->book($filters, $item);
                 }
                 // TODO: Add other suppliers
@@ -252,7 +245,7 @@ class BookApiHandler extends BaseController
 
         try {
             $data = [];
-            if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+            if ($supplier === SupplierNameEnum::EXPEDIA->value) {
                 $data = $this->expedia->changeBooking($filters);
             }
             // TODO: Add other suppliers
@@ -341,7 +334,7 @@ class BookApiHandler extends BaseController
         $supplier = $request->supplier;
         try {
             $data = [];
-            if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+            if ($supplier === SupplierNameEnum::EXPEDIA->value) {
                 $data = $this->expedia->listBookings();
             }
             // TODO: Add other suppliers
@@ -426,7 +419,7 @@ class BookApiHandler extends BaseController
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
 
-                if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+                if ($supplier === SupplierNameEnum::EXPEDIA->value) {
                     $data[] = $this->expedia->retrieveBooking($filters, $item);
                 }
                 // TODO: Add other suppliers
@@ -535,7 +528,7 @@ class BookApiHandler extends BaseController
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
 
-                if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+                if ($supplier === SupplierNameEnum::EXPEDIA->value) {
                     $data[] = $this->expedia->cancelBooking($filters, $item);
                 }
                 // TODO: Add other suppliers
@@ -614,9 +607,8 @@ class BookApiHandler extends BaseController
     public function retrieveItems(Request $request): JsonResponse
     {
         $determinant = $this->determinant($request);
-        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);;
 
-        $filters = $request->all();
         $validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
         if ($validate->fails()) return $this->sendError($validate->errors());
 
@@ -629,11 +621,14 @@ class BookApiHandler extends BaseController
                 if (BookRepository::isBook($request->booking_id, $item->booking_item)) {
                     return $this->sendError(['error' => 'Cart is empty or booked'], 'failed');
                 }
-
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
 
-                if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
-                    $res[] = $this->expedia->retrieveItem($filters, $item);
+                if ($supplier === SupplierNameEnum::EXPEDIA->value) {
+                    $res[] = $this->expedia->retrieveItem($item);
+                }
+                if ($supplier === SupplierNameEnum::HBSI->value) {
+                    // TODO: check if $item is complete type, then run foreach
+                    $res[] = $this->hbsi->retrieveItem($item);
                 }
                 // TODO: Add other suppliers
             }
@@ -733,8 +728,8 @@ class BookApiHandler extends BaseController
                 return $this->sendError(['error' => 'This booking_item is not in the cart.'], 'failed');
         }
 
-        try {
-            $result = [];
+//        try {
+            $res = [];
             foreach ($bookingRequestItems as $booking_item) {
 
                 if (BookRepository::isBook($request->booking_id, $booking_item)) {
@@ -743,17 +738,20 @@ class BookApiHandler extends BaseController
                 $supplierId = ApiBookingItem::where('booking_item', $booking_item)->first()->supplier_id;
                 $supplier = Supplier::where('id', $supplierId)->first()->name;
 
-                if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
-                    $filters = $request->all();
-                    $filters['booking_item'] = $booking_item;
+                $filters = $request->all();
+                $filters['booking_item'] = $booking_item;
+
+                if ($supplier === SupplierNameEnum::EXPEDIA->value) {
                     $res[] = $this->expedia->addPassengers($filters, $filtersOutput[$booking_item]);
                 }
-                // TODO: Add other suppliers
+                if ($supplier === SupplierNameEnum::HBSI->value) {
+                    $res[] = $this->hbsi->addPassengers($filters, $filtersOutput[$booking_item]);
+                }
             }
-        } catch (Exception $e) {
-            Log::error('HotelBookingApiHandler | listBookings ' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
-        }
+//        } catch (Exception $e) {
+//            Log::error('HotelBookingApiHandler | addPassengers ' . $e->getMessage());
+//            return $this->sendError(['error' => $e->getMessage()], 'failed');
+//        }
 
         return $this->sendResponse(['result' => $res], 'success');
     }
@@ -885,9 +883,9 @@ class BookApiHandler extends BaseController
 
             $type = ApiSearchInspector::where('search_id', $search->search_id)->first()->search_type;
 
-            if ($type == 'flight') continue;
-            if ($type == 'combo') continue;
-            if ($type == 'hotel') return $this->checkCountGuestsChildrenAgesHotel($bookingItem, $booking, $search->search_id);
+            if ($type === TypeRequestEnum::FLIGHT->value) continue;
+            if ($type === TypeRequestEnum::COMBO->value) continue;
+            if ($type === TypeRequestEnum::HOTEL->value) return $this->checkCountGuestsChildrenAgesHotel($bookingItem, $booking, $search->search_id);
         }
 
         return [];

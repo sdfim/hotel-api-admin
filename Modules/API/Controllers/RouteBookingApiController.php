@@ -14,74 +14,11 @@ use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BookingAPI\BookingApiHandlers\ComboBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
+use Modules\Enums\RouteEnum;
+use Modules\Enums\TypeRequestEnum;
 
 class RouteBookingApiController extends Controller
 {
-    /**
-     *
-     */
-    private const TYPE_HOTEL = 'hotel';
-
-    /**
-     *
-     */
-    private const TYPE_FLIGHT = 'flight';
-
-    /**
-     *
-     */
-    private const TYPE_COMBO = 'combo';
-
-    /**
-     *
-     */
-    private const ROUTE_ADD_ITEM = 'addItem';
-
-    /**
-     *
-     */
-    private const ROUTE_REMOVE_ITEM = 'removeItem';
-
-    /**
-     *
-     */
-    private const ROUTE_CHANGE_ITEMS = 'changeItems';
-
-    /**
-     *
-     */
-    private const ROUTE_RETRIEVE_ITEMS = 'retrieveItems';
-
-    /**
-     *
-     */
-    private const ROUTE_ADD_PASSENGERS = 'addPassengers';
-
-    /**
-     *
-     */
-    private const ROUTE_BOOK = 'book';
-
-    /**
-     *
-     */
-    private const ROUTE_LIST_BOOKINGS = 'listBookings';
-
-    /**
-     *
-     */
-    private const ROUTE_RETRIEVE_BOOKING = 'retrieveBooking';
-
-    /**
-     *
-     */
-    private const ROUTE_CANCEL_BOOKING = 'cancelBooking';
-
-    /**
-     *
-     */
-    private const ROUTE_CHANGE_BOOKING = 'changeBooking';
-
     /**
      * @var string|null
      */
@@ -105,8 +42,8 @@ class RouteBookingApiController extends Controller
     {
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
-        if (!self::isTypeValid($this->type)) return response()->json(['message' => 'Invalid type'], 400);
-        if (!self::isRouteValid($this->route)) return response()->json(['message' => 'Invalid route'], 400);
+        if (!$this->isTypeValid($this->type)) return response()->json(['message' => 'Invalid type'], 400);
+        if (!$this->isRouteValid($this->route)) return response()->json(['message' => 'Invalid route'], 400);
         if (is_null($this->supplier)) return response()->json(['message' => 'Invalid supplier'], 400);
 
         $dataHandler = match ($this->type) {
@@ -185,28 +122,23 @@ class RouteBookingApiController extends Controller
      * @param $value
      * @return bool
      */
-    private static function isTypeValid($value): bool
+    private function isTypeValid($value): bool
     {
-        return in_array($value, [self::TYPE_HOTEL, self::TYPE_FLIGHT, self::TYPE_COMBO], true);
+        $values = array_map(function($case) {
+            return $case->value;
+        }, TypeRequestEnum::cases());
+        return in_array($value, $values, true);
     }
 
     /**
      * @param $value
      * @return bool
      */
-    private static function isRouteValid($value): bool
+    private function isRouteValid($value): bool
     {
-        return in_array($value, [
-            self::ROUTE_ADD_ITEM,
-            self::ROUTE_REMOVE_ITEM,
-            self::ROUTE_RETRIEVE_ITEMS,
-            self::ROUTE_CHANGE_ITEMS,
-            self::ROUTE_ADD_PASSENGERS,
-            self::ROUTE_BOOK,
-            self::ROUTE_LIST_BOOKINGS,
-            self::ROUTE_RETRIEVE_BOOKING,
-            self::ROUTE_CANCEL_BOOKING,
-            self::ROUTE_CHANGE_BOOKING,
-        ], true);
+        $values = array_map(function($case) {
+            return $case->value;
+        }, RouteEnum::cases());
+        return in_array($value, $values, true);
     }
 }

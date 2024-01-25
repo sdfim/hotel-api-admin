@@ -5,7 +5,7 @@ namespace Modules\API\BookingAPI\BookingApiHandlers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\API\BaseController;
-use Modules\API\BookingAPI\BookingApiHandlerInterface;
+use Modules\API\BookingAPI\Controllers\BookingApiHandlerInterface;
 
 class FlightBookingApiHandler extends BaseController implements BookingApiHandlerInterface
 {

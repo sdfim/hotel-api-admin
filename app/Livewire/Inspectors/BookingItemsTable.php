@@ -28,6 +28,9 @@ class BookingItemsTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(ApiBookingItem::orderBy('created_at', 'DESC'))
             ->columns([
+                TextColumn::make('created_at')
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
                 TextColumn::make('search.search_type')
                     ->label('Type')
                     ->numeric()

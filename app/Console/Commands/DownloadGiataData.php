@@ -3,10 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Models\GiataProperty;
+use App\Models\MapperHbsiGiata;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class DownloadGiataData extends Command
@@ -108,6 +110,7 @@ class DownloadGiataData extends Command
             $url_next = explode('<More_Properties xlink:href=', $xmlContent)[1];
             $url_arr = explode('"', $url_next);
             $url = array_key_exists(1, $url_arr) ? $url_arr[1] : false;
+            $this->comment('Get next url: ' . $url);
         } catch (Exception $e) {
             $this->error('Error get url or it not exist: ' . $e->getMessage());
             return false;
@@ -115,6 +118,7 @@ class DownloadGiataData extends Command
 
         $xml = simplexml_load_string($xmlContent);
 
+        $batchDataMapperHbsi = [];
         foreach ($xml->TTI_Property as $property) {
             $data = [
                 'code' => (int)$property['Code'],
@@ -126,20 +130,52 @@ class DownloadGiataData extends Command
                 'locale' => (string)$property->Locale,
                 'locale_id' => (int)$property->Locale['LocaleId'],
                 'address' => json_encode($property->Address),
+                'mapper_address' => (string)$property->Address->StreetNmbr . ' ' . (string)$property->Address->AddressLine,
+                'mapper_postal_code' => (string)$property->Address->PostalCode,
+                'mapper_phone_number' => (string)$property->Phone['PhoneNumber'],
                 'phone' => isset($property->Phone) ? json_encode($property->Phone) : null,
                 'position' => isset($property->Position) ? json_encode($property->Position) : null,
                 'latitude' => isset($property->Position['Latitude']) ? (float)$property->Position['Latitude'] : null,
                 'longitude' => isset($property->Position['Longitude']) ? (float)$property->Position['Longitude'] : null,
                 'url' => isset($property->URL) ? json_encode($property->URL) : null,
-                'cross_references' => json_encode($property->CrossReferences->CrossReference),
+                'cross_references' => json_encode($property->CrossReferences),
+//                'cross_references' => json_encode($property->CrossReferences->CrossReference),
+                'created_at' => date('Y-m-d H:i:s'),
             ];
+
+            foreach ($property->CrossReferences->CrossReference as $crossReference) {
+                if( (string)$crossReference['Code'] == 'ULTIMATE_JET_VACATIONS' ) {
+                    $batchDataMapperHbsi[] = [
+                        'hbsi_id' => (int)$crossReference->Code['HotelCode'],
+                        'giata_id' => (int)$property['Code'],
+                        'perc' => 100,
+                        ];
+                }
+            }
+
             $batchData[] = $data;
+            $propertyIds[] = $data['code'];
         }
 
         try {
+            DB::beginTransaction();
+            GiataProperty::whereIn('code', $propertyIds)->delete();
             GiataProperty::insert($batchData);
+            DB::commit();
         } catch (Exception $e) {
-            Log::error('ImportJsonlData', ['error' => $e->getMessage()]);
+            DB::rollBack();
+            Log::error('ImportJsonlData insert GiataProperty ', ['error' => $e->getMessage()]);
+            return false;
+        }
+
+        try {
+            DB::beginTransaction();
+            MapperHbsiGiata::whereIn('giata_id', $propertyIds)->delete();
+            MapperHbsiGiata::insert($batchDataMapperHbsi);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('ImportJsonlData insert MapperHbsiGiata ', ['error' => $e->getMessage()]);
             return false;
         }
 
