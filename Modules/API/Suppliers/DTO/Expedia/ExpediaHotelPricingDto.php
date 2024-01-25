@@ -2,7 +2,10 @@
 
 namespace Modules\API\Suppliers\DTO\Expedia;
 
+use App\Models\Channel;
 use App\Models\GiataGeography;
+use App\Models\Supplier;
+use App\Repositories\ChannelRenository;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -82,7 +85,13 @@ class ExpediaHotelPricingDto
         $this->search_id = $search_id;
         $this->bookingItems = [];
 
-        $pricingRules = $this->pricingRulesService->rules($query);
+        $token = ChannelRenository::getTokenId(request()->bearerToken());
+
+        $channelId = Channel::where('token_id', $token)->first()->id;
+
+        $supplierId = Supplier::where('name', 'Expedia')->first()->id;
+
+        $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
 
         foreach ($pricingRules as $pricingRule) {
             // TODO: remove isset

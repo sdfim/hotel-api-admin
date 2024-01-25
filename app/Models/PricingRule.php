@@ -15,12 +15,22 @@ class PricingRule extends Model
      */
     protected $fillable = [
         'name',
-        'price_type_to_apply',
-        'price_value_fixed_type_to_apply',
-        'price_value_to_apply',
-        'price_value_type_to_apply',
+        'manipulable_price_type',
+        'price_value_target',
+        'price_value',
+        'price_value_type',
         'rule_expiration_date',
         'rule_start_date'
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'rule_start_date' => 'datetime',
+        'rule_expiration_date' => 'datetime',
     ];
 
     /**

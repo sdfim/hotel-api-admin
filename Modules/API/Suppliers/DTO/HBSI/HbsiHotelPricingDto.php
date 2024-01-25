@@ -3,6 +3,9 @@
 namespace Modules\API\Suppliers\DTO\HBSI;
 
 use App\Models\GiataGeography;
+use App\Models\Channel;
+use App\Models\Supplier;
+use App\Repositories\ChannelRenository;
 use App\Repositories\GiataGeographyRepository;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -22,7 +25,7 @@ class HbsiHotelPricingDto
     private string $rate_type;
 
     /**
-     * @var array
+     * @var GiataGeography
      */
     private GiataGeography $destinationData;
 
@@ -79,7 +82,13 @@ class HbsiHotelPricingDto
         $this->search_id = $search_id;
         $this->rate_type = count($query['occupancy']) === 1 ? self::COMPLETE_TYPE_ITEM : self::SINGLE_TYPE_ITEM;
 
-        $pricingRules = $this->pricingRulesService->rules($query);
+        $token = ChannelRenository::getTokenId(request()->bearerToken());
+
+        $channelId = Channel::where('token_id', $token)->first()->id;
+
+        $supplierId = Supplier::where('name', 'HBSI')->first()->id;
+
+        $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
         $pricingRules = array_column($pricingRules, null, 'property');
 
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
