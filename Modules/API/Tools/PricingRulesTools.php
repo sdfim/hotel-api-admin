@@ -339,7 +339,7 @@ class PricingRulesTools
      * @param $ruleName
      * @return array
      */
-    public function generatePricingRuleWithConditionsData($ruleName)
+    public function generatePricingRuleWithConditionsData($ruleName): array
     {
         $pricingRule = $this->generatePricingRuleData($ruleName);
 
