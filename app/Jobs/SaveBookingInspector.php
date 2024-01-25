@@ -19,8 +19,7 @@ class SaveBookingInspector implements ShouldQueue
     public function __construct(
         private readonly array $dataQueue,
         private readonly BookingInspectorController $bookingInspector = new BookingInspectorController(),
-    )
-    {}
+    ) {}
 
     /**
      * Execute the job.

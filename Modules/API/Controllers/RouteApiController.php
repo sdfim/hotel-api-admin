@@ -12,16 +12,11 @@ use Illuminate\Support\Facades\Route;
 use Modules\API\Controllers\ApiHandlers\ComboApiHandler;
 use Modules\API\Controllers\ApiHandlers\FlightApiHandler;
 use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
+use Modules\Enums\RouteEnum;
+use Modules\Enums\TypeRequestEnum;
 
 class RouteApiController extends Controller
 {
-    private const TYPE_HOTEL = 'hotel';
-    private const TYPE_FLIGHT = 'flight';
-    private const TYPE_COMBO = 'combo';
-    private const ROUTE_SEARCH = 'search';
-    private const ROUTE_DETAIL = 'detail';
-    private const ROUTE_PRICE = 'price';
-
     /**
      * @param Request $request
      * @return mixed
@@ -31,13 +26,13 @@ class RouteApiController extends Controller
         $type = $request->get('type');
         $route = Route::currentRouteName();
 
-        if (!self::isTypeValid($type)) {
+        if (!$this->isTypeValid($type)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid type',
             ], 400);
         }
-        if (!self::isRouteValid($route)) {
+        if (!$this->isRouteValid($route)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid route',
@@ -155,17 +150,22 @@ class RouteApiController extends Controller
      * @param $value
      * @return bool
      */
-    public static function isTypeValid($value): bool
+    private function isTypeValid($value): bool
     {
-        return in_array($value, [self::TYPE_HOTEL, self::TYPE_FLIGHT, self::TYPE_COMBO], true);
+        $values = array_map(function($case) {
+            return $case->value;
+        }, TypeRequestEnum::cases());
+        return in_array($value, $values, true);
     }
 
     /**
      * @param $value
      * @return bool
      */
-    public static function isRouteValid($value): bool
+    public function isRouteValid($value): bool
     {
-        return in_array($value, [self::ROUTE_SEARCH, self::ROUTE_DETAIL, self::ROUTE_PRICE], true);
-    }
+        $values = array_map(function($case) {
+            return $case->value;
+        }, RouteEnum::cases());
+        return in_array($value, $values, true);    }
 }

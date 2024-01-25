@@ -25,8 +25,8 @@ class SaveReservations implements ShouldQueue
         private readonly array $filters,
         private readonly array $dataPassengers,
         private readonly ExpediaTools $expediaTools = new ExpediaTools(),
-    )
-    {}
+    ) {}
+
     /**
      * Execute the job.
      */

@@ -17,8 +17,7 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
      */
     public function __construct(
         private readonly RapidClient $rapidClient = new RapidClient(),
-    )
-    {}
+    ) {}
 
     /**
      * @param array $filters

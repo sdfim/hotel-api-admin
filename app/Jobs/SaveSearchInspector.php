@@ -21,8 +21,7 @@ class SaveSearchInspector implements ShouldQueue
     public function __construct(
         private readonly array                     $dataQueue,
         private readonly SearchInspectorController $searchInspector = new SearchInspectorController(),
-    )
-    {}
+    ) {}
 
     /**
      * Execute the job.

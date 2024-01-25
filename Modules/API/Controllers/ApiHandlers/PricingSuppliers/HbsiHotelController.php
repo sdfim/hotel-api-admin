@@ -26,8 +26,7 @@ class HbsiHotelController
         private readonly HbsiClient $hbsiClient = new HbsiClient(),
         private readonly Geography $geography = new Geography(),
         private readonly GiataPropertyRepository $giataRepo = new GiataPropertyRepository(),
-    )
-    {}
+    ) {}
 
     public function preSearchData(array $filters): ?array
     {

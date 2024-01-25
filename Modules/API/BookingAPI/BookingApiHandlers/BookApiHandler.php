@@ -607,7 +607,7 @@ class BookApiHandler extends BaseController
     public function retrieveItems(Request $request): JsonResponse
     {
         $determinant = $this->determinant($request);
-        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);;
+        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
 
         $validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
         if ($validate->fails()) return $this->sendError($validate->errors());
@@ -728,7 +728,7 @@ class BookApiHandler extends BaseController
                 return $this->sendError(['error' => 'This booking_item is not in the cart.'], 'failed');
         }
 
-//        try {
+        try {
             $res = [];
             foreach ($bookingRequestItems as $booking_item) {
 
@@ -748,10 +748,10 @@ class BookApiHandler extends BaseController
                     $res[] = $this->hbsi->addPassengers($filters, $filtersOutput[$booking_item]);
                 }
             }
-//        } catch (Exception $e) {
-//            Log::error('HotelBookingApiHandler | addPassengers ' . $e->getMessage());
-//            return $this->sendError(['error' => $e->getMessage()], 'failed');
-//        }
+        } catch (Exception $e) {
+            Log::error('HotelBookingApiHandler | addPassengers ' . $e->getMessage());
+            return $this->sendError(['error' => $e->getMessage()], 'failed');
+        }
 
         return $this->sendResponse(['result' => $res], 'success');
     }

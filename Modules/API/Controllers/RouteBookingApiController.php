@@ -14,7 +14,7 @@ use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BookingAPI\BookingApiHandlers\ComboBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
-use Modules\Enums\RouteEnum;
+use Modules\Enums\RouteBookingEnum;
 use Modules\Enums\TypeRequestEnum;
 
 class RouteBookingApiController extends Controller
@@ -138,7 +138,7 @@ class RouteBookingApiController extends Controller
     {
         $values = array_map(function($case) {
             return $case->value;
-        }, RouteEnum::cases());
+        }, RouteBookingEnum::cases());
         return in_array($value, $values, true);
     }
 }
