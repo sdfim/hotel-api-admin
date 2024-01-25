@@ -336,6 +336,21 @@ class PricingRulesTools
     }
 
     /**
+     * @param $ruleName
+     * @return array
+     */
+    public function generatePricingRuleWithConditionsData($ruleName)
+    {
+        $pricingRule = $this->generatePricingRuleData($ruleName);
+
+        $pricingRuleConditions = $this->generatePricingRuleConditionsData();
+
+        $pricingRule['conditions'] = $pricingRuleConditions;
+
+        return $pricingRule;
+    }
+
+    /**
      * @param $name
      * @return array
      */
