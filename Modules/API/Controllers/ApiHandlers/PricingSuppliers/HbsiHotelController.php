@@ -3,6 +3,7 @@
 namespace Modules\API\Controllers\ApiHandlers\PricingSuppliers;
 
 use App\Models\GiataProperty;
+use App\Models\MapperHbsiGiata;
 use App\Repositories\GiataPropertyRepository;
 use App\Repositories\HbsiRepository;
 use GuzzleHttp\Exception\GuzzleException;
@@ -67,13 +68,26 @@ class HbsiHotelController
             $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
             $priceData = $this->object2array($response->RoomStays)['RoomStay'];
 
-            $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($hotelData) {
-                $key = $item['BasicPropertyInfo']['@attributes']['HotelCode'];
-                $result[$key]['rooms'][] = $item;
-                if (isset($hotelData[$key])) {
-                    $result[$key]['hotel_name'] = $hotelData[$key]['name'];
-                    $result[$key]['giata_id'] = $hotelData[$key]['giata'];
+            $i = 1;
+            $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($hotelData, &$i) {
+                $hotelCode = $item['BasicPropertyInfo']['@attributes']['HotelCode'];
+                $roomCode = $item['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'];
+                $item['rate_ordinal'] = $i;
+                $result[$hotelCode] = [
+                    'property_id' => $hotelCode,
+                    'hotel_name' => $item['BasicPropertyInfo']['@attributes']['HotelName'],
+                    'hotel_name_giata' => $hotelData[$hotelCode]['name'] ?? '',
+                    'giata_id' => $hotelData[$hotelCode]['giata'] ?? 0,
+                    'rooms' => $result[$hotelCode]['rooms'] ?? [],
+                ];
+                if (!isset($result[$hotelCode]['rooms'][$roomCode])) {
+                    $result[$hotelCode]['rooms'][$roomCode] = [
+                        'room_code' => $roomCode,
+                        'room_name' => $item['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '',
+                    ];
                 }
+                $result[$hotelCode]['rooms'][$roomCode]['rates'][] = $item;
+                $i++;
                 return $result;
             }, []);
 
@@ -86,9 +100,23 @@ class HbsiHotelController
             ];
 
         } catch (\Exception $e) {
-            Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
-            return [];
+            Log::error('ExpediaHotelApiHandler Exception ' . $e->getMessage());
+            return [
+                'original' => [
+                    'request' => $xmlPriceData['request'] ?? '',
+                    'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
+                ],
+                'array' => [],
+            ];
         } catch (GuzzleException $e) {
+            Log::error('ExpediaHotelApiHandler GuzzleException ' . $e->getMessage());
+            return [
+                'original' => [
+                    'request' => $xmlPriceData['request'] ?? '',
+                    'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
+                ],
+                'array' => [],
+            ];
         }
     }
 

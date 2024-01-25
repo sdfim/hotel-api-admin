@@ -20,9 +20,9 @@ class RoomResponse
     private string $supplier_room_name;
 
     /**
-     * @var int
+     * @var int|string
      */
-    private int $supplier_room_id;
+    private int|string $supplier_room_id;
 
     /**
      * @var string

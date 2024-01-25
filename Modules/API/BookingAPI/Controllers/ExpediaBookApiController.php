@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\BookingAPI;
+namespace Modules\API\BookingAPI\Controllers;
 
 use App\Jobs\SaveBookingInspector;
 use App\Jobs\SaveReservations;
@@ -16,12 +16,12 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Promise;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Modules\API\BaseController;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookDto;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookingRetrieveBookingDto;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
+use Modules\Enums\SupplierNameEnum;
 
-class ExpediaBookApiHandler extends BaseController
+class ExpediaBookApiController extends BaseBookApiController
 {
     private const PAYMENTS_TYPE = 'affiliate_collect';
     /**
@@ -357,41 +357,6 @@ class ExpediaBookApiHandler extends BaseController
     }
 
     /**
-     * @param array $filters
-     * @param ApiBookingInspector $bookingInspector
-     * @return array|null
-     */
-    public function retrieveItem(array $filters, ApiBookingInspector $bookingInspector): array|null
-    {
-        $apiBookingItem = ApiBookingItem::where('booking_item', $bookingInspector->booking_item)->first();
-        $booking_item_data = json_decode($apiBookingItem->booking_item_data, true);
-        $booking_pricing_data = json_decode($apiBookingItem->booking_pricing_data, true);
-
-        $searchInspector = ApiSearchInspector::where('search_id', $bookingInspector->search_id)->first();
-
-        $passengers = BookingRepository::getPassengers($bookingInspector->booking_id, $bookingInspector->booking_item);
-        $dataPassengers = [];
-        if ($passengers) {
-            $passengersArr = $passengers->toArray();
-            $dataPassengers = json_decode($passengersArr['request'], true);
-        }
-
-        $supplier_id = $apiBookingItem->supplier_id;
-        $supplier = Supplier::find($supplier_id)->name;
-
-        return [
-            'booking_id' => $bookingInspector->booking_id,
-            'booking_item' => $bookingInspector->booking_item,
-            'search_id' => $bookingInspector->search_id,
-            'supplier' => $supplier,
-            'supplier_data' => $booking_item_data,
-            'pricing_data' => $booking_pricing_data,
-            'passengers' => $dataPassengers,
-            'request' => json_decode($searchInspector->request, true),
-        ];
-    }
-
-    /**
      * @param string $link
      * @return array
      */
@@ -462,7 +427,7 @@ class ExpediaBookApiHandler extends BaseController
             $filters,
             [],
             $res,
-            1,
+            Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id,
             'add_passengers',
             $subType,
             'hotel',

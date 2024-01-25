@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\DTO\HBSI;
 
+use App\Models\GiataGeography;
 use App\Models\Channel;
 use App\Models\Supplier;
 use App\Repositories\ChannelRenository;
@@ -18,6 +19,16 @@ use Modules\API\Tools\PricingRulesTools;
 
 class HbsiHotelPricingDto
 {
+    private const SINGLE_TYPE_ITEM = 'single';
+    private const COMPLETE_TYPE_ITEM = 'complete';
+
+    private string $rate_type;
+
+    /**
+     * @var GiataGeography
+     */
+    private GiataGeography $destinationData;
+
     /**
      * @var HbsiPricingRulesApplier
      */
@@ -47,6 +58,7 @@ class HbsiHotelPricingDto
      * @param array $bookingItems
      * @param int $supplierId
      * @param PricingRulesTools $pricingRulesService
+     * @param GiataGeographyRepository $geographyRepo
      */
     public function __construct(
         private array $bookingItems = [],
@@ -68,8 +80,8 @@ class HbsiHotelPricingDto
     public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id): array
     {
         $this->search_id = $search_id;
+        $this->rate_type = count($query['occupancy']) === 1 ? self::COMPLETE_TYPE_ITEM : self::SINGLE_TYPE_ITEM;
 
-//        dd($supplierResponse);
         $token = ChannelRenository::getTokenId(request()->bearerToken());
 
         $channelId = Channel::where('token_id', $token)->first()->id;
@@ -78,7 +90,7 @@ class HbsiHotelPricingDto
 
         $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
         $pricingRules = array_column($pricingRules, null, 'property');
-        // TODO: need change to HbsiPricingRulesApplier
+
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
 
         $this->destinationData = $this->geographyRepo->getFullLocation($query['destination']);
@@ -103,7 +115,7 @@ class HbsiHotelPricingDto
     public function setHotelResponse(array $propertyGroup, int|string $key): array
     {
         $hotelResponse = new HotelResponse();
-        $hotelResponse->setGiataHotelId($propertyGroup['giata_id']);
+        $hotelResponse->setGiataHotelId($propertyGroup['giata_id'] ?? 0);
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
         $hotelResponse->setSupplier('HBSI');
@@ -117,8 +129,9 @@ class HbsiHotelPricingDto
         $hotelResponse->setRefundableRates($countRefundableRates['refundable_rates'] ?? '');
         $roomGroups = [];
         $lowestPrice = 100000;
+
         foreach ($propertyGroup['rooms'] as $roomGroup) {
-            $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup);
+            $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup, $key);
             $roomGroups[] = $roomGroupsData['roomGroupsResponse'];
             $lowestPricedRoom = $roomGroupsData['lowestPricedRoom'];
             if ($lowestPricedRoom > 0 && $lowestPricedRoom < $lowestPrice) {
@@ -158,24 +171,24 @@ class HbsiHotelPricingDto
      * @param $propertyGroup
      * @return array
      */
-    public function setRoomGroupsResponse(array $roomGroup, $propertyGroup): array
+    public function setRoomGroupsResponse(array $roomGroup, $propertyGroup, int|string $supplierHotelId): array
     {
-        $giataId = $propertyGroup['giata_id'];
+        $giataId = $propertyGroup['giata_id'] ?? 0;
 
         $roomGroupsResponse = new RoomGroupsResponse();
         $roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
         $roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');
-        $roomGroupsResponse->setMealPlan($roomGroup['RatePlans']['RatePlan']['MealsIncluded']['@attributes']['MealPlanCodes'] ?? '');
-        $roomGroupsResponse->setRateDescription($roomGroup['RoomRates']['RoomRate']['RoomRateDescription']['Text'] ?? '');
+        $roomGroupsResponse->setMealPlan($roomGroup['MealPlanCodes'] ?? '');
+        $roomGroupsResponse->setRateDescription($roomGroup['RoomRateDescription'] ?? '');
         $roomGroupsResponse->setOpaque($roomGroup['opaque'] ?? '');
 
-//        $this->currency = $roomGroup['RoomRates']['RoomRate']['Rates']['Rate'][0]['Base']['@attributes']['CurrencyCode'] ?? 'USD';
+        $this->currency = $roomGroup['rates']['RoomRates']['RoomRate']['Rates']['Rate'][0]['Base']['@attributes']['CurrencyCode'] ?? 'USD';
         $roomGroupsResponse->setCurrency($this->currency ?? 'USD');
 
         $rooms = [];
         $priceRoomData = [];
-        foreach ($roomGroup['RoomRates']['RoomRate']['Rates']['Rate'] as $key => $room) {
-            $roomData = $this->setRoomResponse((array)$room, $roomGroup, $propertyGroup, $giataId);
+        foreach ($roomGroup['rates'] as $key => $room) {
+            $roomData = $this->setRoomResponse((array)$room, $roomGroup, $propertyGroup, $giataId, $supplierHotelId);
             $roomResponse = $roomData['roomResponse'];
             $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
             $rooms[] = $roomResponse;
@@ -200,15 +213,11 @@ class HbsiHotelPricingDto
         $roomGroupsResponse->setAffiliateServiceCharge($priceRoomData[$keyLowestPricedRoom]['affiliate_service_charge'] ?? 0.0);
 
         $roomGroupsResponse->setNonRefundable($roomGroup['CancelPenalties']['CancelPenalty']['@attributes']['NonRefundable'] ?? false);
-//        $roomGroupsResponse->setRateId(intval($roomGroup['rates'][$keyLowestPricedRoom]['id']) ?? null);
+        $roomGroupsResponse->setRateId($roomGroup['rate_ordinal'] ?? 0);
         $roomGroupsResponse->setCancellationPolicies([
             'Deadline' => $roomGroup['CancelPenalties']['CancelPenalty']['Deadline']['@attributes']['AbsoluteDeadline'] ?? '',
             'AmountPercent' => $roomGroup['CancelPenalties']['CancelPenalty']['AmountPercent']['@attributes']['Percent'] ?? '',
             ]);
-
-        $roomGroupsResponse->setNonRefundable( false);
-        $roomGroupsResponse->setRateId(0);
-        $roomGroupsResponse->setCancellationPolicies([]);
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
@@ -218,9 +227,10 @@ class HbsiHotelPricingDto
      * @param array $roomGroup
      * @param array $propertyGroup
      * @param int $giataId
+     * @param int|string $supplierHotelId
      * @return array
      */
-    public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId): array
+    public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId, int|string $supplierHotelId): array
     {
         // enrichment Pricing Rules / Application of Pricing Rules
         $pricingRulesApplier['total_price'] = 0.0;
@@ -235,26 +245,27 @@ class HbsiHotelPricingDto
         }
 
         $counts = [];
-        foreach ($roomGroup['GuestCounts']['GuestCount'] as $guestCount) {
+        foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {
             if (isset($guestCount['AgeQualifyingCode'])) $counts[$guestCount['AgeQualifyingCode']] = $guestCount['Count'];
             else $counts[$guestCount['@attributes']['AgeQualifyingCode']] = $guestCount['@attributes']['Count'];
         }
-        $rateId = $counts['10'] . '-' . ($counts['8'] ?? 0) . '-' . ($counts['7'] ?? 0);
+        $rateOccupancy = $counts['10'] . '-' . ($counts['8'] ?? 0) . '-' . ($counts['7'] ?? 0);
+        $rateOrdinal = $rate['rate_ordinal'] ?? 0;
 
-        $roomType = $roomGroup['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '';
+        $roomType = $rate['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '';
 
         $roomResponse = new RoomResponse();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
-        $roomResponse->setSupplierRoomName($roomGroup['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
-        $roomResponse->setSupplierRoomCode($roomGroup['RoomTypes']['RoomType']['@attributes']['NumberOfUnits'] ?? 0);
-//        $roomResponse->setSupplierRoomCode($roomGroup['RoomTypes']['RoomType']['@attributes']['NumberOfUnits'] ?? 0);
+        $roomResponse->setSupplierRoomName($rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
+//        $roomResponse->setSupplierRoomCode($rate['RoomTypes']['RoomType']['@attributes']['NumberOfUnits'] ?? 0);
+        $roomResponse->setSupplierRoomCode($rateOccupancy);
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
         $roomResponse->setRoomType($roomType);
-        $roomResponse->setRateDescription($roomGroup['RoomRates']['RoomRate']['RoomRateDescription']['Text'] ?? '');
-        $roomResponse->setRateId($rate['id'] ?? $rateId ?? 0);
-        $roomResponse->setRatePlanCode($roomGroup['RatePlans']['RatePlan']['@attributes']['RatePlanCode'] ?? '');
+        $roomResponse->setRateDescription($rate['RoomRates']['RoomRate']['RoomRateDescription']['Text'] ?? '');
+        $roomResponse->setRateId($rateOrdinal );
+        $roomResponse->setRatePlanCode($rate['RatePlans']['RatePlan']['@attributes']['RatePlanCode'] ?? '');
         $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
         $roomResponse->setTotalTax($pricingRulesApplier['total_tax']);
         $roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
@@ -265,17 +276,24 @@ class HbsiHotelPricingDto
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
 
+        $booking_pricing_data = $roomResponse->toArray();
+        $booking_pricing_data['rate_description'] = mb_substr($booking_pricing_data['rate_description'], 0, 200, 'UTF-8');;
+
         $this->bookingItems[] = [
             'booking_item' => $bookingItem,
             'supplier_id' => $this->supplierId,
             'search_id' => $this->search_id,
             'booking_item_data' => json_encode([
-                'hotel_id' => $propertyGroup['giata_id'],
-                'room_id' => $roomGroup['id'] ?? $roomType ?? 0,
-                'rate' => $rate['id'] ?? $rateId ?? 0,
+                'hotel_id' => $propertyGroup['giata_id'] ?? 0,
+                'hotel_supplier_id' => $supplierHotelId,
+                'rate_occupancy' => $rateOccupancy,
+                'rate_type' => $this->rate_type,
+                'room_id' => $rate['id'] ?? $roomType ?? 0,
+                'rate_ordinal' => $rate['id'] ?? $rateOrdinal ?? 0,
                 'bed_groups' => '',
             ]),
-            'booking_pricing_data' => json_encode($roomResponse->toArray()),
+            'rate_type' => $this->rate_type,
+            'booking_pricing_data' => json_encode($booking_pricing_data),
             'created_at' => Carbon::now(),
         ];
 

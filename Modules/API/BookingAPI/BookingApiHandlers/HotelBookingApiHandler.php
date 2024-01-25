@@ -10,10 +10,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Modules\API\BaseController;
-use Modules\API\BookingAPI\BookingApiHandlerInterface;
-use Modules\API\BookingAPI\ExpediaHotelBookingApiHandler;
+use Modules\API\BookingAPI\Controllers\BookingApiHandlerInterface;
+use Modules\API\BookingAPI\Controllers\ExpediaHotelBookingApiController;
+use Modules\API\BookingAPI\Controllers\HbsiHotelBookingApiController;
 use Modules\API\Requests\BookingAddItemHotelRequest;
 use Modules\API\Requests\BookingRemoveItemHotelRequest;
+use Modules\Enums\SupplierNameEnum;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -25,21 +27,14 @@ use Psr\Container\NotFoundExceptionInterface;
 class HotelBookingApiHandler extends BaseController implements BookingApiHandlerInterface
 {
     /**
-     * @var ExpediaHotelBookingApiHandler
+     * @param ExpediaHotelBookingApiController $expedia
+     * @param HbsiHotelBookingApiController $hbsi
      */
-    private ExpediaHotelBookingApiHandler $expedia;
-    /**
-     *
-     */
-    private const EXPEDIA_SUPPLIER_NAME = 'Expedia';
-
-    /**
-     * HotelBookingApiHandler constructor.
-     */
-    public function __construct()
-    {
-        $this->expedia = new ExpediaHotelBookingApiHandler();
-    }
+    public function __construct(
+        private readonly ExpediaHotelBookingApiController $expedia = new ExpediaHotelBookingApiController(),
+        private readonly HbsiHotelBookingApiController    $hbsi = new HbsiHotelBookingApiController(),
+    )
+    {}
 
     /**
      * @param Request $request
@@ -127,13 +122,12 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
             }
 
             $apiBookingItem = ApiBookingItem::where('booking_item', request()->get('booking_item'))->first()->toArray();
+            $booking_item_data = json_decode($apiBookingItem['booking_item_data'], true);
             $filters['search_id'] = $apiBookingItem['search_id'];
 
             $filters = array_merge($filters, $request->all());
 
-            if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
-
-                $booking_item_data = json_decode($apiBookingItem['booking_item_data'], true);
+            if ($supplier === SupplierNameEnum::EXPEDIA->value) {
                 $filters['hotel_id'] = $booking_item_data['hotel_id'];
                 $filters['room_id'] = $booking_item_data['room_id'];
                 $filters['rate'] = $booking_item_data['rate'];
@@ -141,7 +135,18 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
                 $data = $this->expedia->addItem($filters);
             }
-            // TODO: Add other suppliers
+
+            if ($supplier === SupplierNameEnum::HBSI->value) {
+                $filters['hotel_id'] = $booking_item_data['hotel_id'];
+                $filters['hotel_supplier_id'] = $booking_item_data['hotel_supplier_id'];
+                $filters['room_id'] = $booking_item_data['room_id'];
+                $filters['rate_ordinal'] = $booking_item_data['rate_ordinal'];
+                $filters['rate_type'] = $booking_item_data['rate_type'];
+                $filters['rate_occupancy'] = $booking_item_data['rate_occupancy'];
+
+                $data = $this->hbsi->addItem($filters);
+            }
+
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             Log::error('HotelBookingApiHandler | addItem ' . $e->getMessage());
             return $this->sendError(['error' => $e->getMessage()], 'failed');
@@ -219,10 +224,12 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
         $filters = $request->all();
         $data = [];
         try {
-            if ($supplier == self::EXPEDIA_SUPPLIER_NAME) {
+            if ($supplier === SupplierNameEnum::EXPEDIA->value) {
                 $data = $this->expedia->removeItem($filters);
             }
-            // TODO: Add other suppliers
+            if ($supplier === SupplierNameEnum::HBSI->value) {
+                $data = $this->hbsi->removeItem($filters);
+            }
 
         } catch (Exception $e) {
             Log::error('HotelBookingApiHandler | removeItem ' . $e->getMessage());

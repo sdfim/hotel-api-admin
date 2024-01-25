@@ -254,7 +254,7 @@ class ApiBookingInspectorRepository
     {
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('type', 'add_item')
-            ->where('sub_type', 'like', 'price_check' . '%')
+//            ->where('sub_type', 'like', 'price_check' . '%')
             ->get();
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\BookingAPI;
+namespace Modules\API\BookingAPI\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
