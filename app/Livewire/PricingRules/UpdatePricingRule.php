@@ -25,7 +25,7 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 
-class CreatePricingRules extends Component implements HasForms
+class UpdatePricingRule extends Component implements HasForms
 {
     use InteractsWithForms;
 
@@ -35,11 +35,18 @@ class CreatePricingRules extends Component implements HasForms
     public ?array $data = [];
 
     /**
+     * @var PricingRule
+     */
+    public PricingRule $record;
+
+    /**
+     * @param PricingRule $pricingRules
      * @return void
      */
-    public function mount(): void
+    public function mount(PricingRule $pricingRule): void
     {
-        $this->form->fill();
+        $this->record = $pricingRule;
+        $this->form->fill($this->record->attributesToArray());
     }
 
     /**
@@ -61,7 +68,7 @@ class CreatePricingRules extends Component implements HasForms
                         TextInput::make('name')
                             ->label('Rule name')
                             ->maxLength(191)
-                            ->unique()
+                            ->unique(ignorable: $this->record)
                             ->required(),
                         DateTimePicker::make('rule_start_date')
                             ->native(false)
@@ -117,7 +124,7 @@ class CreatePricingRules extends Component implements HasForms
                             ->required()
                     ])
                     ->columns(4),
-                Fieldset::make('')
+                Fieldset::make('Rules')
                     ->schema([
                         Repeater::make('conditions')
                             ->relationship()
@@ -228,7 +235,7 @@ class CreatePricingRules extends Component implements HasForms
                                                 ->format('Y-m-d')
                                                 ->displayFormat('d-m-Y')
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
                                         ],
                                         'booking_date' => [
                                             DateTimePicker::make('value_from')
@@ -245,7 +252,7 @@ class CreatePricingRules extends Component implements HasForms
                                                 ->format('Y-m-d')
                                                 ->displayFormat('d-m-Y')
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
                                         ],
                                         'total_guests' => [
                                             TextInput::make('value_from')
@@ -256,7 +263,7 @@ class CreatePricingRules extends Component implements HasForms
                                                 ->label('Total guests to')
                                                 ->numeric()
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
                                         ],
                                         'days_until_departure' => [
                                             TextInput::make('value_from')
@@ -267,7 +274,7 @@ class CreatePricingRules extends Component implements HasForms
                                                 ->label('Days until departure to')
                                                 ->numeric()
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
                                         ],
                                         'nights' => [
                                             TextInput::make('value_from')
@@ -278,7 +285,7 @@ class CreatePricingRules extends Component implements HasForms
                                                 ->label('Nights to')
                                                 ->numeric()
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
                                         ],
                                         'rating' => [
                                             TextInput::make('value_from')
@@ -293,7 +300,7 @@ class CreatePricingRules extends Component implements HasForms
                                                 ->minValue(fn(): float => 1.0)
                                                 ->maxValue(fn(): float => 5.5)
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
                                         ],
                                         'number_of_rooms' => [
                                             TextInput::make('value_from')
@@ -304,7 +311,7 @@ class CreatePricingRules extends Component implements HasForms
                                                 ->label('Number of rooms to')
                                                 ->numeric()
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
                                         ],
                                         'rate_code' => [
                                             TextInput::make('value_from')
@@ -328,20 +335,22 @@ class CreatePricingRules extends Component implements HasForms
                                     })
                                     ->columns()
                                     ->columnStart(3)
-                                    ->key('dynamicFieldValue')])
+                                    ->key('dynamicFieldValue')
+                            ])
                             ->required()
-                            ->columns(4)])
-                    ->columns(1)])
+                            ->columns(4)
+                    ])
+                    ->columns(1)
+            ])
             ->statePath('data')
-            ->model(PricingRule::class);
+            ->model($this->record);
     }
 
     /**
      * @param ValidationException $exception
      * @return void
      */
-    protected
-    function onValidationError(ValidationException $exception): void
+    protected function onValidationError(ValidationException $exception): void
     {
         Notification::make()
             ->title($exception->getMessage())
@@ -352,17 +361,14 @@ class CreatePricingRules extends Component implements HasForms
     /**
      * @return RedirectResponse|Redirector
      */
-    public
-    function create(): RedirectResponse|Redirector
+    public function edit(): RedirectResponse|Redirector
     {
         $data = $this->form->getState();
 
-        $record = PricingRule::create($data);
-
-        $this->form->model($record)->saveRelationships();
+        $this->record->update($data);
 
         Notification::make()
-            ->title('Created successfully')
+            ->title('Updated successfully')
             ->success()
             ->send();
 
@@ -372,9 +378,8 @@ class CreatePricingRules extends Component implements HasForms
     /**
      * @return View
      */
-    public
-    function render(): View
+    public function render(): View
     {
-        return view('livewire.pricing-rules.create-pricing-rules');
+        return view('livewire.pricing-rules.update-pricing-rules');
     }
 }

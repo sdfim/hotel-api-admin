@@ -98,17 +98,11 @@ class ExpediaPricingRulesApplierTest extends TestCase
      */
     public function createMockPricingRule(): array
     {
-        $channelId = 1;     // Channel::first()->id;
-
-        $supplierId = 1;    // Supplier::first()->id;
-
-        $giataId = 1;       // GiataProperty::where('city_id', 961)->first()->code;
-
         $pricingRulesTools = new PricingRulesTools();
 
         $pricingRule = $pricingRulesTools->generatePricingRuleData('Test rule');
 
-        $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData(1, $supplierId, $channelId, $giataId);
+        $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData();
 
         $pricingRule['conditions'] = $pricingRuleConditionsData;
 

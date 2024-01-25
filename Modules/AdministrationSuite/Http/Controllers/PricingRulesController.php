@@ -47,8 +47,8 @@ class PricingRulesController extends Controller
     {
         $text = $this->message;
 
-        $pricingRules = PricingRule::findOrFail($id);
+        $pricingRule = PricingRule::findOrFail($id);
 
-        return view('dashboard.pricing-rules.update', compact('pricingRules', 'text'));
+        return view('dashboard.pricing-rules.update', compact('pricingRule', 'text'));
     }
 }

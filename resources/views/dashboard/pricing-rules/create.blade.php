@@ -19,7 +19,7 @@
                         </div>
                     </div>
                     <div class="mx-1 py-1 col-span-9 xl:col-span-6">
-                        @livewire('pricing-rules.create-pricing-rules')
+                        @livewire('pricing-rules.create-pricing-rule')
                     </div>
                 </div>
             </div>
