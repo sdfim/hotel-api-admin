@@ -13,12 +13,12 @@ return new class extends Migration {
         Schema::create('pricing_rules', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('price_type_to_apply', 40);
-            $table->string('price_value_type_to_apply', 40);
-            $table->float('price_value_to_apply');
-            $table->string('price_value_fixed_type_to_apply', 40);
-            $table->dateTimeTz('rule_start_date')->default(now());
-            $table->dateTimeTz('rule_expiration_date')->default(now());
+            $table->string('manipulable_price_type', 40);
+            $table->string('price_value_type', 40);
+            $table->float('price_value');
+            $table->string('price_value_target', 40);
+            $table->dateTimeTz('rule_start_date');
+            $table->dateTimeTz('rule_expiration_date');
             $table->timestamps();
         });
     }

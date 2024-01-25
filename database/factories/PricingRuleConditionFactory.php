@@ -2,21 +2,18 @@
 
 namespace Database\Factories;
 
-use App\Models\PricingRule;
+use App\Models\PricingRuleCondition;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\API\Tools\PricingRulesTools;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PricingRules>
- */
-class PricingRuleFactory extends Factory
+class PricingRuleConditionFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = PricingRule::class;
+    protected $model = PricingRuleCondition::class;
 
     /**
      * Define the model's default state.
@@ -27,6 +24,6 @@ class PricingRuleFactory extends Factory
     {
         $pricingRulesTools = new PricingRulesTools();
 
-        return $pricingRulesTools->generatePricingRuleData(time());
+        return $pricingRulesTools->generatePricingRuleConditionData();
     }
 }

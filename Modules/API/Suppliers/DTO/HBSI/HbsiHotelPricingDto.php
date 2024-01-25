@@ -2,6 +2,9 @@
 
 namespace Modules\API\Suppliers\DTO\HBSI;
 
+use App\Models\Channel;
+use App\Models\Supplier;
+use App\Repositories\ChannelRenository;
 use App\Repositories\GiataGeographyRepository;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -67,8 +70,13 @@ class HbsiHotelPricingDto
         $this->search_id = $search_id;
 
 //        dd($supplierResponse);
+        $token = ChannelRenository::getTokenId(request()->bearerToken());
 
-        $pricingRules = $this->pricingRulesService->rules($query);
+        $channelId = Channel::where('token_id', $token)->first()->id;
+
+        $supplierId = Supplier::where('name', 'HBSI')->first()->id;
+
+        $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
         $pricingRules = array_column($pricingRules, null, 'property');
         // TODO: need change to HbsiPricingRulesApplier
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);

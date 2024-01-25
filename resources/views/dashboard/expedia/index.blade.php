@@ -74,7 +74,5 @@
                 div.classList.remove("opened-modal-block");
             }
         })
-
-
     </script>
 @endsection
