@@ -113,11 +113,27 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
                 if ($isValidPricingRule) {
                     if ($priceValueType === 'percentage') {
                         if ($manipulablePriceType === 'total_price') {
+                            //TODO
+                            if ($priceValueTarget === 'per_guest') {
+                            }
+                            if ($priceValueTarget === 'per_room') {
+                            }
+                            if ($priceValueTarget === 'per_night') {
+                            }
+
                             $result['total_price'] += $roomTotals['total_price'] + (($roomTotals['total_price'] * $priceValue) / 100);
                             $result['total_net'] += $roomTotals['total_net'];
                         }
                         // in case when supplier is Expedia total_price and rate_price should be calculated the same way
                         if ($manipulablePriceType === 'net_price' || $manipulablePriceType === 'rate_price') {
+                            //TODO
+                            if ($priceValueTarget === 'per_guest') {
+                            }
+                            if ($priceValueTarget === 'per_room') {
+                            }
+                            if ($priceValueTarget === 'per_night') {
+                            }
+
                             $totalNet = $roomTotals['total_net'] + (($roomTotals['total_net'] * $priceValue) / 100);
                             $result['total_net'] += $totalNet;
                             $result['total_price'] += $totalNet + $roomTotals['total_tax'] + $roomTotals['total_fees'];
