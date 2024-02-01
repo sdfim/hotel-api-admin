@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\PricingRule;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Modules\API\Tools\PricingRulesTools;
+use Modules\API\Tools\PricingRulesDataGenerationTools;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PricingRules>
@@ -25,7 +25,7 @@ class PricingRuleFactory extends Factory
      */
     public function definition(): array
     {
-        $pricingRulesTools = new PricingRulesTools();
+        $pricingRulesTools = new PricingRulesDataGenerationTools();
 
         return $pricingRulesTools->generatePricingRuleData(time());
     }

@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\PricingRuleCondition;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Modules\API\Tools\PricingRulesTools;
+use Modules\API\Tools\PricingRulesDataGenerationTools;
 
 class PricingRuleConditionFactory extends Factory
 {
@@ -22,7 +22,7 @@ class PricingRuleConditionFactory extends Factory
      */
     public function definition(): array
     {
-        $pricingRulesTools = new PricingRulesTools();
+        $pricingRulesTools = new PricingRulesDataGenerationTools();
 
         return $pricingRulesTools->generatePricingRuleConditionData();
     }

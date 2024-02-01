@@ -4,7 +4,7 @@ namespace Tests\Unit\Hotel\Pricing;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
-use Modules\API\Tools\PricingRulesTools;
+use Modules\API\Tools\PricingRulesDataGenerationTools;
 use Tests\TestCase;
 
 class ExpediaPricingRulesApplierTest extends TestCase
@@ -98,7 +98,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
      */
     public function createMockPricingRule(): array
     {
-        $pricingRulesTools = new PricingRulesTools();
+        $pricingRulesTools = new PricingRulesDataGenerationTools();
 
         $pricingRule = $pricingRulesTools->generatePricingRuleData('Test rule');
 

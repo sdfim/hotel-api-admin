@@ -8,7 +8,7 @@ use App\Models\PricingRule;
 use App\Models\PricingRuleCondition;
 use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
-use Modules\API\Tools\PricingRulesTools;
+use Modules\API\Tools\PricingRulesDataGenerationTools;
 
 class PricingRulesTest extends CustomAuthorizedActionsTestCase
 {
@@ -85,7 +85,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_creating_new_pricing_rule(): void
     {
-        $pricingRulesTools = new PricingRulesTools();
+        $pricingRulesTools = new PricingRulesDataGenerationTools();
 
         $pricingRuleData = $pricingRulesTools->generatePricingRuleData(time());
 
@@ -121,7 +121,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
             ->has(PricingRuleCondition::factory()->count(rand(1, 14)), 'conditions')
             ->create();
 
-        $pricingRulesTools = new PricingRulesTools();
+        $pricingRulesTools = new PricingRulesDataGenerationTools();
 
         $pricingRuleData = $pricingRulesTools->generatePricingRuleData(time());
 

@@ -13,7 +13,6 @@
         "ext-simplexml": "*",
         "darkaonline/l5-swagger": "^8.5",
         "elasticsearch/elasticsearch": "~7.0",
-        "fakerphp/faker": "^1.23",
         "filament/actions": "^3.0-stable",
         "filament/forms": "^3.0-stable",
         "filament/tables": "^3.0-stable",
@@ -29,6 +28,7 @@
         "opensearch-project/opensearch-php": "^2.2"
     },
     "require-dev": {
+        "fakerphp/faker": "^1.23",
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.18",
         "mockery/mockery": "^1.4.4",
