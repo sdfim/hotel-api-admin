@@ -68,7 +68,8 @@
                                         type="button" id="password-addon"
                                         @click="inputType === 'password' ? inputType = 'text' :  inputType = 'password'"
                                     >
-                                        <i class="mdi mdi-eye-outline"></i>
+                                        <i class="mdi"
+                                           :class="inputType === 'password' ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"></i>
                                     </button>
                                     @error('password')
                                     <span class="text-sm text-red-600">{{ $message }}</span>
