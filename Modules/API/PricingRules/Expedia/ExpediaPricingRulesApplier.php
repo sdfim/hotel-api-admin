@@ -76,6 +76,8 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
 
                 if ($validPricingRule) {
                     // calculate pricing for each room from request
+                    $affiliateServiceCharge = 0;
+
                     if ($manipulablePriceType === 'total_price') {
                         $priceValueFromTotal = ($roomTotals['total_price'] * $priceValue) / 100;
 
@@ -94,11 +96,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
                             }
                         };
 
-                        $result['affiliate_service_charge'] += $affiliateServiceCharge;
-
                         $result['total_net'] += $roomTotals['total_net'];
-
-                        $result['total_price'] += $affiliateServiceCharge;
                     }
 
                     // in case when supplier is Expedia total_price and rate_price should be calculated the same way
@@ -121,14 +119,13 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
                             'default' => 0
                         };
 
-                        $result['affiliate_service_charge'] += $affiliateServiceCharge;
-
-                        $totalNet = $roomTotals['total_net'] + $affiliateServiceCharge;
-
-                        $result['total_net'] += $totalNet;
-
-                        $result['total_price'] += $totalNet + $roomTotals['total_tax'] + $roomTotals['total_fees'];
+                        $result['total_net'] += $roomTotals['total_net'];
                     }
+
+                    // these values are calculated in the same way for all $manipulablePriceType
+                    $result['affiliate_service_charge'] += $affiliateServiceCharge;
+
+                    $result['total_price'] += $roomTotals['total_price'];
                 } else {
                     $result['total_price'] += $roomTotals['total_price'];
 
@@ -136,14 +133,6 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
                 }
             }
         }
-
-        $result['total_price'] = round($result['total_price'], 2);
-
-        $result['total_tax'] = round($result['total_tax'], 2);
-
-        $result['total_fees'] = round($result['total_fees'], 2);
-
-        $result['total_net'] = round($result['total_net'], 2);
 
         $result['affiliate_service_charge'] = $b2b ? round($result['affiliate_service_charge'], 2) : 0.00;
 
@@ -174,6 +163,8 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
     }
 
     /**
+     * Calculates total_price(net_price, fees, taxes)
+     *
      * @param array $roomPricing
      * @return array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int}
      */
@@ -198,12 +189,9 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
                     $totals['total_net'] += $expenseItem['value'];
                 }
 
-                if ($expenseItem['type'] === 'tax_and_service_fee') {
+                // e.g 'tax_and_service_fee' key or any other
+                if ($expenseItem['type'] !== 'base_rate') {
                     $totals['total_tax'] += $expenseItem['value'];
-                }
-
-                if (!in_array($expenseItem['type'], ['base_rate', 'tax_and_service_fee'])) {
-                    $totals['total_fees'] += $expenseItem['value'];
                 }
             }
         }
