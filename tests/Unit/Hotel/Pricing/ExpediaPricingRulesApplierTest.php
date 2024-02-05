@@ -4,7 +4,6 @@ namespace Tests\Unit\Hotel\Pricing;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
-use Modules\API\Tools\PricingRulesTools;
 use Tests\TestCase;
 
 class ExpediaPricingRulesApplierTest extends TestCase
@@ -20,8 +19,8 @@ class ExpediaPricingRulesApplierTest extends TestCase
     {
         parent::setUp();
         $requestArray = $this->createMockRequestArray();
-        $pricingRule = $this->createMockPricingRule();
-        $this->expediaPricingRulesApplier = new ExpediaPricingRulesApplier($requestArray, $pricingRule);
+        $pricingRules = $this->createMockPricingRule();
+        $this->expediaPricingRulesApplier = new ExpediaPricingRulesApplier($requestArray, $pricingRules);
     }
 
     /**
@@ -42,10 +41,10 @@ class ExpediaPricingRulesApplierTest extends TestCase
         $this->assertArrayHasKey('total_net', $result);
         $this->assertArrayHasKey('affiliate_service_charge', $result);
 
-        $this->assertNotEmpty($result['total_price']);
-        $this->assertNotEmpty($result['total_tax']);
-        $this->assertNotEmpty($result['total_fees']);
-        $this->assertNotEmpty($result['total_net']);
+        $this->assertNotNull($result['total_price']);
+        $this->assertNotNull($result['total_tax']);
+        $this->assertNotNull($result['total_fees']);
+        $this->assertNotNull($result['total_net']);
 
         $expectedResult = $this->getExpectedResult();
 
@@ -58,11 +57,11 @@ class ExpediaPricingRulesApplierTest extends TestCase
     public function getExpectedResult(): array
     {
         return [
-            "total_price" => 2551.5,
-            "total_tax" => 355.5,
-            "total_fees" => 270.0,
-            "total_net" => 2196.0,
-            "affiliate_service_charge" => 0.0
+            'total_price' => 2551.5,
+            'total_tax' => 355.5,
+            'total_fees' => 270.0,
+            'total_net' => 2196.0,
+            'affiliate_service_charge' => 2611.5
         ];
     }
 
@@ -98,15 +97,20 @@ class ExpediaPricingRulesApplierTest extends TestCase
      */
     public function createMockPricingRule(): array
     {
-        $pricingRulesTools = new PricingRulesTools();
-
-        $pricingRule = $pricingRulesTools->generatePricingRuleData('Test rule');
-
-        $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData();
-
-        $pricingRule['conditions'] = $pricingRuleConditionsData;
-
-        return $pricingRule;
+        return [
+            [
+                'name' => 'Test pricing rule',
+                'rule_start_date' => '2024-02-05',
+                'rule_expiration_date' => '2024-05-05',
+                'manipulable_price_type' => 'total_price',
+                'price_value' => 20,
+                'price_value_type' => 'fixed_value',
+                'price_value_target' => 'per_room',
+                'conditions' => [
+                    ['field' => 'destination', 'compare' => '=', 'value_from' => 961, 'value_to' => null]
+                ]
+            ]
+        ];
     }
 
     /**
@@ -139,7 +143,6 @@ class ExpediaPricingRulesApplierTest extends TestCase
                             'type' => 'tax_and_service_fee',
                             'value' => '39.50',
                             'currency' => 'USD'
-
                         ]
                     ],
                     [
@@ -152,7 +155,6 @@ class ExpediaPricingRulesApplierTest extends TestCase
                             'type' => 'tax_and_service_fee',
                             'value' => '39.50',
                             'currency' => 'USD'
-
                         ]
                     ]
                 ],

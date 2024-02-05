@@ -5,7 +5,7 @@ namespace Database\Seeders;
 use App\Models\GiataProperty;
 use App\Models\PricingRule;
 use Illuminate\Database\Seeder;
-use Modules\API\Tools\PricingRulesTools;
+use Modules\API\Tools\PricingRulesDataGenerationTools;
 
 class PricingRuleSeeder extends Seeder
 {
@@ -16,7 +16,7 @@ class PricingRuleSeeder extends Seeder
     {
         $giataIds = GiataProperty::where('city_id', 961)->pluck('code')->all();
 
-        $pricingRulesTools = new PricingRulesTools();
+        $pricingRulesTools = new PricingRulesDataGenerationTools();
 
         foreach ($giataIds as $index => $giataId) {
             $ruleIndex = $index + 1;

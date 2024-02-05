@@ -93,11 +93,6 @@ class ExpediaHotelPricingDto
 
         $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
 
-        foreach ($pricingRules as $pricingRule) {
-            // TODO: remove isset
-            if (isset($pricingRule['property'])) $pricingRules[$pricingRule['property']] = $pricingRule;
-        }
-
         $this->pricingRulesApplier = new ExpediaPricingRulesApplier($query, $pricingRules);
 
         $this->destinationData = GiataGeography::where('city_id', $query['destination'])
