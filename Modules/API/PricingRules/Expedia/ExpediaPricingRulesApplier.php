@@ -2,25 +2,11 @@
 
 namespace Modules\API\PricingRules\Expedia;
 
+use Modules\API\PricingRules\BasePricingRulesApplier;
 use Modules\API\PricingRules\PricingRulesApplierInterface;
 
-class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
+class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements PricingRulesApplierInterface
 {
-    /**
-     * @var array
-     */
-    private array $requestArray;
-    /**
-     * @var array
-     */
-    private array $pricingRules;
-
-    public function __construct(array $requestArray, array $pricingRules)
-    {
-        $this->requestArray = $requestArray;
-        $this->pricingRules = $pricingRules;
-    }
-
     /**
      * @param int $giataId
      * @param array $roomsPricingArray
@@ -35,22 +21,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      */
     public function apply(int $giataId, array $roomsPricingArray, bool $b2b = true): array
     {
-        /**
-         * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int,affiliate_service_charge: float|int} $result
-         */
-        $result = [
-            'total_price' => 0,
-            'total_tax' => 0,
-            'total_fees' => 0,
-            'total_net' => 0,
-            'affiliate_service_charge' => 0,
-        ];
-
         foreach ($this->pricingRules as $pricingRule) {
-            $firstRoomCapacityKey = array_key_first($roomsPricingArray);
-
-            $numberOfNights = count($roomsPricingArray[$firstRoomCapacityKey]['nightly']);
-
             $validPricingRule = $this->validPricingRule($pricingRule['conditions'], $giataId);
 
             $priceValueType = (string)($pricingRule['price_value_type'] ?? '');
@@ -59,7 +30,6 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
 
             $manipulablePriceType = (string)($pricingRule['manipulable_price_type'] ?? '');
 
-            // this value only available when $priceValueTypeToApply === 'fixed_value'
             $priceValueTarget = (string)($pricingRule['price_value_target'] ?? '');
 
             foreach ($this->requestArray['occupancy'] as $room) {
@@ -70,9 +40,9 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
                 $roomTotals = $this->calculateRoomTotals($roomsPricingArray[$roomsPricingKey]);
 
                 // these values are calculated in the same way for all cases below, therefore they are moved to the top from each closure
-                $result['total_tax'] += $roomTotals['total_tax'];
+                $this->totalTax += $roomTotals['total_tax'];
 
-                $result['total_fees'] += $roomTotals['total_fees'];
+                $this->totalFees += $roomTotals['total_fees'];
 
                 if ($validPricingRule) {
                     // calculate pricing for each room from request
@@ -91,12 +61,12 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
                                 'fixed_value' => $roomTotals['total_price'] + $priceValue
                             },
                             'per_night' => match ($priceValueType) {
-                                'percentage' => $roomTotals['total_price'] + ($numberOfNights * $priceValueFromTotal),
-                                'fixed_value' => $roomTotals['total_price'] + ($numberOfNights * $priceValue)
+                                'percentage' => $roomTotals['total_price'] + ($this->numberOfNights * $priceValueFromTotal),
+                                'fixed_value' => $roomTotals['total_price'] + ($this->numberOfNights * $priceValue)
                             }
                         };
 
-                        $result['total_net'] += $roomTotals['total_net'];
+                        $this->totalNet += $roomTotals['total_net'];
                     }
 
                     // in case when supplier is Expedia total_price and rate_price should be calculated the same way
@@ -113,30 +83,39 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
                                 'fixed_value' => $priceValue
                             },
                             'per_night' => match ($priceValueType) {
-                                'percentage' => $numberOfNights * $priceValueFromTotalNet,
-                                'fixed_value' => $numberOfNights * $priceValue,
+                                'percentage' => $this->numberOfNights * $priceValueFromTotalNet,
+                                'fixed_value' => $this->numberOfNights * $priceValue,
                             },
                             'default' => 0
                         };
 
-                        $result['total_net'] += $roomTotals['total_net'];
+                        $this->totalNet += $roomTotals['total_net'];
                     }
 
                     // these values are calculated in the same way for all $manipulablePriceType
-                    $result['affiliate_service_charge'] += $affiliateServiceCharge;
+                    $this->affiliateServiceCharge += $affiliateServiceCharge;
 
-                    $result['total_price'] += $roomTotals['total_price'];
+                    $this->totalPrice += $roomTotals['total_price'];
                 } else {
-                    $result['total_price'] += $roomTotals['total_price'];
+                    $this->totalPrice += $roomTotals['total_price'];
 
-                    $result['total_net'] += $roomTotals['total_net'];
+                    $this->totalNet += $roomTotals['total_net'];
                 }
             }
         }
 
-        $result['affiliate_service_charge'] = $b2b ? round($result['affiliate_service_charge'], 2) : 0.00;
+        $this->affiliateServiceCharge = $b2b ? round($this->affiliateServiceCharge, 2) : 0.00;
 
-        return $result;
+        /**
+         * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int,affiliate_service_charge: float|int}
+         */
+        return [
+            'total_price' => $this->totalPrice,
+            'total_tax' => $this->totalTax,
+            'total_fees' => $this->totalFees,
+            'total_net' => $this->totalNet,
+            'affiliate_service_charge' => $this->affiliateServiceCharge
+        ];
     }
 
     /**
@@ -170,7 +149,6 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
      */
     private function calculateRoomTotals(array $roomPricing): array
     {
-        // in case when there is no any discount total_net = rate_price(amount of rates each night)
         /**
          * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int} $totals
          */
@@ -178,7 +156,7 @@ class ExpediaPricingRulesApplier implements PricingRulesApplierInterface
             'total_price' => 0,
             'total_tax' => 0,
             'total_fees' => 0,
-            'total_net' => 0,
+            'total_net' => 0
         ];
 
         foreach ($roomPricing['nightly'] as $night) {
