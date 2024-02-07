@@ -2,8 +2,6 @@
 
 namespace Modules\API\Controllers\ApiHandlers\PricingSuppliers;
 
-use App\Models\GiataProperty;
-use App\Models\MapperHbsiGiata;
 use App\Repositories\GiataPropertyRepository;
 use App\Repositories\HbsiRepository;
 use GuzzleHttp\Exception\GuzzleException;
@@ -21,6 +19,8 @@ class HbsiHotelController
 
     /**
      * @param HbsiClient $hbsiClient
+     * @param Geography $geography
+     * @param GiataPropertyRepository $giataRepo
      */
     public function __construct(
         private readonly HbsiClient $hbsiClient = new HbsiClient(),
@@ -66,6 +66,7 @@ class HbsiHotelController
 
             $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
             $priceData = $this->object2array($response->RoomStays)['RoomStay'];
+
 
             $i = 1;
             $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($hotelData, &$i) {
@@ -119,8 +120,6 @@ class HbsiHotelController
         }
     }
 
-    function object2array($object) { return json_decode(json_encode($object),1); }
-
-
+    public function object2array($object) { return json_decode(json_encode($object),1); }
 
 }

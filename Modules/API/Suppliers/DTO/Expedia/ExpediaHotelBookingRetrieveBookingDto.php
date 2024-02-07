@@ -13,7 +13,7 @@ class ExpediaHotelBookingRetrieveBookingDto
     /**
      * @return array $filters
      */
-    public static function ExpediaRetrieveBookingToHotelBookResponseModel(array $filters, array $dataResponse): array
+    public static function RetrieveBookingToHotelBookResponseModel(array $filters, array $dataResponse): array
     {
         $bookData = ApiBookingInspectorRepository::getBookItemsByBookingItem($filters['booking_item']);
         $saveResponse = json_decode(Storage::get($bookData->client_response_path), true);

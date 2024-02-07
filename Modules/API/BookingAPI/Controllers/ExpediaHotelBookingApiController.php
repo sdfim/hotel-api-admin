@@ -9,6 +9,7 @@ use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
+use Modules\Enums\SupplierNameEnum;
 
 class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
 {
@@ -46,15 +47,9 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
 
         $booking_id = $filters['booking_id'] ?? (string)Str::uuid();
 
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         SaveBookingInspector::dispatch([
-            $booking_id,
-            $filters,
-            $dataResponse,
-            [],
-            Supplier::where('name', 'Expedia')->first()->id,
-            'add_item',
-            'price_check',
-            'hotel',
+            $booking_id, $filters, $dataResponse, [], $supplierId, 'add_item', 'price_check', 'hotel',
         ]);
 
         return ['booking_id' => $booking_id];
