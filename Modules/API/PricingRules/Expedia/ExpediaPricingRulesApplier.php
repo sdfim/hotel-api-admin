@@ -5,6 +5,9 @@ namespace Modules\API\PricingRules\Expedia;
 use Modules\API\PricingRules\BasePricingRulesApplier;
 use Modules\API\PricingRules\PricingRulesApplierInterface;
 
+/**
+ *
+ */
 class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements PricingRulesApplierInterface
 {
     /**
@@ -16,106 +19,28 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
      *      total_tax: float|int,
      *      total_fees: float|int,
      *      total_net: float|int,
-     *      affiliate_service_charge: float|int,
+     *      affiliate_service_charge: float|int
      *  }
      */
     public function apply(int $giataId, array $roomsPricingArray, bool $b2b = true): array
     {
         foreach ($this->pricingRules as $pricingRule) {
-            $validPricingRule = $this->validPricingRule($pricingRule['conditions'], $giataId);
+            $this->validPricingRule = $this->validPricingRule($pricingRule['conditions'], $giataId);
 
-            $priceValueType = (string)($pricingRule['price_value_type'] ?? '');
-
-            $priceValue = (float)($pricingRule['price_value'] ?? 0);
-
-            $manipulablePriceType = (string)($pricingRule['manipulable_price_type'] ?? '');
-
-            $priceValueTarget = (string)($pricingRule['price_value_target'] ?? '');
+            $this->setPricingRuleValues($pricingRule);
 
             foreach ($this->requestArray['occupancy'] as $room) {
-                $totalNumberOfGuestsInRoom = (int)array_sum($room);
+                $this->totalNumberOfGuestsInRoom = $this->totalNumberOfGuestsInRoom($room);
 
                 $roomsPricingKey = isset($room['children_ages']) ? $room['adults'] . '-' . implode(',', $room['children_ages']) : $room['adults'];
 
-                $roomTotals = $this->calculateRoomTotals($roomsPricingArray[$roomsPricingKey]);
+                $this->roomTotals = $this->calculateRoomTotals($roomsPricingArray[$roomsPricingKey]);
 
-                // these values are calculated in the same way for all cases below, therefore they are moved to the top from each closure
-                $this->totalTax += $roomTotals['total_tax'];
-
-                $this->totalFees += $roomTotals['total_fees'];
-
-                if ($validPricingRule) {
-                    // calculate pricing for each room from request
-                    $affiliateServiceCharge = 0;
-
-                    if ($manipulablePriceType === 'total_price') {
-                        $priceValueFromTotal = ($roomTotals['total_price'] * $priceValue) / 100;
-
-                        $affiliateServiceCharge = match ($priceValueTarget) {
-                            'per_guest' => match ($priceValueType) {
-                                'percentage' => $roomTotals['total_price'] + ($totalNumberOfGuestsInRoom * $priceValueFromTotal),
-                                'fixed_value' => $roomTotals['total_price'] + ($totalNumberOfGuestsInRoom * $priceValue)
-                            },
-                            'per_room' => match ($priceValueType) {
-                                'percentage' => $roomTotals['total_price'] + $priceValueFromTotal,
-                                'fixed_value' => $roomTotals['total_price'] + $priceValue
-                            },
-                            'per_night' => match ($priceValueType) {
-                                'percentage' => $roomTotals['total_price'] + ($this->numberOfNights * $priceValueFromTotal),
-                                'fixed_value' => $roomTotals['total_price'] + ($this->numberOfNights * $priceValue)
-                            }
-                        };
-
-                        $this->totalNet += $roomTotals['total_net'];
-                    }
-
-                    // in case when supplier is Expedia total_price and rate_price should be calculated the same way
-                    if ($manipulablePriceType === 'net_price' || $manipulablePriceType === 'rate_price') {
-                        $priceValueFromTotalNet = ($roomTotals['total_net'] * $priceValue) / 100;
-
-                        $affiliateServiceCharge = match ($priceValueTarget) {
-                            'per_guest' => match ($priceValueType) {
-                                'percentage' => $totalNumberOfGuestsInRoom * $priceValueFromTotalNet,
-                                'fixed_value' => $totalNumberOfGuestsInRoom * $priceValue
-                            },
-                            'per_room' => match ($priceValueType) {
-                                'percentage' => $priceValueFromTotalNet,
-                                'fixed_value' => $priceValue
-                            },
-                            'per_night' => match ($priceValueType) {
-                                'percentage' => $this->numberOfNights * $priceValueFromTotalNet,
-                                'fixed_value' => $this->numberOfNights * $priceValue,
-                            },
-                            'default' => 0
-                        };
-
-                        $this->totalNet += $roomTotals['total_net'];
-                    }
-
-                    // these values are calculated in the same way for all $manipulablePriceType
-                    $this->affiliateServiceCharge += $affiliateServiceCharge;
-
-                    $this->totalPrice += $roomTotals['total_price'];
-                } else {
-                    $this->totalPrice += $roomTotals['total_price'];
-
-                    $this->totalNet += $roomTotals['total_net'];
-                }
+                $this->applyPricingRulesLogic();
             }
         }
 
-        $this->affiliateServiceCharge = $b2b ? round($this->affiliateServiceCharge, 2) : 0.00;
-
-        /**
-         * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int,affiliate_service_charge: float|int}
-         */
-        return [
-            'total_price' => $this->totalPrice,
-            'total_tax' => $this->totalTax,
-            'total_fees' => $this->totalFees,
-            'total_net' => $this->totalNet,
-            'affiliate_service_charge' => $this->affiliateServiceCharge
-        ];
+        return $this->totals($b2b);
     }
 
     /**
