@@ -114,8 +114,11 @@ class BasePricingRulesApplier
     protected function setPricingRuleValues(array $pricingRule): void
     {
         $this->priceValueType = (string)$pricingRule['price_value_type'];
+
         $this->priceValue = (float)$pricingRule['price_value'];
+
         $this->manipulablePriceType = (string)$pricingRule['manipulable_price_type'];
+
         $this->priceValueTarget = (string)$pricingRule['price_value_target'];
     }
 
