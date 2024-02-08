@@ -127,14 +127,14 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
             'value added tax (vat)'
         ];
 
-        if(array_keys($roomPricing['Rate']) === range(0, count($roomPricing['Rate']) - 1)) {
-            $roomPricingLoop = $roomPricing['Rate'];
+        if(array_key_first($roomPricing['Rate']) !== 0) {
+            $roomPricingLoop[] = $roomPricing['Rate'];
         } else {
-            $roomPricingLoop = $roomPricing;
+            $roomPricingLoop = $roomPricing['Rate'];
         }
 
-        foreach ($roomPricingLoop as $index => $rate) {
-            $totals['total_net'] += (float)$rate[$index]['Total']['@attributes']['AmountBeforeTax'];
+        foreach ($roomPricingLoop as $rate) {
+            $totals['total_net'] += (float)$rate['Total']['@attributes']['AmountBeforeTax'];
 
             if (isset($rate['Base']['Taxes']['Tax'])) {
                 if (!isset($rate['Base']['Taxes']['Tax']['@attributes'])) {
