@@ -145,12 +145,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     public function search(Request $request): JsonResponse
     {
         try {
-            $validate = Validator::make($request->all(), (new SearchHotelRequest())->rules());
-            if ($validate->fails()) return $this->sendError($validate->errors());
             $filters = $request->all();
-
             $supplierNames = explode(', ', (GeneralConfiguration::pluck('content_supplier')->toArray()[0] ?? 'Expedia'));
-
             $keyPricingSearch = request()->get('type') . ':contentSearch:' . http_build_query(Arr::dot($filters));
 
             if (Cache::has($keyPricingSearch . ':content') && Cache::has($keyPricingSearch . ':clientContent')) {
@@ -305,13 +301,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     public function detail(Request $request): JsonResponse
     {
         try {
-            $validate = Validator::make($request->all(), [
-                'property_id' => 'required|int|digits_between:5,12',
-                'type' => 'required|in:hotel,flight,combo',
-                'supplier' => 'string',
-            ]);
-            if ($validate->fails()) return $this->sendError($validate->errors());
-
             $supplierNames = explode(', ', GeneralConfiguration::pluck('content_supplier')->toArray()[0]);
             $keyPricingSearch = request()->get('type') . ':contentDetail:' . http_build_query(Arr::dot($request->all()));
 
@@ -437,10 +426,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     public function price(Request $request, array $suppliers): JsonResponse
     {
         try {
-            $validate = Validator::make($request->all(), (new PriceHotelRequest())->rules());
-            if ($validate->fails()) {
-                return $this->sendError($validate->errors());
-            }
             $filters = $request->all();
 
             $keyPricingSearch = request()->get('type') . ':pricingSearch:' . http_build_query(Arr::dot($filters));

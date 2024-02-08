@@ -14,6 +14,8 @@ use Laravel\Sanctum\PersonalAccessToken;
 use Modules\API\BookingAPI\BookingApiHandlers\ComboBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
+use Modules\API\Requests\BookingAddItemHotelRequest;
+use Modules\API\Requests\BookingRemoveItemHotelRequest;
 use Modules\Enums\RouteBookingEnum;
 use Modules\Enums\TypeRequestEnum;
 
@@ -47,16 +49,40 @@ class RouteBookingApiController extends Controller
         if (is_null($this->supplier)) return response()->json(['message' => 'Invalid supplier'], 400);
 
         $dataHandler = match ($this->type) {
-            'hotel' => new HotelBookingApiHandler(),
-            'flight' => new FlightBookingApiHandler(),
-            'combo' => new ComboBookingApiHandler(),
+            TypeRequestEnum::HOTEL->value => new HotelBookingApiHandler(),
+            TypeRequestEnum::FLIGHT->value => new FlightBookingApiHandler(),
+            TypeRequestEnum::COMBO->value => new ComboBookingApiHandler(),
             default => response()->json(['message' => 'Invalid route'], 400),
         };
 
         return match ($this->route) {
-            'addItem' => $dataHandler->addItem($request, $this->supplier),
-            'removeItem' => $dataHandler->removeItem($request, $this->supplier),
+            'addItem' => $dataHandler->addItem($this->addItemRequest($this->type), $this->supplier),
+            'removeItem' => $dataHandler->removeItem($this->removeItemRequest($this->type), $this->supplier),
             default => response()->json(['message' => 'Invalid route'], 400),
+        };
+    }
+
+    /**
+     * @param string $type
+     * @return Request
+     */
+    private function addItemRequest(string $type): Request
+    {
+        return match ($type) {
+            TypeRequestEnum::HOTEL->value => resolve(BookingAddItemHotelRequest::class),
+            default => resolve(Request::class),
+        };
+    }
+
+    /**
+     * @param string $type
+     * @return Request
+     */
+    private function removeItemRequest(string $type): Request
+    {
+        return match ($type) {
+            TypeRequestEnum::HOTEL->value => resolve(BookingRemoveItemHotelRequest::class),
+            default => resolve(Request::class),
         };
     }
 

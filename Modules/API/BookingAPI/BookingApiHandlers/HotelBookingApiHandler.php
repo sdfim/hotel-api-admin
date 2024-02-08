@@ -95,9 +95,6 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
      */
     public function addItem(Request $request, string $supplier): JsonResponse
     {
-        $validate = Validator::make($request->all(), (new BookingAddItemHotelRequest())->rules());
-        if ($validate->fails()) return $this->sendError($validate->errors());
-
         $filters = $request->all();
         $data = [];
         try {
@@ -217,8 +214,8 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
      */
     public function removeItem(Request $request, string $supplier): JsonResponse
     {
-        $validate = Validator::make($request->all(), (new BookingRemoveItemHotelRequest())->rules());
-        if ($validate->fails()) return $this->sendError($validate->errors());
+//        $validate = Validator::make($request->all(), (new BookingRemoveItemHotelRequest())->rules());
+//        if ($validate->fails()) return $this->sendError($validate->errors());
 
         $filters = $request->all();
         $data = [];

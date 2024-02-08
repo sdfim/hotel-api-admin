@@ -24,7 +24,9 @@ class DetailHotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'property_id' => ['required', 'stringy'],
+            'property_id' => 'required|int|digits_between:5,12',
+            'type' => 'required|in:hotel,flight,combo',
+            'supplier' => 'string',
         ];
     }
 
