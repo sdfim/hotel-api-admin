@@ -139,33 +139,31 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
             if (isset($rate['Base']['Taxes']['Tax'])) {
                 if (!isset($rate['Base']['Taxes']['Tax']['@attributes'])) {
                     foreach ($rate['Base']['Taxes']['Tax'] as $tax) {
-                        $code = strtolower($tax['@attributes']['Code']);
-
-                        if (in_array(strtolower($tax['@attributes']['Code']), $fees)) {
-                            $totals['total_fees'] += (float)$tax['@attributes']['Amount'];
-                        }
-
-                        if (in_array($code, $taxes)) {
-                            $totals['total_tax'] += (float)$tax['@attributes']['Amount'];
-                        }
+                        $totals = $this->calculateTaxAndFees($tax, $fees, $taxes, $totals);
                     }
                 } else {
                     $tax = $rate['Base']['Taxes']['Tax'];
-                    $code = strtolower($tax['@attributes']['Code']);
-
-                    if (in_array(strtolower($tax['@attributes']['Code']), $fees)) {
-                        $totals['total_fees'] += (float)$tax['@attributes']['Amount'];
-                    }
-
-                    if (in_array($code, $taxes)) {
-                        $totals['total_tax'] += (float)$tax['@attributes']['Amount'];
-                    }
+                    $totals = $this->calculateTaxAndFees($tax, $fees, $taxes, $totals);
                 }
-
             }
         }
 
         $totals['total_price'] += $totals['total_net'] + $totals['total_fees'] + $totals['total_tax'];
+
+        return $totals;
+    }
+
+     private function calculateTaxAndFees($tax, $fees, $taxes, $totals): array
+    {
+        $code = strtolower($tax['@attributes']['Code']);
+
+        if (in_array(strtolower($tax['@attributes']['Code']), $fees)) {
+            $totals['total_fees'] += (float)$tax['@attributes']['Amount'];
+        }
+
+        if (in_array($code, $taxes)) {
+            $totals['total_tax'] += (float)$tax['@attributes']['Amount'];
+        }
 
         return $totals;
     }
