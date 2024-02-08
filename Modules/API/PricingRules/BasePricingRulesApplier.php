@@ -197,7 +197,7 @@ class BasePricingRulesApplier
      */
     protected function totalNumberOfGuestsInRoom(array $room): int
     {
-        return (int)$room['adults'] + ($room['children_ages'] ? count($room['children_ages']) : 0);
+        return (int)$room['adults'] + (isset($room['children_ages']) ? count($room['children_ages']) : 0);
     }
 
     /**
