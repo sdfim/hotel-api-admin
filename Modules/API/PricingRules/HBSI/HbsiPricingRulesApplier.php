@@ -127,11 +127,30 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
             'value added tax (vat)'
         ];
 
-        foreach ($roomPricing['Rate'] as $rate) {
-            $totals['total_net'] += $rate['Total']['@attributes']['AmountBeforeTax'];
+        if(array_keys($roomPricing['Rate']) === range(0, count($roomPricing['Rate']) - 1)) {
+            $roomPricingLoop = $roomPricing['Rate'];
+        } else {
+            $roomPricingLoop = $roomPricing;
+        }
+
+        foreach ($roomPricingLoop as $index => $rate) {
+            $totals['total_net'] += (float)$rate[$index]['Total']['@attributes']['AmountBeforeTax'];
 
             if (isset($rate['Base']['Taxes']['Tax'])) {
-                foreach ($rate['Base']['Taxes']['Tax'] as $tax) {
+                if (!isset($rate['Base']['Taxes']['Tax']['@attributes'])) {
+                    foreach ($rate['Base']['Taxes']['Tax'] as $tax) {
+                        $code = strtolower($tax['@attributes']['Code']);
+
+                        if (in_array(strtolower($tax['@attributes']['Code']), $fees)) {
+                            $totals['total_fees'] += (float)$tax['@attributes']['Amount'];
+                        }
+
+                        if (in_array($code, $taxes)) {
+                            $totals['total_tax'] += (float)$tax['@attributes']['Amount'];
+                        }
+                    }
+                } else {
+                    $tax = $rate['Base']['Taxes']['Tax'];
                     $code = strtolower($tax['@attributes']['Code']);
 
                     if (in_array(strtolower($tax['@attributes']['Code']), $fees)) {
@@ -142,6 +161,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
                         $totals['total_tax'] += (float)$tax['@attributes']['Amount'];
                     }
                 }
+
             }
         }
 

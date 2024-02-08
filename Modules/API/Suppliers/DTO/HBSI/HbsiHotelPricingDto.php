@@ -246,8 +246,9 @@ class HbsiHotelPricingDto
         $pricingRulesApplier['total_net'] = 0.0;
         $pricingRulesApplier['affiliate_service_charge'] = 0.0;
         try {
-            $rate['rateOccupancy'] = $rateOccupancy;
-            $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $rate);
+            $rateToApply['Rates'] = $rate['RoomRates']['RoomRate']['Rates'];
+            $rateToApply['rateOccupancy'] = $rateOccupancy;
+            $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $rateToApply);
         } catch (Exception $e) {
             Log::error('HbsiHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
         }
