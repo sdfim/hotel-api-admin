@@ -19,6 +19,8 @@ use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookingRetrieveBookingDto;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
+use App\Repositories\ApiBookingInspectorRepository as BookRepository;
+
 
 class HbsiBookApiController extends BaseBookApiController
 {
@@ -286,43 +288,21 @@ class HbsiBookApiController extends BaseBookApiController
     {
         $token_id = ChannelRenository::getTokenId(request()->bearerToken());
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
-        $bookingIds = ApiBookingInspector::where('token_id', $token_id)
+        $itemsBooked = ApiBookingInspector::where('token_id', $token_id)
             ->where('supplier_id', $supplierId)
             ->where('type', 'book')
             ->where('sub_type', 'create')
             ->distinct()
-            ->pluck('booking_id');
+            ->get();
 
-        dd($bookingIds);
-
-        foreach ($bookingIds as $bookingId) {
-            $list = ApiBookingInspector::where('booking_id', $bookingId)
-                ->where('type', 'book')
-                ->where('sub_type', 'create')
-                ->get();
-            $res = $this->listBookings($list);
+        $filters['booking_id'] = request()->get('booking_id');
+        $filters['supplier_data'] = request()->get('supplier_data') ?? false;
+        $data = [];
+        foreach ($itemsBooked as $item) {
+            $data[] = $this->retrieveBooking($filters, $item);
         }
 
-        $promises = [];
-        foreach ($list as $item) {
-            try {
-                $promises[] = $this->rapidClient->getAsync($path, $item, $this->headers());
-            } catch (Exception $e) {
-                Log::error('Error while creating promise: ' . $e->getMessage());
-            }
-        }
-        $responses = [];
-        $resolvedResponses = Promise\Utils::settle($promises)->wait();
-        foreach ($resolvedResponses as $response) {
-            if ($response['state'] === 'fulfilled') {
-                $data = $response['value']->getBody()->getContents();
-                $responses[] = json_decode($data, true);
-            } else {
-                Log::error('ExpediaBookApiHandler | listBookings  failed: ' . $response['reason']->getMessage());
-            }
-        }
-
-        return $responses;
+        return $data;
     }
 
     /**

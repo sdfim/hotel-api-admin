@@ -22,7 +22,7 @@ use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingChangeBookHotelRequest;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
-
+use Modules\API\Requests\ListBookingsRequest;
 
 /**
  * @OA\PathItem(
@@ -328,10 +328,7 @@ class BookApiHandler extends BaseController
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
 
-        $validate = Validator::make($request->all(), [
-            'supplier' => 'required|string',
-            'type' => 'required|string|in:hotel,flight,combo'
-        ]);
+        $validate = Validator::make($request->all(), (new ListBookingsRequest())->rules());
         if ($validate->fails()) return $this->sendError($validate->errors());
 
         $supplier = $request->supplier;
