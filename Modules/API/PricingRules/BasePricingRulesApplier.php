@@ -71,7 +71,7 @@ class BasePricingRulesApplier
     /**
      * @var float|int
      */
-    protected float|int $priceValue;
+    protected float|int $priceValue = 0;
 
     /**
      * @var string
