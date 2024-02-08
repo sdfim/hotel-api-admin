@@ -11,7 +11,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
      * @param int $giataId
      * @param array{
      *     Rates: array,
-     *     roomIndex: int
+     *     rateOccupancy: string
      *  } $roomsPricingArray
      * @param bool $b2b
      * @return array{
@@ -24,9 +24,10 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
      */
     public function apply(int $giataId, array $roomsPricingArray, bool $b2b = true): array
     {
-        $room = $this->requestArray['occupancy'][$roomsPricingArray['roomIndex']];
-
-        $this->totalNumberOfGuestsInRoom = $this->totalNumberOfGuestsInRoom($room);
+        // $roomsPricingArray['rateOccupancy'] is a string value in the following format:
+        // 'number_of_adults-number_of_children-number_of_babies'. For example: '2-1-1'.
+        // If there are no children or babies, then the format will appear as: '2-0-0'.
+        $this->totalNumberOfGuestsInRoom = array_sum(explode('-', $roomsPricingArray['rateOccupancy']));
 
         $this->roomTotals = $this->calculateRoomTotals($roomsPricingArray['Rates']);
 
