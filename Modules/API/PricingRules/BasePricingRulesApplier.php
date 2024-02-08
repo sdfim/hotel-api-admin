@@ -12,12 +12,12 @@ class BasePricingRulesApplier
     /**
      * @var array
      */
-    protected array $requestArray;
+    protected array $requestArray = [];
 
     /**
      * @var array
      */
-    protected array $pricingRules;
+    protected array $pricingRules = [];
 
     /**
      * @var float|int
