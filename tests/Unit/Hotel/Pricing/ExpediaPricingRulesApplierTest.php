@@ -61,7 +61,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
             'total_tax' => 355.5,
             'total_fees' => 270.0,
             'total_net' => 2196.0,
-            'affiliate_service_charge' => 2611.5
+            'affiliate_service_charge' => 60.0
         ];
     }
 
