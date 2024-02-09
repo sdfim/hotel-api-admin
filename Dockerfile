@@ -11,6 +11,8 @@ COPY ./ /app
 
 WORKDIR /app
 
+RUN composer install --no-dev --optimize-autoloader
+
 RUN npm i && npm run build
 
 RUN mv .env.example .env
