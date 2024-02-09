@@ -44,18 +44,16 @@ class RouteApiController extends Controller
 
         $suppliersIds = GeneralConfiguration::pluck('currently_suppliers')->first() ?? [1];
 
-        $handler = match ($type) {
-            TypeEnum::HOTEL->value => new HotelApiHandler(),
-            TypeEnum::FLIGHT->value => new FlightApiHandler(),
-            TypeEnum::COMBO->value => new ComboApiHandler(),
-            default => response()->json(['error' => 'Invalid route'], 400),
+        $handler = match (TypeEnum::from($type)) {
+            TypeEnum::HOTEL => new HotelApiHandler(),
+            TypeEnum::FLIGHT => new FlightApiHandler(),
+            TypeEnum::COMBO => new ComboApiHandler(),
         };
 
-        return match ($route) {
-            RouteEnum::ROUTE_SEARCH->value => $handler->search($this->searchRequest($type)),
-            RouteEnum::ROUTE_DETAIL->value => $handler->detail($this->detailRequest($type)),
-            RouteEnum::ROUTE_PRICE->value => $handler->price($this->priceRequest($type), $suppliersIds),
-            default => response()->json(['error' => 'Invalid route'], 400),
+        return match (RouteEnum::from($route)) {
+            RouteEnum::ROUTE_SEARCH => $handler->search($this->searchRequest($type)),
+            RouteEnum::ROUTE_DETAIL => $handler->detail($this->detailRequest($type)),
+            RouteEnum::ROUTE_PRICE => $handler->price($this->priceRequest($type), $suppliersIds),
         };
     }
 
@@ -65,8 +63,8 @@ class RouteApiController extends Controller
      */
     private function searchRequest(string $type): Request
     {
-        return match ($type) {
-            TypeEnum::HOTEL->value => resolve(SearchHotelRequest::class),
+        return match (TypeEnum::from($type)) {
+            TypeEnum::HOTEL => resolve(SearchHotelRequest::class),
             default => resolve(Request::class),
         };
     }
@@ -77,8 +75,8 @@ class RouteApiController extends Controller
      */
     private function detailRequest(string $type): Request
     {
-        return match ($type) {
-            TypeEnum::HOTEL->value => resolve(DetailHotelRequest::class),
+        return match (TypeEnum::from($type)) {
+            TypeEnum::HOTEL => resolve(DetailHotelRequest::class),
             default => resolve(Request::class),
         };
     }
@@ -89,8 +87,8 @@ class RouteApiController extends Controller
      */
     private function priceRequest(string $type): Request
     {
-        return match ($type) {
-            TypeEnum::HOTEL->value => resolve(PriceHotelRequest::class),
+        return match (TypeEnum::from($type)) {
+            TypeEnum::HOTEL => resolve(PriceHotelRequest::class),
             default => resolve(Request::class),
         };
     }

@@ -19,8 +19,6 @@ use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookingRetrieveBookingDto;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
-use App\Repositories\ApiBookingInspectorRepository as BookRepository;
-
 
 class HbsiBookApiController extends BaseBookApiController
 {
@@ -69,7 +67,7 @@ class HbsiBookApiController extends BaseBookApiController
         $countRooms = count($searchRequest['occupancy']);
 
         $type = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->search_type;
-        if ($type === TypeRequestEnum::HOTEL->value)
+        if (TypeRequestEnum::from($type) === TypeRequestEnum::HOTEL)
             for ($i = 1; $i <= $countRooms; $i++) {
                 if (isset($passengersData['rooms'][$i]['passengers'])) {
                     $searchAdults = $searchRequest['occupancy'][$i - 1]['adults'];

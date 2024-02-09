@@ -164,11 +164,11 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                     $this->start($supplierName);
 
-                    if ($supplierName === SupplierNameEnum::EXPEDIA->value) {
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::EXPEDIA) {
                         $supplierContent = $this->expedia;
                         $supplierContentDto = $this->ExpediaHotelContentDto;
                     }
-                    if ($supplierName === SupplierNameEnum::ICE_PORTAL->value) {
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::ICE_PORTAL) {
                         $supplierContent = $this->icePortal;
                         $supplierContentDto = $this->IcePortalHotelContentDto;
                     }
@@ -315,14 +315,14 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 foreach ($supplierNames as $supplierName) {
                     if (isset($request->supplier) && $request->supplier != $supplierName) continue;
 
-                    if ($supplierName === SupplierNameEnum::EXPEDIA->value) {
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::EXPEDIA) {
                         $data = $this->expedia->detail($request);
                         $dataResponse[$supplierName] = $data;
                         $clientResponse[$supplierName] = count($data) > 0
                             ? $this->ExpediaHotelContentDetailDto->ExpediaToContentDetailResponse($data->first(), $request->input('property_id'))
                             : [];
                     }
-                    if ($supplierName === SupplierNameEnum::ICE_PORTAL->value) {
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::ICE_PORTAL) {
                         $data = $this->icePortal->detail($request);
                         $dataResponse[$supplierName] = $data;
                         $clientResponse[$supplierName] = count($data) > 0
@@ -451,7 +451,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         continue;
                     }
 
-                    if ($supplierName === SupplierNameEnum::EXPEDIA->value) {
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::EXPEDIA) {
 
                         if (Cache::has($keyPricingSearch . ':content:' . SupplierNameEnum::EXPEDIA->value)) {
                             $expediaResponse = Cache::get($keyPricingSearch . ':content:' . SupplierNameEnum::EXPEDIA->value);
@@ -475,7 +475,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $countClientResponse += count($clientResponse[$supplierName]);
                     }
 
-                    if ($supplierName === SupplierNameEnum::HBSI->value) {
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::HBSI) {
                         if (Cache::has($keyPricingSearch . ':content:' . SupplierNameEnum::HBSI->value)) {
                             $hbsiResponse = Cache::get($keyPricingSearch . ':content:' . SupplierNameEnum::HBSI->value);
                         } else {

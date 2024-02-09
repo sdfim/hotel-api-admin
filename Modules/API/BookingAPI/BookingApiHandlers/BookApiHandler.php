@@ -891,9 +891,9 @@ class BookApiHandler extends BaseController
 
             $type = ApiSearchInspector::where('search_id', $search->search_id)->first()->search_type;
 
-            if ($type === TypeRequestEnum::FLIGHT->value) continue;
-            if ($type === TypeRequestEnum::COMBO->value) continue;
-            if ($type === TypeRequestEnum::HOTEL->value) return $this->checkCountGuestsChildrenAgesHotel($bookingItem, $booking, $search->search_id);
+            if (TypeRequestEnum::from($type) === TypeRequestEnum::FLIGHT) continue;
+            if (TypeRequestEnum::from($type) === TypeRequestEnum::COMBO) continue;
+            if (TypeRequestEnum::from($type) === TypeRequestEnum::HOTEL) return $this->checkCountGuestsChildrenAgesHotel($bookingItem, $booking, $search->search_id);
         }
 
         return [];

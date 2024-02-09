@@ -48,11 +48,10 @@ class RouteBookingApiController extends Controller
         if (!$this->isRouteValid($this->route)) return response()->json(['message' => 'Invalid route'], 400);
         if (is_null($this->supplier)) return response()->json(['message' => 'Invalid supplier'], 400);
 
-        $dataHandler = match ($this->type) {
-            TypeRequestEnum::HOTEL->value => new HotelBookingApiHandler(),
-            TypeRequestEnum::FLIGHT->value => new FlightBookingApiHandler(),
-            TypeRequestEnum::COMBO->value => new ComboBookingApiHandler(),
-            default => response()->json(['message' => 'Invalid route'], 400),
+        $dataHandler = match (TypeRequestEnum::from($this->type)) {
+            TypeRequestEnum::HOTEL => new HotelBookingApiHandler(),
+            TypeRequestEnum::FLIGHT => new FlightBookingApiHandler(),
+            TypeRequestEnum::COMBO => new ComboBookingApiHandler(),
         };
 
         return match ($this->route) {
@@ -68,8 +67,8 @@ class RouteBookingApiController extends Controller
      */
     private function addItemRequest(string $type): Request
     {
-        return match ($type) {
-            TypeRequestEnum::HOTEL->value => resolve(BookingAddItemHotelRequest::class),
+        return match (TypeRequestEnum::from($type)) {
+            TypeRequestEnum::HOTEL => resolve(BookingAddItemHotelRequest::class),
             default => resolve(Request::class),
         };
     }
@@ -80,8 +79,8 @@ class RouteBookingApiController extends Controller
      */
     private function removeItemRequest(string $type): Request
     {
-        return match ($type) {
-            TypeRequestEnum::HOTEL->value => resolve(BookingRemoveItemHotelRequest::class),
+        return match (TypeRequestEnum::from($type)) {
+            TypeRequestEnum::HOTEL => resolve(BookingRemoveItemHotelRequest::class),
             default => resolve(Request::class),
         };
     }
