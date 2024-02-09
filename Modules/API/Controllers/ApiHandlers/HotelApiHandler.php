@@ -145,12 +145,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     public function search(Request $request): JsonResponse
     {
         try {
-            $validate = Validator::make($request->all(), (new SearchHotelRequest())->rules());
-            if ($validate->fails()) return $this->sendError($validate->errors());
             $filters = $request->all();
-
             $supplierNames = explode(', ', (GeneralConfiguration::pluck('content_supplier')->toArray()[0] ?? 'Expedia'));
-
             $keyPricingSearch = request()->get('type') . ':contentSearch:' . http_build_query(Arr::dot($filters));
 
             if (Cache::has($keyPricingSearch . ':content') && Cache::has($keyPricingSearch . ':clientContent')) {
@@ -168,11 +164,11 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                     $this->start($supplierName);
 
-                    if ($supplierName === SupplierNameEnum::EXPEDIA->value) {
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::EXPEDIA) {
                         $supplierContent = $this->expedia;
                         $supplierContentDto = $this->ExpediaHotelContentDto;
                     }
-                    if ($supplierName === SupplierNameEnum::ICE_PORTAL->value) {
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::ICE_PORTAL) {
                         $supplierContent = $this->icePortal;
                         $supplierContentDto = $this->IcePortalHotelContentDto;
                     }
@@ -305,13 +301,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     public function detail(Request $request): JsonResponse
     {
         try {
-            $validate = Validator::make($request->all(), [
-                'property_id' => 'required|int|digits_between:5,12',
-                'type' => 'required|in:hotel,flight,combo',
-                'supplier' => 'string',
-            ]);
-            if ($validate->fails()) return $this->sendError($validate->errors());
-
             $supplierNames = explode(', ', GeneralConfiguration::pluck('content_supplier')->toArray()[0]);
             $keyPricingSearch = request()->get('type') . ':contentDetail:' . http_build_query(Arr::dot($request->all()));
 
@@ -326,14 +315,14 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 foreach ($supplierNames as $supplierName) {
                     if (isset($request->supplier) && $request->supplier != $supplierName) continue;
 
-                    if ($supplierName === SupplierNameEnum::EXPEDIA->value) {
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::EXPEDIA) {
                         $data = $this->expedia->detail($request);
                         $dataResponse[$supplierName] = $data;
                         $clientResponse[$supplierName] = count($data) > 0
                             ? $this->ExpediaHotelContentDetailDto->ExpediaToContentDetailResponse($data->first(), $request->input('property_id'))
                             : [];
                     }
-                    if ($supplierName === SupplierNameEnum::ICE_PORTAL->value) {
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::ICE_PORTAL) {
                         $data = $this->icePortal->detail($request);
                         $dataResponse[$supplierName] = $data;
                         $clientResponse[$supplierName] = count($data) > 0
@@ -437,10 +426,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     public function price(Request $request, array $suppliers): JsonResponse
     {
         try {
-            $validate = Validator::make($request->all(), (new PriceHotelRequest())->rules());
-            if ($validate->fails()) {
-                return $this->sendError($validate->errors());
-            }
             $filters = $request->all();
 
             $keyPricingSearch = request()->get('type') . ':pricingSearch:' . http_build_query(Arr::dot($filters));
@@ -466,7 +451,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         continue;
                     }
 
-                    if ($supplierName === SupplierNameEnum::EXPEDIA->value) {
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::EXPEDIA) {
 
                         if (Cache::has($keyPricingSearch . ':content:' . SupplierNameEnum::EXPEDIA->value)) {
                             $expediaResponse = Cache::get($keyPricingSearch . ':content:' . SupplierNameEnum::EXPEDIA->value);
@@ -490,7 +475,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $countClientResponse += count($clientResponse[$supplierName]);
                     }
 
-                    if ($supplierName === SupplierNameEnum::HBSI->value) {
+                    if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::HBSI) {
                         if (Cache::has($keyPricingSearch . ':content:' . SupplierNameEnum::HBSI->value)) {
                             $hbsiResponse = Cache::get($keyPricingSearch . ':content:' . SupplierNameEnum::HBSI->value);
                         } else {

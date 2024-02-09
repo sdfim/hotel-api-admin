@@ -22,7 +22,7 @@ use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingChangeBookHotelRequest;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
-
+use Modules\API\Requests\ListBookingsRequest;
 
 /**
  * @OA\PathItem(
@@ -328,10 +328,7 @@ class BookApiHandler extends BaseController
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
 
-        $validate = Validator::make($request->all(), [
-            'supplier' => 'required|string',
-            'type' => 'required|string|in:hotel,flight,combo'
-        ]);
+        $validate = Validator::make($request->all(), (new ListBookingsRequest())->rules());
         if ($validate->fails()) return $this->sendError($validate->errors());
 
         $supplier = $request->supplier;
@@ -894,9 +891,9 @@ class BookApiHandler extends BaseController
 
             $type = ApiSearchInspector::where('search_id', $search->search_id)->first()->search_type;
 
-            if ($type === TypeRequestEnum::FLIGHT->value) continue;
-            if ($type === TypeRequestEnum::COMBO->value) continue;
-            if ($type === TypeRequestEnum::HOTEL->value) return $this->checkCountGuestsChildrenAgesHotel($bookingItem, $booking, $search->search_id);
+            if (TypeRequestEnum::from($type) === TypeRequestEnum::FLIGHT) continue;
+            if (TypeRequestEnum::from($type) === TypeRequestEnum::COMBO) continue;
+            if (TypeRequestEnum::from($type) === TypeRequestEnum::HOTEL) return $this->checkCountGuestsChildrenAgesHotel($bookingItem, $booking, $search->search_id);
         }
 
         return [];

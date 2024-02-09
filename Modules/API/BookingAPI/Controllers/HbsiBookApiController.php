@@ -9,6 +9,8 @@ use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
+use App\Repositories\ChannelRenository;
+use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -65,7 +67,7 @@ class HbsiBookApiController extends BaseBookApiController
         $countRooms = count($searchRequest['occupancy']);
 
         $type = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->search_type;
-        if ($type === TypeRequestEnum::HOTEL->value)
+        if (TypeRequestEnum::from($type) === TypeRequestEnum::HOTEL)
             for ($i = 1; $i <= $countRooms; $i++) {
                 if (isset($passengersData['rooms'][$i]['passengers'])) {
                     $searchAdults = $searchRequest['occupancy'][$i - 1]['adults'];
@@ -105,6 +107,12 @@ class HbsiBookApiController extends BaseBookApiController
         return $res;
     }
 
+    /**
+     * @param array $filters
+     * @param ApiBookingInspector $bookingInspector
+     * @return array|null
+     * @throws GuzzleException
+     */
     public function book(array $filters, ApiBookingInspector $bookingInspector): array|null
     {
         $booking_id = $bookingInspector->booking_id;
@@ -272,6 +280,27 @@ class HbsiBookApiController extends BaseBookApiController
         ]);
 
         return $res;
+    }
+
+    public function listBookings(): array|null
+    {
+        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
+        $itemsBooked = ApiBookingInspector::where('token_id', $token_id)
+            ->where('supplier_id', $supplierId)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->distinct()
+            ->get();
+
+        $filters['booking_id'] = request()->get('booking_id');
+        $filters['supplier_data'] = request()->get('supplier_data') ?? false;
+        $data = [];
+        foreach ($itemsBooked as $item) {
+            $data[] = $this->retrieveBooking($filters, $item);
+        }
+
+        return $data;
     }
 
     /**
