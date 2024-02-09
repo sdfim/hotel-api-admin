@@ -24,15 +24,11 @@ use Modules\Enums\SupplierNameEnum;
 class ExpediaBookApiController extends BaseBookApiController
 {
     private const PAYMENTS_TYPE = 'affiliate_collect';
-    /**
-     * @var RapidClient
-     */
-    private RapidClient $rapidClient;
 
-    public function __construct()
-    {
-        $this->rapidClient = new RapidClient();
-    }
+    public function __construct(
+        private readonly RapidClient         $rapidClient = new RapidClient(),
+        private readonly ExpediaHotelBookDto $expediaBookDto = new ExpediaHotelBookDto(),
+    ) {}
 
     /**
      * @param array $filters
@@ -68,15 +64,9 @@ class ExpediaBookApiController extends BaseBookApiController
             return [];
         }
 
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         SaveBookingInspector::dispatch([
-            $booking_id,
-            $filters,
-            $dataResponse,
-            $dataResponse,
-            1,
-            'change_booking',
-            '',
-            'hotel',
+            $booking_id, $filters, $dataResponse, $dataResponse, $supplierId, 'change_booking', '', 'hotel',
         ]);
 
         return (array)$dataResponse;
@@ -154,15 +144,10 @@ class ExpediaBookApiController extends BaseBookApiController
             return [];
         }
 
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         SaveBookingInspector::dispatch([
-            $booking_id,
-            array_merge($filters, $bodyArr),
-            $dataResponse,
-            [],
-            1,
-            'book',
-            'create' . ($queryHold ? ':hold' : ''),
-            $bookingInspector->search_type,    // hotel | flight | combo
+            $booking_id, array_merge($filters, $bodyArr), $dataResponse, [], $supplierId, 'book',
+            'create' . ($queryHold ? ':hold' : ''), $bookingInspector->search_type,
         ]);
 
         # Save Book data to Reservation
@@ -176,7 +161,7 @@ class ExpediaBookApiController extends BaseBookApiController
         try {
             $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
             $dataResponse = json_decode($response->getBody()->getContents());
-            $clientResponse = $dataResponse ? ExpediaHotelBookDto::ExpediaToHotelBookResponseModel($filters) : [];
+            $clientResponse = $dataResponse ? $this->expediaBookDto->toHotelBookResponseModel($filters) : [];
         } catch (RequestException $e) {
             Log::error('ExpediaBookApiHandler | book | retrieve ' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
@@ -191,36 +176,13 @@ class ExpediaBookApiController extends BaseBookApiController
         if ($viewSupplierData) {
             $res = (array)$dataResponse;
         } else {
-            $res = $clientResponse + [
-                    // 'booking_id' => $booking_id,
-                    // 'search_id' => $filters['search_id'],
-                    // 'booking_item' => $filters['booking_item'],
-                    'links' => [
-                        'remove' => [
-                            'method' => 'DELETE',
-                            'href' => '/api/booking/cancel-booking?booking_id=' . $booking_id . '&booking_item=' . $filters['booking_item'],
-                        ],
-                        'change' => [
-                            'method' => 'PUT',
-                            'href' => '/api/booking/change-booking?booking_id=' . $booking_id . '&booking_item=' . $filters['booking_item'],
-                        ],
-                        'retrieve' => [
-                            'method' => 'GET',
-                            'href' => '/api/booking/retrieve-booking?booking_id=' . $booking_id,
-                        ],
-                    ],
-                ];
+            $res = $clientResponse + $this->tailBookResponse($booking_id, $filters['booking_item']);
         }
 
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         SaveBookingInspector::dispatch([
-            $booking_id,
-            $filters,
-            $dataResponse,
-            $res,
-            1,
-            'book',
-            'retrieve' . ($queryHold ? ':hold' : ''),
-            $bookingInspector->search_type,    // hotel | flight | combo
+            $booking_id, $filters, $dataResponse, $res, $supplierId, 'book',
+            'retrieve' . ($queryHold ? ':hold' : ''), $bookingInspector->search_type,
         ]);
 
         return $res;
@@ -276,17 +238,12 @@ class ExpediaBookApiController extends BaseBookApiController
         $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
         $dataResponse = json_decode($response->getBody()->getContents(), true);
 
-        $clientDataResponse = ExpediaHotelBookingRetrieveBookingDto::ExpediaRetrieveBookingToHotelBookResponseModel($filters, $dataResponse);
+        $clientDataResponse = ExpediaHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse);
 
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         SaveBookingInspector::dispatch([
-            $booking_id,
-            $filters,
-            $dataResponse,
-            $clientDataResponse,
-            1,
-            'retrieve_booking',
-            '',
-            $bookingInspector->search_type, // hotel | flight | combo
+            $booking_id, $filters, $dataResponse, $clientDataResponse, $supplierId, 'retrieve_booking',
+            '', $bookingInspector->search_type,
         ]);
 
         if (isset($filters['supplier_data']) && $filters['supplier_data'] == 'true') {
@@ -342,15 +299,10 @@ class ExpediaBookApiController extends BaseBookApiController
             $dataResponse = $responseErrorArr['message'];
         }
 
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         SaveBookingInspector::dispatch([
-            $booking_id,
-            $filters,
-            $dataResponse,
-            $res,
-            1,
-            'cancel_booking',
-            'true',
-            $bookingInspector->search_type,    // hotel | flight | combo
+            $booking_id, $filters, $dataResponse, $res, $supplierId, 'cancel_booking',
+            'true', $bookingInspector->search_type,
         ]);
 
         return $res;
@@ -422,15 +374,9 @@ class ExpediaBookApiController extends BaseBookApiController
             'status' => $status,
         ];
 
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         SaveBookingInspector::dispatch([
-            $booking_id,
-            $filters,
-            [],
-            $res,
-            Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id,
-            'add_passengers',
-            $subType,
-            'hotel',
+            $booking_id, $filters, [], $res, $supplierId, 'add_passengers', $subType, 'hotel',
         ]);
 
         return $res;

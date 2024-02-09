@@ -24,18 +24,24 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
      */
     public function apply(int $giataId, array $roomsPricingArray, bool $b2b = true): array
     {
+        $this->initPricingRulesProperties();
+
+        foreach ($this->requestArray['occupancy'] as $room) {
+            $this->totalNumberOfGuests += $this->totalNumberOfGuestsInRoom($room);
+
+            $roomsPricingKey = isset($room['children_ages']) ? $room['adults'] . '-' . implode(',', $room['children_ages']) : $room['adults'];
+
+            $roomTotals = $this->calculateRoomTotals($roomsPricingArray[$roomsPricingKey]);
+
+            $this->updateTotals($roomTotals);
+        }
+
         foreach ($this->pricingRules as $pricingRule) {
             $this->validPricingRule = $this->validPricingRule($pricingRule['conditions'], $giataId);
 
             $this->setPricingRuleValues($pricingRule);
 
-            foreach ($this->requestArray['occupancy'] as $room) {
-                $this->totalNumberOfGuestsInRoom = $this->totalNumberOfGuestsInRoom($room);
-
-                $roomsPricingKey = isset($room['children_ages']) ? $room['adults'] . '-' . implode(',', $room['children_ages']) : $room['adults'];
-
-                $this->roomTotals = $this->calculateRoomTotals($roomsPricingArray[$roomsPricingKey]);
-
+            if ($this->validPricingRule) {
                 $this->applyPricingRulesLogic();
             }
         }

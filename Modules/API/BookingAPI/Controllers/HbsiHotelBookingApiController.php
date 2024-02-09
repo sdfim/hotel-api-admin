@@ -18,15 +18,9 @@ class HbsiHotelBookingApiController extends BaseHotelBookingApiController
 
         $booking_id = $filters['booking_id'] ?? (string)Str::uuid();
 
+        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         SaveBookingInspector::dispatch([
-            $booking_id,
-            $filters,
-            [],
-            [],
-            Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id,
-            'add_item',
-            $filters['rate_type'],
-            'hotel',
+            $booking_id, $filters, [], [], $supplierId, 'add_item', $filters['rate_type'], 'hotel',
         ]);
 
         return ['booking_id' => $booking_id];

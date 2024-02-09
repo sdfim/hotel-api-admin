@@ -16,6 +16,7 @@ use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 use Modules\API\Tools\PricingRulesTools;
+use Modules\Enums\SupplierNameEnum;
 
 class ExpediaHotelPricingDto
 {
@@ -86,10 +87,8 @@ class ExpediaHotelPricingDto
         $this->bookingItems = [];
 
         $token = ChannelRenository::getTokenId(request()->bearerToken());
-
         $channelId = Channel::where('token_id', $token)->first()->id;
-
-        $supplierId = Supplier::where('name', 'Expedia')->first()->id;
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
 
         $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
 
@@ -125,7 +124,7 @@ class ExpediaHotelPricingDto
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id']);
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
-        $hotelResponse->setSupplier('Expedia');
+        $hotelResponse->setSupplier(SupplierNameEnum::EXPEDIA->value);
         $hotelResponse->setSupplierHotelId($propertyGroup['property_id']);
         $hotelResponse->setDestination($destination);
         $hotelResponse->setMealPlansAvailable($propertyGroup['meal_plans_available'] ?? '');

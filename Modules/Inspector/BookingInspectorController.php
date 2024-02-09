@@ -3,6 +3,7 @@
 namespace Modules\Inspector;
 
 use App\Models\ApiBookingInspector;
+use App\Models\ApiBookingItem;
 use App\Repositories\ChannelRenository;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -35,14 +36,23 @@ class BookingInspectorController extends BaseInspectorController
             $this->current_time = microtime(true);
 
             $token_id = ChannelRenository::getTokenId(request()->bearerToken());
-            $search_id = $query['search_id'];
             $booking_item = $query['booking_item'] ?? null;
+            $search_id = $query['search_id'] ?? $booking_item
+                ? ApiBookingItem::where('booking_item', $booking_item)->first()->search_id
+                : null;
+
             $query = json_encode($query);
+
+            $original = null;
+            if (isset($content['original'])) {
+                $original = $content['original'];
+                unset($content['original']);
+                $original = is_array($original) ? json_encode($original) : $original;
+            }
             $content = json_encode($content);
             $client_content = json_encode($client_content);
-            $hash = md5($query . $booking_id);
 
-            $generalPath = self::PATH_INSPECTORS . 'booking_inspector/' . date("Y-m-d") . '/' . $type . '_' . $subType . '_' . $hash;
+            $generalPath = self::PATH_INSPECTORS . 'booking_inspector/' . date("Y-m-d") . '/' . $type . '_' . $subType . '_' . $booking_item;
             $path = $generalPath . '.json';
             $client_path = $generalPath . '.client.json';
 
@@ -53,6 +63,12 @@ class BookingInspectorController extends BaseInspectorController
 
                 Storage::put($client_path, $client_content);
                 Log::debug('BookingInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
+
+                if ($original) {
+                    $original_path = $generalPath . '.original.json';
+                    Storage::put($original_path, $original);
+                    Log::debug('BookingInspectorController save original to Storage: ' . $this->executionTime() . ' seconds');
+                }
             }
 
             $data = [

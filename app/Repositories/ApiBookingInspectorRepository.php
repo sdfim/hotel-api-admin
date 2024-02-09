@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\ApiBookingInspector;
 use Illuminate\Support\Facades\Storage;
+use Modules\Enums\SupplierNameEnum;
 
 class ApiBookingInspectorRepository
 {
@@ -214,7 +215,10 @@ class ApiBookingInspectorRepository
 
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('type', 'add_item')
-            ->where('sub_type', 'like', 'price_check' . '%')
+            ->where(function ($query) {
+                $query->where('sub_type', 'single')
+                    ->orWhere('sub_type', 'like', 'price_check' . '%');
+            })
             ->whereNotIn('booking_id', $itemsBooked)
             ->get();
     }
@@ -264,9 +268,21 @@ class ApiBookingInspectorRepository
      */
     public static function getBookItemsByBookingItem(string $booking_item): object|null
     {
-        return ApiBookingInspector::where('booking_item', $booking_item)
+        $bookingInspector = ApiBookingInspector::where('booking_item', $booking_item)
             ->where('type', 'book')
-            ->where('sub_type', 'retrieve')
             ->first();
+
+        if ($bookingInspector && $bookingInspector->supplier->name === SupplierNameEnum::EXPEDIA->value) {
+            return ApiBookingInspector::where('booking_item', $booking_item)
+                ->where('type', 'book')
+                ->where('sub_type', 'retrieve')
+                ->first();
+        } else {
+            return ApiBookingInspector::where('booking_item', $booking_item)
+                ->where('type', 'book')
+                ->where('sub_type', 'create')
+                ->first();
+        }
     }
+
 }

@@ -16,6 +16,7 @@ use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
 use Modules\API\Tools\PricingRulesTools;
+use Modules\Enums\SupplierNameEnum;
 
 class HbsiHotelPricingDto
 {
@@ -83,10 +84,8 @@ class HbsiHotelPricingDto
         $this->rate_type = count($query['occupancy']) === 1 ? self::COMPLETE_TYPE_ITEM : self::SINGLE_TYPE_ITEM;
 
         $token = ChannelRenository::getTokenId(request()->bearerToken());
-
         $channelId = Channel::where('token_id', $token)->first()->id;
-
-        $supplierId = Supplier::where('name', 'HBSI')->first()->id;
+        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
 
         $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
         $pricingRules = array_column($pricingRules, null, 'property');
@@ -118,7 +117,7 @@ class HbsiHotelPricingDto
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id'] ?? 0);
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
-        $hotelResponse->setSupplier('HBSI');
+        $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
         $hotelResponse->setDestination($this->destinationData->full_location ?? '');
         $hotelResponse->setMealPlansAvailable($propertyGroup['meal_plans_available'] ?? '');
@@ -232,18 +231,6 @@ class HbsiHotelPricingDto
      */
     public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId, int|string $supplierHotelId): array
     {
-        // enrichment Pricing Rules / Application of Pricing Rules
-        $pricingRulesApplier['total_price'] = 0.0;
-        $pricingRulesApplier['total_tax'] = 0.0;
-        $pricingRulesApplier['total_fees'] = 0.0;
-        $pricingRulesApplier['total_net'] = 0.0;
-        $pricingRulesApplier['affiliate_service_charge'] = 0.0;
-        try {
-            $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $rate);
-        } catch (Exception $e) {
-            Log::error('HbsiHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
-        }
-
         $counts = [];
         foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {
             if (isset($guestCount['AgeQualifyingCode'])) $counts[$guestCount['AgeQualifyingCode']] = $guestCount['Count'];
@@ -252,6 +239,20 @@ class HbsiHotelPricingDto
         $rateOccupancy = $counts['10'] . '-' . ($counts['8'] ?? 0) . '-' . ($counts['7'] ?? 0);
         $rateOrdinal = $rate['rate_ordinal'] ?? 0;
 
+        // enrichment Pricing Rules / Application of Pricing Rules
+        $pricingRulesApplier['total_price'] = 0.0;
+        $pricingRulesApplier['total_tax'] = 0.0;
+        $pricingRulesApplier['total_fees'] = 0.0;
+        $pricingRulesApplier['total_net'] = 0.0;
+        $pricingRulesApplier['affiliate_service_charge'] = 0.0;
+        try {
+            $rateToApply['Rates'] = $rate['RoomRates']['RoomRate']['Rates'];
+            $rateToApply['rateOccupancy'] = $rateOccupancy;
+            $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $rateToApply);
+        } catch (Exception $e) {
+            Log::error('HbsiHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
+        }
+
         $roomType = $rate['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '';
 
         $roomResponse = new RoomResponse();
@@ -259,7 +260,6 @@ class HbsiHotelPricingDto
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
         $roomResponse->setSupplierRoomName($rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
-//        $roomResponse->setSupplierRoomCode($rate['RoomTypes']['RoomType']['@attributes']['NumberOfUnits'] ?? 0);
         $roomResponse->setSupplierRoomCode($rateOccupancy);
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
         $roomResponse->setRoomType($roomType);

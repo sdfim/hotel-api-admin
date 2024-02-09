@@ -44,4 +44,29 @@ class BaseBookApiController extends BaseController
             'request' => json_decode($searchInspector->request, true),
         ];
     }
+
+    /**
+     * @param string $booking_id
+     * @param string $booking_item
+     * @return array[]
+     */
+    public function tailBookResponse(string $booking_id, string $booking_item): array
+    {
+        return [
+            'links' => [
+                'remove' => [
+                    'method' => 'DELETE',
+                    'href' => '/api/booking/cancel-booking?booking_id=' . $booking_id . '&booking_item=' . $booking_item,
+                ],
+                'change' => [
+                    'method' => 'PUT',
+                    'href' => '/api/booking/change-booking?booking_id=' . $booking_id . '&booking_item=' . $booking_item,
+                ],
+                'retrieve' => [
+                    'method' => 'GET',
+                    'href' => '/api/booking/retrieve-booking?booking_id=' . $booking_id,
+                ],
+            ],
+        ];
+    }
 }

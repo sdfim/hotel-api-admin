@@ -97,13 +97,15 @@ class PricingRulesDataGenerationTools
      */
     public function generatePricingRuleData($name): array
     {
+        $priceValueType = $this->faker->randomElement($this->getPriceValueTypeKeys());
+
         return [
             'name' => "Pricing rule $name",
             'rule_start_date' => $this->today->copy()->toDateString(),
             'rule_expiration_date' => $this->today->copy()->addDays(rand(30, 60))->toDateString(),
             'manipulable_price_type' => $this->faker->randomElement($this->getManipulablePriceTypeKeys()),
-            'price_value' => rand(1, 100),
-            'price_value_type' => $this->faker->randomElement($this->getPriceValueTypeKeys()),
+            'price_value' => $priceValueType === 'percentage' ? rand(1, 6) : rand(1, 100),
+            'price_value_type' => $priceValueType,
             'price_value_target' => $this->faker->randomElement($this->getPriceValueTargetKeys())
         ];
     }

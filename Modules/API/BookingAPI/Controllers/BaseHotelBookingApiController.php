@@ -4,9 +4,10 @@ namespace Modules\API\BookingAPI\Controllers;
 
 use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingInspector;
+use App\Models\ApiBookingItem;
+use App\Models\Supplier;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Modules\API\BookingAPI\Exception;
 
 class BaseHotelBookingApiController
 {
@@ -59,7 +60,7 @@ class BaseHotelBookingApiController
                         ]
                 ];
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $res = [
                 'error' => [
                     'booking_id' => $booking_id,
@@ -70,15 +71,9 @@ class BaseHotelBookingApiController
             Log::error('ExpediaHotelBookingApiHandler | removeItem | ' . $e->getMessage());
         }
 
+        $supplierId = ApiBookingItem::where('booking_item', $booking_item)->first()->supplier_id;
         SaveBookingInspector::dispatch([
-            $booking_id,
-            $filters,
-            [],
-            $res,
-            1,
-            'remove_item',
-            '',
-            'hotel',
+            $booking_id, $filters, [], $res, $supplierId, 'remove_item', '', 'hotel',
         ]);
 
         return $res;

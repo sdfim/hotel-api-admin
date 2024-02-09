@@ -137,6 +137,9 @@ class BookApiHandler extends BaseController
                 if ($supplier->name === SupplierNameEnum::EXPEDIA->value) {
                     $data[] = $this->expedia->book($filters, $item);
                 }
+                if ($supplier->name === SupplierNameEnum::HBSI->value) {
+                    $data[] = $this->hbsi->book($filters, $item);
+                }
                 // TODO: Add other suppliers
             } catch (Exception $e) {
                 Log::error('BookApiHandler | book ' . $e->getMessage());
@@ -337,6 +340,9 @@ class BookApiHandler extends BaseController
             if ($supplier === SupplierNameEnum::EXPEDIA->value) {
                 $data = $this->expedia->listBookings();
             }
+            if ($supplier === SupplierNameEnum::HBSI->value) {
+                $data = $this->hbsi->listBookings();
+            }
             // TODO: Add other suppliers
         } catch (Exception $e) {
             Log::error('HotelBookingApiHanlder | listBookings ' . $e->getMessage());
@@ -421,6 +427,9 @@ class BookApiHandler extends BaseController
 
                 if ($supplier === SupplierNameEnum::EXPEDIA->value) {
                     $data[] = $this->expedia->retrieveBooking($filters, $item);
+                }
+                if ($supplier === SupplierNameEnum::HBSI->value) {
+                    $data[] = $this->hbsi->retrieveBooking($filters, $item);
                 }
                 // TODO: Add other suppliers
 
@@ -530,6 +539,9 @@ class BookApiHandler extends BaseController
 
                 if ($supplier === SupplierNameEnum::EXPEDIA->value) {
                     $data[] = $this->expedia->cancelBooking($filters, $item);
+                }
+                if ($supplier === SupplierNameEnum::HBSI->value) {
+                    $data[] = $this->hbsi->cancelBooking($filters, $item);
                 }
                 // TODO: Add other suppliers
 
@@ -708,7 +720,6 @@ class BookApiHandler extends BaseController
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
 
-        $filters = $request->all();
         $validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
         if ($validate->fails()) return $this->sendError($validate->errors());
 

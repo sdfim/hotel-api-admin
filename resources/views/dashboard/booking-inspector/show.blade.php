@@ -29,6 +29,11 @@
                                 <strong>Search ID:</strong>
                                 {{ $inspector->search_id }}
                             </div>
+
+                            <div class="mt-2">
+                                <strong>Booking Item:</strong>
+                                {{ $inspector->booking_item }}
+                            </div>
                             <div class="mt-2">
                                 <strong>Search Type:</strong>
                                 {{ $inspector->search_type }}
@@ -63,8 +68,14 @@
                 <div class="nav-tabs border-tab">
                     <ul class="flex flex-wrap w-full text-sm font-medium text-center text-gray-500 border-b border-gray-100 nav dark:border-gray-700 dark:text-gray-400">
                         <li>
-                            <a href="javascript:void(0);" data-tw-toggle="tab" data-tw-target="tab-pills-response"
-                               class="inline-block px-4 py-3 rounded-md active">Supplier Response</a>
+                            <a href="javascript:void(0);" data-tw-toggle="tab"
+                               data-tw-target="tab-pills-origin"
+                               class="inline-block px-4 py-3 rounded-md active">Original Request and Response</a>
+                        </li>
+                        <li>
+                            <a href="javascript:void(0);" data-tw-toggle="tab"
+                               data-tw-target="tab-pills-response"
+                               class="inline-block px-4 py-3 rounded-md">Supplier Response</a>
                         </li>
                         @if($inspector->client_response_path)
                             <li>
@@ -112,7 +123,31 @@
                         </div>
                     </div>
                     <div class="mt-5 tab-content">
-                        <div class="block tab-pane" id="tab-pills-response">
+                        <div class="block tab-pane" id="tab-pills-origin">
+                            <p class="mb-0 dark:text-gray-300">
+                            @php
+                                $path = str_replace('json', 'original.json', $inspector->response_path);
+                                $file_original = Storage::get($path);
+                                if($file_original == ''){
+                                    $file_original = json_encode([]);
+                                }
+                            @endphp
+                            <div id="actions-toolbar">
+                                <button
+                                    class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
+                                    id="expand-original">Expand All
+                                </button>
+                                <button
+                                    class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
+                                    id="collapse-original">Collapse All
+                                </button>
+                                <input
+                                    class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                    id="search-original" placeholder="search"></input>
+                            </div>
+                            <json-viewer id="json-original" style="font-size:0.8em"></json-viewer>
+                        </div>
+                        <div class="hidden tab-pane" id="tab-pills-response">
                             <p class="mb-0 dark:text-gray-300">
                             @php
                                 $file_response = Storage::get($inspector->response_path);
@@ -134,7 +169,6 @@
                                     id="search-response" placeholder="search"></input>
                             </div>
                             <json-viewer id="json-response" style="font-size:0.8em"></json-viewer>
-                            </p>
                         </div>
                         <div class="hidden tab-pane" id="tab-pills-client-response">
                             <p class="mb-0 dark:text-gray-300">
@@ -158,7 +192,6 @@
                                     id="search-client" placeholder="search"></input>
                             </div>
                             <json-viewer id="json-client" style="font-size:0.8em"></json-viewer>
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -171,6 +204,32 @@
     <script src="{{ URL::asset('build/js/pages/nav&tabs.js') }}"></script>
 
     <script type="module">
+        //original request request
+        document.querySelector('#json-original').data = <?= $file_original ?>;
+        const original_viewer = document.querySelector('#json-original');
+        const original_expand = document.querySelector('#expand-original');
+        const original_collapse = document.querySelector('#collapse-original');
+        const original_search = document.querySelector('#search-original');
+        let currentSearch_original;
+        original_expand.addEventListener('click', (e) => {
+            e.preventDefault();
+            original_viewer.expandAll();
+        });
+
+        original_collapse.addEventListener('click', (e) => {
+            e.preventDefault();
+            original_viewer.collapseAll();
+        });
+        original_search.addEventListener('input', () => {
+            currentSearch_response = original_viewer.search(original_search.value);
+        });
+        original_search.addEventListener('keyup', (e) => {
+            if (currentSearch_original && e.keyCode === 13) {
+                currentSearch_original.next();
+            }
+        });
+
+        // response
         document.querySelector('#json-response').data = <?= $file_response ?>;
         const viewer = document.querySelector('#json-response');
         const expand = document.querySelector('#expand-response');

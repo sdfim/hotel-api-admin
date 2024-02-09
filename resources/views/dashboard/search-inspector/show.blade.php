@@ -29,12 +29,6 @@
                                 <strong>Search Type:</strong>
                                 {{ $inspector->type }}
                             </div>
-                            <!-- <div class="mt-2">
-								<strong>Endpoint:</strong>
-								{{ $inspector->type }}
-                            <strong>step:</strong>
-{{ $inspector->sub_type }}
-                            </div> -->
                             <div class="mt-2">
                                 <strong>Supplier:</strong>
                                 @php
@@ -71,7 +65,8 @@
                         </li>
                         @if($inspector->client_response_path)
                             <li>
-                                <a href="javascript:void(0);" data-tw-toggle="tab" data-tw-target="tab-pills-client-response"
+                                <a href="javascript:void(0);" data-tw-toggle="tab"
+                                   data-tw-target="tab-pills-client-response"
                                    class="inline-block px-4 py-3 rounded-md dark:hover:text-white">UJV API Response</a>
                             </li>
                         @endif
@@ -115,27 +110,27 @@
                     <div class="mt-5 tab-content">
                         <div class="block tab-pane" id="tab-pills-origin">
                             <p class="mb-0 dark:text-gray-300">
-                                @php
+                            @php
                                 $path = str_replace('json', 'original.json', $inspector->response_path);
                                 $file_original = Storage::get($path);
                                 if($file_original == ''){
                                     $file_original = json_encode([]);
                                 }
-                                @endphp
-                                <div id="actions-toolbar">
-                                    <button
-                                        class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
-                                        id="expand-original">Expand All
-                                    </button>
-                                    <button
-                                        class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
-                                        id="collapse-original">Collapse All
-                                    </button>
-                                    <input
-                                        class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
-                                        id="search-original" placeholder="search"></input>
-                                </div>
-                                <json-viewer id="json-original" style="font-size:0.8em"></json-viewer>
+                            @endphp
+                            <div id="actions-toolbar">
+                                <button
+                                    class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
+                                    id="expand-original">Expand All
+                                </button>
+                                <button
+                                    class="btn text-white bg-gray-500 border-gray-500 hover:bg-gray-600 hover:border-gray-600 focus:bg-gray-600 focus:border-gray-600 focus:ring focus:ring-gray-500/30 active:bg-gray-600 active:border-gray-600"
+                                    id="collapse-original">Collapse All
+                                </button>
+                                <input
+                                    class="rounded border-gray-100 py-2.5 text-sm text-gray-500 focus:border focus:border-violet-500 focus:ring-0 dark:bg-zinc-700/50 dark:border-zinc-600 dark:text-zinc-100"
+                                    id="search-original" placeholder="search"></input>
+                            </div>
+                            <json-viewer id="json-original" style="font-size:0.8em"></json-viewer>
                             </p>
                         </div>
                         <div class="hidden tab-pane" id="tab-pills-response">
