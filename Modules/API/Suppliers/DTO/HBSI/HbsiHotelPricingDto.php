@@ -25,46 +25,25 @@ class HbsiHotelPricingDto
 
     private string $rate_type;
 
-    /**
-     * @var GiataGeography
-     */
     private GiataGeography $destinationData;
 
-    /**
-     * @var HbsiPricingRulesApplier
-     */
     private HbsiPricingRulesApplier $pricingRulesApplier;
 
-    /**
-     * @var string
-     */
     private string $search_id;
 
-    /**
-     * @var string
-     */
     private string $currency;
 
-    /**
-     * @var float
-     */
     private float $current_time;
 
-    /**
-     * @var float
-     */
     private float $total_time;
 
     /**
      * @param array $bookingItems
-     * @param int $supplierId
-     * @param PricingRulesTools $pricingRulesService
      * @param GiataGeographyRepository $geographyRepo
      */
     public function __construct(
         private array $bookingItems = [],
-        private readonly int $supplierId = 2,
-        private readonly PricingRulesTools $pricingRulesService = new PricingRulesTools(),
+//        private readonly PricingRulesTools $pricingRulesService = new PricingRulesTools(),
         private readonly GiataGeographyRepository $geographyRepo = new GiataGeographyRepository()
     )
     {
@@ -76,18 +55,18 @@ class HbsiHotelPricingDto
      * @param array $supplierResponse
      * @param array $query
      * @param string $search_id
+     * @param array $pricingRules
      * @return array
      */
-    public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id): array
+    public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules): array
     {
         $this->search_id = $search_id;
         $this->rate_type = count($query['occupancy']) === 1 ? self::COMPLETE_TYPE_ITEM : self::SINGLE_TYPE_ITEM;
 
-        $token = ChannelRenository::getTokenId(request()->bearerToken());
-        $channelId = Channel::where('token_id', $token)->first()->id;
-        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
-
-        $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
+//        $token = ChannelRenository::getTokenId(request()->bearerToken());
+//        $channelId = Channel::where('token_id', $token)->first()->id;
+//        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
+//        $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
         $pricingRules = array_column($pricingRules, null, 'property');
 
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
@@ -281,7 +260,7 @@ class HbsiHotelPricingDto
 
         $this->bookingItems[] = [
             'booking_item' => $bookingItem,
-            'supplier_id' => $this->supplierId,
+            'supplier_id' => Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id,
             'search_id' => $this->search_id,
             'booking_item_data' => json_encode([
                 'hotel_id' => $propertyGroup['giata_id'] ?? 0,

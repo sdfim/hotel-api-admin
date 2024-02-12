@@ -8,13 +8,10 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Validator;
 use Modules\API\BaseController;
 use Modules\API\BookingAPI\Controllers\BookingApiHandlerInterface;
 use Modules\API\BookingAPI\Controllers\ExpediaHotelBookingApiController;
 use Modules\API\BookingAPI\Controllers\HbsiHotelBookingApiController;
-use Modules\API\Requests\BookingAddItemHotelRequest;
-use Modules\API\Requests\BookingRemoveItemHotelRequest;
 use Modules\Enums\SupplierNameEnum;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -123,7 +120,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
             $filters = array_merge($filters, $request->all());
 
-            if ($supplier === SupplierNameEnum::EXPEDIA->value) {
+            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::EXPEDIA) {
                 $filters['hotel_id'] = $booking_item_data['hotel_id'];
                 $filters['room_id'] = $booking_item_data['room_id'];
                 $filters['rate'] = $booking_item_data['rate'];
@@ -132,7 +129,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
                 $data = $this->expedia->addItem($filters);
             }
 
-            if ($supplier === SupplierNameEnum::HBSI->value) {
+            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI) {
                 $filters['hotel_id'] = $booking_item_data['hotel_id'];
                 $filters['hotel_supplier_id'] = $booking_item_data['hotel_supplier_id'];
                 $filters['room_id'] = $booking_item_data['room_id'];
@@ -220,10 +217,10 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
         $filters = $request->all();
         $data = [];
         try {
-            if ($supplier === SupplierNameEnum::EXPEDIA->value) {
+            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::EXPEDIA) {
                 $data = $this->expedia->removeItem($filters);
             }
-            if ($supplier === SupplierNameEnum::HBSI->value) {
+            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI) {
                 $data = $this->hbsi->removeItem($filters);
             }
 

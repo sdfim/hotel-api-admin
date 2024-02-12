@@ -56,11 +56,6 @@ class ExpediaHotelPricingDto
     private array $bookingItems;
 
     /**
-     * @var int
-     */
-    private int $supplierId = 1;
-
-    /**
      * @var PricingRulesTools
      */
     private PricingRulesTools $pricingRulesService;
@@ -79,18 +74,18 @@ class ExpediaHotelPricingDto
      * @param array $supplierResponse
      * @param array $query
      * @param string $search_id
+     * @param array $pricingRules
      * @return array
      */
-    public function ExpediaToHotelResponse(array $supplierResponse, array $query, string $search_id): array
+    public function ExpediaToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules): array
     {
         $this->search_id = $search_id;
         $this->bookingItems = [];
 
-        $token = ChannelRenository::getTokenId(request()->bearerToken());
-        $channelId = Channel::where('token_id', $token)->first()->id;
-        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
-
-        $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
+//        $token = ChannelRenository::getTokenId(request()->bearerToken());
+//        $channelId = Channel::where('token_id', $token)->first()->id;
+//        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
+//        $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
 
         $this->pricingRulesApplier = new ExpediaPricingRulesApplier($query, $pricingRules);
 
@@ -274,7 +269,7 @@ class ExpediaHotelPricingDto
 
         $this->bookingItems[] = [
             'booking_item' => $bookingItem,
-            'supplier_id' => $this->supplierId,
+            'supplier_id' => Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id,
             'search_id' => $this->search_id,
             'booking_item_data' => json_encode([
                 'hotel_id' => $propertyGroup['giata_id'],
