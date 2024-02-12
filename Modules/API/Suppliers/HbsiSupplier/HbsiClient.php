@@ -65,7 +65,21 @@ class HbsiClient
         $body = $response->getBody();
 
         return $this->processXmlBody($body, $bodyQuery, true);
+    }
 
+    /**
+     * @param array $filters
+     * @return array|null
+     * @throws GuzzleException
+     */
+    public function modifyBook(array $filters): ?array
+    {
+        $this->mainGuest = [];
+        $bodyQuery = $this->makeRequest($this->hotelResModifyRQ($filters), 'HotelResModifyRQ');
+        $response = $this->client->request('POST', self::URL, ['headers' => $this->headers, 'body' => $bodyQuery]);
+        $body = $response->getBody();
+
+        return $this->processXmlBody($body, $bodyQuery, true);
     }
 
     public function retrieveBooking(array $reservation): ?array
@@ -182,6 +196,49 @@ class HbsiClient
      * @return string
      */
     private function hotelResRQ(array $filters): string
+    {
+        $response = ApiSearchInspectorRepository::getResponse($filters['search_id']);
+        $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
+        $bookingItemData = json_decode($bookingItem->booking_item_data, true);
+        $roomByQuery = $bookingItem->room_by_query;
+        $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+        $guests = json_decode($passengersData->request, true)['rooms'];
+
+        $roomStaysArr = $this->processRoomStaysArr($response, $bookingItemData, $filters, $roomByQuery, $guests);
+        $resGuestsArr = $this->processResGuestsArr($guests, $roomByQuery, $filters);
+        $resGlobalInfoArr = $this->processDepositPaymentsArr($filters, $roomStaysArr);
+
+        $resGlobalInfo = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGlobalInfoArr, null, 'ResGlobalInfo'));
+        $roomStays = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($roomStaysArr, null, 'RoomStays'));
+        $resGuests = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGuestsArr, null, 'ResGuests'));
+
+
+        return '<OTA_HotelResRQ Target="Test" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
+                xmlns="http://www.opentravel.org/OTA/2003/05">
+                <POS>
+                    <Source>
+                        <RequestorID Type="18" ID="Partner"/>
+                        <BookingChannel Type="2" Primary="true">
+                            <CompanyName>HBSI</CompanyName>
+                        </BookingChannel>
+                    </Source>
+                </POS>
+                <HotelReservations>
+                <HotelReservation RoomStayReservation="true" CreateDateTime="2024-05-03T15:47:24-04:00" CreatorID="Partner">
+                    <UniqueID Type="14" ID="ReservationId_' . $bookingItem->booking_item . '_' . time() . '"/>
+                    ' . $roomStays . '
+                    ' . $resGuests . '
+                    ' . $resGlobalInfo . '
+                </HotelReservation>
+            </HotelReservations>
+        </OTA_HotelResRQ>';
+    }
+
+    /**
+     * @param array $filters
+     * @return string
+     */
+    private function hotelResModifyRQ(array $filters): string
     {
         $response = ApiSearchInspectorRepository::getResponse($filters['search_id']);
         $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
