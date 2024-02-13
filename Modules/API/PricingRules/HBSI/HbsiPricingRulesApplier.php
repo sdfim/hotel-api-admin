@@ -94,12 +94,8 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         $this->updateTotals($roomTotals);
 
         foreach ($this->pricingRules as $pricingRule) {
-            $this->validPricingRule = $this->validPricingRule($giataId, $pricingRule['conditions']);
-
-            $this->setPricingRuleValues($pricingRule);
-
-            if ($this->validPricingRule) {
-                $this->applyPricingRulesLogic();
+            if ($this->validPricingRule($giataId, $pricingRule['conditions'])) {
+                $this->applyPricingRulesLogic($pricingRule);
             }
         }
 

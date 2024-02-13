@@ -25,6 +25,21 @@ class BasePricingRulesApplier
     protected array $pricingRules = [];
 
     /**
+     * @var int
+     */
+    protected int $numberOfNights = 0;
+
+    /**
+     * @var int
+     */
+    protected int $numberOfRooms = 0;
+
+    /**
+     * @var int
+     */
+    protected int $totalNumberOfGuests = 0;
+
+    /**
      * @var float|int
      */
     protected float|int $totalPrice = 0;
@@ -49,46 +64,6 @@ class BasePricingRulesApplier
     protected float|int $affiliateServiceCharge = 0;
 
     /**
-     * @var int
-     */
-    protected int $numberOfNights = 0;
-
-    /**
-     * @var int
-     */
-    protected int $numberOfRooms = 0;
-
-    /**
-     * @var int
-     */
-    protected int $totalNumberOfGuests = 0;
-
-    /**
-     * @var bool
-     */
-    protected bool $validPricingRule;
-
-    /**
-     * @var string
-     */
-    protected string $priceValueType;
-
-    /**
-     * @var float|int
-     */
-    protected float|int $priceValue = 0;
-
-    /**
-     * @var string
-     */
-    protected string $manipulablePriceType;
-
-    /**
-     * @var string
-     */
-    protected string $priceValueTarget;
-
-    /**
      * @param array $requestArray
      * @param array $pricingRules
      */
@@ -105,21 +80,6 @@ class BasePricingRulesApplier
         $this->numberOfNights = $checkIn->diffInDays($checkOut);
 
         $this->numberOfRooms = count($requestArray['occupancy']);
-    }
-
-    /**
-     * @param array $pricingRule
-     * @return void
-     */
-    protected function setPricingRuleValues(array $pricingRule): void
-    {
-        $this->priceValueType = (string)$pricingRule['price_value_type'];
-
-        $this->priceValue = (float)$pricingRule['price_value'];
-
-        $this->manipulablePriceType = (string)$pricingRule['manipulable_price_type'];
-
-        $this->priceValueTarget = (string)$pricingRule['price_value_target'];
     }
 
     /**
@@ -187,48 +147,55 @@ class BasePricingRulesApplier
     }
 
     /**
+     * @param array $pricingRule
      * @return void
      */
-    protected function applyPricingRulesLogic(): void
+    protected function applyPricingRulesLogic(array $pricingRule): void
     {
-        // calculate pricing for each room from request
-        $this->affiliateServiceCharge = 0;
+        $priceValueType = (string)$pricingRule['price_value_type'];
 
-        if ($this->manipulablePriceType === 'total_price') {
-            $priceValueFromTotal = ($this->totalPrice * $this->priceValue) / 100;
+        $priceValue = (float)$pricingRule['price_value'];
 
-            $this->affiliateServiceCharge += match ($this->priceValueTarget) {
-                'per_guest' => match ($this->priceValueType) {
+        $manipulablePriceType = (string)$pricingRule['manipulable_price_type'];
+
+        $priceValueTarget = (string)$pricingRule['price_value_target'];
+
+        if ($manipulablePriceType === 'total_price') {
+            $priceValueFromTotal = ($this->totalPrice * $priceValue) / 100;
+
+            $this->affiliateServiceCharge += match ($priceValueTarget) {
+                'per_guest' => match ($priceValueType) {
                     'percentage' => $this->totalNumberOfGuests * $priceValueFromTotal,
-                    'fixed_value' => $this->totalNumberOfGuests * $this->priceValue
+                    'fixed_value' => $this->totalNumberOfGuests * $priceValue
                 },
-                'per_room' => match ($this->priceValueType) {
+                'per_room' => match ($priceValueType) {
                     'percentage' => $priceValueFromTotal * $this->numberOfRooms,
-                    'fixed_value' => $this->priceValue * $this->numberOfRooms
+                    'fixed_value' => $priceValue * $this->numberOfRooms
                 },
-                'per_night' => match ($this->priceValueType) {
+                'per_night' => match ($priceValueType) {
                     'percentage' => $this->numberOfNights * $priceValueFromTotal,
-                    'fixed_value' => $this->numberOfNights * $this->priceValue
-                }
+                    'fixed_value' => $this->numberOfNights * $priceValue
+                },
+                'default' => 0
             };
         }
 
         // in case when supplier is Expedia/HBSI total_price and rate_price should be calculated the same way
-        if ($this->manipulablePriceType === 'net_price' || $this->manipulablePriceType === 'rate_price') {
-            $priceValueFromTotalNet = ($this->totalNet * $this->priceValue) / 100;
+        if ($manipulablePriceType === 'net_price' || $manipulablePriceType === 'rate_price') {
+            $priceValueFromTotalNet = ($this->totalNet * $priceValue) / 100;
 
-            $this->affiliateServiceCharge += match ($this->priceValueTarget) {
-                'per_guest' => match ($this->priceValueType) {
+            $this->affiliateServiceCharge += match ($priceValueTarget) {
+                'per_guest' => match ($priceValueType) {
                     'percentage' => $this->totalNumberOfGuests * $priceValueFromTotalNet,
-                    'fixed_value' => $this->totalNumberOfGuests * $this->priceValue
+                    'fixed_value' => $this->totalNumberOfGuests * $priceValue
                 },
-                'per_room' => match ($this->priceValueType) {
+                'per_room' => match ($priceValueType) {
                     'percentage' => $priceValueFromTotalNet * $this->numberOfRooms,
-                    'fixed_value' => $this->priceValue * $this->numberOfRooms
+                    'fixed_value' => $priceValue * $this->numberOfRooms
                 },
-                'per_night' => match ($this->priceValueType) {
+                'per_night' => match ($priceValueType) {
                     'percentage' => $this->numberOfNights * $priceValueFromTotalNet,
-                    'fixed_value' => $this->numberOfNights * $this->priceValue
+                    'fixed_value' => $this->numberOfNights * $priceValue
                 },
                 'default' => 0
             };
