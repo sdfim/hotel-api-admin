@@ -194,8 +194,7 @@ class PropertyPriceCall
 //                }
 //            }
 
-            foreach ($responses as $promise) {
-                $response = Fiber::suspend($promise);
+            foreach ($responses as $response) {
                 if ($response['state'] === 'fulfilled') {
                     $data = $response['value']->getBody()->getContents();
                     $responses = array_merge($responses, json_decode($data, true));
