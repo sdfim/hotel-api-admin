@@ -255,9 +255,9 @@ class HbsiClient
         $resGuestsArr = $this->processResGuestsArr($guests, $roomByQuery, $filters);
         $resGlobalInfoArr = $this->processDepositPaymentsArr($filters, $roomStaysArr);
 
-        $resGlobalInfo = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGlobalInfoArr, null, 'ResGlobalInfo'));
-        $roomStays = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($roomStaysArr, null, 'RoomStays'));
-        $resGuests = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGuestsArr, null, 'ResGuests'));
+        $resGlobalInfo = str_replace('<?xml version="1.0"?>', '',$this->arrayToXml($resGlobalInfoArr, null, 'ResGlobalInfo'));
+        $roomStays = str_replace('<?xml version="1.0"?>', '',$this->arrayToXml($roomStaysArr, null, 'RoomStays'));
+        $resGuests = str_replace('<?xml version="1.0"?>', '',$this->arrayToXml($resGuestsArr, null, 'ResGuests'));
 
 
         return '<OTA_HotelResRQ Target="Test" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
