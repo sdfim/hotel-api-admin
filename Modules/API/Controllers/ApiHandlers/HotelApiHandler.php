@@ -9,8 +9,6 @@ use App\Models\Supplier;
 use App\Traits\Timer;
 use Exception;
 use Fiber;
-use GuzzleHttp\Client;
-use GuzzleHttp\Pool;
 use GuzzleHttp\Promise;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -58,6 +56,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
      * @param EnrichmentWeight $propsWeight
      * @param HbsiHotelController $hbsi
      * @param HbsiHotelPricingDto $HbsiHotelPricingDto
+     * @param PricingRulesTools $pricingRulesService
      */
     public function __construct(
         private readonly ExpediaHotelController         $expedia = new ExpediaHotelController(),
@@ -445,7 +444,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $search_id = (string)Str::uuid();
 
                 $st = microtime(true);
-                $pricingRules = $this->pricingRulesService->rules($filters, $suppliers);
+                $pricingRules = $this->pricingRulesService->rules($filters);
                 Log::info('HotelApiHandler | price | pricingRulesService ' . (microtime(true) - $st) . 's');
 
                 $dataResponse = $clientResponse = $fibers = [];
