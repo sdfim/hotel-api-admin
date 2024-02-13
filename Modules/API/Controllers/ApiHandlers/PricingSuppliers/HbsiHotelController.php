@@ -31,7 +31,6 @@ class HbsiHotelController
     public function preSearchData(array $filters): ?array
     {
         $timeStart = microtime(true);
-        Log::info('HbsiHotelController | preSearchData | start mysql query');
 
         $limit = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
         $offset = $filters['page'] ?? self::PAGE;
@@ -46,7 +45,7 @@ class HbsiHotelController
         }
 
         $endTime = microtime(true) - $timeStart;
-        Log::info('HbsiHotelController | preSearchData | end mysql query ' . $endTime . ' seconds');
+        Log::info('HbsiHotelController | preSearchData | mysql query ' . $endTime . ' seconds');
 
         return $ids;
     }

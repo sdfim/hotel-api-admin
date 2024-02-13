@@ -14,7 +14,7 @@ class PricingRuleSeeder extends Seeder
      */
     public function run(): void
     {
-        $giataIds = GiataProperty::where('city_id', 961)->pluck('code')->all();
+        $giataIds = GiataProperty::where('city_id', 961)->limit(500)->pluck('code');
 
         $pricingRulesTools = new PricingRulesDataGenerationTools();
 

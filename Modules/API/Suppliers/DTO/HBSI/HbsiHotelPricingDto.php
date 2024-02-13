@@ -77,7 +77,6 @@ class HbsiHotelPricingDto
         foreach ($supplierResponse as $key => $propertyGroup) {
             $hotelResponse[] = $this->setHotelResponse($propertyGroup, $key);
         }
-        Log::info('HbsiToHotelResponse | enrichmentPricingRules - ' . $this->total_time . 's');
 
         // TODO: uncomment this line after add Redis
         // SaveBookingItems::dispatch($this->bookingItems);

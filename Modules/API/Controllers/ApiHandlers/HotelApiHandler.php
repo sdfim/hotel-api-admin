@@ -439,19 +439,18 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $res = Cache::get($keyPricingSearch . ':result');
             } else {
 
-                if (!isset($filters['rating'])) {
+                if (!isset($filters['rating']))
                     $filters['rating'] = GeneralConfiguration::latest()->first()->star_ratings ?? 3;
-                }
 
                 $search_id = (string)Str::uuid();
 
+                $st = microtime(true);
                 $pricingRules = $this->pricingRulesService->rules($filters, $suppliers);
+                Log::info('HotelApiHandler | price | pricingRulesService ' . (microtime(true) - $st) . 's');
 
-                $dataResponse = [];
-                $clientResponse = [];
-                $countResponse = 0;
-                $countClientResponse = 0;
-                $fibers = [];
+                $dataResponse = $clientResponse = $fibers = [];
+                $countResponse = $countClientResponse = 0;
+
                 foreach ($suppliers as $supplierId) {
                     $supplier = Supplier::find($supplierId)?->name;
                     $fibers[$supplier] = new Fiber(function () use ($supplier, $filters, $search_id, $pricingRules) {
@@ -477,17 +476,20 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     }
                 }
 
+                $st = microtime(true);
                 $resolvedResponses = Promise\Utils::settle($promises)->wait();
                 $resume = [];
                 foreach ($resolvedResponses as $key => $resolvedResponse) {
                     $arrKey = explode('_', $key);
+                    $i = $arrKey[0];
                     if (count($arrKey) === 2) $resume[$i][] = $resolvedResponse;
                     else $resume[$i] = $resolvedResponse;
                 }
+                Log::info('HotelApiHandler | price | asyncResponses ' . (microtime(true) - $st) . 's');
 
                 foreach ($fibers as $i => $fiber) {
                     if ($fiber->isSuspended()) {
-                        $fiber->resume($resolvedResponses[$i] ?? null);
+                        $fiber->resume($resume[$i] ?? null);
                     }
                     if ($fiber->isTerminated()) {
                         $result = $fiber->getReturn();
@@ -497,13 +499,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $countClientResponse += $result['countClientResponse'];
                         $bookingItems = $result['bookingItems'] ?? [];
                         $dataOriginal = $result['dataOriginal'] ?? [];
-                        Log::debug('HotelApiHandler | Fiber | ', [
-                            '$fiber' => 'isTerminated',
-                            '$result' => $result,
-                        ]);
                     }
                 }
-
 
                 // enrichment Property Weighting
                 $clientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
@@ -555,11 +552,11 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $expediaResponse = $supplierResponse;
             $dataResponse[$supplierName] = $expediaResponse;
 
-            Log::info('HotelApiHandler | price | ExpediaToHotelResponse | start');
+            $st = microtime(true);
             $dtoData = $this->ExpediaHotelPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id, $pricingRules);
             $bookingItems[$supplierName] = $dtoData['bookingItems'];
             $clientResponse[$supplierName] = $dtoData['response'];
-            Log::info('HotelApiHandler | price | ExpediaToHotelResponse | end');
+            Log::info('HotelApiHandler | price | DTO ExpediaToHotelResponse ' . (microtime(true) - $st) . 's');
 
             $countResponse += count($expediaResponse);
             $countClientResponse += count($clientResponse[$supplierName]);
@@ -573,11 +570,11 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $dataResponse[$supplierName] = $hbsiResponse['array'];
             $dataOriginal[$supplierName] = $hbsiResponse['original'];
 
-            Log::info('HotelApiHandler | price | hbsiResponse | start');
+            $st = microtime(true);
             $dtoData = $this->HbsiHotelPricingDto->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules);
             $bookingItems[$supplierName] = $dtoData['bookingItems'];
             $clientResponse[$supplierName] = $dtoData['response'];
-            Log::info('HotelApiHandler | price | hbsiResponse | end');
+            Log::info('HotelApiHandler | price | DTO hbsiResponse ' . (microtime(true) - $st) . 's');
 
             $countResponse += count($hbsiResponse['array']);
             $countClientResponse += count($clientResponse[$supplierName]);

@@ -74,7 +74,7 @@ class EnrichmentWeight
             }
         }
 
-        Log::info('EnrichmentWeight | api/pricing/search - ' . $this->executionTime() . 's');
+        Log::info('EnrichmentWeight | Pricing - ' . $this->executionTime() . 's');
 
         return $clientResponse;
     }
