@@ -447,7 +447,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $pricingRules = $this->pricingRulesService->rules($filters);
                 Log::info('HotelApiHandler | price | pricingRulesService ' . (microtime(true) - $st) . 's');
 
-                $dataResponse = $clientResponse = $fibers = [];
+                $dataResponse = $clientResponse = $fibers = $bookingItems = $dataOriginal = [];
                 $countResponse = $countClientResponse = 0;
 
                 foreach ($suppliers as $supplierId) {
@@ -496,8 +496,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $clientResponse = array_merge($clientResponse, $result['clientResponse']);
                         $countResponse += $result['countResponse'];
                         $countClientResponse += $result['countClientResponse'];
-                        $bookingItems = $result['bookingItems'] ?? [];
-                        $dataOriginal = $result['dataOriginal'] ?? [];
+                        $bookingItems = array_merge($bookingItems, $result['bookingItems'] ?? []);
+                        $dataOriginal = array_merge($dataOriginal, $result['dataOriginal'] ?? []);
                     }
                 }
 
@@ -577,7 +577,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             $countResponse += count($hbsiResponse['array']);
             $countClientResponse += count($clientResponse[$supplierName]);
-
         }
 
         return [

@@ -82,11 +82,6 @@ class ExpediaHotelPricingDto
         $this->search_id = $search_id;
         $this->bookingItems = [];
 
-//        $token = ChannelRenository::getTokenId(request()->bearerToken());
-//        $channelId = Channel::where('token_id', $token)->first()->id;
-//        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
-//        $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
-
         $this->pricingRulesApplier = new ExpediaPricingRulesApplier($query, $pricingRules);
 
         $this->destinationData = GiataGeography::where('city_id', $query['destination'])

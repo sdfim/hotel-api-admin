@@ -61,12 +61,9 @@ class HbsiHotelPricingDto
     public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules): array
     {
         $this->search_id = $search_id;
+        $this->bookingItems = [];
         $this->rate_type = count($query['occupancy']) === 1 ? self::COMPLETE_TYPE_ITEM : self::SINGLE_TYPE_ITEM;
 
-//        $token = ChannelRenository::getTokenId(request()->bearerToken());
-//        $channelId = Channel::where('token_id', $token)->first()->id;
-//        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
-//        $pricingRules = $this->pricingRulesService->rules($query, $channelId, $supplierId);
         $pricingRules = array_column($pricingRules, null, 'property');
 
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
