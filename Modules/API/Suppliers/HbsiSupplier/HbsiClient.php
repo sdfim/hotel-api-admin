@@ -5,9 +5,11 @@ namespace Modules\API\Suppliers\HbsiSupplier;
 use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiSearchInspectorRepository;
+use Fiber;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Carbon;
+use GuzzleHttp\Promise;
 use SimpleXMLElement;
 
 
@@ -47,11 +49,13 @@ class HbsiClient
     public function getHbsiPriceByPropertyIds(array $hotelIds, array $filters): ?array
     {
         $bodyQuery = $this->makeRequest($this->hotelAvailRQ($hotelIds, $filters), 'HotelAvailRQ');
-        $response = $this->client->request('POST', self::URL, ['headers' => $this->headers, 'body' => $bodyQuery]);
-        $body = $response->getBody();
+        $promise = $this->client->requestAsync('POST', self::URL, ['headers' => $this->headers, 'body' => $bodyQuery]);
+
+        $result = Fiber::suspend($promise);
+
+        $body = $result['value']->getBody()->getContents();
 
         return $this->processXmlBody($body, $bodyQuery);
-
     }
 
     /**
@@ -103,11 +107,11 @@ class HbsiClient
      * @param string $bodyQuery
      * @return array|null
      */
-    private function processXmlBody(object $body, string $bodyQuery, $addGuest = false): ?array
+    private function processXmlBody(object|string $body, string $bodyQuery, $addGuest = false): ?array
     {
         if ($this->isXml($body)) {
             try {
-                $res =  [
+                $res = [
                     'request' => $bodyQuery,
                     'response' => new SimpleXMLElement($body, LIBXML_NOCDATA)
                 ];
@@ -268,10 +272,10 @@ class HbsiClient
                 </POS>
                 <HotelReservations>
                 <HotelReservation RoomStayReservation="true" CreateDateTime="2024-05-03T15:47:24-04:00" CreatorID="Partner">
-                    <UniqueID Type="14" ID="ReservationId_' . $bookingItem->booking_item . '_'.time().'"/>
-                    '.$roomStays.'
-                    '.$resGuests.'
-                    '.$resGlobalInfo.'
+                    <UniqueID Type="14" ID="ReservationId_' . $bookingItem->booking_item . '_' . time() . '"/>
+                    ' . $roomStays . '
+                    ' . $resGuests . '
+                    ' . $resGlobalInfo . '
                 </HotelReservation>
             </HotelReservations>
         </OTA_HotelResRQ>';
@@ -288,11 +292,11 @@ class HbsiClient
                 xmlns="http://www.opentravel.org/OTA/2003/05">
                     <ReadRequests>
                     <ReadRequest>
-                        <UniqueID Type="14" ID="'.$reservation['bookingId'].'"/>
+                        <UniqueID Type="14" ID="' . $reservation['bookingId'] . '"/>
                         <Verification>
                             <PersonName>
-                                <GivenName>'.$reservation['main_guest']['GivenName'].'</GivenName>
-                                <Surname>'.$reservation['main_guest']['Surname'].'</Surname>
+                                <GivenName>' . $reservation['main_guest']['GivenName'] . '</GivenName>
+                                <Surname>' . $reservation['main_guest']['Surname'] . '</Surname>
                             </PersonName>
                         </Verification>
                     </ReadRequest>
@@ -317,13 +321,13 @@ class HbsiClient
                             </BookingChannel>
                         </Source>
                     </POS>
-                    <UniqueID Type="15" ID="'.$reservation['ReservationId'].'">
+                    <UniqueID Type="15" ID="' . $reservation['ReservationId'] . '">
                         <CompanyName>HBSI</CompanyName>
                     </UniqueID>
                     <Verification>
                         <PersonName>
-                            <GivenName>'.$reservation['main_guest']['GivenName'].'</GivenName>
-                            <Surname>'.$reservation['main_guest']['Surname'].'</Surname>
+                            <GivenName>' . $reservation['main_guest']['GivenName'] . '</GivenName>
+                            <Surname>' . $reservation['main_guest']['Surname'] . '</Surname>
                         </PersonName>
                     </Verification>
             </OTA_CancelRQ>';
@@ -377,7 +381,7 @@ class HbsiClient
     private function arrayToXml($array, $xml = null, $parentName = 'root'): string
     {
         if ($xml === null) {
-            $xml = new SimpleXMLElement('<'.$parentName.'/>');
+            $xml = new SimpleXMLElement('<' . $parentName . '/>');
         }
 
         foreach ($array as $key => $value) {
@@ -421,8 +425,8 @@ class HbsiClient
                 }
             }
         }
-        for ($i=0; $i < count(array_values($guests)[0]); $i++) {
-            $roomStaysArr['ResGuestRPHs'][]['@attributes']['RPH'] = strval($i+1);
+        for ($i = 0; $i < count(array_values($guests)[0]); $i++) {
+            $roomStaysArr['ResGuestRPHs'][]['@attributes']['RPH'] = strval($i + 1);
         }
         if (isset($roomStaysArr['GuestCounts']['GuestCount']) && count($roomStaysArr['GuestCounts']['GuestCount']) > 1) {
             $guestCounts = $roomStaysArr['GuestCounts']['GuestCount'];
@@ -514,7 +518,7 @@ class HbsiClient
     {
         $depositPaymentArr = [];
         $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardType'] = '1';
-        $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardCode'] =   $creditCard['credit_card']['card_type'];
+        $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardCode'] = $creditCard['credit_card']['card_type'];
         $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardNumber'] = $creditCard['credit_card']['number'];
         $expiryDate = $creditCard['credit_card']['expiry_date'];;
         $expiryDate = Carbon::createFromFormat('m/Y', $expiryDate);

@@ -53,7 +53,6 @@ class ExpediaHotelController
     public function preSearchData(array $filters): ?array
     {
         $timeStart = microtime(true);
-        Log::info('ExpediaHotelApiHandler | preSearchData | start mysql query');
 
         $resultsPerPage = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
         $page = $filters['page'] ?? self::PAGE;
@@ -112,7 +111,7 @@ class ExpediaHotelController
         }
 
         $endTime = microtime(true) - $timeStart;
-        Log::info('ExpediaHotelApiHandler | preSearchData | end mysql query ' . $endTime . ' seconds');
+        Log::info('ExpediaHotelApiHandler | preSearchData | mysql query ' . $endTime . ' seconds');
 
         return ['ids' => $ids ?? 0, 'results' => $results, 'filters' => $filters ?? null, 'count' => $count ?? 0];
     }

@@ -3,6 +3,7 @@
 namespace Modules\API\Suppliers\ExpediaSupplier;
 
 use Exception;
+use Fiber;
 use GuzzleHttp\Promise;
 use Illuminate\Support\Facades\Log;
 
@@ -175,11 +176,26 @@ class PropertyPriceCall
             }
         }
 
-        try {
-            // $responses = Promise\Utils::unwrap($promises);
-            $resolvedResponses = Promise\Utils::settle($promises)->wait();
+//        dump($promises);
+        $responses = Fiber::suspend($promises);
 
-            foreach ($resolvedResponses as $response) {
+        try {
+            // TODO: need to check if this is the correct way to handle promises
+//            $resolvedResponses = Promise\Utils::settle($promises)->wait();
+//            foreach ($resolvedResponses as $response) {
+//                if ($response['state'] === 'fulfilled') {
+//                    $data = $response['value']->getBody()->getContents();
+//                    $responses = array_merge($responses, json_decode($data, true));
+//                } else {
+//                    Log::error('PropertyPriceCall | getPriceData ', [
+//                        'propertyChunk' => $this->propertyChunk,
+//                        'reason' => $response['reason']->getMessage()
+//                    ]);
+//                }
+//            }
+
+            foreach ($responses as $promise) {
+                $response = Fiber::suspend($promise);
                 if ($response['state'] === 'fulfilled') {
                     $data = $response['value']->getBody()->getContents();
                     $responses = array_merge($responses, json_decode($data, true));
@@ -190,6 +206,7 @@ class PropertyPriceCall
                     ]);
                 }
             }
+
         } catch (Exception $e) {
             Log::error('Error while processing promises: ' . $e->getMessage());
         }

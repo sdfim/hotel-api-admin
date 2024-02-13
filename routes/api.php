@@ -15,7 +15,9 @@ use Modules\API\PricingAPI\routes\PricingApiRoutes;
 |
 */
 
-PricingApiRoutes::routes();
 ContentApiRoutes::routes();
+
+PricingApiRoutes::routes();
+
 BookingApiRoutes::routes();
 
