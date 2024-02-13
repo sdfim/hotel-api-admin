@@ -2,11 +2,19 @@
 
 namespace Modules\API\PricingRules\HBSI;
 
+use App\Models\Supplier;
 use Modules\API\PricingRules\BasePricingRulesApplier;
 use Modules\API\PricingRules\PricingRulesApplierInterface;
 
 class HbsiPricingRulesApplier extends BasePricingRulesApplier implements PricingRulesApplierInterface
 {
+    public function __construct(array $requestArray, array $pricingRules)
+    {
+        parent::__construct($requestArray, $pricingRules);
+
+        $this->supplierId = Supplier::getSupplierId('HBSI');
+    }
+
     /**
      * @var string[]
      */
@@ -86,7 +94,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         $this->updateTotals($roomTotals);
 
         foreach ($this->pricingRules as $pricingRule) {
-            $this->validPricingRule = $this->validPricingRule($pricingRule['conditions'], $giataId);
+            $this->validPricingRule = $this->validPricingRule($giataId, $pricingRule['conditions']);
 
             $this->setPricingRuleValues($pricingRule);
 
@@ -96,29 +104,6 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         }
 
         return $this->totals($b2b);
-    }
-
-    /**
-     * @param array $conditions
-     * @param int $giataId
-     * @return bool
-     */
-    private function validPricingRule(array $conditions, int $giataId): bool
-    {
-        $validPricingRule = true;
-
-        foreach ($conditions as $condition) {
-            if ($condition['field'] === 'property') {
-                if ((int)$condition['value_from'] === $giataId) {
-                    $validPricingRule = true;
-                    break;
-                } else {
-                    $validPricingRule = false;
-                }
-            }
-        }
-
-        return $validPricingRule;
     }
 
     /**

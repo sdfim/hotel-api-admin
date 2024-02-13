@@ -2,6 +2,7 @@
 
 namespace Modules\API\PricingRules\Expedia;
 
+use App\Models\Supplier;
 use Modules\API\PricingRules\BasePricingRulesApplier;
 use Modules\API\PricingRules\PricingRulesApplierInterface;
 
@@ -10,6 +11,13 @@ use Modules\API\PricingRules\PricingRulesApplierInterface;
  */
 class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements PricingRulesApplierInterface
 {
+    public function __construct(array $requestArray, array $pricingRules)
+    {
+        parent::__construct($requestArray, $pricingRules);
+
+        $this->supplierId = Supplier::getSupplierId('Expedia');
+    }
+
     /**
      * @param int $giataId
      * @param array $roomsPricingArray
@@ -37,7 +45,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
         }
 
         foreach ($this->pricingRules as $pricingRule) {
-            $this->validPricingRule = $this->validPricingRule($pricingRule['conditions'], $giataId);
+            $this->validPricingRule = $this->validPricingRule($giataId, $pricingRule['conditions']);
 
             $this->setPricingRuleValues($pricingRule);
 
@@ -47,29 +55,6 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
         }
 
         return $this->totals($b2b);
-    }
-
-    /**
-     * @param array $conditions
-     * @param int $giataId
-     * @return bool
-     */
-    private function validPricingRule(array $conditions, int $giataId): bool
-    {
-        $validPricingRule = true;
-
-        foreach ($conditions as $condition) {
-            if ($condition['field'] === 'property') {
-                if ((int)$condition['value_from'] === $giataId) {
-                    $validPricingRule = true;
-                    break;
-                } else {
-                    $validPricingRule = false;
-                }
-            }
-        }
-
-        return $validPricingRule;
     }
 
     /**

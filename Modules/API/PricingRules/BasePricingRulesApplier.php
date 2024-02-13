@@ -10,6 +10,11 @@ use Carbon\Carbon;
 class BasePricingRulesApplier
 {
     /**
+     * @var int|null
+     */
+    protected ?int $supplierId = null;
+
+    /**
      * @var array
      */
     protected array $requestArray = [];
@@ -148,6 +153,37 @@ class BasePricingRulesApplier
         $this->totalFees += (float)$roomTotals['total_fees'];
 
         $this->totalNet += (float)$roomTotals['total_net'];
+    }
+
+    /**
+     * @param int $giataId
+     * @param array $conditions
+     * @param array $conditionsFieldsToVerify
+     * @return bool
+     */
+    protected function validPricingRule(
+        int   $giataId,
+        array $conditions,
+        array $conditionsFieldsToVerify = ['supplier_id', 'property']
+    ): bool
+    {
+        $validPricingRule = [];
+
+        $conditionsCollection = collect($conditions);
+
+        foreach ($conditionsFieldsToVerify as $field) {
+            $filtered = $conditionsCollection->where('field', $field);
+
+            $validPricingRule[$field] = match ($field) {
+                'supplier_id' => $filtered->isEmpty() || in_array($this->supplierId, $filtered->pluck('value_from')->all()),
+                'property' => $filtered->isEmpty() || in_array($giataId, $filtered->pluck('value_from')->all()),
+                'default' => false
+            };
+        }
+
+        return array_reduce($validPricingRule, function ($carry, $item) {
+            return $carry && ($item === true);
+        }, true);
     }
 
     /**

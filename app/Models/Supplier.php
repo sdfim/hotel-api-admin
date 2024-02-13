@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Modules\Enums\SupplierNameEnum;
 
 class Supplier extends Model
 {
@@ -29,19 +28,19 @@ class Supplier extends Model
     }
 
     /**
-     * @return int|string|null
+     * @return int|null
      */
-    public static function getExpediaId(): int|string|null
+    public static function getExpediaId(): ?int
     {
-        return Supplier::where('name', 'Expedia')->first()->id;
+        return Supplier::where('name', 'Expedia')->first()?->id;
     }
 
     /**
      * @param string $supplierName
-     * @return int|string|null
+     * @return int|null
      */
-    public static function getSupplierId(string $supplierName): int|string|null
+    public static function getSupplierId(string $supplierName): ?int
     {
-        return Supplier::where('name', $supplierName)->first()->id;
+        return Supplier::where('name', $supplierName)->first()?->id;
     }
 }
