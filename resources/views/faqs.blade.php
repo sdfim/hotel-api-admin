@@ -30,16 +30,6 @@
                                     </button>
                                 </div>
                             </div>
-                            <form class="app-search d-none d-lg-block my-10">
-                                <div class="flex relative">
-                                    <input type="text"
-                                           class="form-control w-full rounded bg-gray-500/10 border border-transparent pr-16 dark:border-zinc-600 dark:bg-zinc-700"
-                                           placeholder="Search...">
-                                    <button
-                                        class=" bg-violet-500 px-3 py-1.5 top-1 text-white rounded-md absolute right-1 shadow-md shadow-violet-500/50"
-                                        type="button"><i class="bx bx-search-alt align-middle"></i></button>
-                                </div>
-                            </form>
                         </div>
                     </div>
 

@@ -68,6 +68,9 @@
                         <p><strong>Total tax:</strong> {{ $field['price']['total_tax'] }}</p>
                         <p><strong>Total fees:</strong> {{ $field['price']['total_fees'] }}</p>
                         <p><strong>Total price:</strong> {{ $field['price']['total_price'] }}</p>
+                        <p><strong>Affiliate service
+                                charge:</strong> {{ $field['price']['affiliate_service_charge'] ?? 0 }}
+                        </p>
                     </div>
 
                     <!-- Reservation Contains Column -->
@@ -82,8 +85,6 @@
                         <p><strong>Giata room name:</strong> {{ $field['price']['giata_room_name'] }}</p>
                         <p><strong>Supplier room name:</strong> {{ $field['price']['supplier_room_name'] }}</p>
                         <p><strong>Per day rate breakdown:</strong> {{ $field['price']['per_day_rate_breakdown'] }}</p>
-                        <p><strong>Affiliate service charge:</strong> {{ $field['price']['affiliate_service_charge'] }}
-                        </p>
                     </div>
                 </div>
 
