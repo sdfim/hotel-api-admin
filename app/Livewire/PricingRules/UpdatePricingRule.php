@@ -40,7 +40,7 @@ class UpdatePricingRule extends Component implements HasForms
     public PricingRule $record;
 
     /**
-     * @param PricingRule $pricingRules
+     * @param PricingRule $pricingRule
      * @return void
      */
     public function mount(PricingRule $pricingRule): void
@@ -235,7 +235,8 @@ class UpdatePricingRule extends Component implements HasForms
                                                 ->format('Y-m-d')
                                                 ->displayFormat('d-m-Y')
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->visible(fn(Get $get): bool => $get('compare') === 'between')
                                         ],
                                         'booking_date' => [
                                             DateTimePicker::make('value_from')
@@ -252,7 +253,8 @@ class UpdatePricingRule extends Component implements HasForms
                                                 ->format('Y-m-d')
                                                 ->displayFormat('d-m-Y')
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->visible(fn(Get $get): bool => $get('compare') === 'between')
                                         ],
                                         'total_guests' => [
                                             TextInput::make('value_from')
@@ -263,7 +265,8 @@ class UpdatePricingRule extends Component implements HasForms
                                                 ->label('Total guests to')
                                                 ->numeric()
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->visible(fn(Get $get): bool => $get('compare') === 'between')
                                         ],
                                         'days_until_departure' => [
                                             TextInput::make('value_from')
@@ -274,7 +277,8 @@ class UpdatePricingRule extends Component implements HasForms
                                                 ->label('Days until departure to')
                                                 ->numeric()
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->visible(fn(Get $get): bool => $get('compare') === 'between')
                                         ],
                                         'nights' => [
                                             TextInput::make('value_from')
@@ -285,7 +289,8 @@ class UpdatePricingRule extends Component implements HasForms
                                                 ->label('Nights to')
                                                 ->numeric()
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->visible(fn(Get $get): bool => $get('compare') === 'between')
                                         ],
                                         'rating' => [
                                             TextInput::make('value_from')
@@ -300,7 +305,8 @@ class UpdatePricingRule extends Component implements HasForms
                                                 ->minValue(fn(): float => 1.0)
                                                 ->maxValue(fn(): float => 5.5)
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->visible(fn(Get $get): bool => $get('compare') === 'between')
                                         ],
                                         'number_of_rooms' => [
                                             TextInput::make('value_from')
@@ -311,7 +317,8 @@ class UpdatePricingRule extends Component implements HasForms
                                                 ->label('Number of rooms to')
                                                 ->numeric()
                                                 ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between'),
+                                                ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                                ->visible(fn(Get $get): bool => $get('compare') === 'between')
                                         ],
                                         'rate_code' => [
                                             TextInput::make('value_from')
