@@ -124,9 +124,10 @@ class UpdatePricingRule extends Component implements HasForms
                             ->required()
                     ])
                     ->columns(4),
-                Fieldset::make('Rules')
+                Fieldset::make('Rule conditions')
                     ->schema([
                         Repeater::make('conditions')
+                            ->label('')
                             ->relationship()
                             ->schema([
                                 Select::make('field')

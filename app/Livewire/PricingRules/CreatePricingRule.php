@@ -117,9 +117,10 @@ class CreatePricingRule extends Component implements HasForms
                             ->required()
                     ])
                     ->columns(4),
-                Fieldset::make('')
+                Fieldset::make('Rule conditions')
                     ->schema([
                         Repeater::make('conditions')
+                            ->label('')
                             ->relationship()
                             ->schema([
                                 Select::make('field')
