@@ -84,7 +84,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->options(Supplier::all()->pluck('name', 'id'))
                     ->required(),
                 TextInput::make('time_reservations_kept')
-                    ->label('Length of Time Reservations are kept are offloading, days')
+                    ->label('Length of Time Reservations are kept offloading, days')
                     ->numeric()
                     ->minValue(fn(): int => 7)
                     ->maxValue(fn(): int => 365)
