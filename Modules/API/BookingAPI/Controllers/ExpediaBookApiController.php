@@ -20,6 +20,7 @@ use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookDto;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookingRetrieveBookingDto;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Modules\Enums\SupplierNameEnum;
+use Modules\Enums\TypeRequestEnum;
 
 class ExpediaBookApiController extends BaseBookApiController
 {
@@ -354,7 +355,7 @@ class ExpediaBookApiController extends BaseBookApiController
         $countRooms = count(json_decode($apiSearchInspector, true)['occupancy']);
 
         $type = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->search_type;
-        if ($type == 'hotel')
+        if (TypeRequestEnum::from($type) === TypeRequestEnum::HOTEL)
             for ($i = 1; $i <= $countRooms; $i++) {
                 $filters['rooms'][] = $passengersData['rooms'][$i]['passengers'];
             }

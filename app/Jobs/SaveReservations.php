@@ -21,7 +21,7 @@ class SaveReservations implements ShouldQueue
      * @param ExpediaTools $expediaTools
      */
     public function __construct(
-        private readonly int   $booking_id,
+        private readonly string   $booking_id,
         private readonly array $filters,
         private readonly array $dataPassengers,
         private readonly ExpediaTools $expediaTools = new ExpediaTools(),

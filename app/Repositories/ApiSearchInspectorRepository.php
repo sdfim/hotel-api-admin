@@ -100,24 +100,24 @@ class ApiSearchInspectorRepository
     }
 
     /**
-     * @param $filters
      * @param ApiBookingItem $apiBookingItem
      * @param ApiSearchInspector $searchInspector
      * @return array
      */
-    public static function getReservationsExpediaData($filters, ApiBookingItem $apiBookingItem, ApiSearchInspector $searchInspector): array
+    public static function getReservationsData(ApiBookingItem $apiBookingItem, ApiSearchInspector $searchInspector): array
     {
         $booking_item_data = json_decode($apiBookingItem->booking_item_data, true);
         $client_response = json_decode(Storage::get($searchInspector->client_response_path), true);
 
         $price = json_decode($apiBookingItem->booking_pricing_data, true);
 
-        $supplier_hotel_id = MapperExpediaGiata::where('giata_id', $booking_item_data['hotel_id'])->first()->expedia_id;
+        $expedia_hotel_id = MapperExpediaGiata::where('giata_id', $booking_item_data['hotel_id'])->first()->expedia_id;
 
         return [
             'query' => $client_response['query'],
             'price' => $price,
-            'supplier_hotel_id' => $supplier_hotel_id
+            'expedia_hotel_id' => $expedia_hotel_id,
+            'hotel_id' => $booking_item_data['hotel_id'],
         ];
     }
 

@@ -23,9 +23,11 @@ use Modules\Enums\TypeRequestEnum;
 class HbsiBookApiController extends BaseBookApiController
 {
     public function __construct(
-        private readonly HbsiClient $hbsiClient = new HbsiClient(),
+        private readonly HbsiClient       $hbsiClient = new HbsiClient(),
         private readonly HbsiHotelBookDto $hbsiHotelBookDto = new HbsiHotelBookDto(),
-    ) {}
+    )
+    {
+    }
 
     /**
      * @param array $filters
@@ -126,6 +128,9 @@ class HbsiBookApiController extends BaseBookApiController
                 'error' => 'Passengers not found.',
                 'booking_item' => $filters['booking_item'],
             ];
+        } else {
+            $passengersArr = $passengers->toArray();
+            $dataPassengers = json_decode($passengersArr['request'], true);
         }
 
         $dataResponse = [];
@@ -145,7 +150,7 @@ class HbsiBookApiController extends BaseBookApiController
                 'main_guest' => $xmlPriceData['main_guest'],
             ];
             if (!isset($dataResponse['Errors'])) {
-                $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters) ;
+                $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters);
             } else {
                 $clientResponse = $dataResponse;
                 $clientResponse['booking_item'] = $filters['booking_item'];
@@ -165,10 +170,13 @@ class HbsiBookApiController extends BaseBookApiController
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
-        if (!$error) SaveBookingInspector::dispatch([
-            $booking_id, $filters, $dataResponseToSave, $clientResponse, $supplierId, 'book', 'create', $bookingInspector->search_type
-        ]);
-        else SaveBookingInspector::dispatch([
+        if (!$error) {
+            SaveBookingInspector::dispatch([
+                $booking_id, $filters, $dataResponseToSave, $clientResponse, $supplierId, 'book', 'create', $bookingInspector->search_type
+            ]);
+            # Save Book data to Reservation
+            SaveReservations::dispatch($booking_id, $filters, $dataPassengers);
+        } else SaveBookingInspector::dispatch([
             $booking_id, $filters, $dataResponseToSave, $clientResponse, $supplierId, 'book', 'error', $bookingInspector->search_type
         ]);
 
@@ -319,7 +327,7 @@ class HbsiBookApiController extends BaseBookApiController
                 'main_guest' => $xmlPriceData['main_guest'],
             ];
             if (!isset($dataResponse['Errors'])) {
-                $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters) ;
+                $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters);
             } else {
                 $clientResponse = $dataResponse;
                 $clientResponse['booking_item'] = $filters['booking_item'];
@@ -366,7 +374,6 @@ class HbsiBookApiController extends BaseBookApiController
         $reservation['main_guest'] = $mainGuest;
         return $reservation;
     }
-
 
 
 }
