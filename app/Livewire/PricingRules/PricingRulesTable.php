@@ -64,9 +64,9 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(PricingRule $record): string => route('pricing_rules.show', $record)),
+                        ->url(fn(PricingRule $record): string => route('pricing-rules.show', $record)),
                     EditAction::make()
-                        ->url(fn(PricingRule $record): string => route('pricing_rules.edit', $record)),
+                        ->url(fn(PricingRule $record): string => route('pricing-rules.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
                         ->action(fn(PricingRule $record) => $record->delete())

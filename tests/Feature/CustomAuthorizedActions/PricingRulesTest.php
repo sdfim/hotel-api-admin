@@ -20,7 +20,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
      */
     public function test_pricing_rules_index_is_opening(): void
     {
-        $response = $this->get('/admin/pricing_rules');
+        $response = $this->get('/admin/pricing-rules');
 
         $response->assertStatus(200);
     }
@@ -31,7 +31,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
      */
     public function test_pricing_rules_creating_is_opening(): void
     {
-        $response = $this->get('/admin/pricing_rules/create');
+        $response = $this->get('/admin/pricing-rules/create');
 
         $response->assertStatus(200);
     }
@@ -46,7 +46,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
             ->has(PricingRuleCondition::factory()->count(rand(1, 14)), 'conditions')
             ->create();
 
-        $response = $this->get(route('pricing_rules.show', $pricingRule->id));
+        $response = $this->get(route('pricing-rules.show', $pricingRule->id));
 
         $response->assertStatus(200);
     }
@@ -102,7 +102,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
             ->call('create')
             ->assertHasNoFormErrors()
             ->assertNotified('Created successfully')
-            ->assertRedirect(route('pricing_rules.index'));
+            ->assertRedirect(route('pricing-rules.index'));
 
         $this->assertDatabaseHas('pricing_rules', $pricingRuleData);
 
@@ -138,7 +138,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
             ->call('edit')
             ->assertHasNoFormErrors()
             ->assertNotified('Updated successfully')
-            ->assertRedirect(route('pricing_rules.index'));
+            ->assertRedirect(route('pricing-rules.index'));
 
         $this->assertDatabaseHas('pricing_rules', $pricingRuleData);
 
@@ -157,6 +157,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $pricingRule->delete();
 
-        $this->assertDatabaseMissing('pricing_rules', ['id' => $pricingRule->id]);
+        $this->assertDatabaseMissing('pricing-rules', ['id' => $pricingRule->id]);
     }
 }

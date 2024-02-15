@@ -43,7 +43,7 @@ Route::get('/admin/', function () {
 Route::prefix('admin')->group(function () {
     Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
         Route::resource('channels', ChannelsController::class);
-        Route::resource('pricing_rules', PricingRulesController::class);
+        Route::resource('pricing-rules', PricingRulesController::class);
         Route::resource('suppliers', SuppliersController::class);
 
         Route::get('/content', [ContentController::class, 'index'])->name('content');

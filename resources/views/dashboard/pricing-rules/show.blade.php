@@ -14,7 +14,7 @@
                     <div class="row">
                         <div class="col-lg-12 margin-tb">
                             <div class="mb-6">
-                                <x-button-back route="{{ route('pricing_rules.index') }}" text="Back"/>
+                                <x-button-back route="{{ route('pricing-rules.index') }}" text="Back"/>
                             </div>
                         </div>
                     </div>

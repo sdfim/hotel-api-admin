@@ -380,7 +380,7 @@ class UpdatePricingRule extends Component implements HasForms
             ->success()
             ->send();
 
-        return redirect()->route('pricing_rules.index');
+        return redirect()->route('pricing-rules.index');
     }
 
     /**

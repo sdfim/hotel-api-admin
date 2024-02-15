@@ -9,7 +9,7 @@
         <div class="col-lg-12 margin-tb">
             <div class="mb-6">
                 <a class="btn text-violet-500 hover:text-white border-violet-500 hover:bg-violet-600 hover:border-violet-600 focus:bg-violet-600 focus:text-white focus:border-violet-600 focus:ring focus:ring-violet-500/30 active:bg-violet-600 active:border-violet-600"
-                   href="{{ route('pricing_rules.create') }}"> <i class="bx bx-plus block text-lg"></i></a>
+                   href="{{ route('pricing-rules.create') }}"> <i class="bx bx-plus block text-lg"></i></a>
             </div>
         </div>
     </div>
