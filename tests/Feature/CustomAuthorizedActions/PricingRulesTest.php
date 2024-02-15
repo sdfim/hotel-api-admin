@@ -157,6 +157,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $pricingRule->delete();
 
-        $this->assertDatabaseMissing('pricing-rules', ['id' => $pricingRule->id]);
+        $this->assertDatabaseMissing('pricing_rules', ['id' => $pricingRule->id]);
     }
 }
