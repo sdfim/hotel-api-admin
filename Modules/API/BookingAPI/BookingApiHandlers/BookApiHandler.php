@@ -131,7 +131,9 @@ class BookApiHandler extends BaseController
         }
 
         $data = [];
+        Log::debug('BookApiHandler book items: ' . $items);
         foreach ($items as $item) {
+            Log::debug('BookApiHandler book LOOP item: ' . $item);
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first();
                 $supplierName = SupplierNameEnum::from($supplier->name);
@@ -605,15 +607,17 @@ class BookApiHandler extends BaseController
         try {
             foreach ($itemsInCart as $item) {
 
-                if (BookRepository::isBook($request->booking_id, $item->booking_item)) {
-                    return $this->sendError(['error' => 'Cart is empty or booked'], 'failed');
-                }
+                if (BookRepository::isBook($request->booking_id, $item->booking_item)) continue;
+
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
                 $res[] = match (SupplierNameEnum::from($supplier)) {
                     SupplierNameEnum::EXPEDIA => $this->expedia->retrieveItem($item),
                     SupplierNameEnum::HBSI => $this->hbsi->retrieveItem($item),
                     default => [],
                 };
+            }
+            if (empty($res)) {
+                return $this->sendError(['error' => 'Cart is empty or booked'], 'failed');
             }
 
         } catch (Exception $e) {

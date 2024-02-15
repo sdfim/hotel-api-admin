@@ -48,7 +48,7 @@ class HbsiBookApiController extends BaseBookApiController
 
         $res = [];
 
-        if ($bookingItem->rate_type === 'completed') {
+        if ($bookingItem->rate_type === 'completed' && $filters['booking_item'] !== $bookingItem->complete_id) {
             $bookingItemsSingle = ApiBookingInspector::where('booking_id', $booking_id)
                 ->where('rate_type', 'single')
                 ->where('complete_id', $filters['booking_item'])
@@ -131,6 +131,12 @@ class HbsiBookApiController extends BaseBookApiController
         } else {
             $passengersArr = $passengers->toArray();
             $dataPassengers = json_decode($passengersArr['request'], true);
+        }
+        if (!isset($filters['credit_cards'])) {
+            return [
+                'error' => 'Credit card not found.',
+                'booking_item' => $filters['booking_item'],
+            ];
         }
 
         $clientResponse = [];

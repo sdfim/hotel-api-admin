@@ -407,7 +407,18 @@ class HbsiClient
 
     private function processRoomStaysArr($response, $bookingItemData, $filters, $roomByQuery, $guests): array
     {
-        $roomStaysArr = $response['results']['HBSI'][$bookingItemData['hotel_supplier_id']]['rooms'][$bookingItemData['room_id']]['rates'][$bookingItemData['rate_ordinal'] - 1];
+        $pre = $roomStaysArr = $response;
+        $rates = $roomStaysArr = $response['results']['HBSI'][$bookingItemData['hotel_supplier_id']]['rooms'][$bookingItemData['room_id']]['rates'];
+        if (isset($rates['rate_ordinal'])) $roomStaysArr = $rates[$bookingItemData['rate_ordinal'] - 1];
+        else {
+            foreach ($rates as $rate) {
+                if ($rate['rate_ordinal'] === $bookingItemData['rate_ordinal']) {
+                    $roomStaysArr = $rate;
+                    break;
+                }
+            }
+        }
+//        $roomStaysArr = $response['results']['HBSI'][$bookingItemData['hotel_supplier_id']]['rooms'][$bookingItemData['room_id']]['rates'][$bookingItemData['rate_ordinal'] - 1];
 
         if (isset($roomStaysArr['RoomRates']['RoomRate']['Rates']['Rate'])
             && count($roomStaysArr['RoomRates']['RoomRate']['Rates']) > 1) {
