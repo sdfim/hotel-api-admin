@@ -27,7 +27,7 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
                     'result' => [
                         [
                             'booking_item' => $bookingItem,
-                            'status' => 'Room cancelled.'
+                            'status' => 'Room canceled.'
                         ]
                     ]
                 ],
@@ -57,7 +57,7 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
                     'result' => [
                         [
                             'booking_item' => $bookingItem,
-                            'status' => 'Room cancelled.'
+                            'status' => 'Room canceled.'
                         ]
                     ]
                 ],

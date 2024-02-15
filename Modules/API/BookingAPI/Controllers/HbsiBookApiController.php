@@ -268,7 +268,7 @@ class HbsiBookApiController extends BaseBookApiController
             } else {
                 $res = [
                     'booking_item' => $bookingInspector->booking_item,
-                    'status' => 'Room cancelled.',
+                    'status' => 'Room canceled.',
                 ];
             }
 

@@ -287,7 +287,7 @@ class ExpediaBookApiController extends BaseBookApiController
 
             $res = [
                 'booking_item' => $bookingInspector->booking_item,
-                'status' => 'Room cancelled.',
+                'status' => 'Room canceled.',
             ];
 
         } catch (Exception $e) {
