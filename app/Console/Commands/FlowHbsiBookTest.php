@@ -21,13 +21,13 @@ class FlowHbsiBookTest extends Command
     protected $signature = 'hbsi-book-test {step} {destination} {supplier}';
 
     protected PendingRequest $client;
-    // protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
-    // protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
+     protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
+     protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
 
-    protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
-
-    protected const BASE_URI = 'http://localhost:8008';
+//    protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
+//
+//    protected const BASE_URI = 'http://localhost:8008';
 
     private string $destination;
 
@@ -66,10 +66,11 @@ class FlowHbsiBookTest extends Command
         $searchId = $responseData1['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData1);
         $this->info('search_id = ' . $searchId);
-        $this->info('booking_item = ' . $bookingItem);
+        $this->info('booking_item = ' . $bookingItem['booking_item']);
 
-        $bookingId = $this->addBookingItem($bookingItem);
-        $bookingItems['search_1'] = $bookingItem;
+        $bookingId = $this->addBookingItem($bookingItem['booking_item']);
+        $bookingItems['search_1'] = $bookingItem['booking_item'];
+        $bookingRateOrdinals['search_1'] = $bookingItem['rate_ordinal'];
 
         $this->warn('SEARCH 2');
         $responseData2 = $this->makeSearchRequest();
@@ -77,15 +78,16 @@ class FlowHbsiBookTest extends Command
         $searchId = $responseData2['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData2);
         $this->info('search_id = ' . $searchId);
-        $this->info('booking_item = ' . $bookingItem);
+        $this->info('booking_item = ' . $bookingItem['booking_item']);
 
-        $bookingId = $this->addBookingItem($bookingItem, $bookingId);
-        $bookingItems['search_2'] = $bookingItem;
+        $bookingId = $this->addBookingItem($bookingItem['booking_item'], $bookingId);
+        $bookingItems['search_2'] = $bookingItem['booking_item'];
+        $bookingRateOrdinals['search_2'] = $bookingItem['rate_ordinal'];
 
         sleep(2);
 
         $this->warn('addPassengers group for SEARCH 1, SEARCH 2');
-        $this->addPassengers($bookingId, $bookingItems, $query);
+        $this->addPassengers($bookingId, $bookingItems, $bookingRateOrdinals, $query);
 
         $this->warn('SEARCH 3');
         $responseData = $this->makeSearchRequest(2);
@@ -93,32 +95,33 @@ class FlowHbsiBookTest extends Command
         $searchId = $responseData['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData);
         $this->info('search_id = ' . $searchId);
-        $this->info('booking_item = ' . $bookingItem);
+        $this->info('booking_item = ' . $bookingItem['booking_item']);
 
-        $bookingId = $this->addBookingItem($bookingItem, $bookingId);
-        $bookingItems2['search_3'] = $bookingItem;
+        $bookingId = $this->addBookingItem($bookingItem['booking_item'], $bookingId);
+        $bookingItems2['search_3'] = $bookingItem['booking_item'];
+        $bookingRateOrdinals2['search_3'] = $bookingItem['rate_ordinal'];
 
         sleep(2);
         $this->warn('addPassengers group for search_3');
-        $this->addPassengers($bookingId, $bookingItems2, $query2);
+        $this->addPassengers($bookingId, $bookingItems2, $bookingRateOrdinals2, $query2);
 
         sleep(3);
         $this->warn('REMOVE ITEM');
-        $this->removeBookingItem($bookingId, $bookingItem);
+        $this->removeBookingItem($bookingId, $bookingItem['booking_item']);
 
         $this->warn('RETRIEVE ITEMS');
         $this->retrieveItems($bookingId);
 
         sleep(2);
         $this->warn('BOOK ' . $bookingId);
-        $this->book($bookingId);
+        $this->book($bookingId, $bookingItems);
     }
 
     /**
      * @param array $responseData
      * @return string
      */
-    private function getBookingItem(array $responseData): string
+    private function getBookingItem(array $responseData): array
     {
         $flattened = Arr::dot($responseData);
 
@@ -128,10 +131,15 @@ class FlowHbsiBookTest extends Command
                 && str_contains($key, $this->supplier)
                 && $flattened[str_replace('booking_item', 'room_type', $key)] != 'Luxury'
                 && $flattened[str_replace('booking_item', 'room_type', $key)] != 'STD') {
-                $bookingItems[] = $value;
+                $bookingItems[$key] = $value;
             }
         }
-        return $bookingItems[array_rand($bookingItems)];
+
+        $randomKey = array_rand($bookingItems);
+        return [
+            'booking_item' => $bookingItems[$randomKey],
+            'rate_ordinal' => $flattened[str_replace('booking_item', 'supplier_room_id', $randomKey)] ?? null,
+        ];
     }
 
     /**
@@ -200,7 +208,7 @@ class FlowHbsiBookTest extends Command
      * @param array $occupancy
      * @return void
      */
-    private function addPassengers(string $bookingId, array $bookingItems, array $occupancy): void
+    private function addPassengers(string $bookingId, array $bookingItems, array $bookingRateOrdinals, array $occupancy): void
     {
         $faker = Faker::create();
 
@@ -209,8 +217,7 @@ class FlowHbsiBookTest extends Command
         foreach ($bookingItems as $keySearch => $bookingItem) {
 
             if ($this->supplier === 'HBSI') {
-                $bookingItemData = json_decode(ApiBookingItem::where('booking_item', $bookingItem)->first()->booking_item_data, true);
-                $rate_occupancy = $bookingItemData['rate_occupancy'];
+                $rate_occupancy = $bookingRateOrdinals[$keySearch];
                 $guest = explode('-', $rate_occupancy);
                 $adultsBI = $guest[0];
                 $childrenBI = $guest[1] + $guest[2];
@@ -314,7 +321,7 @@ class FlowHbsiBookTest extends Command
      * @param string $bookingId
      * @return void
      */
-    private function book(string $bookingId): void
+    private function book(string $bookingId, array $bookingItems): void
     {
         $faker = Faker::create();
 
@@ -341,8 +348,7 @@ class FlowHbsiBookTest extends Command
         ];
 
         if ($this->supplier === 'HBSI') {
-            $itemsInCart = ApiBookingInspectorRepository::getItemsInCart($bookingId);
-            foreach ($itemsInCart as $item) {
+            foreach ($bookingItems as $item) {
                 $cards[] = [
                     'credit_card' => [
                         'cvv' => 123,
@@ -352,7 +358,7 @@ class FlowHbsiBookTest extends Command
                         'expiry_date' => '09/2026',
                         'billing_address' => null
                     ],
-                    'booking_item' => $item->booking_item,
+                    'booking_item' => $item,
                 ];
             }
             $requestData['credit_cards'] = $cards;
