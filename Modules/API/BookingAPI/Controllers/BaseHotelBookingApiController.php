@@ -24,6 +24,7 @@ class BaseHotelBookingApiController
         try {
             $bookItems = ApiBookingInspector::where('booking_id', $booking_id)
                 ->where('type', 'book')
+                ->where('sub_type', '!=', 'error')
                 ->get()->pluck('booking_id')->toArray();
 
             $bookingItems = ApiBookingInspector::where('booking_item', $booking_item)

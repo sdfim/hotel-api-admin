@@ -133,10 +133,9 @@ class HbsiBookApiController extends BaseBookApiController
             $dataPassengers = json_decode($passengersArr['request'], true);
         }
 
-        $dataResponse = [];
         $clientResponse = [];
         $dataResponseToSave = [];
-        $error = false;
+        $error = true;
         try {
             $xmlPriceData = $this->hbsiClient->handleBook($filters);
 
@@ -151,22 +150,20 @@ class HbsiBookApiController extends BaseBookApiController
             ];
             if (!isset($dataResponse['Errors'])) {
                 $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters);
+                $error = false;
             } else {
                 $clientResponse = $dataResponse;
                 $clientResponse['booking_item'] = $filters['booking_item'];
                 $clientResponse['supplier'] = SupplierNameEnum::HBSI->value;
-                $error = true;
             }
 
         } catch (RequestException $e) {
-            Log::error('HbsiBookApiHandler | book | create' . $e->getResponse()->getBody());
+            Log::error('HbsiBookApiController | book | RequestException ' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
             return (array)$dataResponse;
         } catch (\Exception $e) {
-        }
-
-        if (!$dataResponse) {
-            return [];
+            Log::error('HbsiBookApiController | book | Exception ' . $e->getMessage());
+            $dataResponse = json_decode('' . $e->getMessage());
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
@@ -179,6 +176,10 @@ class HbsiBookApiController extends BaseBookApiController
         } else SaveBookingInspector::dispatch([
             $booking_id, $filters, $dataResponseToSave, $clientResponse, $supplierId, 'book', 'error', $bookingInspector->search_type
         ]);
+
+        if (!$dataResponse) {
+            return [];
+        }
 
         $viewSupplierData = $filters['supplier_data'] ?? false;
         if ($viewSupplierData) {
@@ -335,7 +336,7 @@ class HbsiBookApiController extends BaseBookApiController
             }
 
         } catch (RequestException $e) {
-            Log::error('HbsiBookApiHandler | changeBooking ' . $e->getResponse()->getBody());
+            Log::error('HbsiBookApiController | changeBooking ' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
             return (array)$dataResponse;
         } catch (\Exception $e) {

@@ -456,7 +456,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                         $supplierResponse = match (SupplierNameEnum::from($supplier)) {
                             SupplierNameEnum::EXPEDIA => $this->expedia->price($filters),
-                            SupplierNameEnum::HBSI, SupplierNameEnum::TEST => $this->hbsi->price($filters),
+                            SupplierNameEnum::HBSI => $this->hbsi->price($filters),
                             default => throw new Exception("Unknown supplier: $supplier")
                         };
                         return $this->handlePriceSupplier($supplierResponse, $supplier, $filters, $search_id, $pricingRules);
@@ -561,8 +561,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $countClientResponse += count($clientResponse[$supplierName]);
         }
 
-        if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::HBSI
-            || SupplierNameEnum::from($supplierName) === SupplierNameEnum::TEST) {
+        if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::HBSI) {
 
             $hbsiResponse = $supplierResponse;
 

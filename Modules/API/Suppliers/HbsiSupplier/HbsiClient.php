@@ -9,7 +9,7 @@ use Fiber;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Carbon;
-use GuzzleHttp\Promise;
+use Modules\Enums\SupplierNameEnum;
 use SimpleXMLElement;
 
 
@@ -255,9 +255,9 @@ class HbsiClient
         $resGuestsArr = $this->processResGuestsArr($guests, $roomByQuery, $filters);
         $resGlobalInfoArr = $this->processDepositPaymentsArr($filters, $roomStaysArr);
 
-        $resGlobalInfo = str_replace('<?xml version="1.0"?>', '',$this->arrayToXml($resGlobalInfoArr, null, 'ResGlobalInfo'));
-        $roomStays = str_replace('<?xml version="1.0"?>', '',$this->arrayToXml($roomStaysArr, null, 'RoomStays'));
-        $resGuests = str_replace('<?xml version="1.0"?>', '',$this->arrayToXml($resGuestsArr, null, 'ResGuests'));
+        $resGlobalInfo = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGlobalInfoArr, null, 'ResGlobalInfo'));
+        $roomStays = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($roomStaysArr, null, 'RoomStays'));
+        $resGuests = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGuestsArr, null, 'ResGuests'));
 
 
         return '<OTA_HotelResRQ Target="Test" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
@@ -408,8 +408,6 @@ class HbsiClient
     private function processRoomStaysArr($response, $bookingItemData, $filters, $roomByQuery, $guests): array
     {
         $roomStaysArr = $response['results']['HBSI'][$bookingItemData['hotel_supplier_id']]['rooms'][$bookingItemData['room_id']]['rates'][$bookingItemData['rate_ordinal'] - 1];
-
-//        dd($roomStaysArr);
 
         if (isset($roomStaysArr['RoomRates']['RoomRate']['Rates']['Rate'])
             && count($roomStaysArr['RoomRates']['RoomRate']['Rates']) > 1) {

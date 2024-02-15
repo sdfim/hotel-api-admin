@@ -3,6 +3,7 @@
 namespace Modules\API\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
 
@@ -15,7 +16,7 @@ class BookingAddPassengersHotelRequest extends ApiRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return Auth::check();
     }
 
     /**

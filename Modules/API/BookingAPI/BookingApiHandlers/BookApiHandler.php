@@ -40,7 +40,9 @@ class BookApiHandler extends BaseController
     public function __construct(
         private readonly ExpediaBookApiController $expedia,
         private readonly HbsiBookApiController    $hbsi
-    ) {}
+    )
+    {
+    }
 
     /**
      * @param Request $request
@@ -105,13 +107,10 @@ class BookApiHandler extends BaseController
      *   security={{ "apiAuth": {} }}
      * )
      */
-    public function book(Request $request): JsonResponse
+    public function book(BookingBookRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
-
-        $validate = Validator::make($request->all(), (new BookingBookRequest())->rules());
-        if ($validate->fails()) return $this->sendError($validate->errors());
 
         $filters = $request->all();
 
@@ -136,15 +135,11 @@ class BookApiHandler extends BaseController
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first();
                 $supplierName = SupplierNameEnum::from($supplier->name);
-                $fiber = new Fiber(function () use ($supplierName, $filters, $item) {
-                    return match ($supplierName) {
-                        SupplierNameEnum::EXPEDIA => $this->expedia->book($filters, $item),
-                        SupplierNameEnum::HBSI => $this->hbsi->book($filters, $item),
-                        default => [],
-                    };
-                });
-                $fiber->start();
-                $data[] = $fiber->getReturn();
+                $data[] = match ($supplierName) {
+                    SupplierNameEnum::EXPEDIA => $this->expedia->book($filters, $item),
+                    SupplierNameEnum::HBSI => $this->hbsi->book($filters, $item),
+                    default => [],
+                };
             } catch (Exception $e) {
                 Log::error('BookApiHandler | book ' . $e->getMessage());
                 $data[] = [
@@ -320,13 +315,10 @@ class BookApiHandler extends BaseController
      *   security={{ "apiAuth": {} }}
      * )
      */
-    public function listBookings(Request $request): JsonResponse
+    public function listBookings(ListBookingsRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
-
-        $validate = Validator::make($request->all(), (new ListBookingsRequest())->rules());
-        if ($validate->fails()) return $this->sendError($validate->errors());
 
         try {
             $data = match (SupplierNameEnum::from($request->supplier)) {
@@ -694,16 +686,10 @@ class BookApiHandler extends BaseController
      *   security={{ "apiAuth": {} }}
      * )
      */
-    public function addPassengers(Request $request): JsonResponse
+    public function addPassengers(AddPassengersRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
-
-        $validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
-        if ($validate->fails()) return $this->sendError($validate->errors());
-
-        $filters = Validator::make($request->all(), (new AddPassengersRequest())->rules());
-        if ($filters->fails()) return $this->sendError($filters->errors());
 
         $filters = $request->all();
         $filtersOutput = $this->dtoAddPassengers($filters);
@@ -752,7 +738,6 @@ class BookApiHandler extends BaseController
     private function determinant(Request $request): array
     {
         $requestTokenId = PersonalAccessToken::findToken($request->bearerToken())->id;
-        $dbTokenId = null;
 
         # check Owner token
         if ($request->has('booking_item')) {
