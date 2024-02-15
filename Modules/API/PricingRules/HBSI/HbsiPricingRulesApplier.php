@@ -5,6 +5,7 @@ namespace Modules\API\PricingRules\HBSI;
 use App\Models\Supplier;
 use Modules\API\PricingRules\BasePricingRulesApplier;
 use Modules\API\PricingRules\PricingRulesApplierInterface;
+use Modules\Enums\SupplierNameEnum;
 
 class HbsiPricingRulesApplier extends BasePricingRulesApplier implements PricingRulesApplierInterface
 {
@@ -12,7 +13,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
     {
         parent::__construct($requestArray, $pricingRules);
 
-        $this->supplierId = Supplier::getSupplierId('HBSI');
+        $this->supplierId = Supplier::getSupplierId(SupplierNameEnum::HBSI->value);
     }
 
     /**

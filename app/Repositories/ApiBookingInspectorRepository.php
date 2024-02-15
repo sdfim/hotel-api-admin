@@ -172,6 +172,7 @@ class ApiBookingInspectorRepository
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
             ->where('type', 'book')
+            ->where('sub_type', '!=', 'error')
             ->exists();
     }
 
@@ -217,6 +218,7 @@ class ApiBookingInspectorRepository
             ->where('type', 'add_item')
             ->where(function ($query) {
                 $query->where('sub_type', 'single')
+                    ->orWhere('sub_type', 'complete')
                     ->orWhere('sub_type', 'like', 'price_check' . '%');
             })
             ->whereNotIn('booking_id', $itemsBooked)

@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ApiBookingItem;
+use App\Repositories\ApiBookingInspectorRepository;
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\PendingRequest;
@@ -9,36 +11,28 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 
-
-class CustomBookingCommand extends Command
+class FlowHbsiBookTest extends Command
 {
     /**
+     * The name and signature of the console command.
+     *
      * @var string
      */
-    protected $signature = 'custom-booking-command {step}';
-    /**
-     * @var string
-     */
-    protected $description = 'Command description';
-    /**
-     * @var PendingRequest
-     */
+    protected $signature = 'hbsi-book-test {step} {destination} {supplier}';
+
     protected PendingRequest $client;
     // protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
     // protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
-    /**
-     *
-     */
+
     protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
-    /**
-     *
-     */
+
     protected const BASE_URI = 'http://localhost:8008';
 
-    /**
-     *
-     */
+    private string $destination;
+
+    private string $supplier;
+
     public function __construct()
     {
         parent::__construct();
@@ -51,37 +45,20 @@ class CustomBookingCommand extends Command
     public function handle(): void
     {
         $step = $this->argument('step');
+        $faker = Faker::create();
+        $this->destination = $this->argument('destination') ?? $faker->randomElement([961, 302, 93, 960, 1102]);
+        $this->supplier = $this->argument('supplier') ?? $faker->randomElement(['Expedia', 'HBSI']);
 
         foreach (range(1, $step) as $index) {
             $this->warn('STEP ' . $index . ' of ' . $step);
-            $this->strategy1();
+            $this->flow();
         }
-    }
-
-    /**
-     * @param array $responseData
-     * @return string
-     */
-    private function getBookingItem(array $responseData): string
-    {
-        $flattened = Arr::dot($responseData);
-
-        $bookingItems = [];
-        $i = 0;
-        foreach ($flattened as $key => $value) {
-            if (str_contains($key, 'booking_item')) {
-                $bookingItems[$i] = $value;
-                $i++;
-            }
-        }
-        $i > 0 ? $i-- : $i;
-        return $bookingItems[rand(0, $i)];
     }
 
     /**
      * @return void
      */
-    public function strategy1(): void
+    public function flow(): void
     {
         $this->warn('SEARCH 1');
         $responseData1 = $this->makeSearchRequest(2);
@@ -105,6 +82,8 @@ class CustomBookingCommand extends Command
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
         $bookingItems['search_2'] = $bookingItem;
 
+        sleep(2);
+
         $this->warn('addPassengers group for SEARCH 1, SEARCH 2');
         $this->addPassengers($bookingId, $bookingItems, $query);
 
@@ -118,6 +97,9 @@ class CustomBookingCommand extends Command
 
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
         $bookingItems2['search_3'] = $bookingItem;
+
+        sleep(2);
+        $this->warn('addPassengers group for search_3');
         $this->addPassengers($bookingId, $bookingItems2, $query2);
 
         sleep(3);
@@ -127,8 +109,29 @@ class CustomBookingCommand extends Command
         $this->warn('RETRIEVE ITEMS');
         $this->retrieveItems($bookingId);
 
+        sleep(2);
         $this->warn('BOOK ' . $bookingId);
         $this->book($bookingId);
+    }
+
+    /**
+     * @param array $responseData
+     * @return string
+     */
+    private function getBookingItem(array $responseData): string
+    {
+        $flattened = Arr::dot($responseData);
+
+        $bookingItems = [];
+        foreach ($flattened as $key => $value) {
+            if (str_contains($key, 'booking_item')
+                && str_contains($key, $this->supplier)
+                && $flattened[str_replace('booking_item', 'room_type', $key)] != 'Luxury'
+                && $flattened[str_replace('booking_item', 'room_type', $key)] != 'STD') {
+                $bookingItems[] = $value;
+            }
+        }
+        return $bookingItems[array_rand($bookingItems)];
     }
 
     /**
@@ -163,7 +166,7 @@ class CustomBookingCommand extends Command
         $requestData = [
             'type' => 'hotel',
             'currency' => $faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
-            'destination' => $faker->randomElement([961, 302, 93, 960, 1102]),
+            'destination' => $this->destination,
             'checkin' => $checkin,
             'checkout' => $checkout,
             'occupancy' => $occupancy,
@@ -181,13 +184,8 @@ class CustomBookingCommand extends Command
      */
     private function addBookingItem(string $bookingItem, ?string $bookingId = null): string
     {
-        $requestData = [
-            'booking_item' => $bookingItem,
-        ];
-
-        if ($bookingId !== null) {
-            $requestData['booking_id'] = $bookingId;
-        }
+        $requestData = ['booking_item' => $bookingItem];
+        if ($bookingId !== null) $requestData['booking_id'] = $bookingId;
 
         $response = $this->client->post(self::BASE_URI . '/api/booking/add-item', $requestData);
         $bookingId = $response->json()['data']['booking_id'];
@@ -209,8 +207,31 @@ class CustomBookingCommand extends Command
         $requestData = ['passengers' => []];
 
         foreach ($bookingItems as $keySearch => $bookingItem) {
+
+            if ($this->supplier === 'HBSI') {
+                $bookingItemData = json_decode(ApiBookingItem::where('booking_item', $bookingItem)->first()->booking_item_data, true);
+                $rate_occupancy = $bookingItemData['rate_occupancy'];
+                $guest = explode('-', $rate_occupancy);
+                $adultsBI = $guest[0];
+                $childrenBI = $guest[1] + $guest[2];
+            }
+
             $roomCounter = 1;
+            $step = 0;
             foreach ($occupancy[$keySearch] as $occupant) {
+
+                if ($this->supplier === 'HBSI') {
+                    $children = 0;
+                    $adults = $occupant['adults'];
+                    if (isset($occupant['children_ages']) && count($occupant['children_ages']) > 0) {
+                        $children = count($occupant['children_ages']);
+                    }
+                    if ($adultsBI !== $adults && $childrenBI !== $children) {
+                        continue;
+                    }
+                    if ($step > 0) continue;
+                }
+
                 for ($i = 0; $i < $occupant['adults']; $i++) {
                     $passenger = [
                         'title' => 'mr',
@@ -247,10 +268,12 @@ class CustomBookingCommand extends Command
                     }
                 }
                 $roomCounter++;
+                $step++;
             }
         }
 
         $requestData['booking_id'] = $bookingId;
+//        dd($requestData);
 
         $response = $this->client->post(self::BASE_URI . '/api/booking/add-passengers', $requestData);
 
@@ -301,7 +324,7 @@ class CustomBookingCommand extends Command
             'booking_contact' => [
                 'first_name' => $faker->firstName,
                 'last_name' => $faker->lastName,
-                'email' => $faker->email,
+                'email' => 'test@gmail.com',
                 'phone' => [
                     'country_code' => '1',
                     'area_code' => '487',
@@ -316,6 +339,24 @@ class CustomBookingCommand extends Command
                 ],
             ],
         ];
+
+        if ($this->supplier === 'HBSI') {
+            $itemsInCart = ApiBookingInspectorRepository::getItemsInCart($bookingId);
+            foreach ($itemsInCart as $item) {
+                $cards[] = [
+                    'credit_card' => [
+                        'cvv' => 123,
+                        'number' => 4001919257537193,
+                        'card_type' => 'VISA',
+                        'name_card' => 'Visa',
+                        'expiry_date' => '09/2026',
+                        'billing_address' => null
+                    ],
+                    'booking_item' => $item->booking_item,
+                ];
+            }
+            $requestData['credit_cards'] = $cards;
+        }
 
         $response = $this->client->post(self::BASE_URI . '/api/booking/book', $requestData);
         $this->info('book: ' . json_encode($response->json()));

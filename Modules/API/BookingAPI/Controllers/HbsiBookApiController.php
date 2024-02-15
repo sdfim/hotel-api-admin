@@ -48,7 +48,7 @@ class HbsiBookApiController extends BaseBookApiController
 
         $res = [];
 
-        if ($bookingItem->rate_type === 'completed') {
+        if ($bookingItem->rate_type === 'completed' && $filters['booking_item'] !== $bookingItem->complete_id) {
             $bookingItemsSingle = ApiBookingInspector::where('booking_id', $booking_id)
                 ->where('rate_type', 'single')
                 ->where('complete_id', $filters['booking_item'])
@@ -132,11 +132,16 @@ class HbsiBookApiController extends BaseBookApiController
             $passengersArr = $passengers->toArray();
             $dataPassengers = json_decode($passengersArr['request'], true);
         }
+        if (!isset($filters['credit_cards'])) {
+            return [
+                'error' => 'Credit card not found.',
+                'booking_item' => $filters['booking_item'],
+            ];
+        }
 
-        $dataResponse = [];
         $clientResponse = [];
         $dataResponseToSave = [];
-        $error = false;
+        $error = true;
         try {
             $xmlPriceData = $this->hbsiClient->handleBook($filters);
 
@@ -151,22 +156,20 @@ class HbsiBookApiController extends BaseBookApiController
             ];
             if (!isset($dataResponse['Errors'])) {
                 $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters);
+                $error = false;
             } else {
                 $clientResponse = $dataResponse;
                 $clientResponse['booking_item'] = $filters['booking_item'];
                 $clientResponse['supplier'] = SupplierNameEnum::HBSI->value;
-                $error = true;
             }
 
         } catch (RequestException $e) {
-            Log::error('HbsiBookApiHandler | book | create' . $e->getResponse()->getBody());
+            Log::error('HbsiBookApiController | book | RequestException ' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
             return (array)$dataResponse;
         } catch (\Exception $e) {
-        }
-
-        if (!$dataResponse) {
-            return [];
+            Log::error('HbsiBookApiController | book | Exception ' . $e->getMessage());
+            $dataResponse = json_decode('' . $e->getMessage());
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
@@ -179,6 +182,10 @@ class HbsiBookApiController extends BaseBookApiController
         } else SaveBookingInspector::dispatch([
             $booking_id, $filters, $dataResponseToSave, $clientResponse, $supplierId, 'book', 'error', $bookingInspector->search_type
         ]);
+
+        if (!$dataResponse) {
+            return [];
+        }
 
         $viewSupplierData = $filters['supplier_data'] ?? false;
         if ($viewSupplierData) {
@@ -335,7 +342,7 @@ class HbsiBookApiController extends BaseBookApiController
             }
 
         } catch (RequestException $e) {
-            Log::error('HbsiBookApiHandler | changeBooking ' . $e->getResponse()->getBody());
+            Log::error('HbsiBookApiController | changeBooking ' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
             return (array)$dataResponse;
         } catch (\Exception $e) {

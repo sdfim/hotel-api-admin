@@ -211,18 +211,13 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
      */
     public function removeItem(Request $request, string $supplier): JsonResponse
     {
-//        $validate = Validator::make($request->all(), (new BookingRemoveItemHotelRequest())->rules());
-//        if ($validate->fails()) return $this->sendError($validate->errors());
-
         $filters = $request->all();
-        $data = [];
         try {
-            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::EXPEDIA) {
-                $data = $this->expedia->removeItem($filters);
-            }
-            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI) {
-                $data = $this->hbsi->removeItem($filters);
-            }
+            $data = match (SupplierNameEnum::from($supplier)) {
+                SupplierNameEnum::EXPEDIA => $this->expedia->removeItem($filters),
+                SupplierNameEnum::HBSI => $this->hbsi->removeItem($filters),
+                default => [],
+            };
 
         } catch (Exception $e) {
             Log::error('HotelBookingApiHandler | removeItem ' . $e->getMessage());

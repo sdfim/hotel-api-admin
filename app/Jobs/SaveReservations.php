@@ -15,7 +15,7 @@ class SaveReservations implements ShouldQueue
 
     /**
      * Create a new job instance.
-     * @param int $booking_id
+     * @param string $booking_id
      * @param array $filters
      * @param array $dataPassengers
      * @param ExpediaTools $expediaTools
