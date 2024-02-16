@@ -3,7 +3,7 @@
 namespace App\Livewire\Suppliers;
 
 use App\Models\Supplier;
-use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -45,10 +45,11 @@ class UpdateSuppliersForm extends Component implements HasForms
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
+                TextInput::make('name')
+                    ->unique(ignorable: $this->record)
                     ->required()
                     ->maxLength(191),
-                Forms\Components\TextInput::make('description')
+                TextInput::make('description')
                     ->required()
                     ->maxLength(191),
             ])

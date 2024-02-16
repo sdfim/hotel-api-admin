@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Suppliers;
 
-use App\Models\Channel;
+use App\Models\Supplier;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
@@ -16,7 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
 
-class ChannelsTable extends Component implements HasForms, HasTable
+class SuppliersTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
@@ -29,14 +29,12 @@ class ChannelsTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(Channel::query())
+            ->query(Supplier::query())
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('description')
                     ->searchable(),
-                TextColumn::make('access_token')
-                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -49,12 +47,14 @@ class ChannelsTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Channel $record): string => route('channels.show', $record)),
+                        ->url(fn(Supplier $record): string => route('suppliers.show', $record)),
                     EditAction::make()
-                        ->url(fn(Channel $record): string => route('channels.edit', $record)),
+                        ->disabled(fn(Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
+                        ->url(fn(Supplier $record): string => route('suppliers.edit', $record)),
                     DeleteAction::make()
+                        ->disabled(fn(Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
                         ->requiresConfirmation()
-                        ->action(fn(Channel $record) => $record->delete())
+                        ->action(fn(Supplier $record) => $record->delete())
                 ])
             ]);
     }
@@ -64,6 +64,6 @@ class ChannelsTable extends Component implements HasForms, HasTable
      */
     public function render(): View
     {
-        return view('livewire.channels-table');
+        return view('livewire.suppliers.suppliers-table');
     }
 }

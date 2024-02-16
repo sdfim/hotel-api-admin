@@ -39,6 +39,7 @@ class CreateSuppliersForm extends Component implements HasForms
         return $form
             ->schema([
                 TextInput::make('name')
+                    ->unique()
                     ->required()
                     ->maxLength(191),
                 TextInput::make('description')

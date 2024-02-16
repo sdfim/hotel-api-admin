@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Channels;
 
-use App\Models\Supplier;
+use App\Models\Channel;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
@@ -16,7 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
 
-class SuppliersTable extends Component implements HasForms, HasTable
+class ChannelsTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
@@ -29,12 +29,14 @@ class SuppliersTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(Supplier::query())
+            ->query(Channel::query())
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('description')
                     ->searchable(),
+                TextColumn::make('access_token')
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -47,12 +49,12 @@ class SuppliersTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Supplier $record): string => route('suppliers.show', $record)),
+                        ->url(fn(Channel $record): string => route('channels.show', $record)),
                     EditAction::make()
-                        ->url(fn(Supplier $record): string => route('suppliers.edit', $record)),
+                        ->url(fn(Channel $record): string => route('channels.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(Supplier $record) => $record->delete())
+                        ->action(fn(Channel $record) => $record->delete())
                 ])
             ]);
     }
@@ -62,6 +64,6 @@ class SuppliersTable extends Component implements HasForms, HasTable
      */
     public function render(): View
     {
-        return view('livewire.suppliers.suppliers-table');
+        return view('livewire.channels-table');
     }
 }
