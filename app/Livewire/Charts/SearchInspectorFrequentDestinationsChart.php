@@ -36,10 +36,12 @@ class SearchInspectorFrequentDestinationsChart extends ChartWidget
         } else {
             $queryResult = DB::select("
 			SELECT
-				JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination')) AS destination,
+				COALESCE(CONCAT(gg.city_name, ' (', gg.locale_name, ' - ', gg.country_name, ')'), JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))) AS destination,
 				COUNT(*) as count
 			FROM
 				api_search_inspector
+			LEFT JOIN
+                ujv_api.giata_geographies AS gg ON gg.city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))
 			GROUP BY
 				destination
 			ORDER BY

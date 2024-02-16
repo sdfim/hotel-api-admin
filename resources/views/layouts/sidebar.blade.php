@@ -52,7 +52,6 @@
                         <span data-key="t-property-weighting"> Property Weighting</span>
                     </a>
                 </li>
-
                 <li class="@if(Route::currentRouteName() == 'booking-inspector.show' || Route::currentRouteName() == 'search-inspector.show' || Route::currentRouteName() == 'booking-items.show') mm-active @endif">
                     <a href="javascript: void(0);" aria-expanded="false"
                        class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
@@ -121,13 +120,14 @@
                                 ICE Portal
                             </a>
                         </li>
-                        <li>
-                            <a href="{{ Route('expedia_charts') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                Charts
-                            </a>
-                        </li>
                     </ul>
+                </li>
+                <li>
+                    <a href="{{ Route('statistic-charts') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-graph-pie"></i>
+                        <span data-key="t-statistic-charts"> Statistic charts</span>
+                    </a>
                 </li>
                 <li>
                     <a href="{{ Route('geography') }}"

@@ -3,7 +3,7 @@
     {{ __('Expedia Charts') }}
 @endsection
 @section('content')
-    <x-page-title title="Expedia Chart" pagetitle="index"/>
+    <x-page-title title="Statistic charts" pagetitle="index"/>
     <div class="grid grid-cols-2 gap-5">
         <div class="card-body relative overflow-x-auto">
             @livewire('charts.expedia-rating-chart')

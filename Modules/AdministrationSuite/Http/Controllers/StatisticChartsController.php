@@ -4,13 +4,10 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
 
-class ExpediaController extends Controller
+class StatisticChartsController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(): View
     {
-        return view('dashboard.expedia.index');
+        return view('dashboard.statistic-charts.index');
     }
 }

@@ -19,6 +19,7 @@ use Modules\AdministrationSuite\Http\Controllers\PropertyMappingController;
 use Modules\AdministrationSuite\Http\Controllers\PropertyWeightingController;
 use Modules\AdministrationSuite\Http\Controllers\ReservationsController;
 use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
+use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 
 /*
@@ -62,7 +63,7 @@ Route::prefix('admin')->group(function () {
         Route::resource('giata', GiataController::class)->except(['delete', 'store', 'create']);
         Route::resource('ice-hbsi', IceHbsiController::class)->except(['delete', 'store', 'create']);
         Route::resource('expedia', ExpediaController::class)->except(['delete', 'store', 'create']);
-        Route::get('/expedia-charts', [ExpediaController::class, 'charts'])->name('expedia_charts');
+        Route::get('/statistic-charts', [StatisticChartsController::class, 'index'])->name('statistic-charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->except(['index', 'update', 'create']);
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
