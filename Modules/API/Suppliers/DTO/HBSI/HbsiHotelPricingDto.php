@@ -3,9 +3,7 @@
 namespace Modules\API\Suppliers\DTO\HBSI;
 
 use App\Models\GiataGeography;
-use App\Models\Channel;
 use App\Models\Supplier;
-use App\Repositories\ChannelRenository;
 use App\Repositories\GiataGeographyRepository;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -15,7 +13,6 @@ use Modules\API\PricingAPI\ResponseModels\HotelResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
-use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
 
 class HbsiHotelPricingDto
@@ -143,6 +140,7 @@ class HbsiHotelPricingDto
     /**
      * @param array $roomGroup
      * @param $propertyGroup
+     * @param int|string $supplierHotelId
      * @return array
      */
     public function setRoomGroupsResponse(array $roomGroup, $propertyGroup, int|string $supplierHotelId): array
@@ -191,7 +189,7 @@ class HbsiHotelPricingDto
         $roomGroupsResponse->setCancellationPolicies([
             'Deadline' => $roomGroup['CancelPenalties']['CancelPenalty']['Deadline']['@attributes']['AbsoluteDeadline'] ?? '',
             'AmountPercent' => $roomGroup['CancelPenalties']['CancelPenalty']['AmountPercent']['@attributes']['Percent'] ?? '',
-            ]);
+        ]);
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
@@ -239,7 +237,7 @@ class HbsiHotelPricingDto
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
         $roomResponse->setRoomType($roomType);
         $roomResponse->setRateDescription($rate['RoomRates']['RoomRate']['RoomRateDescription']['Text'] ?? '');
-        $roomResponse->setRateId($rateOrdinal );
+        $roomResponse->setRateId($rateOrdinal);
         $roomResponse->setRatePlanCode($rate['RatePlans']['RatePlan']['@attributes']['RatePlanCode'] ?? '');
         $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
         $roomResponse->setTotalTax($pricingRulesApplier['total_tax']);
@@ -252,7 +250,7 @@ class HbsiHotelPricingDto
         $roomResponse->setBookingItem($bookingItem);
 
         $booking_pricing_data = $roomResponse->toArray();
-        $booking_pricing_data['rate_description'] = mb_substr($booking_pricing_data['rate_description'], 0, 200, 'UTF-8');;
+        $booking_pricing_data['rate_description'] = mb_substr($booking_pricing_data['rate_description'], 0, 200, 'UTF-8');
 
         $this->bookingItems[] = [
             'booking_item' => $bookingItem,

@@ -5,12 +5,13 @@ namespace Modules\API\Suppliers\DTO;
 use App\Models\ApiBookingItem;
 use App\Models\GiataProperty;
 use DateTime;
+use Exception;
 use Modules\API\BookingAPI\ResponseModels\HotelBookResponseModel;
 
 class BaseHotelBookDto
 {
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function toHotelBookResponseModel(array $filters): array
     {

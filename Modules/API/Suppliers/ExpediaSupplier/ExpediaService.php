@@ -8,11 +8,6 @@ use Illuminate\Support\Facades\Log;
 class ExpediaService
 {
     /**
-     * @var PropertyPriceCall
-     */
-    private PropertyPriceCall $propertyPriceCall;
-
-    /**
      * @var RapidClient
      */
     private RapidClient $rapidClient;
@@ -32,8 +27,8 @@ class ExpediaService
     public function getExpediaPriceByPropertyIds(array $propertyIds, array $query): array
     {
         try {
-            $this->propertyPriceCall = new PropertyPriceCall($this->rapidClient, $query);
-            $dataPrice = $this->propertyPriceCall->getPriceData($propertyIds);
+            $propertyPriceCall = new PropertyPriceCall($this->rapidClient, $query);
+            $dataPrice = $propertyPriceCall->getPriceData($propertyIds);
         } catch (Exception $e) {
             Log::error('ExpediaService | getExpediaPriceByPropertyIds' . $e->getMessage());
             return [];

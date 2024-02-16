@@ -171,9 +171,7 @@
     </div>
 @endsection
 @section('scripts')
-    <script type="module">
-        import Swiper from "swiper";
-    </script>
+    <script type="module"></script>
     <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js') }}"></script>
 
     <script src="{{ URL::asset('build/js/pages/login.init.js') }}"></script>

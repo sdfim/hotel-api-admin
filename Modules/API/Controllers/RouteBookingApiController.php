@@ -149,7 +149,7 @@ class RouteBookingApiController extends Controller
      */
     private function isTypeValid($value): bool
     {
-        $values = array_map(function($case) {
+        $values = array_map(function ($case) {
             return $case->value;
         }, TypeRequestEnum::cases());
         return in_array($value, $values, true);
@@ -161,7 +161,7 @@ class RouteBookingApiController extends Controller
      */
     private function isRouteValid($value): bool
     {
-        $values = array_map(function($case) {
+        $values = array_map(function ($case) {
             return $case->value;
         }, RouteBookingEnum::cases());
         return in_array($value, $values, true);

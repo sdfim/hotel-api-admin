@@ -5,7 +5,7 @@ namespace Modules\API\BookingAPI\Controllers;
 use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
-use App\Models\Supplier;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -61,7 +61,7 @@ class BaseHotelBookingApiController
                         ]
                 ];
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $res = [
                 'error' => [
                     'booking_id' => $booking_id,

@@ -4,6 +4,7 @@ namespace Modules\API\Controllers\ApiHandlers\PricingSuppliers;
 
 use App\Repositories\GiataPropertyRepository;
 use App\Repositories\HbsiRepository;
+use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
@@ -11,11 +12,15 @@ use Modules\API\Tools\Geography;
 
 class HbsiHotelController
 {
+    /**
+     *
+     */
     private const RESULT_PER_PAGE = 1000;
 
+    /**
+     *
+     */
     private const PAGE = 1;
-
-    private const RATING = 4;
 
     /**
      * @param HbsiClient $hbsiClient
@@ -24,17 +29,22 @@ class HbsiHotelController
      */
     public function __construct(
         private readonly HbsiClient $hbsiClient = new HbsiClient(),
-        private readonly Geography $geography = new Geography(),
+        private readonly Geography  $geography = new Geography(),
         private readonly GiataPropertyRepository $giataRepo = new GiataPropertyRepository(),
-    ) {}
+    )
+    {
+    }
 
+    /**
+     * @param array $filters
+     * @return array|null
+     */
     public function preSearchData(array $filters): ?array
     {
         $timeStart = microtime(true);
 
         $limit = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
         $offset = $filters['page'] ?? self::PAGE;
-        $rating = $filters['rating'] ?? self::RATING;
 
         if (isset($filters['destination'])) {
             $ids = HbsiRepository::getIdsByDestinationGiata($filters['destination'], $limit, $offset);
@@ -98,7 +108,7 @@ class HbsiHotelController
                 'array' => $groupedPriceData,
             ];
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('ExpediaHotelApiHandler Exception ' . $e->getMessage());
             return [
                 'original' => [
@@ -119,6 +129,12 @@ class HbsiHotelController
         }
     }
 
-    public function object2array($object) { return json_decode(json_encode($object),1); }
-
+    /**
+     * @param $object
+     * @return mixed
+     */
+    public function object2array($object): mixed
+    {
+        return json_decode(json_encode($object), 1);
+    }
 }

@@ -2,10 +2,8 @@
 
 namespace Modules\API\Suppliers\DTO\Expedia;
 
-use App\Models\Channel;
 use App\Models\GiataGeography;
 use App\Models\Supplier;
-use App\Repositories\ChannelRenository;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;

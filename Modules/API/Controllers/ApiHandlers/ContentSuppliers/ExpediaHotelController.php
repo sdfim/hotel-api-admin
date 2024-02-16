@@ -36,11 +36,6 @@ class ExpediaHotelController
     /**
      *
      */
-    private const RATING = 4;
-
-    /**
-     *
-     */
     public function __construct()
     {
         $this->expediaService = new ExpediaService();
@@ -56,7 +51,6 @@ class ExpediaHotelController
 
         $resultsPerPage = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
         $page = $filters['page'] ?? self::PAGE;
-        $rating = $filters['rating'] ?? self::RATING;
 
         try {
             $expedia = new ExpediaContent();

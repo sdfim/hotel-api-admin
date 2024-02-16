@@ -6,26 +6,58 @@ use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\ConfigRepository;
+use Exception;
 use Fiber;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Carbon;
-use Modules\Enums\SupplierNameEnum;
+use Illuminate\Support\Facades\Log;
+use Psr\Http\Message\ResponseInterface;
 use SimpleXMLElement;
-
+use Throwable;
 
 class HbsiClient
 {
 
+    /**
+     *
+     */
     private const USERNAME = 'tentravel';
+    /**
+     *
+     */
     private const PASSWORD = 'xml4t!';
+    /**
+     *
+     */
     private const COMPONENT_INFO_ID = '51721';
+    /**
+     *
+     */
     private const URL = 'https://uat.demandmatrix.net/app/dm/xml/tentravel/search';
+    /**
+     *
+     */
     private const CHANNEL_IDENTIFIER_ID = 'TenTraval_XML4T';
+    /**
+     *
+     */
     private const VERSION = '2006A';
+    /**
+     *
+     */
     private const INTERFACE = 'HBSI XML 4 OTA';
+    /**
+     * @var string
+     */
     private string $requestId;
+    /**
+     * @var string
+     */
     private string $timeStamp;
+    /**
+     * @var array
+     */
     private array $mainGuest;
 
     /**
@@ -45,7 +77,7 @@ class HbsiClient
 
     /**
      * @throws GuzzleException
-     * @throws \Exception
+     * @throws Exception|Throwable
      */
     public function getHbsiPriceByPropertyIds(array $hotelIds, array $filters): ?array
     {
@@ -63,6 +95,11 @@ class HbsiClient
         return $this->processXmlBody($body, $bodyQuery);
     }
 
+    /**
+     * @param array $filters
+     * @return array|null
+     * @throws GuzzleException
+     */
     public function handleBook(array $filters): ?array
     {
         $this->mainGuest = [];
@@ -73,6 +110,11 @@ class HbsiClient
         return $this->processXmlBody($body, $bodyQuery, true);
     }
 
+    /**
+     * @param array $filters
+     * @return array|null
+     * @throws GuzzleException
+     */
     public function modifyBook(array $filters): ?array
     {
         $this->mainGuest = [];
@@ -83,6 +125,11 @@ class HbsiClient
         return $this->processXmlBody($body, $bodyQuery, true);
     }
 
+    /**
+     * @param array $reservation
+     * @return array|null
+     * @throws GuzzleException
+     */
     public function retrieveBooking(array $reservation): ?array
     {
         $bodyQuery = $this->makeRequest($this->readRQ($reservation), 'ReadRQ');
@@ -91,6 +138,11 @@ class HbsiClient
         return $this->processXmlBody($body, $bodyQuery);
     }
 
+    /**
+     * @param array $reservation
+     * @return array|null
+     * @throws GuzzleException
+     */
     public function cancelBooking(array $reservation): ?array
     {
         $bodyQuery = $this->makeRequest($this->cancelRQ($reservation), 'CancelRQ');
@@ -99,7 +151,12 @@ class HbsiClient
         return $this->processXmlBody($body, $bodyQuery);
     }
 
-    private function sendRequest($body)
+    /**
+     * @param $body
+     * @return ResponseInterface
+     * @throws GuzzleException
+     */
+    private function sendRequest($body): ResponseInterface
     {
         return $this->client->request('POST', self::URL, [
             'headers' => $this->headers,
@@ -109,11 +166,12 @@ class HbsiClient
     }
 
     /**
-     * @param object $body
+     * @param object|string $body
      * @param string $bodyQuery
+     * @param bool $addGuest
      * @return array|null
      */
-    private function processXmlBody(object|string $body, string $bodyQuery, $addGuest = false): ?array
+    private function processXmlBody(object|string $body, string $bodyQuery, bool $addGuest = false): ?array
     {
         if ($this->isXml($body)) {
             try {
@@ -123,8 +181,8 @@ class HbsiClient
                 ];
                 if ($addGuest) $res['main_guest'] = json_encode($this->mainGuest);
                 return $res;
-            } catch (\Exception $e) {
-                \Log::error('HbsiClient ' . $e->getMessage());
+            } catch (Exception $e) {
+                Log::error('HbsiClient ' . $e->getMessage());
                 return null;
             }
         } else {
@@ -204,6 +262,7 @@ class HbsiClient
     /**
      * @param array $filters
      * @return string
+     * @throws Exception
      */
     private function hotelResRQ(array $filters): string
     {
@@ -247,6 +306,7 @@ class HbsiClient
     /**
      * @param array $filters
      * @return string
+     * @throws Exception
      */
     private function hotelResModifyRQ(array $filters): string
     {
@@ -384,7 +444,14 @@ class HbsiClient
         return str_replace('<?xml version="1.0"?>', '', $xml->asXML());
     }
 
-    private function arrayToXml($array, $xml = null, $parentName = 'root'): string
+    /**
+     * @param $array
+     * @param $xml
+     * @param string $parentName
+     * @return string
+     * @throws Exception
+     */
+    private function arrayToXml($array, $xml = null, string $parentName = 'root'): string
     {
         if ($xml === null) {
             $xml = new SimpleXMLElement('<' . $parentName . '/>');
@@ -411,9 +478,16 @@ class HbsiClient
         return $xml->asXML();
     }
 
+    /**
+     * @param $response
+     * @param $bookingItemData
+     * @param $filters
+     * @param $roomByQuery
+     * @param $guests
+     * @return array
+     */
     private function processRoomStaysArr($response, $bookingItemData, $filters, $roomByQuery, $guests): array
     {
-        $pre = $roomStaysArr = $response;
         $rates = $roomStaysArr = $response['results']['HBSI'][$bookingItemData['hotel_supplier_id']]['rooms'][$bookingItemData['room_id']]['rates'];
         if (isset($rates['rate_ordinal'])) $roomStaysArr = $rates[$bookingItemData['rate_ordinal'] - 1];
         else {
@@ -454,7 +528,13 @@ class HbsiClient
         return $roomStaysArrFinal;
     }
 
-    private function processResGuestsArr($guests, $roomByQuery, $filters)
+    /**
+     * @param $guests
+     * @param $roomByQuery
+     * @param $filters
+     * @return array
+     */
+    private function processResGuestsArr($guests, $roomByQuery, $filters): array
     {
         $resGuestsArr = [];
         foreach ($guests[$roomByQuery] as $index => $guest) {
@@ -476,7 +556,14 @@ class HbsiClient
         return $resGuestsArr;
     }
 
-    private function createGuestArr($index, $ageQualifyingCode, $guest, $filters)
+    /**
+     * @param $index
+     * @param $ageQualifyingCode
+     * @param $guest
+     * @param $filters
+     * @return array
+     */
+    private function createGuestArr($index, $ageQualifyingCode, $guest, $filters): array
     {
         $guestArr = [];
         $guestArr['@attributes']['ResGuestRPH'] = $index + 1;
@@ -490,7 +577,12 @@ class HbsiClient
         return $guestArr;
     }
 
-    private function createCustomerArr($guest, $filters)
+    /**
+     * @param $guest
+     * @param $filters
+     * @return array
+     */
+    private function createCustomerArr($guest, $filters): array
     {
         $customer = [];
         $customer['PersonName']['GivenName'] = $guest['given_name'];
@@ -501,7 +593,11 @@ class HbsiClient
         return $customer;
     }
 
-    private function createAddressArr($filters)
+    /**
+     * @param $filters
+     * @return array
+     */
+    private function createAddressArr($filters): array
     {
         $address = [];
         $address['AddressLine'] = $filters['booking_contact']['address']['line_1'];
@@ -529,13 +625,18 @@ class HbsiClient
         return $resGlobalInfo;
     }
 
+    /**
+     * @param $creditCard
+     * @param $roomStaysArr
+     * @return array
+     */
     private function createDepositPaymentArr($creditCard, $roomStaysArr): array
     {
         $depositPaymentArr = [];
         $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardType'] = '1';
         $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardCode'] = $creditCard['credit_card']['card_type'];
         $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardNumber'] = $creditCard['credit_card']['number'];
-        $expiryDate = $creditCard['credit_card']['expiry_date'];;
+        $expiryDate = $creditCard['credit_card']['expiry_date'];
         $expiryDate = Carbon::createFromFormat('m/Y', $expiryDate);
         $month = $expiryDate->format('m');
         $year = $expiryDate->format('y');

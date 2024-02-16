@@ -9,7 +9,6 @@ use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
 use Carbon\Carbon;
 use Exception;
-use Fiber;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -21,9 +20,9 @@ use Modules\API\BookingAPI\Controllers\HbsiBookApiController;
 use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
 use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingChangeBookHotelRequest;
+use Modules\API\Requests\ListBookingsRequest;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
-use Modules\API\Requests\ListBookingsRequest;
 
 /**
  * @OA\PathItem(
@@ -36,6 +35,7 @@ class BookApiHandler extends BaseController
 
     /**
      * @param ExpediaBookApiController $expedia
+     * @param HbsiBookApiController $hbsi
      */
     public function __construct(
         private readonly ExpediaBookApiController $expedia,

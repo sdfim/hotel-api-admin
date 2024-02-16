@@ -35,11 +35,6 @@ class IcePortalHotelController
     /**
      *
      */
-    private const RATING = 4;
-
-    /**
-     *
-     */
     private const ICE_MTYPE = 34347;
 
     /**

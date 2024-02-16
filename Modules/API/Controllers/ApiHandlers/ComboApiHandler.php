@@ -10,11 +10,6 @@ use Modules\API\Controllers\ApiHandlerInterface;
 class ComboApiHandler extends BaseController implements ApiHandlerInterface
 {
     /**
-     *
-     */
-    private const SUPPLIER_NAME = 'Expedia';
-
-    /**
      * @param Request $request
      * @return JsonResponse
      */

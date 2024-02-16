@@ -4,8 +4,8 @@ namespace Modules\API\Suppliers\ExpediaSupplier;
 
 use Exception;
 use Fiber;
-use GuzzleHttp\Promise;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class PropertyPriceCall
 {
@@ -158,11 +158,10 @@ class PropertyPriceCall
     /**
      * @param array $propertyIds
      * @return array
+     * @throws Throwable
      */
     public function getPriceData(array $propertyIds = []): array
     {
-        $responses = [];
-
         $chunkPropertyIds = array_chunk($propertyIds, self::BATCH_SIZE);
 
         foreach ($chunkPropertyIds as $keyChunk => $chunk) {

@@ -10,6 +10,7 @@ use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ChannelRenository;
+use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
@@ -167,7 +168,7 @@ class HbsiBookApiController extends BaseBookApiController
             Log::error('HbsiBookApiController | book | RequestException ' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
             return (array)$dataResponse;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('HbsiBookApiController | book | Exception ' . $e->getMessage());
             $dataResponse = json_decode('' . $e->getMessage());
         }
@@ -272,7 +273,7 @@ class HbsiBookApiController extends BaseBookApiController
                 ];
             }
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $responseError = explode('response:', $e->getMessage());
             $responseErrorArr = json_decode($responseError[1], true);
             $res = [
@@ -345,7 +346,7 @@ class HbsiBookApiController extends BaseBookApiController
             Log::error('HbsiBookApiController | changeBooking ' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
             return (array)$dataResponse;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
         }
 
         if (!$dataResponseToSave) return [];

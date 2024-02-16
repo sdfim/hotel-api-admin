@@ -94,7 +94,6 @@ class RouteApiController extends Controller
     }
 
 
-
     /**
      * @OA\Get(
      *   tags={"Content API"},
@@ -191,7 +190,7 @@ class RouteApiController extends Controller
      */
     private function isTypeValid($value): bool
     {
-        $values = array_map(function($case) {
+        $values = array_map(function ($case) {
             return $case->value;
         }, TypeEnum::cases());
         return in_array($value, $values, true);
@@ -203,7 +202,7 @@ class RouteApiController extends Controller
      */
     public function isRouteValid($value): bool
     {
-        $values = array_map(function($case) {
+        $values = array_map(function ($case) {
             return $case->value;
         }, RouteEnum::cases());
         return in_array($value, $values, true);

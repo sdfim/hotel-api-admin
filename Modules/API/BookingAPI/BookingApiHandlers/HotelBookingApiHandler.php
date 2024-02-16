@@ -30,7 +30,9 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
     public function __construct(
         private readonly ExpediaHotelBookingApiController $expedia = new ExpediaHotelBookingApiController(),
         private readonly HbsiHotelBookingApiController    $hbsi = new HbsiHotelBookingApiController(),
-    ) {}
+    )
+    {
+    }
 
     /**
      * @param Request $request
