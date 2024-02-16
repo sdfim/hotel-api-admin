@@ -21,13 +21,13 @@ class FlowHbsiBookTest extends Command
     protected $signature = 'hbsi-book-test {step} {destination} {supplier}';
 
     protected PendingRequest $client;
-     protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
-     protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
+//     protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
+//     protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
 
-//    protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
-//
-//    protected const BASE_URI = 'http://localhost:8008';
+    protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
+
+    protected const BASE_URI = 'http://localhost:8008';
 
     private string $destination;
 
@@ -72,6 +72,7 @@ class FlowHbsiBookTest extends Command
         $bookingItems['search_1'] = $bookingItem['booking_item'];
         $bookingRateOrdinals['search_1'] = $bookingItem['rate_ordinal'];
 
+        sleep(3);
         $this->warn('SEARCH 2');
         $responseData2 = $this->makeSearchRequest();
         $query['search_2'] = $responseData2['data']['query']['occupancy'];
@@ -85,7 +86,6 @@ class FlowHbsiBookTest extends Command
         $bookingRateOrdinals['search_2'] = $bookingItem['rate_ordinal'];
 
         sleep(2);
-
         $this->warn('addPassengers group for SEARCH 1, SEARCH 2');
         $this->addPassengers($bookingId, $bookingItems, $bookingRateOrdinals, $query);
 
@@ -101,7 +101,6 @@ class FlowHbsiBookTest extends Command
         $bookingItems2['search_3'] = $bookingItem['booking_item'];
         $bookingRateOrdinals2['search_3'] = $bookingItem['rate_ordinal'];
 
-        sleep(2);
         $this->warn('addPassengers group for search_3');
         $this->addPassengers($bookingId, $bookingItems2, $bookingRateOrdinals2, $query2);
 
@@ -129,8 +128,9 @@ class FlowHbsiBookTest extends Command
         foreach ($flattened as $key => $value) {
             if (str_contains($key, 'booking_item')
                 && str_contains($key, $this->supplier)
-                && $flattened[str_replace('booking_item', 'room_type', $key)] != 'Luxury'
-                && $flattened[str_replace('booking_item', 'room_type', $key)] != 'STD') {
+//                && $flattened[str_replace('booking_item', 'room_type', $key)] != 'Luxury'
+//                && $flattened[str_replace('booking_item', 'room_type', $key)] != 'STD'
+            ) {
                 $bookingItems[$key] = $value;
             }
         }

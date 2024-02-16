@@ -5,6 +5,7 @@ namespace Modules\API\Suppliers\HbsiSupplier;
 use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiSearchInspectorRepository;
+use App\Repositories\ConfigRepository;
 use Fiber;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -49,7 +50,11 @@ class HbsiClient
     public function getHbsiPriceByPropertyIds(array $hotelIds, array $filters): ?array
     {
         $bodyQuery = $this->makeRequest($this->hotelAvailRQ($hotelIds, $filters), 'HotelAvailRQ');
-        $promise = $this->client->requestAsync('POST', self::URL, ['headers' => $this->headers, 'body' => $bodyQuery]);
+        $promise = $this->client->requestAsync('POST', self::URL, [
+            'headers' => $this->headers,
+            'body' => $bodyQuery,
+            'timeout' => ConfigRepository::getTimeout()
+        ]);
 
         $result = Fiber::suspend($promise);
 
@@ -58,29 +63,21 @@ class HbsiClient
         return $this->processXmlBody($body, $bodyQuery);
     }
 
-    /**
-     * @throws GuzzleException
-     */
     public function handleBook(array $filters): ?array
     {
         $this->mainGuest = [];
         $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResRQ');
-        $response = $this->client->request('POST', self::URL, ['headers' => $this->headers, 'body' => $bodyQuery]);
+        $response = $this->sendRequest($bodyQuery);
         $body = $response->getBody();
 
         return $this->processXmlBody($body, $bodyQuery, true);
     }
 
-    /**
-     * @param array $filters
-     * @return array|null
-     * @throws GuzzleException
-     */
     public function modifyBook(array $filters): ?array
     {
         $this->mainGuest = [];
         $bodyQuery = $this->makeRequest($this->hotelResModifyRQ($filters), 'HotelResModifyRQ');
-        $response = $this->client->request('POST', self::URL, ['headers' => $this->headers, 'body' => $bodyQuery]);
+        $response = $this->sendRequest($bodyQuery);
         $body = $response->getBody();
 
         return $this->processXmlBody($body, $bodyQuery, true);
@@ -89,7 +86,7 @@ class HbsiClient
     public function retrieveBooking(array $reservation): ?array
     {
         $bodyQuery = $this->makeRequest($this->readRQ($reservation), 'ReadRQ');
-        $response = $this->client->request('POST', self::URL, ['headers' => $this->headers, 'body' => $bodyQuery]);
+        $response = $this->sendRequest($bodyQuery);
         $body = $response->getBody();
         return $this->processXmlBody($body, $bodyQuery);
     }
@@ -97,9 +94,18 @@ class HbsiClient
     public function cancelBooking(array $reservation): ?array
     {
         $bodyQuery = $this->makeRequest($this->cancelRQ($reservation), 'CancelRQ');
-        $response = $this->client->request('POST', self::URL, ['headers' => $this->headers, 'body' => $bodyQuery]);
+        $response = $this->sendRequest($bodyQuery);
         $body = $response->getBody();
         return $this->processXmlBody($body, $bodyQuery);
+    }
+
+    private function sendRequest($body)
+    {
+        return $this->client->request('POST', self::URL, [
+            'headers' => $this->headers,
+            'body' => $body,
+            'timeout' => ConfigRepository::getTimeout(),
+        ]);
     }
 
     /**

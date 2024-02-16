@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\ExpediaSupplier;
 
+use App\Repositories\ConfigRepository;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
@@ -184,7 +185,7 @@ class RapidClient
         ];
         $request = new Request('GET', $url, $headers + $addHeaders);
         try {
-            $res = $this->client->sendAsync($request);
+            $res = $this->client->sendAsync($request, ['timeout' => ConfigRepository::getTimeout()]);
         } catch (Exception $e) {
             Log::error('Error while creating promise: ' . $e->getMessage());
         }
