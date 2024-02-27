@@ -9,6 +9,10 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+
+COPY ./infrastructure/docker/php-8.2/ssl /opt/docker/etc/nginx/ssl/
+COPY ./infrastructure/docker/php-8.2/vhost.ssl.conf /opt/docker/etc/nginx/
+
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/bin/
 RUN install-php-extensions xdebug
 ENV PHP_IDE_CONFIG 'serverName=ujv-api.loc'

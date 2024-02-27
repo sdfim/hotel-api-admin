@@ -1,10 +1,10 @@
 version: '3'
 services:
-  ujv-api:
+  booking-engine:
     build:
       context: .
-      dockerfile: local.Dockerfile
-    container_name: ujv-api
+      dockerfile: ./infrastructure/docker/php-8.2/local.Dockerfile
+    container_name: booking-engine
     restart: unless-stopped
     environment:
       REDIS_HOST: redis
@@ -16,7 +16,8 @@ services:
       php.variables_order: EGPCS
       SERVICE_NGINX_CLIENT_MAX_BODY_SIZE: 100M
     ports:
-      - "80:80"
+      - '${FORWARD_HTTP_PORT:-80}:80'
+      - '${FORWARD_HTTPS_PORT:-8443}:443'
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     tty: true
@@ -25,73 +26,67 @@ services:
       - ./:/app
     #      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/php.ini
     networks:
-      - ujv-network
+      - travelagentadmin-network
     depends_on:
       - mysql
       - redis
 
   redis:
     image: redis
-    container_name: ujv_redis
+    container_name: booking-engine-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - '${FORWARD_REDIS_PORT:-6379}:6379'
     networks:
-      - ujv-network
+      - travelagentadmin-network
     volumes:
-      - 'ujv-redis:/data'
+      - 'booking-engine-redis:/data'
     healthcheck:
-      test:
-        - CMD
-        - redis-cli
-        - ping
+      test: ["CMD", "redis-cli", "ping"]
       retries: 3
       timeout: 5s
 
   mysql:
     image: mysql:8.0.33
-    container_name: ujv_db
+    container_name: booking-engine-mysql
     restart: unless-stopped
     ports:
-      - "3306:3306"
+      - '${FORWARD_DB_PORT:-3306}:3306'
     environment:
-      MYSQL_ROOT_PASSWORD: mysqlpasswdroot
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: mysqlsecretpasswd
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_ROOT_HOST: "%"
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
     networks:
-      - ujv-network
+      - travelagentadmin-network
     volumes:
-      - 'ujv-mysql:/var/lib/mysql'
-      - './docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql'
-      - './docker/mysql/copy-tables-structure-to-another-db:/opt/copy-tables-structure-to-another-db.sh'
-      - './docker/mysql/copy-tables-structure-with-data-to-another-db:/opt/copy-tables-structure-with-data-to-another-db'
+      - 'booking-engine-mysql:/var/lib/mysql'
+      - './infrastructure/docker/php-8.2/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql'
+      - './infrastructure/docker/php-8.2/mysql/copy-tables-structure-to-another-db:/opt/copy-tables-structure-to-another-db.sh'
+      - './infrastructure/docker/php-8.2/mysql/copy-tables-structure-with-data-to-another-db:/opt/copy-tables-structure-with-data-to-another-db'
     healthcheck:
-      test:
-        - CMD
-        - mysqladmin
-        - ping
-        - '-pmysqlsecretpasswd'
+      test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
       retries: 3
       timeout: 5s
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin-container
+    container_name: booking_engine_phpmyadmin_container
     ports:
       - "8081:80"
     environment:
       - PMA_ARBITRARY=1
     networks:
-      - ujv-network
+      - travelagentadmin-network
     depends_on:
       - mysql
 
 networks:
-  ujv-network:
+  travelagentadmin-network:
     driver: bridge
 
 volumes:
-  ujv-mysql:
+  booking-engine-mysql:
     driver: local
-  ujv-redis:
+  booking-engine-redis:
     driver: local

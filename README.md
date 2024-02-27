@@ -8,6 +8,7 @@
     - [Add Passengers Endpoint](#5-Add-Passengers-Endpoint)
     - [Book Endpoint](#6-Book-Endpoint)
 2. [Important Testing Notes](#Important-Testing-Notes)
+3. [Local Installation Instructions](docs/local-installation.md)
 
 ## API Documentation
 

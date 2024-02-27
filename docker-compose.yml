@@ -1,12 +1,11 @@
 version: '3'
 services:
-  
-  ujv-api:
+  booking-engine:
     build:
       context: .
-      dockerfile: Dockerfile
-    image: ujv-api:latest
-    container_name: ujv-api
+      dockerfile: infrastructure/docker/php-8.2/Dockerfile
+    image: booking-engine:latest
+    container_name: booking-engine
     restart: unless-stopped
     environment:
       DB_HOST: mysql
@@ -18,7 +17,7 @@ services:
     ports:
       - "8080:80"
     networks:
-      - ujv-network
+      - travelagentadmin-network
 
   redis:
     image: redis
@@ -27,11 +26,11 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - ujv-network
+      - travelagentadmin-network
 
   mysql:
     image: mysql:8.0.33
-    container_name: ujv_db
+    container_name: booking-engine-mysql
     restart: unless-stopped
     ports:
       - "3306:3306"
@@ -41,18 +40,18 @@ services:
       MYSQL_PASSWORD: mysqlsecretpasswd
       MYSQL_ROOT_PASSWORD: mysqlpasswdroot
     networks:
-      - ujv-network
+      - travelagentadmin-network
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin-container
+    container_name: booking-engine-phpmyadmin
     ports:
       - "8081:80"
     environment:
       - PMA_ARBITRARY=1
     networks:
-      - ujv-network
+      - travelagentadmin-network
 
 networks:
-  ujv-network:
+  travelagentadmin-network:
     driver: bridge
