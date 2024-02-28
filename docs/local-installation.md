@@ -27,7 +27,7 @@ personal use and don't leak them anywhere or you'll expose yourself to attackers
 * Run `docker-compose ps` to check if all containers are up
 * Run `docker exec -it booking-engine bash` to enter the instance.
 * Run `composer install`
-* Run `php artisan key:genereate`
+* Run `php artisan key:generate`
 * Run `php artisan migrate --seed`
 * Run `npm ci`
 * Run `npm run build`
