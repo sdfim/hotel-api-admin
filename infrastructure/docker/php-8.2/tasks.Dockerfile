@@ -10,7 +10,7 @@ RUN docker-php-ext-install zip && docker-php-ext-install pdo_mysql && docker-php
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-COPY . /var/www
+COPY ../../.. /var/www
 
 RUN cp docker/supervisord.conf /etc/supervisord.conf
 RUN cp docker/php-tasks.ini /usr/local/etc/php/conf.d/app.ini
