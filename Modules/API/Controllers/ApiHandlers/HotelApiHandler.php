@@ -224,6 +224,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             return $this->sendResponse($res, 'success');
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             Log::error('HotelApiHandler | search' . $e->getMessage());
+            Log::error($e->getTraceAsString());
 
             return $this->sendError(['error' => $e->getMessage()], 'failed');
         }
@@ -357,6 +358,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             return $this->sendResponse(['results' => $results, 'content_supplier' => $contentSupplier], 'success');
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             Log::error('HotelApiHandler ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
 
             return $this->sendError(['error' => $e->getMessage()], 'failed');
         }
@@ -531,6 +533,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             return $this->sendResponse($res, 'success');
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             Log::error('HotelApiHandler ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
 
             return $this->sendError(['error' => $e->getMessage()], 'failed');
         }
