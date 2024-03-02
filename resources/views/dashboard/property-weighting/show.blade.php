@@ -13,10 +13,7 @@
                 <div class="relative overflow-x-auto">
                     <div class="row">
                         <div class="col-lg-12 margin-tb">
-                            <div class="pull-left">
-                                <h2 x-data="{ message: '{{ $text['show'] }}' }" x-text="message"></h2>
-                            </div>
-                            <div class="mt-6 mb-6">
+                            <div class="mb-6">
                                 <x-button-back route="{{ route('property-weighting.index') }}" text="Back"/>
                             </div>
                         </div>

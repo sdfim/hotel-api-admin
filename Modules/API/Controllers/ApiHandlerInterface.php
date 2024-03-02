@@ -2,24 +2,22 @@
 
 namespace Modules\API\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 interface ApiHandlerInterface
 {
     /**
      * @param Request $request
-     * @param array $suppliers
      * @return JsonResponse
      */
-    public function search(Request $request, array $suppliers): JsonResponse;
+    public function search(Request $request): JsonResponse;
 
     /**
      * @param Request $request
-     * @param array $suppliers
      * @return JsonResponse
      */
-    public function detail(Request $request, array $suppliers): JsonResponse;
+    public function detail(Request $request): JsonResponse;
 
     /**
      * @param Request $request

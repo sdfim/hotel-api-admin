@@ -15,10 +15,10 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             PermissionSeeder::class,
             UserSeeder::class,
-            SupplierExpediaSeeder::class,
+            SuppliersSeeder::class,
             ChannelSeeder::class,
             GeneralConfigurationSeeder::class,
-			PropertyWeightingSeeder::class,
+            PropertyWeightingSeeder::class,
             PricingRuleSeeder::class
         ]);
     }

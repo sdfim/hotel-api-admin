@@ -24,9 +24,9 @@
                             <p class="text-gray-500 dark:text-gray-100/60 mt-1">Sign in to continue to UJV.</p>
                         </div>
                         @if (session('status'))
-                        <div class="">
-                            {{ session('status') }}
-                        </div>
+                            <div class="">
+                                {{ session('status') }}
+                            </div>
                         @endif
 
                         <form method="POST" action="{{ route('login') }}" class="mt-4 pt-2">
@@ -50,11 +50,11 @@
                                             <span class="text-red-600">*</span></label>
                                     </div>
                                     @if (Route::has('password.request'))
-                                    <div class="ltr:ml-auto rtl:mr-auto">
-                                        <a href="{{ route('password.request') }}"
-                                           class="text-gray-500 dark:text-gray-100">Forgot
-                                            password?</a>
-                                    </div>
+                                        <div class="ltr:ml-auto rtl:mr-auto">
+                                            <a href="{{ route('password.request') }}"
+                                               class="text-gray-500 dark:text-gray-100">Forgot
+                                                password?</a>
+                                        </div>
                                     @endif
                                 </div>
 
@@ -68,7 +68,8 @@
                                         type="button" id="password-addon"
                                         @click="inputType === 'password' ? inputType = 'text' :  inputType = 'password'"
                                     >
-                                        <i class="mdi mdi-eye-outline"></i>
+                                        <i class="mdi"
+                                           :class="inputType === 'password' ? 'mdi-eye-outline' : 'mdi-eye-off-outline'"></i>
                                     </button>
                                     @error('password')
                                     <span class="text-sm text-red-600">{{ $message }}</span>

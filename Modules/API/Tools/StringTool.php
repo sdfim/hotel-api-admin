@@ -2,41 +2,40 @@
 
 namespace Modules\API\Tools;
 
-class StringTool 
+class StringTool
 {
-	/**
-	 * @param float $latitude
-	 * @param float $longitude
-	 * @param float $radius
-	 * @return array
-	 */
-	public static function lineBreak(string $originalString, int $maxLineLength = 30 ) : string
-	{
-		$output = '';
-		
-		$words = explode(" ", $originalString);
+    /**
+     * @param string $originalString
+     * @param int $maxLineLength
+     * @return string
+     */
+    public static function lineBreak(string $originalString, int $maxLineLength = 30): string
+    {
+        $output = '';
 
-		$lines = array();
-		$currentLine = '';
+        $words = explode(" ", $originalString);
 
-		foreach ($words as $word) {
-			$potentialLine = $currentLine . ' ' . $word;
-			if (strlen($potentialLine) <= $maxLineLength) {
-				$currentLine = ltrim($potentialLine);
-			} else {
-				$lines[] = $currentLine;
-				$currentLine = $word;
-			}
-		}
+        $lines = array();
+        $currentLine = '';
 
-		if (!empty($currentLine)) {
-			$lines[] = $currentLine;
-		}
+        foreach ($words as $word) {
+            $potentialLine = $currentLine . ' ' . $word;
+            if (strlen($potentialLine) <= $maxLineLength) {
+                $currentLine = ltrim($potentialLine);
+            } else {
+                $lines[] = $currentLine;
+                $currentLine = $word;
+            }
+        }
 
-		foreach ($lines as $line) {
-			$output .= $line . "<br>";
-		}
+        if (!empty($currentLine)) {
+            $lines[] = $currentLine;
+        }
 
-		return $output;
-	}
+        foreach ($lines as $line) {
+            $output .= $line . "<br>";
+        }
+
+        return $output;
+    }
 }

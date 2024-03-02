@@ -2,10 +2,9 @@
 
 namespace Database\Factories;
 
-use App\Models\Channel;
 use App\Models\PricingRule;
-use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Modules\API\Tools\PricingRulesDataGenerationTools;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PricingRules>
@@ -26,30 +25,8 @@ class PricingRuleFactory extends Factory
      */
     public function definition(): array
     {
-        $supplier = Supplier::factory()->create();
-        $channels = Channel::factory()->create();
-        return [
-            'name' => $this->faker->name,
-            'property' => $this->faker->word,
-            'destination' => $this->faker->word,
-            'travel_date' => date('Y-m-d H:i:s'),
-            'days' => 7,
-            'nights' => 5,
-            'supplier_id' => $supplier->id,
-            'rate_code' => $this->faker->word,
-            'room_type' => $this->faker->word,
-            'total_guests' => 2,
-            'room_guests' => 2,
-            'number_rooms' => 1,
-            'meal_plan' => $this->faker->word,
-            'rating' => $this->faker->word,
-            'price_type_to_apply' => $this->faker->word,
-            'price_value_type_to_apply' => $this->faker->word,
-            'price_value_to_apply' => 2.5,
-            'price_value_fixed_type_to_apply' => null,
-            'channel_id' => $channels->id,
-            'rule_start_date' => date('Y-m-d H:i:s'),
-            'rule_expiration_date' => date('Y-m-d H:i:s')
-        ];
+        $pricingRulesTools = new PricingRulesDataGenerationTools();
+
+        return $pricingRulesTools->generatePricingRuleData(time());
     }
 }

@@ -14,36 +14,18 @@ class SaveSearchInspector implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * @var SearchInspectorController
-     */
-    private SearchInspectorController $searchInspector;
-
-    /**
-     * @var array
-     */
-    private array $dataQueue;
-
-    /**
      * Create a new job instance.
      */
-    public function __construct($dataQueue)
-    {
-        $this->searchInspector = new SearchInspectorController();
-        $this->dataQueue = $dataQueue;
-    }
+    public function __construct(
+        private readonly array                     $dataQueue,
+        private readonly SearchInspectorController $searchInspector = new SearchInspectorController(),
+    ) {}
 
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        [$search_id, $filters, $content, $clientContent, $supplierIds, $type, $search_type] = $this->dataQueue;
-
-		try {
-			$this->searchInspector->save($search_id, $filters, $content, $clientContent, $supplierIds, $type, $search_type);
-		} catch (\Exception $e) {
-			\Log::error('SaveSearchInspector: ' . $e->getMessage());
-		}
-
+        $this->searchInspector->save($this->dataQueue);
     }
 }

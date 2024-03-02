@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PricingRule extends Model
 {
@@ -15,49 +15,29 @@ class PricingRule extends Model
      */
     protected $fillable = [
         'name',
-        'property',
-        'destination',
-        'travel_date',
-        'supplier_id',
-        'channel_id',
-        'days',
-        'nights',
-        'rate_code',
-        'room_type',
-        'total_guests',
-        'room_guests',
-        'number_rooms',
-        'meal_plan',
-        'rating',
-        'price_type_to_apply',
-        'price_value_type_to_apply',
-        'price_value_to_apply',
-        'price_value_fixed_type_to_apply',
-        'rule_start_date',
+        'manipulable_price_type',
+        'price_value_target',
+        'price_value',
+        'price_value_type',
         'rule_expiration_date',
+        'rule_start_date'
     ];
 
     /**
-     * @return BelongsTo
+     * The attributes that should be cast to native types.
+     *
+     * @var array
      */
-    public function suppliers(): BelongsTo
-    {
-        return $this->belongsTo(Supplier::class, 'supplier_id');
-    }
+    protected $casts = [
+        'rule_start_date' => 'datetime',
+        'rule_expiration_date' => 'datetime',
+    ];
 
     /**
-     * @return BelongsTo
+     * @return HasMany
      */
-    public function giataProperties(): BelongsTo
+    public function conditions(): HasMany
     {
-        return $this->belongsTo(GiataProperty::class, 'property', 'code');
-    }
-
-    /**
-     * @return BelongsTo
-     */
-    public function channels(): BelongsTo
-    {
-        return $this->belongsTo(Channel::class, 'channel_id');
+        return $this->hasMany(PricingRuleCondition::class, 'pricing_rule_id', 'id');
     }
 }

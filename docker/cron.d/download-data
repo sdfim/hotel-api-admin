@@ -1,13 +1,11 @@
 SHELL=/bin/bash
 
-0 1 * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan purge-baskets' > /proc/1/fd/1 2>>/proc/1/fd/2
-0 1 * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan purge-inspectors' > /proc/1/fd/1 2>>/proc/1/fd/2
-0 1 * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan purge-pricing-rules' > /proc/1/fd/1 2>>/proc/1/fd/2
+# 0 1 * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan purge-baskets' > /proc/1/fd/1 2>>/proc/1/fd/2
+# 0 1 * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan purge-inspectors' > /proc/1/fd/1 2>>/proc/1/fd/2
+# 0 1 * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan purge-pricing-rules' > /proc/1/fd/1 2>>/proc/1/fd/2
 
 0 1 * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan download-expedia-data content 12345' > /proc/1/fd/1 2>>/proc/1/fd/2
 
-# 15 17  * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan make-mapper-expedia-giate 10' > /proc/1/fd/1 2>>/proc/1/fd/2
-# 0 1 * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan download-giata-data' > /proc/1/fd/1 2>>/proc/1/fd/2
-# 10 * * * * root source /cronenv; su -m -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan test-command' > /proc/1/fd/1 2>>/proc/1/fd/2
+# 10 12 * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan seeder-ice-portal-assets all' > /proc/1/fd/1 2>>/proc/1/fd/2
 
-10 * * * * root source /cronenv; su -m -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan test-speed-db' > /proc/1/fd/1 2>>/proc/1/fd/2
+# * * * * * root source /cronenv; su -s /bin/bash www-data -c 'cd /var/www; /usr/local/bin/php artisan schedule:run' > /proc/1/fd/1 2>>/proc/1/fd/2

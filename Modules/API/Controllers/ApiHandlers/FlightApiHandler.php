@@ -2,36 +2,29 @@
 
 namespace Modules\API\Controllers\ApiHandlers;
 
-use Modules\API\Controllers\ApiHandlerInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\API\BaseController;
+use Modules\API\Controllers\ApiHandlerInterface;
 
 class FlightApiHandler extends BaseController implements ApiHandlerInterface
 {
     /**
-     *
-     */
-    private const SUPPLIER_NAME = 'Expedia';
-
-    /**
      * @param Request $request
-     * @param array $suppliers
      * @return JsonResponse
      */
-    public function search(Request $request, array $suppliers): JsonResponse
+    public function search(Request $request): JsonResponse
     {
-		return response()->json(['message' => 'This page is in development'], 503);
+        return response()->json(['message' => 'This page is in development'], 503);
     }
 
     /**
      * @param Request $request
-     * @param array $suppliers
      * @return JsonResponse
      */
-    public function detail(Request $request, array $suppliers): JsonResponse
+    public function detail(Request $request): JsonResponse
     {
-		return response()->json(['message' => 'This page is in development'], 503);
+        return response()->json(['message' => 'This page is in development'], 503);
     }
 
     /**
@@ -41,6 +34,6 @@ class FlightApiHandler extends BaseController implements ApiHandlerInterface
      */
     public function price(Request $request, array $suppliers): JsonResponse
     {
-		return response()->json(['message' => 'This page is in development'], 503);
+        return response()->json(['message' => 'This page is in development'], 503);
     }
 }

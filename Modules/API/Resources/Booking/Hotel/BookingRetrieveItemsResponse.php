@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Booking\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="BookingRetrieveItemsResponse",
@@ -141,7 +139,7 @@ use OpenApi\Annotations as OA;
  *         )
  *       )
  *     )
- *   ),                 	
+ *   ),
  *   @OA\Property(
  *     property="message",
  *     type="string",
@@ -183,13 +181,13 @@ use OpenApi\Annotations as OA;
  *                 "passengers": {
  *                     "rooms": {
  *                         {
- *                         	   "title": "mr",
+ *                               "title": "mr",
  *                             "given_name": "John",
  *                             "family_name": "Portman",
  *                             "date_of_birth": "1980-01-01",
  *                         },
  *                         {
- *                         	   "title": "mr",
+ *                               "title": "mr",
  *                             "given_name": "John",
  *                             "family_name": "Portman",
  *                             "date_of_birth": "1980-01-01",
@@ -264,7 +262,6 @@ use OpenApi\Annotations as OA;
  * }
  * )
  */
-
 class BookingRetrieveItemsResponse
 {
 }

@@ -6,13 +6,12 @@ use App\Models\Reservation;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\FontWeight;
-use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\ViewAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
-use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
@@ -34,32 +33,32 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(Reservation::query()->whereNull('canceled_at')->orderBy('created_at', 'DESC'))
             ->columns([
-				ViewColumn::make('reservation_contains')
-					->searchable(isIndividual: true)
+                ViewColumn::make('reservation_contains')
+                    ->searchable(isIndividual: true)
                     ->view('dashboard.reservations.column.contains'),
-				TextColumn::make('channel.name')
+                TextColumn::make('channel.name')
                     ->numeric()
                     ->searchable(isIndividual: true)
                     ->sortable(),
                 ImageColumn::make('images')
                     ->state(function (Reservation $record) {
                         $reservationContains = json_decode($record->reservation_contains, true);
-						$images = [];
-						if (isset($reservationContains['hotel_images'])) $images = json_decode($reservationContains['hotel_images']);
-						if (isset($reservationContains['flight_images'])) $images = json_decode($reservationContains['flight_images']);
+                        $images = [];
+                        if (isset($reservationContains['hotel_images'])) $images = json_decode($reservationContains['hotel_images']);
+                        if (isset($reservationContains['flight_images'])) $images = json_decode($reservationContains['flight_images']);
                         return $images;
                     })
                     ->circular()
                     ->stacked()
                     ->limit(4)
-					->size(45)
+                    ->size(45)
                     ->limitedRemainingText(isSeparate: true)
                     ->url(fn(Reservation $record): string => route('reservations.show', $record))
                     ->openUrlInNewTab(),
                 TextColumn::make('date_offload')
                     ->default('N\A')
                     ->searchable(isIndividual: true)
-					->badge()
+                    ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'N\A' => 'info',
                         default => 'success',
@@ -73,28 +72,24 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true),
                 TextColumn::make('total_cost')
                     ->numeric()
-					->weight(FontWeight::Bold)
-					->size(TextColumn\TextColumnSize::Large)
+                    ->weight(FontWeight::Bold)
+                    ->size(TextColumn\TextColumnSize::Large)
                     ->searchable(isIndividual: true)
                     ->money(function (Reservation $reservation) {
-						$price = json_decode($reservation->reservation_contains, true)['price'] ?? [];
-						return $price['currency'] ?? 'USD';
-					})
-                    ->color(function (Reservation $reservation, string $state) {
-						$currency = json_decode($reservation->reservation_contains, true)['price']['currency'] ?? 'USD';
-						$res =  match ($state) {
-							'0' => 'warning',
-							default => 'success',
-						};
-						$res =  match ($currency) {
-							'EUR' => 'info',
-							'GBP'=> 'danger',
-							'CAD' => 'warning',
-							'JPY'=> 'gray',
-							default => 'success',
-						};
-						return $res;
-					})
+                        $price = json_decode($reservation->reservation_contains, true)['price'] ?? [];
+                        return $price['currency'] ?? 'USD';
+                    })
+                    ->color(function (Reservation $reservation) {
+                        $currency = json_decode($reservation->reservation_contains, true)['price']['currency'] ?? 'USD';
+
+                        return match ($currency) {
+                            'EUR' => 'info',
+                            'GBP' => 'danger',
+                            'CAD' => 'warning',
+                            'JPY' => 'gray',
+                            default => 'success',
+                        };
+                    })
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->dateTime()
@@ -112,7 +107,6 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([])
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
@@ -125,9 +119,6 @@ class ReservationsTable extends Component implements HasForms, HasTable
                         ->icon('heroicon-s-x-circle')
                         ->color('danger')
                 ])->color('gray'),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([]),
             ]);
     }
 

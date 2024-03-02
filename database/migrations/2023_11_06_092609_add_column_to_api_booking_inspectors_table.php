@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::table('api_booking_inspector', function (Blueprint $table) {
 
-			$table->uuid('booking_item')->after('search_id')->nullable();
+            $table->uuid('booking_item')->after('search_id')->nullable();
             $table->foreign('booking_item')
                 ->references('booking_item')
                 ->on('api_booking_items')

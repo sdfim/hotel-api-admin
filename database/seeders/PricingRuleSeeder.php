@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Channel;
 use App\Models\GiataProperty;
 use App\Models\PricingRule;
-use App\Models\Supplier;
 use Illuminate\Database\Seeder;
+use Modules\API\Tools\PricingRulesDataGenerationTools;
 
 class PricingRuleSeeder extends Seeder
 {
@@ -15,80 +14,20 @@ class PricingRuleSeeder extends Seeder
      */
     public function run(): void
     {
-        $priceValueTypeToApplyOptions = [
-            'fixed_value',
-            'percentage'
-        ];
+        $giataIds = GiataProperty::where('city_id', 961)->limit(500)->pluck('code');
 
-        $priceTypeToApplyOptions = [
-            'total_price',
-            'net_price',
-            'rate_price'
-        ];
+        $pricingRulesTools = new PricingRulesDataGenerationTools();
 
-        $priceValueFixedTypeToApplyOptions = [
-            'per_guest',
-            'per_room',
-            'per_night'
-        ];
+        foreach ($giataIds as $index => $giataId) {
+            $ruleIndex = $index + 1;
 
-        $channelId = Channel::first()->id;
-        $supplierId = Supplier::first()->id;
-        $giataIds = GiataProperty::where('city_id', 961)->pluck('code')->all();
-        $issetIds = PricingRule::whereIn('property', $giataIds)->pluck('property')->all();
-        $today = now();
-        $data = [];
+            $pricingRuleData = $pricingRulesTools->generatePricingRuleData("#$ruleIndex");
 
-        foreach ($giataIds as $giataId) {
-            if (in_array($giataId, $issetIds)) continue;
+            $pricingRule = PricingRule::create($pricingRuleData);
 
-            $days = rand(3, 5);
-            $nights = $days > 1 ? $days - 1 : 1;
+            $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData($giataId);
 
-            $pricingRule = [
-                'name' => "Rule for $giataId",
-                'property' => $giataId,
-                'destination' => 'New York',
-                'travel_date' => $today,
-                'supplier_id' => $supplierId,
-                'channel_id' => $channelId,
-                'days' => 3,
-                'nights' => $nights,
-                'rate_code' => rand(1000, 10000),
-                'room_type' => 'test type',
-                'meal_plan' => 'test meal plan',
-                'rating' => $this->randFloat(2.5, 4.0),
-                'price_value_to_apply' => rand(1, 100),
-                'rule_start_date' => $today,
-                'rule_expiration_date' => $today->copy()->addDays(rand(30, 60)),
-                'created_at' => $today,
-                'updated_at' => $today,
-            ];
-
-            $pricingRule['number_rooms'] = 3;
-            $pricingRule['room_guests'] = $pricingRule['number_rooms'] > 1 ? $pricingRule['number_rooms'] - 1 : 0;
-            $pricingRule['total_guests'] = 10;
-            $pricingRule['price_value_type_to_apply'] = $priceValueTypeToApplyOptions[rand(0, 1)];
-            $pricingRule['price_type_to_apply'] = $priceTypeToApplyOptions[rand(0, 2)];
-            if ($pricingRule['price_value_type_to_apply'] === 'fixed_value') {
-                $pricingRule['price_value_fixed_type_to_apply'] = $priceValueFixedTypeToApplyOptions[rand(0, 2)];
-            } else {
-                $pricingRule['price_value_fixed_type_to_apply'] = null;
-            }
-
-            $data[] = $pricingRule;
+            $pricingRule->conditions()->createMany($pricingRuleConditionsData);
         }
-
-        PricingRule::insert($data);
-    }
-
-    /**
-     * @param float $minValue
-     * @param float $maxValue
-     * @return float
-     */
-    private function randFloat(float $minValue, float $maxValue): float
-    {
-        return round($minValue + mt_rand() / mt_getrandmax() * ($maxValue - $minValue), 2);
     }
 }

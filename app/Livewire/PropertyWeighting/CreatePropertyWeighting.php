@@ -2,7 +2,6 @@
 
 namespace App\Livewire\PropertyWeighting;
 
-use Livewire\Component;
 use App\Models\GiataProperty;
 use App\Models\PropertyWeighting;
 use App\Models\Supplier;
@@ -12,10 +11,11 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
+use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 
 class CreatePropertyWeighting extends Component implements HasForms
@@ -48,10 +48,10 @@ class CreatePropertyWeighting extends Component implements HasForms
                     ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
                         ->where('name', 'like', "%$search%")
-						->orWhere('code', $search)
-						->limit(30)
-						->pluck('full_name', 'code')
-						->toArray()
+                        ->orWhere('code', $search)
+                        ->limit(30)
+                        ->pluck('full_name', 'code')
+                        ->toArray()
                     )
                     ->live()
                     ->required()
@@ -61,7 +61,7 @@ class CreatePropertyWeighting extends Component implements HasForms
                     ->options(Supplier::all()->pluck('name', 'id')),
                 TextInput::make('weight')
                     ->label('Weight')
-					->type('number')
+                    ->type('number')
                     ->required()
                     ->maxLength(12),
 

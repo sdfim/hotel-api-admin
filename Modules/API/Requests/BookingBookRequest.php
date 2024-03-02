@@ -3,8 +3,8 @@
 namespace Modules\API\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
-use Modules\API\Validate\ApiRequest;
 use Illuminate\Support\Facades\Auth;
+use Modules\API\Validate\ApiRequest;
 
 class BookingBookRequest extends ApiRequest
 {
@@ -66,19 +66,21 @@ class BookingBookRequest extends ApiRequest
             'booking_contact.address.country_code' => 'required|string|in:' . implode(',', $countryCodes),
         ];
 
-        if (request()->has('credit_card')) {
-            $rules['credit_card.name_card'] = 'required|string|between:2,255';
-            $rules['credit_card.number'] = 'required|int|digits_between:13,19';
-            $rules['credit_card.card_type'] = 'required|string|in:MSC,VISA,AMEX,DIS';
-            $rules['credit_card.expiry_date'] = 'required|date_format:m/Y|after_or_equal:today';
-            $rules['credit_card.cvv'] = 'required|int|digits:3';
-            $rules['credit_card.billing_address'] = 'nullable|string';
+        if (request()->has('credit_cards')) {
+            $rules['credit_cards'] = 'array';
+            $rules['credit_cards.*.booking_item'] = 'required|size:36';
+            $rules['credit_cards.*.credit_card.name_card'] = 'required|string|between:2,255';
+            $rules['credit_cards.*.credit_card.number'] = 'required|int|digits_between:13,19';
+            $rules['credit_cards.*.credit_card.card_type'] = 'required|string|in:MSC,VISA,AMEX,DIS';
+            $rules['credit_cards.*.credit_card.expiry_date'] = 'required|date_format:m/Y|after_or_equal:today';
+            $rules['credit_cards.*.credit_card.cvv'] = 'required|int|digits:3';
+            $rules['credit_cards.*.credit_card.billing_address'] = 'nullable|string';
         }
 
         if (request()->has('special_requests')) {
             $rules['special_requests'] = 'array';
             $rules['special_requests.*.booking_item'] = 'required|size:36';
-            $rules['special_requests.*.special_request'] = 'required|string|max:255';
+            $rules['special_requests.*.special_request'] = 'required|string|between:1,255';
         }
 
         return $rules;

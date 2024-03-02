@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Booking;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="BadRequestResponse",
@@ -18,7 +16,7 @@ use OpenApi\Annotations as OA;
  *     example="Invalid type"
  *   )
  * ),
-* @OA\Examples(
+ * @OA\Examples(
  *     example="BadRequestResponse",
  *     summary="Example of BadRequest",
  *     value=
@@ -27,7 +25,6 @@ use OpenApi\Annotations as OA;
  * }
  * )
  */
-
 class BadRequestResponse
 {
 }

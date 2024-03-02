@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::table('api_booking_items', function (Blueprint $table) {
 
-			$table->json('booking_pricing_data')->after('booking_item_data')->nullable();
+            $table->json('booking_pricing_data')->after('booking_item_data')->nullable();
 
         });
     }

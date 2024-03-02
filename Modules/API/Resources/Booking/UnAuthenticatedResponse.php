@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Booking;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="UnAuthenticatedResponse",
@@ -24,17 +22,16 @@ use OpenApi\Annotations as OA;
  *     example="UnAuthenticated"
  *   )
  * ),
-* @OA\Examples(
+ * @OA\Examples(
  *     example="UnAuthenticatedResponse",
  *     summary="Example of UnAuthenticated",
  *     value=
  * {
- * 	"api_status": "401",
- * 	"message": "UnAuthenticated"
+ *    "api_status": "401",
+ *    "message": "UnAuthenticated"
  * }
  * )
  */
-
 class UnAuthenticatedResponse
 {
 }

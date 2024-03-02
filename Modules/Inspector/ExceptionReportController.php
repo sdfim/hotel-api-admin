@@ -2,9 +2,10 @@
 
 namespace Modules\Inspector;
 
+use App\Models\ApiExceptionReport;
+use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use App\Models\ApiExceptionReport;
 
 class ExceptionReportController extends BaseInspectorController
 {
@@ -42,7 +43,7 @@ class ExceptionReportController extends BaseInspectorController
 
             return $inspector ? $uuid : false;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Error save ExceptionReportController: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
 
             return false;

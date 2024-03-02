@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Content\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="ContentSearchRequestDestination",
@@ -41,18 +39,18 @@ use OpenApi\Annotations as OA;
  *     description="Number of results per page.",
  *     example=250
  *   )
- * ),        
+ * ),
  * @OA\Examples(
  *     example="ContentSearchRequestDestination",
  *     summary="Example Content Search by Destination",
  *     value=
- * 		{
- *			"type": "hotel",
- *			"destination": 1175,
- *	    	"rating": 2,
- *			"page": 1,
- *			"results_per_page": 250
- *		}
+ *        {
+ *            "type": "hotel",
+ *            "destination": 1175,
+ *            "rating": 2,
+ *            "page": 1,
+ *            "results_per_page": 250
+ *        }
  * ),
  * @OA\Schema(
  *   schema="ContentSearchRequestSupplierHotelName",
@@ -102,19 +100,19 @@ use OpenApi\Annotations as OA;
  *     description="Number of results per page.",
  *     example=250
  *   )
- * ),        
+ * ),
  * @OA\Examples(
  *     example="ContentSearchRequestSupplierHotelName",
  *     summary="Example Content Search by Supplier and Hotel Name",
  *     value=
- * 		{
- *			"type": "hotel",
- *			"hotel_name": "Sheraton",
- *			"supplier": "Expedia",
- *			"destination": 961,
- *			"rating": 3.5,
- *			"page": 1,
- *			"results_per_page": 250
+ *        {
+ *            "type": "hotel",
+ *            "hotel_name": "Sheraton",
+ *            "supplier": "Expedia",
+ *            "destination": 961,
+ *            "rating": 3.5,
+ *            "page": 1,
+ *            "results_per_page": 250
  * }
  * ),
  * @OA\Schema(
@@ -173,18 +171,17 @@ use OpenApi\Annotations as OA;
  *     example="ContentSearchRequestCoordinates",
  *     summary="Example Content Search by Coordinates",
  *     value=
- * 		{
- *		    "type": "hotel",
- *		    "latitude": 40.7480,
- *		    "longitude": -73.991,
- *		    "radius": 20,
- *		    "rating": 1,
- *		    "page": 1,
- *		    "results_per_page": 20
- *		}
+ *        {
+ *            "type": "hotel",
+ *            "latitude": 40.7480,
+ *            "longitude": -73.991,
+ *            "radius": 20,
+ *            "rating": 1,
+ *            "page": 1,
+ *            "results_per_page": 20
+ *        }
  * )
  */
-
 class ContentSearchRequest
 {
 }

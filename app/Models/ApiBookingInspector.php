@@ -51,10 +51,10 @@ class ApiBookingInspector extends Model
         return $this->belongsTo(Supplier::class);
     }
 
-	/**
+    /**
      * @return BelongsTo
-	 */
-	public function search(): BelongsTo
+     */
+    public function search(): BelongsTo
     {
         return $this->belongsTo(ApiSearchInspector::class, 'search_id', 'search_id');
     }

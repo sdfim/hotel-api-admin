@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Booking\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="BookingAddPassengersRequest",
@@ -134,7 +132,7 @@ use OpenApi\Annotations as OA;
  *            }
  *          }
  *        },
- *    
+ *
  *        {
  *          "title": "ms",
  *          "given_name": "Children1",
@@ -163,7 +161,6 @@ use OpenApi\Annotations as OA;
  *    }
  * ),
  */
-
 class BookingAddPassengersRequest
 {
 }

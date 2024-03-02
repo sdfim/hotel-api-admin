@@ -2,15 +2,12 @@
 
 namespace Modules\API\PropertyWeighting;
 
-use App\Models\PropertyWeighting;
+use App\Repositories\PropertyWeightingRepository;
 use Illuminate\Support\Facades\Log;
 
 class EnrichmentWeight
 {
-    /**
-     * @var float|string
-     */
-    protected float|string $current_time;
+    protected float|string $current_time = 0.0;
 
     public function __construct()
     {
@@ -22,11 +19,11 @@ class EnrichmentWeight
      * @param string $type
      * @return array
      */
-    public function enrichmentContent(array $clientResponse, string $type): array
+    public function enrichmentContent(array $clientResponse, string $type = ''): array
     {
         $this->executionTime();
 
-        $weights = PropertyWeighting::where('supplier_id', null)->get();
+        $weights = PropertyWeightingRepository::getWeights();
         $weightsProps = $weights->pluck('property')->toArray();
         $weightsVol = $weights->pluck('weight', 'property')->toArray();
 
@@ -50,17 +47,17 @@ class EnrichmentWeight
      * @param string $type
      * @return array
      */
-    public function enrichmentPricing(array $clientResponse, string $type): array
+    public function enrichmentPricing(array $clientResponse, string $type = ''): array
     {
         $this->executionTime();
 
-        # step1 !isset supplier_id
-        $s1Weights = PropertyWeighting::where('supplier_id', null)->get();
+        // step1 !isset supplier_id
+        $s1Weights = PropertyWeightingRepository::getWeights();
         $s1WeightsProps = $s1Weights->pluck('property')->toArray();
         $s1WeightsVol = $s1Weights->pluck('weight', 'property')->toArray();
 
-        # step2 isset supplier_id
-        $s2Weights = PropertyWeighting::whereNot('supplier_id', null)->get();
+        // step2 isset supplier_id
+        $s2Weights = PropertyWeightingRepository::getWeightsNot();
         $s2WeightsProps = $s2Weights->pluck('property')->toArray();
         $s2WeightsVol = $s2Weights->pluck('weight', 'property')->toArray();
 
@@ -77,7 +74,7 @@ class EnrichmentWeight
             }
         }
 
-        Log::info('EnrichmentWeight | api/pricing/search - ' . $this->executionTime() . 's');
+        Log::info('EnrichmentWeight | Pricing - ' . $this->executionTime() . 's');
 
         return $clientResponse;
     }

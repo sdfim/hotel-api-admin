@@ -20,10 +20,10 @@ class RoomGroupsResponse
      * @var float
      */
     private float $total_net;
-	 /**
+    /**
      * @var float
      */
-	private float $affiliate_service_charge;
+    private float $affiliate_service_charge;
     /**
      * @var string
      */
@@ -68,19 +68,19 @@ class RoomGroupsResponse
     /**
      * @return float
      */
-	private function getAffiliateServiceCharge(): float
-	{
-		return $this->affiliate_service_charge;
-	}
+    private function getAffiliateServiceCharge(): float
+    {
+        return $this->affiliate_service_charge;
+    }
 
-	/**
+    /**
      * @param float $affiliate_service_charge
      * @return void
      */
-	public function setAffiliateServiceCharge(float $affiliate_service_charge): void
-	{
-		$this->affiliate_service_charge = $affiliate_service_charge;
-	}
+    public function setAffiliateServiceCharge(float $affiliate_service_charge): void
+    {
+        $this->affiliate_service_charge = $affiliate_service_charge;
+    }
 
     public function getTotalPrice(): float
     {
@@ -327,7 +327,7 @@ class RoomGroupsResponse
             'total_tax' => $this->getTotalTax(),
             'total_fees' => $this->getTotalFees(),
             'total_net' => $this->getTotalNet(),
-			'affiliate_service_charge' => $this->getAffiliateServiceCharge(),
+            'affiliate_service_charge' => $this->getAffiliateServiceCharge(),
             'currency' => $this->getCurrency(),
             'pay_now' => $this->getPayNow(),
             'pay_at_hotel' => $this->getPayAtHotel(),

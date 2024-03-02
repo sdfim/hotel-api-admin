@@ -13,15 +13,14 @@ return new class extends Migration {
         $connection = env('DB_CONNECTION_2', 'mysql2');
 
         if (!Schema::connection($connection)->hasTable('mapper_expedia_giatas')) {
-            Schema::connection($connection)->create('mapper_expedia_giatas', function (Blueprint $table) use ($connection) 
-			{
+            Schema::connection($connection)->create('mapper_expedia_giatas', function (Blueprint $table) use ($connection) {
                 $table->integer('expedia_id')->index();
                 $table->integer('giata_id')->index();
 
-				$table->index(['expedia_id', 'giata_id'], 'idx_expedia_giatas');
-            	$table->primary(['expedia_id', 'giata_id']);
+                $table->index(['expedia_id', 'giata_id'], 'idx_expedia_giatas');
+                $table->primary(['expedia_id', 'giata_id']);
 
-                $table->integer('step');				
+                $table->integer('step');
             });
         }
     }

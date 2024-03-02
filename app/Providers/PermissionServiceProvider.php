@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Permission;
+use Exception;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -13,7 +14,7 @@ class PermissionServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register ()
+    public function register()
     {
         //
     }
@@ -23,7 +24,7 @@ class PermissionServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot ()
+    public function boot(): void
     {
         try {
             Permission::get()->map(function ($permission) {
@@ -31,9 +32,8 @@ class PermissionServiceProvider extends ServiceProvider
                     return $user->hasPermissionTo($permission);
                 });
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             report($e);
-            return false;
         }
     }
 }

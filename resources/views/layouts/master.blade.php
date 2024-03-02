@@ -26,7 +26,6 @@
 @include('layouts.sidebar')
 
 <div class="main-content">
-
     <div class="page-content dark:bg-zinc-700 min-h-screen">
         @if (session('success'))
             <x-flash-message :message="session('success')"/>
@@ -45,7 +44,7 @@
     @include('layouts.footer')
 </div>
 <!-- rtl-ltr -->
-<!--@include('layouts.rtl-ltr')-->
+{{--@include('layouts.rtl-ltr')--}}
 <!-- script -->
 @include('layouts.vendor-scripts')
 <!-- Scripts -->

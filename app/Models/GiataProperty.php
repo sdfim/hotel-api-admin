@@ -14,8 +14,16 @@ class GiataProperty extends Model
      * @var mixed
      */
     protected $connection;
-	protected $primaryKey = 'code';
-	public $incrementing = false;
+
+    /**
+     * @var string
+     */
+    protected $primaryKey = 'code';
+
+    /**
+     * @var bool
+     */
+    public $incrementing = false;
 
     /**
      * @var string[]
@@ -26,15 +34,15 @@ class GiataProperty extends Model
         'name',
         'chain',
         'city',
-		'city_id',
+        'city_id',
         'locale',
-		'locale_id',
+        'locale_id',
         'address',
-		'mapper_address',
+        'mapper_address',
         'phone',
         'position',
-		'latitude',
-		'longitude',
+        'latitude',
+        'longitude',
         'url',
         'cross_references',
     ];
@@ -65,14 +73,22 @@ class GiataProperty extends Model
      */
     public function mapperExpediaGiata(): HasOne
     {
-        return $this->hasOne(MapperExpediaGiata::class, 'giata_code', 'code');
+        return $this->hasOne(MapperExpediaGiata::class, 'giata_id', 'code');
     }
 
-	/**
+    /**
      * @return HasOne
      */
     public function giataGeography(): HasOne
     {
         return $this->hasOne(GiataGeography::class, 'city_id', 'city_id');
+    }
+
+    /**
+     * @return HasOne
+     */
+    public function hbsi(): HasOne
+    {
+        return $this->hasOne(MapperHbsiGiata::class, 'giata_id', 'code');
     }
 }

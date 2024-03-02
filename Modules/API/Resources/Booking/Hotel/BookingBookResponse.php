@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Booking\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="BookingBookResponse",
@@ -202,44 +200,44 @@ use OpenApi\Annotations as OA;
  *     summary="Example of Booking Book Response",
  *     value=
  * {
- * 	"success": true,
- * 	"data": {
- * 		{
- * 			"status": "booked",
- * 			"booking_id": "b1b7db09-6b53-480e-bece-53a2d5ef30d6",
- * 			"booking_item": "84fb55f2-5792-4958-b475-4c39ea787b5f",
- * 			"supplier": "Expedia",
- * 			"hotel_name": "Sheraton New York Times Square Hotel (60295986)",
- * 			"rooms": {
- * 				"room_name": "Superior Room, 2 Double Beds, Non Smoking (High Floor)",
- * 				"meal_plan": ""
- * 			},
- * 			"cancellation_terms": "",
- * 			"rate": "274355054",
- * 			"total_price": 1287.02,
- * 			"total_tax": 176.82,
- * 			"total_fees": 120,
- * 			"total_net": 1110.2,
- * 			"affiliate_service_charge": 988.08,
- * 			"currency": "EUR",
- * 			"per_night_breakdown": 643.51,
- * 			"links": {
- * 				"remove": {
- * 					"method": "DELETE",
- * 					"href": "\/api\/booking\/cancel-booking?booking_id=b1b7db09-6b53-480e-bece-53a2d5ef30d6&booking_item=84fb55f2-5792-4958-b475-4c39ea787b5f"
- * 				},
- * 				"change": {
- * 					"method": "PUT",
- * 					"href": "\/api\/booking\/change-booking?booking_id=b1b7db09-6b53-480e-bece-53a2d5ef30d6&booking_item=84fb55f2-5792-4958-b475-4c39ea787b5f"
- * 				},
- * 				"retrieve": {
- * 					"method": "GET",
- * 					"href": "\/api\/booking\/retrieve-booking?booking_id=b1b7db09-6b53-480e-bece-53a2d5ef30d6"
- * 				}
- * 			}
- * 		}
- * 	},
- * 	"message": "success"
+ *    "success": true,
+ *    "data": {
+ *        {
+ *            "status": "booked",
+ *            "booking_id": "b1b7db09-6b53-480e-bece-53a2d5ef30d6",
+ *            "booking_item": "84fb55f2-5792-4958-b475-4c39ea787b5f",
+ *            "supplier": "Expedia",
+ *            "hotel_name": "Sheraton New York Times Square Hotel (60295986)",
+ *            "rooms": {
+ *                "room_name": "Superior Room, 2 Double Beds, Non Smoking (High Floor)",
+ *                "meal_plan": ""
+ *            },
+ *            "cancellation_terms": "",
+ *            "rate": "274355054",
+ *            "total_price": 1287.02,
+ *            "total_tax": 176.82,
+ *            "total_fees": 120,
+ *            "total_net": 1110.2,
+ *            "affiliate_service_charge": 988.08,
+ *            "currency": "EUR",
+ *            "per_night_breakdown": 643.51,
+ *            "links": {
+ *                "remove": {
+ *                    "method": "DELETE",
+ *                    "href": "\/api\/booking\/cancel-booking?booking_id=b1b7db09-6b53-480e-bece-53a2d5ef30d6&booking_item=84fb55f2-5792-4958-b475-4c39ea787b5f"
+ *                },
+ *                "change": {
+ *                    "method": "PUT",
+ *                    "href": "\/api\/booking\/change-booking?booking_id=b1b7db09-6b53-480e-bece-53a2d5ef30d6&booking_item=84fb55f2-5792-4958-b475-4c39ea787b5f"
+ *                },
+ *                "retrieve": {
+ *                    "method": "GET",
+ *                    "href": "\/api\/booking\/retrieve-booking?booking_id=b1b7db09-6b53-480e-bece-53a2d5ef30d6"
+ *                }
+ *            }
+ *        }
+ *    },
+ *    "message": "success"
  * }
  * ),
  * @OA\Schema(
@@ -263,7 +261,7 @@ use OpenApi\Annotations as OA;
  *     "message": "Invalid booking_id"
  * }
  * ),
-* @OA\Examples(
+ * @OA\Examples(
  *     example="BookingBookResponseErrorBooked",
  *     summary="Example of Booking Book Response Error Booked",
  *     value=
@@ -276,7 +274,6 @@ use OpenApi\Annotations as OA;
  * }
  * )
  */
-
 class BookingBookResponse
 {
 }

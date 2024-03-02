@@ -4,38 +4,94 @@ namespace Modules\API\PricingAPI\ResponseModels;
 
 class RoomResponse
 {
+    /**
+     * @var string
+     */
     private string $giata_room_code;
 
+    /**
+     * @var string
+     */
     private string $giata_room_name;
 
+    /**
+     * @var string
+     */
     private string $supplier_room_name;
 
-    private int $supplier_room_id;
+    /**
+     * @var int|string
+     */
+    private int|string $supplier_room_id;
 
+    /**
+     * @var string
+     */
     private string $per_day_rate_breakdown;
 
+    /**
+     * @var int
+     */
     private int $supplier_bed_groups;
 
+    /**
+     * @var array
+     */
     private array $links;
 
+    /**
+     * @var float
+     */
     private float $total_price;
 
+    /**
+     * @var float
+     */
     private float $total_tax;
 
+    /**
+     * @var float
+     */
     private float $total_fees;
 
+    /**
+     * @var float
+     */
     private float $total_net;
 
+    /**
+     * @var float
+     */
     private float $affiliate_service_charge;
 
+    /**
+     * @var string
+     */
     private string $booking_item;
 
+    /**
+     * @var string
+     */
     private string $currency;
 
+    /**
+     * @var string
+     */
     private string $room_type;
 
-    private int $rate_id;
+    /**
+     * @var string
+     */
+    private string $rate_id;
 
+    /**
+     * @var string
+     */
+    private string $rate_plan_code;
+
+    /**
+     * @var string
+     */
     private string $rate_description;
 
     /**
@@ -64,11 +120,27 @@ class RoomResponse
         $this->rate_id = $rate_id;
     }
 
+    /**
+     * @param string $rate_plan_code
+     * @return void
+     */
+    public function setRatePlanCode(string $rate_plan_code): void
+    {
+        $this->rate_plan_code = $rate_plan_code;
+    }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getRateId(): int
+    public function getRatePlanCode(): string
+    {
+        return $this->rate_plan_code;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRateId(): string
     {
         return $this->rate_id;
     }
@@ -244,18 +316,18 @@ class RoomResponse
     }
 
     /**
-     * @param int $supplier_room_id
+     * @param int|string $supplier_room_id
      * @return void
      */
-    public function setSupplierRoomCode(int $supplier_room_id): void
+    public function setSupplierRoomCode(int|string $supplier_room_id): void
     {
         $this->supplier_room_id = $supplier_room_id;
     }
 
     /**
-     * @return int
+     * @return int|string
      */
-    public function getSupplierRoomCode(): int
+    public function getSupplierRoomCode(): int|string
     {
         return $this->supplier_room_id;
     }
@@ -342,6 +414,7 @@ class RoomResponse
             // 'supplier_bed_groups' => $this->getSupplierBedGroups(),
             'room_type' => $this->getRoomType(),
             'rate_id' => $this->getRateId(),
+            'rate_plan_code' => $this->getRatePlanCode() ?? '',
             'rate_description' => $this->getRateDescription(),
             'total_price' => $this->getTotalPrice(),
             'total_tax' => $this->getTotalTax(),

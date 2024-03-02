@@ -8,13 +8,26 @@ use Illuminate\Database\Eloquent\Model;
 class ExpediaContentSlave extends Model
 {
     use HasFactory;
-	/**
+
+    /**
      * @var mixed
      */
     protected $connection;
-	protected $primaryKey = 'property_id';
-	public $incrementing = false;
-	protected const TABLE = 'expedia_content_slave';
+
+    /**
+     * @var string
+     */
+    protected $primaryKey = 'property_id';
+
+    /**
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
+     *
+     */
+    protected const TABLE = 'expedia_content_slave';
 
     /**
      * @var string[]

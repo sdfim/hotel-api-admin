@@ -64,38 +64,38 @@ class PropertyContentCall
 
     // Call parameters
     /**
-     * @var
+     * @var RapidClient|null
      */
-    private $client;
+    private RapidClient|null $client;
     /**
      * @var mixed
      */
-    private $language;
+    private mixed $language;
     /**
      * @var mixed
      */
-    private $supplySource;
+    private mixed $supplySource;
     /**
      * @var mixed
      */
-    private $countryCodes;
+    private mixed $countryCodes;
     /**
      * @var mixed
      */
-    private $categoryIdExcludes;
+    private mixed $categoryIdExcludes;
     /**
      * @var float|mixed
      */
-    private $propertyRatingMin;
+    private mixed $propertyRatingMin;
     /**
      * @var float|mixed
      */
-    private $propertyRatingMax;
+    private mixed $propertyRatingMax;
 
     /**
-     * @var
+     * @var string|mixed
      */
-    private $token;
+    private mixed $token;
 
     /**
      * @param $client
@@ -143,7 +143,7 @@ class PropertyContentCall
             // dump('$propertyContents', current((array)json_decode($propertyContents))->property_id, array_keys((array)json_decode($propertyContents)));
 
             $ids = array_merge($ids, array_keys((array)json_decode($propertyContents)));
-            $uniqueArray = array_unique($ids);
+            // $uniqueArray = array_unique($ids);
             // dump('$count', $count, count(json_decode($propertyContents, true)), $uniqueArray);
             dump('$count', $count, count(json_decode($propertyContents, true)));
 

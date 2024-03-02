@@ -3,8 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-use Modules\API\Controllers\ExpediaHotelApiHandler;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Suppliers\ExpediaSupplier\PropertyCallFactory;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
@@ -14,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register (): void
+    public function register(): void
     {
         $this->app->singleton(RapidClient::class, function () {
             return new RapidClient();
@@ -26,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ExpediaService::class, function ($app) {
+            // TODO: need to review the next two lines, as the constructor of the ExpediaService class does not have any input parameters.
             $propertyCallFactory = $app->make(PropertyCallFactory::class);
             return new ExpediaService($propertyCallFactory);
         });
@@ -34,11 +35,11 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot (): void
+    public function boot(): void
     {
-        $currentUrl = \Illuminate\Support\Facades\URL::current();
+        $currentUrl = URL::current();
         if (!str_contains($currentUrl, 'localhost') && !str_contains($currentUrl, '127.0.0.1')) {
-            \URL::forceScheme('https');
+            URL::forceScheme('https');
         }
         Schema::defaultStringLength(191);
     }

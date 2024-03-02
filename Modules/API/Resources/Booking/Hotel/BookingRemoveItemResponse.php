@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Booking\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="BookingRemoveItemResponse",
@@ -57,19 +55,18 @@ use OpenApi\Annotations as OA;
  *     summary="Example of Booking Remove Item Response",
  *     value=
  * {
- * 	"success": true,
- * 	"data": {
- * 		"result": {
- * 			"booking_id": "c698abfe-9bfa-45ee-a201-dc7322e008ab",
- * 			"booking_item": "f8287abe-52be-43a2-8354-b8c4327786a4",
- * 			"status": "This item is not in the cart"
- * 		}
- * 	},
- * 	"message": "success"
+ *    "success": true,
+ *    "data": {
+ *        "result": {
+ *            "booking_id": "c698abfe-9bfa-45ee-a201-dc7322e008ab",
+ *            "booking_item": "f8287abe-52be-43a2-8354-b8c4327786a4",
+ *            "status": "This item is not in the cart"
+ *        }
+ *    },
+ *    "message": "success"
  * }
  * )
  */
-
 class BookingRemoveItemResponse
 {
 }

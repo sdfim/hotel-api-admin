@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Booking\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="BookingBookRequest",
@@ -125,12 +123,12 @@ use OpenApi\Annotations as OA;
  *       example=""
  *     )
  *   )
- * ),       
+ * ),
  * @OA\Examples(
  *     example="BookingBookRequest",
  *     summary="Example Booking Book Request",
  *     value=
- * 		{
+ *        {
  *         "amount_pay":"Deposit",
  *         "booking_contact":{
  *            "first_name":"John",
@@ -242,12 +240,12 @@ use OpenApi\Annotations as OA;
  *       )
  *     )
  *   )
- * ),   
+ * ),
  * @OA\Examples(
  *     example="BookingBookRequestExpedia",
  *     summary="Example Booking Book Request Expedia",
  *     value=
- * 		{
+ *        {
  *         "amount_pay":"Deposit",
  *         "booking_contact":{
  *            "first_name":"John",
@@ -269,7 +267,6 @@ use OpenApi\Annotations as OA;
  *      }
  * )
  */
-
 class BookingBookRequest
 {
 }

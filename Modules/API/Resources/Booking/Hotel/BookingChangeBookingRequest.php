@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Booking\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="BookingChangeBookingRequest",
@@ -46,24 +44,23 @@ use OpenApi\Annotations as OA;
  *       example="ABC123"
  *     )
  *   )
- * ),        
+ * ),
  * @OA\Examples(
  *     example="BookingChangeBookingRequest",
  *     summary="Example Booking Change Booking Request",
  *     value=
- * 		{
- * 		    "query": 
- * 		    {
- * 		        "given_name": "John",
- * 		        "family_name": "Smit",
- * 		        "smoking": false,
- * 		        "special_request": "Top floor or away frostreet please",
- * 		        "loyalty_id": "ABC123"
- * 		    }
- * 		}
+ *        {
+ *            "query":
+ *            {
+ *                "given_name": "John",
+ *                "family_name": "Smit",
+ *                "smoking": false,
+ *                "special_request": "Top floor or away frostreet please",
+ *                "loyalty_id": "ABC123"
+ *            }
+ *        }
  * )
  */
-
 class BookingChangeBookingRequest
 {
 }

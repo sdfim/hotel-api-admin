@@ -43,10 +43,10 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <x-section-border/>
                 </div>
-                
+
             </div>
         </div>
     </div>
@@ -56,5 +56,4 @@
 
     <script src="{{ URL::asset('build/js/pages/nav&tabs.js') }}"></script>
 
-    
 @endsection

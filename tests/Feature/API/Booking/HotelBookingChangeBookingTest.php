@@ -1,10 +1,9 @@
 <?php
 
-namespace Feature\API\Booking;
+namespace Tests\Feature\API\Booking;
 
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
-use Tests\Feature\API\Booking\HotelBookingApiTestCase;
 
 class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
 {
@@ -107,12 +106,12 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_change_booking_with_incorrect_booking_id_and_missed_booking_item_method_response_400(): void
+    public function test_hotel_booking_change_booking_with_non_existent_booking_id_and_missed_booking_item_method_response_400(): void
     {
-        $incorrectBookingId = Str::uuid();
+        $nonExistentBookingId = Str::uuid();
 
         $changeBookingResponse = $this->withHeaders($this->headers)
-            ->putJson("api/booking/change-booking?booking_id=$incorrectBookingId");
+            ->putJson("api/booking/change-booking?booking_id=$nonExistentBookingId");
 
         $changeBookingResponse->assertStatus(400)
             ->assertJson([
@@ -124,12 +123,12 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
      * @test
      * @return void
      */
-    public function test_hotel_booking_change_booking_with_incorrect_booking_item_and_missed_booking_id_method_response_400(): void
+    public function test_hotel_booking_change_booking_with_non_existent_booking_item_and_missed_booking_id_method_response_400(): void
     {
-        $incorrectBookingItem = Str::uuid();
+        $nonExistentBookingItem = Str::uuid();
 
         $changeBookingResponse = $this->withHeaders($this->headers)
-            ->putJson("api/booking/change-booking?booking_item=$incorrectBookingItem");
+            ->putJson("api/booking/change-booking?booking_item=$nonExistentBookingItem");
 
         $changeBookingResponse->assertStatus(400)
             ->assertJson([

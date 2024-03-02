@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Pricing\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="PricingSearchResponse",
@@ -257,7 +255,7 @@ use OpenApi\Annotations as OA;
  *             ),
  *             @OA\Property(
  *               property="opaque",
- *               description="Opaque.", *             
+ *               description="Opaque.", *
  *               type="boolean",
  *               example="false"
  *             ),
@@ -963,10 +961,6 @@ use OpenApi\Annotations as OA;
  * }
  * )
  */
-
-
-
-
 class PricingSearchResponse
 {
 }

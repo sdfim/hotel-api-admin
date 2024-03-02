@@ -3,39 +3,34 @@
 namespace Modules\API\Suppliers\ExpediaSupplier;
 
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class ExpediaService
 {
     /**
-     * @var PropertyPriceCall
+     * @var RapidClient
      */
-    private  $propertyPriceCall;
-
-	/**
-	 * @var RapidClient
-	 */
-	private $rapidClient;
+    private RapidClient $rapidClient;
 
     /**
-     * @param PropertyCallFactory $rapidCallFactory
      */
     public function __construct()
     {
-		$this->rapidClient = new RapidClient();
+        $this->rapidClient = new RapidClient();
     }
 
     /**
-     * @param array $queryIds
+     * @param array $propertyIds
      * @param array $query
      * @return array
      */
     public function getExpediaPriceByPropertyIds(array $propertyIds, array $query): array
     {
         try {
-			$this->propertyPriceCall = new PropertyPriceCall($this->rapidClient, $query);
-            $dataPrice = $this->propertyPriceCall->getPriceData($propertyIds);
+            $propertyPriceCall = new PropertyPriceCall($this->rapidClient, $query);
+            $dataPrice = $propertyPriceCall->getPriceData($propertyIds);
         } catch (Exception $e) {
-            \Log::error('ExpediaService | getExpediaPriceByPropertyIds' . $e->getMessage());
+            Log::error('ExpediaService | getExpediaPriceByPropertyIds' . $e->getMessage());
             return [];
         }
 

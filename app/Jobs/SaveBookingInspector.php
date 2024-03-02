@@ -14,31 +14,18 @@ class SaveBookingInspector implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * @var BookingInspectorController
-     */
-    private BookingInspectorController $bookingInspector;
-
-    /**
-     * @var array
-     */
-    private array $dataQueue;
-
-    /**
      * Create a new job instance.
      */
-    public function __construct($dataQueue)
-    {
-        $this->bookingInspector = new BookingInspectorController();
-        $this->dataQueue = $dataQueue;
-    }
+    public function __construct(
+        private readonly array $dataQueue,
+        private readonly BookingInspectorController $bookingInspector = new BookingInspectorController(),
+    ) {}
 
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        [$booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type] = $this->dataQueue;
-
-        $this->bookingInspector->save($booking_id, $query, $content, $client_content, $supplier_id, $type, $subType, $search_type);
+        $this->bookingInspector->save($this->dataQueue);
     }
 }

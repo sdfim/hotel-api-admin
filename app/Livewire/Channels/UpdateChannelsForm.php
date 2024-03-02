@@ -46,6 +46,7 @@ class UpdateChannelsForm extends Component implements HasForms
         return $form
             ->schema([
                 TextInput::make('name')
+                    ->unique(ignorable: $this->record)
                     ->required()
                     ->maxLength(191),
                 TextInput::make('description')

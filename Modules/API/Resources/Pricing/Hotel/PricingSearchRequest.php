@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Pricing\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="PricingSearchRequest",
@@ -100,23 +98,23 @@ use OpenApi\Annotations as OA;
  *     summary="An Example Pricing Search Request New York",
  *     value=
  * {
- * 	 "type": "hotel",
- * 	 "checkin": "2023-11-11",
- * 	 "checkout": "2023-11-20",
- * 	 "destination": 961,
- * 	 "rating": 4.5,
- * 	 "occupancy": {
- * 		 {
- * 			"adults": 4,
+ *     "type": "hotel",
+ *     "checkin": "2023-11-11",
+ *     "checkout": "2023-11-20",
+ *     "destination": 961,
+ *     "rating": 4.5,
+ *     "occupancy": {
+ *         {
+ *            "adults": 4,
  *          "children": 1,
  *          "children_ages": {
  *            2
  *           }
- * 		 },
+ *         },
  *       {
- * 			"adults": 3
- * 		 }
- * 	 }
+ *            "adults": 3
+ *         }
+ *     }
  * }
  * ),
  * @OA\Examples(
@@ -124,24 +122,24 @@ use OpenApi\Annotations as OA;
  *     summary="An Example Pricing Search RequestLondon",
  *     value=
  * {
- * 	 "type": "hotel",
- * 	 "checkin": "2023-11-11",
- * 	 "checkout": "2023-11-20",
- * 	 "destination": 302,
- * 	 "rating": 4,
- * 	 "occupancy": {
- * 		 {
- * 			"adults": 2,
+ *     "type": "hotel",
+ *     "checkin": "2023-11-11",
+ *     "checkout": "2023-11-20",
+ *     "destination": 302,
+ *     "rating": 4,
+ *     "occupancy": {
+ *         {
+ *            "adults": 2,
  *          "children": 2,
  *          "children_ages": {
  *            2,
  *            4
  *           }
- * 		 },
+ *         },
  *       {
- * 			"adults": 3
- * 		 }
- * 	 }
+ *            "adults": 3
+ *         }
+ *     }
  * }
  * ),
  * * @OA\Examples(
@@ -172,7 +170,6 @@ use OpenApi\Annotations as OA;
  * }
  * )
  */
-
 class PricingSearchRequest
 {
 }

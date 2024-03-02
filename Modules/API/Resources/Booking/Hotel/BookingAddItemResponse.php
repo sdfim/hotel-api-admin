@@ -2,8 +2,6 @@
 
 namespace Modules\API\Resources\Booking\Hotel;
 
-use OpenApi\Annotations as OA;
-
 /**
  * @OA\Schema(
  *   schema="BookingAddItemResponse",
@@ -48,7 +46,6 @@ use OpenApi\Annotations as OA;
  * }
  * )
  */
-
 class BookingAddItemResponse
 {
 }

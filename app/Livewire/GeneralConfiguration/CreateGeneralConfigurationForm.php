@@ -4,14 +4,14 @@ namespace App\Livewire\GeneralConfiguration;
 
 use App\Models\GeneralConfiguration;
 use App\Models\Supplier;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Filament\Forms\Components\Select;
-use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 
@@ -75,38 +75,42 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                 TextInput::make('time_supplier_requests')
                     ->label('Supplier requests timeout, seconds')
                     ->numeric()
-                    ->minValue(3)
-                    ->maxValue(120)
+                    ->minValue(fn(): int => 3)
+                    ->maxValue(fn(): int => 120)
                     ->required(),
                 Select::make('currently_suppliers')
-                    ->label('Include these suppliers in the search')
+                    ->label('Include these suppliers in the search (PricingApi)')
                     ->multiple()
                     ->options(Supplier::all()->pluck('name', 'id'))
                     ->required(),
                 TextInput::make('time_reservations_kept')
-                    ->label('Length of Time Reservations are kept are offloading, days')
+                    ->label('Length of Time Reservations are kept offloading, days')
                     ->numeric()
-                    ->minValue(7)
-                    ->maxValue(365)
+                    ->minValue(fn(): int => 7)
+                    ->maxValue(fn(): int => 365)
+                    ->required(),
+                Select::make('content_supplier')
+                    ->label('Include this supplier in your search as a content supplier (ContentApi)')
+                    ->options(['Expedia' => 'Expedia', 'IcePortal' => 'IcePortal', 'Expedia, IcePortal' => 'Expedia, IcePortal'])
                     ->required(),
                 TextInput::make('time_inspector_retained')
                     ->label('How Long Inspector Data is retained, days')
                     ->numeric()
-                    ->minValue(60)
-                    ->maxValue(365)
+                    ->minValue(fn(): int => 60)
+                    ->maxValue(fn(): int => 365)
                     ->required(),
                 TextInput::make('star_ratings')
                     ->label('What star ratings to be searched for on the system, 0 ... 5.5')
                     ->numeric()
                     ->step(0.5)
-                    ->minValue(0.0)
-                    ->maxValue(5.5)
+                    ->minValue(fn(): int => 0.0)
+                    ->maxValue(fn(): int => 5.5)
                     ->required(),
                 TextInput::make('stop_bookings')
-                    ->label('Stop bookings with in a number of hours from time of search execution, hours')
+                    ->label('Stop bookings within a number of hours from time of search execution, hours')
                     ->numeric()
-                    ->minValue(1)
-                    ->maxValue(365*24)
+                    ->minValue(fn(): int => 1)
+                    ->maxValue(fn(): int => 365 * 24)
                     ->required(),
             ])
             ->statePath('data')
@@ -126,6 +130,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
             $general_configuration_row->time_supplier_requests = $request->time_supplier_requests;
             $general_configuration_row->time_reservations_kept = $request->time_reservations_kept;
             $general_configuration_row->currently_suppliers = $request->currently_suppliers;
+            $general_configuration_row->content_supplier = $request->content_supplier;
             $general_configuration_row->time_inspector_retained = $request->time_inspector_retained;
             $general_configuration_row->star_ratings = $request->star_ratings;
             $general_configuration_row->stop_bookings = $request->stop_bookings;
@@ -138,6 +143,7 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
             $general_configuration[0]->time_supplier_requests = $request->time_supplier_requests;
             $general_configuration[0]->time_reservations_kept = $request->time_reservations_kept;
             $general_configuration[0]->currently_suppliers = $request->currently_suppliers;
+            $general_configuration[0]->content_supplier = $request->content_supplier;
             $general_configuration[0]->time_inspector_retained = $request->time_inspector_retained;
             $general_configuration[0]->star_ratings = $request->star_ratings;
             $general_configuration[0]->stop_bookings = $request->stop_bookings;

@@ -3,87 +3,59 @@
 namespace Modules\API\Suppliers\ExpediaSupplier;
 
 use Exception;
-use GuzzleHttp\Promise;
+use Fiber;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class PropertyPriceCall
 {
     # https://developers.expediagroup.com/docs/rapid/lodging/shopping#get-/properties/availability
 
     // Path
-    /**
-     *
-     */
     private const PROPERTY_CONTENT_PATH = "v3/properties/availability";
 
     // Query parameters keys
-    /**
-     *
-     */
+
     private const LANGUAGE = "language";
-    /**
-     *
-     */
+
     private const COUNTRY_CODE = "country_code";
-    /**
-     *
-     */
+
     private const PROPERTY_ID = "property_id";
-    /**
-     *
-     */
+
     private const CHECKIN = "checkin";
-    /**
-     *
-     */
+
     private const CHECKOUT = "checkout";
-    /**
-     *
-     */
+
     private const CURRENCY = "currency";
-    /**
-     *
-     */
+
     private const OCCUPANCY = "occupancy";
-    /**
-     *
-     */
+
     private const RATE_PLAN_COUNT = "rate_plan_count";
-    /**
-     *
-     */
+
     private const SALES_CHANNEL = "sales_channel";
-    /**
-     *
-     */
+
     private const SALES_ENVIRONMENT = "sales_environment";
-    /**
-     *
-     */
+
     private const RATE_OPTION = "rate_option";
-    /**
-     *
-     */
+
     private const BILLING_TERMS = "billing_terms";
-    /**
-     *
-     */
+
     private const PAYMENT_TERMS = "payment_terms";
-    /**
-     *
-     */
+
     private const PARTNER_POINT_SALE = "partner_point_of_sale";
+
+    private const  BATCH_SIZE = 250;
 
 
     // Call parameters
     /**
-     * @var
+     * @var RapidClient|null
      */
-    private $client;
+    private RapidClient|null $client;
     /**
-     * @var
+     * @var array
      */
-    private $propertyId;
+    private array $propertyChunk;
     /**
      * @var string|mixed
      */
@@ -186,19 +158,15 @@ class PropertyPriceCall
     /**
      * @param array $propertyIds
      * @return array
+     * @throws Throwable
      */
     public function getPriceData(array $propertyIds = []): array
     {
-        $responses = [];
+        $chunkPropertyIds = array_chunk($propertyIds, self::BATCH_SIZE);
 
-		$batchSize = 250;
-		$chunkPropertyIds = array_chunk($propertyIds, $batchSize);
-
-		foreach ($chunkPropertyIds as $keyChunk => $chunk) {
-            $this->propertyId = $chunk;
+        foreach ($chunkPropertyIds as $keyChunk => $chunk) {
+            $this->propertyChunk = $chunk;
             $queryParameters = $this->queryParameters();
-
-			// dd($queryParameters);
 
             try {
                 $promises[$keyChunk] = $this->client->getAsync(self::PROPERTY_CONTENT_PATH, $queryParameters);
@@ -207,26 +175,46 @@ class PropertyPriceCall
             }
         }
 
-        try {
-            // $responses = Promise\Utils::unwrap($promises);
-            $resolvedResponses = Promise\Utils::settle($promises)->wait();
+//        dump($promises);
+        $responses = Fiber::suspend($promises);
 
-            foreach ($resolvedResponses as $response) {
+        try {
+            // TODO: need to check if this is the correct way to handle promises
+//            $resolvedResponses = Promise\Utils::settle($promises)->wait();
+//            foreach ($resolvedResponses as $response) {
+//                if ($response['state'] === 'fulfilled') {
+//                    $data = $response['value']->getBody()->getContents();
+//                    $responses = array_merge($responses, json_decode($data, true));
+//                } else {
+//                    Log::error('PropertyPriceCall | getPriceData ', [
+//                        'propertyChunk' => $this->propertyChunk,
+//                        'reason' => $response['reason']->getMessage()
+//                    ]);
+//                }
+//            }
+
+            foreach ($responses as $response) {
                 if ($response['state'] === 'fulfilled') {
                     $data = $response['value']->getBody()->getContents();
                     $responses = array_merge($responses, json_decode($data, true));
                 } else {
-                    Log::error('Promise for property_id ' . $this->propertyId . ' failed: ' . $response['reason']->getMessage());
+                    Log::error('PropertyPriceCall | getPriceData ', [
+                        'propertyChunk' => $this->propertyChunk,
+                        'reason' => $response['reason']->getMessage()
+                    ]);
                 }
             }
+
         } catch (Exception $e) {
             Log::error('Error while processing promises: ' . $e->getMessage());
         }
 
-		$res = [];
-		foreach ($responses as $response) {
-			$res[$response['property_id']] = $response;
-		}
+        $res = [];
+        if (!empty($responses)) {
+            foreach ($responses as $response) {
+                $res[$response['property_id']] = $response;
+            }
+        }
 
         return $res;
     }
@@ -240,7 +228,7 @@ class PropertyPriceCall
         $queryParams = [];
 
         // Add required parameters
-        $queryParams[self::PROPERTY_ID] = $this->propertyId;
+        $queryParams[self::PROPERTY_ID] = $this->propertyChunk;
         $queryParams[self::LANGUAGE] = $this->language;
         $queryParams[self::COUNTRY_CODE] = $this->countryCode;
 
@@ -250,11 +238,11 @@ class PropertyPriceCall
         $queryParams[self::CURRENCY] = $this->currency;
 
         foreach ($this->occupancy as $room) {
-			if (isset($room['children_ages'])) {
-				$queryParams[self::OCCUPANCY][] = $room['adults'] .'-'. implode(',', $room['children_ages']);
-			} else {
-            	$queryParams[self::OCCUPANCY][] = $room['adults'];
-			}
+            if (isset($room['children_ages'])) {
+                $queryParams[self::OCCUPANCY][] = $room['adults'] . '-' . implode(',', $room['children_ages']);
+            } else {
+                $queryParams[self::OCCUPANCY][] = $room['adults'];
+            }
         }
         $queryParams[self::RATE_PLAN_COUNT] = $this->ratePlanCount;
         $queryParams[self::SALES_CHANNEL] = $this->salesChannel;

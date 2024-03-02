@@ -3,7 +3,6 @@
 namespace Modules\AdministrationSuite\Http\Controllers;
 
 use App\Models\PricingRule;
-use App\Models\Supplier;
 use Illuminate\View\View;
 
 class PricingRulesController extends Controller
@@ -24,8 +23,8 @@ class PricingRulesController extends Controller
     public function create(): View
     {
         $text = $this->message;
-        $suppliers = Supplier::all()->pluck('name', 'id')->toArray();
-        return view('dashboard.pricing-rules.create', compact('suppliers', 'text'));
+
+        return view('dashboard.pricing-rules.create', compact('text'));
     }
 
     /**
@@ -34,9 +33,11 @@ class PricingRulesController extends Controller
     public function show(string $id): View
     {
         $text = $this->message;
-        $pricingRule = PricingRule::findOrFail($id);
 
-        return view('dashboard.pricing-rules.show', compact('pricingRule', 'text'));
+        $pricingRule = PricingRule::with('conditions')->findOrFail($id);
+        $conditions = $pricingRule->conditions;
+
+        return view('dashboard.pricing-rules.show', compact('pricingRule', 'conditions', 'text'));
     }
 
     /**
@@ -45,7 +46,9 @@ class PricingRulesController extends Controller
     public function edit(string $id): View
     {
         $text = $this->message;
-        $pricingRules = PricingRule::findOrFail($id);
-        return view('dashboard.pricing-rules.update', compact('pricingRules', 'text'));
+
+        $pricingRule = PricingRule::findOrFail($id);
+
+        return view('dashboard.pricing-rules.update', compact('pricingRule', 'text'));
     }
 }

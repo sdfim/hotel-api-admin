@@ -9,14 +9,14 @@ use Modules\API\Validate\ApiRequest;
 
 class BookingAddPassengersHotelRequest extends ApiRequest
 {
-     /**
+    /**
      * Determine if the user is authorized to make this request.
      *
      * @return bool
      */
-    public function authorize() : bool
+    public function authorize(): bool
     {
-        return false;
+        return Auth::check();
     }
 
     /**
@@ -26,11 +26,11 @@ class BookingAddPassengersHotelRequest extends ApiRequest
      */
     public function rules(): array
     {
-		return [
-			'booking_id' => 'required|size:36',
+        return [
+            'booking_id' => 'required|size:36',
 
             'passengers' => 'required|array',
-            'passengers.*.title' => 'required|in:mr,ms',
+            'passengers.*.title' => 'required|in:mr,Mr,MR,ms,Ms,MS,Mrs,MRS,mrs,Miss,MISS,miss,Dr,dr,DR,Prof,prof,PROF',
             'passengers.*.given_name' => 'required|string',
             'passengers.*.family_name' => 'required|string',
             'passengers.*.date_of_birth' => 'required|date_format:Y-m-d',
@@ -38,18 +38,6 @@ class BookingAddPassengersHotelRequest extends ApiRequest
             'passengers.*.booking_items.*.booking_item' => 'required|uuid',
             'passengers.*.booking_items.*.room' => 'numeric',
         ];
-
-        // return [
-        //     // 'booking_item' => 'required|size:36',
-        //     'booking_id' => 'required|size:36',
-		// 	'booking_items' => 'array',
-        //     'booking_items.*' => 'size:36',
-        //     'passengers' => 'required|array',
-		// 	'passengers.*.title' => 'required|string',
-        //     'passengers.*.given_name' => 'required|string',
-        //     'passengers.*.family_name' => 'required|string',
-		// 	'passengers.*.date_of_birth' => 'required|date_format:Y-m-d|before_or_equal:' . now()->subYears(18)->format('Y-m-d'),
-        // ];
     }
 
     /**

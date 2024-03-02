@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\ApiBookingInspector;
 use Illuminate\Support\Facades\Storage;
+use Modules\Enums\SupplierNameEnum;
 
 class ApiBookingInspectorRepository
 {
@@ -13,7 +14,7 @@ class ApiBookingInspectorRepository
      * @param int $room_id
      * @return string|null
      */
-    public static function getLinkDeleteItem(string $booking_id, string $booking_item, int $room_id): string | null
+    public static function getLinkDeleteItem(string $booking_id, string $booking_item, int $room_id): string|null
     {
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('booking_item', $booking_item)
@@ -45,7 +46,7 @@ class ApiBookingInspectorRepository
      * @param int $room_id
      * @return string|null
      */
-    public static function getLinkPutMethod(string $booking_id, int $room_id): string | null
+    public static function getLinkPutMethod(string $booking_id, int $room_id): string|null
     {
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve' . '%')
@@ -70,7 +71,7 @@ class ApiBookingInspectorRepository
      * @param $filters
      * @return string|null
      */
-    public static function getItineraryId($filters): null | string
+    public static function getItineraryId($filters): null|string
     {
         $booking_id = $filters['booking_id'];
 
@@ -88,7 +89,7 @@ class ApiBookingInspectorRepository
      * @param $filters
      * @return string|null
      */
-    public static function getSearchId($filters): null | string
+    public static function getSearchId($filters): null|string
     {
         $booking_id = $filters['booking_id'];
 
@@ -104,7 +105,7 @@ class ApiBookingInspectorRepository
      * @param $booking_id
      * @return string|null
      */
-    public function getLinkRetrieveItem($booking_id): string | null
+    public function getLinkRetrieveItem($booking_id): string|null
     {
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'create' . '%')
@@ -120,7 +121,7 @@ class ApiBookingInspectorRepository
      * @param $channel
      * @return array|null
      */
-    public static function getAffiliateReferenceIdByChannel($channel): array | null
+    public static function getAffiliateReferenceIdByChannel($channel): array|null
     {
         $inspectors = ApiBookingInspector::where('token_id', $channel)
             ->where(function ($query) {
@@ -171,6 +172,7 @@ class ApiBookingInspectorRepository
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
             ->where('type', 'book')
+            ->where('sub_type', '!=', 'error')
             ->exists();
     }
 
@@ -214,7 +216,11 @@ class ApiBookingInspectorRepository
 
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('type', 'add_item')
-            ->where('sub_type', 'like', 'price_check' . '%')
+            ->where(function ($query) {
+                $query->where('sub_type', 'single')
+                    ->orWhere('sub_type', 'complete')
+                    ->orWhere('sub_type', 'like', 'price_check' . '%');
+            })
             ->whereNotIn('booking_id', $itemsBooked)
             ->get();
     }
@@ -254,7 +260,7 @@ class ApiBookingInspectorRepository
     {
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('type', 'add_item')
-            ->where('sub_type', 'like', 'price_check' . '%')
+//            ->where('sub_type', 'like', 'price_check' . '%')
             ->get();
     }
 
@@ -264,9 +270,21 @@ class ApiBookingInspectorRepository
      */
     public static function getBookItemsByBookingItem(string $booking_item): object|null
     {
-        return ApiBookingInspector::where('booking_item', $booking_item)
+        $bookingInspector = ApiBookingInspector::where('booking_item', $booking_item)
             ->where('type', 'book')
-            ->where('sub_type', 'retrieve')
             ->first();
+
+        if ($bookingInspector && $bookingInspector->supplier->name === SupplierNameEnum::EXPEDIA->value) {
+            return ApiBookingInspector::where('booking_item', $booking_item)
+                ->where('type', 'book')
+                ->where('sub_type', 'retrieve')
+                ->first();
+        } else {
+            return ApiBookingInspector::where('booking_item', $booking_item)
+                ->where('type', 'book')
+                ->where('sub_type', 'create')
+                ->first();
+        }
     }
+
 }

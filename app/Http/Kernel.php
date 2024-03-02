@@ -48,7 +48,7 @@ class Kernel extends HttpKernel
         ValidatePostSize::class,
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
-		SetLocationHeader::class,
+        SetLocationHeader::class,
         RewriteUrls::class,
     ];
 
@@ -71,6 +71,7 @@ class Kernel extends HttpKernel
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             ThrottleRequests::class . ':api',
             SubstituteBindings::class,
+            \App\Http\Middleware\FakeDataEndpoints::class,
         ],
     ];
 
