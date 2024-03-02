@@ -27,6 +27,8 @@ class SetLocationHeader
                 $response->headers->set('Location', config('app.url') . '/admin/reservations');
             } elseif (($path === 'admin/login' && !Auth::check())) {
                 $response->headers->set('Location', config('app.url') . '/admin/login');
+            } elseif ($path === 'admin/logout' && !Auth::check()) {
+                $response->headers->set('Location', config('app.url') . '/admin/login');
             } elseif (
                 $request->headers->has('referer') && $path !== '/'
             ) {
