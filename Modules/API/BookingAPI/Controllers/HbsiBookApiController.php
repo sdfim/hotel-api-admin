@@ -140,8 +140,6 @@ class HbsiBookApiController extends BaseBookApiController
             ];
         }
 
-        $clientResponse = [];
-        $dataResponseToSave = [];
         $error = true;
         try {
             $xmlPriceData = $this->hbsiClient->handleBook($filters);
@@ -166,11 +164,10 @@ class HbsiBookApiController extends BaseBookApiController
 
         } catch (RequestException $e) {
             Log::error('HbsiBookApiController | book | RequestException ' . $e->getResponse()->getBody());
-            $dataResponse = json_decode('' . $e->getResponse()->getBody());
-            return (array)$dataResponse;
-        } catch (Exception $e) {
+            return ['error' => $e->getResponse()->getBody()];
+        } catch (\Exception $e) {
             Log::error('HbsiBookApiController | book | Exception ' . $e->getMessage());
-            $dataResponse = json_decode('' . $e->getMessage());
+            return ['error' => $e->getMessage()];
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
@@ -204,6 +201,7 @@ class HbsiBookApiController extends BaseBookApiController
      * @param array $filters
      * @param ApiBookingInspector $bookingInspector
      * @return array|null
+     * @throws GuzzleException
      */
     public function retrieveBooking(array $filters, ApiBookingInspector $bookingInspector): array|null
     {
@@ -246,6 +244,7 @@ class HbsiBookApiController extends BaseBookApiController
      * @param array $filters
      * @param ApiBookingInspector $bookingInspector
      * @return array|null
+     * @throws GuzzleException
      */
     public function cancelBooking(array $filters, ApiBookingInspector $bookingInspector): array|null
     {

@@ -26,12 +26,10 @@ class FlowHbsiBookTest extends Command
 
 
     protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
-
     protected const BASE_URI = 'http://localhost:8008';
-
     private string $destination;
-
     private string $supplier;
+    private array $query;
 
     public function __construct()
     {
@@ -55,54 +53,50 @@ class FlowHbsiBookTest extends Command
         }
     }
 
-    /**
-     * @return void
-     */
+    private function searchAndAddItem(int $s = 1): array
+    {
+        $retryCount = 0;
+        $bookingItem = null;
+        $this->warn('SEARCH '.$s);
+        while ($retryCount < 7 && $bookingItem === null) {
+            $responseData1 = $this->makeSearchRequest($s);
+            $this->query['search_'.$s] = $responseData1['data']['query']['occupancy'];
+            $searchId = $responseData1['data']['search_id'];
+            $bookingItem = $this->getBookingItem($responseData1);
+
+            sleep(1);
+            $retryCount++;
+        }
+        $this->info('search_id = ' . $searchId ?? 'null');
+        $this->info('booking_item = ' . $bookingItem['booking_item'] ?? 'null');
+
+        return $bookingItem;
+    }
     public function flow(): void
     {
-        $this->warn('SEARCH 1');
-        $responseData1 = $this->makeSearchRequest(2);
-        $query['search_1'] = $responseData1['data']['query']['occupancy'];
-        $searchId = $responseData1['data']['search_id'];
-        $bookingItem = $this->getBookingItem($responseData1);
-        $this->info('search_id = ' . $searchId);
-        $this->info('booking_item = ' . $bookingItem['booking_item']);
-
+        $this->query = [];
+        $bookingItem = $this->searchAndAddItem(1);
         $bookingId = $this->addBookingItem($bookingItem['booking_item']);
         $bookingItems['search_1'] = $bookingItem['booking_item'];
         $bookingRateOrdinals['search_1'] = $bookingItem['rate_ordinal'];
 
-        sleep(3);
-        $this->warn('SEARCH 2');
-        $responseData2 = $this->makeSearchRequest();
-        $query['search_2'] = $responseData2['data']['query']['occupancy'];
-        $searchId = $responseData2['data']['search_id'];
-        $bookingItem = $this->getBookingItem($responseData2);
-        $this->info('search_id = ' . $searchId);
-        $this->info('booking_item = ' . $bookingItem['booking_item']);
-
+        $bookingItem = $this->searchAndAddItem(2);
         $bookingId = $this->addBookingItem($bookingItem['booking_item'], $bookingId);
         $bookingItems['search_2'] = $bookingItem['booking_item'];
         $bookingRateOrdinals['search_2'] = $bookingItem['rate_ordinal'];
 
         sleep(2);
         $this->warn('addPassengers group for SEARCH 1, SEARCH 2');
-        $this->addPassengers($bookingId, $bookingItems, $bookingRateOrdinals, $query);
+        $this->addPassengers($bookingId, $bookingItems, $bookingRateOrdinals, $this->query);
 
-        $this->warn('SEARCH 3');
-        $responseData = $this->makeSearchRequest(2);
-        $query2['search_3'] = $responseData['data']['query']['occupancy'];
-        $searchId = $responseData['data']['search_id'];
-        $bookingItem = $this->getBookingItem($responseData);
-        $this->info('search_id = ' . $searchId);
-        $this->info('booking_item = ' . $bookingItem['booking_item']);
-
+        $this->query = [];
+        $bookingItem = $this->searchAndAddItem(3);
         $bookingId = $this->addBookingItem($bookingItem['booking_item'], $bookingId);
         $bookingItems2['search_3'] = $bookingItem['booking_item'];
         $bookingRateOrdinals2['search_3'] = $bookingItem['rate_ordinal'];
 
         $this->warn('addPassengers group for search_3');
-        $this->addPassengers($bookingId, $bookingItems2, $bookingRateOrdinals2, $query2);
+        $this->addPassengers($bookingId, $bookingItems2, $bookingRateOrdinals2, $this->query);
 
         sleep(3);
         $this->warn('REMOVE ITEM');
@@ -111,7 +105,7 @@ class FlowHbsiBookTest extends Command
         $this->warn('RETRIEVE ITEMS');
         $this->retrieveItems($bookingId);
 
-        sleep(2);
+        sleep(3);
         $this->warn('BOOK ' . $bookingId);
         $this->book($bookingId, $bookingItems);
     }
@@ -120,7 +114,7 @@ class FlowHbsiBookTest extends Command
      * @param array $responseData
      * @return string
      */
-    private function getBookingItem(array $responseData): array
+    private function getBookingItem(array $responseData): array|null
     {
         $flattened = Arr::dot($responseData);
 
@@ -128,12 +122,13 @@ class FlowHbsiBookTest extends Command
         foreach ($flattened as $key => $value) {
             if (str_contains($key, 'booking_item')
                 && str_contains($key, $this->supplier)
-//                && $flattened[str_replace('booking_item', 'room_type', $key)] != 'Luxury'
-//                && $flattened[str_replace('booking_item', 'room_type', $key)] != 'STD'
+                && $flattened[str_replace('booking_item', 'room_type', $key)] != 'Luxury'
+                && $flattened[str_replace('booking_item', 'room_type', $key)] != 'STD'
             ) {
                 $bookingItems[$key] = $value;
             }
         }
+        if (empty($bookingItems)) return null;
 
         $randomKey = array_rand($bookingItems);
         return [
@@ -162,7 +157,7 @@ class FlowHbsiBookTest extends Command
             $children_ages = [];
             if ($children > 0) {
                 foreach (range(1, $children) as $index) {
-                    $children_ages[] = rand(1, 17);
+                    $children_ages[] = rand(1, 15);
                 }
                 $room['children'] = $children;
                 $room['children_ages'] = $children_ages;
@@ -173,7 +168,7 @@ class FlowHbsiBookTest extends Command
 
         $requestData = [
             'type' => 'hotel',
-            'currency' => $faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
+            'currency' => $faker->randomElement(['USD', 'EUR', 'GBP']),
             'destination' => $this->destination,
             'checkin' => $checkin,
             'checkout' => $checkout,
