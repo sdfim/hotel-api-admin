@@ -98,7 +98,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
 
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
-                'message' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id'
             ]);
     }
 
@@ -115,7 +115,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
 
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
-                'message' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id'
             ]);
     }
 

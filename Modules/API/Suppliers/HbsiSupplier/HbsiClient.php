@@ -499,9 +499,7 @@ class HbsiClient
             }
         }
 
-        if (isset($roomStaysArr['RoomRates']['RoomRate']['Rates']['Rate'])
-            && count($roomStaysArr['RoomRates']['RoomRate']['Rates']) > 1
-        ) {
+        if (!isset($roomStaysArr['RoomRates']['RoomRate']['Rates']['Rate']['@attributes'])) {
             $newRates = $roomStaysArr['RoomRates']['RoomRate']['Rates']['Rate'];
             unset($roomStaysArr['RoomRates']['RoomRate']['Rates']);
             $roomStaysArr['RoomRates']['RoomRate']['Rates'] = $newRates;

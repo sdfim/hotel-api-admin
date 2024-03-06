@@ -59,10 +59,11 @@ class FlowHbsiBookTest extends Command
         $bookingItem = null;
         $this->warn('SEARCH '.$s);
         while ($retryCount < 7 && $bookingItem === null) {
-            $responseData1 = $this->makeSearchRequest($s);
-            $this->query['search_'.$s] = $responseData1['data']['query']['occupancy'];
-            $searchId = $responseData1['data']['search_id'];
-            $bookingItem = $this->getBookingItem($responseData1);
+            $responseData = $this->makeSearchRequest($s);
+            if (!isset($responseData['data']['query']['occupancy'])) continue;
+            $this->query['search_'.$s] = $responseData['data']['query']['occupancy'];
+            $searchId = $responseData['data']['search_id'];
+            $bookingItem = $this->getBookingItem($responseData);
 
             sleep(1);
             $retryCount++;

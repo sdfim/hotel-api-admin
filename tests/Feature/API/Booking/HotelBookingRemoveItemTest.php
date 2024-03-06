@@ -84,7 +84,7 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
 
         $bookingRemoveItemResponse->assertStatus(400)
             ->assertJson([
-                'message' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id'
             ]);
     }
 
@@ -105,7 +105,7 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
 
         $bookingRemoveItemResponse->assertStatus(400)
             ->assertJson([
-                'message' => 'Invalid booking_item'
+                'error' => 'Invalid booking_item'
             ]);
     }
 
@@ -124,7 +124,7 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
 
         $bookingRemoveItemResponse->assertStatus(400)
             ->assertJson([
-                'message' => 'Invalid type'
+                'error' => 'Invalid type'
             ]);
     }
 

@@ -226,7 +226,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             Log::error('HotelApiHandler | search' . $e->getMessage());
             Log::error($e->getTraceAsString());
 
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
+            return $this->sendError($e->getMessage(), 'failed');
         }
     }
 
@@ -360,7 +360,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             Log::error('HotelApiHandler ' . $e->getMessage());
             Log::error($e->getTraceAsString());
 
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
+            return $this->sendError($e->getMessage(), 'failed');
         }
     }
 
@@ -512,7 +512,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 // save data to Inspector
                 Log::info('HotelApiHandler | price | SaveSearchInspector | start');
                 SaveSearchInspector::dispatch([
-                    $search_id, $filters, $dataOriginal || [], $content, $clientContent, $suppliers, 'price', 'hotel',
+                    $search_id, $filters, $dataOriginal, $content, $clientContent, $suppliers, 'price', 'hotel',
                 ]);
                 Log::info('HotelApiHandler | price | SaveSearchInspector | end');
 
@@ -535,7 +535,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             Log::error('HotelApiHandler ' . $e->getMessage());
             Log::error($e->getTraceAsString());
 
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
+            return $this->sendError($e->getMessage(), 'failed');
         }
     }
 

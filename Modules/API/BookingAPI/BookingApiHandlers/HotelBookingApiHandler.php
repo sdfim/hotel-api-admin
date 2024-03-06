@@ -100,17 +100,13 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
             if (request()->has('booking_id')) {
 
                 if (BookingRepository::isBook(request()->get('booking_id'), request()->get('booking_item'))) {
-                    return $this->sendError([
-                        'error' => 'booking_id - this cart is not available',
-                        'message' => 'This cart is at the booking stage or beyond.'
-                    ]);
+                    return $this->sendError(
+                        'booking_id - this cart is not available. This cart is at the booking stage or beyond.',
+                    );
                 }
 
                 if (BookingRepository::isDuplicate(request()->get('booking_id'), request()->get('booking_item'))) {
-                    return $this->sendError([
-                        'error' => 'booking_item, booking_id pair is not unique.',
-                        'message' => 'This item is already in your cart.'
-                    ]);
+                    return $this->sendError('booking_item, booking_id pair is not unique. This item is already in your cart.');
                 }
 
                 $filters['booking_id'] = request()->get('booking_id');
@@ -144,7 +140,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             Log::error('HotelBookingApiHandler | addItem ' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
+            return $this->sendError($e->getMessage(), 'failed');
         }
 
         if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
@@ -223,7 +219,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
         } catch (Exception $e) {
             Log::error('HotelBookingApiHandler | removeItem ' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
+            return $this->sendError($e->getMessage(), 'failed');
         }
 
         if (isset($data['error'])) return $this->sendError($data['error']);

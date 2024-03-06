@@ -4,95 +4,82 @@ namespace Modules\API\PricingAPI\ResponseModels;
 
 class RoomResponse
 {
-    /**
-     * @var string
-     */
+
     private string $giata_room_code;
 
-    /**
-     * @var string
-     */
     private string $giata_room_name;
 
-    /**
-     * @var string
-     */
     private string $supplier_room_name;
 
-    /**
-     * @var int|string
-     */
     private int|string $supplier_room_id;
 
-    /**
-     * @var string
-     */
     private string $per_day_rate_breakdown;
 
-    /**
-     * @var int
-     */
     private int $supplier_bed_groups;
 
-    /**
-     * @var array
-     */
     private array $links;
 
-    /**
-     * @var float
-     */
     private float $total_price;
 
-    /**
-     * @var float
-     */
     private float $total_tax;
 
-    /**
-     * @var float
-     */
     private float $total_fees;
 
-    /**
-     * @var float
-     */
     private float $total_net;
 
-    /**
-     * @var float
-     */
     private float $affiliate_service_charge;
 
-    /**
-     * @var string
-     */
     private string $booking_item;
 
-    /**
-     * @var string
-     */
     private string $currency;
 
-    /**
-     * @var string
-     */
     private string $room_type;
 
-    /**
-     * @var string
-     */
     private string $rate_id;
 
-    /**
-     * @var string
-     */
     private string $rate_plan_code;
 
-    /**
-     * @var string
-     */
     private string $rate_description;
+
+    private array $cancellation_policies;
+
+    private bool $non_refundable;
+
+    private string $meal_plan;
+
+    /**
+     * @param string $meal_plan
+     * @return void
+     */
+    public function setMealPlans(string $meal_plan): void
+    {
+        $this->meal_plan = $meal_plan;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMealPlans(): string
+    {
+        return $this->meal_plan;
+    }
+
+    /**
+     * @param array $cancellation_policies
+     * @return void
+     */
+    public function setCancellationPolicies(array $cancellation_policies): void
+    {
+        $this->cancellation_policies = $cancellation_policies;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCancellationPolicies(): array
+    {
+        return $this->cancellation_policies;
+    }
 
     /**
      * @param string $room_type
@@ -401,6 +388,23 @@ class RoomResponse
     }
 
     /**
+     * @param bool $non_refundable
+     * @return void
+     */
+    public function setNonRefundable(bool $non_refundable): void
+    {
+        $this->non_refundable = $non_refundable;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getNonRefundable(): bool
+    {
+        return $this->non_refundable;
+    }
+
+    /**
      * @return array
      */
     public function toArray(): array
@@ -424,6 +428,9 @@ class RoomResponse
             'currency' => $this->getCurrency(),
             // 'links' => $this->getLinks(),
             'booking_item' => $this->getBookingItem(),
+            'cancellation_policies' => $this->getCancellationPolicies(),
+            'non_refundable' => $this->getNonRefundable(),
+            'meal_plan' => $this->getMealPlans(),
         ];
     }
 }

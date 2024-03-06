@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Modules\API\BookingAPI\ResponseModels\HotelRetrieveBookingResponseModel as ResponseModel;
 
 class HbsiHotelBookingRetrieveBookingDto
-{
-    public static function RetrieveBookingToHotelBookResponseModel(array $filters, array $dataResponse): array
+{    public static function RetrieveBookingToHotelBookResponseModel(array $filters, array $dataResponse): array
     {
 
         $status = $dataResponse['ReservationsList']['HotelReservation']['@attributes']['ResStatus'] ?? '';
@@ -52,7 +51,9 @@ class HbsiHotelBookingRetrieveBookingDto
 
         $responseModel->setRooms($rooms);
 
-        $responseModel->setCancellationTerms($saveResponse['cancellation_terms']);
+        $cancellationTerms = is_array($saveResponse['cancellation_terms'])
+            ? $saveResponse['cancellation_terms'] : [$saveResponse['cancellation_terms']];
+        $responseModel->setCancellationTerms($cancellationTerms);
         $responseModel->setRate($saveResponse['rate']);
         $responseModel->setTotalPrice($saveResponse['total_price']);
         $responseModel->setTotalTax($saveResponse['total_tax']);

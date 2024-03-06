@@ -32,7 +32,7 @@ class RouteApiController extends Controller
         if (!$this->isTypeValid($type)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid type',
+                'error' => 'Invalid type',
             ], 400);
         }
         if (!$this->isRouteValid($route)) {
