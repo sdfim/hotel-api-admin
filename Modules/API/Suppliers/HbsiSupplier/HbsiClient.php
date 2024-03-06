@@ -18,15 +18,6 @@ use Throwable;
 
 class HbsiClient
 {
-
-    /**
-     *
-     */
-    private const USERNAME = 'tentravel';
-    /**
-     *
-     */
-    private const PASSWORD = 'xml4t!';
     /**
      *
      */
@@ -35,10 +26,7 @@ class HbsiClient
      *
      */
     private const URL = 'https://uat.demandmatrix.net/app/dm/xml/tentravel/search';
-    /**
-     *
-     */
-    private const CHANNEL_IDENTIFIER_ID = 'TenTraval_XML4T';
+
     /**
      *
      */
@@ -60,6 +48,9 @@ class HbsiClient
      */
     private array $mainGuest;
 
+    /** @var Credentials  */
+    private Credentials $credentials;
+
     /**
      * @param Client $client
      * @param array $headers
@@ -73,6 +64,7 @@ class HbsiClient
     {
         $this->requestId = time() . '_tentravel';
         $this->timeStamp = date('Y-m-d\TH:i:sP');
+        $this->credentials = CredentialsFactory::fromConfig();
     }
 
     /**
@@ -200,9 +192,9 @@ class HbsiClient
         return '<?xml version="1.0" encoding="utf-8"?>
             <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap-env:Header>
-                    <Interface ChannelIdentifierId="' . self::CHANNEL_IDENTIFIER_ID . '" Version="' . self::VERSION . '" Interface="' . self::INTERFACE . '"
+                    <Interface ChannelIdentifierId="' . $this->credentials->channelIdentifierId . '" Version="' . self::VERSION . '" Interface="' . self::INTERFACE . '"
                         xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                        <ComponentInfo Id="' . self::COMPONENT_INFO_ID . '" User="' . self::USERNAME . '" Pwd="' . self::PASSWORD . '" ComponentType="Hotel"/>
+                        <ComponentInfo Id="' . self::COMPONENT_INFO_ID . '" User="' . $this->credentials->username . '" Pwd="' . $this->credentials->password . '" ComponentType="Hotel"/>
                     </Interface>
                 </soap-env:Header>
                 <soap-env:Body RequestId="' . $this->requestId . '" Transaction="' . $typeRequest . '">
