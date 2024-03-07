@@ -10,8 +10,8 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        if (!Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->hasTable('expedia_content_main')) {
-            Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->create('expedia_content_main', function (Blueprint $table) {
+        if (!Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->hasTable('expedia_content_main')) {
+            Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->create('expedia_content_main', function (Blueprint $table) {
                 $table->integer('property_id')->index()->unique();
                 $table->float('rating')->index()->default(0);
                 $table->string('name');
@@ -35,6 +35,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->dropIfExists('expedia_content_main');
+        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->dropIfExists('expedia_content_main');
     }
 };

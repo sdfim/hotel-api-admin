@@ -13,58 +13,23 @@ use Psr\Http\Message\ResponseInterface;
 
 class RapidClient
 {
-    /**
-     *
-     */
     private const GZIP = "gzip";
-
-    /**
-     *
-     */
-    private const API_KEY = "13jhb72476h1ufkl4vce08a5ob";
-
-    /**
-     *
-     */
-    private const SHARED_SECRET = "20rf37o3nv5uo";
-
-    # Test endpoint: https://test.ean.com
-    # Production endpoint: https://api.ean.com
-    /**
-     *
-     */
-    private const BASE_URL = "https://test.ean.com";
-
-    /**
-     *
-     */
-    private const AUTHORIZATION_HEADER = "EAN APIKey=%s,Signature=%s,timestamp=%s";
-
-    /**
-     * @var string|null
-     */
-    private string|null $apiKey;
-    /**
-     * @var string|null
-     */
-    private string|null $sharedSecret;
     /**
      * @var Client
      */
     private Client $client;
+
     /**
-     * @var string|null
+     * @var Credentials
      */
-    private string|null $rapidBaseUrl;
+    private Credentials $credentials;
 
     /**
      *
      */
     public function __construct()
     {
-        $this->apiKey = self::API_KEY;
-        $this->sharedSecret = self::SHARED_SECRET;
-        $this->rapidBaseUrl = self::BASE_URL;
+        $this->credentials = CredentialsFactory::fromConfig();
         $this->client = new Client();
     }
 
@@ -80,7 +45,7 @@ class RapidClient
         foreach ($queryParameters as $key => $value) {
             $queryParams[$key] = $value;
         }
-        $url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+        $url = $this->credentials->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
         $headers = [
             'Authorization' => $this->generateAuthHeader(),
@@ -104,7 +69,7 @@ class RapidClient
         foreach ($queryParameters as $key => $value) {
             $queryParams[$key] = $value;
         }
-        $url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+        $url = $this->credentials->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
         $headers = [
             'Authorization' => $this->generateAuthHeader(),
@@ -130,7 +95,7 @@ class RapidClient
         foreach ($queryParameters as $key => $value) {
             $queryParams[$key] = $value;
         }
-        $url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+        $url = $this->credentials->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
         $headers = [
             'Authorization' => $this->generateAuthHeader(),
@@ -154,7 +119,7 @@ class RapidClient
         foreach ($queryParameters as $key => $value) {
             $queryParams[$key] = $value;
         }
-        $url = $this->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
+        $url = $this->credentials->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
 
         $headers = [
             'Authorization' => $this->generateAuthHeader(),
@@ -177,7 +142,7 @@ class RapidClient
         $http_build_query = http_build_query($queryParameters);
         $http_query = str_replace($arrayReplace, '', $http_build_query);
 
-        $url = $this->rapidBaseUrl . '/' . $path . '?' . $http_query;
+        $url = $this->credentials->rapidBaseUrl . '/' . $path . '?' . $http_query;
 
         $headers = [
             'Accept-Encoding' => self::GZIP,
@@ -199,9 +164,9 @@ class RapidClient
     private function generateAuthHeader(): string
     {
         $timeStampInSeconds = strval(time());
-        $input = $this->apiKey . $this->sharedSecret . $timeStampInSeconds;
+        $input = $this->credentials->apiKey  . $this->credentials->sharedSecret  . $timeStampInSeconds;
         $signature = hash('sha512', $input);
 
-        return sprintf(self::AUTHORIZATION_HEADER, $this->apiKey, $signature, $timeStampInSeconds);
+        return sprintf(self::AUTHORIZATION_HEADER, $this->credentials->apiKey , $signature, $timeStampInSeconds);
     }
 }

@@ -261,20 +261,19 @@ class HbsiHotelPricingDto
                 }
             }
             foreach ($cancellationPoliciesInput as $cancelPenalty) {
-                $absoluteDeadline = $cancelPenalty['Deadline']['@attributes']['AbsoluteDeadline'] ?? '';
-                $formattedDeadline = $absoluteDeadline ? date('Y-m-d', strtotime($absoluteDeadline)) : '';
-
-                $data = [
-                    'penalty_start_date' => $formattedDeadline,
-                    'description' => isset($cancelPenalty['@attributes']['PolicyCode'])
-                        ? self::POLICE_CODE[$cancelPenalty['@attributes']['PolicyCode']] ?? ''
-                        : '',
-                ];
+                $data = [];
+                if (isset($cancelPenalty['@attributes']['PolicyCode'])) {
+                    $data['description'] = self::POLICE_CODE[$cancelPenalty['@attributes']['PolicyCode']] ?? '';
+                }
+                if (isset($cancelPenalty['Deadline']['@attributes']['AbsoluteDeadline'])) {
+                    $absoluteDeadline = $cancelPenalty['Deadline']['@attributes']['AbsoluteDeadline'];
+                    $data['penalty_start_date'] = date('Y-m-d', strtotime($absoluteDeadline));
+                }
                 if (isset($cancelPenalty['AmountPercent']['@attributes']['Percent'])) {
                     $data['percentage'] = $cancelPenalty['AmountPercent']['@attributes']['Percent'];
                 }
                 if (isset($cancelPenalty['AmountPercent']['@attributes']['Amount'])) {
-                    $data['amount'] = $cancelPenalty['AmountPercent']['@attributes']['Percent'];
+                    $data['amount'] = $cancelPenalty['AmountPercent']['@attributes']['Amount'];
                 }
                 if (isset($cancelPenalty['AmountPercent']['@attributes']['CurrencyCode'])) {
                     $data['currency'] = $cancelPenalty['AmountPercent']['@attributes']['CurrencyCode'];
