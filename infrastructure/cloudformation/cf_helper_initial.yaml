@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Cloudformation template to create ujv resources
+Mappings:
+  EC2HelperAmi:
+    ap-northeast-1:
+      ami: ami-0d889f77081190db1
+    ap-northeast-2:
+      ami: ami-04599ab1182cd7961
+    ap-northeast-3:
+      ami: ami-01e0df0a0565a5805
+    ap-south-1:
+      ami: ami-0187337106779cdf8
+    ap-southeast-1:
+      ami: ami-0eb4694aa6f249c52
+    ap-southeast-2:
+      ami: ami-09ccb67fcbf1d625c
+    ca-central-1:
+      ami: ami-09ca61dde3dc883d0
+    eu-central-1:
+      ami: ami-0f318687928e8af0b
+    eu-north-1:
+      ami: ami-0208423bef18c17d1
+    eu-west-1:
+      ami: ami-013898da85dead62b
+    eu-west-2:
+      ami: ami-0f8f99aa5fa000138
+    eu-west-3:
+      ami: ami-0dfdff9941ebfbd48
+    sa-east-1:
+      ami: ami-01bd314e606621640
+    us-east-1:
+      ami: ami-07761f3ae34c4478d
+    us-east-2:
+      ami: ami-0c7f9161f8491665f
+    us-west-1:
+      ami: ami-02cc6142066a5587f
+    us-west-2:
+      ami: ami-0895022f3dac85884
+Parameters:
+  APPNAME:
+    Description: Name of the app, it is used to construct resources names
+    Type: String
+Resources:
+  EC2Helper:
+    DeletionPolicy: Delete
+    Properties:
+      IamInstanceProfile: !Ref 'HelperInstanceProfile'
+      ImageId: !FindInMap
+        - EC2HelperAmi
+        - !Ref 'AWS::Region'
+        - ami
+      InstanceType: t2.small
+      Tags:
+        - Key: Application
+          Value: !Ref 'AWS::StackName'
+        - Key: Name
+          Value: !Join
+            - '-'
+            - - !Ref 'APPNAME'
+              - helper
+      UserData: !Base64
+        Fn::Join:
+          - ''
+          - - "#! /bin/sh\n"
+            - "yum update -y\n"
+            - "amazon-linux-extras install docker\n"
+            - "service docker start\n"
+            - !Join
+              - ''
+              - - 'aws ecr get-login-password --region '
+                - !Ref 'AWS::Region'
+                - ' | docker login --username AWS --password-stdin '
+                - !Ref 'AWS::AccountId'
+                - .dkr.ecr.
+                - !Ref 'AWS::Region'
+                - ".amazonaws.com\n"
+            - "docker pull public.ecr.aws/aws-containers/hello-app-runner:latest\n"
+            - !Join
+              - ''
+              - - 'docker tag public.ecr.aws/aws-containers/hello-app-runner:latest '
+                - !GetAtt 'EcrApiRepo.RepositoryUri'
+                - ":latest\n"
+            - !Join
+              - ''
+              - - 'docker push '
+                - !GetAtt 'EcrApiRepo.RepositoryUri'
+                - ":latest\n"
+    Type: AWS::EC2::Instance
+  EC2HelperRole:
+    DeletionPolicy: Delete
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryFullAccess
+      RoleName: !Join
+        - '-'
+        - - !Ref 'APPNAME'
+          - ec2-helper-role
+    Type: AWS::IAM::Role
+  EcrApiRepo:
+    DeletionPolicy: Retain
+    Properties:
+      ImageScanningConfiguration:
+        ScanOnPush: false
+      ImageTagMutability: MUTABLE
+      RepositoryName: !Join
+        - '-'
+        - - !Ref 'APPNAME'
+          - api
+    Type: AWS::ECR::Repository
+    UpdateReplacePolicy: Retain
+  HelperInstanceProfile:
+    DeletionPolicy: Delete
+    Properties:
+      Roles:
+        - !Ref 'EC2HelperRole'
+    Type: AWS::IAM::InstanceProfile
+
