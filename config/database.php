@@ -46,7 +46,7 @@ return [
         'sqlite2' => [
             'driver' => 'sqlite',
             'url' => env('DATABASE_URL'),
-            'database' => env('SECOND_DB_DATABASE', database_path('database2.sqlite')),
+            'database' => env('SUPPLIER_CONTENT_DB_DATABASE', database_path('database2.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
@@ -73,11 +73,11 @@ return [
 
         'mysql2' => [
             'driver' => 'mysql',
-            'host' => env('SECOND_DB_HOST', '127.0.0.1'),
-            'port' => env('SECOND_DB_PORT', '3306'),
-            'database' => env('SECOND_DB_DATABASE', 'forge'),
-            'username' => env('SECOND_DB_USERNAME', 'forge'),
-            'password' => env('SECOND_DB_PASSWORD', ''),
+            'host' => env('SUPPLIER_CONTENT_DB_HOST', '127.0.0.1'),
+            'port' => env('SUPPLIER_CONTENT_DB_PORT', '3306'),
+            'database' => env('SUPPLIER_CONTENT_DB_DATABASE', 'forge'),
+            'username' => env('SUPPLIER_CONTENT_DB_USERNAME', 'forge'),
+            'password' => env('SUPPLIER_CONTENT_DB_PASSWORD', ''),
         ],
 
         'pgsql' => [

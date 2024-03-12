@@ -40,7 +40,7 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Invalid type'
+                'error' => 'Invalid type'
             ]);
     }
 
@@ -58,7 +58,7 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Invalid type'
+                'error' => 'Invalid type'
             ]);
     }
 
@@ -130,7 +130,7 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Invalid type'
+                'error' => 'Invalid type'
             ]);
     }
 
@@ -148,7 +148,7 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'message' => 'Invalid type'
+                'error' => 'Invalid type'
             ]);
     }
 

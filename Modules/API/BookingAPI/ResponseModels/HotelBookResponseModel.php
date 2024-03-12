@@ -4,66 +4,54 @@ namespace Modules\API\BookingAPI\ResponseModels;
 
 class HotelBookResponseModel
 {
-    /**
-     * @var string
-     */
     private string $status;
-    /**
-     * @var string
-     */
+
     private string $booking_id;
-    /**
-     * @var string
-     */
+
     private string $booking_item;
-    /**
-     * @var string
-     */
+
     private string $supplier;
-    /**
-     * @var string
-     */
+
     private string $hotel_name;
-    /**
-     * @var array
-     */
+
     private array $rooms;
-    /**
-     * @var string
-     */
-    private string $cancellation_terms;
-    /**
-     * @var string
-     */
+
+    private array $cancellation_terms;
+
     private string $rate;
-    /**
-     * @var float
-     */
+
     private float $total_price;
-    /**
-     * @var float
-     */
+
     private float $total_tax;
-    /**
-     * @var float
-     */
+
     private float $total_fees;
-    /**
-     * @var float
-     */
+
     private float $total_net;
-    /**
-     * @var float
-     */
+
     private float $affiliate_service_charge;
-    /**
-     * @var string
-     */
+
     private string $currency;
-    /**
-     * @var float
-     */
+
     private float $per_night_breakdown;
+
+    private array $confirmation_numbers_list = [];
+
+    /**
+     * @param array $confirmation_numbers_list
+     * @return void
+     */
+    public function setConfirmationNumbersList(array $confirmation_numbers_list): void
+    {
+        $this->confirmation_numbers_list = $confirmation_numbers_list;
+    }
+
+    /**
+     * @return array
+     */
+    public function getConfirmationNumbersList(): array
+    {
+        return $this->confirmation_numbers_list;
+    }
 
     /**
      * @param string $status
@@ -168,18 +156,18 @@ class HotelBookResponseModel
     }
 
     /**
-     * @param string $cancellation_terms
+     * @param array $cancellation_terms
      * @return void
      */
-    public function setCancellationTerms(string $cancellation_terms): void
+    public function setCancellationTerms(array $cancellation_terms): void
     {
         $this->cancellation_terms = $cancellation_terms;
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getCancellationTerms(): string
+    public function getCancellationTerms(): array
     {
         return $this->cancellation_terms;
     }
@@ -341,6 +329,7 @@ class HotelBookResponseModel
             'affiliate_service_charge' => $this->getAffiliateServiceCharge(),
             'currency' => $this->getCurrency(),
             'per_night_breakdown' => $this->getPerNightBreakdown(),
+            'confirmation_numbers_list' => $this->getConfirmationNumbersList(),
         ];
     }
 

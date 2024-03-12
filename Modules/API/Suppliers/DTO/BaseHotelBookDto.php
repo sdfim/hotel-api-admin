@@ -13,7 +13,7 @@ class BaseHotelBookDto
     /**
      * @throws Exception
      */
-    public function toHotelBookResponseModel(array $filters): array
+    public function toHotelBookResponseModel(array $filters, array $confirmationNumbers = []): array
     {
         $bookringItem = ApiBookingItem::where('booking_item', $filters['booking_item'])
             ->with('supplier')
@@ -36,10 +36,10 @@ class BaseHotelBookDto
         $hotelBookResponseModel->setHotelName($hotelName . ' (' . $booking_item_data['hotel_id'] . ')');
         $hotelBookResponseModel->setRooms([
             'room_name' => $booking_pricing_data['supplier_room_name'],
-            'meal_plan' => '',
+            'meal_plan' => $booking_pricing_data['meal_plan'],
         ]);
-        $hotelBookResponseModel->setCancellationTerms('');
-        $hotelBookResponseModel->setRate($booking_item_data['rate'] ?? '');
+        $hotelBookResponseModel->setCancellationTerms($booking_pricing_data['cancellation_policies']);
+        $hotelBookResponseModel->setRate($booking_item_data['rate_plan_code'] ?? '');
         $hotelBookResponseModel->setTotalPrice($booking_pricing_data['total_price']);
         $hotelBookResponseModel->setTotalTax($booking_pricing_data['total_tax']);
         $hotelBookResponseModel->setTotalFees($booking_pricing_data['total_fees']);
@@ -47,6 +47,8 @@ class BaseHotelBookDto
         $hotelBookResponseModel->setAffiliateServiceCharge($booking_pricing_data['affiliate_service_charge']);
         $hotelBookResponseModel->setCurrency($booking_pricing_data['currency']);
         $hotelBookResponseModel->setPerNightBreakdown(round(($booking_pricing_data['total_price'] / (int)$nights), 2));
+
+        $hotelBookResponseModel->setConfirmationNumbersList($confirmationNumbers);
 
         return $hotelBookResponseModel->toArray();
     }

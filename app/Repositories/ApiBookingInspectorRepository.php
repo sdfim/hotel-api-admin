@@ -211,7 +211,7 @@ class ApiBookingInspectorRepository
             ->where('type', 'book')
             ->where('sub_type', 'create')
             ->get()
-            ->pluck('booking_id')
+            ->pluck('booking_item')
             ->toArray();
 
         return ApiBookingInspector::where('booking_id', $booking_id)
@@ -221,7 +221,7 @@ class ApiBookingInspectorRepository
                     ->orWhere('sub_type', 'complete')
                     ->orWhere('sub_type', 'like', 'price_check' . '%');
             })
-            ->whereNotIn('booking_id', $itemsBooked)
+            ->whereNotIn('booking_item', $itemsBooked)
             ->get();
     }
 

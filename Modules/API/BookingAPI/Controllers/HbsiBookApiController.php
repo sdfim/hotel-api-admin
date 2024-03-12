@@ -23,6 +23,13 @@ use Modules\Enums\TypeRequestEnum;
 
 class HbsiBookApiController extends BaseBookApiController
 {
+    private const CONFIRMATION = [
+        '8'  => 'HBSI',
+        '10' => 'Synxis',
+        '14' => 'Own',
+        '3'  => 'UltimateJet',
+    ];
+
     public function __construct(
         private readonly HbsiClient       $hbsiClient = new HbsiClient(),
         private readonly HbsiHotelBookDto $hbsiHotelBookDto = new HbsiHotelBookDto(),
@@ -140,8 +147,6 @@ class HbsiBookApiController extends BaseBookApiController
             ];
         }
 
-        $clientResponse = [];
-        $dataResponseToSave = [];
         $error = true;
         try {
             $xmlPriceData = $this->hbsiClient->handleBook($filters);
@@ -156,21 +161,27 @@ class HbsiBookApiController extends BaseBookApiController
                 'main_guest' => $xmlPriceData['main_guest'],
             ];
             if (!isset($dataResponse['Errors'])) {
-                $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters);
+                $confirmationNumbers = $dataResponse['HotelReservations']['HotelReservation']['ResGlobalInfo']['HotelReservationIDs']['HotelReservationID'] ?? [];
+                $confirmationNumbers = array_map(function ($item) {
+                    return [
+                        'confirmation_number' => $item['@attributes']['ResID_Value'],
+                        'type' => self::CONFIRMATION[$item['@attributes']['ResID_Type']] ?? $item['@attributes']['ResID_Type'],
+                    ];
+                }, $confirmationNumbers);
+                $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters, $confirmationNumbers);
                 $error = false;
             } else {
-                $clientResponse = $dataResponse;
+                $clientResponse = $dataResponse['Errors'];
                 $clientResponse['booking_item'] = $filters['booking_item'];
                 $clientResponse['supplier'] = SupplierNameEnum::HBSI->value;
             }
 
         } catch (RequestException $e) {
             Log::error('HbsiBookApiController | book | RequestException ' . $e->getResponse()->getBody());
-            $dataResponse = json_decode('' . $e->getResponse()->getBody());
-            return (array)$dataResponse;
-        } catch (Exception $e) {
+            return ['error' => $e->getResponse()->getBody()];
+        } catch (\Exception $e) {
             Log::error('HbsiBookApiController | book | Exception ' . $e->getMessage());
-            $dataResponse = json_decode('' . $e->getMessage());
+            return ['error' => $e->getMessage()];
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
@@ -204,6 +215,7 @@ class HbsiBookApiController extends BaseBookApiController
      * @param array $filters
      * @param ApiBookingInspector $bookingInspector
      * @return array|null
+     * @throws GuzzleException
      */
     public function retrieveBooking(array $filters, ApiBookingInspector $bookingInspector): array|null
     {
@@ -224,7 +236,7 @@ class HbsiBookApiController extends BaseBookApiController
         ];
 
         if (isset($rdataResponse['Errors'])) {
-            $clientDataResponse = $dataResponse;
+            $clientDataResponse = $dataResponse['Errors'];
         } else {
             $clientDataResponse = HbsiHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse);
         }
@@ -246,6 +258,7 @@ class HbsiBookApiController extends BaseBookApiController
      * @param array $filters
      * @param ApiBookingInspector $bookingInspector
      * @return array|null
+     * @throws GuzzleException
      */
     public function cancelBooking(array $filters, ApiBookingInspector $bookingInspector): array|null
     {
@@ -264,7 +277,7 @@ class HbsiBookApiController extends BaseBookApiController
             ];
 
             if (isset($dataResponse['Errors'])) {
-                $res = $dataResponse;
+                $res = $dataResponse['Errors'];
                 $error = true;
             } else {
                 $res = [
@@ -337,7 +350,7 @@ class HbsiBookApiController extends BaseBookApiController
             if (!isset($dataResponse['Errors'])) {
                 $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters);
             } else {
-                $clientResponse = $dataResponse;
+                $clientResponse = $dataResponse['Errors'];
                 $clientResponse['booking_item'] = $filters['booking_item'];
                 $clientResponse['supplier'] = SupplierNameEnum::HBSI->value;
             }

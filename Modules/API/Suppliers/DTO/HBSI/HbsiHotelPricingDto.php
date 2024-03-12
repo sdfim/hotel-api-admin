@@ -34,13 +34,31 @@ class HbsiHotelPricingDto
 
     private float $total_time;
 
+    private string $checkin;
+
+    private array $meal_plans_available;
+
+    private const POLICE_CODE = [
+        'CXP' => 'General Cancellation Policy',
+        'CKP' => 'Early check-out penalty.',
+        'CFC' => 'Criteria for cancelling the reservation free of charge.',
+        'CNS' => 'Penalty for no show.'
+    ];
+
+    private const MEAL_PLAN = [
+        'AI' => 'All Inclusive',
+        'RO' => 'Room Only',
+        'BB' => 'Bed & Breakfast',
+        'BF' => 'Breakfast',
+        'NoM' => 'No Meal',
+    ];
+
     /**
      * @param array $bookingItems
      * @param GiataGeographyRepository $geographyRepo
      */
     public function __construct(
         private array $bookingItems = [],
-//        private readonly PricingRulesTools $pricingRulesService = new PricingRulesTools(),
         private readonly GiataGeographyRepository $geographyRepo = new GiataGeographyRepository()
     )
     {
@@ -60,6 +78,8 @@ class HbsiHotelPricingDto
         $this->search_id = $search_id;
         $this->bookingItems = [];
         $this->rate_type = count($query['occupancy']) === 1 ? self::COMPLETE_TYPE_ITEM : self::SINGLE_TYPE_ITEM;
+        $this->checkin = $query['checkin'];
+        $this->meal_plans_available = [];
 
         $pricingRules = array_column($pricingRules, null, 'property');
 
@@ -92,12 +112,10 @@ class HbsiHotelPricingDto
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
         $hotelResponse->setDestination($this->destinationData->full_location ?? '');
-        $hotelResponse->setMealPlansAvailable($propertyGroup['meal_plans_available'] ?? '');
+
         $hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
         $hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
-//        $countRefundableRates = $this->fetchCountRefundableRates($propertyGroup);
-        $hotelResponse->setNonRefundableRates($countRefundableRates['non_refundable_rates'] ?? '');
-        $hotelResponse->setRefundableRates($countRefundableRates['refundable_rates'] ?? '');
+
         $roomGroups = [];
         $lowestPrice = 100000;
 
@@ -109,6 +127,12 @@ class HbsiHotelPricingDto
                 $lowestPrice = $lowestPricedRoom;
             }
         }
+
+        $countRefundableRates = $this->fetchCountRefundableRates($roomGroupsData['roomGroupsResponse']);
+        $hotelResponse->setNonRefundableRates($countRefundableRates['non_refundable_rates'] ?? '');
+        $hotelResponse->setRefundableRates($countRefundableRates['refundable_rates'] ?? '');
+
+        $hotelResponse->setMealPlansAvailable(implode(', ', $this->meal_plans_available));
 
         $hotelResponse->setRoomGroups($roomGroups);
         $hotelResponse->setLowestPricedRoomGroup($lowestPrice != 100000 ? $lowestPrice : '');
@@ -124,13 +148,11 @@ class HbsiHotelPricingDto
     {
         $refundableRates = [];
         $nonRefundableRates = [];
-        foreach ($propertyGroup['rooms'] as $roomGroup) {
-            foreach ($roomGroup['rates'] as $rate) {
-                if ($rate['refundable']) {
-                    $refundableRates[] = $rate['id'];
-                } else {
-                    $nonRefundableRates[] = $rate['id'];
-                }
+        foreach ($propertyGroup['rooms'] as $rate) {
+            if ($rate['non_refundable']) {
+                $nonRefundableRates[] = $rate['rate_id'];
+            } else {
+                $refundableRates[] = $rate['rate_id'];
             }
         }
 
@@ -150,7 +172,7 @@ class HbsiHotelPricingDto
         $roomGroupsResponse = new RoomGroupsResponse();
         $roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
         $roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');
-        $roomGroupsResponse->setMealPlan($roomGroup['MealPlanCodes'] ?? '');
+
         $roomGroupsResponse->setRateDescription($roomGroup['RoomRateDescription'] ?? '');
         $roomGroupsResponse->setOpaque($roomGroup['opaque'] ?? '');
 
@@ -184,12 +206,10 @@ class HbsiHotelPricingDto
         $roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom]['total_net'] ?? 0.0);
         $roomGroupsResponse->setAffiliateServiceCharge($priceRoomData[$keyLowestPricedRoom]['affiliate_service_charge'] ?? 0.0);
 
-        $roomGroupsResponse->setNonRefundable($roomGroup['CancelPenalties']['CancelPenalty']['@attributes']['NonRefundable'] ?? false);
-        $roomGroupsResponse->setRateId($roomGroup['rate_ordinal'] ?? 0);
-        $roomGroupsResponse->setCancellationPolicies([
-            'Deadline' => $roomGroup['CancelPenalties']['CancelPenalty']['Deadline']['@attributes']['AbsoluteDeadline'] ?? '',
-            'AmountPercent' => $roomGroup['CancelPenalties']['CancelPenalty']['AmountPercent']['@attributes']['Percent'] ?? '',
-        ]);
+        $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom]['non_refundable'] ?? false);
+        $roomGroupsResponse->setRateId($rooms[$keyLowestPricedRoom]['rate_id'] ?? 0);
+        $roomGroupsResponse->setCancellationPolicies($rooms[$keyLowestPricedRoom]['cancellation_policies'] ?? []);
+        $roomGroupsResponse->setMealPlan($rooms[$keyLowestPricedRoom]['meal_plan'] ?? '');
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
@@ -228,6 +248,45 @@ class HbsiHotelPricingDto
 
         $roomType = $rate['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '';
 
+        $cancellationPolicies = [];
+        $cancellationPoliciesInput = [];
+        $nonRefundable = false;
+        if (isset($rate['CancelPenalties'])) {
+            if (isset($rate['CancelPenalties']['CancelPenalty']['@attributes'])) {
+                $cancellationPoliciesInput[] = $rate['CancelPenalties']['CancelPenalty'];
+            }
+            else {
+                foreach ($rate['CancelPenalties']['CancelPenalty'] as $item) {
+                    $cancellationPoliciesInput[] = $item;
+                }
+            }
+            foreach ($cancellationPoliciesInput as $cancelPenalty) {
+                $data = [];
+                if (isset($cancelPenalty['@attributes']['PolicyCode'])) {
+                    $data['description'] = self::POLICE_CODE[$cancelPenalty['@attributes']['PolicyCode']] ?? '';
+                }
+                if (isset($cancelPenalty['Deadline']['@attributes']['AbsoluteDeadline'])) {
+                    $absoluteDeadline = $cancelPenalty['Deadline']['@attributes']['AbsoluteDeadline'];
+                    $data['penalty_start_date'] = date('Y-m-d', strtotime($absoluteDeadline));
+                }
+                if (isset($cancelPenalty['AmountPercent']['@attributes']['Percent'])) {
+                    $data['percentage'] = $cancelPenalty['AmountPercent']['@attributes']['Percent'];
+                }
+                if (isset($cancelPenalty['AmountPercent']['@attributes']['Amount'])) {
+                    $data['amount'] = $cancelPenalty['AmountPercent']['@attributes']['Amount'];
+                }
+                if (isset($cancelPenalty['AmountPercent']['@attributes']['CurrencyCode'])) {
+                    $data['currency'] = $cancelPenalty['AmountPercent']['@attributes']['CurrencyCode'];
+                }
+                if (isset($cancelPenalty['AmountPercent']['NmbrOfNights'])) {
+                    $data['nights'] = $cancelPenalty['AmountPercent']['NmbrOfNights'];
+                }
+
+                $cancellationPolicies[] = $data;
+                $nonRefundable = $cancelPenalty['@attributes']['NonRefundable'] ?? 'false';
+            }
+        }
+
         $roomResponse = new RoomResponse();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
@@ -236,7 +295,7 @@ class HbsiHotelPricingDto
         $roomResponse->setSupplierRoomCode($rateOccupancy);
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
         $roomResponse->setRoomType($roomType);
-        $roomResponse->setRateDescription($rate['RoomRates']['RoomRate']['RoomRateDescription']['Text'] ?? '');
+        $roomResponse->setRateDescription($rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name']  ?? '');
         $roomResponse->setRateId($rateOrdinal);
         $roomResponse->setRatePlanCode($rate['RatePlans']['RatePlan']['@attributes']['RatePlanCode'] ?? '');
         $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
@@ -245,6 +304,15 @@ class HbsiHotelPricingDto
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
         $roomResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge']);
         $roomResponse->setCurrency($this->currency ?? 'USD');
+        $roomResponse->setCancellationPolicies($cancellationPolicies);
+        $roomResponse->setNonRefundable($nonRefundable);
+        $mealPlanCode = $rate['RatePlans']['RatePlan']['MealsIncluded']['@attributes']['MealPlanCodes'] ?? '';
+        $mealPlanName = self::MEAL_PLAN[$mealPlanCode] ?? '';
+        $roomResponse->setMealPlans($mealPlanName);
+
+        if (!in_array($mealPlanName, $this->meal_plans_available)) {
+            $this->meal_plans_available[] = $mealPlanName;
+        }
 
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);

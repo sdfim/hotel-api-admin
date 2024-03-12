@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        $connection = env('DB_CONNECTION_2', 'mysql2');
+        $connection = env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2');
 
         if (!Schema::connection($connection)->hasTable('mapper_expedia_giatas')) {
             Schema::connection($connection)->create('mapper_expedia_giatas', function (Blueprint $table) use ($connection) {
@@ -31,6 +31,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->dropIfExists('mapper_expedia_giatas');
+        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->dropIfExists('mapper_expedia_giatas');
     }
 };

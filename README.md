@@ -326,19 +326,19 @@ DB_DATABASE=ujv_test
 DB_USERNAME=admin
 DB_PASSWORD=mysqlsecretpasswd
 
-DB_CONNECTION_2=mysql2
-SECOND_DB_HOST=ujv-rds-db.************.us-east-1.rds.amazonaws.com
-SECOND_DB_PORT=3306
-SECOND_DB_DATABASE=ujv_api
-SECOND_DB_USERNAME=admin
-SECOND_DB_PASSWORD=rds-password
+SUPPLIER_CONTENT_DB_CONNECTION=mysql2
+SUPPLIER_CONTENT_DB_HOST=ujv-rds-db.************.us-east-1.rds.amazonaws.com
+SUPPLIER_CONTENT_DB_PORT=3306
+SUPPLIER_CONTENT_DB_DATABASE=ujv_api
+SUPPLIER_CONTENT_DB_USERNAME=admin
+SUPPLIER_CONTENT_DB_PASSWORD=rds-password
 
-#DB_CONNECTION_2=mysql2
-#SECOND_DB_HOST=host.docker.internal
-#SECOND_DB_PORT=3306
-#SECOND_DB_DATABASE=ujv_aws_test
-#SECOND_DB_USERNAME=admin
-#SECOND_DB_PASSWORD=mysqlsecretpasswd
+#SUPPLIER_CONTENT_DB_CONNECTION=mysql2
+#SUPPLIER_CONTENT_DB_HOST=host.docker.internal
+#SUPPLIER_CONTENT_DB_PORT=3306
+#SUPPLIER_CONTENT_DB_DATABASE=ujv_aws_test
+#SUPPLIER_CONTENT_DB_USERNAME=admin
+#SUPPLIER_CONTENT_DB_PASSWORD=mysqlsecretpasswd
 ```
 
 The provided sample should be utilized when running tests with a local copy of the `RDS` 
@@ -352,17 +352,17 @@ DB_DATABASE=ujv_test
 DB_USERNAME=admin
 DB_PASSWORD=mysqlsecretpasswd
 
-#DB_CONNECTION_2=mysql2
-#SECOND_DB_HOST=ujv-rds-db.************.us-east-1.rds.amazonaws.com
-#SECOND_DB_PORT=3306
-#SECOND_DB_DATABASE=ujv_api
-#SECOND_DB_USERNAME=admin
-#SECOND_DB_PASSWORD=rds-password
+#SUPPLIER_CONTENT_DB_CONNECTION=mysql2
+#SUPPLIER_CONTENT_DB_HOST=ujv-rds-db.************.us-east-1.rds.amazonaws.com
+#SUPPLIER_CONTENT_DB_PORT=3306
+#SUPPLIER_CONTENT_DB_DATABASE=ujv_api
+#SUPPLIER_CONTENT_DB_USERNAME=admin
+#SUPPLIER_CONTENT_DB_PASSWORD=rds-password
 
-DB_CONNECTION_2=mysql2
-SECOND_DB_HOST=host.docker.internal
-SECOND_DB_PORT=3306
-SECOND_DB_DATABASE=ujv_aws_test
-SECOND_DB_USERNAME=admin
-SECOND_DB_PASSWORD=mysqlsecretpasswd
+SUPPLIER_CONTENT_DB_CONNECTION=mysql2
+SUPPLIER_CONTENT_DB_HOST=host.docker.internal
+SUPPLIER_CONTENT_DB_PORT=3306
+SUPPLIER_CONTENT_DB_DATABASE=ujv_aws_test
+SUPPLIER_CONTENT_DB_USERNAME=admin
+SUPPLIER_CONTENT_DB_PASSWORD=mysqlsecretpasswd
 ```

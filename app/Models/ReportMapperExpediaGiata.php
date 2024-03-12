@@ -20,7 +20,7 @@ class ReportMapperExpediaGiata extends Model
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->connection = env(('DB_CONNECTION_2'), 'mysql2');
-        $this->table = env(('SECOND_DB_DATABASE'), 'ujv_api') . '.' . 'report_mapper_expedia_giata';
+        $this->connection = env(('SUPPLIER_CONTENT_DB_CONNECTION'), 'mysql2');
+        $this->table = env(('SUPPLIER_CONTENT_DB_DATABASE'), 'ujv_api') . '.' . 'report_mapper_expedia_giata';
     }
 }

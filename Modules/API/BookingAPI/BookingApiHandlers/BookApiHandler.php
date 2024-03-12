@@ -110,22 +110,22 @@ class BookApiHandler extends BaseController
     public function book(BookingBookRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
-        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         $filters = $request->all();
 
         $items = BookRepository::notBookedItems($request->booking_id);
 
         if (!$items->count()) {
-            return $this->sendError(['error' => 'No items to book OR the order cart (booking_id) is complete/booked'], 'failed');
+            return $this->sendError('No items to book OR the order cart (booking_id) is complete/booked', 'failed');
         }
 
         if (isset($request->special_requests)) {
             $arrItems = $items->pluck('booking_item')->toArray();
             foreach ($request->special_requests as $item) {
                 if (!in_array($item['booking_item'], $arrItems)) {
-                    return $this->sendError(['error' => 'special_requests must be in valid booking_item. ' .
-                        'Valid booking_items: ' . implode(',', $arrItems)], 'failed');
+                    return $this->sendError('special_requests must be in valid booking_item. ' .
+                        'Valid booking_items: ' . implode(',', $arrItems), 'failed');
                 }
             }
         }
@@ -233,10 +233,10 @@ class BookApiHandler extends BaseController
     public function changeBooking(BookingChangeBookHotelRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
-        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         if (!BookRepository::isBook($request->booking_id, $request->booking_item)) {
-            return $this->sendError(['error' => 'booking_id and/or booking_item not yet booked'], 'failed');
+            return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
         }
         $filters = $request->all();
 
@@ -251,7 +251,7 @@ class BookApiHandler extends BaseController
             };
         } catch (Exception $e) {
             Log::error('BookApiHandler | changeItems ' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
+            return $this->sendError($e->getMessage(), 'failed');
         }
 
         if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
@@ -320,7 +320,7 @@ class BookApiHandler extends BaseController
     public function listBookings(ListBookingsRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
-        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         try {
             $data = match (SupplierNameEnum::from($request->supplier)) {
@@ -330,7 +330,7 @@ class BookApiHandler extends BaseController
             };
         } catch (Exception $e) {
             Log::error('HotelBookingApiHanlder | listBookings ' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
+            return $this->sendError($e->getMessage(), 'failed');
         }
 
         return $this->sendResponse(['count' => count($data), 'result' => $data], 'success');
@@ -393,7 +393,7 @@ class BookApiHandler extends BaseController
     public function retrieveBooking(Request $request): JsonResponse
     {
         $determinant = $this->determinant($request);
-        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         $filters = $request->all();
         $validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
@@ -424,7 +424,7 @@ class BookApiHandler extends BaseController
             }
         }
         if (empty($data)) {
-            return $this->sendError(['error' => 'booking_id not yet booked'], 'failed');
+            return $this->sendError('booking_id not yet booked', 'failed');
         }
 
         return $this->sendResponse(['result' => $data], 'success');
@@ -492,7 +492,7 @@ class BookApiHandler extends BaseController
     public function cancelBooking(Request $request): JsonResponse
     {
         $determinant = $this->determinant($request);
-        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         $validate = Validator::make($request->all(), [
             'booking_id' => 'required|size:36',
@@ -533,7 +533,7 @@ class BookApiHandler extends BaseController
             }
         }
         if (empty($data)) {
-            return $this->sendError(['error' => 'booking_id not yet booked'], 'failed');
+            return $this->sendError('booking_id not yet booked', 'failed');
         }
 
         return $this->sendResponse(['result' => $data], 'success');
@@ -596,7 +596,7 @@ class BookApiHandler extends BaseController
     public function retrieveItems(Request $request): JsonResponse
     {
         $determinant = $this->determinant($request);
-        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         $validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
         if ($validate->fails()) return $this->sendError($validate->errors());
@@ -617,12 +617,12 @@ class BookApiHandler extends BaseController
                 };
             }
             if (empty($res)) {
-                return $this->sendError(['error' => 'Cart is empty or booked'], 'failed');
+                return $this->sendError('Cart is empty or booked', 'failed');
             }
 
         } catch (Exception $e) {
             Log::error('HotelBookingApiHandler | retrieveItems ' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
+            return $this->sendError($e->getMessage(), 'failed');
         }
 
         return $this->sendResponse(['result' => $res], 'success');
@@ -693,7 +693,7 @@ class BookApiHandler extends BaseController
     public function addPassengers(AddPassengersRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
-        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
+        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         $filters = $request->all();
         $filtersOutput = $this->dtoAddPassengers($filters);
@@ -705,7 +705,7 @@ class BookApiHandler extends BaseController
         $bookingRequestItems = array_keys($filtersOutput);
         foreach ($bookingRequestItems as $requestItem) {
             if (!in_array($requestItem, $itemsInCart->pluck('booking_item')->toArray()))
-                return $this->sendError(['error' => 'This booking_item is not in the cart.'], 'failed');
+                return $this->sendError('This booking_item is not in the cart.', 'failed');
         }
 
         try {
@@ -713,7 +713,7 @@ class BookApiHandler extends BaseController
             foreach ($bookingRequestItems as $booking_item) {
 
                 if (BookRepository::isBook($request->booking_id, $booking_item)) {
-                    return $this->sendError(['error' => 'Cart is empty or booked'], 'failed');
+                    return $this->sendError('Cart is empty or booked', 'failed');
                 }
                 $supplierId = ApiBookingItem::where('booking_item', $booking_item)->first()->supplier_id;
                 $supplier = Supplier::where('id', $supplierId)->first()->name;
@@ -729,7 +729,7 @@ class BookApiHandler extends BaseController
             }
         } catch (Exception $e) {
             Log::error('HotelBookingApiHandler | addPassengers ' . $e->getMessage());
-            return $this->sendError(['error' => $e->getMessage()], 'failed');
+            return $this->sendError($e->getMessage(), 'failed');
         }
 
         return $this->sendResponse(['result' => $res], 'success');

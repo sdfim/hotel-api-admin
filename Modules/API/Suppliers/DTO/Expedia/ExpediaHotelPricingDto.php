@@ -200,6 +200,34 @@ class ExpediaHotelPricingDto
             }
         }
 
+        // https://developers.expediagroup.com/docs/products/rapid/resources/reference/constructing-cancellation-policies
+        $cancellationPolicies = [];
+        if (isset($roomGroup['rates'][$keyLowestPricedRoom]['cancel_penalties'])) {
+            $cancelPenalty = $roomGroup['rates'][$keyLowestPricedRoom]['cancel_penalties'];
+            foreach ($cancelPenalty as $key => $penalty) {
+                $data = [];
+                if (isset($penalty['start'])) {
+                    $data['penalty_start_date'] = $penalty['start'];
+                }
+                if (isset($penalty['end'])) {
+                    $data['penalty_end_date'] = $penalty['end'];
+                }
+                if (isset($penalty['percent'])) {
+                    $data['percentage'] = $penalty['percent'];
+                }
+                if (isset($penalty['amount'])) {
+                    $data['amount'] = $penalty['amount'];
+                }
+                if (isset($penalty['nights'])) {
+                    $data['nights'] = $penalty['nights'];
+                }
+                if (isset($penalty['currency'])) {
+                    $data['currency'] = $penalty['AmountPercent']['@attributes']['CurrencyCode'];
+                }
+                $cancellationPolicies[] = $data;
+            }
+        }
+
         // return lowest priced room data
         $roomGroupsResponse->setTotalPrice($priceRoomData[$keyLowestPricedRoom]['total_price'] ?? 0.0);
         $roomGroupsResponse->setTotalTax($priceRoomData[$keyLowestPricedRoom]['total_tax'] ?? 0.0);
@@ -209,7 +237,7 @@ class ExpediaHotelPricingDto
 
         $roomGroupsResponse->setNonRefundable(!$roomGroup['rates'][$keyLowestPricedRoom]['refundable']);
         $roomGroupsResponse->setRateId(intval($roomGroup['rates'][$keyLowestPricedRoom]['id']) ?? null);
-        $roomGroupsResponse->setCancellationPolicies($roomGroup['rates'][$keyLowestPricedRoom]['cancel_penalties'] ?? []);
+        $roomGroupsResponse->setCancellationPolicies($cancellationPolicies);
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }

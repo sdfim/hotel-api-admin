@@ -10,8 +10,8 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        if (!Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->hasTable('ice_hbsi_properties')) {
-            Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->create('ice_hbsi_properties', function (Blueprint $table) {
+        if (!Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->hasTable('ice_hbsi_properties')) {
+            Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->create('ice_hbsi_properties', function (Blueprint $table) {
                 $table->integer('code')->index()->unique();
                 $table->integer('supplier_id');
                 $table->string('name')->default('')->index();
@@ -38,6 +38,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::connection(env('DB_CONNECTION_2', 'mysql2'))->dropIfExists('ice_hbsi_properties');
+        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->dropIfExists('ice_hbsi_properties');
     }
 };

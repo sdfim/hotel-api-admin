@@ -490,13 +490,11 @@ class HbsiClient
                 }
             }
         }
-//        $roomStaysArr = $response['results']['HBSI'][$bookingItemData['hotel_supplier_id']]['rooms'][$bookingItemData['room_id']]['rates'][$bookingItemData['rate_ordinal'] - 1];
 
-        if (isset($roomStaysArr['RoomRates']['RoomRate']['Rates']['Rate'])
-            && count($roomStaysArr['RoomRates']['RoomRate']['Rates']) > 1) {
-            $Rates = $roomStaysArr['RoomRates']['RoomRate']['Rates']['Rate'];
+        if (!isset($roomStaysArr['RoomRates']['RoomRate']['Rates']['Rate']['@attributes'])) {
+            $newRates = $roomStaysArr['RoomRates']['RoomRate']['Rates']['Rate'];
             unset($roomStaysArr['RoomRates']['RoomRate']['Rates']);
-            $roomStaysArr['RoomRates']['RoomRate']['Rates'] = $Rates;
+            $roomStaysArr['RoomRates']['RoomRate']['Rates'] = $newRates;
         }
         unset($roomStaysArr['rate_ordinal'], $roomStaysArr['RoomRates']['RoomRate']['RoomRateDescription'], $roomStaysArr['RoomRates']['CancelPenalties']);
         if (isset($filters['special_requests'])) {

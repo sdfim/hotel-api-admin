@@ -28,6 +28,9 @@
 	$tooltipCol2 = '</div><div>';
 	$addDiv = true;
 	foreach ($orderedArray as $key => $value) {
+        if (is_array($value)) {
+            $value = implode(', ', Illuminate\Support\Arr::dot($value));
+        }
 		if (in_array($key, $orderTooltip)) {
 			$tooltipCol1 .= '<span style="word-wrap: break-word">' . $key . ': <b>' . $value . '</b></span><br>';
 		} else {

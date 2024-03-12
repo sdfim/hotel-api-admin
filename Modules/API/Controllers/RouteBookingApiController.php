@@ -43,10 +43,10 @@ class RouteBookingApiController extends Controller
     public function handle(Request $request): mixed
     {
         $determinant = $this->determinant($request);
-        if (!empty($determinant)) return response()->json(['message' => $determinant['error']], 400);
-        if (!$this->isTypeValid($this->type)) return response()->json(['message' => 'Invalid type'], 400);
-        if (!$this->isRouteValid($this->route)) return response()->json(['message' => 'Invalid route'], 400);
-        if (is_null($this->supplier)) return response()->json(['message' => 'Invalid supplier'], 400);
+        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
+        if (!$this->isTypeValid($this->type)) return response()->json(['error' => 'Invalid type'], 400);
+        if (!$this->isRouteValid($this->route)) return response()->json(['error' => 'Invalid route'], 400);
+        if (is_null($this->supplier)) return response()->json(['error' => 'Invalid supplier'], 400);
 
         $dataHandler = match (TypeRequestEnum::from($this->type)) {
             TypeRequestEnum::HOTEL => new HotelBookingApiHandler(),
@@ -57,7 +57,7 @@ class RouteBookingApiController extends Controller
         return match ($this->route) {
             'addItem' => $dataHandler->addItem($this->addItemRequest($this->type), $this->supplier),
             'removeItem' => $dataHandler->removeItem($this->removeItemRequest($this->type), $this->supplier),
-            default => response()->json(['message' => 'Invalid route'], 400),
+            default => response()->json(['error' => 'Invalid route'], 400),
         };
     }
 

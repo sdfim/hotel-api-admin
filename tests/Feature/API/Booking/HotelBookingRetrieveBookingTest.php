@@ -126,7 +126,7 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
 
         $retrieveBookingResponse->assertStatus(400)
             ->assertJson([
-                'message' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id'
             ]);
     }
 
@@ -143,7 +143,7 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
 
         $retrieveBookingResponse->assertStatus(400)
             ->assertJson([
-                'message' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id'
             ]);
     }
 
@@ -160,7 +160,7 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
 
         $retrieveBookingResponse->assertStatus(400)
             ->assertJson([
-                'message' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id'
             ]);
     }
 }

@@ -163,8 +163,12 @@ class ExpediaBookApiController extends BaseBookApiController
 
         try {
             $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
-            $dataResponse = json_decode($response->getBody()->getContents());
-            $clientResponse = $dataResponse ? $this->expediaBookDto->toHotelBookResponseModel($filters) : [];
+            $dataResponse = json_decode($response->getBody()->getContents(), true);
+            $confirmationNumbers = [
+                'confirmation_number' => $dataResponse['itinerary_id'] ?? '',
+                'type' => SupplierNameEnum::EXPEDIA->value,
+            ];
+            $clientResponse = $dataResponse ? $this->expediaBookDto->toHotelBookResponseModel($filters, $confirmationNumbers) : [];
         } catch (RequestException $e) {
             Log::error('ExpediaBookApiHandler | book | retrieve ' . $e->getResponse()->getBody());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
@@ -177,7 +181,7 @@ class ExpediaBookApiController extends BaseBookApiController
 
         $viewSupplierData = $filters['supplier_data'] ?? false;
         if ($viewSupplierData) {
-            $res = (array)$dataResponse;
+            $res = $dataResponse;
         } else {
             $res = $clientResponse + $this->tailBookResponse($booking_id, $filters['booking_item']);
         }

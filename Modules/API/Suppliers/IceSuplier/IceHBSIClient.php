@@ -40,10 +40,11 @@ class IceHBSIClient
      */
     public function __construct()
     {
-        $this->clientId = 'cassawave.api';
-        $this->clientSecret = 'ydysxstyeztedxtrOiyqijOM';
-        $this->baseUrl = 'https://api.iceportal.com';
-        $this->tokenUrl = 'https://auth.iceportal.com/connect/token';
+        $namespace = "booking-suppliers.IcePortal.credentials";
+        $this->clientId = config("$namespace.client_id");
+        $this->clientSecret = config("$namespace.client_secret");
+        $this->baseUrl = config("$namespace.base_url");
+        $this->tokenUrl = config("$namespace.token_url");
         $this->token = $this->getToken();
     }
 
