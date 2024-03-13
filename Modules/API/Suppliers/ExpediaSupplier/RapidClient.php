@@ -24,6 +24,8 @@ class RapidClient
      */
     private Credentials $credentials;
 
+    private const AUTHORIZATION_HEADER = "EAN APIKey=%s,Signature=%s,timestamp=%s";
+
     /**
      *
      */
