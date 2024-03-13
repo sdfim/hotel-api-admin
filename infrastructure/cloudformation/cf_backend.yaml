@@ -77,6 +77,18 @@ Parameters:
     Default: 'obe'
     Description: Name of the app, it is used to construct resources names
     Type: String
+  AppUrlPricingApi:
+    Default: 'https://book.engine.travelagentadmin.net'
+    Description: URL for the Booking/Pricing API
+    Type: String
+  AppUrlContentApi:
+    Default: 'https://content.engine.travelagentadmin.net'
+    Description: URL for the Content API
+    Type: String
+  AppUrlAdminPanel:
+    Default: 'https://admin-panel.engine.travelagentadmin.net'
+    Description: URL for the Admin Panel
+    Type: String
   BookingSupplierExpediaApiKey:
     Description: Expedia Api Key
     Type: String
@@ -246,6 +258,8 @@ Resources:
           ImageConfiguration:
             Port: '80'
             RuntimeEnvironmentVariables:
+              - Name: APP_URL
+                Value: !Ref 'AppUrlAdminPanel'
               - Name: AWS_BUCKET
                 Value: !Ref 'S3StorageBucket'
               - Name: BOOKING_SUPPLIER_HBSI_USERNAME
@@ -372,6 +386,8 @@ Resources:
           ImageConfiguration:
             Port: '80'
             RuntimeEnvironmentVariables:
+              - Name: APP_URL
+                Value: !Ref 'AppUrlContentApi'
               - Name: AWS_BUCKET
                 Value: !Ref 'S3StorageBucket'
               - Name: BOOKING_SUPPLIER_HBSI_USERNAME
@@ -553,6 +569,8 @@ Resources:
           ImageConfiguration:
             Port: '80'
             RuntimeEnvironmentVariables:
+              - Name: APP_URL
+                Value: !Ref 'AppUrlPricingApi'
               - Name: AWS_BUCKET
                 Value: !Ref 'S3StorageBucket'
               - Name: BOOKING_SUPPLIER_HBSI_USERNAME
