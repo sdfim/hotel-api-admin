@@ -74,15 +74,46 @@ Outputs:
     Value: !Ref 'S3CodePipelineBucket'
 Parameters:
   APPNAME:
+    Default: 'obe'
     Description: Name of the app, it is used to construct resources names
     Type: String
+  BookingSupplierExpediaApiKey:
+    Description: Expedia Api Key
+    Type: String
+  BookingSupplierExpediaSharedSecret:
+    Description: Expedia Api Key
+    Type: String
+  BookingSupplierExpediaBaseUrl:
+    Description: Expedia Endpoint
+    Type: String
+  BookingSupplierHbsiUsername:
+      Description: HBSI Username
+      Type: String
+  BookingSupplierHbsiPassword:
+    Description: HBSI Username
+    Type: String
+  BookingSupplierHbsiChannelIdentifierId:
+    Description: HBSI Channel ID
+    Type: String
+  BookingSupplierIcePortalClientId:
+    Description: Ice Portal Client ID
+    Type: String
+  BookingSupplierIcePortalClientSecret:
+    Description: Ice Portal Client Secret
+    Type: String
+  BookingSupplierIcePortalBaseUrl:
+    Description: Ice Portal Endpoint
+    Type: String
+  BookingSupplierIcePortalTokenUrl:
+    Description: Ice Portal Token Url
+    Type: String
   DbDatabase:
-    Default: ujv
+    Default: booking_engine
     Description: Mysql database name (DB_DATABASE)
     Type: String
-  DbDatabaseSecond:
-    Default: ujv_api
-    Description: Second mysql database name (SECOND_DB_DATABASE)
+  DbSupplierContentDatabase:
+    Default: booking_engine_supplier_content
+    Description: Second mysql database name (SUPPLIER_CONTENT_DB_DATABASE)
     Type: String
   DockerHubPassword:
     Description: DockerHub password for pulling base images
@@ -98,9 +129,11 @@ Parameters:
     Description: ARN of the connection to GitHub (https://docs.aws.amazon.com/dtconsole/latest/userguide/connections-create-github.html)
     Type: String
   GitHubBackendBranch:
+    Default: 'master'
     Description: Backend (api) branch name that will trigger the pipeline (e.g. main, dev)
     Type: String
   GitHubBackendRepo:
+    Default: 'ultimatejetvacations/booking_engine'
     Description: Backend GitHub repository in format user/repo-name or organization-name/repo-name
     Type: String
   RabbitMqEngineVer:
@@ -215,6 +248,26 @@ Resources:
             RuntimeEnvironmentVariables:
               - Name: AWS_BUCKET
                 Value: !Ref 'S3StorageBucket'
+              - Name: BOOKING_SUPPLIER_HBSI_USERNAME
+                Value: !Ref 'BookingSupplierHbsiUsername'
+              - Name: BOOKING_SUPPLIER_HBSI_PASSWORD
+                Value: !Ref 'BookingSupplierHbsiPassword'
+              - Name: BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID
+                Value: !Ref 'BookingSupplierHbsiChannelIdentifierId'
+              - Name: SUPPLIER_EXPEDIA_API_KEY
+                Value: !Ref 'BookingSupplierExpediaApiKey'
+              - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
+                Value: !Ref 'BookingSupplierExpediaSharedSecret'
+              - Name: SUPPLIER_EXPEDIA_BASE_URL
+                Value: !Ref 'BookingSupplierExpediaBaseUrl'
+              - Name: SUPPLIER_ICE_PORTAL_CLIENT_ID
+                Value: !Ref 'BookingSupplierIcePortalClientId'
+              - Name: SUPPLIER_ICE_PORTAL_CLIENT_SECRET
+                Value: !Ref 'BookingSupplierIcePortalClientSecret'
+              - Name: SUPPLIER_ICE_PORTAL_BASE_URL
+                Value: !Ref 'BookingSupplierIcePortalBaseUrl'
+              - Name: SUPPLIER_ICE_PORTAL_TOKEN_URL
+                Value: !Ref 'BookingSupplierIcePortalTokenUrl'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -261,19 +314,19 @@ Resources:
                 Value: '5671'
               - Name: REDIS_HOST
                 Value: !GetAtt 'RedisCache.RedisEndpoint.Address'
-              - Name: SECOND_DB_DATABASE
-                Value: !Ref 'DbDatabaseSecond'
-              - Name: SECOND_DB_HOST
+              - Name: SUPPLIER_CONTENT_DB_DATABASE
+                Value: !Ref 'DbSupplierContentDatabase'
+              - Name: SUPPLIER_CONTENT_DB_HOST
                 Value: !GetAtt 'RdsMysql.Endpoint.Address'
-              - Name: SECOND_DB_PASSWORD
+              - Name: SUPPLIER_CONTENT_DB_PASSWORD
                 Value: !Join
                   - ''
                   - - '{{resolve:secretsmanager:'
                     - !Ref 'SecretRdsMasterCreds'
                     - :SecretString:password}}
-              - Name: SECOND_DB_PORT
+              - Name: SUPPLIER_CONTENT_DB_PORT
                 Value: '3306'
-              - Name: SECOND_DB_USERNAME
+              - Name: SUPPLIER_CONTENT_DB_USERNAME
                 Value: !Join
                   - ''
                   - - '{{resolve:secretsmanager:'
@@ -321,6 +374,26 @@ Resources:
             RuntimeEnvironmentVariables:
               - Name: AWS_BUCKET
                 Value: !Ref 'S3StorageBucket'
+              - Name: BOOKING_SUPPLIER_HBSI_USERNAME
+                Value: !Ref 'BookingSupplierHbsiUsername'
+              - Name: BOOKING_SUPPLIER_HBSI_PASSWORD
+                Value: !Ref 'BookingSupplierHbsiPassword'
+              - Name: BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID
+                Value: !Ref 'BookingSupplierHbsiChannelIdentifierId'
+              - Name: SUPPLIER_EXPEDIA_API_KEY
+                Value: !Ref 'BookingSupplierExpediaApiKey'
+              - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
+                Value: !Ref 'BookingSupplierExpediaSharedSecret'
+              - Name: SUPPLIER_EXPEDIA_BASE_URL
+                Value: !Ref 'BookingSupplierExpediaBaseUrl'
+              - Name: SUPPLIER_ICE_PORTAL_CLIENT_ID
+                Value: !Ref 'BookingSupplierIcePortalClientId'
+              - Name: SUPPLIER_ICE_PORTAL_CLIENT_SECRET
+                Value: !Ref 'BookingSupplierIcePortalClientSecret'
+              - Name: SUPPLIER_ICE_PORTAL_BASE_URL
+                Value: !Ref 'BookingSupplierIcePortalBaseUrl'
+              - Name: SUPPLIER_ICE_PORTAL_TOKEN_URL
+                Value: !Ref 'BookingSupplierIcePortalTokenUrl'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -367,19 +440,19 @@ Resources:
                 Value: '5671'
               - Name: REDIS_HOST
                 Value: !GetAtt 'RedisCache.RedisEndpoint.Address'
-              - Name: SECOND_DB_DATABASE
-                Value: !Ref 'DbDatabaseSecond'
-              - Name: SECOND_DB_HOST
+              - Name: SUPPLIER_CONTENT_DB_DATABASE
+                Value: !Ref 'DbSupplierContentDatabase'
+              - Name: SUPPLIER_CONTENT_DB_HOST
                 Value: !GetAtt 'RdsMysql.Endpoint.Address'
-              - Name: SECOND_DB_PASSWORD
+              - Name: SUPPLIER_CONTENT_DB_PASSWORD
                 Value: !Join
                   - ''
                   - - '{{resolve:secretsmanager:'
                     - !Ref 'SecretRdsMasterCreds'
                     - :SecretString:password}}
-              - Name: SECOND_DB_PORT
+              - Name: SUPPLIER_CONTENT_DB_PORT
                 Value: '3306'
-              - Name: SECOND_DB_USERNAME
+              - Name: SUPPLIER_CONTENT_DB_USERNAME
                 Value: !Join
                   - ''
                   - - '{{resolve:secretsmanager:'
@@ -482,6 +555,26 @@ Resources:
             RuntimeEnvironmentVariables:
               - Name: AWS_BUCKET
                 Value: !Ref 'S3StorageBucket'
+              - Name: BOOKING_SUPPLIER_HBSI_USERNAME
+                Value: !Ref 'BookingSupplierHbsiUsername'
+              - Name: BOOKING_SUPPLIER_HBSI_PASSWORD
+                Value: !Ref 'BookingSupplierHbsiPassword'
+              - Name: BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID
+                Value: !Ref 'BookingSupplierHbsiChannelIdentifierId'
+              - Name: SUPPLIER_EXPEDIA_API_KEY
+                Value: !Ref 'BookingSupplierExpediaApiKey'
+              - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
+                Value: !Ref 'BookingSupplierExpediaSharedSecret'
+              - Name: SUPPLIER_EXPEDIA_BASE_URL
+                Value: !Ref 'BookingSupplierExpediaBaseUrl'
+              - Name: SUPPLIER_ICE_PORTAL_CLIENT_ID
+                Value: !Ref 'BookingSupplierIcePortalClientId'
+              - Name: SUPPLIER_ICE_PORTAL_CLIENT_SECRET
+                Value: !Ref 'BookingSupplierIcePortalClientSecret'
+              - Name: SUPPLIER_ICE_PORTAL_BASE_URL
+                Value: !Ref 'BookingSupplierIcePortalBaseUrl'
+              - Name: SUPPLIER_ICE_PORTAL_TOKEN_URL
+                Value: !Ref 'BookingSupplierIcePortalTokenUrl'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -528,19 +621,19 @@ Resources:
                 Value: '5671'
               - Name: REDIS_HOST
                 Value: !GetAtt 'RedisCache.RedisEndpoint.Address'
-              - Name: SECOND_DB_DATABASE
-                Value: !Ref 'DbDatabaseSecond'
-              - Name: SECOND_DB_HOST
+              - Name: SUPPLIER_CONTENT_DB_DATABASE
+                Value: !Ref 'DbSupplierContentDatabase'
+              - Name: SUPPLIER_CONTENT_DB_HOST
                 Value: !GetAtt 'RdsMysql.Endpoint.Address'
-              - Name: SECOND_DB_PASSWORD
+              - Name: SUPPLIER_CONTENT_DB_PASSWORD
                 Value: !Join
                   - ''
                   - - '{{resolve:secretsmanager:'
                     - !Ref 'SecretRdsMasterCreds'
                     - :SecretString:password}}
-              - Name: SECOND_DB_PORT
+              - Name: SUPPLIER_CONTENT_DB_PORT
                 Value: '3306'
-              - Name: SECOND_DB_USERNAME
+              - Name: SUPPLIER_CONTENT_DB_USERNAME
                 Value: !Join
                   - ''
                   - - '{{resolve:secretsmanager:'
@@ -641,7 +734,7 @@ Resources:
             - '  build:'
             - '    commands:'
             - '      - echo "Build Docker images"'
-            - '      - docker build -t ${API_REPO_NAME} .'
+            - '      - docker build -t ${API_REPO_NAME} -f infrastructure/docker/php-8.2/Dockerfile .'
             - '      - docker tag ${API_REPO_NAME}:latest ${ECR_URL}/${API_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7}'
             - '      - docker tag ${API_REPO_NAME}:latest ${ECR_URL}/${API_REPO_NAME}:latest'
             - '      - docker push ${ECR_URL}/${API_REPO_NAME}:latest'
@@ -658,7 +751,7 @@ Resources:
               - ''
               - - '      - aws apprunner start-deployment --service-arn '
                 - !GetAtt 'AppRunnerClientApiSvc.ServiceArn'
-            - '      - docker build -t ${TASKS_REPO_NAME} -f tasks.Dockerfile .'
+            - '      - docker build -t ${TASKS_REPO_NAME} -f infrastructure/docker/php-8.2/tasks.Dockerfile .'
             - '      - docker tag ${TASKS_REPO_NAME}:latest ${ECR_URL}/${TASKS_REPO_NAME}:${CODEBUILD_RESOLVED_SOURCE_VERSION::7}'
             - '      - docker tag ${TASKS_REPO_NAME}:latest ${ECR_URL}/${TASKS_REPO_NAME}:latest'
             - '      - docker push ${ECR_URL}/${TASKS_REPO_NAME}:latest'
@@ -1422,6 +1515,36 @@ Resources:
         - - '{"AWS_BUCKET":"'
           - !Ref 'S3StorageBucket'
           - '",'
+          - '"BOOKING_SUPPLIER_HBSI_USERNAME":"'
+          - !Ref 'BookingSupplierHbsiUsername'
+          - '",'
+          - '"BOOKING_SUPPLIER_HBSI_PASSWORD":"'
+          - !Ref 'BookingSupplierHbsiPassword'
+          - '",'
+          - '"BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID":"'
+          - !Ref 'BookingSupplierHbsiChannelIdentifierId'
+          - '",'
+          - '"SUPPLIER_EXPEDIA_API_KEY":"'
+          - !Ref 'BookingSupplierExpediaApiKey'
+          - '",'
+          - '"SUPPLIER_EXPEDIA_SHARED_SECRET":"'
+          - !Ref 'BookingSupplierExpediaSharedSecret'
+          - '",'
+          - '"SUPPLIER_EXPEDIA_BASE_URL":"'
+          - !Ref 'BookingSupplierExpediaBaseUrl'
+          - '",'
+          - '"SUPPLIER_ICE_PORTAL_CLIENT_ID":"'
+          - !Ref 'BookingSupplierIcePortalClientId'
+          - '",'
+          - '"SUPPLIER_ICE_PORTAL_CLIENT_SECRET":"'
+          - !Ref 'BookingSupplierIcePortalClientSecret'
+          - '",'
+          - '"SUPPLIER_ICE_PORTAL_BASE_URL":"'
+          - !Ref 'BookingSupplierIcePortalBaseUrl'
+          - '",'
+          - '"SUPPLIER_ICE_PORTAL_TOKEN_URL":"'
+          - !Ref 'BookingSupplierIcePortalTokenUrl'
+          - '",'
           - '"DB_DATABASE":"'
           - !Ref 'DbDatabase'
           - '",'
@@ -1474,21 +1597,21 @@ Resources:
           - '"REDIS_HOST":"'
           - !GetAtt 'RedisCache.RedisEndpoint.Address'
           - '",'
-          - '"SECOND_DB_DATABASE":"'
-          - !Ref 'DbDatabaseSecond'
+          - '"SUPPLIER_CONTENT_DB_DATABASE":"'
+          - !Ref 'DbSupplierContentDatabase'
           - '",'
-          - '"SECOND_DB_HOST":"'
+          - '"SUPPLIER_CONTENT_DB_HOST":"'
           - !GetAtt 'RdsMysql.Endpoint.Address'
           - '",'
-          - '"SECOND_DB_PASSWORD":"'
+          - '"SUPPLIER_CONTENT_DB_PASSWORD":"'
           - !Join
             - ''
             - - '{{resolve:secretsmanager:'
               - !Ref 'SecretRdsMasterCreds'
               - :SecretString:password}}
           - '",'
-          - '"SECOND_DB_PORT":"3306",'
-          - '"SECOND_DB_USERNAME":"'
+          - '"SUPPLIER_CONTENT_DB_PORT":"3306",'
+          - '"SUPPLIER_CONTENT_DB_USERNAME":"'
           - !Join
             - ''
             - - '{{resolve:secretsmanager:'
