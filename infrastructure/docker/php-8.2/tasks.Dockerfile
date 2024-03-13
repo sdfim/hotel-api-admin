@@ -12,14 +12,14 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 COPY ../../.. /var/www
 
-RUN cp docker/supervisord.conf /etc/supervisord.conf
-RUN cp docker/php-tasks.ini /usr/local/etc/php/conf.d/app.ini
-RUN cp docker/nginx.conf /etc/nginx/sites-enabled/default
-RUN cp -r docker/cron.d /etc/
-RUN cp docker/cronenv /cronenv
+RUN cp infrastructure/docker/php-8.2/supervisord.conf /etc/supervisord.conf
+RUN cp infrastructure/docker/php-8.2/php-tasks.ini /usr/local/etc/php/conf.d/app.ini
+RUN cp infrastructure/docker/php-8.2/nginx.conf /etc/nginx/sites-enabled/default
+RUN cp -r infrastructure/docker/php-8.2/cron.d /etc/
+RUN cp infrastructure/docker/php-8.2/cronenv /cronenv
 
 RUN composer install --no-dev --optimize-autoloader
-RUN mv .env.example .env
+RUN cp .env.example .env
 RUN php artisan key:generate
 
 RUN mkdir storage_fusemnt
