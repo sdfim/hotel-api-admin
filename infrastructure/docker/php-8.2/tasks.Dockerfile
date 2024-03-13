@@ -24,8 +24,8 @@ RUN php artisan key:generate
 
 RUN mkdir storage_fusemnt
 RUN chown -R www-data:www-data /var/www
-RUN chmod +x /var/www/docker/start.sh
+RUN chmod +x /var/www/infrastructure/docker/php-8.2/start.sh
 RUN sed -i 's/;clear_env = no/clear_env = no/' /usr/local/etc/php-fpm.d/www.conf
 
 EXPOSE 80
-ENTRYPOINT ["/var/www/docker/start.sh"]
+ENTRYPOINT ["/var/www/infrastructure/docker/php-8.2/start.sh"]
