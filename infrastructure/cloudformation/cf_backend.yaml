@@ -691,8 +691,8 @@ Resources:
             - ''
             - 'env:'
             - '  secrets-manager:'
-            - '    DOCKERHUB_USERNAME: "/dockerhub/creds:username"'
-            - '    DOCKERHUB_PASS: "/dockerhub/creds:password"'
+            - '    DOCKERHUB_USERNAME: "/dockerhub/booking-engine/creds:username"'
+            - '    DOCKERHUB_PASS: "/dockerhub/booking-engine/creds:password"'
             - '  parameter-store:'
             - !Join
               - ''
@@ -1622,7 +1622,7 @@ Resources:
     Type: AWS::SecretsManager::Secret
   SecretDockerHubCreds:
     Properties:
-      Name: /dockerhub/creds
+      Name: /dockerhub/booking-engine/creds
       SecretString: !Join
         - ''
         - - '{"username":"'
