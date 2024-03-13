@@ -500,7 +500,7 @@
                     {
                         "name": "booking_id",
                         "in": "query",
-                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n\t *       In the response object for each rate is a **booking_id** property.",
+                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n     *       In the response object for each rate is a **booking_id** property.",
                         "required": true
                     }
                 ],
@@ -589,7 +589,7 @@
                     {
                         "name": "booking_item",
                         "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n\t *      In the response object for each rate is a **booking_item** property.",
+                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property.",
                         "required": true,
                         "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
                     },
@@ -673,7 +673,7 @@
                     {
                         "name": "booking_item",
                         "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n\t *      In the response object for each rate is a **booking_item** property.",
+                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property.",
                         "required": true,
                         "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
                     }
@@ -929,6 +929,9 @@
                             "examples": {
                                 "PricingSearchRequestNewYork": {
                                     "$ref": "#/components/examples/PricingSearchRequestNewYork"
+                                },
+                                "PricingSearchRequestCancun": {
+                                    "$ref": "#/components/examples/PricingSearchRequestCancun"
                                 },
                                 "PricingSearchRequestLondon": {
                                     "$ref": "#/components/examples/PricingSearchRequestLondon"
@@ -6484,8 +6487,8 @@
                 "summary": "An Example Pricing Search Request New York",
                 "value": {
                     "type": "hotel",
-                    "checkin": "2023-11-11",
-                    "checkout": "2023-11-20",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
                     "destination": 961,
                     "rating": 4.5,
                     "occupancy": [
@@ -6502,12 +6505,27 @@
                     ]
                 }
             },
+            "PricingSearchRequestCancun": {
+                "summary": "An Example Pricing Search Request Cancun",
+                "value": {
+                    "type": "hotel",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "destination": 961,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2
+                        }
+                    ]
+                }
+            },
             "PricingSearchRequestLondon": {
                 "summary": "An Example Pricing Search RequestLondon",
                 "value": {
                     "type": "hotel",
-                    "checkin": "2023-11-11",
-                    "checkout": "2023-11-20",
+                    "checkin": "2024-05-01",
+                    "checkout": "2024-05-05",
                     "destination": 302,
                     "rating": 4,
                     "occupancy": [

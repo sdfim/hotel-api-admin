@@ -171,6 +171,14 @@ class HbsiClient
                     'request' => $bodyQuery,
                     'response' => new SimpleXMLElement($body, LIBXML_NOCDATA)
                 ];
+
+                //TODO: REMOVE WHEN FINISHED TESTING WITH HBSI
+                Log::info('-------------------------------------------- REQUEST --------------------------------------------');
+                Log::info($res['request']);
+                Log::info('-------------------------------------------- RESPONSE --------------------------------------------');
+                Log::info($res['response']->asXML());
+                //TODO: REMOVE WHEN FINISHED TESTING WITH HBSI
+
                 if ($addGuest) $res['main_guest'] = json_encode($this->mainGuest);
                 return $res;
             } catch (Exception $e) {
@@ -210,6 +218,7 @@ class HbsiClient
      */
     private function hotelAvailRQ(array $hotelIds, array $params = []): string
     {
+        //TODO: CHANGE THIS DEFAULT VALUES
         if (empty($hotelIds)) $hotelIds = ['51722', '51721'];
         foreach ($hotelIds as $hotelId) {
             $hotelRefs[] = '<HotelRef HotelCode="' . $hotelId . '" />';

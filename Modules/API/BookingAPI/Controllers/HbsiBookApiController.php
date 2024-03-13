@@ -181,6 +181,7 @@ class HbsiBookApiController extends BaseBookApiController
             return ['error' => $e->getResponse()->getBody()];
         } catch (\Exception $e) {
             Log::error('HbsiBookApiController | book | Exception ' . $e->getMessage());
+            Log::error($e);
             return ['error' => $e->getMessage()];
         }
 

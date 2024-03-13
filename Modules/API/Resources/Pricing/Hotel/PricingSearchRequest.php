@@ -99,8 +99,8 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *     value=
  * {
  *     "type": "hotel",
- *     "checkin": "2023-11-11",
- *     "checkout": "2023-11-20",
+ *     "checkin": "2024-05-11",
+ *     "checkout": "2024-05-20",
  *     "destination": 961,
  *     "rating": 4.5,
  *     "occupancy": {
@@ -118,13 +118,30 @@ namespace Modules\API\Resources\Pricing\Hotel;
  * }
  * ),
  * @OA\Examples(
+ *      example="PricingSearchRequestCancun",
+ *      summary="An Example Pricing Search Request Cancun",
+ *      value=
+ *  {
+ *      "type": "hotel",
+ *      "checkin": "2024-05-11",
+ *      "checkout": "2024-05-20",
+ *      "destination": 961,
+ *      "rating": 4.5,
+ *      "occupancy": {
+ *          {
+ *             "adults": 2
+ *          }
+ *      }
+ *  }
+ *  ),
+ * @OA\Examples(
  *     example="PricingSearchRequestLondon",
  *     summary="An Example Pricing Search RequestLondon",
  *     value=
  * {
  *     "type": "hotel",
- *     "checkin": "2023-11-11",
- *     "checkout": "2023-11-20",
+ *     "checkin": "2024-05-01",
+ *     "checkout": "2024-05-05",
  *     "destination": 302,
  *     "rating": 4,
  *     "occupancy": {

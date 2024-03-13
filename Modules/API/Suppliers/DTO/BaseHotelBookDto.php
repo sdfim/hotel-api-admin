@@ -26,7 +26,7 @@ class BaseHotelBookDto
         $booking_item_data = json_decode($bookringItem->booking_item_data, true);
         $booking_pricing_data = json_decode($bookringItem->booking_pricing_data, true);
 
-        $hotelName = GiataProperty::where('code', $booking_item_data['hotel_id'])->first()->name;
+        $hotelName = GiataProperty::where('code', $booking_item_data['hotel_id'])->first()?->name;
 
         $hotelBookResponseModel = new HotelBookResponseModel();
         $hotelBookResponseModel->setStatus('booked');

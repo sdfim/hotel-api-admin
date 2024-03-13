@@ -384,6 +384,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
      *       ref="#/components/schemas/PricingSearchRequest",
      *       examples={
      *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchRequestNewYork", example="PricingSearchRequestNewYork"),
+     *           "Cancun": @OA\Schema(ref="#/components/examples/PricingSearchRequestCancun", example="PricingSearchRequestCancun"),
      *           "London": @OA\Schema(ref="#/components/examples/PricingSearchRequestLondon", example="PricingSearchRequestLondon"),
      *           "SupplierCurrency": @OA\Schema(ref="#/components/examples/PricingSearchRequestCurrencySupplier", example="PricingSearchRequestCurrencySupplier"),
      *       },
