@@ -714,6 +714,8 @@ class BookApiHandler extends BaseController
 
         try {
             $res = [];
+            $occupiedRooms = [];
+
             foreach ($bookingRequestItems as $booking_item) {
 
                 if (BookRepository::isBook($request->booking_id, $booking_item)) {
@@ -727,7 +729,7 @@ class BookApiHandler extends BaseController
 
                 $res[] = match (SupplierNameEnum::from($supplier)) {
                     SupplierNameEnum::EXPEDIA => $this->expedia->addPassengers($filters, $filtersOutput[$booking_item]),
-                    SupplierNameEnum::HBSI => $this->hbsi->addPassengers($filters, $filtersOutput[$booking_item]),
+                    SupplierNameEnum::HBSI => $this->hbsi->addPassengers($filters, $filtersOutput[$booking_item], $occupiedRooms),
                     default => [],
                 };
             }

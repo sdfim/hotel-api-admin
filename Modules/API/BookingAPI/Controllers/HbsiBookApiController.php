@@ -40,9 +40,10 @@ class HbsiBookApiController extends BaseBookApiController
     /**
      * @param array $filters
      * @param array $passengersData
+     * @param array $occupiedRooms
      * @return array|null
      */
-    public function addPassengers(array $filters, array $passengersData): array|null
+    public function addPassengers(array $filters, array $passengersData, array &$occupiedRooms): array|null
     {
         $booking_id = $filters['booking_id'];
         $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
@@ -64,7 +65,7 @@ class HbsiBookApiController extends BaseBookApiController
             foreach ($bookingItemsSingle as $bookingItemSingle) {
                 $iterFilters = $filters;
                 $iterFilters['booking_item'] = $bookingItemSingle->booking_item;
-                $res[] = $this->addPassengers($iterFilters, $passengersData);
+                $res[] = $this->addPassengers($iterFilters, $passengersData, $occupiedRooms);
             }
         }
 
@@ -86,9 +87,17 @@ class HbsiBookApiController extends BaseBookApiController
                         : 0;
                     if ($searchAdults === $adults && $searchChildren === $children)
                     {
-                        if (!isset($filters['rooms'][$i])) $filters['rooms'][$i] = $passengersData['rooms'][$i]['passengers'];
+                        if (!isset($filters['rooms'][$i]) && ! in_array($i, $occupiedRooms))
+                        {
+                            $filters['rooms'][$i] = $passengersData['rooms'][$i]['passengers'];
 
-                        ApiBookingItem::where('booking_item', $filters['booking_item'])->update(['room_by_query' => $i]);
+                            ApiBookingItem::where('booking_item', $filters['booking_item'])->update(['room_by_query' => $i]);
+
+                            $occupiedRooms[] = $i;
+
+                            // exit from for loop
+                            $i = $countRooms + 1;
+                        }
                     }
 
 
@@ -232,7 +241,7 @@ class HbsiBookApiController extends BaseBookApiController
 
         $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
         $dataResponse = json_decode(json_encode($response), true);
-
+\Log::debug($dataResponse);
         $dataResponseToSave = $dataResponse;
         $dataResponseToSave['original'] = [
             'request' => $xmlPriceData['request'],
