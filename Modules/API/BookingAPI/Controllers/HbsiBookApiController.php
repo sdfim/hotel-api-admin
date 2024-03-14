@@ -84,10 +84,13 @@ class HbsiBookApiController extends BaseBookApiController
                     $searchChildren = isset($searchRequest['occupancy'][$i - 1]['children_ages'])
                         ? count($searchRequest['occupancy'][$i - 1]['children_ages'])
                         : 0;
-                    if ($searchAdults === $adults && $searchChildren === $children) {
+                    if ($searchAdults === $adults && $searchChildren === $children)
+                    {
                         if (!isset($filters['rooms'][$i])) $filters['rooms'][$i] = $passengersData['rooms'][$i]['passengers'];
+
+                        ApiBookingItem::where('booking_item', $filters['booking_item'])->update(['room_by_query' => $i]);
                     }
-                    ApiBookingItem::where('booking_item', $filters['booking_item'])->update(['room_by_query' => $i]);
+
 
                 }
             }
