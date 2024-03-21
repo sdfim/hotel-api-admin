@@ -4,6 +4,7 @@ namespace Modules\API\Suppliers\HbsiSupplier;
 
 use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository;
+use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\ConfigRepository;
 use Exception;
@@ -18,34 +19,18 @@ use Throwable;
 
 class HbsiClient
 {
-    /**
-     *
-     */
     private const COMPONENT_INFO_ID = '51721';
-    /**
-     *
-     */
+
     private const URL = 'https://uat.demandmatrix.net/app/dm/xml/tentravel/search';
 
-    /**
-     *
-     */
     private const VERSION = '2006A';
-    /**
-     *
-     */
+
     private const INTERFACE = 'HBSI XML 4 OTA';
-    /**
-     * @var string
-     */
+
     private string $requestId;
-    /**
-     * @var string
-     */
+
     private string $timeStamp;
-    /**
-     * @var array
-     */
+
     private array $mainGuest;
 
     /** @var Credentials  */
@@ -95,7 +80,8 @@ class HbsiClient
     public function handleBook(array $filters): ?array
     {
         $this->mainGuest = [];
-        $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResRQ');
+        $hotelId = ApiBookingItemRepository::getHotelSupplierId($filters['booking_item']);
+        $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResRQ', $hotelId);
         $response = $this->sendRequest($bodyQuery);
         $body = $response->getBody();
 
@@ -185,16 +171,17 @@ class HbsiClient
     /**
      * @param string $body
      * @param string $typeRequest
+     * @param string $hotelId
      * @return string
      */
-    private function makeRequest(string $body, string $typeRequest): string
+    private function makeRequest(string $body, string $typeRequest, string $hotelId = self::COMPONENT_INFO_ID): string
     {
         return '<?xml version="1.0" encoding="utf-8"?>
             <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap-env:Header>
                     <Interface ChannelIdentifierId="' . $this->credentials->channelIdentifierId . '" Version="' . self::VERSION . '" Interface="' . self::INTERFACE . '"
                         xmlns="http://www.hbsiapi.com/Documentation/XML/OTA/4/2005A/">
-                        <ComponentInfo Id="' . self::COMPONENT_INFO_ID . '" User="' . $this->credentials->username . '" Pwd="' . $this->credentials->password . '" ComponentType="Hotel"/>
+                        <ComponentInfo Id="' . $hotelId . '" User="' . $this->credentials->username . '" Pwd="' . $this->credentials->password . '" ComponentType="Hotel"/>
                     </Interface>
                 </soap-env:Header>
                 <soap-env:Body RequestId="' . $this->requestId . '" Transaction="' . $typeRequest . '">
@@ -260,7 +247,7 @@ class HbsiClient
     {
         $response = ApiSearchInspectorRepository::getResponse($filters['search_id']);
         $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
-        $bookingItemData = json_decode($bookingItem->booking_item_data, true);
+        $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
         $roomByQuery = $bookingItem->room_by_query;
         $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
         $guests = json_decode($passengersData->request, true)['rooms'];
