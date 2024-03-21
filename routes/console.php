@@ -17,3 +17,15 @@ use Illuminate\Support\Facades\Artisan;
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+/**
+ * REMOVE THIS COMMAND WHEN MULTI ROOM IS PROPERLY INTEGRATED
+ */
+Artisan::command('obe {scenario} {action}', function() {
+    $scenario = $this->argument('scenario');
+    $action = $this->argument('action');
+
+    $client = new \Modules\API\Suppliers\HbsiSupplier\MultiRoomTesting();
+
+    $this->info($client->execute($scenario, $action));
+});
