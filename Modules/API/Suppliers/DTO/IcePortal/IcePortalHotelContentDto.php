@@ -19,7 +19,7 @@ class IcePortalHotelContentDto implements SupplierContentDtoInterface
             $hotelResponse = new ContentSearchResponse();
             $hotelResponse->setGiataHotelCode(isset($hotel['giata_id']) ? intval($hotel['giata_id']) : 0);
             $hotelResponse->setImages($hotel['images'] ?? []);
-            $hotelResponse->setDescription($hotel['description'] ?? '');
+            $hotelResponse->setDescription(isset($hotel['descriptions']) ? json_decode($hotel['descriptions'], true) : []);
             $hotelResponse->setHotelName($hotel['name']);
             $hotelResponse->setDistance($hotel['distance'] ?? '');
             $hotelResponse->setLatitude($hotel['address']['latitude'] ?? $hotel['latitude'] ?? '');

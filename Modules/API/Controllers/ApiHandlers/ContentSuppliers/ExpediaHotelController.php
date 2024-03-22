@@ -77,6 +77,7 @@ class ExpediaHotelController
                     'expedia_content_main.*',
                     'expedia_content_slave.images as images',
                     'expedia_content_slave.amenities as amenities',
+                    'expedia_content_slave.descriptions as descriptions',
                     'mapper_expedia_giatas.expedia_id',
                     'mapper_expedia_giatas.giata_id'
                 );

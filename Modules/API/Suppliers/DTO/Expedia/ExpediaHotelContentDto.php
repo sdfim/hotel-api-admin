@@ -37,7 +37,7 @@ class ExpediaHotelContentDto implements SupplierContentDtoInterface
 
             $hotelResponse->setGiataHotelCode($hotel['giata_id'] ?? '');
             $hotelResponse->setImages($images);
-            $hotelResponse->setDescription($hotel['description'] ?? '');
+            $hotelResponse->setDescription(isset($hotel['descriptions']) ? json_decode($hotel['descriptions'], true) : []);
             $hotelResponse->setHotelName($hotel['name']);
             $hotelResponse->setDistance($hotel['distance'] ?? '');
             $hotelResponse->setLatitude($hotel['location']['coordinates']['latitude']);
