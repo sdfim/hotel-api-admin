@@ -80,7 +80,15 @@ class BookingBookRequest extends ApiRequest
         if (request()->has('special_requests')) {
             $rules['special_requests'] = 'array';
             $rules['special_requests.*.booking_item'] = 'required|size:36';
+            $rules['special_requests.*.room'] = 'required|integer|between:1,5';
             $rules['special_requests.*.special_request'] = 'required|string|between:1,255';
+        }
+
+        if (request()->has('comments')) {
+            $rules['comments'] = 'array';
+            $rules['comments.*.booking_item'] = 'required|size:36';
+            $rules['comments.*.room'] = 'required|integer|between:1,5';
+            $rules['comments.*.comment'] = 'required|string|between:1,255';
         }
 
         return $rules;

@@ -272,7 +272,7 @@ class HbsiClient
                 </POS>
                 <HotelReservations>
                 <HotelReservation RoomStayReservation="true" CreateDateTime="' . date('Y-m-d\TH:i:sP') . '" CreatorID="Partner">
-                    <UniqueID Type="14" ID="' . $bookingItem->booking_item . '"/>
+                    <UniqueID Type="14" ID="' . $bookingItem->booking_item . '_' . time() . '"/>
                     ' . $roomStays . '
                     ' . $resGuests . '
                     ' . $resGlobalInfo . '
@@ -378,10 +378,10 @@ class HbsiClient
     }
 
     /**
-     * @param $body
+     * @param string $body
      * @return bool
      */
-    private function isXml($body): bool
+    private function isXml(string $body): bool
     {
         if (str_contains($body, 'soap-env:Envelope')) return true;
         return false;
@@ -423,13 +423,13 @@ class HbsiClient
     }
 
     /**
-     * @param $array
-     * @param $xml
+     * @param array $array
+     * @param SimpleXMLElement|null $xml
      * @param string $parentName
      * @return string
      * @throws Exception
      */
-    private function arrayToXml($array, $xml = null, string $parentName = 'root'): string
+    private function arrayToXml(array $array, SimpleXMLElement $xml = null, string $parentName = 'root'): string
     {
         if ($xml === null) {
             $xml = new SimpleXMLElement('<' . $parentName . '/>');
@@ -457,14 +457,14 @@ class HbsiClient
     }
 
     /**
-     * @param $response
-     * @param $bookingItemData
-     * @param $filters
-     * @param $roomByQuery
-     * @param $guests
+     * @param array $response
+     * @param array $bookingItemData
+     * @param array $filters
+     * @param int $roomByQuery
+     * @param array $guests
      * @return array
      */
-    private function processRoomStaysArr($response, $bookingItemData, $filters, $roomByQuery, $guests): array
+    private function processRoomStaysArr(array $response, array $bookingItemData, array $filters, int $roomByQuery, array $guests): array
     {
         $rates = $roomStaysArr = $response['results']['HBSI'][$bookingItemData['hotel_supplier_id']]['rooms'][$bookingItemData['room_id']]['rates'];
         if (isset($rates['rate_ordinal'])) $roomStaysArr = $rates[$bookingItemData['rate_ordinal'] - 1];
@@ -490,6 +490,13 @@ class HbsiClient
                 }
             }
         }
+        if (isset($filters['comments'])) {
+            foreach ($filters['comments'] as $commentRequest) {
+                if ($commentRequest['booking_item'] === $filters['booking_item'] && $commentRequest['room'] === $roomByQuery) {
+                    $roomStaysArr['Comments'][]['@attributes']['Text'] = $commentRequest['comment'];
+                }
+            }
+        }
         for ($i = 0; $i < count(array_values($guests)[0]); $i++) {
             $roomStaysArr['ResGuestRPHs'][]['@attributes']['RPH'] = strval($i + 1);
         }
@@ -505,12 +512,12 @@ class HbsiClient
     }
 
     /**
-     * @param $guests
-     * @param $roomByQuery
-     * @param $filters
+     * @param array $guests
+     * @param int $roomByQuery
+     * @param array $filters
      * @return array
      */
-    private function processResGuestsArr($guests, $roomByQuery, $filters): array
+    private function processResGuestsArr(array $guests, int $roomByQuery, array $filters): array
     {
         $resGuestsArr = [];
         foreach ($guests[$roomByQuery] as $index => $guest) {
@@ -533,13 +540,13 @@ class HbsiClient
     }
 
     /**
-     * @param $index
-     * @param $ageQualifyingCode
-     * @param $guest
-     * @param $filters
+     * @param int $index
+     * @param int $ageQualifyingCode
+     * @param array $guest
+     * @param array $filters
      * @return array
      */
-    private function createGuestArr($index, $ageQualifyingCode, $guest, $filters): array
+    private function createGuestArr(int $index, int $ageQualifyingCode, array $guest, array $filters): array
     {
         $guestArr = [];
         $guestArr['@attributes']['ResGuestRPH'] = $index + 1;
@@ -554,11 +561,11 @@ class HbsiClient
     }
 
     /**
-     * @param $guest
-     * @param $filters
+     * @param array $guest
+     * @param array $filters
      * @return array
      */
-    private function createCustomerArr($guest, $filters): array
+    private function createCustomerArr(array $guest, array $filters): array
     {
         $customer = [];
         $customer['PersonName']['GivenName'] = $guest['given_name'];
@@ -570,10 +577,10 @@ class HbsiClient
     }
 
     /**
-     * @param $filters
+     * @param array $filters
      * @return array
      */
-    private function createAddressArr($filters): array
+    private function createAddressArr(array $filters): array
     {
         $address = [];
         $address['AddressLine'] = $filters['booking_contact']['address']['line_1'];
@@ -602,11 +609,11 @@ class HbsiClient
     }
 
     /**
-     * @param $creditCard
-     * @param $roomStaysArr
+     * @param array $creditCard
+     * @param array $roomStaysArr
      * @return array
      */
-    private function createDepositPaymentArr($creditCard, $roomStaysArr): array
+    private function createDepositPaymentArr(array $creditCard, array $roomStaysArr): array
     {
         $depositPaymentArr = [];
         $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardType'] = '1';
