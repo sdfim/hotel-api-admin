@@ -83,7 +83,7 @@ class HbsiClient
         $hotelId = ApiBookingItemRepository::getHotelSupplierId($filters['booking_item']);
         $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResRQ', $hotelId);
         $response = $this->sendRequest($bodyQuery);
-        $body = $response->getBody();
+        $body = $response->getBody()->getContents();
 
         return $this->processXmlBody($body, $bodyQuery, true);
     }
@@ -155,7 +155,7 @@ class HbsiClient
             try {
                 $res = [
                     'request' => $bodyQuery,
-                    'response' => new SimpleXMLElement($body, LIBXML_NOCDATA)
+                    'response' => new SimpleXMLElement(strval($body), LIBXML_NOCDATA)
                 ];
                 if ($addGuest) $res['main_guest'] = json_encode($this->mainGuest);
                 return $res;
@@ -197,7 +197,6 @@ class HbsiClient
      */
     private function hotelAvailRQ(array $hotelIds, array $params = []): string
     {
-        if (empty($hotelIds)) $hotelIds = ['51722', '51721'];
         foreach ($hotelIds as $hotelId) {
             $hotelRefs[] = '<HotelRef HotelCode="' . $hotelId . '" />';
         }
@@ -272,8 +271,8 @@ class HbsiClient
                     </Source>
                 </POS>
                 <HotelReservations>
-                <HotelReservation RoomStayReservation="true" CreateDateTime="2024-05-03T15:47:24-04:00" CreatorID="Partner">
-                    <UniqueID Type="14" ID="ReservationId_' . $bookingItem->booking_item . '_' . time() . '"/>
+                <HotelReservation RoomStayReservation="true" CreateDateTime="' . date('Y-m-d\TH:i:sP') . '" CreatorID="Partner">
+                    <UniqueID Type="14" ID="' . $bookingItem->booking_item . '"/>
                     ' . $roomStays . '
                     ' . $resGuests . '
                     ' . $resGlobalInfo . '
@@ -317,7 +316,7 @@ class HbsiClient
                 </POS>
                 <HotelReservations>
                 <HotelReservation RoomStayReservation="true" CreateDateTime="2024-05-03T15:47:24-04:00" CreatorID="Partner">
-                    <UniqueID Type="14" ID="ReservationId_' . $bookingItem->booking_item . '_' . time() . '"/>
+                    <UniqueID Type="14" ID="' . $bookingItem->booking_item . '"/>
                     ' . $roomStays . '
                     ' . $resGuests . '
                     ' . $resGlobalInfo . '

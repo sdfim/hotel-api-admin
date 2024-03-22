@@ -69,13 +69,14 @@ class HbsiHotelController
         try {
             $hotelData = $this->preSearchData($filters);
             $hotelIds = array_keys($hotelData);
+            // TODO remove this after using the test case
+            if (empty($hotelIds)) $hotelIds = ['51722', '51721'];
 
             // get PriceData from HBSI
             $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($hotelIds, $filters);
 
             $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
             $priceData = $this->object2array($response->RoomStays)['RoomStay'];
-
 
             $i = 1;
             $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($hotelData, &$i) {
