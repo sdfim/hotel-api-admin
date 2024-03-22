@@ -53,6 +53,7 @@ class BookingBookRequest extends ApiRequest
         $rules = [
             'booking_id' => 'required|size:36',
             'amount_pay' => 'required|string|in:Deposit,Full Payment',
+            'travel_agency_identifier' => 'string|size:3',
             'booking_contact.first_name' => 'required|string',
             'booking_contact.last_name' => 'required|string',
             'booking_contact.email' => 'required|email:rfc,dns',

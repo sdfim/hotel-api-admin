@@ -500,7 +500,7 @@
                     {
                         "name": "booking_id",
                         "in": "query",
-                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n\t *       In the response object for each rate is a **booking_id** property.",
+                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n     *       In the response object for each rate is a **booking_id** property.",
                         "required": true
                     }
                 ],
@@ -589,7 +589,7 @@
                     {
                         "name": "booking_item",
                         "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n\t *      In the response object for each rate is a **booking_item** property.",
+                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property.",
                         "required": true,
                         "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
                     },
@@ -673,7 +673,7 @@
                     {
                         "name": "booking_item",
                         "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n\t *      In the response object for each rate is a **booking_item** property.",
+                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property.",
                         "required": true,
                         "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
                     }
@@ -1338,49 +1338,80 @@
                         },
                         "type": "object"
                     },
-                    "credit_card": {
-                        "required": [
-                            "name_card",
-                            "number",
-                            "card_type",
-                            "expiry_date",
-                            "cvv",
-                            "billing_address"
-                        ],
-                        "properties": {
-                            "name_card": {
-                                "type": "string",
-                                "example": "Visa"
+                    "credit_cards": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "credit_card",
+                                "booking_item"
+                            ],
+                            "properties": {
+                                "credit_card": {
+                                    "required": [
+                                        "cvv",
+                                        "number",
+                                        "card_type",
+                                        "name_card",
+                                        "expiry_date",
+                                        "billing_address"
+                                    ],
+                                    "properties": {
+                                        "cvv": {
+                                            "type": "integer",
+                                            "example": 123
+                                        },
+                                        "number": {
+                                            "type": "integer",
+                                            "example": 4001919257537193
+                                        },
+                                        "card_type": {
+                                            "type": "string",
+                                            "example": "VISA"
+                                        },
+                                        "name_card": {
+                                            "type": "string",
+                                            "example": "Visa"
+                                        },
+                                        "expiry_date": {
+                                            "type": "string",
+                                            "example": "09\\/2026"
+                                        },
+                                        "billing_address": {
+                                            "properties": {
+                                                "line_1": {
+                                                    "type": "string",
+                                                    "example": "555 1st St"
+                                                },
+                                                "city": {
+                                                    "type": "string",
+                                                    "example": "Seattle"
+                                                },
+                                                "state_province_code": {
+                                                    "type": "string",
+                                                    "example": "WA"
+                                                },
+                                                "postal_code": {
+                                                    "type": "string",
+                                                    "example": "98121"
+                                                },
+                                                "country_code": {
+                                                    "type": "string",
+                                                    "example": "US"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "booking_item": {
+                                    "type": "string",
+                                    "example": "89650b97-9c2e-40a6-a982-040bae5d9ea5"
+                                }
                             },
-                            "number": {
-                                "type": "integer",
-                                "example": 4001919257537193
-                            },
-                            "card_type": {
-                                "type": "string",
-                                "enum": [
-                                    "VISA",
-                                    "MSC",
-                                    "AMEX",
-                                    "DIS"
-                                ],
-                                "example": "VISA"
-                            },
-                            "expiry_date": {
-                                "type": "string",
-                                "format": "m/Y",
-                                "example": "09/2026"
-                            },
-                            "cvv": {
-                                "type": "integer",
-                                "example": 123
-                            },
-                            "billing_address": {
-                                "type": "string",
-                                "example": ""
-                            }
-                        },
-                        "type": "object"
+                            "type": "object"
+                        }
                     }
                 },
                 "type": "object"
@@ -3552,14 +3583,30 @@
                             "country_code": "US"
                         }
                     },
-                    "credit_card": {
-                        "name_card": "Visa",
-                        "number": 4001919257537193,
-                        "card_type": "VISA",
-                        "expiry_date": "09/2026",
-                        "cvv": 123,
-                        "billing_address": ""
-                    }
+                    "credit_cards": [
+                        {
+                            "credit_card": {
+                                "cvv": 123,
+                                "number": 4001919257537193,
+                                "card_type": "VISA",
+                                "name_card": "Visa",
+                                "expiry_date": "09\\/2026",
+                                "billing_address": null
+                            },
+                            "booking_item": "89650b97-9c2e-40a6-a982-040bae5d9ea5"
+                        },
+                        {
+                            "credit_card": {
+                                "cvv": 123,
+                                "number": 4001919257537193,
+                                "card_type": "VISA",
+                                "name_card": "Visa",
+                                "expiry_date": "09\\/2026",
+                                "billing_address": null
+                            },
+                            "booking_item": "9c116b9d-32f0-4341-92ea-124c8fcea643"
+                        }
+                    ]
                 }
             },
             "BookingBookRequestExpedia": {

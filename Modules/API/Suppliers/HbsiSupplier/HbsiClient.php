@@ -200,9 +200,6 @@ class HbsiClient
         foreach ($hotelIds as $hotelId) {
             $hotelRefs[] = '<HotelRef HotelCode="' . $hotelId . '" />';
         }
-        $start = $params['checkin'] ?? '2024-02-10';
-        $end = $params['checkout'] ?? '2024-02-15';
-        $currency = $params['currency'] ?? 'USD';
         $roomStayCandidates = $this->occupancyToXml($params['occupancy']);
 
         return '<OTA_HotelAvailRQ Target="Test" Version="1.003" TimeStamp="' . $this->timeStamp . '"
@@ -219,8 +216,8 @@ class HbsiClient
                     <AvailRequestSegment>
                         <HotelSearchCriteria>
                             <Criterion>
-                                <StayDateRange Start="' . $start . '" Duration="Day" End="' . $end . '"></StayDateRange>
-                                <RateRange RateTimeUnit="Day" CurrencyCode="' . $currency . '" ></RateRange>
+                                <StayDateRange Start="' . $params['checkin']. '" Duration="Day" End="' . $params['checkout'] . '"></StayDateRange>
+                                <RateRange RateTimeUnit="Day" CurrencyCode="' . $params['currency'] . '" ></RateRange>
                                 <RatePlanCandidates>
                                     <RatePlanCandidate RatePlanCode="*" RPH="1">
                                         <HotelRefs>
@@ -258,7 +255,10 @@ class HbsiClient
         $resGlobalInfo = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGlobalInfoArr, null, 'ResGlobalInfo'));
         $roomStays = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($roomStaysArr, null, 'RoomStays'));
         $resGuests = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGuestsArr, null, 'ResGuests'));
-
+        $iata = '';
+        if (isset($filters['travel_agency_identifier'])) {
+            $iata = '<UniqueID Type="5" ID="'.$filters['travel_agency_identifier'].'"/>';
+        }
 
         return '<OTA_HotelResRQ Target="Test" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
                 xmlns="http://www.opentravel.org/OTA/2003/05">
@@ -272,6 +272,7 @@ class HbsiClient
                 </POS>
                 <HotelReservations>
                 <HotelReservation RoomStayReservation="true" CreateDateTime="' . date('Y-m-d\TH:i:sP') . '" CreatorID="Partner">
+                    ' . $iata. '
                     <UniqueID Type="14" ID="' . $bookingItem->booking_item . '_' . time() . '"/>
                     ' . $roomStays . '
                     ' . $resGuests . '
