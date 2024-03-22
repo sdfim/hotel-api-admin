@@ -334,7 +334,7 @@ class FlowHbsiBookTest extends Command
                     'city' => $faker->city,
                     'state_province_code' => $faker->stateAbbr,
                     'postal_code' => $faker->lexify(str_repeat('?', rand(1, 7))), //$faker->postcode,
-                    'country_code' => $faker->countryCode,
+                    'country_code' => 'US', //$faker->countryCode,
                 ],
             ],
         ];
