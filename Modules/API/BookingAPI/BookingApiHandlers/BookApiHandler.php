@@ -9,6 +9,7 @@ use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
 use Carbon\Carbon;
 use Exception;
+use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -19,7 +20,10 @@ use Modules\API\BookingAPI\Controllers\ExpediaBookApiController;
 use Modules\API\BookingAPI\Controllers\HbsiBookApiController;
 use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
 use Modules\API\Requests\BookingBookRequest;
+use Modules\API\Requests\BookingCancelBooking;
 use Modules\API\Requests\BookingChangeBookHotelRequest;
+use Modules\API\Requests\BookingRetrieveBooking;
+use Modules\API\Requests\BookingRetrieveItemsRequest;
 use Modules\API\Requests\ListBookingsRequest;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
@@ -45,67 +49,9 @@ class BookApiHandler extends BaseController
     }
 
     /**
-     * @param Request $request
-     * @param string $supplier
+     * @param BookingBookRequest $request
      * @return JsonResponse
-     */
-    /**
-     * @OA\Post(
-     *   tags={"Booking API | Booking Endpoints"},
-     *   path="/api/booking/book",
-     *   summary="Create a new booking for a service or event",
-     *   description="Create a new booking for a service or event. Use this endpoint to make reservations.",
-     *    @OA\Parameter(
-     *      name="booking_id",
-     *      in="query",
-     *      required=true,
-     *      description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
-     *      In the response object for each rate is a **booking_id** property.",
-     *   ),
-     *   @OA\RequestBody(
-     *     description="JSON object containing the details of the reservation.",
-     *     required=true,
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingBookRequest",
-     *       examples={
-     *           "example1": @OA\Schema(ref="#/components/examples/BookingBookRequest", example="BookingBookRequest"),
-     *           "example2": @OA\Schema(ref="#/components/examples/BookingBookRequestExpedia", example="BookingBookRequestExpedia"),
-     *       },
-     *     ),
-     *   ),
-     *   @OA\Response(
-     *     response=200,
-     *     description="OK",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingBookResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BookingBookResponse", example="BookingBookResponse"),
-     *       }
-     *     )
-     *   ),
-     *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingBookResponseErrorItem",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BookingBookResponseErrorItem", example="BookingBookResponseErrorItem"),
-     *       "example2": @OA\Schema(ref="#/components/examples/BookingBookResponseErrorBooked", example="BookingBookResponseErrorBooked"),
-     *       }
-     *     )
-     *   ),
-     *   @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
-     *   security={{ "apiAuth": {} }}
-     * )
+     * @throws GuzzleException
      */
     public function book(BookingBookRequest $request): JsonResponse
     {
@@ -163,72 +109,8 @@ class BookApiHandler extends BaseController
     }
 
     /**
-     * @param Request $request
-     * @param string $supplier
+     * @param BookingChangeBookHotelRequest $request
      * @return JsonResponse
-     */
-    /**
-     * @OA\Put(
-     *   tags={"Booking API | Booking Endpoints"},
-     *   path="/api/booking/change-booking",
-     *   summary="Modify an existing booking..",
-     *   description="Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
-     *   @OA\Parameter(
-     *      name="booking_id",
-     *      in="query",
-     *      required=true,
-     *      description="Booking ID",
-     *      example="3333cee5-b4a3-4e51-bfb0-02d09370b585"
-     *    ),
-     *   @OA\Parameter(
-     *      name="booking_item",
-     *      in="query",
-     *      required=true,
-     *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
-     *      In the response object for each rate is a **booking_item** property.",
-     *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-     *    ),
-     *     @OA\RequestBody(
-     *     description="JSON object containing the details of the reservation.",
-     *     required=true,
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingChangeBookingRequest",
-     *       examples={
-     *           "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingRequest", example="BookingChangeBookingRequest"),
-     *       },
-     *     ),
-     *   ),
-     *   @OA\Response(
-     *     response=200,
-     *     description="OK",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingChangeBookingResponse",
-     *           examples={
-     *             "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingResponse", example="BookingChangeBookingResponse"),
-     *         },
-     *     )
-     *   ),
-     *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *     @OA\JsonContent(
-     *       examples={
-     *         "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingResponseError", example="BookingChangeBookingResponseError"),
-     *       },
-     *     )
-     *   ),
-     *   @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
-     *   security={{ "apiAuth": {} }}
-     * )
      */
     public function changeBooking(BookingChangeBookHotelRequest $request): JsonResponse
     {
@@ -260,64 +142,10 @@ class BookApiHandler extends BaseController
     }
 
     /**
-     * @param Request $request
-     * @param string $supplier
+     * @param ListBookingsRequest $request
      * @return JsonResponse
      */
-    /**
-     * @OA\Get(
-     *   tags={"Booking API | Booking Endpoints"},
-     *   path="/api/booking/list-bookings",
-     *   summary="Retrieve a list of all your booking reservations. ",
-     *   description="Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
-     *    @OA\Parameter(
-     *      name="type",
-     *      in="query",
-     *      required=true,
-     *      description="Type",
-     *      @OA\Schema(
-     *        type="string",
-     *        example="hotel"
-     *      )
-     *    ),
-     *    @OA\Parameter(
-     *      name="supplier",
-     *      in="query",
-     *      required=true,
-     *      description="Supplier",
-     *      @OA\Schema(
-     *        type="string",
-     *        example="Expedia"
-     *      )
-     *    ),
-     *    @OA\Response(
-     *      response=200,
-     *      description="OK",
-     *    ),
-     *    @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
-     *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BadRequestResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
-     *       }
-     *     )
-     *   ),
-     *   security={{ "apiAuth": {} }}
-     * )
-     */
-    public function listBookings(ListBookingsRequest $request): JsonResponse
+        public function listBookings(ListBookingsRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
@@ -337,67 +165,14 @@ class BookApiHandler extends BaseController
     }
 
     /**
-     * @param Request $request
-     * @param string $supplier
+     * @param BookingRetrieveItemsRequest $request
      * @return JsonResponse
+     * @throws GuzzleException
      */
-    /**
-     * @OA\Get(
-     *   tags={"Booking API | Booking Endpoints"},
-     *   path="/api/booking/retrieve-booking",
-     *   summary="Retrieve detailed information about a specific booking reservation. ",
-     *   description="Retrieve detailed information about a specific booking reservation. This endpoint allows you to access all the information related to a particular reservation.",
-     *    @OA\Parameter(
-     *      name="booking_id",
-     *      in="query",
-     *      required=true,
-     *      description="Booking ID",
-     *      @OA\Schema(
-     *        type="string",
-     *        example="5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
-     *      )
-     *    ),
-     *    @OA\Response(
-     *      response=200,
-     *      description="OK",
-     *     @OA\JsonContent(
-     *     ref="#/components/schemas/BookingRetrieveBookingResponse",
-     *     examples={
-     *     "example1": @OA\Schema(ref="#/components/examples/BookingRetrieveBookingResponse", example="BookingRetrieveBookingResponse"),
-     *     }
-     *     )
-     *    ),
-     *    @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
-     *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BadRequestResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
-     *       }
-     *     )
-     *   ),
-     *   security={{ "apiAuth": {} }}
-     * )
-     */
-    public function retrieveBooking(Request $request): JsonResponse
+    public function retrieveBooking(BookingRetrieveItemsRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
-
-        $filters = $request->all();
-        $validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
-        if ($validate->fails()) return $this->sendError($validate->errors());
 
         $itemsBooked = BookRepository::bookedItems($request->booking_id);
         $data = [];
@@ -431,74 +206,14 @@ class BookApiHandler extends BaseController
     }
 
     /**
-     * @param Request $request
-     * @param string $supplier
+     * @param BookingCancelBooking $request
      * @return JsonResponse
+     * @throws GuzzleException
      */
-    /**
-     * @OA\Delete(
-     *   tags={"Booking API | Booking Endpoints"},
-     *   path="/api/booking/cancel-booking",
-     *   summary="Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
-     *   description="Cancel Booking",
-     *    @OA\Parameter(
-     *      name="booking_id",
-     *      in="query",
-     *      required=true,
-     *      description="Booking ID",
-     *      example="3333cee5-b4a3-4e51-bfb0-02d09370b585"
-     *    ),
-     *    @OA\Parameter(
-     *      name="booking_item",
-     *      in="query",
-     *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
-     *      In the response object for each rate is a **booking_item** property. <br>
-     *      If there is no booking_item, all items will be deleted",
-     *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-     *    ),
-     *    @OA\Response(
-     *      response=200,
-     *      description="OK",
-     *      @OA\JsonContent(
-     *        ref="#/components/schemas/BookingCancelBookingResponse",
-     *        examples={
-     *        "example1": @OA\Schema(ref="#/components/examples/BookingCancelBookingResponse", example="BookingCancelBookingResponse"),
-     *        }
-     *      )
-     *    ),
-     *    @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BadRequestResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
-     *       }
-     *      )
-     *    ),
-     *    @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
-     *   security={{ "apiAuth": {} }}
-     * )
-     */
-    public function cancelBooking(Request $request): JsonResponse
+    public function cancelBooking(BookingCancelBooking $request): JsonResponse
     {
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
-
-        $validate = Validator::make($request->all(), [
-            'booking_id' => 'required|size:36',
-            'booking_item' => 'nullable|size:36'
-        ]);
-        if ($validate->fails()) return $this->sendError($validate->errors());
 
         if (isset($request->booking_item)) {
             $itemsBooked = BookRepository::bookedItem($request->booking_id, $request->booking_item);
@@ -506,7 +221,6 @@ class BookApiHandler extends BaseController
             $itemsBooked = BookRepository::bookedItems($request->booking_id);
         }
 
-        // TODO: add validation for request
         $filters = $request->all();
         $data = [];
         foreach ($itemsBooked as $item) {
@@ -540,66 +254,13 @@ class BookApiHandler extends BaseController
     }
 
     /**
-     * @param Request $request
-     * @param string $supplier
+     * @param BookingRetrieveBooking $request
      * @return JsonResponse
      */
-    /**
-     * @OA\Get(
-     *   tags={"Booking API | Cart Endpoints"},
-     *   path="/api/booking/retrieve-items",
-     *   summary="Retrieve a list of items currently in your shopping cart.",
-     *   description="Retrieve a list of items currently in your shopping cart. This endpoint provides details about the items added to your cart.",
-     *    @OA\Parameter(
-     *      name="booking_id",
-     *      in="query",
-     *      required=true,
-     *      description="Booking ID",
-     *      @OA\Schema(
-     *        type="string",
-     *        example="5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
-     *      )
-     *    ),
-     *    @OA\Response(
-     *      response=200,
-     *      description="OK",
-     *      @OA\JsonContent(
-     *        ref="#/components/schemas/BookingRetrieveItemsResponse",
-     *        examples={
-     *        "example1": @OA\Schema(ref="#/components/examples/BookingRetrieveItemsResponse", example="BookingRetrieveItemsResponse"),
-     *        }
-     *      )
-     *    ),
-     *    @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
-     *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BadRequestResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
-     *       }
-     *     )
-     *   ),
-     *   security={{ "apiAuth": {} }}
-     * )
-     */
-    public function retrieveItems(Request $request): JsonResponse
+    public function retrieveItems(BookingRetrieveBooking $request): JsonResponse
     {
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
-
-        $validate = Validator::make($request->all(), ['booking_id' => 'required|size:36']);
-        if ($validate->fails()) return $this->sendError($validate->errors());
 
         $itemsInCart = BookRepository::getItemsInCart($request->booking_id);
 
@@ -630,65 +291,8 @@ class BookApiHandler extends BaseController
     }
 
     /**
-     * @param Request $request
+     * @param AddPassengersRequest $request
      * @return JsonResponse
-     */
-    /**
-     * @OA\Post(
-     *   tags={"Booking API | Cart Endpoints"},
-     *   path="/api/booking/add-passengers",
-     *   summary="Add passengers to a booking.",
-     *   description="Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
-     *     @OA\Parameter(
-     *       name="booking_id",
-     *       in="query",
-     *       required=true,
-     *       description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
-     *       In the response object for each rate is a **booking_id** property.",
-     *     ),
-     *     @OA\RequestBody(
-     *     description="JSON object containing the details of the reservation. If you don't pass booking_item(s), these passengers will be added to all booking_items that are in the cart (booking_id)",
-     *     required=true,
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingAddPassengersRequest",
-     *       examples={
-     *           "example1": @OA\Schema(ref="#/components/examples/BookingAddPassengersRequest", example="BookingAddPassengersRequest"),
-     *       },
-     *     ),
-     *   ),
-     *   @OA\Response(
-     *     response=200,
-     *     description="OK",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingAddPassengersResponse",
-     *       examples={
-     *           "Add": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseAdd", example="BookingAddPassengersResponseAdd"),
-     *           "Update": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseUpdate", example="BookingAddPassengersResponseUpdate"),
-     *       },
-     *     ),
-     *   ),
-     *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingAddPassengersResponse",
-     *       examples={
-     *       "Error": @OA\Schema(ref="#/components/examples/BookingAddPassengersResponseError", example="BookingAddPassengersResponseError"),
-     *       },
-     *     ),
-     *   ),
-     *   @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
-     *   security={{ "apiAuth": {} }}
-     * )
      */
     public function addPassengers(AddPassengersRequest $request): JsonResponse
     {

@@ -17,9 +17,6 @@ use Modules\Enums\SupplierNameEnum;
 
 class HbsiHotelPricingDto
 {
-    private const SINGLE_TYPE_ITEM = 'single';
-    private const COMPLETE_TYPE_ITEM = 'complete';
-
     private string $rate_type;
 
     private GiataGeography $destinationData;
@@ -31,10 +28,6 @@ class HbsiHotelPricingDto
     private string $currency;
 
     private float $current_time;
-
-    private float $total_time;
-
-    private string $checkin;
 
     private array $meal_plans_available;
 
@@ -63,7 +56,7 @@ class HbsiHotelPricingDto
     )
     {
         $this->current_time = microtime(true);
-        $this->total_time = 0.0;
+        $this->supplier_id = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
     }
 
     /**
@@ -77,8 +70,7 @@ class HbsiHotelPricingDto
     {
         $this->search_id = $search_id;
         $this->bookingItems = [];
-        $this->rate_type = count($query['occupancy']) === 1 ? self::COMPLETE_TYPE_ITEM : self::SINGLE_TYPE_ITEM;
-        $this->checkin = $query['checkin'];
+        $this->rate_type = 'single';
         $this->meal_plans_available = [];
 
         $pricingRules = array_column($pricingRules, null, 'property');
@@ -91,9 +83,6 @@ class HbsiHotelPricingDto
         foreach ($supplierResponse as $key => $propertyGroup) {
             $hotelResponse[] = $this->setHotelResponse($propertyGroup, $key);
         }
-
-        // TODO: uncomment this line after add Redis
-        // SaveBookingItems::dispatch($this->bookingItems);
 
         return ['response' => $hotelResponse, 'bookingItems' => $this->bookingItems];
     }
@@ -322,7 +311,7 @@ class HbsiHotelPricingDto
 
         $this->bookingItems[] = [
             'booking_item' => $bookingItem,
-            'supplier_id' => Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id,
+            'supplier_id' => $this->supplier_id,
             'search_id' => $this->search_id,
             'booking_item_data' => json_encode([
                 'hotel_id' => $propertyGroup['giata_id'] ?? 0,

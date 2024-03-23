@@ -10,7 +10,64 @@ use Modules\API\Validate\ApiRequest;
 class PriceHotelRequest extends ApiRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * @OA\Post(
+     *   tags={"Pricing API"},
+     *   path="/api/pricing/search",
+     *   summary="Search Price Hotels",
+     *   description="The **'/api/pricing/search'** endpoint, when used for hotel pricing, <br> is a critical part of a hotel booking API. <br> It enables users and developers to search for and obtain detailed pricing information related to hotel accommodations.",
+     *
+     *   @OA\RequestBody(
+     *     description="JSON object containing the details of the reservation.",
+     *     required=true,
+     *
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/PricingSearchRequest",
+     *       examples={
+     *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchRequestNewYork", example="PricingSearchRequestNewYork"),
+     *           "London": @OA\Schema(ref="#/components/examples/PricingSearchRequestLondon", example="PricingSearchRequestLondon"),
+     *           "SupplierCurrency": @OA\Schema(ref="#/components/examples/PricingSearchRequestCurrencySupplier", example="PricingSearchRequestCurrencySupplier"),
+     *       },
+     *     ),
+     *   ),
+     *
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK",
+     *
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/PricingSearchResponse",
+     *         examples={
+     *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchResponseNewYork", example="PricingSearchResponseNewYork"),
+     *           "London": @OA\Schema(ref="#/components/examples/PricingSearchResponseLondon", example="PricingSearchResponseLondon"),
+     *       },
+     *     )
+     *   ),
+     *
+     *   @OA\Response(
+     *     response=400,
+     *     description="Bad Request",
+     *
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BadRequestResponse",
+     *       examples={
+     *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+     *       }
+     *     )
+     *   ),
+     *
+     *   @OA\Response(
+     *     response=401,
+     *     description="Unauthenticated",
+     *
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/UnAuthenticatedResponse",
+     *       examples={
+     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+     *       }
+     *     )
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
      */
     public function authorize(): bool
     {

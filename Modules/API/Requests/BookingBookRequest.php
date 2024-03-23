@@ -11,6 +11,64 @@ class BookingBookRequest extends ApiRequest
     /**
      * Determine if the user is authorized to make this request.
      */
+    /**
+     * @OA\Post(
+     *   tags={"Booking API | Booking Endpoints"},
+     *   path="/api/booking/book",
+     *   summary="Create a new booking for a service or event",
+     *   description="Create a new booking for a service or event. Use this endpoint to make reservations.",
+     *    @OA\Parameter(
+     *      name="booking_id",
+     *      in="query",
+     *      required=true,
+     *      description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
+     *      In the response object for each rate is a **booking_id** property.",
+     *   ),
+     *   @OA\RequestBody(
+     *     description="JSON object containing the details of the reservation.",
+     *     required=true,
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BookingBookRequest",
+     *       examples={
+     *           "example1": @OA\Schema(ref="#/components/examples/BookingBookRequest", example="BookingBookRequest"),
+     *           "example2": @OA\Schema(ref="#/components/examples/BookingBookRequestExpedia", example="BookingBookRequestExpedia"),
+     *       },
+     *     ),
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BookingBookResponse",
+     *       examples={
+     *       "example1": @OA\Schema(ref="#/components/examples/BookingBookResponse", example="BookingBookResponse"),
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=400,
+     *     description="Bad Request",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BookingBookResponseErrorItem",
+     *       examples={
+     *       "example1": @OA\Schema(ref="#/components/examples/BookingBookResponseErrorItem", example="BookingBookResponseErrorItem"),
+     *       "example2": @OA\Schema(ref="#/components/examples/BookingBookResponseErrorBooked", example="BookingBookResponseErrorBooked"),
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=401,
+     *     description="Unauthenticated",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/UnAuthenticatedResponse",
+     *       examples={
+     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+     *       }
+     *     )
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
+     */
     public function authorize(): bool
     {
         return Auth::check();

@@ -69,7 +69,7 @@ class HbsiHotelController
         try {
             $hotelData = $this->preSearchData($filters);
             $hotelIds = array_keys($hotelData);
-            // TODO remove this after using the test case
+            // TODO: remove this after using the test case
             if (empty($hotelIds)) $hotelIds = ['51722', '51721'];
 
             // get PriceData from HBSI

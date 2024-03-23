@@ -56,17 +56,17 @@ class HbsiBookApiController extends BaseBookApiController
 
         $res = [];
 
-        if ($bookingItem->rate_type === 'completed' && $filters['booking_item'] !== $bookingItem->complete_id) {
-            $bookingItemsSingle = ApiBookingInspector::where('booking_id', $booking_id)
-                ->where('rate_type', 'single')
-                ->where('complete_id', $filters['booking_item'])
-                ->get();
-            foreach ($bookingItemsSingle as $bookingItemSingle) {
-                $iterFilters = $filters;
-                $iterFilters['booking_item'] = $bookingItemSingle->booking_item;
-                $res[] = $this->addPassengers($iterFilters, $passengersData);
-            }
-        }
+//        if ($bookingItem->rate_type === 'completed' && $filters['booking_item'] !== $bookingItem->complete_id) {
+//            $bookingItemsSingle = ApiBookingInspector::where('booking_id', $booking_id)
+//                ->where('rate_type', 'single')
+//                ->where('complete_id', $filters['booking_item'])
+//                ->get();
+//            foreach ($bookingItemsSingle as $bookingItemSingle) {
+//                $iterFilters = $filters;
+//                $iterFilters['booking_item'] = $bookingItemSingle->booking_item;
+//                $res[] = $this->addPassengers($iterFilters, $passengersData);
+//            }
+//        }
 
         $bookingItemIsset = ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $filters['booking_item'])

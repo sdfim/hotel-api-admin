@@ -50,7 +50,8 @@ class ApiBookingItem extends Model
         'search_id',
         'supplier_id',
         'booking_item_data',
-        'created_at'
+        'created_at',
+        'complete_id',
     ];
 
     /**

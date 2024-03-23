@@ -28,6 +28,7 @@ use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelPricingDto;
 use Modules\API\Suppliers\DTO\HBSI\HbsiHotelPricingDto;
 use Modules\API\Suppliers\DTO\IcePortal\IcePortalHotelContentDetailDto;
 use Modules\API\Suppliers\DTO\IcePortal\IcePortalHotelContentDto;
+use Modules\API\Suppliers\HbsiSupplier\HbsiService;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Inspector\SearchInspectorController;
@@ -71,87 +72,23 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         private readonly HbsiHotelController            $hbsi = new HbsiHotelController(),
         private readonly HbsiHotelPricingDto            $HbsiHotelPricingDto = new HbsiHotelPricingDto(),
         private readonly PricingRulesTools              $pricingRulesService = new PricingRulesTools(),
+        private readonly HbsiService                    $hbsiService = new HbsiService(),
 
     )
     {
         $this->start();
     }
 
-    /*
+    /**
      * @param Request $request
      * @return JsonResponse
-     */
-
-    /**
-     * @OA\Post(
-     *   tags={"Content API"},
-     *   path="/api/content/search",
-     *   summary="Search Hotels",
-     *   description="Search for hotels by destination or coordinates.",
-     *
-     *   @OA\RequestBody(
-     *     description="JSON object containing the details of the reservation.",
-     *     required=true,
-     *
-     *     @OA\JsonContent(
-     *       oneOf={
-     *
-     *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestDestination"),
-     *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestCoordinates"),
-     *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestSupplierHotelName"),
-     *         },
-     *       examples={
-     *           "searchByDestination": @OA\Schema(ref="#/components/examples/ContentSearchRequestDestination", example="ContentSearchRequestDestination"),
-     *           "searchByCoordinates": @OA\Schema(ref="#/components/examples/ContentSearchRequestCoordinates", example="ContentSearchRequestCoordinates"),
-     *           "searchBySupplierHotelName": @OA\Schema(ref="#/components/examples/ContentSearchRequestSupplierHotelName", example="ContentSearchRequestSupplierHotelName"),
-     *       },
-     *     ),
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=200,
-     *     description="OK",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/ContentSearchResponse",
-     *       examples={
-     *       "searchByCoordinates": @OA\Schema(ref="#/components/examples/ContentSearchResponse", example="ContentSearchResponse"),
-     *       }
-     *     )
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BadRequestResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
-     *       }
-     *     )
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
-     *   security={{ "apiAuth": {} }}
-     * )
      */
     public function search(Request $request): JsonResponse
     {
         try {
             $filters = $request->all();
             $supplierNames = explode(', ', (GeneralConfiguration::pluck('content_supplier')->toArray()[0] ?? 'Expedia'));
-            $keyPricingSearch = request()->get('type') . ':contentSearch:' . http_build_query(Arr::dot($filters));
+            $keyPricingSearch = $request->type . ':contentSearch:' . http_build_query(Arr::dot($filters));
 
             if (Cache::has($keyPricingSearch . ':content') && Cache::has($keyPricingSearch . ':clientContent')) {
                 $content = Cache::get($keyPricingSearch . ':content');
@@ -189,7 +126,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     }
                 }
 
-                // enrichment Property Weighting
+                /** Enrichment Property Weighting */
                 $clientResponse = $this->propsWeight->enrichmentContent($clientResponse, 'hotel');
 
                 $content = [
@@ -234,80 +171,11 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
      * @param Request $request
      * @return JsonResponse
      */
-    /**
-     * @OA\Get(
-     *   tags={"Content API"},
-     *   path="/api/content/detail",
-     *   summary="Delail Hotels",
-     *   description="Get detailed information about a hotel.",
-     *
-     *    @OA\Parameter(
-     *      name="type",
-     *      in="query",
-     *      required=true,
-     *      description="Type of content to search (e.g., 'hotel').",
-     *
-     *      @OA\Schema(
-     *        type="string",
-     *        example="hotel"
-     *        )
-     *    ),
-     *
-     *    @OA\Parameter(
-     *      name="property_id",
-     *    in="query",
-     *    required=true,
-     *    description="Giata ID of the property to get details for (e.g., 98736411).",
-     *
-     *   	@OA\Schema(
-     *      type="integer",
-     *      example=98736411
-     *    )
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=200,
-     *     description="OK",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/ContentDetailResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/ContentDetailResponse", example="ContentDetailResponse"),
-     *       }
-     *     )
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BadRequestResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
-     *       }
-     *     )
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
-     *   security={{ "apiAuth": {} }}
-     * )
-     */
     public function detail(Request $request): JsonResponse
     {
         try {
             $supplierNames = explode(', ', GeneralConfiguration::pluck('content_supplier')->toArray()[0]);
-            $keyPricingSearch = request()->get('type') . ':contentDetail:' . http_build_query(Arr::dot($request->all()));
+            $keyPricingSearch = $request->type . ':contentDetail:' . http_build_query(Arr::dot($request->all()));
 
             if (Cache::has($keyPricingSearch . ':dataResponse') && Cache::has($keyPricingSearch . ':clientResponse')) {
 
@@ -364,77 +232,18 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         }
     }
 
-    /*
-     * @param Request $request
-     * @return JsonResponse
-     */
-
     /**
-     * @OA\Post(
-     *   tags={"Pricing API"},
-     *   path="/api/pricing/search",
-     *   summary="Search Price Hotels",
-     *   description="The **'/api/pricing/search'** endpoint, when used for hotel pricing, <br> is a critical part of a hotel booking API. <br> It enables users and developers to search for and obtain detailed pricing information related to hotel accommodations.",
-     *
-     *   @OA\RequestBody(
-     *     description="JSON object containing the details of the reservation.",
-     *     required=true,
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/PricingSearchRequest",
-     *       examples={
-     *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchRequestNewYork", example="PricingSearchRequestNewYork"),
-     *           "London": @OA\Schema(ref="#/components/examples/PricingSearchRequestLondon", example="PricingSearchRequestLondon"),
-     *           "SupplierCurrency": @OA\Schema(ref="#/components/examples/PricingSearchRequestCurrencySupplier", example="PricingSearchRequestCurrencySupplier"),
-     *       },
-     *     ),
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=200,
-     *     description="OK",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/PricingSearchResponse",
-     *         examples={
-     *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchResponseNewYork", example="PricingSearchResponseNewYork"),
-     *           "London": @OA\Schema(ref="#/components/examples/PricingSearchResponseLondon", example="PricingSearchResponseLondon"),
-     *       },
-     *     )
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BadRequestResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
-     *       }
-     *     )
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
-     *   security={{ "apiAuth": {} }}
-     * )
+     * @param Request $request
+     * @param array $suppliers
+     * @return JsonResponse
+     * @throws Throwable
      */
     public function price(Request $request, array $suppliers): JsonResponse
     {
         try {
             $filters = $request->all();
 
-            $keyPricingSearch = request()->get('type') . ':pricingSearch:' . http_build_query(Arr::dot($filters));
+            $keyPricingSearch = $request->type . ':pricingSearch:' . http_build_query(Arr::dot($filters));
 
             if (Cache::has($keyPricingSearch . ':result')) {
                 $res = Cache::get($keyPricingSearch . ':result');
@@ -452,10 +261,13 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $dataResponse = $clientResponse = $fibers = $bookingItems = $dataOriginal = [];
                 $countResponse = $countClientResponse = 0;
 
+                /**
+                 * Fiber is used to collect all the promises first,
+                 * and then together execute them asynchronously
+                 */
                 foreach ($suppliers as $supplierId) {
                     $supplier = Supplier::find($supplierId)?->name;
                     $fibers[$supplier] = new Fiber(function () use ($supplier, $filters, $search_id, $pricingRules) {
-
                         $supplierResponse = match (SupplierNameEnum::from($supplier)) {
                             SupplierNameEnum::EXPEDIA => $this->expedia->price($filters),
                             SupplierNameEnum::HBSI => $this->hbsi->price($filters),
@@ -465,6 +277,14 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     });
                 }
 
+                /**
+                 * Collecting all the promises
+                 * Each Supplier's request may contain a group of promises/requests
+                 * Running Fiber returns a value, which can be either a promise or an array of promises.
+                 * If it is an array, the code iterates over each promise in the array and adds it to the $promises array using a key in the format i_j,
+                 * where i is the Fiber index and j is the index of the promises in the array.
+                 * If the returned value is not an array, it is assumed to be a promise and is added to the $promises array using the key corresponding to the fiber index.
+                 */
                 $promises = [];
                 foreach ($fibers as $i => $fiber) {
                     if (!$fiber->isStarted()) {
@@ -478,7 +298,14 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 }
 
                 $st = microtime(true);
+                /** Running the promises asynchronously */
                 $resolvedResponses = Promise\Utils::settle($promises)->wait();
+
+                /**
+                 * As a result of this code, the $resume array will contain all values from $resolvedResponses,
+                 * but they will be grouped by the first part of the source keys. If the source key contained two parts,
+                 * the corresponding values will be grouped in a subarray.
+                 */
                 $resume = [];
                 foreach ($resolvedResponses as $key => $resolvedResponse) {
                     $arrKey = explode('_', $key);
@@ -488,6 +315,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 }
                 Log::info('HotelApiHandler | price | asyncResponses ' . (microtime(true) - $st) . 's');
 
+                /** Results processing */
                 foreach ($fibers as $i => $fiber) {
                     if ($fiber->isSuspended()) {
                         $fiber->resume($resume[$i] ?? null);
@@ -503,13 +331,13 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     }
                 }
 
-                // enrichment Property Weighting
+                /** Enrichment Property Weighting */
                 $clientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
 
                 $content = ['count' => $countResponse, 'query' => $filters, 'results' => $dataResponse];
                 $clientContent = ['count' => $countClientResponse, 'query' => $filters, 'results' => $clientResponse];
 
-                // save data to Inspector
+                /** Save data to Inspector */
                 Log::info('HotelApiHandler | price | SaveSearchInspector | start');
                 SaveSearchInspector::dispatch([
                     $search_id, $filters, $dataOriginal, $content, $clientContent, $suppliers, 'price', 'hotel',
@@ -573,8 +401,19 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             $st = microtime(true);
             $dtoData = $this->HbsiHotelPricingDto->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules);
-            $bookingItems[$supplierName] = $dtoData['bookingItems'];
-            $clientResponse[$supplierName] = $dtoData['response'];
+
+            /** Union rates by supplier_room_name */
+            $countRooms = count($filters['occupancy']);
+            if ($countRooms > 1) {
+                $unionResponse = $this->hbsiService->unionItems($dtoData['response'], $dtoData['bookingItems'], $countRooms);
+
+                $bookingItems[$supplierName] = $unionResponse['bookingItems'];
+                $clientResponse[$supplierName] = $unionResponse['response'];
+            }
+            else {
+                $bookingItems[$supplierName] = $dtoData['bookingItems'];
+                $clientResponse[$supplierName] = $dtoData['response'];
+            }
             Log::info('HotelApiHandler | price | DTO hbsiResponse ' . (microtime(true) - $st) . 's');
 
             $countResponse += count($hbsiResponse['array']);
