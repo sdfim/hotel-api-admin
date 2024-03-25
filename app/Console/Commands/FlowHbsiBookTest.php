@@ -139,15 +139,14 @@ class FlowHbsiBookTest extends Command
      */
     private function makeSearchRequest(int $count = 1): array
     {
-        if ($count > 2) $count = 2;
         $faker = Faker::create();
         $checkin = Carbon::now()->addDays()->toDateString();
         $checkout = Carbon::now()->addDays(1 + rand(2, 5))->toDateString();
 
         $occupancy = [];
-        foreach (range(1, $count) as $index) {
+        foreach (range(1, rand(1, 2)) as $index) {
 
-            $room['adults'] = $faker->numberBetween(1, 2);
+            $room['adults'] = rand(1, 2);
 
             $children = rand(0, 2);
             $children_ages = [];

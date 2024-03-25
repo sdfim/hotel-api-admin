@@ -61,6 +61,12 @@
                                         class="text-white px-4 py-3 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
                                         id="loadResponse">Load JSON Response
                                 </button>
+                                @php if ($inspector->sub_type == 'create') { @endphp
+                                <button type="button"
+                                        class="text-white px-4 py-3 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
+                                        data-tw-toggle="modal" data-tw-target="#modal-file-response">View Response
+                                </button>
+                                @php  } @endphp
                             </div>
                         </div>
                     </div>
@@ -126,6 +132,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="mt-5 tab-content">
                         <div class="block tab-pane" id="tab-pills-origin">
                             <p class="mb-0 dark:text-gray-300">
@@ -198,6 +205,45 @@
                             <json-viewer id="json-client" style="font-size:0.8em"></json-viewer>
                         </div>
                     </div>
+
+                    <div class="relative z-50 hidden modal" id="modal-file-response" aria-labelledby="modal-title"
+                         role="dialog" aria-modal="true">
+                        <div class="fixed inset-0 z-50 overflow-y-auto">
+                            <div class="absolute inset-0 transition-opacity bg-black bg-opacity-50 modal-overlay"></div>
+                            <div class="p-4 mx-auto animate-translate max-w-3xl">
+                                <div
+                                    class="relative overflow-hidden text-left transition-all transform bg-white rounded-lg shadow-xl dark:bg-zinc-600">
+                                    <div class="bg-white dark:bg-zinc-700">
+                                        <div
+                                            class="flex items-center p-4 border-b rounded-t border-gray-50 dark:border-zinc-600">
+                                            <h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100 ">
+                                                Response {{$inspector->id}}
+                                            </h3>
+                                            <button
+                                                class="inline-flex items-center px-2 py-1 text-sm text-gray-400 border-transparent rounded-lg btn hover:bg-gray-50/50 hover:text-gray-900 dark:text-gray-100 ltr:ml-auto rtl:mr-auto dark:hover:bg-zinc-600"
+                                                type="button" data-tw-dismiss="modal">
+                                                <i class="text-xl text-gray-500 mdi mdi-close dark:text-zinc-100/60"></i>
+                                            </button>
+                                        </div>
+                                        <div class="p-6 space-y-6 ltr:text-left rtl:text-right">
+                                            <pre
+                                                style="font-size: 0.8em;">{{json_encode(json_decode($file_response), JSON_PRETTY_PRINT) }}</pre>
+                                        </div>
+                                        <!-- Modal footer -->
+                                        <div
+                                            class="flex items-center gap-3 p-5 space-x-2 border-t rounded-b border-gray-50 dark:border-zinc-600">
+
+                                            <button type="button"
+                                                    class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm btn dark:text-gray-100 hover:bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-gray-500/30 sm:mt-0 sm:w-auto sm:text-sm dark:bg-zinc-700 dark:border-zinc-600 dark:hover:bg-zinc-600 dark:focus:bg-zinc-600 dark:focus:ring-zinc-700 dark:focus:ring-gray-500/20"
+                                                    data-tw-dismiss="modal">Cancel
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
@@ -285,7 +331,7 @@
             }
         });
 
-        document.getElementById('loadResponse').addEventListener('click', function() {
+        document.getElementById('loadResponse').addEventListener('click', function () {
             var blob = new Blob([<?= json_encode($file_client_response) ?>], {type: "application/json;charset=utf-8"});
             saveAs(blob, "file.json");
         });

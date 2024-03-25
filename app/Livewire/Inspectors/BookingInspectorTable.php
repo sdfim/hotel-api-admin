@@ -46,6 +46,7 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 TextColumn::make('booking_id')
                     ->searchable(isIndividual: true)
                     ->toggleable()
+                    ->view('dashboard.booking-inspector.column.booking-id')
                     ->sortable(),
                 TextColumn::make('type')
                     ->searchable(isIndividual: true)
@@ -73,12 +74,12 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     ->sortable()
             ])
             ->actions([
-                ActionGroup::make([
-                    ViewAction::make()
-                        ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
-                        ->label('View response')
-                        ->color('info')
-                ])
+//                ActionGroup::make([
+//                    ViewAction::make()
+//                        ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
+//                        ->label('View response')
+//                        ->color('info')
+//                ])
             ])
             ->filters([
                 Filter::make('is_book')
