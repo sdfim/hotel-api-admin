@@ -402,10 +402,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $st = microtime(true);
             $dtoData = $this->HbsiHotelPricingDto->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules);
 
-            /** Union rates by supplier_room_name */
+            /**
+             * Union rates by supplier_room_name
+             */
             $countRooms = count($filters['occupancy']);
             if ($countRooms > 1) {
-                $unionResponse = $this->hbsiService->unionItems($dtoData['response'], $dtoData['bookingItems'], $countRooms);
+                $unionResponse = $this->hbsiService->mergerItems($dtoData['response'], $dtoData['bookingItems'], $countRooms);
 
                 $bookingItems[$supplierName] = $unionResponse['bookingItems'];
                 $clientResponse[$supplierName] = $unionResponse['response'];

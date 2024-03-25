@@ -63,6 +63,7 @@ class HbsiHotelController
     /**
      * @param array $filters
      * @return array|null
+     * @throws \Throwable
      */
     public function price(array $filters): ?array
     {
@@ -72,7 +73,7 @@ class HbsiHotelController
             // TODO: remove this after using the test case
             if (empty($hotelIds)) $hotelIds = ['51722', '51721'];
 
-            // get PriceData from HBSI
+            /** get PriceData from HBSI */
             $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($hotelIds, $filters);
 
             $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();

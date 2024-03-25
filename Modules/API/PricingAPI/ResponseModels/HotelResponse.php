@@ -2,7 +2,7 @@
 
 namespace Modules\API\PricingAPI\ResponseModels;
 
-class HotelResponse
+class HotelResponse extends BaseResponse
 {
     /**
      * @var int

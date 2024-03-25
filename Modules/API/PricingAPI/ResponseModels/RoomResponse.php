@@ -2,7 +2,7 @@
 
 namespace Modules\API\PricingAPI\ResponseModels;
 
-class RoomResponse
+class RoomResponse extends BaseResponse
 {
 
     private string $giata_room_code;

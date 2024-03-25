@@ -326,8 +326,8 @@ class BookApiHandler extends BaseController
                 $filters['booking_item'] = $booking_item;
 
                 $res[] = match (SupplierNameEnum::from($supplier)) {
-                    SupplierNameEnum::EXPEDIA => $this->expedia->addPassengers($filters, $filtersOutput[$booking_item]),
-                    SupplierNameEnum::HBSI => $this->hbsi->addPassengers($filters, $filtersOutput[$booking_item]),
+                    SupplierNameEnum::EXPEDIA => $this->expedia->addPassengers($filters, $filtersOutput[$booking_item], SupplierNameEnum::EXPEDIA->value),
+                    SupplierNameEnum::HBSI => $this->hbsi->addPassengers($filters, $filtersOutput[$booking_item], SupplierNameEnum::HBSI->value),
                     default => [],
                 };
             }

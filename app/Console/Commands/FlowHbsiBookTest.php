@@ -2,8 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\ApiBookingItem;
-use App\Repositories\ApiBookingInspectorRepository;
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\PendingRequest;
@@ -53,11 +51,11 @@ class FlowHbsiBookTest extends Command
     {
         $retryCount = 0;
         $bookingItem = null;
-        $this->warn('SEARCH '.$s);
+        $this->warn('SEARCH ' . $s);
         while ($retryCount < 7 && $bookingItem === null) {
             $responseData = $this->makeSearchRequest($s);
             if (!isset($responseData['data']['query']['occupancy'])) continue;
-            $this->query['search_'.$s] = $responseData['data']['query']['occupancy'];
+            $this->query['search_' . $s] = $responseData['data']['query']['occupancy'];
             $searchId = $responseData['data']['search_id'];
             $bookingItem = $this->getBookingItem($responseData);
 
@@ -69,6 +67,7 @@ class FlowHbsiBookTest extends Command
 
         return $bookingItem;
     }
+
     public function flow(): void
     {
         $this->query = [];
@@ -140,6 +139,7 @@ class FlowHbsiBookTest extends Command
      */
     private function makeSearchRequest(int $count = 1): array
     {
+        if ($count > 2) $count = 2;
         $faker = Faker::create();
         $checkin = Carbon::now()->addDays()->toDateString();
         $checkout = Carbon::now()->addDays(1 + rand(2, 5))->toDateString();
@@ -147,10 +147,9 @@ class FlowHbsiBookTest extends Command
         $occupancy = [];
         foreach (range(1, $count) as $index) {
 
-            $room['adults'] = $faker->numberBetween(1, 3);
+            $room['adults'] = $faker->numberBetween(1, 2);
 
-            if ($count % 2 != 0) $children = rand(0, 2);
-            else $children = 0;
+            $children = rand(0, 2);
             $children_ages = [];
             if ($children > 0) {
                 foreach (range(1, $children) as $index) {
@@ -197,6 +196,7 @@ class FlowHbsiBookTest extends Command
     /**
      * @param string $bookingId
      * @param array $bookingItems
+     * @param array $bookingRateOrdinals
      * @param array $occupancy
      * @return void
      */
@@ -208,53 +208,39 @@ class FlowHbsiBookTest extends Command
 
         foreach ($bookingItems as $keySearch => $bookingItem) {
 
-            if ($this->supplier === 'HBSI') {
-                $rate_occupancy = $bookingRateOrdinals[$keySearch];
-                $guest = explode('-', $rate_occupancy);
-                $adultsBI = $guest[0];
-                $childrenBI = $guest[1] + $guest[2];
-            }
+            $numberOfRates = explode(';', $bookingRateOrdinals[$keySearch]);
 
-            $roomCounter = 1;
-            $step = 0;
-            foreach ($occupancy[$keySearch] as $occupant) {
+            foreach ($numberOfRates as $keyRoom => $rate) {
 
                 if ($this->supplier === 'HBSI') {
-                    $children = 0;
-                    $adults = $occupant['adults'];
-                    if (isset($occupant['children_ages']) && count($occupant['children_ages']) > 0) {
-                        $children = count($occupant['children_ages']);
-                    }
-                    if ($adultsBI !== $adults && $childrenBI !== $children) {
-                        continue;
-                    }
-                    if ($step > 0) continue;
+                    $rate_occupancy = $rate;
+                    $guest = explode('-', $rate_occupancy);
+                    $adultsBI = $guest[0];
+                    $childrenBI = $guest[1] + $guest[2];
                 }
 
-                for ($i = 0; $i < $occupant['adults']; $i++) {
-                    $passenger = [
-                        'title' => 'mr',
-                        'given_name' => $faker->firstName,
-                        'family_name' => $faker->lastName,
-                        'date_of_birth' => $faker->date('Y-m-d', strtotime('-' . rand(20, 60) . ' years')),
-                        'booking_items' => [
-                            [
-                                'booking_item' => $bookingItem,
-                                'room' => $roomCounter,
-                            ],
-                        ],
-                    ];
+                $roomCounter = $keyRoom + 1;
+                $step = 0;
+                foreach ($occupancy[$keySearch] as $occupant) {
 
-                    $requestData['passengers'][] = $passenger;
-                }
+                    if ($this->supplier === 'HBSI') {
+                        $children = 0;
+                        $adults = $occupant['adults'];
+                        if (isset($occupant['children_ages']) && count($occupant['children_ages']) > 0) {
+                            $children = count($occupant['children_ages']);
+                        }
+                        if ($adultsBI !== $adults && $childrenBI !== $children) {
+                            continue;
+                        }
+                        if ($step > 0) continue;
+                    }
 
-                if (isset($occupant['children_ages']) && count($occupant['children_ages']) > 0) {
-                    foreach ($occupant['children_ages'] as $childAge) {
+                    for ($i = 0; $i < $occupant['adults']; $i++) {
                         $passenger = [
-                            'title' => 'ms',
-                            'given_name' => 'Child',
-                            'family_name' => 'Donald',
-                            'date_of_birth' => date('Y-m-d', strtotime("-$childAge years")),
+                            'title' => 'mr',
+                            'given_name' => $faker->firstName,
+                            'family_name' => $faker->lastName,
+                            'date_of_birth' => $faker->date('Y-m-d', strtotime('-' . rand(20, 60) . ' years')),
                             'booking_items' => [
                                 [
                                     'booking_item' => $bookingItem,
@@ -265,14 +251,33 @@ class FlowHbsiBookTest extends Command
 
                         $requestData['passengers'][] = $passenger;
                     }
+
+                    if (isset($occupant['children_ages']) && count($occupant['children_ages']) > 0) {
+                        foreach ($occupant['children_ages'] as $childAge) {
+                            $passenger = [
+                                'title' => 'ms',
+                                'given_name' => 'Child',
+                                'family_name' => 'Donald',
+                                'date_of_birth' => date('Y-m-d', strtotime("-$childAge years")),
+                                'booking_items' => [
+                                    [
+                                        'booking_item' => $bookingItem,
+                                        'room' => $roomCounter,
+                                    ],
+                                ],
+                            ];
+
+                            $requestData['passengers'][] = $passenger;
+                        }
+                    }
+                    $roomCounter++;
+                    $step++;
                 }
-                $roomCounter++;
-                $step++;
             }
         }
 
         $requestData['booking_id'] = $bookingId;
-//        dd($requestData);
+//        dump($requestData);
 
         $response = $this->client->post($this->url . '/api/booking/add-passengers', $requestData);
 

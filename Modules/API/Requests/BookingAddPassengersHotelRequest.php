@@ -85,7 +85,6 @@ class BookingAddPassengersHotelRequest extends ApiRequest
     {
         return [
             'booking_id' => 'required|size:36',
-
             'passengers' => 'required|array',
             'passengers.*.title' => 'required|in:mr,Mr,MR,ms,Ms,MS,Mrs,MRS,mrs,Miss,MISS,miss,Dr,dr,DR,Prof,prof,PROF',
             'passengers.*.given_name' => 'required|string',
