@@ -55,7 +55,11 @@
                             <div class="mt-2">
                                 <button type="button"
                                         class="text-white px-4 py-3 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
-                                        data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">Request
+                                        data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">View Request
+                                </button>
+                                <button type="button"
+                                        class="text-white px-4 py-3 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
+                                        id="loadResponse">Load JSON Response
                                 </button>
                             </div>
                         </div>
@@ -202,6 +206,8 @@
 @section('scripts')
     <script src="{{ URL::asset('build/js/json-viewer.js') }}"></script>
     <script src="{{ URL::asset('build/js/pages/nav&tabs.js') }}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
 
     <script type="module">
         //original request request
@@ -277,6 +283,11 @@
             if (currentSearch_client && e.keyCode === 13) {
                 currentSearch_client.next();
             }
+        });
+
+        document.getElementById('loadResponse').addEventListener('click', function() {
+            var blob = new Blob([<?= json_encode($file_client_response) ?>], {type: "application/json;charset=utf-8"});
+            saveAs(blob, "file.json");
         });
 
     </script>
