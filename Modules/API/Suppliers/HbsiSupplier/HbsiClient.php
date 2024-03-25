@@ -281,7 +281,7 @@ class HbsiClient
                 <HotelReservations>
                 <HotelReservation RoomStayReservation="true" CreateDateTime="' . date('Y-m-d\TH:i:sP') . '" CreatorID="Partner">
                     ' . $iata . '
-                    <UniqueID Type="14" ID="' . $bookingItem->booking_item . '_' . time() . '"/>
+                    <UniqueID Type="14" ID="' . $bookingItem->booking_item . '"/>
                     ' . $roomStays . '
                     ' . $resGuests . '
                     ' . $resGlobalInfo . '
