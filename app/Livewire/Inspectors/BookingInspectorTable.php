@@ -55,7 +55,7 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 TextColumn::make('sub_type')
                     ->searchable(isIndividual: true)
                     ->toggleable()
-                    ->label('Step'),
+                    ->label('Category'),
                 TextColumn::make('token.id')
                     ->numeric()
                     ->searchable(isIndividual: true)
