@@ -28,7 +28,7 @@ class FlowHbsiBookTest extends Command
     {
         parent::__construct();
         $this->client = Http::withToken(env('TEST_TOKEN'));
-        $this->url = env('BASE_URI_FLOW_HBSI_BOOK_TEST');
+        $this->url = env('BASE_URI_FLOW_HBSI_BOOK_TEST', 'http://localhost:8000');
     }
 
     /**
