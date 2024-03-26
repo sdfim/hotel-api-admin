@@ -222,7 +222,7 @@ class ExpediaHotelPricingDto
                     $data['nights'] = $penalty['nights'];
                 }
                 if (isset($penalty['currency'])) {
-                    $data['currency'] = $penalty['AmountPercent']['@attributes']['CurrencyCode'];
+                    $data['currency'] = $penalty['currency'];
                 }
                 $cancellationPolicies[] = $data;
             }

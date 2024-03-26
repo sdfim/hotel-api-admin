@@ -44,10 +44,12 @@ class BookingInspectorController extends BaseInspectorController
             $query = json_encode($query);
 
             $original = null;
-            if (isset($content['original'])) {
-                $original = $content['original'];
-                unset($content['original']);
-                $original = is_array($original) ? json_encode($original) : $original;
+            if (!$content instanceof \stdClass) {
+                if (isset($content['original'])) {
+                    $original = $content['original'];
+                    unset($content['original']);
+                    $original = is_array($original) ? json_encode($original) : $original;
+                }
             }
             $content = json_encode($content);
             $client_content = json_encode($client_content);

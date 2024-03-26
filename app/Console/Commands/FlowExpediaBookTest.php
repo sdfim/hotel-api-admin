@@ -13,32 +13,26 @@ class FlowExpediaBookTest extends Command
 {
     /**
      * The name and signature of the console command.
-     *
-     * @var string
      */
     protected $signature = 'expedia-book-test {step} {destination} {supplier}';
-    /**
-     * @var string
-     */
+
+
     protected $description = 'Command description';
-    /**
-     * @var PendingRequest
-     */
+
+    /** @var PendingRequest */
     protected PendingRequest $client;
-    // protected const TOKEN = 'bE38wDtILir6aJWeFHA2EnHZaQQcwdFjn7PKFz3A482bcae2';
-    // protected const BASE_URI = 'https://ddwlx1ki3fks2.cloudfront.net';
 
-    protected const TOKEN = 'hbm7hrirpLznIX9tpC0mQ0BjYD9PXYArGIDvwdPs5ed1d774';
-
-    protected const BASE_URI = 'http://localhost:8008';
+    protected string $url;
 
     protected string $destination;
+
     protected string $supplier;
 
     public function __construct()
     {
         parent::__construct();
-        $this->client = Http::withToken(self::TOKEN);
+        $this->client = Http::withToken(env('TEST_TOKEN'));
+        $this->url = env('BASE_URI_FLOW_HBSI_BOOK_TEST');
     }
 
     /**
@@ -165,7 +159,7 @@ class FlowExpediaBookTest extends Command
             'rating' => $faker->numberBetween(3, 5),
         ];
 
-        $response = $this->client->post(self::BASE_URI . '/api/pricing/search', $requestData);
+        $response = $this->client->post($this->url . '/api/pricing/search', $requestData);
         return $response->json();
     }
 
@@ -184,7 +178,7 @@ class FlowExpediaBookTest extends Command
             $requestData['booking_id'] = $bookingId;
         }
 
-        $response = $this->client->post(self::BASE_URI . '/api/booking/add-item', $requestData);
+        $response = $this->client->post($this->url . '/api/booking/add-item', $requestData);
         $bookingId = $response->json()['data']['booking_id'];
         $this->info('booking_id = ' . $bookingId);
 
@@ -247,7 +241,7 @@ class FlowExpediaBookTest extends Command
 
         $requestData['booking_id'] = $bookingId;
 
-        $response = $this->client->post(self::BASE_URI . '/api/booking/add-passengers', $requestData);
+        $response = $this->client->post($this->url . '/api/booking/add-passengers', $requestData);
 
         $this->info('addPassengers: ' . json_encode($response->json()));
     }
@@ -264,7 +258,7 @@ class FlowExpediaBookTest extends Command
             'booking_item' => $bookingItem,
         ];
 
-        $response = $this->client->delete(self::BASE_URI . '/api/booking/remove-item', $requestData);
+        $response = $this->client->delete($this->url . '/api/booking/remove-item', $requestData);
         $this->info('removeBookingItem: ' . json_encode($response->json()));
     }
 
@@ -278,7 +272,7 @@ class FlowExpediaBookTest extends Command
             'booking_id' => $bookingId,
         ];
 
-        $response = $this->client->get(self::BASE_URI . '/api/booking/retrieve-items', $requestData);
+        $response = $this->client->get($this->url . '/api/booking/retrieve-items', $requestData);
         $this->info('retrieveItems: ' . json_encode($response->json()));
     }
 
@@ -312,7 +306,7 @@ class FlowExpediaBookTest extends Command
             ],
         ];
 
-        $response = $this->client->post(self::BASE_URI . '/api/booking/book', $requestData);
+        $response = $this->client->post($this->url . '/api/booking/book', $requestData);
         $this->info('book: ' . json_encode($response->json()));
     }
 }

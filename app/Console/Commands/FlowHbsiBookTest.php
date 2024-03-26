@@ -13,12 +13,12 @@ class FlowHbsiBookTest extends Command
 {
     /**
      * The name and signature of the console command.
-     *
-     * @var string
      */
     protected $signature = 'hbsi-book-test {step} {destination} {supplier}';
 
+    /** @var PendingRequest */
     protected PendingRequest $client;
+
     protected string $url;
     private string $destination;
     private string $supplier;

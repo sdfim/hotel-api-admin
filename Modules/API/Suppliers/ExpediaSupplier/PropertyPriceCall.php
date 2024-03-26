@@ -212,7 +212,7 @@ class PropertyPriceCall
         $res = [];
         if (!empty($responses)) {
             foreach ($responses as $response) {
-                $res[$response['property_id']] = $response;
+                if (isset($response['property_id'])) $res[$response['property_id']] = $response;
             }
         }
 
