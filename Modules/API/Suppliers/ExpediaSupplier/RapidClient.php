@@ -14,19 +14,15 @@ use Psr\Http\Message\ResponseInterface;
 class RapidClient
 {
     private const GZIP = "gzip";
-    /**
-     * @var Client
-     */
+
+    private const AUTHORIZATION_HEADER = "EAN APIKey=%s,Signature=%s,timestamp=%s";
+
+    /** * @var Client */
     private Client $client;
 
-    /**
-     * @var Credentials
-     */
+    /** * @var Credentials */
     private Credentials $credentials;
 
-    /**
-     *
-     */
     public function __construct()
     {
         $this->credentials = CredentialsFactory::fromConfig();
