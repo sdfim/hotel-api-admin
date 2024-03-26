@@ -1,0 +1,527 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Conditions:
+  IsFirstFrontend: !Equals
+    - !Ref 'FirstFrontendDeploy'
+    - 'true'
+Description: Cloudformation template to create ujv resources
+Outputs:
+  CloudfrontUrl:
+    Description: Cloudfront URL
+    Value: !Join
+      - ''
+      - - https://
+        - !GetAtt 'CloudfrontDistr.DomainName'
+  OAI:
+    Description: OAI
+    Export:
+      Name: !If
+        - IsFirstFrontend
+        - !Join
+          - '-'
+          - - !Ref 'APPNAME'
+            - cfoai
+        - !Join
+          - '-'
+          - - !Ref 'AWS::StackName'
+            - !Ref 'APPNAME'
+            - cfoai
+    Value: !If
+      - IsFirstFrontend
+      - !Ref 'CloudfrontOAI'
+      - None
+Parameters:
+  APPNAME:
+    Description: Name of the app, it is used to construct resources names
+    Type: String
+  BackendStackName:
+    Description: Name of the backend cloudfrormation stack
+    Type: String
+  FirstFrontendDeploy:
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Default: 'false'
+    Description: If this is true, S3 bucket, Codebuild and related shared resources are also created
+    Type: String
+  GhConnectionArn:
+    Default: ''
+    Description: ARN of the connection to GitHub (https://docs.aws.amazon.com/dtconsole/latest/userguide/connections-create-github.html)
+    Type: String
+  GitHubFrontendBranch:
+    Default: ''
+    Description: Frontend branch name that will trigger the pipeline (e.g. main, dev)
+    Type: String
+  GitHubFrontendRepo:
+    Default: ''
+    Description: Frontend GitHub repository in format user/repo-name or organization-name/repo-name
+    Type: String
+Resources:
+  CloudfrontDistr:
+    DeletionPolicy: Delete
+    Properties:
+      DistributionConfig:
+        CacheBehaviors:
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            Compress: false
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+            PathPattern: /api/content/*
+            ResponseHeadersPolicyId: eaab4381-ed33-4a86-88ca-d9558dc6cd63
+            SmoothStreaming: false
+            TargetOriginId: ClientApi
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            Compress: false
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+            PathPattern: /api/pricing/*
+            ResponseHeadersPolicyId: eaab4381-ed33-4a86-88ca-d9558dc6cd63
+            SmoothStreaming: false
+            TargetOriginId: PricingApi
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            Compress: false
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+            PathPattern: /api/booking/*
+            ResponseHeadersPolicyId: eaab4381-ed33-4a86-88ca-d9558dc6cd63
+            SmoothStreaming: false
+            TargetOriginId: BookingAdminApi
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            Compress: false
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+            PathPattern: /admin/*
+            ResponseHeadersPolicyId: eaab4381-ed33-4a86-88ca-d9558dc6cd63
+            SmoothStreaming: false
+            TargetOriginId: BookingAdminApi
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            Compress: false
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+            PathPattern: /api/documentation/*
+            ResponseHeadersPolicyId: eaab4381-ed33-4a86-88ca-d9558dc6cd63
+            SmoothStreaming: false
+            TargetOriginId: ClientApi
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            Compress: false
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+            PathPattern: /livewire/*
+            ResponseHeadersPolicyId: eaab4381-ed33-4a86-88ca-d9558dc6cd63
+            SmoothStreaming: false
+            TargetOriginId: BookingAdminApi
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            Compress: true
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+            PathPattern: /build/*
+            ResponseHeadersPolicyId: eaab4381-ed33-4a86-88ca-d9558dc6cd63
+            SmoothStreaming: false
+            TargetOriginId: BookingAdminApi
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            Compress: true
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+            PathPattern: /css/*
+            ResponseHeadersPolicyId: eaab4381-ed33-4a86-88ca-d9558dc6cd63
+            SmoothStreaming: false
+            TargetOriginId: BookingAdminApi
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            Compress: true
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+            PathPattern: /js/*
+            ResponseHeadersPolicyId: eaab4381-ed33-4a86-88ca-d9558dc6cd63
+            SmoothStreaming: false
+            TargetOriginId: BookingAdminApi
+            ViewerProtocolPolicy: redirect-to-https
+          - AllowedMethods:
+              - HEAD
+              - DELETE
+              - POST
+              - GET
+              - OPTIONS
+              - PUT
+              - PATCH
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            Compress: true
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+            PathPattern: /docs/*
+            ResponseHeadersPolicyId: eaab4381-ed33-4a86-88ca-d9558dc6cd63
+            SmoothStreaming: false
+            TargetOriginId: BookingAdminApi
+            ViewerProtocolPolicy: redirect-to-https
+        CustomErrorResponses:
+          - ErrorCachingMinTTL: '86400'
+            ErrorCode: '403'
+            ResponseCode: '200'
+            ResponsePagePath: /index.html
+          - ErrorCachingMinTTL: '86400'
+            ErrorCode: '404'
+            ResponseCode: '200'
+            ResponsePagePath: /index.html
+        DefaultCacheBehavior:
+          AllowedMethods:
+            - GET
+            - HEAD
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf
+          SmoothStreaming: false
+          TargetOriginId: S3FrontendOrigin
+          ViewerProtocolPolicy: redirect-to-https
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: false
+        Origins:
+          - DomainName: !Join
+              - ''
+              - - !Ref 'APPNAME'
+                - -frontend
+                - .s3.
+                - !Ref 'AWS::Region'
+                - .amazonaws.com
+            Id: S3FrontendOrigin
+            S3OriginConfig:
+              OriginAccessIdentity: !Join
+                - ''
+                - - origin-access-identity/cloudfront/
+                  - !If
+                    - IsFirstFrontend
+                    - !Ref 'CloudfrontOAI'
+                    - !ImportValue
+                      Fn::Join:
+                        - '-'
+                        - - !Ref 'APPNAME'
+                          - cfoai
+          - CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+            DomainName: !ImportValue
+              Fn::Join:
+                - '-'
+                - - !Ref 'BackendStackName'
+                  - BookingAdminUrl
+            Id: BookingAdminApi
+          - CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+            DomainName: !ImportValue
+              Fn::Join:
+                - '-'
+                - - !Ref 'BackendStackName'
+                  - ClientApiUrl
+            Id: ClientApi
+          - CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols:
+                - TLSv1.2
+            DomainName: !ImportValue
+              Fn::Join:
+                - '-'
+                - - !Ref 'BackendStackName'
+                  - PricingApiUrl
+            Id: PricingApi
+        PriceClass: PriceClass_100
+        Staging: false
+    Type: AWS::CloudFront::Distribution
+  CloudfrontOAI:
+    Condition: IsFirstFrontend
+    DeletionPolicy: Delete
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Join
+          - ''
+          - - !Ref 'APPNAME'
+            - ' cloudfront OAI'
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+  CodeBuildFrontend:
+    Condition: IsFirstFrontend
+    DeletionPolicy: Delete
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+      ConcurrentBuildLimit: '1'
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
+        Type: LINUX_CONTAINER
+      LogsConfig:
+        CloudWatchLogs:
+          Status: ENABLED
+      Name: !Join
+        - '-'
+        - - !Ref 'APPNAME'
+          - frontend
+      ServiceRole: !GetAtt 'CodeBuildFrontendRole.Arn'
+      Source:
+        BuildSpec: !Join
+          - "\n"
+          - - 'version: 0.2'
+            - ''
+            - 'phases:'
+            - '  install:'
+            - '    runtime-versions:'
+            - '      nodejs: 18'
+            - '  pre_build:'
+            - '    commands:'
+            - '      - npm install'
+            - '  build:'
+            - '    commands:'
+            - '      - npm run build'
+            - '  post_build:'
+            - '    commands:'
+            - !Join
+              - ''
+              - - '      - aws s3 sync dist/ s3://'
+                - !Ref 'S3FrontendBucket'
+                - ' --delete'
+            - !Join
+              - ''
+              - - '      - aws cloudfront create-invalidation --distribution-id '
+                - !Ref 'CloudfrontDistr'
+                - ' --paths "/*"'
+        Type: CODEPIPELINE
+      Visibility: PRIVATE
+    Type: AWS::CodeBuild::Project
+  CodeBuildFrontendRole:
+    Condition: IsFirstFrontend
+    DeletionPolicy: Delete
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - cloudfront:CreateInvalidation
+                Effect: Allow
+                Resource:
+                  - !Join
+                    - ''
+                    - - 'arn:aws:cloudfront::'
+                      - !Ref 'AWS::AccountId'
+                      - :distribution/
+                      - !Ref 'CloudfrontDistr'
+                Sid: cloudfrontinvalidate
+              - Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:DeleteObject
+                  - s3:ListBucket
+                Effect: Allow
+                Resource:
+                  - !GetAtt 'S3FrontendBucket.Arn'
+                Sid: s3frontendaccess
+              - Action:
+                  - s3:PutObject
+                  - s3:GetObject
+                  - s3:GetObjectVersion
+                  - s3:GetBucketAcl
+                  - s3:GetBucketLocation
+                Effect: Allow
+                Resource:
+                  - !Join
+                    - ''
+                    - - arn:aws:s3:::codepipeline-
+                      - !Ref 'AWS::Region'
+                      - -*
+              - Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Effect: Allow
+                Resource:
+                  - arn:aws:logs:*:*:*
+          PolicyName: CodeBuild-frontend
+      RoleName: !Join
+        - '-'
+        - - !Ref 'APPNAME'
+          - codebuild-frontend
+    Type: AWS::IAM::Role
+  CodePipelineFrontend:
+    Condition: IsFirstFrontend
+    DeletionPolicy: Delete
+    Properties:
+      ArtifactStore:
+        Location: !ImportValue
+          Fn::Join:
+            - '-'
+            - - !Ref 'BackendStackName'
+              - S3CodePipelineBucket
+        Type: S3
+      Name: !Join
+        - '-'
+        - - !Ref 'APPNAME'
+          - frontend
+      PipelineType: V1
+      RoleArn: !ImportValue
+        Fn::Join:
+          - '-'
+          - - !Ref 'BackendStackName'
+            - CodePipelineRoleArn
+      Stages:
+        - Actions:
+            - ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: '1'
+              Configuration:
+                BranchName: !Ref 'GitHubFrontendBranch'
+                ConnectionArn: !Ref 'GhConnectionArn'
+                FullRepositoryId: !Ref 'GitHubFrontendRepo'
+                OutputArtifactFormat: CODE_ZIP
+              Name: Source
+              OutputArtifacts:
+                - Name: SourceArtifact
+              RunOrder: '1'
+          Name: Source
+        - Actions:
+            - ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref 'CodeBuildFrontend'
+              InputArtifacts:
+                - Name: SourceArtifact
+              Name: Build
+              RunOrder: '1'
+          Name: Build
+    Type: AWS::CodePipeline::Pipeline
+  S3FrontendBucket:
+    Condition: IsFirstFrontend
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Join
+        - '-'
+        - - !Ref 'APPNAME'
+          - frontend
+    Type: AWS::S3::Bucket
+  S3FrontendPolicy:
+    Condition: IsFirstFrontend
+    DeletionPolicy: Delete
+    Properties:
+      Bucket: !Ref 'S3FrontendBucket'
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetObject
+            Effect: Allow
+            Principal:
+              AWS: !Join
+                - ''
+                - - 'arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity '
+                  - !If
+                    - IsFirstFrontend
+                    - !Ref 'CloudfrontOAI'
+                    - !ImportValue
+                      Fn::Join:
+                        - '-'
+                        - - !Ref 'APPNAME'
+                          - cfoai
+            Resource:
+              - !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref 'S3FrontendBucket'
+                  - /*
+            Sid: CloudfrontAccess
+          - Action:
+              - s3:*
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt 'CodeBuildFrontendRole.Arn'
+            Resource:
+              - !Join
+                - ''
+                - - 'arn:aws:s3:::'
+                  - !Ref 'S3FrontendBucket'
+                  - /*
+            Sid: CodeBuildAccess
+    Type: AWS::S3::BucketPolicy
+

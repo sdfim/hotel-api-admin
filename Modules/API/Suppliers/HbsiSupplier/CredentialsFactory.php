@@ -15,10 +15,11 @@ class CredentialsFactory
         $credentials->password = config("$namespace.password");
         $credentials->channelIdentifierId = config("$namespace.channel_identifier_id");
 
-        if (!$credentials->username || !$credentials->password || !$credentials->channelIdentifierId)
-        {
-            throw new \Exception("Not all HBSI Credentials are set, please check your .env file");
-        }
+        //TODO: Validate outside constructor to avoid build errors.
+//        if (!$credentials->username || !$credentials->password || !$credentials->channelIdentifierId)
+//        {
+//            throw new \Exception("Not all HBSI Credentials are set, please check your .env file");
+//        }
 
         return $credentials;
     }

@@ -158,7 +158,7 @@ class HbsiBookApiController extends BaseBookApiController
         $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
         $dataResponse = json_decode(json_encode($response), true);
 
-        $dataResponseToSave = $dataResponse;
+		$dataResponseToSave = $dataResponse;
         $dataResponseToSave['original'] = [
             'request' => $xmlPriceData['request'],
             'response' => $xmlPriceData['response']->asXML(),

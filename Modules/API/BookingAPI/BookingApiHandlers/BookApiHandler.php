@@ -103,6 +103,10 @@ class BookApiHandler extends BaseController
             if (isset($item['error'])) {
                 return $this->sendError($item);
             }
+
+            if (isset($item['Error'])) {
+                return $this->sendError($item);
+            }
         }
 
         return $this->sendResponse($data, 'success');
@@ -314,6 +318,8 @@ class BookApiHandler extends BaseController
 
         try {
             $res = [];
+            $occupiedRooms = [];
+
             foreach ($bookingRequestItems as $booking_item) {
 
                 if (BookRepository::isBook($request->booking_id, $booking_item)) {

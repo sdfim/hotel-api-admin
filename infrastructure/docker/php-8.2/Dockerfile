@@ -29,8 +29,8 @@ COPY --from=npmbuild /app/public/build/ /var/www/html/public/build/
 WORKDIR /var/www/html
 
 RUN chown -R www-data:www-data /var/www/html
-RUN mv .env.example .env
-RUN cp docker/php-config.ini /usr/local/etc/php/conf.d/php-config.ini
+RUN cp .env.example .env
+RUN cp infrastructure/docker/php-8.2/php-config.ini /usr/local/etc/php/conf.d/php-config.ini
 RUN php artisan key:generate
 
 EXPOSE 80
