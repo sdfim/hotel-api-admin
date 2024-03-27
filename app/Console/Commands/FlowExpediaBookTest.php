@@ -41,8 +41,8 @@ class FlowExpediaBookTest extends Command
     public function handle(): void
     {
         $step = $this->argument('step');
-        $this->destination = $this->argument('destination') ?? $faker->randomElement([961, 302, 93, 960, 1102]);
-        $this->supplier = $this->argument('supplier') ?? $faker->randomElement(['Expedia', 'HBSI']);
+        $this->destination = $this->argument('destination');
+        $this->supplier = $this->argument('supplier');
 
         foreach (range(1, $step) as $index) {
             $this->warn('STEP ' . $index . ' of ' . $step);
@@ -290,7 +290,7 @@ class FlowExpediaBookTest extends Command
             'booking_contact' => [
                 'first_name' => $faker->firstName,
                 'last_name' => $faker->lastName,
-                'email' => $faker->email,
+                'email' => 'test@gmail.com', //$faker->safeEmail,
                 'phone' => [
                     'country_code' => '1',
                     'area_code' => '487',

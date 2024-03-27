@@ -37,9 +37,8 @@ class FlowHbsiBookTest extends Command
     public function handle(): void
     {
         $step = $this->argument('step');
-        $faker = Faker::create();
-        $this->destination = $this->argument('destination') ?? $faker->randomElement([961, 302, 93, 960, 1102]);
-        $this->supplier = $this->argument('supplier') ?? $faker->randomElement(['Expedia', 'HBSI']);
+        $this->destination = $this->argument('destination');
+        $this->supplier = $this->argument('supplier');
 
         foreach (range(1, $step) as $index) {
             $this->warn('STEP ' . $index . ' of ' . $step);

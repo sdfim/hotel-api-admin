@@ -9,6 +9,26 @@ use Throwable;
 
 class PropertyPriceCall
 {
+    private const STANDALONE_RATES = [
+        'partner_point_of_sale' => "B2B_EAC_SA_MOD_DIR",
+        'billing_terms' => "",
+        'payment_terms' => "SA",
+        'sales_channel' => "agent_tool",
+        'rate_option' => "member",
+        'sales_environment' => "hotel_only",
+    ];
+
+    private const PACKAGE_RATES = [
+        'partner_point_of_sale' => "B2B_EAC_BASE_DIR",
+        'billing_terms' => "",
+        'payment_terms' => "BASE_DIR",
+        'sales_channel' => "agent_tool",
+        'rate_option' => "member",
+        'sales_environment' => "hotel_package",
+    ];
+
+    private const RATE_PLACOUNT = 10;
+
     # https://developers.expediagroup.com/docs/rapid/lodging/shopping#get-/properties/availability
 
     // Path
@@ -135,24 +155,20 @@ class PropertyPriceCall
 
         $this->occupancy = $property['occupancy'];
 
-        // $this->ratePlanCount = $property['rate_plan_count'] ?? 1;
-        $this->ratePlanCount = $property['rate_plan_count'] ?? 10;
+        $this->ratePlanCount = $property['rate_plan_count'] ?? self::RATE_PLACOUNT;
 
-        // SHOP parameters for Standalone Rates:
-        $this->partnerPointSale = $property['partner_point_of_sale'] ?? "B2B_EAC_SA_MOD_DIR";
-        $this->billingTerms = $property['billing_terms'] ?? "";
-        $this->paymentTerms = $property['payment_terms'] ?? "SA";
-        $this->salesChannel = $property['sales_channel'] ?? "agent_tool";
-        $this->rateOption = $property['rate_option'] ?? "member";
-        $this->salesEnvironment = $property['sales_environment'] ?? "hotel_only";
+        $rateType = env('SUPPLIER_EXPEDIA_RATE_TYPE', 'standalone');
 
-        // // SHOP parameters for Package Rates:
-        // $this->partnerPointSale = $property['partner_point_of_sale'] ?? "B2B_EAC_BASE_DIR";
-        // $this->billingTerms = $property['billing_terms'] ?? "";
-        // $this->paymentTerms = $property['payment_terms'] ?? "BASE_DIR";
-        // $this->salesChannel = $property['sales_channel'] ?? "agent_tool";
-        // $this->rateOption = $property['rate_option'] ?? "member";
-        // $this->salesEnvironment = $property['sales_environment'] ?? "hotel_package";
+        Log::info('Rate Type: ' . $rateType);
+
+        $rates = $rateType === 'package' ? self::PACKAGE_RATES : self::STANDALONE_RATES;
+
+        $this->partnerPointSale = $rates['partner_point_of_sale'];
+        $this->billingTerms = $rates['billing_terms'];
+        $this->paymentTerms = $rates['payment_terms'];
+        $this->salesChannel = $rates['sales_channel'];
+        $this->rateOption = $rates['rate_option'];
+        $this->salesEnvironment = $rates['sales_environment'];
     }
 
     /**
@@ -175,24 +191,9 @@ class PropertyPriceCall
             }
         }
 
-//        dump($promises);
         $responses = Fiber::suspend($promises);
 
         try {
-            // TODO: need to check if this is the correct way to handle promises
-//            $resolvedResponses = Promise\Utils::settle($promises)->wait();
-//            foreach ($resolvedResponses as $response) {
-//                if ($response['state'] === 'fulfilled') {
-//                    $data = $response['value']->getBody()->getContents();
-//                    $responses = array_merge($responses, json_decode($data, true));
-//                } else {
-//                    Log::error('PropertyPriceCall | getPriceData ', [
-//                        'propertyChunk' => $this->propertyChunk,
-//                        'reason' => $response['reason']->getMessage()
-//                    ]);
-//                }
-//            }
-
             foreach ($responses as $response) {
                 if ($response['state'] === 'fulfilled') {
                     $data = $response['value']->getBody()->getContents();
