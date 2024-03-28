@@ -2,7 +2,7 @@
 
 namespace Modules\API\PricingAPI\ResponseModels;
 
-class RoomGroupsResponse
+class RoomGroupsResponse extends BaseResponse
 {
     /**
      * @var float

@@ -43,15 +43,6 @@ class EnrichmentWeightPricingTest extends TestCase
         $mockClientResponse = $this->createMockClientResponse();
         $mockWeights = $this->createMockWeights();
 
-        /*
-        Вот что делает каждая строка:
-        Mockery::mock('overload:' . PropertyWeightingRepository::class); - создает мок-объект для класса PropertyWeightingRepository.
-            Ключевое слово overload указывает, что все новые экземпляры этого класса в тесте будут заменены на этот мок-объект.
-        $mockPropertyWeightingRepository->shouldReceive('getWeights')->andReturn($mockWeights); - настраивает мок-объект так,
-            чтобы при вызове метода getWeights он возвращал значение, хранящееся в переменной $mockWeights.
-        $mockPropertyWeightingRepository->shouldReceive('getWeightsNot')->andReturn($mockWeights); - аналогично предыдущей строке,
-            но для метода getWeightsNot.
-        */
         $mockPropertyWeightingRepository = Mockery::mock('overload:' . PropertyWeightingRepository::class);
         $mockPropertyWeightingRepository->shouldReceive('getWeights')->andReturn($mockWeights);
         $mockPropertyWeightingRepository->shouldReceive('getWeightsNot')->andReturn($mockWeights);

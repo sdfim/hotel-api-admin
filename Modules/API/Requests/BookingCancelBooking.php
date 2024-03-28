@@ -6,40 +6,40 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
-
-class BookingRemoveItemHotelRequest extends ApiRequest
+class BookingCancelBooking extends ApiRequest
 {
     /**
-     * @OA\Post(
-     *   tags={"Booking API | Cart Endpoints"},
-     *   path="/api/booking/add-item",
-     *   summary="Add an item to your shopping cart.",
-     *   description="Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
-     *    @OA\Parameter(
-     *      name="booking_item",
-     *      in="query",
-     *      required=true,
-     *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
-     *      In the response object for each rate is a **booking_item** property.",
-     *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-     *    ),
+     * @OA\Delete(
+     *   tags={"Booking API | Booking Endpoints"},
+     *   path="/api/booking/cancel-booking",
+     *   summary="Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
+     *   description="Cancel Booking",
      *    @OA\Parameter(
      *      name="booking_id",
      *      in="query",
-     *      description="**booking_id**, if it exists",
-     *      example="c698abfe-9bfa-45ee-a201-dc7322e008ab"
+     *      required=true,
+     *      description="Booking ID",
+     *      example="3333cee5-b4a3-4e51-bfb0-02d09370b585"
      *    ),
-     *   @OA\Response(
-     *     response=200,
-     *     description="OK",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingAddItemResponse",
-     *           examples={
-     *             "example1": @OA\Schema(ref="#/components/examples/BookingAddItemResponse", example="BookingAddItemResponse"),
-     *         },
-     *     )
-     *   ),
-     *   @OA\Response(
+     *    @OA\Parameter(
+     *      name="booking_item",
+     *      in="query",
+     *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
+     *      In the response object for each rate is a **booking_item** property. <br>
+     *      If there is no booking_item, all items will be deleted",
+     *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+     *    ),
+     *    @OA\Response(
+     *      response=200,
+     *      description="OK",
+     *      @OA\JsonContent(
+     *        ref="#/components/schemas/BookingCancelBookingResponse",
+     *        examples={
+     *        "example1": @OA\Schema(ref="#/components/examples/BookingCancelBookingResponse", example="BookingCancelBookingResponse"),
+     *        }
+     *      )
+     *    ),
+     *    @OA\Response(
      *     response=400,
      *     description="Bad Request",
      *     @OA\JsonContent(
@@ -47,9 +47,9 @@ class BookingRemoveItemHotelRequest extends ApiRequest
      *       examples={
      *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
      *       }
-     *     )
-     *   ),
-     *   @OA\Response(
+     *      )
+     *    ),
+     *    @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
      *     @OA\JsonContent(
@@ -75,8 +75,8 @@ class BookingRemoveItemHotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'booking_item' => 'required|size:36',
             'booking_id' => 'required|size:36',
+            'booking_item' => 'nullable|size:36'
         ];
     }
 

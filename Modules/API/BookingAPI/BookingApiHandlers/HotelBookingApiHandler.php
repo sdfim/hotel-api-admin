@@ -39,59 +39,6 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
      * @param string $supplier
      * @return JsonResponse
      */
-    /**
-     * @OA\Post(
-     *   tags={"Booking API | Cart Endpoints"},
-     *   path="/api/booking/add-item",
-     *   summary="Add an item to your shopping cart.",
-     *   description="Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
-     *    @OA\Parameter(
-     *      name="booking_item",
-     *      in="query",
-     *      required=true,
-     *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
-     *      In the response object for each rate is a **booking_item** property.",
-     *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-     *    ),
-     *    @OA\Parameter(
-     *      name="booking_id",
-     *      in="query",
-     *      description="**booking_id**, if it exists",
-     *      example="c698abfe-9bfa-45ee-a201-dc7322e008ab"
-     *    ),
-     *   @OA\Response(
-     *     response=200,
-     *     description="OK",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingAddItemResponse",
-     *           examples={
-     *             "example1": @OA\Schema(ref="#/components/examples/BookingAddItemResponse", example="BookingAddItemResponse"),
-     *         },
-     *     )
-     *   ),
-     *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BadRequestResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
-     *       }
-     *     )
-     *   ),
-     *   @OA\Response(
-     *     response=401,
-     *     description="Unauthenticated",
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
-     *     )
-     *   ),
-     *   security={{ "apiAuth": {} }}
-     * )
-     */
     public function addItem(Request $request, string $supplier): JsonResponse
     {
         $filters = $request->all();
@@ -99,20 +46,20 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
         try {
             if (request()->has('booking_id')) {
 
-                if (BookingRepository::isBook(request()->get('booking_id'), request()->get('booking_item'))) {
+                if (BookingRepository::isBook($request->booking_id, $request->booking_item)) {
                     return $this->sendError(
                         'booking_id - this cart is not available. This cart is at the booking stage or beyond.',
                     );
                 }
 
-                if (BookingRepository::isDuplicate(request()->get('booking_id'), request()->get('booking_item'))) {
+                if (BookingRepository::isDuplicate($request->booking_id, $request->booking_item)) {
                     return $this->sendError('booking_item, booking_id pair is not unique. This item is already in your cart.');
                 }
 
-                $filters['booking_id'] = request()->get('booking_id');
+                $filters['booking_id'] = $request->booking_id;
             }
 
-            $apiBookingItem = ApiBookingItem::where('booking_item', request()->get('booking_item'))->first()->toArray();
+            $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->first()->toArray();
             $booking_item_data = json_decode($apiBookingItem['booking_item_data'], true);
             $filters['search_id'] = $apiBookingItem['search_id'];
 

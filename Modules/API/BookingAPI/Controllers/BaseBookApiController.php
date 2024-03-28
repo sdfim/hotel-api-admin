@@ -2,12 +2,14 @@
 
 namespace Modules\API\BookingAPI\Controllers;
 
+use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use Modules\API\BaseController;
+use Modules\Enums\TypeRequestEnum;
 
 class BaseBookApiController extends BaseController
 {
@@ -68,5 +70,53 @@ class BaseBookApiController extends BaseController
                 ],
             ],
         ];
+    }
+
+    /**
+     * @param array $filters
+     * @param array $passengersData
+     * @param string $supplierName
+     * @return array|null
+     */
+    public function addPassengers(array $filters, array $passengersData, string $supplierName): array|null
+    {
+        $booking_id = $filters['booking_id'];
+        $filters['search_id'] = ApiBookingInspector::where('booking_item', $filters['booking_item'])->first()->search_id;
+
+        $bookingItem = ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('booking_item', $filters['booking_item'])
+            ->where('type', 'add_passengers');
+
+        $apiSearchInspector = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->request;
+
+        $countRooms = count(json_decode($apiSearchInspector, true)['occupancy']);
+
+        $type = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->search_type;
+        if (TypeRequestEnum::from($type) === TypeRequestEnum::HOTEL)
+            for ($i = 1; $i <= $countRooms; $i++) {
+                $filters['rooms'][] = $passengersData['rooms'][$i]['passengers'];
+            }
+
+        if ($bookingItem->get()->count() > 0) {
+            $bookingItem->delete();
+            $status = 'Passengers updated to booking.';
+            $subType = 'updated';
+        } else {
+            $status = 'Passengers added to booking.';
+            $subType = 'add';
+        }
+
+        $res = [
+            'booking_id' => $booking_id,
+            'booking_item' => $filters['booking_item'],
+            'status' => $status,
+        ];
+
+        $supplierId = Supplier::where('name', $supplierName)->first()->id;
+        SaveBookingInspector::dispatch([
+            $booking_id, $filters, [], $res, $supplierId, 'add_passengers', $subType, 'hotel',
+        ]);
+
+        return $res;
     }
 }

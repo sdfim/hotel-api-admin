@@ -24,10 +24,10 @@ use Modules\Enums\TypeRequestEnum;
 class HbsiBookApiController extends BaseBookApiController
 {
     private const CONFIRMATION = [
-        '8'  => 'HBSI',
+        '8' => 'HBSI',
         '10' => 'Synxis',
         '14' => 'Own',
-        '3'  => 'UltimateJet',
+        '3' => 'UltimateJet',
     ];
 
     public function __construct(
@@ -35,98 +35,6 @@ class HbsiBookApiController extends BaseBookApiController
         private readonly HbsiHotelBookDto $hbsiHotelBookDto = new HbsiHotelBookDto(),
     )
     {
-    }
-
-    /**
-     * @param array $filters
-     * @param array $passengersData
-     * @param array $occupiedRooms
-     * @return array|null
-     */
-    public function addPassengers(array $filters, array $passengersData, array &$occupiedRooms): array|null
-    {
-        $booking_id = $filters['booking_id'];
-        $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
-        $bookingItemData = json_decode($bookingItem->booking_item_data, true);
-        $rateOccupancy = $bookingItemData['rate_occupancy'];
-        $occupancy = explode('-', $rateOccupancy);
-        $adults = (int)$occupancy[0];
-        $children = (int)$occupancy[1] + (int)$occupancy[2];
-
-        $filters['search_id'] = ApiBookingInspector::where('booking_item', $filters['booking_item'])->first()->search_id;
-
-        $res = [];
-
-        if ($bookingItem->rate_type === 'completed' && $filters['booking_item'] !== $bookingItem->complete_id) {
-            $bookingItemsSingle = ApiBookingInspector::where('booking_id', $booking_id)
-                ->where('rate_type', 'single')
-                ->where('complete_id', $filters['booking_item'])
-                ->get();
-            foreach ($bookingItemsSingle as $bookingItemSingle) {
-                $iterFilters = $filters;
-                $iterFilters['booking_item'] = $bookingItemSingle->booking_item;
-                $res[] = $this->addPassengers($iterFilters, $passengersData, $occupiedRooms);
-            }
-        }
-
-        $bookingItemIsset = ApiBookingInspector::where('booking_id', $booking_id)
-            ->where('booking_item', $filters['booking_item'])
-            ->where('type', 'add_passengers');
-
-        $apiSearchInspector = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->request;
-        $searchRequest = json_decode($apiSearchInspector, true);
-        $countRooms = count($searchRequest['occupancy']);
-
-        $type = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->search_type;
-        if (TypeRequestEnum::from($type) === TypeRequestEnum::HOTEL)
-            for ($i = 1; $i <= $countRooms; $i++) {
-                if (isset($passengersData['rooms'][$i]['passengers'])) {
-                    $searchAdults = $searchRequest['occupancy'][$i - 1]['adults'];
-                    $searchChildren = isset($searchRequest['occupancy'][$i - 1]['children_ages'])
-                        ? count($searchRequest['occupancy'][$i - 1]['children_ages'])
-                        : 0;
-                    if ($searchAdults === $adults && $searchChildren === $children)
-                    {
-                        if (!isset($filters['rooms'][$i]) && ! in_array($i, $occupiedRooms))
-                        {
-                            $filters['rooms'][$i] = $passengersData['rooms'][$i]['passengers'];
-
-                            ApiBookingItem::where('booking_item', $filters['booking_item'])->update(['room_by_query' => $i]);
-
-                            $occupiedRooms[] = $i;
-
-                            // exit from for loop
-                            $i = $countRooms + 1;
-                        }
-                    }
-
-
-                }
-            }
-
-        if ($bookingItemIsset->get()->count() > 0) {
-            $bookingItemIsset->delete();
-            $status = 'Passengers updated to booking.';
-            $subType = 'updated';
-        } else {
-            $status = 'Passengers added to booking.';
-            $subType = 'add';
-        }
-
-        if (empty($res)) {
-            $res = [
-                'booking_id' => $booking_id,
-                'booking_item' => $filters['booking_item'],
-                'status' => $status,
-            ];
-
-            $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
-            SaveBookingInspector::dispatch([
-                $booking_id, $filters, [], $res, $supplierId, 'add_passengers', $subType, 'hotel',
-            ]);
-        }
-
-        return $res;
     }
 
     /**
@@ -161,10 +69,11 @@ class HbsiBookApiController extends BaseBookApiController
 
         $error = true;
         try {
+            Log::info('HbsiBookApiController | book | ' . json_encode($filters));
             $xmlPriceData = $this->hbsiClient->handleBook($filters);
 
             $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
-            $dataResponse = json_decode(json_encode($response), true);
+            $dataResponse = json_decode(json_encode($response), true) ?? [];
 
             $dataResponseToSave = $dataResponse;
             $dataResponseToSave['original'] = [
@@ -173,13 +82,13 @@ class HbsiBookApiController extends BaseBookApiController
                 'main_guest' => $xmlPriceData['main_guest'],
             ];
             if (!isset($dataResponse['Errors'])) {
-                $confirmationNumbers = $dataResponse['HotelReservations']['HotelReservation']['ResGlobalInfo']['HotelReservationIDs']['HotelReservationID'] ?? [];
+                $inputConfirmationNumbers = $dataResponse['HotelReservations']['HotelReservation']['ResGlobalInfo']['HotelReservationIDs']['HotelReservationID'] ?? [];
                 $confirmationNumbers = array_map(function ($item) {
                     return [
                         'confirmation_number' => $item['@attributes']['ResID_Value'],
                         'type' => self::CONFIRMATION[$item['@attributes']['ResID_Type']] ?? $item['@attributes']['ResID_Type'],
                     ];
-                }, $confirmationNumbers);
+                }, $inputConfirmationNumbers);
                 $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters, $confirmationNumbers);
                 $error = false;
             } else {
@@ -190,11 +99,18 @@ class HbsiBookApiController extends BaseBookApiController
 
         } catch (RequestException $e) {
             Log::error('HbsiBookApiController | book | RequestException ' . $e->getResponse()->getBody());
-            return ['error' => $e->getResponse()->getBody()];
+            return [
+                'error' => $e->getResponse()->getBody(),
+                'booking_item' => $filters['booking_item'] ?? '',
+                'supplier' => SupplierNameEnum::HBSI->value
+            ];
         } catch (\Exception $e) {
             Log::error('HbsiBookApiController | book | Exception ' . $e->getMessage());
-            Log::error($e);
-            return ['error' => $e->getMessage()];
+            return [
+                'error' => $e->getMessage(),
+                'booking_item' => $filters['booking_item'] ?? '',
+                'supplier' => SupplierNameEnum::HBSI->value
+            ];
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
@@ -241,8 +157,8 @@ class HbsiBookApiController extends BaseBookApiController
 
         $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
         $dataResponse = json_decode(json_encode($response), true);
-\Log::debug($dataResponse);
-        $dataResponseToSave = $dataResponse;
+
+		$dataResponseToSave = $dataResponse;
         $dataResponseToSave['original'] = [
             'request' => $xmlPriceData['request'],
             'response' => $xmlPriceData['response']->asXML(),

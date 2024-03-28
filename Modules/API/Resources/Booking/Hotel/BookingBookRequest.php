@@ -87,42 +87,80 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     )
  *   ),
  *   @OA\Property(
+ *     property="credit_cards",
+ *     type="array",
+ *     @OA\Items(
+ *     type="object",
+ *     required={"credit_card", "booking_item"},
+ *     @OA\Property(
  *     property="credit_card",
  *     type="object",
- *     required={"name_card", "number", "card_type", "expiry_date", "cvv", "billing_address"},
+ *     required={"cvv", "number", "card_type", "name_card", "expiry_date", "billing_address"},
  *     @OA\Property(
- *       property="name_card",
- *       type="string",
- *       example="Visa"
+ *     property="cvv",
+ *     type="integer",
+ *     example=123
  *     ),
  *     @OA\Property(
- *       property="number",
- *       type="integer",
- *       example=4001919257537193
+ *     property="number",
+ *     type="integer",
+ *     example=4001919257537193
  *     ),
  *     @OA\Property(
- *       property="card_type",
- *       type="string",
- *       enum={"VISA", "MSC", "AMEX", "DIS"},
- *       example="VISA"
+ *     property="card_type",
+ *     type="string",
+ *     example="VISA"
+ *    ),
+ *     @OA\Property(
+ *
+ *     property="name_card",
+ *     type="string",
+ *     example="Visa"
+ *    ),
+ *     @OA\Property(
+ *     property="expiry_date",
+ *     type="string",
+ *     example="09\/2026"
+ *   ),
+ *     @OA\Property(
+ *     property="billing_address",
+ *     type="object",
+ *     nullable=true,
+ *     @OA\Property(
+ *     property="line_1",
+ *     type="string",
+ *     example="555 1st St"
+ *   ),
+ *     @OA\Property(
+ *     property="city",
+ *     type="string",
+ *     example="Seattle"
+ *  ),
+ *     @OA\Property(
+ *     property="state_province_code",
+ *     type="string",
+ *     example="WA"
+
  *     ),
  *     @OA\Property(
- *       property="expiry_date",
- *       type="string",
- *       example="09/2026",
- *       format="m/Y"
- *     ),
+ *     property="postal_code",
+ *     type="string",
+ *     example="98121"
+ *    ),
  *     @OA\Property(
- *       property="cvv",
- *       type="integer",
- *       example=123
- *     ),
- *     @OA\Property(
- *       property="billing_address",
- *       type="string",
- *       example=""
- *     )
+ *     property="country_code",
+ *     type="string",
+ *     example="US"
  *   )
+ *  )
+ * ),
+ *     @OA\Property(
+ *     property="booking_item",
+ *     type="string",
+ *     example="89650b97-9c2e-40a6-a982-040bae5d9ea5"
+ *  )
+ * )
+ * )
  * ),
  * @OA\Examples(
  *     example="BookingBookRequest",
@@ -147,14 +185,30 @@ namespace Modules\API\Resources\Booking\Hotel;
  *               "country_code":"US"
  *            }
  *         },
- *         "credit_card":{
- *             "name_card": "Visa",
- *             "number": 4001919257537193,
- *             "card_type": "VISA",
- *             "expiry_date": "09/2026",
- *             "cvv":123,
- *             "billing_address": ""
- *         }
+ *         "credit_cards": {
+ *              {
+ *                  "credit_card": {
+ *                      "cvv": 123,
+ *                      "number": 4001919257537193,
+ *                      "card_type": "VISA",
+ *                      "name_card": "Visa",
+ *                      "expiry_date": "09\/2026",
+ *                      "billing_address": null
+ *                  },
+ *                      "booking_item": "89650b97-9c2e-40a6-a982-040bae5d9ea5"
+ *                  },
+ *                  {
+ *                  "credit_card": {
+ *                      "cvv": 123,
+ *                      "number": 4001919257537193,
+ *                      "card_type": "VISA",
+ *                      "name_card": "Visa",
+ *                      "expiry_date": "09\/2026",
+ *                      "billing_address": null
+ *                  },
+ *                      "booking_item": "9c116b9d-32f0-4341-92ea-124c8fcea643"
+ *                  }
+ *              },
  *      }
  * ),
  * @OA\Schema(

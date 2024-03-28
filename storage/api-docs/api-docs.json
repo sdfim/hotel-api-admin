@@ -7,6 +7,173 @@
     "paths": {
         "/api/booking": {},
         "/api/content": {},
+        "/api/booking/remove-item": {
+            "delete": {
+                "tags": [
+                    "Booking API | Cart Endpoints"
+                ],
+                "summary": "Remove a specific item from your shopping cart",
+                "description": "Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",
+                "operationId": "02aae9b1f61cd585e15426e28fec10d9",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "**booking_id**",
+                        "required": true,
+                        "example": "c698abfe-9bfa-45ee-a201-dc7322e008ab"
+                    },
+                    {
+                        "name": "booking_item",
+                        "in": "query",
+                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property.",
+                        "required": true,
+                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingRemoveItemResponse"
+                                },
+                                "examples": {
+                                    "BookingRemoveItemResponse": {
+                                        "$ref": "#/components/examples/BookingRemoveItemResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/booking/add-passengers": {
+            "post": {
+                "tags": [
+                    "Booking API | Cart Endpoints"
+                ],
+                "summary": "Add passengers to a booking.",
+                "description": "Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
+                "operationId": "7bbd39b60ea42e577149dab75217975a",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n     *       In the response object for each rate is a **booking_id** property.",
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "description": "JSON object containing the details of the reservation. If you don't pass booking_item(s), these passengers will be added to all booking_items that are in the cart (booking_id)",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingAddPassengersRequest"
+                            },
+                            "examples": {
+                                "BookingAddPassengersRequest": {
+                                    "$ref": "#/components/examples/BookingAddPassengersRequest"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
+                                },
+                                "examples": {
+                                    "BookingAddPassengersResponseAdd": {
+                                        "$ref": "#/components/examples/BookingAddPassengersResponseAdd"
+                                    },
+                                    "BookingAddPassengersResponseUpdate": {
+                                        "$ref": "#/components/examples/BookingAddPassengersResponseUpdate"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
+                                },
+                                "examples": {
+                                    "BookingAddPassengersResponseError": {
+                                        "$ref": "#/components/examples/BookingAddPassengersResponseError"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/booking/book": {
             "post": {
                 "tags": [
@@ -14,7 +181,7 @@
                 ],
                 "summary": "Create a new booking for a service or event",
                 "description": "Create a new booking for a service or event. Use this endpoint to make reservations.",
-                "operationId": "4489de8e890c2282ad75a43775908aca",
+                "operationId": "0b05c32e851f2e355e72133b5aa5ea65",
                 "parameters": [
                     {
                         "name": "booking_id",
@@ -99,6 +266,83 @@
                 ]
             }
         },
+        "/api/booking/cancel-booking": {
+            "delete": {
+                "tags": [
+                    "Booking API | Booking Endpoints"
+                ],
+                "summary": "Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
+                "description": "Cancel Booking",
+                "operationId": "b41f95a559111d9d53b32317d34c8731",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "Booking ID",
+                        "required": true,
+                        "example": "3333cee5-b4a3-4e51-bfb0-02d09370b585"
+                    },
+                    {
+                        "name": "booking_item",
+                        "in": "query",
+                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property. <br>\n     *      If there is no booking_item, all items will be deleted",
+                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingCancelBookingResponse"
+                                },
+                                "examples": {
+                                    "BookingCancelBookingResponse": {
+                                        "$ref": "#/components/examples/BookingCancelBookingResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/booking/change-booking": {
             "put": {
                 "tags": [
@@ -106,7 +350,7 @@
                 ],
                 "summary": "Modify an existing booking..",
                 "description": "Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
-                "operationId": "801eb47037e801d00dda545667f2fe70",
+                "operationId": "297d97dc1cc9f52514801a143a9f96dd",
                 "parameters": [
                     {
                         "name": "booking_id",
@@ -191,392 +435,6 @@
                 ]
             }
         },
-        "/api/booking/list-bookings": {
-            "get": {
-                "tags": [
-                    "Booking API | Booking Endpoints"
-                ],
-                "summary": "Retrieve a list of all your booking reservations. ",
-                "description": "Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
-                "operationId": "b91cf9e34b6eaa733bfa3aa58bb8b5c6",
-                "parameters": [
-                    {
-                        "name": "type",
-                        "in": "query",
-                        "description": "Type",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "hotel"
-                        }
-                    },
-                    {
-                        "name": "supplier",
-                        "in": "query",
-                        "description": "Supplier",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "Expedia"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                },
-                                "examples": {
-                                    "UnAuthenticatedResponse": {
-                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                },
-                                "examples": {
-                                    "BadRequestResponse": {
-                                        "$ref": "#/components/examples/BadRequestResponse"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/booking/retrieve-booking": {
-            "get": {
-                "tags": [
-                    "Booking API | Booking Endpoints"
-                ],
-                "summary": "Retrieve detailed information about a specific booking reservation. ",
-                "description": "Retrieve detailed information about a specific booking reservation. This endpoint allows you to access all the information related to a particular reservation.",
-                "operationId": "7c2fe010a187b81e76efd66671c880d7",
-                "parameters": [
-                    {
-                        "name": "booking_id",
-                        "in": "query",
-                        "description": "Booking ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BookingRetrieveBookingResponse"
-                                },
-                                "examples": {
-                                    "BookingRetrieveBookingResponse": {
-                                        "$ref": "#/components/examples/BookingRetrieveBookingResponse"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                },
-                                "examples": {
-                                    "UnAuthenticatedResponse": {
-                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                },
-                                "examples": {
-                                    "BadRequestResponse": {
-                                        "$ref": "#/components/examples/BadRequestResponse"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/booking/cancel-booking": {
-            "delete": {
-                "tags": [
-                    "Booking API | Booking Endpoints"
-                ],
-                "summary": "Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
-                "description": "Cancel Booking",
-                "operationId": "9ba612ecdf067a51d7e802ccb2a82579",
-                "parameters": [
-                    {
-                        "name": "booking_id",
-                        "in": "query",
-                        "description": "Booking ID",
-                        "required": true,
-                        "example": "3333cee5-b4a3-4e51-bfb0-02d09370b585"
-                    },
-                    {
-                        "name": "booking_item",
-                        "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property. <br>\n     *      If there is no booking_item, all items will be deleted",
-                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BookingCancelBookingResponse"
-                                },
-                                "examples": {
-                                    "BookingCancelBookingResponse": {
-                                        "$ref": "#/components/examples/BookingCancelBookingResponse"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                },
-                                "examples": {
-                                    "BadRequestResponse": {
-                                        "$ref": "#/components/examples/BadRequestResponse"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                },
-                                "examples": {
-                                    "UnAuthenticatedResponse": {
-                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/booking/retrieve-items": {
-            "get": {
-                "tags": [
-                    "Booking API | Cart Endpoints"
-                ],
-                "summary": "Retrieve a list of items currently in your shopping cart.",
-                "description": "Retrieve a list of items currently in your shopping cart. This endpoint provides details about the items added to your cart.",
-                "operationId": "3018f3d713c7213e031a0a50110c93b8",
-                "parameters": [
-                    {
-                        "name": "booking_id",
-                        "in": "query",
-                        "description": "Booking ID",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BookingRetrieveItemsResponse"
-                                },
-                                "examples": {
-                                    "BookingRetrieveItemsResponse": {
-                                        "$ref": "#/components/examples/BookingRetrieveItemsResponse"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                },
-                                "examples": {
-                                    "UnAuthenticatedResponse": {
-                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                },
-                                "examples": {
-                                    "BadRequestResponse": {
-                                        "$ref": "#/components/examples/BadRequestResponse"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/booking/add-passengers": {
-            "post": {
-                "tags": [
-                    "Booking API | Cart Endpoints"
-                ],
-                "summary": "Add passengers to a booking.",
-                "description": "Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
-                "operationId": "f1e7873b33ca8fb0789766e4d30dfe8f",
-                "parameters": [
-                    {
-                        "name": "booking_id",
-                        "in": "query",
-                        "description": "To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>\n     *       In the response object for each rate is a **booking_id** property.",
-                        "required": true
-                    }
-                ],
-                "requestBody": {
-                    "description": "JSON object containing the details of the reservation. If you don't pass booking_item(s), these passengers will be added to all booking_items that are in the cart (booking_id)",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/BookingAddPassengersRequest"
-                            },
-                            "examples": {
-                                "BookingAddPassengersRequest": {
-                                    "$ref": "#/components/examples/BookingAddPassengersRequest"
-                                }
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
-                                },
-                                "examples": {
-                                    "BookingAddPassengersResponseAdd": {
-                                        "$ref": "#/components/examples/BookingAddPassengersResponseAdd"
-                                    },
-                                    "BookingAddPassengersResponseUpdate": {
-                                        "$ref": "#/components/examples/BookingAddPassengersResponseUpdate"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BookingAddPassengersResponse"
-                                },
-                                "examples": {
-                                    "BookingAddPassengersResponseError": {
-                                        "$ref": "#/components/examples/BookingAddPassengersResponseError"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                },
-                                "examples": {
-                                    "UnAuthenticatedResponse": {
-                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            }
-        },
         "/api/booking/add-item": {
             "post": {
                 "tags": [
@@ -584,7 +442,7 @@
                 ],
                 "summary": "Add an item to your shopping cart.",
                 "description": "Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
-                "operationId": "2c4889c84d7cc8b291b338af2cdd8ac6",
+                "operationId": "e78fc121d3a661be43695d11920bb43a",
                 "parameters": [
                     {
                         "name": "booking_item",
@@ -654,28 +512,24 @@
                 ]
             }
         },
-        "/api/booking/remove-item": {
-            "delete": {
+        "/api/booking/retrieve-items": {
+            "get": {
                 "tags": [
                     "Booking API | Cart Endpoints"
                 ],
-                "summary": "Remove a specific item from your shopping cart",
-                "description": "Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",
-                "operationId": "02aae9b1f61cd585e15426e28fec10d9",
+                "summary": "Retrieve a list of items currently in your shopping cart.",
+                "description": "Retrieve a list of items currently in your shopping cart. This endpoint provides details about the items added to your cart.",
+                "operationId": "04fae9d9292f71e48fa23bc1951877bf",
                 "parameters": [
                     {
                         "name": "booking_id",
                         "in": "query",
-                        "description": "**booking_id**",
+                        "description": "Booking ID",
                         "required": true,
-                        "example": "c698abfe-9bfa-45ee-a201-dc7322e008ab"
-                    },
-                    {
-                        "name": "booking_item",
-                        "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property.",
-                        "required": true,
-                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                        "schema": {
+                            "type": "string",
+                            "example": "5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
+                        }
                     }
                 ],
                 "responses": {
@@ -684,26 +538,11 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BookingRemoveItemResponse"
+                                    "$ref": "#/components/schemas/BookingRetrieveItemsResponse"
                                 },
                                 "examples": {
-                                    "BookingRemoveItemResponse": {
-                                        "$ref": "#/components/examples/BookingRemoveItemResponse"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                },
-                                "examples": {
-                                    "BadRequestResponse": {
-                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    "BookingRetrieveItemsResponse": {
+                                        "$ref": "#/components/examples/BookingRetrieveItemsResponse"
                                     }
                                 }
                             }
@@ -723,6 +562,21 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -732,57 +586,111 @@
                 ]
             }
         },
-        "/api/content/search": {
-            "post": {
+        "/api/booking/retrieve-booking": {
+            "get": {
                 "tags": [
-                    "Content API"
+                    "Booking API | Booking Endpoints"
                 ],
-                "summary": "Search Hotels",
-                "description": "Search for hotels by destination or coordinates.",
-                "operationId": "5af502f242dd441cf71b77e34f3c3e32",
-                "requestBody": {
-                    "description": "JSON object containing the details of the reservation.",
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "oneOf": [
-                                    {
-                                        "$ref": "#/components/schemas/ContentSearchRequestDestination"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/ContentSearchRequestCoordinates"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/ContentSearchRequestSupplierHotelName"
-                                    }
-                                ]
-                            },
-                            "examples": {
-                                "ContentSearchRequestDestination": {
-                                    "$ref": "#/components/examples/ContentSearchRequestDestination"
-                                },
-                                "ContentSearchRequestCoordinates": {
-                                    "$ref": "#/components/examples/ContentSearchRequestCoordinates"
-                                },
-                                "ContentSearchRequestSupplierHotelName": {
-                                    "$ref": "#/components/examples/ContentSearchRequestSupplierHotelName"
-                                }
-                            }
+                "summary": "Retrieve detailed information about a specific booking reservation. ",
+                "description": "Retrieve detailed information about a specific booking reservation. This endpoint allows you to access all the information related to a particular reservation.",
+                "operationId": "e662656506f2253c8ac2dea57557580a",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "Booking ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
                         }
                     }
-                },
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ContentSearchResponse"
+                                    "$ref": "#/components/schemas/BookingRetrieveBookingResponse"
                                 },
                                 "examples": {
-                                    "ContentSearchResponse": {
-                                        "$ref": "#/components/examples/ContentSearchResponse"
+                                    "BookingRetrieveBookingResponse": {
+                                        "$ref": "#/components/examples/BookingRetrieveBookingResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/content/destinations": {
+            "get": {
+                "tags": [
+                    "Content API"
+                ],
+                "summary": "Get list of destinations",
+                "description": "Get list valid value of destinations by city name, can be used for autocomplete, min 3 characters",
+                "operationId": "28b3f2bb0a7778d1888c778fd4e3fd3d",
+                "parameters": [
+                    {
+                        "name": "city",
+                        "in": "query",
+                        "description": "Type of content to search (e.g., 'rome', 'new y', londo').",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "londo"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ContentDestinationslResponse"
+                                },
+                                "examples": {
+                                    "ContentDestinationslResponse": {
+                                        "$ref": "#/components/examples/ContentDestinationslResponse"
                                     }
                                 }
                             }
@@ -833,7 +741,7 @@
                 ],
                 "summary": "Delail Hotels",
                 "description": "Get detailed information about a hotel.",
-                "operationId": "dbc9d1437c7b26a6abf9ce43b58e957b",
+                "operationId": "1ba0bb8432daf31169f55ab7caf62d90",
                 "parameters": [
                     {
                         "name": "type",
@@ -910,6 +818,78 @@
                 ]
             }
         },
+        "/api/booking/list-bookings": {
+            "get": {
+                "tags": [
+                    "Booking API | Booking Endpoints"
+                ],
+                "summary": "Retrieve a list of all your booking reservations. ",
+                "description": "Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
+                "operationId": "ce9030874fb328ec0a24d2f89abe3d19",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Type",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "hotel"
+                        }
+                    },
+                    {
+                        "name": "supplier",
+                        "in": "query",
+                        "description": "Supplier",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "Expedia"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/pricing/search": {
             "post": {
                 "tags": [
@@ -917,7 +897,7 @@
                 ],
                 "summary": "Search Price Hotels",
                 "description": "The **'/api/pricing/search'** endpoint, when used for hotel pricing, <br> is a critical part of a hotel booking API. <br> It enables users and developers to search for and obtain detailed pricing information related to hotel accommodations.",
-                "operationId": "f8406b0ec4e71bd3a4ba68f7e0958831",
+                "operationId": "6c2100979dfc6df04a75ba16922b7c26",
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
                     "required": true,
@@ -929,9 +909,6 @@
                             "examples": {
                                 "PricingSearchRequestNewYork": {
                                     "$ref": "#/components/examples/PricingSearchRequestNewYork"
-                                },
-                                "PricingSearchRequestCancun": {
-                                    "$ref": "#/components/examples/PricingSearchRequestCancun"
                                 },
                                 "PricingSearchRequestLondon": {
                                     "$ref": "#/components/examples/PricingSearchRequestLondon"
@@ -1000,37 +977,57 @@
                 ]
             }
         },
-        "/api/content/destinations": {
-            "get": {
+        "/api/content/search": {
+            "post": {
                 "tags": [
                     "Content API"
                 ],
-                "summary": "Get list of destinations",
-                "description": "Get list valid value of destinations by city name, can be used for autocomplete, min 3 characters",
-                "operationId": "22ef50fb47b5557afd388640b4257717",
-                "parameters": [
-                    {
-                        "name": "city",
-                        "in": "query",
-                        "description": "Type of content to search (e.g., 'rome', 'new y', londo').",
-                        "required": true,
-                        "schema": {
-                            "type": "string",
-                            "example": "londo"
+                "summary": "Search Hotels",
+                "description": "Search for hotels by destination or coordinates.",
+                "operationId": "60be1a957d2359e84e31d23f82da3c42",
+                "requestBody": {
+                    "description": "JSON object containing the details of the reservation.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestDestination"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestCoordinates"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestSupplierHotelName"
+                                    }
+                                ]
+                            },
+                            "examples": {
+                                "ContentSearchRequestDestination": {
+                                    "$ref": "#/components/examples/ContentSearchRequestDestination"
+                                },
+                                "ContentSearchRequestCoordinates": {
+                                    "$ref": "#/components/examples/ContentSearchRequestCoordinates"
+                                },
+                                "ContentSearchRequestSupplierHotelName": {
+                                    "$ref": "#/components/examples/ContentSearchRequestSupplierHotelName"
+                                }
+                            }
                         }
                     }
-                ],
+                },
                 "responses": {
                     "200": {
                         "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ContentDestinationslResponse"
+                                    "$ref": "#/components/schemas/ContentSearchResponse"
                                 },
                                 "examples": {
-                                    "ContentDestinationslResponse": {
-                                        "$ref": "#/components/examples/ContentDestinationslResponse"
+                                    "ContentSearchResponse": {
+                                        "$ref": "#/components/examples/ContentSearchResponse"
                                     }
                                 }
                             }
@@ -1341,49 +1338,80 @@
                         },
                         "type": "object"
                     },
-                    "credit_card": {
-                        "required": [
-                            "name_card",
-                            "number",
-                            "card_type",
-                            "expiry_date",
-                            "cvv",
-                            "billing_address"
-                        ],
-                        "properties": {
-                            "name_card": {
-                                "type": "string",
-                                "example": "Visa"
+                    "credit_cards": {
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "credit_card",
+                                "booking_item"
+                            ],
+                            "properties": {
+                                "credit_card": {
+                                    "required": [
+                                        "cvv",
+                                        "number",
+                                        "card_type",
+                                        "name_card",
+                                        "expiry_date",
+                                        "billing_address"
+                                    ],
+                                    "properties": {
+                                        "cvv": {
+                                            "type": "integer",
+                                            "example": 123
+                                        },
+                                        "number": {
+                                            "type": "integer",
+                                            "example": 4001919257537193
+                                        },
+                                        "card_type": {
+                                            "type": "string",
+                                            "example": "VISA"
+                                        },
+                                        "name_card": {
+                                            "type": "string",
+                                            "example": "Visa"
+                                        },
+                                        "expiry_date": {
+                                            "type": "string",
+                                            "example": "09\\/2026"
+                                        },
+                                        "billing_address": {
+                                            "properties": {
+                                                "line_1": {
+                                                    "type": "string",
+                                                    "example": "555 1st St"
+                                                },
+                                                "city": {
+                                                    "type": "string",
+                                                    "example": "Seattle"
+                                                },
+                                                "state_province_code": {
+                                                    "type": "string",
+                                                    "example": "WA"
+                                                },
+                                                "postal_code": {
+                                                    "type": "string",
+                                                    "example": "98121"
+                                                },
+                                                "country_code": {
+                                                    "type": "string",
+                                                    "example": "US"
+                                                }
+                                            },
+                                            "type": "object",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "type": "object"
+                                },
+                                "booking_item": {
+                                    "type": "string",
+                                    "example": "89650b97-9c2e-40a6-a982-040bae5d9ea5"
+                                }
                             },
-                            "number": {
-                                "type": "integer",
-                                "example": 4001919257537193
-                            },
-                            "card_type": {
-                                "type": "string",
-                                "enum": [
-                                    "VISA",
-                                    "MSC",
-                                    "AMEX",
-                                    "DIS"
-                                ],
-                                "example": "VISA"
-                            },
-                            "expiry_date": {
-                                "type": "string",
-                                "format": "m/Y",
-                                "example": "09/2026"
-                            },
-                            "cvv": {
-                                "type": "integer",
-                                "example": 123
-                            },
-                            "billing_address": {
-                                "type": "string",
-                                "example": ""
-                            }
-                        },
-                        "type": "object"
+                            "type": "object"
+                        }
                     }
                 },
                 "type": "object"
@@ -3555,14 +3583,30 @@
                             "country_code": "US"
                         }
                     },
-                    "credit_card": {
-                        "name_card": "Visa",
-                        "number": 4001919257537193,
-                        "card_type": "VISA",
-                        "expiry_date": "09/2026",
-                        "cvv": 123,
-                        "billing_address": ""
-                    }
+                    "credit_cards": [
+                        {
+                            "credit_card": {
+                                "cvv": 123,
+                                "number": 4001919257537193,
+                                "card_type": "VISA",
+                                "name_card": "Visa",
+                                "expiry_date": "09\\/2026",
+                                "billing_address": null
+                            },
+                            "booking_item": "89650b97-9c2e-40a6-a982-040bae5d9ea5"
+                        },
+                        {
+                            "credit_card": {
+                                "cvv": 123,
+                                "number": 4001919257537193,
+                                "card_type": "VISA",
+                                "name_card": "Visa",
+                                "expiry_date": "09\\/2026",
+                                "billing_address": null
+                            },
+                            "booking_item": "9c116b9d-32f0-4341-92ea-124c8fcea643"
+                        }
+                    ]
                 }
             },
             "BookingBookRequestExpedia": {
@@ -6487,8 +6531,8 @@
                 "summary": "An Example Pricing Search Request New York",
                 "value": {
                     "type": "hotel",
-                    "checkin": "2024-05-11",
-                    "checkout": "2024-05-20",
+                    "checkin": "2023-11-11",
+                    "checkout": "2023-11-20",
                     "destination": 961,
                     "rating": 4.5,
                     "occupancy": [
@@ -6505,27 +6549,12 @@
                     ]
                 }
             },
-            "PricingSearchRequestCancun": {
-                "summary": "An Example Pricing Search Request Cancun",
-                "value": {
-                    "type": "hotel",
-                    "checkin": "2024-05-11",
-                    "checkout": "2024-05-20",
-                    "destination": 961,
-                    "rating": 4.5,
-                    "occupancy": [
-                        {
-                            "adults": 2
-                        }
-                    ]
-                }
-            },
             "PricingSearchRequestLondon": {
                 "summary": "An Example Pricing Search RequestLondon",
                 "value": {
                     "type": "hotel",
-                    "checkin": "2024-05-01",
-                    "checkout": "2024-05-05",
+                    "checkin": "2023-11-11",
+                    "checkout": "2023-11-20",
                     "destination": 302,
                     "rating": 4,
                     "occupancy": [

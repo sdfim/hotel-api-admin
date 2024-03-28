@@ -2,43 +2,37 @@
 
 namespace Modules\API\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
-class ListBookingsRequest extends ApiRequest
+class BookingRetrieveItemsRequest extends ApiRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     /**
      * @OA\Get(
      *   tags={"Booking API | Booking Endpoints"},
-     *   path="/api/booking/list-bookings",
-     *   summary="Retrieve a list of all your booking reservations. ",
-     *   description="Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
+     *   path="/api/booking/retrieve-booking",
+     *   summary="Retrieve detailed information about a specific booking reservation. ",
+     *   description="Retrieve detailed information about a specific booking reservation. This endpoint allows you to access all the information related to a particular reservation.",
      *    @OA\Parameter(
-     *      name="type",
+     *      name="booking_id",
      *      in="query",
      *      required=true,
-     *      description="Type",
+     *      description="Booking ID",
      *      @OA\Schema(
      *        type="string",
-     *        example="hotel"
-     *      )
-     *    ),
-     *    @OA\Parameter(
-     *      name="supplier",
-     *      in="query",
-     *      required=true,
-     *      description="Supplier",
-     *      @OA\Schema(
-     *        type="string",
-     *        example="Expedia"
+     *        example="5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
      *      )
      *    ),
      *    @OA\Response(
      *      response=200,
      *      description="OK",
+     *     @OA\JsonContent(
+     *     ref="#/components/schemas/BookingRetrieveBookingResponse",
+     *     examples={
+     *     "example1": @OA\Schema(ref="#/components/examples/BookingRetrieveBookingResponse", example="BookingRetrieveBookingResponse"),
+     *     }
+     *     )
      *    ),
      *    @OA\Response(
      *     response=401,
@@ -68,11 +62,23 @@ class ListBookingsRequest extends ApiRequest
         return Auth::check();
     }
 
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
     public function rules(): array
     {
         return [
-            'supplier' => 'required|string',
-            'type' => 'required|string|in:hotel,flight,combo'
+            'booking_id' => 'required|size:36'
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function validatedDate(): array
+    {
+        return parent::validated();
     }
 }

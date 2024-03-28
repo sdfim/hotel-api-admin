@@ -2,7 +2,7 @@
 
 namespace Modules\API\PricingAPI\ResponseModels;
 
-class RoomResponse
+class RoomResponse extends BaseResponse
 {
 
     private string $giata_room_code;
@@ -61,7 +61,7 @@ class RoomResponse
      */
     public function getMealPlans(): string
     {
-        return $this->meal_plan;
+        return $this->meal_plan ?? '';
     }
 
     /**
@@ -78,7 +78,7 @@ class RoomResponse
      */
     public function getCancellationPolicies(): array
     {
-        return $this->cancellation_policies;
+        return $this->cancellation_policies ?? [];
     }
 
     /**
@@ -121,7 +121,7 @@ class RoomResponse
      */
     public function getRatePlanCode(): string
     {
-        return $this->rate_plan_code;
+        return $this->rate_plan_code ?? '';
     }
 
     /**
@@ -401,7 +401,7 @@ class RoomResponse
      */
     public function getNonRefundable(): bool
     {
-        return $this->non_refundable;
+        return $this->non_refundable ?? false;
     }
 
     /**

@@ -9,7 +9,73 @@ use Modules\API\Validate\ApiRequest;
 class DetailHotelRequest extends ApiRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * @OA\Get(
+     *   tags={"Content API"},
+     *   path="/api/content/detail",
+     *   summary="Delail Hotels",
+     *   description="Get detailed information about a hotel.",
+     *
+     *    @OA\Parameter(
+     *      name="type",
+     *      in="query",
+     *      required=true,
+     *      description="Type of content to search (e.g., 'hotel').",
+     *
+     *      @OA\Schema(
+     *        type="string",
+     *        example="hotel"
+     *        )
+     *    ),
+     *
+     *    @OA\Parameter(
+     *      name="property_id",
+     *    in="query",
+     *    required=true,
+     *    description="Giata ID of the property to get details for (e.g., 98736411).",
+     *
+     *   	@OA\Schema(
+     *      type="integer",
+     *      example=98736411
+     *    )
+     *   ),
+     *
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK",
+     *
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/ContentDetailResponse",
+     *       examples={
+     *       "example1": @OA\Schema(ref="#/components/examples/ContentDetailResponse", example="ContentDetailResponse"),
+     *       }
+     *     )
+     *   ),
+     *
+     *   @OA\Response(
+     *     response=400,
+     *     description="Bad Request",
+     *
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BadRequestResponse",
+     *       examples={
+     *       "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse"),
+     *       }
+     *     )
+     *   ),
+     *
+     *   @OA\Response(
+     *     response=401,
+     *     description="Unauthenticated",
+     *
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/UnAuthenticatedResponse",
+     *       examples={
+     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+     *       }
+     *     )
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
      */
     public function authorize(): bool
     {

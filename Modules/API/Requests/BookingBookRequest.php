@@ -11,6 +11,64 @@ class BookingBookRequest extends ApiRequest
     /**
      * Determine if the user is authorized to make this request.
      */
+    /**
+     * @OA\Post(
+     *   tags={"Booking API | Booking Endpoints"},
+     *   path="/api/booking/book",
+     *   summary="Create a new booking for a service or event",
+     *   description="Create a new booking for a service or event. Use this endpoint to make reservations.",
+     *    @OA\Parameter(
+     *      name="booking_id",
+     *      in="query",
+     *      required=true,
+     *      description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
+     *      In the response object for each rate is a **booking_id** property.",
+     *   ),
+     *   @OA\RequestBody(
+     *     description="JSON object containing the details of the reservation.",
+     *     required=true,
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BookingBookRequest",
+     *       examples={
+     *           "example1": @OA\Schema(ref="#/components/examples/BookingBookRequest", example="BookingBookRequest"),
+     *           "example2": @OA\Schema(ref="#/components/examples/BookingBookRequestExpedia", example="BookingBookRequestExpedia"),
+     *       },
+     *     ),
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BookingBookResponse",
+     *       examples={
+     *       "example1": @OA\Schema(ref="#/components/examples/BookingBookResponse", example="BookingBookResponse"),
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=400,
+     *     description="Bad Request",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BookingBookResponseErrorItem",
+     *       examples={
+     *       "example1": @OA\Schema(ref="#/components/examples/BookingBookResponseErrorItem", example="BookingBookResponseErrorItem"),
+     *       "example2": @OA\Schema(ref="#/components/examples/BookingBookResponseErrorBooked", example="BookingBookResponseErrorBooked"),
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=401,
+     *     description="Unauthenticated",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/UnAuthenticatedResponse",
+     *       examples={
+     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
+     *       }
+     *     )
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
+     */
     public function authorize(): bool
     {
         return Auth::check();
@@ -53,6 +111,7 @@ class BookingBookRequest extends ApiRequest
         $rules = [
             'booking_id' => 'required|size:36',
             'amount_pay' => 'required|string|in:Deposit,Full Payment',
+            'travel_agency_identifier' => 'string|size:3',
             'booking_contact.first_name' => 'required|string',
             'booking_contact.last_name' => 'required|string',
             'booking_contact.email' => 'required|email:rfc,dns',
@@ -80,7 +139,15 @@ class BookingBookRequest extends ApiRequest
         if (request()->has('special_requests')) {
             $rules['special_requests'] = 'array';
             $rules['special_requests.*.booking_item'] = 'required|size:36';
+            $rules['special_requests.*.room'] = 'required|integer|between:1,5';
             $rules['special_requests.*.special_request'] = 'required|string|between:1,255';
+        }
+
+        if (request()->has('comments')) {
+            $rules['comments'] = 'array';
+            $rules['comments.*.booking_item'] = 'required|size:36';
+            $rules['comments.*.room'] = 'required|integer|between:1,5';
+            $rules['comments.*.comment'] = 'required|string|between:1,255';
         }
 
         return $rules;

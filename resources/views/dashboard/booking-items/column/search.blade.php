@@ -29,7 +29,7 @@
                 if ($key === 'checkin') $str0 = $value . " - ";
                 if ($key === 'checkout') $str0 .= $value;
             }
-            $str = '<div  class="p-2 text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight" ><p>' . $str0 . ' ' . $str1 . '</p><p>rooms: ' . json_encode($rooms) . '</p></div>';
+            $str = '<div  class="p-2 text-slate-900 dark:text-white text-base font-medium tracking-tight" ><p>' . $str0 . ' ' . $str1 . '</p><p>rooms: ' . json_encode($rooms) . '</p></div>';
         }
     @endphp
 

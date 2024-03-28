@@ -9,6 +9,19 @@ use Illuminate\Support\Facades\Storage;
 
 class ApiSearchInspectorRepository
 {
+
+    /**
+     * @param string $search_id
+     * @return bool
+     */
+    public static function isMultiple(string $search_id):bool
+    {
+        $search_id = ApiSearchInspector::where('search_id', $search_id)->first();
+        $request = json_decode(Storage::get($search_id->request));
+
+        return count($request['occupancy']) > 1;
+    }
+
     /**
      * @param $filters
      * @return string

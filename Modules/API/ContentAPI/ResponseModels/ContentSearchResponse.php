@@ -15,7 +15,7 @@ class ContentSearchResponse
     /**
      * @var string
      */
-    private string $description;
+    private array $description;
     /**
      * @var string
      */
@@ -186,18 +186,18 @@ class ContentSearchResponse
     }
 
     /**
-     * @param string $description
+     * @param array $description
      * @return void
      */
-    public function setDescription(string $description): void
+    public function setDescription(array $description): void
     {
         $this->description = $description;
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getDescription(): string
+    public function getDescription(): array
     {
         return $this->description;
     }

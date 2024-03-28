@@ -23,6 +23,7 @@ class ExpediaService
      * @param array $propertyIds
      * @param array $query
      * @return array
+     * @throws \Throwable
      */
     public function getExpediaPriceByPropertyIds(array $propertyIds, array $query): array
     {
