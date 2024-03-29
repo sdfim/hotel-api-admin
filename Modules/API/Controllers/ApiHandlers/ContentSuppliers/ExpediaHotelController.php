@@ -141,8 +141,8 @@ class ExpediaHotelController
             $output = [];
             // add price to response
             foreach ($preSearchData['results']->toArray() as $value) {
-                if (isset($priceData[$value['property_id']])) {
-                    $prices_property = $priceData[$value['property_id']];
+                if (isset($priceData['response'][$value['property_id']])) {
+                    $prices_property = $priceData['response'][$value['property_id']];
                     $output[$value['giata_id']] = [
                             'giata_id' => $value['giata_id'],
                             'hotel_name' => $value['name'],
@@ -150,7 +150,13 @@ class ExpediaHotelController
                 }
             }
 
-            return $output;
+            return [
+                'original' => [
+                    'request' => $priceData['request'],
+                    'response' => $priceData['response'],
+                ],
+                'array' => $output,
+            ];
 
         } catch (Exception $e) {
             Log::error('ExpediaHotelApiHandler ' . $e->getMessage());

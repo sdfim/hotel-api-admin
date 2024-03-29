@@ -136,27 +136,32 @@ class ExpediaBookApiController extends BaseBookApiController
 
         try {
             $response = $this->rapidClient->post($props['path'], $props['paramToken'], $body, $this->headers());
-            $dataResponse = json_decode($response->getBody()->getContents());
+            $content = json_decode($response->getBody()->getContents(), true);
+            $content['original']['response'] = $content;
+            $content['original']['request']['params'] = $props['paramToken'];
+            $content['original']['request']['body'] = json_decode($body,true);
+            $content['original']['request']['path'] = $props['path'];
+            $content['original']['request']['headers'] = $this->headers();
         } catch (RequestException $e) {
             Log::error('ExpediaBookApiHandler | book | create' . $e->getResponse()->getBody());
-            $dataResponse = json_decode('' . $e->getResponse()->getBody());
-            return (array)$dataResponse;
+            $content = json_decode('' . $e->getResponse()->getBody());
+            return (array)$content;
         }
 
-        if (!$dataResponse) {
+        if (!$content) {
             return [];
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         SaveBookingInspector::dispatch([
-            $booking_id, array_merge($filters, $bodyArr), $dataResponse, [], $supplierId, 'book',
+            $booking_id, array_merge($filters, $bodyArr), $content, [], $supplierId, 'book',
             'create' . ($queryHold ? ':hold' : ''), $bookingInspector->search_type,
         ]);
 
         # Save Book data to Reservation
         SaveReservations::dispatch($booking_id, $filters, $dataPassengers);
 
-        $linkBookRetrieves = $dataResponse->links->retrieve->href;
+        $linkBookRetrieves = $content['links']['retrieve']['href'];
 
         # Booking GET query - Retrieve Booking
         $props = $this->getPathParamsFromLink($linkBookRetrieves);
@@ -244,6 +249,10 @@ class ExpediaBookApiController extends BaseBookApiController
         $props = $this->getPathParamsFromLink($linkRetrieveItem);
         $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
         $dataResponse = json_decode($response->getBody()->getContents(), true);
+        $dataResponse['original']['response'] = $dataResponse;
+        $dataResponse['original']['request']['params'] = $props['paramToken'];
+        $dataResponse['original']['request']['path'] = $props['path'];
+        $dataResponse['original']['request']['headers'] = $this->headers();
 
         $clientDataResponse = ExpediaHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse);
 

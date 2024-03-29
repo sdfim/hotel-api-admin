@@ -65,12 +65,12 @@ class BookingInspectorController extends BaseInspectorController
 
                 Storage::put($client_path, $client_content);
                 Log::debug('BookingInspectorController save client_response to Storage: ' . $this->executionTime() . ' seconds');
+            }
 
-                if ($original) {
-                    $original_path = $generalPath . '.original.json';
-                    Storage::put($original_path, $original);
-                    Log::debug('BookingInspectorController save original to Storage: ' . $this->executionTime() . ' seconds');
-                }
+            if ($original) {
+                $original_path = $generalPath . '.original.json';
+                Storage::put($original_path, $original);
+                Log::debug('BookingInspectorController save original to Storage: ' . $this->executionTime() . ' seconds');
             }
 
             $data = [

@@ -5,6 +5,8 @@ namespace Modules\API\Suppliers\ExpediaSupplier;
 use Exception;
 use Fiber;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Modules\Enums\TypeRequestEnum;
 use Throwable;
 
 class PropertyPriceCall
@@ -179,10 +181,14 @@ class PropertyPriceCall
     public function getPriceData(array $propertyIds = []): array
     {
         $chunkPropertyIds = array_chunk($propertyIds, self::BATCH_SIZE);
+        $rq = [];
 
         foreach ($chunkPropertyIds as $keyChunk => $chunk) {
             $this->propertyChunk = $chunk;
             $queryParameters = $this->queryParameters();
+
+            $rq[$keyChunk]['params'] = $queryParameters;
+            $rq[$keyChunk]['path'] = self::PROPERTY_CONTENT_PATH;
 
             try {
                 $promises[$keyChunk] = $this->client->getAsync(self::PROPERTY_CONTENT_PATH, $queryParameters);
@@ -217,7 +223,11 @@ class PropertyPriceCall
             }
         }
 
-        return $res;
+        return [
+            'request' => $rq,
+            'response' => $res,
+
+        ];
     }
 
 

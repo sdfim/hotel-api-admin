@@ -179,6 +179,8 @@ class BookApiHandler extends BaseController
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
+        $filters = $request->all();
+
         $itemsBooked = BookRepository::bookedItems($request->booking_id);
         $data = [];
         foreach ($itemsBooked as $item) {
