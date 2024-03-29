@@ -3,9 +3,21 @@
 namespace App\Repositories;
 
 use App\Models\ApiBookingItem;
+use Modules\Enums\ItemTypeEnum;
 
 class ApiBookingItemRepository
 {
+     public static function isComlete(string $booking_item): bool
+    {
+        $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
+        return $bookingItem->rate_type === ItemTypeEnum::COMPLETE->value;
+    }
+
+    public static function isHas(string $booking_item): bool
+    {
+        return (bool)ApiBookingItem::where('booking_item', $booking_item);
+    }
+
     /**
      * @param string $booking_item
      * @return array|null

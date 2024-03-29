@@ -8,6 +8,7 @@ use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -17,6 +18,7 @@ use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
 use Modules\API\Requests\BookingAddItemHotelRequest;
 use Modules\API\Requests\BookingRemoveItemHotelRequest;
 use Modules\Enums\RouteBookingEnum;
+use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 
 class RouteBookingApiController extends Controller
@@ -99,12 +101,19 @@ class RouteBookingApiController extends Controller
         # Autodetect type by booking_item and check Owner token
         if ($request->has('booking_item')) {
             if (!$this->validatedUuid('booking_item')) return [];
-            $apiBookingItem = ApiBookingItem::where('booking_item', $request->get('booking_item'))->with('search')->first();
-            if (!$apiBookingItem) return ['error' => 'Invalid booking_item'];
-            $dbTokenId = $apiBookingItem->search->token_id;
-            if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
-            $this->supplier = Supplier::where('id', $apiBookingItem->supplier_id)->first()->name;
-            $this->type = SearchRepository::geTypeBySearchId($apiBookingItem->search_id);
+            $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->with('search')->first();
+            $cacheBookingItem = Cache::get('room_combinations:' . $request->booking_item);
+            if (!$apiBookingItem && !$cacheBookingItem ) return ['error' => 'Invalid booking_item'];
+            if ($apiBookingItem) {
+                $dbTokenId = $apiBookingItem->search->token_id;
+                if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
+                $this->supplier = Supplier::where('id', $apiBookingItem->supplier_id)->first()->name;
+                $this->type = SearchRepository::geTypeBySearchId($apiBookingItem->search_id);
+            }
+            if ($cacheBookingItem) {
+                $this->type = TypeRequestEnum::HOTEL->value;
+                $this->supplier = SupplierNameEnum::HBSI->value;
+            }
         }
 
         # Autodetect type and supplier by booking_id and check Owner token

@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\ApiBookingInspector;
 use Illuminate\Support\Facades\Storage;
+use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 
 class ApiBookingInspectorRepository
@@ -12,9 +13,9 @@ class ApiBookingInspectorRepository
      * @param string $booking_id
      * @param string $booking_item
      * @param int $room_id
-     * @return string|null
+     * @return array
      */
-    public static function getLinkDeleteItem(string $booking_id, string $booking_item, int $room_id): string|null
+    public static function getLinkDeleteItem(string $booking_id, string $booking_item, int $room_id): array
     {
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('booking_item', $booking_item)
@@ -22,23 +23,19 @@ class ApiBookingInspectorRepository
             ->where('booking_id', $booking_id)
             ->first();
 
-        if (!isset($inspector)) {
-            return null;
-        }
+        if (!isset($inspector)) return [];
 
         $json_response = json_decode(Storage::get($inspector->response_path));
-
         $rooms = $json_response->rooms;
 
-        $linkDeleteItem = '';
+        $linkDeleteItems = [];
         foreach ($rooms as $room) {
             if ($room->id == $room_id) {
-                $linkDeleteItem = $room->links->cancel->href;
-                break;
+                $linkDeleteItems[] = $room->links->cancel->href;
             }
         }
 
-        return $linkDeleteItem;
+        return $linkDeleteItems;
     }
 
     /**
@@ -217,8 +214,8 @@ class ApiBookingInspectorRepository
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('type', 'add_item')
             ->where(function ($query) {
-                $query->where('sub_type', 'single')
-                    ->orWhere('sub_type', 'complete')
+                $query->where('sub_type', ItemTypeEnum::SINGLE->value)
+                    ->orWhere('sub_type', ItemTypeEnum::COMPLETE->value)
                     ->orWhere('sub_type', 'like', 'price_check' . '%');
             })
             ->whereNotIn('booking_item', $itemsBooked)

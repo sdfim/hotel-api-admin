@@ -4,14 +4,18 @@ namespace Modules\API\BookingAPI\BookingApiHandlers;
 
 use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
+use App\Repositories\ApiBookingItemRepository;
+use App\Repositories\ApiSearchInspectorRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Modules\API\BaseController;
 use Modules\API\BookingAPI\Controllers\BookingApiHandlerInterface;
 use Modules\API\BookingAPI\Controllers\ExpediaHotelBookingApiController;
 use Modules\API\BookingAPI\Controllers\HbsiHotelBookingApiController;
+use Modules\API\Suppliers\HbsiSupplier\HbsiService;
 use Modules\Enums\SupplierNameEnum;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -30,6 +34,8 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
     public function __construct(
         private readonly ExpediaHotelBookingApiController $expedia = new ExpediaHotelBookingApiController(),
         private readonly HbsiHotelBookingApiController    $hbsi = new HbsiHotelBookingApiController(),
+        private readonly HbsiService                      $hbsiService = new HbsiService(),
+
     )
     {
     }
@@ -57,6 +63,15 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
                 }
 
                 $filters['booking_id'] = $request->booking_id;
+            }
+
+            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI
+                && Cache::get('room_combinations:' . $request->booking_item)) {
+                $this->hbsiService->updateBookingItemsData($request->booking_item);
+            }
+
+            if (!ApiBookingItemRepository::isComlete($request->booking_item)) {
+                return $this->sendError('booking_item - this item is single');
             }
 
             $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->first()->toArray();

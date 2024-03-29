@@ -13,6 +13,7 @@ use Modules\API\PricingAPI\ResponseModels\HotelResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
+use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 
 class HbsiHotelPricingDto
@@ -70,7 +71,7 @@ class HbsiHotelPricingDto
     {
         $this->search_id = $search_id;
         $this->bookingItems = [];
-        $this->rate_type = 'single';
+        $this->rate_type = count($query['occupancy']) > 1 ? ItemTypeEnum::SINGLE->value : ItemTypeEnum::COMPLETE->value;
         $this->meal_plans_available = [];
 
         $pricingRules = array_column($pricingRules, null, 'property');

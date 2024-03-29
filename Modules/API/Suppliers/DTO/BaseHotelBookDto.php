@@ -42,7 +42,7 @@ class BaseHotelBookDto
             'room_name' => $booking_pricing_data['supplier_room_name'],
             'meal_plan' => $booking_pricing_data['meal_plan'],
         ]);
-        $hotelBookResponseModel->setCancellationTerms($booking_pricing_data['cancellation_policies']);
+        $hotelBookResponseModel->setCancellationTerms($booking_pricing_data['cancellation_policies'] ?? []);
         $hotelBookResponseModel->setRate($booking_item_data['rate_plan_code'] ?? '');
         $hotelBookResponseModel->setTotalPrice($booking_pricing_data['total_price']);
         $hotelBookResponseModel->setTotalTax($booking_pricing_data['total_tax']);
