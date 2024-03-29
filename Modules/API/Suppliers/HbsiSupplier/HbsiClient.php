@@ -206,7 +206,6 @@ class HbsiClient
      */
     private function hotelAvailRQ(array $hotelIds, array $params = []): string
     {
-        $hotelIds [ '72997'];
         foreach ($hotelIds as $hotelId) {
             $hotelRefs[] = '<HotelRef HotelCode="' . $hotelId . '" />';
         }

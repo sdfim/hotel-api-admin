@@ -111,7 +111,7 @@ class HbsiHotelController
             ];
 
         } catch (Exception $e) {
-            Log::error('ExpediaHotelApiHandler Exception ' . $e->getMessage());
+            Log::error('HBSIHotelApiHandler Exception ' . $e);
             return [
                 'original' => [
                     'request' => $xmlPriceData['request'] ?? '',
@@ -120,7 +120,7 @@ class HbsiHotelController
                 'array' => [],
             ];
         } catch (GuzzleException $e) {
-            Log::error('ExpediaHotelApiHandler GuzzleException ' . $e->getMessage());
+            Log::error('HBSIHotelApiHandler GuzzleException ' . $e);
             return [
                 'original' => [
                     'request' => $xmlPriceData['request'] ?? '',
