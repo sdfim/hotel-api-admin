@@ -6,6 +6,8 @@ return [
             'username' => env('BOOKING_SUPPLIER_HBSI_USERNAME', ''),
             'password' => env('BOOKING_SUPPLIER_HBSI_PASSWORD', ''),
             'channel_identifier_id' => env('BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID', ''),
+            'search_book_url' => env('BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL', ''),
+            'target' => env('BOOKING_SUPPLIER_HBSI_TARGET', 'Test'),
         ]
     ],
 
