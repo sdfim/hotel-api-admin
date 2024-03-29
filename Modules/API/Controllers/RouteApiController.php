@@ -101,9 +101,17 @@ class RouteApiController extends Controller
      */
     public function destinations(DestinationResponse $request): JsonResponse
     {
-        $giataGeography = GiataGeography::select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_id')
-            ->where('city_name', 'like', $request->city . '%')
-            ->limit(35)
+        $query = GiataGeography::select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_id');
+
+        if (!empty($request->city)) {
+            $query->where('city_name', 'like', $request->city . '%');
+        }
+
+        if (!empty($request->country)) {
+            $query->where('locale_name', 'like', $request->country . '%');
+        }
+
+        $giataGeography = $query->limit(35)
             ->orderBy('city_id', 'asc')
             ->get()
             ->pluck('city_id', 'full_name')

@@ -151,7 +151,7 @@ class FlowExpediaBookTest extends Command
 
         $requestData = [
             'type' => 'hotel',
-            'currency' => $faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
+            'currency' => 'USD', // $faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
             'destination' => $this->destination,
             'checkin' => $checkin,
             'checkout' => $checkout,

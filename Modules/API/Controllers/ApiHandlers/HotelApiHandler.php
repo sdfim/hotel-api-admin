@@ -380,10 +380,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::EXPEDIA) {
 
             $expediaResponse = $supplierResponse;
-            $dataResponse[$supplierName] = $expediaResponse;
+
+            $dataResponse[$supplierName] = $expediaResponse['array'];
+            $dataOriginal[$supplierName] = $expediaResponse['original'];
 
             $st = microtime(true);
-            $dtoData = $this->ExpediaHotelPricingDto->ExpediaToHotelResponse($expediaResponse, $filters, $search_id, $pricingRules);
+            $dtoData = $this->ExpediaHotelPricingDto->ExpediaToHotelResponse($expediaResponse['array'], $filters, $search_id, $pricingRules);
             $bookingItems[$supplierName] = $dtoData['bookingItems'];
             $clientResponse[$supplierName] = $dtoData['response'];
             Log::info('HotelApiHandler | price | DTO ExpediaToHotelResponse ' . (microtime(true) - $st) . 's');
