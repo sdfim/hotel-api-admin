@@ -59,7 +59,7 @@ class HbsiClient
     public function getHbsiPriceByPropertyIds(array $hotelIds, array $filters): ?array
     {
         $bodyQuery = $this->makeRequest($this->hotelAvailRQ($hotelIds, $filters), 'HotelAvailRQ');
-        $promise = $this->client->requestAsync('POST', self::URL, [
+        $promise = $this->client->requestAsync('POST', $this->credentials->searchBookUrl, [
             'headers' => $this->headers,
             'body' => $bodyQuery,
             'timeout' => ConfigRepository::getTimeout()
@@ -137,7 +137,7 @@ class HbsiClient
      */
     private function sendRequest($body): ResponseInterface
     {
-        return $this->client->request('POST', self::URL, [
+        return $this->client->request('POST', $this->credentials->searchBookUrl, [
             'headers' => $this->headers,
             'body' => $body,
             'timeout' => ConfigRepository::getTimeout(),
@@ -206,6 +206,7 @@ class HbsiClient
      */
     private function hotelAvailRQ(array $hotelIds, array $params = []): string
     {
+        $hotelIds [ '72997'];
         foreach ($hotelIds as $hotelId) {
             $hotelRefs[] = '<HotelRef HotelCode="' . $hotelId . '" />';
         }
@@ -216,7 +217,7 @@ class HbsiClient
 
         $roomStayCandidates = $this->occupancyToXml($params['occupancy']);
 
-        return '<OTA_HotelAvailRQ Target="Test" Version="1.003" TimeStamp="' . $this->timeStamp . '"
+        return '<OTA_HotelAvailRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="' . $this->timeStamp . '"
                 xmlns="http://www.opentravel.org/OTA/2003/05" BestOnly="false" SummaryOnly="false" >
                 <POS>
                     <Source>
