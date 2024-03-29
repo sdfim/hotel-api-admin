@@ -273,37 +273,43 @@ class ExpediaBookApiController extends BaseBookApiController
         $room_id = json_decode($apiBookingItem->booking_item_data, true)['room_id'];
 
         # step 2 Read Booking Inspector, Get link  DELETE method from 'add_item | get_book'
-        $linkDeleteItem = BookingRepository::getLinkDeleteItem($filters['booking_id'], $bookingInspector->booking_item, $room_id);
+        $linkDeleteItems = BookingRepository::getLinkDeleteItem($filters['booking_id'], $bookingInspector->booking_item, $room_id);
 
         $filters['search_id'] = $bookingInspector->search_id;
         $booking_id = $filters['booking_id'];
 
-        # Delete item DELETE method query
-        $props = $this->getPathParamsFromLink($linkDeleteItem);
+        foreach ($linkDeleteItems as $i => $linkDeleteItem) {
+            $room = $i + 1;
 
-        $bodyArr = [
-            'itinerary_id' => BookingRepository::getItineraryId($filters),
-            'room_id' => $room_id,
-        ];
-        $body = json_encode($bodyArr);
+            # Delete item DELETE method query
+            $props = $this->getPathParamsFromLink($linkDeleteItem);
 
-        try {
-            $response = $this->rapidClient->delete($props['path'], $props['paramToken'], $body, $this->headers());
-            $dataResponse = json_decode($response->getBody()->getContents());
-
-            $res = [
-                'booking_item' => $bookingInspector->booking_item,
-                'status' => 'Room canceled.',
+            $bodyArr = [
+                'itinerary_id' => BookingRepository::getItineraryId($filters),
+                'room_id' => $room_id,
             ];
+            $body = json_encode($bodyArr);
 
-        } catch (Exception $e) {
-            $responseError = explode('response:', $e->getMessage());
-            $responseErrorArr = json_decode($responseError[1], true);
-            $res = [
-                'booking_item' => $bookingInspector->booking_item,
-                'status' => $responseErrorArr['message'],
-            ];
-            $dataResponse = $responseErrorArr['message'];
+            try {
+                $response = $this->rapidClient->delete($props['path'], $props['paramToken'], $body, $this->headers());
+                $dataResponse = json_decode($response->getBody()->getContents());
+
+                $res[] = [
+                    'booking_item' => $bookingInspector->booking_item,
+                    'room' => $room,
+                    'status' => 'Room canceled.',
+                ];
+
+            } catch (Exception $e) {
+                $responseError = explode('response:', $e->getMessage());
+                $responseErrorArr = json_decode($responseError[1], true);
+                $res[] = [
+                    'booking_item' => $bookingInspector->booking_item,
+                    'room' => $room,
+                    'status' => $responseErrorArr['message'],
+                ];
+                $dataResponse = $responseErrorArr['message'];
+            }
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;

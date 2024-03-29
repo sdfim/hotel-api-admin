@@ -14,6 +14,15 @@ class GiataGeography extends Model
      */
     protected $connection;
 
+    protected $fillable = [
+        'city_id',
+        'city_name',
+        'locale_id',
+        'locale_name',
+        'country_code',
+        'country_name',
+    ];
+
     /**
      * @param array $attributes
      */

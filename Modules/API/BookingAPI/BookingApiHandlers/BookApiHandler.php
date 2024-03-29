@@ -12,6 +12,7 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -360,7 +361,8 @@ class BookApiHandler extends BaseController
         if ($request->has('booking_item')) {
             if (!$this->validatedUuid('booking_item')) return [];
             $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->with('search')->first();
-            if (!$apiBookingItem) return ['error' => 'Invalid booking_item'];
+            $cacheBookingItem = Cache::get('room_combinations:' . $request->booking_item);
+            if (!$apiBookingItem && !$cacheBookingItem ) return ['error' => 'Invalid booking_item'];
             $dbTokenId = $apiBookingItem->search->token_id;
             if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
         }

@@ -13,59 +13,26 @@ use Modules\API\PricingAPI\ResponseModels\HotelResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
 use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
-use Modules\API\Tools\PricingRulesTools;
+use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 
 class ExpediaHotelPricingDto
 {
-    /**
-     * @var ExpediaPricingRulesApplier
-     */
     private ExpediaPricingRulesApplier $pricingRulesApplier;
 
-    /**
-     * @var string
-     */
     private string $search_id;
 
-    /**
-     * @var string
-     */
     private string $currency;
 
-    /**
-     * @var float
-     */
     private float $current_time;
 
-    /**
-     * @var float
-     */
-    private float $total_time;
-
-    /**
-     * @var GiataGeography|null
-     */
     private ?GiataGeography $destinationData;
 
-    /**
-     * @var array
-     */
     private array $bookingItems;
 
-    /**
-     * @var PricingRulesTools
-     */
-    private PricingRulesTools $pricingRulesService;
-
-    /**
-     *
-     */
     public function __construct()
     {
         $this->current_time = microtime(true);
-        $this->total_time = 0.0;
-        $this->pricingRulesService = new PricingRulesTools();
     }
 
     /**
@@ -92,10 +59,6 @@ class ExpediaHotelPricingDto
         foreach ($supplierResponse as $propertyGroup) {
             $hotelResponse[] = $this->setHotelResponse($propertyGroup);
         }
-        Log::info('ExpediaHotelPricingDto | enrichmentPricingRules - ' . $this->total_time . 's');
-
-        // TODO: uncomment this line after add Redis
-        // SaveBookingItems::dispatch($this->bookingItems);
 
         return ['response' => $hotelResponse, 'bookingItems' => $this->bookingItems];
     }
@@ -292,6 +255,7 @@ class ExpediaHotelPricingDto
             'booking_item' => $bookingItem,
             'supplier_id' => Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id,
             'search_id' => $this->search_id,
+            'rate_type' => ItemTypeEnum::COMPLETE->value,
             'booking_item_data' => json_encode([
                 'hotel_id' => $propertyGroup['giata_id'],
                 'room_id' => $roomGroup['id'],

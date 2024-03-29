@@ -440,12 +440,14 @@ class HbsiClient
     {
         $res = [];
         $RPH = 1;
-        $ratesBaseResponse = $roomStaysArr = $response['results']['HBSI'][$bookingItemData['hotel_supplier_id']]['rooms'][$bookingItemData['room_id']]['rates'];
+
         $ratesBookingItemData = explode(';', $bookingItemData['rate_ordinal']);
 
         foreach ($ratesBookingItemData as $keyRate => $numberRateBookingItemData) {
             $roomByQuery = $keyRate + 1;
 
+            $roomType = explode(';', $bookingItemData['room_id']);
+            $ratesBaseResponse = $roomStaysArr = $response['results']['HBSI'][$bookingItemData['hotel_supplier_id']]['rooms'][$roomType[$keyRate]]['rates'];
             foreach ($ratesBaseResponse as $rate) {
                 if ($rate['rate_ordinal'] === intval($numberRateBookingItemData)) {
                     $roomStaysArr = $rate;

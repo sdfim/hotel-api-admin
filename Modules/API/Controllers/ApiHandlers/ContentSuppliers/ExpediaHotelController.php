@@ -126,6 +126,7 @@ class ExpediaHotelController
     /**
      * @param array $filters
      * @return array|null
+     * @throws \Throwable
      */
     public function price(array $filters): ?array
     {
