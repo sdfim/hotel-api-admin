@@ -22,6 +22,8 @@ class ExpediaHotelContentDetailDto
             foreach ($supplierResponse->images as $image) {
                 $hotelImages[] = $image->links->{'1000px'}->href;
             }
+        } else {
+            \Log::error('ExpediaHotelContentDetailDto | Probably an error with the expedia_content_slave table');
         }
         $viewAmenities = request()->get('category_amenities') === 'true';
 
@@ -57,27 +59,29 @@ class ExpediaHotelContentDetailDto
         $hotelResponse->setAddress($supplierResponse->address ? $address : '');
 
         $rooms = [];
-        foreach ($supplierResponse->rooms as $room) {
-            $amenities = $room->amenities ? json_decode(json_encode($room->amenities), true) : [];
-            $images = [];
-            if (isset($room->images)) {
-                foreach ($room->images as $image) {
-                    $images[] = $image->links->{'350px'}->href;
+        if (isset($supplierResponse->rooms) && is_iterable($supplierResponse->rooms)) {
+            foreach ($supplierResponse->rooms as $room) {
+                $amenities = $room->amenities ? json_decode(json_encode($room->amenities), true) : [];
+                $images = [];
+                if (isset($room->images)) {
+                    foreach ($room->images as $image) {
+                        $images[] = $image->links->{'350px'}->href;
+                    }
                 }
+                $roomResponse = new ContentDetailRoomsResponse();
+                $roomResponse->setSupplierRoomId($room->id);
+                $roomResponse->setSupplierRoomName($room->name);
+                if ($viewAmenities) {
+                    $roomResponse->setAmenities($amenities ?? []);
+                } else {
+                    $roomResponse->setAmenities(array_map(function ($amenity) {
+                        return $amenity['name'];
+                    }, $amenities));
+                }
+                $roomResponse->setImages($images);
+                $roomResponse->setDescriptions($room->descriptions ? $room->descriptions->overview : '');
+                $rooms[] = $roomResponse->toArray();
             }
-            $roomResponse = new ContentDetailRoomsResponse();
-            $roomResponse->setSupplierRoomId($room->id);
-            $roomResponse->setSupplierRoomName($room->name);
-            if ($viewAmenities) {
-                $roomResponse->setAmenities($amenities ?? []);
-            } else {
-                $roomResponse->setAmenities(array_map(function ($amenity) {
-                    return $amenity['name'];
-                }, $amenities));
-            }
-            $roomResponse->setImages($images);
-            $roomResponse->setDescriptions($room->descriptions ? $room->descriptions->overview : '');
-            $rooms[] = $roomResponse->toArray();
         }
         $hotelResponse->setRooms($rooms);
 

@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
+use Modules\API\Suppliers\ExpediaSupplier\PropertyPriceCall;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Modules\Inspector\ExceptionReportController;
 
@@ -22,61 +23,36 @@ class DownloadExpediaData extends Command
 
     use BaseTrait;
 
-    /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
     protected $signature = 'download-expedia-data {type} {step}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
     protected $description = 'Command description';
 
     /**
      * @var RapidClient
      */
     protected RapidClient $rapidClient;
-    /**
-     * @var ExceptionReportController
-     */
+
     protected ExceptionReportController $apiExceptionReport;
-    /**
-     *
-     */
+
     private const PROPERTY_CONTENT_PATH = "v3/files/properties/";
-    /**
-     *
-     */
+
     private const BATCH_SIZE = 100;
-    /**
-     *
-     */
+
     private const MIN_RATING = 4;
-    /**
-     * @var string|null
-     */
+
     private string|null $type;
-    /**
-     * @var string|null
-     */
+
     private string|null $step;
 
-    /**
-     * @var int
-     */
     protected int $expedia_id = 1;
-    /**
-     * @var string|null
-     */
+
     protected string|null $report_id;
-    /**
-     * @var string
-     */
+
     protected string $savePath;
+
+    private string $partnerPointSale;
+    private string $billingTerms;
+    private string $paymentTerms;
 
 
     /**
@@ -93,6 +69,12 @@ class DownloadExpediaData extends Command
         $this->current_time['step'] = microtime(true);
         $this->current_time['report'] = microtime(true);
         $this->savePath = storage_path() . '/app';
+
+        $rateType = env('SUPPLIER_EXPEDIA_RATE_TYPE', 'standalone');
+        $rates = $rateType === 'package' ? PropertyPriceCall::PACKAGE_RATES : PropertyPriceCall::STANDALONE_RATES;
+        $this->partnerPointSale = $rates['partner_point_of_sale'];
+        $this->billingTerms = $rates['billing_terms'];
+        $this->paymentTerms = $rates['payment_terms'];
     }
 
     /**
@@ -152,14 +134,17 @@ class DownloadExpediaData extends Command
      */
     function getUrlArchive(): string
     {
+        $url = '';
         $this->executionTime('report');
         $queryParams = [
             'language' => 'en-US',
             'supply_source' => 'expedia',
+            'partner_point_of_sale' => $this->partnerPointSale,
+            'billing_terms' => $this->billingTerms,
+            'payment_terms' => $this->paymentTerms,
         ];
         try {
             $response = $this->rapidClient->get(self::PROPERTY_CONTENT_PATH . $this->type, $queryParams);
-
             $propertyContents = $response->getBody()->getContents();
             $url = json_decode($propertyContents, true)['href'];
         } catch (Exception $e) {
@@ -364,6 +349,8 @@ class DownloadExpediaData extends Command
 
             foreach ($data as $key => $value) {
 
+                $output['is_active'] = true;
+
                 if ($key == 'property_id') {
                     $propertyIds[] = $value;
                     $outputSlave['expedia_property_id'] = $value;
@@ -489,13 +476,19 @@ class DownloadExpediaData extends Command
         $this->executionTime('report');
         $this->executionTime('step');
 
-        $addHeaders = [
+        $headers = [
             'Customer-Ip' => '5.5.5.5',
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
             'Test' => 'standard'
         ];
-        $response = $this->rapidClient->get('v3/properties/inactive', ['since' => Carbon::now()->format('Y-m-d')], $addHeaders);
+        $params = [
+            'since' => Carbon::now()->format('Y-m-d'),
+            'billing_terms' => $this->billingTerms,
+            'payment_terms' => $this->paymentTerms,
+            'partner_point_of_sale' => $this->partnerPointSale,
+        ];
+        $response = $this->rapidClient->get('v3/properties/inactive', $params, $headers);
         $dataResponse = json_decode($response->getBody()->getContents(), true);
 
         if (is_array($dataResponse)) {
