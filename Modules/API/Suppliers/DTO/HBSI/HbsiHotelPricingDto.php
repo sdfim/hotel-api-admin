@@ -9,9 +9,9 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Modules\API\PricingAPI\ResponseModels\HotelResponse;
-use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
-use Modules\API\PricingAPI\ResponseModels\RoomResponse;
+use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
+use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
+use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
@@ -95,7 +95,7 @@ class HbsiHotelPricingDto
      */
     public function setHotelResponse(array $propertyGroup, int|string $key): array
     {
-        $hotelResponse = new HotelResponse();
+        $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id'] ?? 0);
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
@@ -159,7 +159,7 @@ class HbsiHotelPricingDto
     {
         $giataId = $propertyGroup['giata_id'] ?? 0;
 
-        $roomGroupsResponse = new RoomGroupsResponse();
+        $roomGroupsResponse = RoomGroupsResponseFactory::create();
         $roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
         $roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');
 
@@ -277,7 +277,7 @@ class HbsiHotelPricingDto
             }
         }
 
-        $roomResponse = new RoomResponse();
+        $roomResponse = RoomResponseFactory::create();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');

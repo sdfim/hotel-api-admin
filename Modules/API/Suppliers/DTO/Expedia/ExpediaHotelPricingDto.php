@@ -9,9 +9,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Modules\API\PricingAPI\ResponseModels\HotelResponse;
-use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
-use Modules\API\PricingAPI\ResponseModels\RoomResponse;
+use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
+use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
+use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
@@ -71,7 +71,7 @@ class ExpediaHotelPricingDto
     {
 
         $destination = $this->destinationData->full_location ?? '';
-        $hotelResponse = new HotelResponse();
+        $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id']);
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
@@ -131,7 +131,7 @@ class ExpediaHotelPricingDto
     {
         $giataId = $propertyGroup['giata_id'];
 
-        $roomGroupsResponse = new RoomGroupsResponse();
+        $roomGroupsResponse = RoomGroupsResponseFactory::create();
 
         $roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
         $roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');
@@ -149,7 +149,7 @@ class ExpediaHotelPricingDto
             $roomData = $this->setRoomResponse((array)$room, $roomGroup, $propertyGroup, $giataId);
             $roomResponse = $roomData['roomResponse'];
             $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
-            $rooms[] = $roomResponse;
+            $rooms[$key] = $roomResponse;
             $priceRoomData[$key] = $pricingRulesApplierRoom;
         }
         $roomGroupsResponse->setRooms($rooms);
@@ -163,35 +163,9 @@ class ExpediaHotelPricingDto
             }
         }
 
-        // https://developers.expediagroup.com/docs/products/rapid/resources/reference/constructing-cancellation-policies
-        $cancellationPolicies = [];
-        if (isset($roomGroup['rates'][$keyLowestPricedRoom]['cancel_penalties'])) {
-            $cancelPenalty = $roomGroup['rates'][$keyLowestPricedRoom]['cancel_penalties'];
-            foreach ($cancelPenalty as $key => $penalty) {
-                $data = [];
-                if (isset($penalty['start'])) {
-                    $data['penalty_start_date'] = $penalty['start'];
-                }
-                if (isset($penalty['end'])) {
-                    $data['penalty_end_date'] = $penalty['end'];
-                }
-                if (isset($penalty['percent'])) {
-                    $data['percentage'] = $penalty['percent'];
-                }
-                if (isset($penalty['amount'])) {
-                    $data['amount'] = $penalty['amount'];
-                }
-                if (isset($penalty['nights'])) {
-                    $data['nights'] = $penalty['nights'];
-                }
-                if (isset($penalty['currency'])) {
-                    $data['currency'] = $penalty['currency'];
-                }
-                $cancellationPolicies[] = $data;
-            }
-        }
+        $cancellationPolicies = $rooms[$keyLowestPricedRoom]['cancellation_policies'];
 
-        // return lowest priced room data
+        /** return lowest priced room data */
         $roomGroupsResponse->setTotalPrice($priceRoomData[$keyLowestPricedRoom]['total_price'] ?? 0.0);
         $roomGroupsResponse->setTotalTax($priceRoomData[$keyLowestPricedRoom]['total_tax'] ?? 0.0);
         $roomGroupsResponse->setTotalFees($priceRoomData[$keyLowestPricedRoom]['total_fees'] ?? 0.0);
@@ -214,7 +188,7 @@ class ExpediaHotelPricingDto
      */
     public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId): array
     {
-        // enrichment Pricing Rules / Application of Pricing Rules
+        /**  enrichment Pricing Rules / Application of Pricing Rules */
         $pricingRulesApplier['total_price'] = 0.0;
         $pricingRulesApplier['total_tax'] = 0.0;
         $pricingRulesApplier['total_fees'] = 0.0;
@@ -231,7 +205,33 @@ class ExpediaHotelPricingDto
             Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => 'total_price == 0.0']);
         }
 
-        $roomResponse = new RoomResponse();
+        /** https://developers.expediagroup.com/docs/products/rapid/resources/reference/constructing-cancellation-policies */
+        $cancelPenalty = $rate['cancel_penalties'];
+        $cancellationPolicies = [];
+        foreach ($cancelPenalty as $key => $penalty) {
+            $data = [];
+            if (isset($penalty['start'])) {
+                $data['penalty_start_date'] = $penalty['start'];
+            }
+            if (isset($penalty['end'])) {
+                $data['penalty_end_date'] = $penalty['end'];
+            }
+            if (isset($penalty['percent'])) {
+                $data['percentage'] = $penalty['percent'];
+            }
+            if (isset($penalty['amount'])) {
+                $data['amount'] = $penalty['amount'];
+            }
+            if (isset($penalty['nights'])) {
+                $data['nights'] = $penalty['nights'];
+            }
+            if (isset($penalty['currency'])) {
+                $data['currency'] = $penalty['currency'];
+            }
+            $cancellationPolicies[] = $data;
+        }
+
+        $roomResponse = RoomResponseFactory::create();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
@@ -246,6 +246,7 @@ class ExpediaHotelPricingDto
         $roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
         $roomResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge']);
+        $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setCurrency($this->currency);
 
         $bookingItem = Str::uuid()->toString();
