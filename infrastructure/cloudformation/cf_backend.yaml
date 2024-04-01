@@ -107,6 +107,12 @@ Parameters:
   BookingSupplierHbsiChannelIdentifierId:
     Description: HBSI Channel ID
     Type: String
+  BookingSupplierHbsiSearchBookUrl:
+    Description: HBSI Search/Book URL
+    Type: String
+  BookingSupplierHbsiTarget:
+    Description: HBSI Environment Target (Test/Production)
+    Type: String
   BookingSupplierIcePortalClientId:
     Description: Ice Portal Client ID
     Type: String
@@ -268,6 +274,10 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiPassword'
               - Name: BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID
                 Value: !Ref 'BookingSupplierHbsiChannelIdentifierId'
+              - Name: BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL
+                Value: !Ref 'BookingSupplierHbsiSearchBookUrl'
+              - Name: BOOKING_SUPPLIER_HBSI_TARGET
+                Value: !Ref 'BookingSupplierHbsiTarget'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -396,6 +406,10 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiPassword'
               - Name: BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID
                 Value: !Ref 'BookingSupplierHbsiChannelIdentifierId'
+              - Name: BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL
+                Value: !Ref 'BookingSupplierHbsiSearchBookUrl'
+              - Name: BOOKING_SUPPLIER_HBSI_TARGET
+                Value: !Ref 'BookingSupplierHbsiTarget'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -579,6 +593,10 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiPassword'
               - Name: BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID
                 Value: !Ref 'BookingSupplierHbsiChannelIdentifierId'
+              - Name: BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL
+                Value: !Ref 'BookingSupplierHbsiSearchBookUrl'
+              - Name: BOOKING_SUPPLIER_HBSI_TARGET
+                Value: !Ref 'BookingSupplierHbsiTarget'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -1541,6 +1559,12 @@ Resources:
           - '",'
           - '"BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID":"'
           - !Ref 'BookingSupplierHbsiChannelIdentifierId'
+          - '",'
+          - '"BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL":"'
+          - !Ref 'BookingSupplierHbsiSearchBookUrl'
+          - '",'
+          - '"BOOKING_SUPPLIER_HBSI_TARGET":"'
+          - !Ref 'BookingSupplierHbsiTarget'
           - '",'
           - '"SUPPLIER_EXPEDIA_API_KEY":"'
           - !Ref 'BookingSupplierExpediaApiKey'
