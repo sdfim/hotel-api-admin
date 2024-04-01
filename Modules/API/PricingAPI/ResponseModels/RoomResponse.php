@@ -47,6 +47,25 @@ class RoomResponse extends BaseResponse
 
     private string $meal_plan;
 
+    private array $bed_configurations;
+
+    /**
+     * @param array $bed_configurations
+     * @return void
+     */
+    public function setBedConfigurations(array $bed_configurations): void
+    {
+        $this->bed_configurations = $bed_configurations;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBedConfigurations(): array
+    {
+        return $this->bed_configurations ?? [];
+    }
+
     /**
      * @param string $meal_plan
      * @return void
@@ -431,6 +450,7 @@ class RoomResponse extends BaseResponse
             'cancellation_policies' => $this->getCancellationPolicies(),
             'non_refundable' => $this->getNonRefundable(),
             'meal_plan' => $this->getMealPlans(),
+            'bed_configurations' => $this->getBedConfigurations(),
         ];
     }
 }

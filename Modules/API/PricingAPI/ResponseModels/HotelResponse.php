@@ -57,6 +57,25 @@ class HotelResponse extends BaseResponse
      */
     private string $board_basis;
 
+    private array $room_combinations = [];
+
+    /**
+     * @param array $room_combinations
+     * @return void
+     */
+    public function setRoomCombinations(array $room_combinations): void
+    {
+        $this->room_combinations = $room_combinations;
+    }
+
+    /**
+     * @return array
+     */
+    public function getRoomCombinations(): array
+    {
+        return $this->room_combinations;
+    }
+
     /**
      * @return string
      */
@@ -297,6 +316,7 @@ class HotelResponse extends BaseResponse
             'non_refundable_rates' => $this->getNonRefundableRates(),
             'refundable_rates' => $this->getRefundableRates(),
             'room_groups' => $this->getRoomGroups(),
+            'room_combinations' => $this->getRoomCombinations(),
         ];
     }
 

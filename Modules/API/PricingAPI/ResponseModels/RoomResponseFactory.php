@@ -27,6 +27,7 @@ class RoomResponseFactory
         $roomResponse->setCancellationPolicies([]);
         $roomResponse->setNonRefundable(false);
         $roomResponse->setMealPlans('');
+        $roomResponse->setBedConfigurations([]);
 
         return $roomResponse;
     }

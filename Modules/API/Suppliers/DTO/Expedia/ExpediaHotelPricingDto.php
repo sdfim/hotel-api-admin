@@ -30,6 +30,8 @@ class ExpediaHotelPricingDto
 
     private array $bookingItems;
 
+    private array $roomCombinations;
+
     public function __construct()
     {
         $this->current_time = microtime(true);
@@ -69,7 +71,7 @@ class ExpediaHotelPricingDto
      */
     public function setHotelResponse(array $propertyGroup): array
     {
-
+        $this->roomCombinations = [];
         $destination = $this->destinationData->full_location ?? '';
         $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id']);
@@ -95,6 +97,9 @@ class ExpediaHotelPricingDto
             }
         }
         $hotelResponse->setRoomGroups($roomGroups);
+
+        $hotelResponse->setRoomCombinations($this->roomCombinations);
+        $this->roomCombinations = [];
 
         $hotelResponse->setLowestPricedRoomGroup($lowestPrice != 100000 ? $lowestPrice : '');
 
@@ -248,9 +253,12 @@ class ExpediaHotelPricingDto
         $roomResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge']);
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setCurrency($this->currency);
+        $roomResponse->setBedConfigurations($rate['bed_groups'][array_key_first((array)$rate['bed_groups'])]['configuration']);
 
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
+
+        $this->roomCombinations[$bookingItem] = [$bookingItem];
 
         $this->bookingItems[] = [
             'booking_item' => $bookingItem,

@@ -1279,7 +1279,7 @@
                             "email": {
                                 "type": "string",
                                 "format": "email",
-                                "example": "john@example.com"
+                                "example": "john@gmail.com"
                             },
                             "phone": {
                                 "required": [
@@ -1339,6 +1339,58 @@
                         "type": "object"
                     },
                     "credit_cards": {
+                        "properties": {
+                            "special_requests": {
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "booking_item",
+                                        "room",
+                                        "special_request"
+                                    ],
+                                    "properties": {
+                                        "booking_item": {
+                                            "type": "string",
+                                            "example": "0507f6a6-4113-4f77-b659-db12de9ed6bd"
+                                        },
+                                        "room": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "special_request": {
+                                            "type": "string",
+                                            "example": "We're celebrating; any chance for a room upgrade or special amenities?"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "comments": {
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "booking_item",
+                                        "room",
+                                        "comment"
+                                    ],
+                                    "properties": {
+                                        "booking_item": {
+                                            "type": "string",
+                                            "example": "0507f6a6-4113-4f77-b659-db12de9ed6bd"
+                                        },
+                                        "room": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "comment": {
+                                            "type": "string",
+                                            "example": "test comment 1?"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
                         "type": "array",
                         "items": {
                             "required": [
@@ -1407,7 +1459,7 @@
                                 },
                                 "booking_item": {
                                     "type": "string",
-                                    "example": "89650b97-9c2e-40a6-a982-040bae5d9ea5"
+                                    "example": "0507f6a6-4113-4f77-b659-db12de9ed6bd"
                                 }
                             },
                             "type": "object"
@@ -1454,7 +1506,7 @@
                             "email": {
                                 "type": "string",
                                 "format": "email",
-                                "example": "john@example.com"
+                                "example": "john@gmail.com"
                             },
                             "phone": {
                                 "required": [
@@ -3569,7 +3621,7 @@
                     "booking_contact": {
                         "first_name": "John",
                         "last_name": "Smith",
-                        "email": "john@example.com",
+                        "email": "john@gmail.com",
                         "phone": {
                             "country_code": "1",
                             "area_code": "487",
@@ -3590,10 +3642,10 @@
                                 "number": 4001919257537193,
                                 "card_type": "VISA",
                                 "name_card": "Visa",
-                                "expiry_date": "09\\/2026",
+                                "expiry_date": "09/2026",
                                 "billing_address": null
                             },
-                            "booking_item": "89650b97-9c2e-40a6-a982-040bae5d9ea5"
+                            "booking_item": "0507f6a6-4113-4f77-b659-db12de9ed6bd"
                         },
                         {
                             "credit_card": {
@@ -3601,10 +3653,44 @@
                                 "number": 4001919257537193,
                                 "card_type": "VISA",
                                 "name_card": "Visa",
-                                "expiry_date": "09\\/2026",
+                                "expiry_date": "09/2026",
                                 "billing_address": null
                             },
-                            "booking_item": "9c116b9d-32f0-4341-92ea-124c8fcea643"
+                            "booking_item": "dcfbda6d-a861-4c65-97f2-b0129b8a96f3"
+                        }
+                    ],
+                    "special_requests": [
+                        {
+                            "booking_item": "0507f6a6-4113-4f77-b659-db12de9ed6bd",
+                            "room": 1,
+                            "special_request": "We're celebrating; any chance for a room upgrade or special amenities?"
+                        },
+                        {
+                            "booking_item": "0507f6a6-4113-4f77-b659-db12de9ed6bd",
+                            "room": 2,
+                            "special_request": "We have dietary preferences; can the restaurant accommodate them?"
+                        },
+                        {
+                            "booking_item": "dcfbda6d-a861-4c65-97f2-b0129b8a96f3",
+                            "room": 1,
+                            "special_request": "Can we get a room in a quieter area? Hoping for a peaceful experience."
+                        }
+                    ],
+                    "comments": [
+                        {
+                            "booking_item": "0507f6a6-4113-4f77-b659-db12de9ed6bd",
+                            "room": 1,
+                            "comment": "test comment 1?"
+                        },
+                        {
+                            "booking_item": "0507f6a6-4113-4f77-b659-db12de9ed6bd",
+                            "room": 2,
+                            "comment": "test comment 2"
+                        },
+                        {
+                            "booking_item": "dcfbda6d-a861-4c65-97f2-b0129b8a96f3",
+                            "room": 1,
+                            "comment": "test comment 3"
                         }
                     ]
                 }
@@ -3616,7 +3702,7 @@
                     "booking_contact": {
                         "first_name": "John",
                         "last_name": "Smith",
-                        "email": "john@example.com",
+                        "email": "john@gmail.com",
                         "phone": {
                             "country_code": "1",
                             "area_code": "487",
@@ -6531,8 +6617,8 @@
                 "summary": "An Example Pricing Search Request New York",
                 "value": {
                     "type": "hotel",
-                    "checkin": "2023-11-11",
-                    "checkout": "2023-11-20",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
                     "destination": 961,
                     "rating": 4.5,
                     "occupancy": [
@@ -6549,12 +6635,27 @@
                     ]
                 }
             },
+            "PricingSearchRequestCancun": {
+                "summary": "An Example Pricing Search Request Cancun",
+                "value": {
+                    "type": "hotel",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "destination": 961,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2
+                        }
+                    ]
+                }
+            },
             "PricingSearchRequestLondon": {
                 "summary": "An Example Pricing Search RequestLondon",
                 "value": {
                     "type": "hotel",
-                    "checkin": "2023-11-11",
-                    "checkout": "2023-11-20",
+                    "checkin": "2024-05-01",
+                    "checkout": "2024-05-05",
                     "destination": 302,
                     "rating": 4,
                     "occupancy": [

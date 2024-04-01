@@ -32,6 +32,8 @@ class HbsiHotelPricingDto
 
     private array $meal_plans_available;
 
+    private array $roomCombinations;
+
     private const POLICE_CODE = [
         'CXP' => 'General Cancellation Policy',
         'CKP' => 'Early check-out penalty.',
@@ -52,7 +54,7 @@ class HbsiHotelPricingDto
      * @param GiataGeographyRepository $geographyRepo
      */
     public function __construct(
-        private array $bookingItems = [],
+        private array                             $bookingItems = [],
         private readonly GiataGeographyRepository $geographyRepo = new GiataGeographyRepository()
     )
     {
@@ -95,6 +97,7 @@ class HbsiHotelPricingDto
      */
     public function setHotelResponse(array $propertyGroup, int|string $key): array
     {
+        $this->roomCombinations = [];
         $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id'] ?? 0);
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
@@ -125,6 +128,12 @@ class HbsiHotelPricingDto
         $hotelResponse->setMealPlansAvailable(implode(', ', $this->meal_plans_available));
 
         $hotelResponse->setRoomGroups($roomGroups);
+
+        if ($this->rate_type === ItemTypeEnum::COMPLETE->value) {
+            $hotelResponse->setRoomCombinations($this->roomCombinations);
+            $this->roomCombinations = [];
+        }
+
         $hotelResponse->setLowestPricedRoomGroup($lowestPrice != 100000 ? $lowestPrice : '');
 
         return $hotelResponse->toArray();
@@ -244,8 +253,7 @@ class HbsiHotelPricingDto
         if (isset($rate['CancelPenalties'])) {
             if (isset($rate['CancelPenalties']['CancelPenalty']['@attributes'])) {
                 $cancellationPoliciesInput[] = $rate['CancelPenalties']['CancelPenalty'];
-            }
-            else {
+            } else {
                 foreach ($rate['CancelPenalties']['CancelPenalty'] as $item) {
                     $cancellationPoliciesInput[] = $item;
                 }
@@ -285,7 +293,7 @@ class HbsiHotelPricingDto
         $roomResponse->setSupplierRoomCode($rateOccupancy);
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
         $roomResponse->setRoomType($roomType);
-        $roomResponse->setRateDescription($rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name']  ?? '');
+        $roomResponse->setRateDescription($rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '');
         $roomResponse->setRateId($rateOrdinal);
         $roomResponse->setRatePlanCode($rate['RatePlans']['RatePlan']['@attributes']['RatePlanCode'] ?? '');
         $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
@@ -309,6 +317,8 @@ class HbsiHotelPricingDto
 
         $booking_pricing_data = $roomResponse->toArray();
         $booking_pricing_data['rate_description'] = mb_substr($booking_pricing_data['rate_description'], 0, 200, 'UTF-8');
+
+        $this->roomCombinations[$bookingItem] = [$bookingItem];
 
         $this->bookingItems[] = [
             'booking_item' => $bookingItem,
