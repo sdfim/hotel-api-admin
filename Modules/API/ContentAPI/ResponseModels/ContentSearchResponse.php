@@ -48,6 +48,27 @@ class ContentSearchResponse
      * @var string
      */
     private string $user_rating;
+    /**
+     * @var array
+     */
+    private array $important_information;
+
+    /**
+     * @return array
+     */
+    public function getImportantInformation(): array
+    {
+        return $this->important_information;
+    }
+
+    /**
+     * @param array $important_information
+     * @return void
+     */
+    public function setImportantInformation(array $important_information): void
+    {
+        $this->important_information = $important_information;
+    }
 
     /**
      * @param string $user_rating
@@ -253,6 +274,7 @@ class ContentSearchResponse
             'amenities' => array_values($this->getAmenities()),
             'giata_destination' => $this->getGiataDestination(),
             'user_rating' => $this->getUserRating(),
+            'important_information' => $this->getImportantInformation(),
         ];
     }
 }

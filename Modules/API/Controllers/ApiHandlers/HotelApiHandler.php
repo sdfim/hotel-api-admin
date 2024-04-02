@@ -58,6 +58,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
      * @param HbsiHotelController $hbsi
      * @param HbsiHotelPricingDto $HbsiHotelPricingDto
      * @param PricingRulesTools $pricingRulesService
+     * @param HbsiService $hbsiService
      */
     public function __construct(
         private readonly ExpediaHotelController         $expedia = new ExpediaHotelController(),

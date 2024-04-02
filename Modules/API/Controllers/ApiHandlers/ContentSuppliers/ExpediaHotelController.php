@@ -45,7 +45,7 @@ class ExpediaHotelController
      * @param array $filters
      * @return array|null
      */
-    public function preSearchData(array $filters): ?array
+    public function preSearchData(array $filters, string $initiator): ?array
     {
         $timeStart = microtime(true);
 
@@ -69,18 +69,30 @@ class ExpediaHotelController
             $searchBuilder = new HotelSearchBuilder($query);
             $results = $searchBuilder->applyFilters($filters);
 
+            $selectFields = [
+                'expedia_content_main.*',
+                'expedia_content_slave.images as images',
+                'expedia_content_slave.amenities as amenities',
+                'mapper_expedia_giatas.expedia_id',
+                'mapper_expedia_giatas.giata_id'
+            ];
+
+            if ($initiator === 'search') {
+                $additionalFields = [
+                    'expedia_content_slave.descriptions as descriptions',
+                    'expedia_content_slave.checkin as checkin',
+                    'expedia_content_slave.checkout as checkout',
+                    'expedia_content_slave.fees as fees',
+                    'expedia_content_slave.policies as policies'
+                ];
+                $selectFields = array_merge($selectFields, $additionalFields);
+            }
+
             $results->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
                 ->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.expedia_id', '=', 'expedia_content_main.property_id')
                 ->where('expedia_content_main.is_active', 1)
                 ->whereNotNull('mapper_expedia_giatas.expedia_id')
-                ->select(
-                    'expedia_content_main.*',
-                    'expedia_content_slave.images as images',
-                    'expedia_content_slave.amenities as amenities',
-                    'expedia_content_slave.descriptions as descriptions',
-                    'mapper_expedia_giatas.expedia_id',
-                    'mapper_expedia_giatas.giata_id'
-                );
+                ->select($selectFields);
 
             if (isset($filters['hotel_name'])) {
                 $hotelNameArr = explode(' ', $filters['hotel_name']);
@@ -117,7 +129,7 @@ class ExpediaHotelController
      */
     public function search(array $filters): array
     {
-        $preSearchData = $this->preSearchData($filters);
+        $preSearchData = $this->preSearchData($filters, 'search');
         $results = $preSearchData['results']->toArray() ?? [];
 
         return ['results' => $results, 'count' => $preSearchData['count']];
@@ -132,7 +144,7 @@ class ExpediaHotelController
     {
 
         try {
-            $preSearchData = $this->preSearchData($filters);
+            $preSearchData = $this->preSearchData($filters, 'price');
             $filters = $preSearchData['filters'] ?? null;
 
             // get PriceData from RapidAPI Expedia
