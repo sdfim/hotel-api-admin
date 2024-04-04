@@ -196,9 +196,11 @@ class HbsiService
                 }
             }
             foreach ($arrayOccupancy as $occupancy) {
-                $arr2combine[] = $result[$occupancy];
+                if (isset($result[$occupancy])) {
+                    $arr2combine[] = $result[$occupancy];
+                }
             }
-            if (count($arr2combine) === count($arrayOccupancy)) {
+//            if (count($arr2combine) === count($arrayOccupancy)) {
                 $sets = $this->generateSets(array_values($arr2combine));
                 $finalResult = [];
                 foreach ($sets as $set) {
@@ -210,7 +212,7 @@ class HbsiService
                     $keyCache = 'room_combinations:' . $key;
                     Cache::put($keyCache, $value, now()->addMinutes(120));
                 }
-            }
+//            }
         }
 
         return $input;
