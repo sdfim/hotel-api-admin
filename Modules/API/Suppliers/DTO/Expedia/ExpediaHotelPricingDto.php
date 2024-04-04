@@ -253,7 +253,9 @@ class ExpediaHotelPricingDto
         $roomResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge']);
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setCurrency($this->currency);
-        $roomResponse->setBedConfigurations($rate['bed_groups'][array_key_first((array)$rate['bed_groups'])]['configuration']);
+        if (isset($rate['bed_groups'][array_key_first((array)$rate['bed_groups'])]['configuration'])) {
+            $roomResponse->setBedConfigurations($rate['bed_groups'][array_key_first((array)$rate['bed_groups'])]['configuration']);
+        }
 
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);

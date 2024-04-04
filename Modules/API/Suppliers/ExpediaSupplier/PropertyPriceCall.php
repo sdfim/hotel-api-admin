@@ -29,7 +29,7 @@ class PropertyPriceCall
         'sales_environment' => 'hotel_package',
     ];
 
-    private const RATE_PLACOUNT = 10;
+    private const RATE_PLAN_COUNT = 250;
 
     # https://developers.expediagroup.com/docs/rapid/lodging/shopping#get-/properties/availability
 
@@ -52,7 +52,7 @@ class PropertyPriceCall
 
     private const OCCUPANCY = 'occupancy';
 
-    private const RATE_PLAN_COUNT = 'rate_plan_count';
+    private const KEY_RATE_PLAN_COUNT = 'rate_plan_count';
 
     private const SALES_CHANNEL = 'sales_channel';
 
@@ -157,7 +157,7 @@ class PropertyPriceCall
 
         $this->occupancy = $property['occupancy'];
 
-        $this->ratePlanCount = $property['rate_plan_count'] ?? self::RATE_PLACOUNT;
+        $this->ratePlanCount = $property['rate_plan_count'] ?? self::RATE_PLAN_COUNT;
 
         $rateType = env('SUPPLIER_EXPEDIA_RATE_TYPE', 'standalone');
 
@@ -255,7 +255,7 @@ class PropertyPriceCall
                 $queryParams[self::OCCUPANCY][] = $room['adults'];
             }
         }
-        $queryParams[self::RATE_PLAN_COUNT] = $this->ratePlanCount;
+        $queryParams[self::KEY_RATE_PLAN_COUNT] = $this->ratePlanCount;
         $queryParams[self::SALES_CHANNEL] = $this->salesChannel;
         $queryParams[self::SALES_ENVIRONMENT] = $this->salesEnvironment;
 

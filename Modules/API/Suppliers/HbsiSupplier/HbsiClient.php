@@ -19,8 +19,6 @@ use Throwable;
 
 class HbsiClient
 {
-    private const URL = 'https://uat.demandmatrix.net/app/dm/xml/tentravel/search';
-
     private const VERSION = '2006A';
 
     private const INTERFACE = 'HBSI XML 4 OTA';
