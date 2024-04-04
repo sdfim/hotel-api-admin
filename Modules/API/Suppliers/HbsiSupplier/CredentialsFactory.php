@@ -16,6 +16,7 @@ class CredentialsFactory
         $credentials->channelIdentifierId = config("$namespace.channel_identifier_id");
         $credentials->searchBookUrl = config("$namespace.search_book_url");
         $credentials->target = config("$namespace.target");
+        $credentials->componentInfoId = config("$namespace.component_info_id");
 
         //TODO: Validate outside constructor to avoid build errors.
 //        if (!$credentials->username || !$credentials->password || !$credentials->channelIdentifierId)
