@@ -181,7 +181,7 @@ class HbsiHotelPricingDto
         $rooms = [];
         $priceRoomData = [];
         foreach ($roomGroup['rates'] as $key => $room) {
-            $roomData = $this->setRoomResponse((array)$room, $roomGroup, $propertyGroup, $giataId, $supplierHotelId);
+            $roomData = $this->setRoomResponse((array)$room, $propertyGroup, $giataId, $supplierHotelId);
             $roomResponse = $roomData['roomResponse'];
             $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
             $rooms[] = $roomResponse;
@@ -215,13 +215,12 @@ class HbsiHotelPricingDto
 
     /**
      * @param array $rate
-     * @param array $roomGroup
      * @param array $propertyGroup
      * @param int $giataId
      * @param int|string $supplierHotelId
      * @return array
      */
-    public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId, int|string $supplierHotelId): array
+    public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId): array
     {
         $counts = [];
         foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {

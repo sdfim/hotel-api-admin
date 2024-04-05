@@ -105,14 +105,13 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *     "rating": 4.5,
  *     "occupancy": {
  *         {
- *            "adults": 4,
- *          "children": 1,
+ *            "adults": 2,
  *          "children_ages": {
  *            2
  *           }
  *         },
  *       {
- *            "adults": 3
+ *            "adults": 2
  *         }
  *     }
  * }
@@ -147,14 +146,13 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *     "occupancy": {
  *         {
  *            "adults": 2,
- *          "children": 2,
  *          "children_ages": {
  *            2,
  *            4
  *           }
  *         },
  *       {
- *            "adults": 3
+ *            "adults": 1
  *         }
  *     }
  * }

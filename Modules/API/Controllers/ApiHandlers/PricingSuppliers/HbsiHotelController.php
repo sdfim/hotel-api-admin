@@ -70,8 +70,16 @@ class HbsiHotelController
         try {
             $hotelData = $this->preSearchData($filters);
             $hotelIds = array_keys($hotelData);
-            // TODO: remove this after using the test case
-                if (empty($hotelIds)) $hotelIds = ['51722', '51721'];
+
+            // TODO: remove this after using the test case add/or after using main mapper             $component_info_id = config("booking-suppliers.HBSI.credentials.component_info_id");
+            $component_info_id = config("booking-suppliers.HBSI.credentials.component_info_id");
+            if (empty($hotelIds)) {
+                if ($component_info_id === '72997') {
+                    $hotelIds = ['72997'];
+                } else {
+                    $hotelIds = ['51722', '51721'];
+                }
+            }
 
             /** get PriceData from HBSI */
             $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($hotelIds, $filters);

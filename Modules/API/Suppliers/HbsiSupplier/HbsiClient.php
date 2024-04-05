@@ -19,8 +19,6 @@ use Throwable;
 
 class HbsiClient
 {
-    private const URL = 'https://uat.demandmatrix.net/app/dm/xml/tentravel/search';
-
     private const VERSION = '2006A';
 
     private const INTERFACE = 'HBSI XML 4 OTA';
@@ -50,7 +48,6 @@ class HbsiClient
         $this->requestId = time() . '_tentravel';
         $this->timeStamp = date('Y-m-d\TH:i:sP');
         $this->credentials = CredentialsFactory::fromConfig();
-        $this->componentInfoId = env('BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID', '51721');
     }
 
     /**
@@ -186,7 +183,7 @@ class HbsiClient
      */
     private function makeRequest(string $body, string $typeRequest, string $hotelId = ''): string
     {
-        if ($hotelId === '') $hotelId = $this->componentInfoId;
+        if ($hotelId === '') $hotelId = $this->credentials->componentInfoId;
         return '<?xml version="1.0" encoding="utf-8"?>
             <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
                 <soap-env:Header>
