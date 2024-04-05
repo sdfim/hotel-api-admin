@@ -52,6 +52,49 @@ class ContentSearchResponse
      * @var array
      */
     private array $important_information;
+    /**
+     * @var string
+     */
+    private string $supplier_terms_and_conditions_client;
+    /**
+     * @var string
+     */
+    private string $supplier_terms_and_conditions_agent;
+
+    /**
+     * @param string
+     * @return void
+     */
+    public function setSupplierTermsAndConditionsClient(string $supplier_terms_and_conditions_client): void
+    {
+        $this->supplier_terms_and_conditions_client = $supplier_terms_and_conditions_client;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSupplierTermsAndConditionsClient(): string
+    {
+        return $this->supplier_terms_and_conditions_client;
+    }
+
+    /**
+     * @param string
+     * @return void
+     */
+    public function setSupplierTermsAndConditionsAgent(string $supplier_terms_and_conditions_agent): void
+    {
+        $this->supplier_terms_and_conditions_agent = $supplier_terms_and_conditions_agent;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSupplierTermsAndConditionsAgent(): string
+    {
+        return $this->supplier_terms_and_conditions_agent;
+    }
+
 
     /**
      * @return array
@@ -275,6 +318,8 @@ class ContentSearchResponse
             'giata_destination' => $this->getGiataDestination(),
             'user_rating' => $this->getUserRating(),
             'important_information' => $this->getImportantInformation(),
+            'supplier_terms_and_conditions_client' => $this->getSupplierTermsAndConditionsClient(),
+            'supplier_terms_and_conditions_agent' => $this->getSupplierTermsAndConditionsAgent(),
         ];
     }
 }
