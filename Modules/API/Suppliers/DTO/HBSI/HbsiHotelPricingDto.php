@@ -311,6 +311,9 @@ class HbsiHotelPricingDto
             $this->meal_plans_available[] = $mealPlanName;
         }
 
+        $roomResponse->setBreakdown($this->getBreakdown($rateToApply));
+
+
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
 
@@ -340,14 +343,48 @@ class HbsiHotelPricingDto
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
     }
 
-    /**
-     * @return string|float
-     */
-    private function executionTime(): string|float
+    private function getBreakdown(array $rates): array
     {
-        $execution_time = round((microtime(true) - $this->current_time), 3);
-        $this->current_time = microtime(true);
+        $breakdown = [];
+        $night = 0;
+        if (isset($rates['Rates']['Rate']) && is_numeric(array_key_first($rates['Rates']['Rate']))) {
+            $loopRates = $rates['Rates']['Rate'];
+        } else {
+            $loopRates[] = $rates['Rates']['Rate'];
+        }
+        foreach ($loopRates as $rate) {
+            $nightsRate = $rate['@attributes']['UnitMultiplier'];
+            $baseFareRate = [
+                'amount' => $rate['Base']['@attributes']['AmountBeforeTax'] / $nightsRate,
+                'title' => 'Base Rate',
+                'type' => 'base_rate'
+            ];
+            $taxesRate = [];
+            if (isset($rate['Base']['Taxes'])) {
+                $taxes = $rate['Base']['Taxes'];
+                foreach ($taxes as $tax) {
+                    $taxesRate[] = [
+                        'type' => 'tax',
+                        'amount' => $tax['@attributes']['Amount'] / $nightsRate,
+                        'title' => isset($tax['@attributes']['Percent'])
+                            ? $tax['@attributes']['Percent'] . ' % ' . $tax['@attributes']['Code']
+                            : $tax['@attributes']['Code'],
+                    ];
+                }
+            }
+            for ($i = 0; $i < $nightsRate; $i++){
+                $breakdown[$night][] = $baseFareRate;
+                $breakdown[$night] = array_merge($breakdown[$night], $taxesRate);
+                $night++;
+            }
 
-        return $execution_time;
+        }
+
+        $breakdownWithoutKeys = [];
+        foreach ($breakdown as $item) {
+            $breakdownWithoutKeys[] = array_values($item);
+        }
+
+        return $breakdownWithoutKeys;
     }
 }

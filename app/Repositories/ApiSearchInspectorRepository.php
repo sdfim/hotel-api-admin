@@ -124,8 +124,7 @@ class ApiSearchInspectorRepository
 
         $price = json_decode($apiBookingItem->booking_pricing_data, true);
 
-        $expedia_hotel_id = MapperExpediaGiata::where('giata_id', $booking_item_data['hotel_id'])->first()->expedia_id;
-
+        $expedia_hotel_id = MapperExpediaGiata::where('giata_id', $booking_item_data['hotel_id'])?->first()?->expedia_id;
         return [
             'query' => $client_response['query'],
             'price' => $price,

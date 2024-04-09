@@ -32,6 +32,8 @@ class ExpediaHotelPricingDto
 
     private array $roomCombinations;
 
+    private array $occupancy;
+
     public function __construct()
     {
         $this->current_time = microtime(true);
@@ -48,6 +50,7 @@ class ExpediaHotelPricingDto
     {
         $this->search_id = $search_id;
         $this->bookingItems = [];
+        $this->occupancy = $query['occupancy'];
 
         $this->pricingRulesApplier = new ExpediaPricingRulesApplier($query, $pricingRules);
 
@@ -257,6 +260,8 @@ class ExpediaHotelPricingDto
             $roomResponse->setBedConfigurations($rate['bed_groups'][array_key_first((array)$rate['bed_groups'])]['configuration']);
         }
 
+        $roomResponse->setBreakdown($this->getBreakdown($occupancy_pricing));
+
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
 
@@ -280,14 +285,39 @@ class ExpediaHotelPricingDto
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
     }
 
-    /**
-     * @return string|float
-     */
-    private function executionTime(): string|float
+    private function getBreakdown(array $roomsPricingArray): array
     {
-        $execution_time = round((microtime(true) - $this->current_time), 3);
-        $this->current_time = microtime(true);
+        $breakdown = [];
+        foreach ($this->occupancy as $room) {
+            $roomsKey = isset($room['children_ages']) ? $room['adults'] . '-' . implode(',', $room['children_ages']) : $room['adults'];
 
-        return $execution_time;
+            foreach ($roomsPricingArray[$roomsKey]['nightly'] as $night => $expenseItems) {
+                foreach ($expenseItems as $expenseItem) {
+                    $key = '';
+                    if ($expenseItem['type'] === 'base_rate') {
+                        $key = 'base_fare';
+                        $breakdown[$night][$key]['type'] = 'base_fare';
+                        $breakdown[$night][$key]['title'] = 'Room Base Fare';
+                    } elseif (str_contains($expenseItem['type'], 'tax')) {
+                        $key = 'tax';
+                        $breakdown[$night][$key]['type'] = 'tax';
+                        $breakdown[$night][$key]['title'] = $expenseItem['type'];
+                    } elseif (str_contains($expenseItem['type'], 'fee')) {
+                        $key = 'fee';
+                        $breakdown[$night][$key]['type'] = 'fee';
+                        $breakdown[$night][$key]['title'] = $expenseItem['type'];
+                    }
+                    if (!isset($breakdown[$night][$key]['amount'])) $breakdown[$night][$key]['amount'] = 0;
+                    $breakdown[$night][$key]['amount'] += $expenseItem['value'];
+                }
+            }
+        }
+
+        $breakdownWithoutKeys = [];
+        foreach ($breakdown as $item) {
+            $breakdownWithoutKeys[] = array_values($item);
+        }
+
+        return $breakdownWithoutKeys;
     }
 }

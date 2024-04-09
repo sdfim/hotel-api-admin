@@ -49,6 +49,25 @@ class RoomResponse extends BaseResponse
 
     private array $bed_configurations;
 
+    private array $breakdown;
+
+    /**
+     * @param array $breakdown
+     * @return void
+     */
+    public function setBreakdown(array $breakdown): void
+    {
+        $this->breakdown = $breakdown;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBreakdown(): array
+    {
+        return $this->breakdown ?? [];
+    }
+
     /**
      * @param array $bed_configurations
      * @return void
@@ -451,6 +470,7 @@ class RoomResponse extends BaseResponse
             'non_refundable' => $this->getNonRefundable(),
             'meal_plan' => $this->getMealPlans(),
             'bed_configurations' => $this->getBedConfigurations(),
+            'breakdown' => $this->getBreakdown(),
         ];
     }
 }
