@@ -412,7 +412,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             /** Enrichment Room Combinations */
             $countRooms = count($filters['occupancy']);
             if ($countRooms > 1) {
-                $clientResponse[$supplierName] = $this->hbsiService->enrichmentRoomCombinations($dtoData['response'], $filters, $search_id);
+                $clientResponse[$supplierName] = $this->hbsiService->enrichmentRoomCombinations($dtoData['response'], $filters);
             }
             else $clientResponse[$supplierName] = $dtoData['response'];
             $bookingItems[$supplierName] = $dtoData['bookingItems'];
