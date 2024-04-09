@@ -278,6 +278,8 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiSearchBookUrl'
               - Name: BOOKING_SUPPLIER_HBSI_TARGET
                 Value: !Ref 'BookingSupplierHbsiTarget'
+              - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
+                Value: !Ref 'BookingSupplierHbsiComponentInfoId'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -410,6 +412,8 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiSearchBookUrl'
               - Name: BOOKING_SUPPLIER_HBSI_TARGET
                 Value: !Ref 'BookingSupplierHbsiTarget'
+              - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
+                Value: !Ref 'BookingSupplierHbsiComponentInfoId'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -597,6 +601,8 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiSearchBookUrl'
               - Name: BOOKING_SUPPLIER_HBSI_TARGET
                 Value: !Ref 'BookingSupplierHbsiTarget'
+              - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
+                Value: !Ref 'BookingSupplierHbsiComponentInfoId'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -1565,6 +1571,9 @@ Resources:
           - '",'
           - '"BOOKING_SUPPLIER_HBSI_TARGET":"'
           - !Ref 'BookingSupplierHbsiTarget'
+          - '",'
+          - '"BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID":"'
+          - !Ref 'BookingSupplierHbsiComponentInfoId'
           - '",'
           - '"SUPPLIER_EXPEDIA_API_KEY":"'
           - !Ref 'BookingSupplierExpediaApiKey'
