@@ -56,12 +56,13 @@ class ExpediaTools
             if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI
                 || SupplierNameEnum::from($supplier) === SupplierNameEnum::EXPEDIA) {
                 $reservationsData = SearchRepository::getReservationsData($apiBookingItem, $apiSearchInspector);
-                $hotelName = ExpediaRepository::getHotelNameByHotelId($reservationsData['expedia_hotel_id']);
-                $hotelImages = ExpediaRepository::getHotelImagesByHotelId($reservationsData['expedia_hotel_id']);
+                $hotelName = !is_null($reservationsData['expedia_hotel_id']) ? ExpediaRepository::getHotelNameByHotelId($reservationsData['expedia_hotel_id']) : '';
+                $hotelImages = !is_null($reservationsData['expedia_hotel_id']) ? ExpediaRepository::getHotelImagesByHotelId($reservationsData['expedia_hotel_id']) : '';
                 $hotelId = $reservationsData['hotel_id'];
                 $checkin = $reservationsData['query']['checkin'];
                 $totalCost = $reservationsData['price']['total_price'];
             }
+
 
             if (TypeRequestEnum::from($search_type) === TypeRequestEnum::HOTEL) {
                 $reservation = new Reservation();
