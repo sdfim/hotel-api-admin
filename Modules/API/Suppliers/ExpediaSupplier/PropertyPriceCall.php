@@ -11,60 +11,60 @@ use Throwable;
 
 class PropertyPriceCall
 {
-    private const STANDALONE_RATES = [
-        'partner_point_of_sale' => "B2B_EAC_SA_MOD_DIR",
-        'billing_terms' => "",
-        'payment_terms' => "SA",
-        'sales_channel' => "agent_tool",
-        'rate_option' => "member",
-        'sales_environment' => "hotel_only",
+    public const STANDALONE_RATES = [
+        'partner_point_of_sale' => 'B2B_EAC_SA_MOD_DIR',
+        'billing_terms' => '',
+        'payment_terms' => 'SA',
+        'sales_channel' => 'agent_tool',
+        'rate_option' => 'member',
+        'sales_environment' => 'hotel_only',
     ];
 
-    private const PACKAGE_RATES = [
-        'partner_point_of_sale' => "B2B_EAC_BASE_DIR",
-        'billing_terms' => "",
-        'payment_terms' => "BASE_DIR",
-        'sales_channel' => "agent_tool",
-        'rate_option' => "member",
-        'sales_environment' => "hotel_package",
+    public const PACKAGE_RATES = [
+        'partner_point_of_sale' => 'B2B_EAC_BASE_DIR',
+        'billing_terms' => '',
+        'payment_terms' => 'BASE_DIR',
+        'sales_channel' => 'agent_tool',
+        'rate_option' => 'member',
+        'sales_environment' => 'hotel_package',
     ];
 
-    private const RATE_PLACOUNT = 10;
+    private const RATE_PLAN_COUNT = 250;
 
     # https://developers.expediagroup.com/docs/rapid/lodging/shopping#get-/properties/availability
 
     // Path
-    private const PROPERTY_CONTENT_PATH = "v3/properties/availability";
+    private const PROPERTY_CONTENT_PATH = 'v3/properties/availability';
 
     // Query parameters keys
 
-    private const LANGUAGE = "language";
+    private const LANGUAGE = 'language';
 
-    private const COUNTRY_CODE = "country_code";
+    private const COUNTRY_CODE = 'country_code';
 
-    private const PROPERTY_ID = "property_id";
+    private const PROPERTY_ID = 'property_id';
 
-    private const CHECKIN = "checkin";
+    private const CHECKIN = 'checkin';
 
-    private const CHECKOUT = "checkout";
+    private const CHECKOUT = 'checkout';
 
-    private const CURRENCY = "currency";
+    private const CURRENCY = 'currency';
 
-    private const OCCUPANCY = "occupancy";
+    private const OCCUPANCY = 'occupancy';
 
-    private const RATE_PLAN_COUNT = "rate_plan_count";
+    private const KEY_RATE_PLAN_COUNT = 'rate_plan_count';
 
-    private const SALES_CHANNEL = "sales_channel";
+    private const SALES_CHANNEL = 'sales_channel';
 
-    private const SALES_ENVIRONMENT = "sales_environment";
+    private const SALES_ENVIRONMENT = 'sales_environment';
 
-    private const RATE_OPTION = "rate_option";
+    private const RATE_OPTION = 'rate_option';
 
-    private const BILLING_TERMS = "billing_terms";
+    private const BILLING_TERMS = 'billing_terms';
 
-    private const PAYMENT_TERMS = "payment_terms";
+    private const PAYMENT_TERMS = 'payment_terms';
 
-    private const PARTNER_POINT_SALE = "partner_point_of_sale";
+    private const PARTNER_POINT_SALE = 'partner_point_of_sale';
 
     private const  BATCH_SIZE = 250;
 
@@ -151,13 +151,13 @@ class PropertyPriceCall
         $this->checkin = $property['checkin'];
         $this->checkout = $property['checkout'];
 
-        $this->currency = $property['currency'] ?? "USD";
-        $this->countryCode = $property['country_code'] ?? "US";
-        $this->language = $property['language'] ?? "en-US";
+        $this->currency = $property['currency'] ?? 'USD';
+        $this->countryCode = $property['country_code'] ?? 'US';
+        $this->language = $property['language'] ?? 'en-US';
 
         $this->occupancy = $property['occupancy'];
 
-        $this->ratePlanCount = $property['rate_plan_count'] ?? self::RATE_PLACOUNT;
+        $this->ratePlanCount = $property['rate_plan_count'] ?? self::RATE_PLAN_COUNT;
 
         $rateType = env('SUPPLIER_EXPEDIA_RATE_TYPE', 'standalone');
 
@@ -255,7 +255,7 @@ class PropertyPriceCall
                 $queryParams[self::OCCUPANCY][] = $room['adults'];
             }
         }
-        $queryParams[self::RATE_PLAN_COUNT] = $this->ratePlanCount;
+        $queryParams[self::KEY_RATE_PLAN_COUNT] = $this->ratePlanCount;
         $queryParams[self::SALES_CHANNEL] = $this->salesChannel;
         $queryParams[self::SALES_ENVIRONMENT] = $this->salesEnvironment;
 

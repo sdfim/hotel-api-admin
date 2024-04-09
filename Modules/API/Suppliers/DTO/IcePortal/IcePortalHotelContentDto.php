@@ -3,6 +3,7 @@
 namespace Modules\API\Suppliers\DTO\IcePortal;
 
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponse;
+use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
 use Modules\API\Suppliers\DTO\SupplierContentDtoInterface;
 
 class IcePortalHotelContentDto implements SupplierContentDtoInterface
@@ -16,7 +17,8 @@ class IcePortalHotelContentDto implements SupplierContentDtoInterface
         $contentSearchResponse = [];
 
         foreach ($supplierResponse as $hotel) {
-            $hotelResponse = new ContentSearchResponse();
+            $hotelResponse = ContentSearchResponseFactory::create();
+
             $hotelResponse->setGiataHotelCode(isset($hotel['giata_id']) ? intval($hotel['giata_id']) : 0);
             $hotelResponse->setImages($hotel['images'] ?? []);
             $hotelResponse->setDescription(isset($hotel['descriptions']) ? json_decode($hotel['descriptions'], true) : []);

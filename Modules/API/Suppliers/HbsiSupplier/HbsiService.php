@@ -196,7 +196,9 @@ class HbsiService
                 }
             }
             foreach ($arrayOccupancy as $occupancy) {
-                $arr2combine[] = $result[$occupancy];
+                if (isset($result[$occupancy])) {
+                    $arr2combine[] = $result[$occupancy];
+                }
             }
             if (count($arr2combine) === count($arrayOccupancy)) {
                 $sets = $this->generateSets(array_values($arr2combine));

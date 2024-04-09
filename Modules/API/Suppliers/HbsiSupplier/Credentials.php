@@ -9,4 +9,5 @@ class Credentials
     public string $channelIdentifierId;
     public string $searchBookUrl;
     public string $target;
+    public string $componentInfoId;
 }

@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\DTO\IcePortal\IcePortalAssetDto;
 use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
+use Modules\API\Tools\Geography;
 
 class IcePortalHotelController
 {
@@ -22,24 +23,12 @@ class IcePortalHotelController
      */
     private IceHBSIClient $client;
 
-    /**
-     *
-     */
     private const RESULT_PER_PAGE = 500;
 
-    /**
-     *
-     */
     private const PAGE = 1;
 
-    /**
-     *
-     */
     private const ICE_MTYPE = 34347;
 
-    /**
-     *
-     */
     public function __construct()
     {
         $this->client = new IceHBSIClient();
@@ -51,7 +40,14 @@ class IcePortalHotelController
      */
     public function search(array $filters): array
     {
-        $geographyData = GiataGeography::where('city_id', $filters['destination'])->first();
+        if (isset($filters['destination'])) {
+            $geographyData = GiataGeography::where('city_id', $filters['destination'])->first();
+        } else {
+            $geography = new Geography();
+            $minMaxCoordinate = $geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
+            $city_id = IcePortalRepository::getIdByCoordinate($minMaxCoordinate);
+            $geographyData = GiataGeography::where('city_id', $city_id)->first();
+        }
 
         $propertyRepository = new GiataPropertyRepository();
 

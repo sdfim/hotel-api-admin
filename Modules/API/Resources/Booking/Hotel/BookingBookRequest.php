@@ -32,7 +32,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     @OA\Property(
  *       property="email",
  *       type="string",
- *       example="john@example.com",
+ *       example="john@gmail.com",
  *       format="email"
  *     ),
  *     @OA\Property(
@@ -157,59 +157,140 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     @OA\Property(
  *     property="booking_item",
  *     type="string",
- *     example="89650b97-9c2e-40a6-a982-040bae5d9ea5"
+ *     example="0507f6a6-4113-4f77-b659-db12de9ed6bd"
  *  )
+ * ),
+ *     @OA\Property(
+ *     property="special_requests",
+ *     type="array",
+ *     @OA\Items(
+ *     type="object",
+ *     required={"booking_item", "room", "special_request"},
+ *     @OA\Property(
+ *     property="booking_item",
+ *     type="string",
+ *     example="0507f6a6-4113-4f77-b659-db12de9ed6bd"
+ *  ),
+ *     @OA\Property(
+ *     property="room",
+ *     type="integer",
+ *     example=1
+ *     ),
+ *     @OA\Property(
+ *     property="special_request",
+ *     type="string",
+ *     example="We're celebrating; any chance for a room upgrade or special amenities?"
+ *  )
+
+ *     )
+ * ),
+ *     @OA\Property(
+ *     property="comments",
+ *     type="array",
+ *     @OA\Items(
+ *     type="object",
+ *     required={"booking_item", "room", "comment"},
+ *     @OA\Property(
+ *     property="booking_item",
+ *     type="string",
+ *     example="0507f6a6-4113-4f77-b659-db12de9ed6bd"
+ * ),
+ *     @OA\Property(
+ *     property="room",
+ *     type="integer",
+ *     example=1
+ *     ),
+ *     @OA\Property(
+ *     property="comment",
+ *     type="string",
+ *     example="test comment 1?"
  * )
+ * )
+ *  )
  * )
  * ),
  * @OA\Examples(
  *     example="BookingBookRequest",
  *     summary="Example Booking Book Request",
  *     value=
- *        {
- *         "amount_pay":"Deposit",
- *         "booking_contact":{
- *            "first_name":"John",
- *            "last_name":"Smith",
- *            "email":"john@example.com",
- *            "phone":{
- *              "country_code":"1",
- *              "area_code":"487",
- *              "number":"5550077"
- *            },
- *            "address":{
- *               "line_1":"555 1st St",
- *               "city":"Seattle",
- *               "state_province_code":"WA",
- *               "postal_code":"98121",
- *               "country_code":"US"
- *            }
- *         },
- *         "credit_cards": {
- *              {
- *                  "credit_card": {
- *                      "cvv": 123,
- *                      "number": 4001919257537193,
- *                      "card_type": "VISA",
- *                      "name_card": "Visa",
- *                      "expiry_date": "09\/2026",
- *                      "billing_address": null
- *                  },
- *                      "booking_item": "89650b97-9c2e-40a6-a982-040bae5d9ea5"
- *                  },
- *                  {
- *                  "credit_card": {
- *                      "cvv": 123,
- *                      "number": 4001919257537193,
- *                      "card_type": "VISA",
- *                      "name_card": "Visa",
- *                      "expiry_date": "09\/2026",
- *                      "billing_address": null
- *                  },
- *                      "booking_item": "9c116b9d-32f0-4341-92ea-124c8fcea643"
- *                  }
- *              },
- *      }
+ * {
+ * 	"amount_pay": "Deposit",
+ * 	"booking_contact": {
+ * 		"first_name": "John",
+ * 		"last_name": "Smith",
+ * 		"email": "john@gmail.com",
+ * 		"phone": {
+ * 			"country_code": "1",
+ * 			"area_code": "487",
+ * 			"number": "5550077"
+ * 		},
+ * 		"address": {
+ * 			"line_1": "555 1st St",
+ * 			"city": "Seattle",
+ * 			"state_province_code": "WA",
+ * 			"postal_code": "98121",
+ * 			"country_code": "US"
+ * 		}
+ * 	},
+ * 	"credit_cards": {
+ * 		{
+ * 			"credit_card": {
+ * 				"cvv": 123,
+ * 				"number": 4001919257537193,
+ * 				"card_type": "VISA",
+ * 				"name_card": "Visa",
+ * 				"expiry_date": "09/2026",
+ * 				"billing_address": null
+ * 			},
+ * 			"booking_item": "0507f6a6-4113-4f77-b659-db12de9ed6bd"
+ * 		},
+ * 		{
+ * 			"credit_card": {
+ * 				"cvv": 123,
+ * 				"number": 4001919257537193,
+ * 				"card_type": "VISA",
+ * 				"name_card": "Visa",
+ * 				"expiry_date": "09/2026",
+ * 				"billing_address": null
+ * 			},
+ * 			"booking_item": "dcfbda6d-a861-4c65-97f2-b0129b8a96f3"
+ * 		}
+ * 	},
+ * 	"special_requests": {
+ * 		{
+ * 			"booking_item": "0507f6a6-4113-4f77-b659-db12de9ed6bd",
+ * 			"room": 1,
+ * 			"special_request": "We're celebrating; any chance for a room upgrade or special amenities?"
+ * 		},
+ * 		{
+ * 			"booking_item": "0507f6a6-4113-4f77-b659-db12de9ed6bd",
+ * 			"room": 2,
+ * 			"special_request": "We have dietary preferences; can the restaurant accommodate them?"
+ * 		},
+ * 		{
+ * 			"booking_item": "dcfbda6d-a861-4c65-97f2-b0129b8a96f3",
+ * 			"room": 1,
+ * 			"special_request": "Can we get a room in a quieter area? Hoping for a peaceful experience."
+ * 		}
+ * 	},
+ * 	"comments": {
+ * 		{
+ * 			"booking_item": "0507f6a6-4113-4f77-b659-db12de9ed6bd",
+ * 			"room": 1,
+ * 			"comment": "test comment 1?"
+ * 		},
+ * 		{
+ * 			"booking_item": "0507f6a6-4113-4f77-b659-db12de9ed6bd",
+ * 			"room": 2,
+ * 			"comment": "test comment 2"
+ * 		},
+ * 		{
+ * 			"booking_item": "dcfbda6d-a861-4c65-97f2-b0129b8a96f3",
+ * 			"room": 1,
+ * 			"comment": "test comment 3"
+ * 		}
+ * 	}
+ * }
  * ),
  * @OA\Schema(
  *   schema="BookingBookRequestExpedia",
@@ -240,7 +321,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     @OA\Property(
  *       property="email",
  *       type="string",
- *       example="john@example.com",
+ *       example="john@gmail.com",
  *       format="email"
  *     ),
  *     @OA\Property(
@@ -304,7 +385,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *         "booking_contact":{
  *            "first_name":"John",
  *            "last_name":"Smith",
- *            "email":"john@example.com",
+ *            "email":"john@gmail.com",
  *            "phone":{
  *              "country_code":"1",
  *              "area_code":"487",

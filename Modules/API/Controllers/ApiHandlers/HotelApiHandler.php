@@ -58,6 +58,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
      * @param HbsiHotelController $hbsi
      * @param HbsiHotelPricingDto $HbsiHotelPricingDto
      * @param PricingRulesTools $pricingRulesService
+     * @param HbsiService $hbsiService
      */
     public function __construct(
         private readonly ExpediaHotelController         $expedia = new ExpediaHotelController(),
@@ -267,6 +268,10 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                  */
                 foreach ($suppliers as $supplierId) {
                     $supplier = Supplier::find($supplierId)?->name;
+                    if ($request->supplier) {
+                        $supplierQuery = explode(',', $request->supplier);
+                        if (!in_array($supplier, $supplierQuery)) continue;
+                    }
                     $fibers[$supplier] = new Fiber(function () use ($supplier, $filters, $search_id, $pricingRules) {
                         $supplierResponse = match (SupplierNameEnum::from($supplier)) {
                             SupplierNameEnum::EXPEDIA => $this->expedia->price($filters),

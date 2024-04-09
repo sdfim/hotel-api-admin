@@ -48,6 +48,70 @@ class ContentSearchResponse
      * @var string
      */
     private string $user_rating;
+    /**
+     * @var array
+     */
+    private array $important_information;
+    /**
+     * @var string
+     */
+    private string $supplier_terms_and_conditions_client;
+    /**
+     * @var string
+     */
+    private string $supplier_terms_and_conditions_agent;
+
+    /**
+     * @param string
+     * @return void
+     */
+    public function setSupplierTermsAndConditionsClient(string $supplier_terms_and_conditions_client): void
+    {
+        $this->supplier_terms_and_conditions_client = $supplier_terms_and_conditions_client;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSupplierTermsAndConditionsClient(): string
+    {
+        return $this->supplier_terms_and_conditions_client;
+    }
+
+    /**
+     * @param string
+     * @return void
+     */
+    public function setSupplierTermsAndConditionsAgent(string $supplier_terms_and_conditions_agent): void
+    {
+        $this->supplier_terms_and_conditions_agent = $supplier_terms_and_conditions_agent;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSupplierTermsAndConditionsAgent(): string
+    {
+        return $this->supplier_terms_and_conditions_agent;
+    }
+
+
+    /**
+     * @return array
+     */
+    public function getImportantInformation(): array
+    {
+        return $this->important_information;
+    }
+
+    /**
+     * @param array $important_information
+     * @return void
+     */
+    public function setImportantInformation(array $important_information): void
+    {
+        $this->important_information = $important_information;
+    }
 
     /**
      * @param string $user_rating
@@ -253,6 +317,9 @@ class ContentSearchResponse
             'amenities' => array_values($this->getAmenities()),
             'giata_destination' => $this->getGiataDestination(),
             'user_rating' => $this->getUserRating(),
+            'important_information' => $this->getImportantInformation(),
+            'supplier_terms_and_conditions_client' => $this->getSupplierTermsAndConditionsClient(),
+            'supplier_terms_and_conditions_agent' => $this->getSupplierTermsAndConditionsAgent(),
         ];
     }
 }

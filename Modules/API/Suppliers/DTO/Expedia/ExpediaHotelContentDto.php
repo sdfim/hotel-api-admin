@@ -3,10 +3,14 @@
 namespace Modules\API\Suppliers\DTO\Expedia;
 
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponse;
+use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
 use Modules\API\Suppliers\DTO\SupplierContentDtoInterface;
 
 class ExpediaHotelContentDto implements SupplierContentDtoInterface
 {
+
+    private const TA_CLIENT = 'https://developer.expediapartnersolutions.com/terms/en';
+    private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
     /**
      * @param array $supplierResponse
      * @return ContentSearchResponse[]
@@ -16,7 +20,7 @@ class ExpediaHotelContentDto implements SupplierContentDtoInterface
         $contentSearchResponse = [];
 
         foreach ($supplierResponse as $hotel) {
-            $hotelResponse = new ContentSearchResponse();
+            $hotelResponse = ContentSearchResponseFactory::create();
 
             $images = [];
             $countImages = 0;
@@ -52,6 +56,14 @@ class ExpediaHotelContentDto implements SupplierContentDtoInterface
             }, $amenities));
             $hotelResponse->setGiataDestination($hotel['city'] ?? '');
             $hotelResponse->setUserRating($hotel['rating'] ?? '');
+            $hotelResponse->setImportantInformation([
+                'checkin' => $hotel['checkin'] ? json_decode($hotel['checkin']) : '',
+                'checkout' => $hotel['checkout'] ? json_decode($hotel['checkout']) : '',
+                'fees' => $hotel['fees'] ? json_decode($hotel['fees']) : '',
+                'policies' => $hotel['policies'] ? json_decode($hotel['policies']) : '',
+            ]);
+            $hotelResponse->setSupplierTermsAndConditionsClient(self::TA_CLIENT);
+            $hotelResponse->setSupplierTermsAndConditionsAgent(self::TA_AGENT);
 
             $contentSearchResponse[] = $hotelResponse->toArray();
         }

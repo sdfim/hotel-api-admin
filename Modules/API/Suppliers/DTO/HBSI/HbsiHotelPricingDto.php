@@ -9,9 +9,9 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Modules\API\PricingAPI\ResponseModels\HotelResponse;
-use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
-use Modules\API\PricingAPI\ResponseModels\RoomResponse;
+use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
+use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
+use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
@@ -31,6 +31,8 @@ class HbsiHotelPricingDto
     private float $current_time;
 
     private array $meal_plans_available;
+
+    private array $roomCombinations;
 
     private const POLICE_CODE = [
         'CXP' => 'General Cancellation Policy',
@@ -52,7 +54,7 @@ class HbsiHotelPricingDto
      * @param GiataGeographyRepository $geographyRepo
      */
     public function __construct(
-        private array $bookingItems = [],
+        private array                             $bookingItems = [],
         private readonly GiataGeographyRepository $geographyRepo = new GiataGeographyRepository()
     )
     {
@@ -95,7 +97,8 @@ class HbsiHotelPricingDto
      */
     public function setHotelResponse(array $propertyGroup, int|string $key): array
     {
-        $hotelResponse = new HotelResponse();
+        $this->roomCombinations = [];
+        $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id'] ?? 0);
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
@@ -125,6 +128,12 @@ class HbsiHotelPricingDto
         $hotelResponse->setMealPlansAvailable(implode(', ', $this->meal_plans_available));
 
         $hotelResponse->setRoomGroups($roomGroups);
+
+        if ($this->rate_type === ItemTypeEnum::COMPLETE->value) {
+            $hotelResponse->setRoomCombinations($this->roomCombinations);
+            $this->roomCombinations = [];
+        }
+
         $hotelResponse->setLowestPricedRoomGroup($lowestPrice != 100000 ? $lowestPrice : '');
 
         return $hotelResponse->toArray();
@@ -159,7 +168,7 @@ class HbsiHotelPricingDto
     {
         $giataId = $propertyGroup['giata_id'] ?? 0;
 
-        $roomGroupsResponse = new RoomGroupsResponse();
+        $roomGroupsResponse = RoomGroupsResponseFactory::create();
         $roomGroupsResponse->setPayNow($roomGroup['pay_now'] ?? '');
         $roomGroupsResponse->setPayAtHotel($roomGroup['pay_at_hotel'] ?? '');
 
@@ -172,7 +181,7 @@ class HbsiHotelPricingDto
         $rooms = [];
         $priceRoomData = [];
         foreach ($roomGroup['rates'] as $key => $room) {
-            $roomData = $this->setRoomResponse((array)$room, $roomGroup, $propertyGroup, $giataId, $supplierHotelId);
+            $roomData = $this->setRoomResponse((array)$room, $propertyGroup, $giataId, $supplierHotelId);
             $roomResponse = $roomData['roomResponse'];
             $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
             $rooms[] = $roomResponse;
@@ -206,13 +215,12 @@ class HbsiHotelPricingDto
 
     /**
      * @param array $rate
-     * @param array $roomGroup
      * @param array $propertyGroup
      * @param int $giataId
      * @param int|string $supplierHotelId
      * @return array
      */
-    public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId, int|string $supplierHotelId): array
+    public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId): array
     {
         $counts = [];
         foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {
@@ -244,8 +252,7 @@ class HbsiHotelPricingDto
         if (isset($rate['CancelPenalties'])) {
             if (isset($rate['CancelPenalties']['CancelPenalty']['@attributes'])) {
                 $cancellationPoliciesInput[] = $rate['CancelPenalties']['CancelPenalty'];
-            }
-            else {
+            } else {
                 foreach ($rate['CancelPenalties']['CancelPenalty'] as $item) {
                     $cancellationPoliciesInput[] = $item;
                 }
@@ -277,7 +284,7 @@ class HbsiHotelPricingDto
             }
         }
 
-        $roomResponse = new RoomResponse();
+        $roomResponse = RoomResponseFactory::create();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
@@ -285,7 +292,7 @@ class HbsiHotelPricingDto
         $roomResponse->setSupplierRoomCode($rateOccupancy);
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
         $roomResponse->setRoomType($roomType);
-        $roomResponse->setRateDescription($rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name']  ?? '');
+        $roomResponse->setRateDescription($rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '');
         $roomResponse->setRateId($rateOrdinal);
         $roomResponse->setRatePlanCode($rate['RatePlans']['RatePlan']['@attributes']['RatePlanCode'] ?? '');
         $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);
@@ -309,6 +316,8 @@ class HbsiHotelPricingDto
 
         $booking_pricing_data = $roomResponse->toArray();
         $booking_pricing_data['rate_description'] = mb_substr($booking_pricing_data['rate_description'], 0, 200, 'UTF-8');
+
+        $this->roomCombinations[$bookingItem] = [$bookingItem];
 
         $this->bookingItems[] = [
             'booking_item' => $bookingItem,
