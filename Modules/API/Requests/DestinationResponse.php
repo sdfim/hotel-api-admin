@@ -78,8 +78,9 @@ class DestinationResponse extends ApiRequest
     public function rules(): array
     {
         return [
-            'city' => 'required_without:country|string|min:3',
-            'country' => 'required_without:city|string|min:3',
+            'city' => 'required_without_all:country,q|string|min:3',
+            'country' => 'required_without_all:city,q|string|min:3',
+            'q' => 'required_without_all:city,country|string|min:3',
         ];
     }
 
