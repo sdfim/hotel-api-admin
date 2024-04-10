@@ -3,10 +3,10 @@
 namespace Modules\API\BookingAPI\Controllers;
 
 use App\Jobs\SaveBookingInspector;
+use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveReservations;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
-use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ChannelRenository;
@@ -14,13 +14,13 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Promise;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookDto;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookingRetrieveBookingDto;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Modules\Enums\SupplierNameEnum;
-use Modules\Enums\TypeRequestEnum;
 
 class ExpediaBookApiController extends BaseBookApiController
 {
@@ -142,6 +142,8 @@ class ExpediaBookApiController extends BaseBookApiController
             $content['original']['request']['body'] = json_decode($body,true);
             $content['original']['request']['path'] = $props['path'];
             $content['original']['request']['headers'] = $this->headers();
+
+            $this->saveBookingInfo($filters, $content, $bookingInspector);
         } catch (RequestException $e) {
             Log::error('ExpediaBookApiHandler | book | create' . $e->getResponse()->getBody());
             $content = json_decode('' . $e->getResponse()->getBody());
@@ -355,5 +357,18 @@ class ExpediaBookApiController extends BaseBookApiController
             'Content-Type' => 'application/json',
             'Test' => 'standard',
         ];
+    }
+
+    private function saveBookingInfo(array $filters, array $content, ApiBookingInspector $bookingInspector): void
+    {
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
+        $filters['supplier_id'] = $supplierId;
+
+        $reservation = [
+            'bookingId' => json_decode($bookingInspector->request)?->room_id,
+            'url'       => Arr::get($content, 'links.retrieve.href'),
+        ];
+
+        SaveBookingMetadata::dispatch($filters, $reservation);
     }
 }

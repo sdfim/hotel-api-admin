@@ -7,6 +7,7 @@ use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
+use App\Repositories\ApiBookingsMetadataRepository;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -225,9 +226,9 @@ class BookApiHandler extends BaseController
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         if (isset($request->booking_item)) {
-            $itemsBooked = BookRepository::bookedItem($request->booking_id, $request->booking_item);
+            $itemsBooked = ApiBookingsMetadataRepository::bookedItem($request->booking_id, $request->booking_item);
         } else {
-            $itemsBooked = BookRepository::bookedItems($request->booking_id);
+            $itemsBooked = ApiBookingsMetadataRepository::bookedItems($request->booking_id);
         }
 
         $filters = $request->all();
