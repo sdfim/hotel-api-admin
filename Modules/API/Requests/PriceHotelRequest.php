@@ -14,7 +14,7 @@ class PriceHotelRequest extends ApiRequest
      *   tags={"Pricing API"},
      *   path="/api/pricing/search",
      *   summary="Search Price Hotels",
-     *   description="The **'/api/pricing/search'** endpoint, when used for hotel pricing, <br> is a critical part of a hotel booking API. <br> It enables users and developers to search for and obtain detailed pricing information related to hotel accommodations.",
+     *   description="Pricing Search for hotels by places/destination or coordinates.<br> The '<b>place</b>' value should be used from the endpoint api/content/destinations",
      *
      *   @OA\RequestBody(
      *     description="JSON object containing the details of the reservation.",
@@ -23,8 +23,11 @@ class PriceHotelRequest extends ApiRequest
      *     @OA\JsonContent(
      *       ref="#/components/schemas/PricingSearchRequest",
      *       examples={
+     *           "GIATA Place Eiffel Tower": @OA\Schema(ref="#/components/examples/PricingSearchRequestPlace", example="PricingSearchRequestPlace"),
+     *           "GIATA Place Cancun": @OA\Schema(ref="#/components/examples/PricingSearchRequestPlaceCancun", example="PricingSearchRequestPlaceCancun"),
      *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchRequestNewYork", example="PricingSearchRequestNewYork"),
      *           "London": @OA\Schema(ref="#/components/examples/PricingSearchRequestLondon", example="PricingSearchRequestLondon"),
+     *           "Cancun": @OA\Schema(ref="#/components/examples/PricingSearchRequestCancun", example="PricingSearchRequestCancun"),
      *           "SupplierCurrency": @OA\Schema(ref="#/components/examples/PricingSearchRequestCurrencySupplier", example="PricingSearchRequestCurrencySupplier"),
      *       },
      *     ),
@@ -120,18 +123,11 @@ class PriceHotelRequest extends ApiRequest
             'supplier' => 'string',
             'checkin' => 'required|date_format:Y-m-d|after:today',
             'checkout' => 'required|date_format:Y-m-d|after:checkin',
-            'destination' => [
-                'required',
-                function ($attribute, $value, $fail) {
-                    if (!is_string($value) && !is_int($value)) {
-                        $fail('The destination must be a string or a number.');
-                    } elseif (is_int($value) && (int)$value <= 0) {
-                        $fail('The destination must be a non-negative integer.');
-                    } elseif (is_int($value) && strlen((string)$value) > 6) {
-                        $fail('The destination must be an integer with 6 or fewer digits.');
-                    }
-                },
-            ],
+            'place' => 'required_without_all:latitude,longitude,destination|string|max:32',
+            'destination' => 'required_without_all:latitude,longitude,place|integer|min:1,max:999999',
+            'latitude' => 'required_without_all:destination,place|decimal:2,8|min:-90|max:90',
+            'longitude' => 'required_without_all:destination,place|decimal:2,8|min:-180|max:180',
+            'radius' => 'required_without_all:destination,place|numeric|between:1,100',
             'rating' => 'numeric|between:1,5.5',
             'occupancy' => 'required|array',
             'occupancy.*.adults' => 'required|numeric|between:1,9',

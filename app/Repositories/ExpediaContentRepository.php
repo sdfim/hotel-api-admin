@@ -3,7 +3,9 @@
 namespace App\Repositories;
 
 use App\Models\ExpediaContent;
+use App\Models\GiataPlace;
 use App\Models\GiataProperty;
+use App\Models\MapperExpediaGiata;
 use Illuminate\Support\Collection;
 
 
@@ -28,6 +30,22 @@ class ExpediaContentRepository
 
             return $item;
         });
+    }
+
+    public static function getIdsByGiataPlace(string $place): array
+    {
+        $tticodes = GiataPlace::where('key', $place)
+            ->select('tticodes')
+            ->first()
+            ->tticodes;
+
+        $expedia_id = MapperExpediaGiata::whereIn('giata_id', $tticodes)
+            ->select('expedia_id')
+            ->get()
+            ->pluck('expedia_id')
+            ->toArray();
+
+        return $expedia_id;
     }
 
     /**

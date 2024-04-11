@@ -38,17 +38,17 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *   ),
  *   @OA\Property(
  *     property="checkin",
- *     description="Checkin date in ISO 8601 format (e.g., '2023-11-11').",
+ *     description="Checkin date in ISO 8601 format (e.g., '2024-11-11').",
  *     type="string",
  *     format="date",
- *     example="2023-11-11"
+ *     example="2024-11-11"
  *   ),
  *   @OA\Property(
  *     property="checkout",
- *     description="Checkout date in ISO 8601 format (e.g., '2023-11-20').",
+ *     description="Checkout date in ISO 8601 format (e.g., '2024-11-20').",
  *     type="string",
  *     format="date",
- *     example="2023-11-20"
+ *     example="2024-11-20"
  *   ),
  *   @OA\Property(
  *     property="destination",
@@ -94,48 +94,42 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *   )
  * ),
  * @OA\Examples(
- *     example="PricingSearchRequestNewYork",
- *     summary="An Example Pricing Search Request New York",
- *     value=
- * {
- *     "type": "hotel",
- *     "checkin": "2024-05-11",
- *     "checkout": "2024-05-20",
- *     "destination": 961,
- *     "rating": 4.5,
- *     "occupancy": {
- *         {
- *            "adults": 2,
- *          "children_ages": {
- *            2
- *           }
- *         },
- *       {
- *            "adults": 2
- *         }
- *     }
- * }
- * ),
+ *        example="PricingSearchRequestPlaceCancun",
+ *        summary="Pricing Search Cancun, country MX, airport CUN using Place",
+ *        value=
+ *    {
+ *        "type": "hotel",
+ *        "checkin": "2024-05-11",
+ *        "checkout": "2024-05-20",
+ *        "place": "4b2afe6684dd81a6f73527468e05e7a6",
+ *        "rating": 4.5,
+ *        "occupancy": {
+ *            {
+ *               "adults": 2
+ *            }
+ *        }
+ *    }
+ *    ),
  * @OA\Examples(
- *      example="PricingSearchRequestCancun",
- *      summary="An Example Pricing Search Request Cancun",
- *      value=
- *  {
- *      "type": "hotel",
- *      "checkin": "2024-05-11",
- *      "checkout": "2024-05-20",
- *      "destination": 961,
- *      "rating": 4.5,
- *      "occupancy": {
- *          {
- *             "adults": 2
- *          }
- *      }
- *  }
- *  ),
+ *       example="PricingSearchRequestPlace",
+ *       summary="Pricing Search Eiffel Tower (Paris) using Place",
+ *       value=
+ *   {
+ *       "type": "hotel",
+ *       "checkin": "2024-05-11",
+ *       "checkout": "2024-05-20",
+ *       "place": "9bb07983384eb956ae88e154b99b51a1",
+ *       "rating": 4.5,
+ *       "occupancy": {
+ *           {
+ *              "adults": 2
+ *           }
+ *       }
+ *   }
+ *   ),
  * @OA\Examples(
  *     example="PricingSearchRequestLondon",
- *     summary="An Example Pricing Search RequestLondon",
+ *     summary="Pricing Search London using Destination",
  *     value=
  * {
  *     "type": "hotel",
@@ -157,23 +151,61 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *     }
  * }
  * ),
+ * @OA\Examples(
+ *      example="PricingSearchRequestNewYork",
+ *      summary="Pricing Search New York using Destination",
+ *      value=
+ *  {
+ *      "type": "hotel",
+ *      "checkin": "2024-05-11",
+ *      "checkout": "2024-05-20",
+ *      "destination": 961,
+ *      "rating": 4.5,
+ *      "occupancy": {
+ *          {
+ *             "adults": 2,
+ *           "children_ages": {
+ *             2
+ *            }
+ *          },
+ *        {
+ *             "adults": 2
+ *          }
+ *      }
+ *  }
+ *  ),
+ * @OA\Examples(
+ *       example="PricingSearchRequestCancun",
+ *       summary="Pricing Search Cancun using Destination",
+ *       value=
+ *   {
+ *       "type": "hotel",
+ *       "checkin": "2024-05-11",
+ *       "checkout": "2024-05-20",
+ *       "destination": 508,
+ *       "rating": 4.5,
+ *       "occupancy": {
+ *           {
+ *              "adults": 2
+ *           }
+ *       }
+ *   }
+ *   ),
  * * @OA\Examples(
  *     example="PricingSearchRequestCurrencySupplier",
- *     summary="Occupavcy With Currency and Supplier",
+ *     summary="Pricing Search set Supplier",
  *     value=
  * {
  *   "type": "hotel",
- *   "currency": "EUR",
+ *   "currency": "USD",
  *   "supplier": "Expedia",
- *   "hotel_name": "Sheraton",
- *   "checkin": "2023-11-19",
- *   "checkout": "2023-11-21",
- *   "destination": 961,
- *   "rating": 3.5,
+ *   "checkin": "2024-06-19",
+ *   "checkout": "2024-06-21",
+ *   "destination": 951,
+ *   "rating": 4.5,
  *   "occupancy": {
  *     {
  *       "adults": 2,
- *       "children": 1,
  *       "children_ages": {
  *         2
  *        }

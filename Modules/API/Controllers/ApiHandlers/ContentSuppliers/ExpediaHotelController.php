@@ -55,7 +55,9 @@ class ExpediaHotelController
         try {
             $expedia = new ExpediaContent();
 
-            if (isset($filters['destination'])) {
+            if (isset($filters['place'])) {
+                $filters['ids'] = ExpediaRepository::getIdsByGiataPlace($filters['place']);
+            } elseif (isset($filters['destination'])) {
                 $filters['ids'] = ExpediaRepository::getIdsByDestinationGiata($filters['destination']);
             } else {
                 $geography = new Geography();

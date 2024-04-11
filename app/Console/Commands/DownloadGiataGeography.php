@@ -42,11 +42,9 @@ class DownloadGiataGeography extends Command
     {
         $this->current_time = microtime(true);
 
-        $url = 'http://tticodes.giatamedia.com/webservice/rest/1.0/geography';
-
-        // Define your HTTP authentication credentials
-        $username = 'tticodes@godigitaldevelopment.com';
-        $password = 'aw4ZD8ky';
+        $url = config('giata.main.base_uri') . 'geography';
+        $username = config('giata.main.username');
+        $password = config('giata.main.password');
 
         // Create a Guzzle HTTP client instance
         $client = new Client([

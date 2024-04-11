@@ -348,7 +348,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  * )
  * @OA\Examples(
  *     example="PricingSearchResponseNewYork",
- *     summary="An Example Pricing Search Response New York",
+ *     summary="Pricing Search Response New York",
  *     value=
  * {
  *     "success": true,
@@ -766,7 +766,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  * ),
  * @OA\Examples(
  *     example="PricingSearchResponseLondon",
- *     summary="An Example Pricing Search Response London",
+ *     summary="Pricing Search Response London",
  *     value=
  * {
  *     "success": true,

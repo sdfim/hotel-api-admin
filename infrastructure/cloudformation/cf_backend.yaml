@@ -297,6 +297,18 @@ Resources:
                 Value: !Ref 'BookingSupplierIcePortalBaseUrl'
               - Name: SUPPLIER_ICE_PORTAL_TOKEN_URL
                 Value: !Ref 'BookingSupplierIcePortalTokenUrl'
+              - Name: GIATA_POI_BASE_URI
+                Value: !Ref 'GiataPoiBaseUri'
+              - Name: GIATA_POI_USERNAME
+                Value: !Ref 'GiataPoiUsername'
+              - Name: GIATA_POI_PASSWORD
+                Value: !Ref 'GiataPoiPassword'
+              - Name: GIATA_MAIN_BASE_URI
+                Value: !Ref 'GiataMainBaseUri'
+              - Name: GIATA_MAIN_USERNAME
+                Value: !Ref 'GiataMainUsername'
+              - Name: GIATA_MAIN_PASSWORD
+                Value: !Ref 'GiataMainPassword'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -431,6 +443,18 @@ Resources:
                 Value: !Ref 'BookingSupplierIcePortalBaseUrl'
               - Name: SUPPLIER_ICE_PORTAL_TOKEN_URL
                 Value: !Ref 'BookingSupplierIcePortalTokenUrl'
+              - Name: GIATA_POI_BASE_URI
+                Value: !Ref 'GiataPoiBaseUri'
+              - Name: GIATA_POI_USERNAME
+                Value: !Ref 'GiataPoiUsername'
+              - Name: GIATA_POI_PASSWORD
+                Value: !Ref 'GiataPoiPassword'
+              - Name: GIATA_MAIN_BASE_URI
+                Value: !Ref 'GiataMainBaseUri'
+              - Name: GIATA_MAIN_USERNAME
+                Value: !Ref 'GiataMainUsername'
+              - Name: GIATA_MAIN_PASSWORD
+                Value: !Ref 'GiataMainPassword'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -620,6 +644,18 @@ Resources:
                 Value: !Ref 'BookingSupplierIcePortalBaseUrl'
               - Name: SUPPLIER_ICE_PORTAL_TOKEN_URL
                 Value: !Ref 'BookingSupplierIcePortalTokenUrl'
+              - Name: GIATA_POI_BASE_URI
+                Value: !Ref 'GiataPoiBaseUri'
+              - Name: GIATA_POI_USERNAME
+                Value: !Ref 'GiataPoiUsername'
+              - Name: GIATA_POI_PASSWORD
+                Value: !Ref 'GiataPoiPassword'
+              - Name: GIATA_MAIN_BASE_URI
+                Value: !Ref 'GiataMainBaseUri'
+              - Name: GIATA_MAIN_USERNAME
+                Value: !Ref 'GiataMainUsername'
+              - Name: GIATA_MAIN_PASSWORD
+                Value: !Ref 'GiataMainPassword'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -1225,7 +1261,7 @@ Resources:
     DeletionPolicy: Delete
     Properties:
       BlockDeviceMappings:
-        - DeviceName: /dev/sda1
+        - DeviceName: /dev/xvda
           Ebs:
             DeleteOnTermination: true
             VolumeSize: 60
@@ -1598,6 +1634,24 @@ Resources:
           - '",'
           - '"SUPPLIER_ICE_PORTAL_TOKEN_URL":"'
           - !Ref 'BookingSupplierIcePortalTokenUrl'
+          - '",'
+          - '"GIATA_POI_BASE_URI":"'
+          - !Ref 'BookingSupplierGiataPoiBaseUri'
+          - '",'
+          - '"GIATA_POI_USERNAME":"'
+          - !Ref 'BookingSupplierGiataPoiUsername'
+          - '",'
+          - '"GIATA_POI_PASSWORD":"'
+          - !Ref 'BookingSupplierGiataPoiPassword'
+          - '",'
+          - '"GIATA_MAIN_BASE_URI":"'
+          - !Ref 'BookingSupplierGiataMainBaseUri'
+          - '",'
+          - '"GIATA_MAIN_USERNAME":"'
+          - !Ref 'BookingSupplierGiataMainUsername'
+          - '",'
+          - '"GIATA_MAIN_PASSWORD":"'
+          - !Ref 'BookingSupplierGiataMainPassword'
           - '",'
           - '"DB_DATABASE":"'
           - !Ref 'DbDatabase'

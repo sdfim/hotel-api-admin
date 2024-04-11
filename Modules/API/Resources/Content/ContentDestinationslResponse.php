@@ -40,7 +40,7 @@ namespace Modules\API\Resources\Content;
  * ),
  * @OA\Examples(
  *     example="ContentDestinationslResponse",
- *     summary="Example Content Destinations Response",
+ *     summary="Content Destinations Response",
  *     value=
  * {
  *    "success": true,
@@ -75,7 +75,105 @@ namespace Modules\API\Resources\Content;
  *        }
  *    }
  * }
- * )
+ * ),
+ * @OA\Examples(
+ *      example="ContentDestinationslResponseEiffel",
+ *      summary="Content Destinations Response Eiffel Tower",
+ *      value=
+ *  {
+ *     "success": true,
+ *     "data": {
+ *         {
+ *          "full_name": "Eiffel Tower (Paris Region), country FR, airport PAR",
+ *          "place": "451866aafc2cd344ca5091dc267cb802",
+ *          "type": "Landmark"
+ *          },
+ *          {
+ *          "full_name": "Eiffel Tower (Paris), country FR, airport PAR",
+ *          "place": "9bb07983384eb956ae88e154b99b51a1",
+ *          "type": "Landmark"
+ *          },
+ *          {
+ *          "full_name": "Eiffel Tower (Central Paris), country FR, airport PAR",
+ *          "place": "ed4f0cef597a1e903856b30e881f4462",
+ *          "type": "Landmark"
+ *          },
+ *          {
+ *          "full_name": "Eiffel Tower (Paris 07e Arrondissement), country FR, airport PAR",
+ *          "place": "7cf40f7c174443ce6fec02704f670870",
+ *          "type": "Landmark"
+ *          }
+ *     }
+ *  }
+ *  ),
+ * @OA\Examples(
+ *       example="ContentDestinationslResponseTurks",
+ *       summary="Content Destinations Response Turks and",
+ *       value=
+ *   {
+ *      "success": true,
+ *      "data": {
+ *          {
+ *          "full_name": "Turks & Caicos Islands, country TC, airport PLS",
+ *          "place": "e90b74d1eb220d4dc290ce968fefebac",
+ *          "type": "Country"
+ *          }
+ *      }
+ *   }
+ *   ),
+ * @OA\Examples(
+ *        example="ContentDestinationslResponseStLucia",
+ *        summary="Content Destinations Response St Lucia",
+ *        value=
+ *    {
+ *       "success": true,
+ *       "data": {
+ *           {
+ *              "full_name": "St Lucia, country ZA, airport DUR",
+ *              "place": "d47e3a5fc397ff31d20924d2841caedc",
+ *              "type": "City"
+ *              },
+ *              {
+ *              "full_name": "St Lucia, country LC, airport UVF",
+ *              "place": "29695f360d0556f0a644594e6b476843",
+ *              "type": "Country"
+ *              }
+ *       }
+ *    }
+ *  ),
+ * @OA\Examples(
+ *         example="ContentDestinationslResponseTowerPisa",
+ *         summary="Content Destinations Response Tower Pisa and showtticodes",
+ *         value=
+ *     {
+ *        "success": true,
+ *        "data": {
+ *            {
+ *              "full_name": "Leaning Tower of Pisa, country IT, airport PSA",
+ *              "place": "b05c2d0dec89321b9ae8c6e14c6fdc5a",
+ *              "type": "Landmark",
+ *              "tticodes": {
+ *                   "11872855",
+ *                   "12108455",
+ *                   "18774833",
+ *                   "26633462",
+ *                   "31163051",
+ *                   "40563302",
+ *                   "47958637",
+ *                   "48679622",
+ *                   "59324077",
+ *                   "62547051",
+ *                   "62592753",
+ *                   "69860215",
+ *                   "77578695",
+ *                   "77907437",
+ *                   "81799837",
+ *                   "86293211"
+ *                   }
+ *              }
+ *        }
+ *     }
+ *   ),
  */
 class ContentDestinationslResponse
 {

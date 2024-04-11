@@ -46,7 +46,9 @@ class HbsiHotelController
         $limit = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
         $offset = $filters['page'] ?? self::PAGE;
 
-        if (isset($filters['destination'])) {
+        if (isset($filters['place'])) {
+            $ids = HbsiRepository::getIdsByGiataPlace($filters['place'], $limit, $offset);
+        } elseif (isset($filters['destination'])) {
             $ids = HbsiRepository::getIdsByDestinationGiata($filters['destination'], $limit, $offset);
         } else {
             $minMaxCoordinate = $this->geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);

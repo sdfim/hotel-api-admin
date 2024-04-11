@@ -84,7 +84,6 @@
                         <p><strong>Giata room code:</strong> {{ $field['price']['giata_room_code'] }}</p>
                         <p><strong>Giata room name:</strong> {{ $field['price']['giata_room_name'] }}</p>
                         <p><strong>Supplier room name:</strong> {{ $field['price']['supplier_room_name'] }}</p>
-                        <p><strong>Per day rate breakdown:</strong> {{ $field['price']['per_day_rate_breakdown'] }}</p>
                     </div>
                 </div>
 
