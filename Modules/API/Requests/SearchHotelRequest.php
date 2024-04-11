@@ -13,7 +13,7 @@ class SearchHotelRequest extends ApiRequest
      *   tags={"Content API"},
      *   path="/api/content/search",
      *   summary="Search Hotels",
-     *   description="Search for hotels by destination or coordinates.",
+     *   description="Content Search for hotels by places/destination or coordinates.<br> The '<b>place</b>' value should be used from the endpoint api/content/destinations",
      *
      *   @OA\RequestBody(
      *     description="JSON object containing the details of the reservation.",
@@ -21,12 +21,13 @@ class SearchHotelRequest extends ApiRequest
      *
      *     @OA\JsonContent(
      *       oneOf={
-     *
+     *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestPlace"),
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestDestination"),
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestCoordinates"),
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestSupplierHotelName"),
      *         },
      *       examples={
+     *           "searchByPlace": @OA\Schema(ref="#/components/examples/ContentSearchRequestPlace", example="ContentSearchRequestPlace"),
      *           "searchByDestination": @OA\Schema(ref="#/components/examples/ContentSearchRequestDestination", example="ContentSearchRequestDestination"),
      *           "searchByCoordinates": @OA\Schema(ref="#/components/examples/ContentSearchRequestCoordinates", example="ContentSearchRequestCoordinates"),
      *           "searchBySupplierHotelName": @OA\Schema(ref="#/components/examples/ContentSearchRequestSupplierHotelName", example="ContentSearchRequestSupplierHotelName"),
@@ -89,10 +90,11 @@ class SearchHotelRequest extends ApiRequest
             'rating' => 'numeric|between:1,5.5',
             'page' => 'integer|between:1,1000',
             'results_per_page' => 'integer|between:1,1000',
-            'destination' => 'required_without_all:latitude,longitude|integer|min:1',
-            'latitude' => 'required_without:destination|decimal:2,8|min:-90|max:90',
-            'longitude' => 'required_without:destination|decimal:2,8|min:-180|max:180',
-            'radius' => 'required_without:destination|numeric|between:1,100',
+            'place' => 'required_without_all:latitude,longitude,destination|string|max:32',
+            'destination' => 'required_without_all:latitude,longitude,place|integer|min:1',
+            'latitude' => 'required_without_all:destination,place|decimal:2,8|min:-90|max:90',
+            'longitude' => 'required_without_all:destination,place|decimal:2,8|min:-180|max:180',
+            'radius' => 'required_without_all:destination,place|numeric|between:1,100',
             'supplier' => 'string',
             'hotel_name' => 'string',
         ];

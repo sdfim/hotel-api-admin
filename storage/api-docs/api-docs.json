@@ -666,17 +666,31 @@
                     "Content API"
                 ],
                 "summary": "Get list of destinations",
-                "description": "Get list valid value of destinations by city name, can be used for autocomplete, min 3 characters",
-                "operationId": "28b3f2bb0a7778d1888c778fd4e3fd3d",
+                "description": "Get list valid value of places/destinations by city name, can be used for autocomplete, min 3 characters<br> The Response results (places/destinations) can be used as valid values on endpoints:<br>     *      <b>api/pricing/search<br>\n     *      api/pricing/search</b>",
+                "operationId": "2ca225ec678afa1d3836278f1306ec0e",
                 "parameters": [
                     {
-                        "name": "city",
+                        "name": "q",
                         "in": "query",
-                        "description": "Type of content to search (e.g., 'rome', 'new y', londo').",
+                        "description": "Type of content to search (e.g., 'Turks and', 'Eiffel', Nassau', 'St Lucia', 'UVF', Cancun').",
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "example": "londo"
+                            "example": "Eiffel"
+                        }
+                    },
+                    {
+                        "name": "showtticodes",
+                        "in": "query",
+                        "description": "Set to 1 to display additional tticodes.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "enum": [
+                                0,
+                                1
+                            ]
                         }
                     }
                 ],
@@ -689,6 +703,18 @@
                                     "$ref": "#/components/schemas/ContentDestinationslResponse"
                                 },
                                 "examples": {
+                                    "ContentDestinationslResponseEiffel": {
+                                        "$ref": "#/components/examples/ContentDestinationslResponseEiffel"
+                                    },
+                                    "ContentDestinationslResponseTurks": {
+                                        "$ref": "#/components/examples/ContentDestinationslResponseTurks"
+                                    },
+                                    "ContentDestinationslResponseStLucia": {
+                                        "$ref": "#/components/examples/ContentDestinationslResponseStLucia"
+                                    },
+                                    "ContentDestinationslResponseTowerPisa": {
+                                        "$ref": "#/components/examples/ContentDestinationslResponseTowerPisa"
+                                    },
                                     "ContentDestinationslResponse": {
                                         "$ref": "#/components/examples/ContentDestinationslResponse"
                                     }
@@ -896,7 +922,7 @@
                     "Pricing API"
                 ],
                 "summary": "Search Price Hotels",
-                "description": "The **'/api/pricing/search'** endpoint, when used for hotel pricing, <br> is a critical part of a hotel booking API. <br> It enables users and developers to search for and obtain detailed pricing information related to hotel accommodations.",
+                "description": "Pricing Search for hotels by places/destination or coordinates.<br> The '<b>place</b>' value should be used from the endpoint api/content/destinations",
                 "operationId": "6c2100979dfc6df04a75ba16922b7c26",
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
@@ -907,11 +933,20 @@
                                 "$ref": "#/components/schemas/PricingSearchRequest"
                             },
                             "examples": {
+                                "PricingSearchRequestPlace": {
+                                    "$ref": "#/components/examples/PricingSearchRequestPlace"
+                                },
+                                "PricingSearchRequestPlaceCancun": {
+                                    "$ref": "#/components/examples/PricingSearchRequestPlaceCancun"
+                                },
                                 "PricingSearchRequestNewYork": {
                                     "$ref": "#/components/examples/PricingSearchRequestNewYork"
                                 },
                                 "PricingSearchRequestLondon": {
                                     "$ref": "#/components/examples/PricingSearchRequestLondon"
+                                },
+                                "PricingSearchRequestCancun": {
+                                    "$ref": "#/components/examples/PricingSearchRequestCancun"
                                 },
                                 "PricingSearchRequestCurrencySupplier": {
                                     "$ref": "#/components/examples/PricingSearchRequestCurrencySupplier"
@@ -983,7 +1018,7 @@
                     "Content API"
                 ],
                 "summary": "Search Hotels",
-                "description": "Search for hotels by destination or coordinates.",
+                "description": "Content Search for hotels by places/destination or coordinates.<br> The '<b>place</b>' value should be used from the endpoint api/content/destinations",
                 "operationId": "60be1a957d2359e84e31d23f82da3c42",
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
@@ -992,6 +1027,9 @@
                         "application/json": {
                             "schema": {
                                 "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestPlace"
+                                    },
                                     {
                                         "$ref": "#/components/schemas/ContentSearchRequestDestination"
                                     },
@@ -1004,6 +1042,9 @@
                                 ]
                             },
                             "examples": {
+                                "ContentSearchRequestPlace": {
+                                    "$ref": "#/components/examples/ContentSearchRequestPlace"
+                                },
                                 "ContentSearchRequestDestination": {
                                     "$ref": "#/components/examples/ContentSearchRequestDestination"
                                 },
@@ -2669,6 +2710,41 @@
                 },
                 "type": "object"
             },
+            "ContentSearchRequestPlace": {
+                "title": "Content Search Request Place",
+                "description": "Schema Content Search Request GIATA Place",
+                "required": [
+                    "query"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "Type of content to search (e.g., 'hotel', 'flight', 'combo').",
+                        "type": "string",
+                        "example": "hotel"
+                    },
+                    "place": {
+                        "description": "GIATA Place key.",
+                        "type": "string",
+                        "example": "9bb07983384eb956ae88e154b99b51a1"
+                    },
+                    "rating": {
+                        "description": "Rating of the hotel.",
+                        "type": "integer",
+                        "example": 4
+                    },
+                    "page": {
+                        "description": "Page number.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "results_per_page": {
+                        "description": "Number of results per page.",
+                        "type": "integer",
+                        "example": 250
+                    }
+                },
+                "type": "object"
+            },
             "ContentSearchRequestDestination": {
                 "title": "Content Search Request Destination",
                 "description": "Schema Content Search Request Destination",
@@ -3023,16 +3099,16 @@
                         "example": "Sheraton"
                     },
                     "checkin": {
-                        "description": "Checkin date in ISO 8601 format (e.g., '2023-11-11').",
+                        "description": "Checkin date in ISO 8601 format (e.g., '2024-11-11').",
                         "type": "string",
                         "format": "date",
-                        "example": "2023-11-11"
+                        "example": "2024-11-11"
                     },
                     "checkout": {
-                        "description": "Checkout date in ISO 8601 format (e.g., '2023-11-20').",
+                        "description": "Checkout date in ISO 8601 format (e.g., '2024-11-20').",
                         "type": "string",
                         "format": "date",
-                        "example": "2023-11-20"
+                        "example": "2024-11-20"
                     },
                     "destination": {
                         "description": "Destination ID (e.g., '961' is New York, referral code can be viewed '/api/content/destinations?city={name city}' ).",
@@ -4103,7 +4179,7 @@
                 }
             },
             "ContentDestinationslResponse": {
-                "summary": "Example Content Destinations Response",
+                "summary": "Content Destinations Response",
                 "value": {
                     "success": true,
                     "data": [
@@ -4138,8 +4214,98 @@
                     ]
                 }
             },
+            "ContentDestinationslResponseEiffel": {
+                "summary": "Content Destinations Response Eiffel Tower",
+                "value": {
+                    "success": true,
+                    "data": [
+                        {
+                            "full_name": "Eiffel Tower (Paris Region), country FR, airport PAR",
+                            "place": "451866aafc2cd344ca5091dc267cb802",
+                            "type": "Landmark"
+                        },
+                        {
+                            "full_name": "Eiffel Tower (Paris), country FR, airport PAR",
+                            "place": "9bb07983384eb956ae88e154b99b51a1",
+                            "type": "Landmark"
+                        },
+                        {
+                            "full_name": "Eiffel Tower (Central Paris), country FR, airport PAR",
+                            "place": "ed4f0cef597a1e903856b30e881f4462",
+                            "type": "Landmark"
+                        },
+                        {
+                            "full_name": "Eiffel Tower (Paris 07e Arrondissement), country FR, airport PAR",
+                            "place": "7cf40f7c174443ce6fec02704f670870",
+                            "type": "Landmark"
+                        }
+                    ]
+                }
+            },
+            "ContentDestinationslResponseTurks": {
+                "summary": "Content Destinations Response Turks and",
+                "value": {
+                    "success": true,
+                    "data": [
+                        {
+                            "full_name": "Turks & Caicos Islands, country TC, airport PLS",
+                            "place": "e90b74d1eb220d4dc290ce968fefebac",
+                            "type": "Country"
+                        }
+                    ]
+                }
+            },
+            "ContentDestinationslResponseStLucia": {
+                "summary": "Content Destinations Response St Lucia",
+                "value": {
+                    "success": true,
+                    "data": [
+                        {
+                            "full_name": "St Lucia, country ZA, airport DUR",
+                            "place": "d47e3a5fc397ff31d20924d2841caedc",
+                            "type": "City"
+                        },
+                        {
+                            "full_name": "St Lucia, country LC, airport UVF",
+                            "place": "29695f360d0556f0a644594e6b476843",
+                            "type": "Country"
+                        }
+                    ]
+                }
+            },
+            "ContentDestinationslResponseTowerPisa": {
+                "summary": "Content Destinations Response Tower Pisa and showtticodes",
+                "value": {
+                    "success": true,
+                    "data": [
+                        {
+                            "full_name": "Leaning Tower of Pisa, country IT, airport PSA",
+                            "place": "b05c2d0dec89321b9ae8c6e14c6fdc5a",
+                            "type": "Landmark",
+                            "tticodes": [
+                                "11872855",
+                                "12108455",
+                                "18774833",
+                                "26633462",
+                                "31163051",
+                                "40563302",
+                                "47958637",
+                                "48679622",
+                                "59324077",
+                                "62547051",
+                                "62592753",
+                                "69860215",
+                                "77578695",
+                                "77907437",
+                                "81799837",
+                                "86293211"
+                            ]
+                        }
+                    ]
+                }
+            },
             "ContentDetailResponse": {
-                "summary": "Example Content Detail Response",
+                "summary": "Content Detail Response",
                 "value": {
                     "success": true,
                     "data": {
@@ -5039,8 +5205,18 @@
                     "message": "success"
                 }
             },
+            "ContentSearchRequestPlace": {
+                "summary": "Content Search by Place Eiffel Tower (Paris)",
+                "value": {
+                    "type": "hotel",
+                    "place": "9bb07983384eb956ae88e154b99b51a1",
+                    "rating": 4,
+                    "page": 1,
+                    "results_per_page": 250
+                }
+            },
             "ContentSearchRequestDestination": {
-                "summary": "Example Content Search by Destination",
+                "summary": "Content Search by Destination",
                 "value": {
                     "type": "hotel",
                     "destination": 1175,
@@ -5050,7 +5226,7 @@
                 }
             },
             "ContentSearchRequestSupplierHotelName": {
-                "summary": "Example Content Search by Supplier and Hotel Name",
+                "summary": "Content Search by Supplier and Hotel Name",
                 "value": {
                     "type": "hotel",
                     "hotel_name": "Sheraton",
@@ -5062,7 +5238,7 @@
                 }
             },
             "ContentSearchRequestCoordinates": {
-                "summary": "Example Content Search by Coordinates",
+                "summary": "Content Search by Coordinates",
                 "value": {
                     "type": "hotel",
                     "latitude": 40.748,
@@ -5074,7 +5250,7 @@
                 }
             },
             "ContentSearchResponse": {
-                "summary": "Example Content Search Response",
+                "summary": "Content Search Response",
                 "value": {
                     "success": true,
                     "data": {
@@ -6613,34 +6789,28 @@
                     "message": "success"
                 }
             },
-            "PricingSearchRequestNewYork": {
-                "summary": "An Example Pricing Search Request New York",
+            "PricingSearchRequestPlaceCancun": {
+                "summary": "Pricing Search Cancun, country MX, airport CUN using Place",
                 "value": {
                     "type": "hotel",
                     "checkin": "2024-05-11",
                     "checkout": "2024-05-20",
-                    "destination": 961,
+                    "place": "4b2afe6684dd81a6f73527468e05e7a6",
                     "rating": 4.5,
                     "occupancy": [
-                        {
-                            "adults": 2,
-                            "children_ages": [
-                                2
-                            ]
-                        },
                         {
                             "adults": 2
                         }
                     ]
                 }
             },
-            "PricingSearchRequestCancun": {
-                "summary": "An Example Pricing Search Request Cancun",
+            "PricingSearchRequestPlace": {
+                "summary": "Pricing Search Eiffel Tower (Paris) using Place",
                 "value": {
                     "type": "hotel",
                     "checkin": "2024-05-11",
                     "checkout": "2024-05-20",
-                    "destination": 961,
+                    "place": "9bb07983384eb956ae88e154b99b51a1",
                     "rating": 4.5,
                     "occupancy": [
                         {
@@ -6650,7 +6820,7 @@
                 }
             },
             "PricingSearchRequestLondon": {
-                "summary": "An Example Pricing Search RequestLondon",
+                "summary": "Pricing Search London using Destination",
                 "value": {
                     "type": "hotel",
                     "checkin": "2024-05-01",
@@ -6671,21 +6841,55 @@
                     ]
                 }
             },
-            "PricingSearchRequestCurrencySupplier": {
-                "summary": "Occupavcy With Currency and Supplier",
+            "PricingSearchRequestNewYork": {
+                "summary": "Pricing Search New York using Destination",
                 "value": {
                     "type": "hotel",
-                    "currency": "EUR",
-                    "supplier": "Expedia",
-                    "hotel_name": "Sheraton",
-                    "checkin": "2023-11-19",
-                    "checkout": "2023-11-21",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
                     "destination": 961,
-                    "rating": 3.5,
+                    "rating": 4.5,
                     "occupancy": [
                         {
                             "adults": 2,
-                            "children": 1,
+                            "children_ages": [
+                                2
+                            ]
+                        },
+                        {
+                            "adults": 2
+                        }
+                    ]
+                }
+            },
+            "PricingSearchRequestCancun": {
+                "summary": "Pricing Search Cancun using Destination",
+                "value": {
+                    "type": "hotel",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "destination": 508,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2
+                        }
+                    ]
+                }
+            },
+            "PricingSearchRequestCurrencySupplier": {
+                "summary": "Pricing Search set Supplier",
+                "value": {
+                    "type": "hotel",
+                    "currency": "USD",
+                    "supplier": "Expedia",
+                    "checkin": "2024-06-19",
+                    "checkout": "2024-06-21",
+                    "destination": 951,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2,
                             "children_ages": [
                                 2
                             ]
@@ -6697,7 +6901,7 @@
                 }
             },
             "PricingSearchResponseNewYork": {
-                "summary": "An Example Pricing Search Response New York",
+                "summary": "Pricing Search Response New York",
                 "value": {
                     "success": true,
                     "data": {
@@ -7113,7 +7317,7 @@
                 }
             },
             "PricingSearchResponseLondon": {
-                "summary": "An Example Pricing Search Response London",
+                "summary": "Pricing Search Response London",
                 "value": {
                     "success": true,
                     "data": {

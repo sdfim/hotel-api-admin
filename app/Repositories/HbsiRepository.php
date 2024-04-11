@@ -2,7 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Models\GiataPlace;
 use App\Models\GiataProperty;
+use App\Models\MapperHbsiGiata;
 
 class HbsiRepository
 {
@@ -18,6 +20,33 @@ class HbsiRepository
         return GiataProperty::where(is_numeric($input) ? 'city_id' : 'city', $input)
             ->with('hbsi')
             ->select('code', 'name')
+            ->limit($limit)
+            ->offset($offset)
+            ->get()
+            ->filter(function ($value) {
+                return !is_null($value['hbsi']);
+            })
+            ->mapWithKeys(function ($value) {
+                return [
+                    $value['hbsi']['hbsi_id'] => [
+                        'giata' => $value['code'],
+                        'name' => $value['name'],
+                        'hbsi' => $value['hbsi']['hbsi_id'],
+                    ]
+                ];
+            })
+            ->toArray();
+    }
+
+    public static function getIdsByGiataPlace(string $place, int $limit = 100, int $offset = 1): ?array
+    {
+
+        $tticodes = GiataPlace::where('key', $place)
+            ->select('tticodes')
+            ->first()
+            ->tticodes;
+
+        return MapperHbsiGiata::whereIn('giata_id', $tticodes)
             ->limit($limit)
             ->offset($offset)
             ->get()

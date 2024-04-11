@@ -3,6 +3,7 @@
 namespace Modules\API\Suppliers\DTO\Expedia;
 
 use App\Models\GiataGeography;
+use App\Models\GiataPlace;
 use App\Models\Supplier;
 use Exception;
 use Illuminate\Support\Carbon;
@@ -26,7 +27,7 @@ class ExpediaHotelPricingDto
 
     private float $current_time;
 
-    private ?GiataGeography $destinationData;
+    private ?string $destinationData;
 
     private array $bookingItems;
 
@@ -54,11 +55,22 @@ class ExpediaHotelPricingDto
 
         $this->pricingRulesApplier = new ExpediaPricingRulesApplier($query, $pricingRules);
 
-        $this->destinationData = GiataGeography::where('city_id', $query['destination'])
-            ->select([
-                DB::raw("CONCAT(city_name, ', ', locale_name, ', ', country_name) as full_location"),
-            ])
-            ->first();
+        if (isset($query['destination'])) {
+            $this->destinationData = GiataGeography::where('city_id', $query['destination'])
+                ->select([
+                    DB::raw("CONCAT(city_name, ', ', locale_name, ', ', country_name) as full_location"),
+                ])
+                ->first()->full_location ?? '';
+        } elseif (isset($query['place'])) {
+            $this->destinationData = GiataPlace::where('key', $query['place'])
+                ->select([
+                    DB::raw("CONCAT(name_primary, ', ', type, ', ', country_code) as full_location"),
+                ])
+                ->first()->full_location ?? '';
+        } else {
+            $this->destinationData = null;
+        }
+
 
         $hotelResponse = [];
         foreach ($supplierResponse as $propertyGroup) {
@@ -75,7 +87,7 @@ class ExpediaHotelPricingDto
     public function setHotelResponse(array $propertyGroup): array
     {
         $this->roomCombinations = [];
-        $destination = $this->destinationData->full_location ?? '';
+        $destination = $this->destinationData;
         $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id']);
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');

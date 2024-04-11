@@ -3,6 +3,8 @@
 namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
 
 use App\Models\GiataGeography;
+use App\Models\GiataPlace;
+use App\Models\GiataProperty;
 use App\Models\IcePortalPropery;
 use App\Models\MapperIcePortalGiata;
 use App\Repositories\GiataPropertyRepository;
@@ -40,7 +42,18 @@ class IcePortalHotelController
      */
     public function search(array $filters): array
     {
-        if (isset($filters['destination'])) {
+        if (isset($filters['place'])) {
+            $tticodes = GiataPlace::where('key', $filters['place'])->first()->tticodes;
+            $city_id =  0;
+            foreach ($tticodes as $tticode) {
+                $giataData = GiataProperty::where('code', $tticode)->first();
+                if ($giataData) {
+                    $city_id = $giataData->city_id;
+                    break;
+                }
+            }
+            $geographyData = GiataGeography::where('city_id', $city_id)?->first();
+        } elseif (isset($filters['destination'])) {
             $geographyData = GiataGeography::where('city_id', $filters['destination'])->first();
         } else {
             $geography = new Geography();

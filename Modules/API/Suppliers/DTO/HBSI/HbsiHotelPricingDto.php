@@ -3,10 +3,12 @@
 namespace Modules\API\Suppliers\DTO\HBSI;
 
 use App\Models\GiataGeography;
+use App\Models\GiataPlace;
 use App\Models\Supplier;
 use App\Repositories\GiataGeographyRepository;
 use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
@@ -20,7 +22,7 @@ class HbsiHotelPricingDto
 {
     private string $rate_type;
 
-    private GiataGeography $destinationData;
+    private string $destinationData;
 
     private HbsiPricingRulesApplier $pricingRulesApplier;
 
@@ -33,6 +35,56 @@ class HbsiHotelPricingDto
     private array $meal_plans_available;
 
     private array $roomCombinations;
+
+    /**
+     * @var string[]
+     */
+    public array $fees = [
+        'application fee',
+        'banquet service fee',
+        'city hotel fee',
+        'crib fee',
+        'early checkout fee',
+        'express handling fee',
+        'extra person charge',
+        'local fee',
+        'maintenance fee',
+        'package fee',
+        'resort fee',
+        'rollaway fee',
+        'room service fee',
+        'service charge'
+    ];
+
+    /**
+     * @var string[]
+     */
+    private array $taxes = [
+        'assessment/license tax',
+        'bed tax',
+        'city tax',
+        'country tax',
+        'county tax',
+        'energy tax',
+        'exempt',
+        'federal tax',
+        'food & beverage tax',
+        'goods and services tax (gst)',
+        'insurance premium tax',
+        'lodging tax',
+        'miscellaneous',
+        'occupancy tax',
+        'room tax',
+        'sales tax',
+        'standard',
+        'state tax',
+        'surcharge',
+        'surplus lines tax',
+        'total tax',
+        'tourism tax',
+        'vat/gst tax',
+        'value added tax (vat)'
+    ];
 
     private const POLICE_CODE = [
         'CXP' => 'General Cancellation Policy',
@@ -80,7 +132,17 @@ class HbsiHotelPricingDto
 
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
 
-        $this->destinationData = $this->geographyRepo->getFullLocation($query['destination']);
+        if (isset($query['destination'])) {
+            $this->destinationData = $this->geographyRepo->getFullLocation($query['destination'])->full_location;
+        } else if (isset($query['place'])) {
+            $this->destinationData = GiataPlace::where('key', $query['place'])
+                ->select([
+                    DB::raw("CONCAT(name_primary, ', ', type, ', ', country_code) as full_location"),
+                ])
+                ->first()->full_location ?? '';
+        } else {
+            $this->destinationData = '';
+        }
 
         $hotelResponse = [];
         foreach ($supplierResponse as $key => $propertyGroup) {
@@ -104,7 +166,7 @@ class HbsiHotelPricingDto
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
-        $hotelResponse->setDestination($this->destinationData->full_location ?? '');
+        $hotelResponse->setDestination($this->destinationData);
 
         $hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
         $hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
@@ -313,7 +375,6 @@ class HbsiHotelPricingDto
 
         $roomResponse->setBreakdown($this->getBreakdown($rateToApply));
 
-
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
 
@@ -355,16 +416,19 @@ class HbsiHotelPricingDto
         foreach ($loopRates as $rate) {
             $nightsRate = $rate['@attributes']['UnitMultiplier'];
             $baseFareRate = [
-                'amount' => $rate['Base']['@attributes']['AmountBeforeTax'] / $nightsRate,
+                'amount' => $rate['Base']['@attributes']['AmountBeforeTax'],
                 'title' => 'Base Rate',
                 'type' => 'base_rate'
             ];
-            $taxesRate = [];
+            $taxesFeesRate = [];
             if (isset($rate['Base']['Taxes'])) {
                 $taxes = $rate['Base']['Taxes'];
                 foreach ($taxes as $tax) {
-                    $taxesRate[] = [
-                        'type' => 'tax',
+                    $code = strtolower($tax['@attributes']['Code']);
+                    if (in_array(strtolower($tax['@attributes']['Code']), $this->fees)) $type = 'fee';
+                    if (in_array($code, $this->taxes)) $type = 'tax';
+                    $taxesFeesRate[] = [
+                        'type' => $type ?? 'tax',
                         'amount' => $tax['@attributes']['Amount'] / $nightsRate,
                         'title' => isset($tax['@attributes']['Percent'])
                             ? $tax['@attributes']['Percent'] . ' % ' . $tax['@attributes']['Code']
@@ -374,7 +438,7 @@ class HbsiHotelPricingDto
             }
             for ($i = 0; $i < $nightsRate; $i++){
                 $breakdown[$night][] = $baseFareRate;
-                $breakdown[$night] = array_merge($breakdown[$night], $taxesRate);
+                $breakdown[$night] = array_merge($breakdown[$night], $taxesFeesRate);
                 $night++;
             }
 

@@ -4,15 +4,11 @@ namespace Modules\API\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\GeneralConfiguration;
-use App\Models\GiataGeography;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use Modules\API\Controllers\ApiHandlers\ComboApiHandler;
 use Modules\API\Controllers\ApiHandlers\FlightApiHandler;
 use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
-use Modules\API\Requests\DestinationResponse;
 use Modules\API\Requests\DetailHotelRequest;
 use Modules\API\Requests\PriceHotelRequest;
 use Modules\API\Requests\SearchHotelRequest;
@@ -93,44 +89,6 @@ class RouteApiController extends Controller
             TypeEnum::HOTEL => resolve(PriceHotelRequest::class),
             default => resolve(Request::class),
         };
-    }
-
-    /**
-     * @param DestinationResponse $request
-     * @return JsonResponse
-     */
-    public function destinations(DestinationResponse $request): JsonResponse
-    {
-        $query = GiataGeography::select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_id');
-
-        if (!empty($request->city)) {
-            $query->where('city_name', 'like', $request->city . '%');
-        }
-
-        if (!empty($request->country)) {
-            $query->where('locale_name', 'like', $request->country . '%');
-        }
-
-        $giataGeography = $query->limit(35)
-            ->orderBy('city_id', 'asc')
-            ->get()
-            ->pluck('city_id', 'full_name')
-            ->toArray();
-
-        $destinations = [];
-        foreach ($giataGeography as $key => $value) {
-            $destinations[] = [
-                'full_name' => $key,
-                'city_id' => $value,
-            ];
-        }
-
-        $response = [
-            'success' => true,
-            'data' => $destinations,
-        ];
-
-        return response()->json($response);
     }
 
     /**
