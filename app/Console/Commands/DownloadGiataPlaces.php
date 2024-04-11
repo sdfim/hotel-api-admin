@@ -41,7 +41,6 @@ class DownloadGiataPlaces extends Command
             // Parse the data
             $placesData = json_decode($response->getBody()->getContents(), true);
 
-            dd($placesData[0]);
         }
 
         DB::beginTransaction();
