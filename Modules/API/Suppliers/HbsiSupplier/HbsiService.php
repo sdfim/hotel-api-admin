@@ -43,7 +43,7 @@ class HbsiService
             $completeBookingItem['booking_item_data']['hotel_id'] = $booking_item_data['hotel_id'];
 
             if (!isset($completeBookingItem['booking_pricing_data']['total_price'])) $completeBookingItem['booking_pricing_data']['total_price'] = 0;
-            $completeBookingItem['booking_pricing_data']['total_price']  += $booking_pricing_data['total_price'];
+            $completeBookingItem['booking_pricing_data']['total_price'] += $booking_pricing_data['total_price'];
             if (!isset($completeBookingItem['booking_pricing_data']['total_tax'])) $completeBookingItem['booking_pricing_data']['total_tax'] = 0;
             $completeBookingItem['booking_pricing_data']['total_tax'] += $booking_pricing_data['total_tax'];
             if (!isset($completeBookingItem['booking_pricing_data']['total_fees'])) $completeBookingItem['booking_pricing_data']['total_fees'] = 0;
@@ -119,68 +119,24 @@ class HbsiService
         return $arrayOccupancy;
     }
 
-    private function generateSets($arrays)
+    private function generateCombinations($arrays, $i = 0)
     {
-        $numArrays = count($arrays);
-        $sets = [];
-
-        if ($numArrays === 0) {
-            return [];
-        }
-
-        $maxSize = max(array_map('count', $arrays));
-
-        for ($i = 1; $i <= $maxSize; $i++) {
-            if ($i <= $numArrays) {
-                $combinations = $this->combinations($arrays, $i);
-                foreach ($combinations as $combination) {
-                    sort($combination);
-                    if ($this->isUniqueCombination($combination)) {
-                        $sets[join(',', $combination)] = $combination;
-                    }
-                }
-            }
-        }
-
-        return array_values($sets);
-    }
-
-    private function isUniqueCombination($combination)
-    {
-        $uniqueElements = array_unique($combination);
-        return count($combination) === count($uniqueElements);
-    }
-
-    private function combinations($arrays, $n)
-    {
+        if (!isset($arrays[$i])) return [];
+        if ($i == count($arrays) - 1) return $arrays[$i];
+        $tmp = $this->generateCombinations($arrays, $i + 1);
         $result = [];
-        $arraysCount = count($arrays);
-        $indices = array_fill(0, $arraysCount, 0);
-
-        while (true) {
-            $combination = [];
-            for ($i = 0; $i < $arraysCount; $i++) {
-                $combination = array_merge($combination, [$arrays[$i][$indices[$i]]]);
-            }
-            $result[] = $combination;
-
-            for ($i = $arraysCount - 1; $i >= 0; $i--) {
-                $indices[$i]++;
-                if ($indices[$i] < count($arrays[$i])) {
-                    break;
-                }
-                $indices[$i] = 0;
-            }
-
-            if (array_sum($indices) === 0) {
-                break;
+        foreach ($arrays[$i] as $v) {
+            foreach ($tmp as $t) {
+                $result[] = is_array($t) ?
+                    array_merge([$v], $t) :
+                    [$v, $t];
             }
         }
 
         return $result;
     }
 
-    public function enrichmentRoomCombinations(array $input, array $filters, string $search_id): array
+    public function enrichmentRoomCombinations(array $input, array $filters): array
     {
         $arrayOccupancy = $this->getArrOccupancy($filters);
         foreach ($input as $hk => $hotel) {
@@ -201,7 +157,7 @@ class HbsiService
                 }
             }
             if (count($arr2combine) === count($arrayOccupancy)) {
-                $sets = $this->generateSets(array_values($arr2combine));
+                $sets = $this->generateCombinations(array_values($arr2combine));
                 $finalResult = [];
                 foreach ($sets as $set) {
                     $uuid = (string)Str::uuid();

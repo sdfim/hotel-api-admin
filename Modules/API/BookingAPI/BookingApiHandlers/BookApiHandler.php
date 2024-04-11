@@ -7,6 +7,7 @@ use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
+use App\Repositories\ApiBookingItemRepository;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -316,17 +317,15 @@ class BookApiHandler extends BaseController
         $itemsInCart = BookRepository::getItemsInCart($request->booking_id);
 
         $bookingRequestItems = array_keys($filtersOutput);
+
         foreach ($bookingRequestItems as $requestItem) {
             if (!in_array($requestItem, $itemsInCart->pluck('booking_item')->toArray()))
                 return $this->sendError('This booking_item is not in the cart.', 'failed');
         }
 
-        try {
-            $res = [];
-            $occupiedRooms = [];
-
+//        try {
+            $response = [];
             foreach ($bookingRequestItems as $booking_item) {
-
                 if (BookRepository::isBook($request->booking_id, $booking_item)) {
                     return $this->sendError('Cart is empty or booked', 'failed');
                 }
@@ -336,18 +335,18 @@ class BookApiHandler extends BaseController
                 $filters = $request->all();
                 $filters['booking_item'] = $booking_item;
 
-                $res[] = match (SupplierNameEnum::from($supplier)) {
+                $response[] = match (SupplierNameEnum::from($supplier)) {
                     SupplierNameEnum::EXPEDIA => $this->expedia->addPassengers($filters, $filtersOutput[$booking_item], SupplierNameEnum::EXPEDIA->value),
                     SupplierNameEnum::HBSI => $this->hbsi->addPassengers($filters, $filtersOutput[$booking_item], SupplierNameEnum::HBSI->value),
                     default => [],
                 };
             }
-        } catch (Exception $e) {
-            Log::error('HotelBookingApiHandler | addPassengers ' . $e->getMessage());
-            return $this->sendError($e->getMessage(), 'failed');
-        }
+//        } catch (Exception $e) {
+//            Log::error('HotelBookingApiHandler | addPassengers ' . $e->getMessage());
+//            return $this->sendError($e->getMessage(), 'failed');
+//        }
 
-        return $this->sendResponse(['result' => $res], 'success');
+        return $this->sendResponse(['result' => $response], 'success');
     }
 
     /**
@@ -404,7 +403,7 @@ class BookApiHandler extends BaseController
         $output = [];
         foreach ($input['passengers'] as $passenger) {
             foreach ($passenger['booking_items'] as $booking) {
-                $bookingItem = $booking['booking_item'];
+                $bookingItem = ApiBookingItemRepository::getParentBookingItem($booking['booking_item']);
 
                 # type hotel
                 if (isset($booking['room'])) {

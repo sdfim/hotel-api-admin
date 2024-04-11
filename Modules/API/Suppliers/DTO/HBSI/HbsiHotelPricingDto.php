@@ -34,6 +34,56 @@ class HbsiHotelPricingDto
 
     private array $roomCombinations;
 
+    /**
+     * @var string[]
+     */
+    public array $fees = [
+        'application fee',
+        'banquet service fee',
+        'city hotel fee',
+        'crib fee',
+        'early checkout fee',
+        'express handling fee',
+        'extra person charge',
+        'local fee',
+        'maintenance fee',
+        'package fee',
+        'resort fee',
+        'rollaway fee',
+        'room service fee',
+        'service charge'
+    ];
+
+    /**
+     * @var string[]
+     */
+    private array $taxes = [
+        'assessment/license tax',
+        'bed tax',
+        'city tax',
+        'country tax',
+        'county tax',
+        'energy tax',
+        'exempt',
+        'federal tax',
+        'food & beverage tax',
+        'goods and services tax (gst)',
+        'insurance premium tax',
+        'lodging tax',
+        'miscellaneous',
+        'occupancy tax',
+        'room tax',
+        'sales tax',
+        'standard',
+        'state tax',
+        'surcharge',
+        'surplus lines tax',
+        'total tax',
+        'tourism tax',
+        'vat/gst tax',
+        'value added tax (vat)'
+    ];
+
     private const POLICE_CODE = [
         'CXP' => 'General Cancellation Policy',
         'CKP' => 'Early check-out penalty.',
@@ -313,7 +363,6 @@ class HbsiHotelPricingDto
 
         $roomResponse->setBreakdown($this->getBreakdown($rateToApply));
 
-
         $bookingItem = Str::uuid()->toString();
         $roomResponse->setBookingItem($bookingItem);
 
@@ -355,16 +404,19 @@ class HbsiHotelPricingDto
         foreach ($loopRates as $rate) {
             $nightsRate = $rate['@attributes']['UnitMultiplier'];
             $baseFareRate = [
-                'amount' => $rate['Base']['@attributes']['AmountBeforeTax'] / $nightsRate,
+                'amount' => $rate['Base']['@attributes']['AmountBeforeTax'],
                 'title' => 'Base Rate',
                 'type' => 'base_rate'
             ];
-            $taxesRate = [];
+            $taxesFeesRate = [];
             if (isset($rate['Base']['Taxes'])) {
                 $taxes = $rate['Base']['Taxes'];
                 foreach ($taxes as $tax) {
-                    $taxesRate[] = [
-                        'type' => 'tax',
+                    $code = strtolower($tax['@attributes']['Code']);
+                    if (in_array(strtolower($tax['@attributes']['Code']), $this->fees)) $type = 'fee';
+                    if (in_array($code, $this->taxes)) $type = 'tax';
+                    $taxesFeesRate[] = [
+                        'type' => $type ?? 'tax',
                         'amount' => $tax['@attributes']['Amount'] / $nightsRate,
                         'title' => isset($tax['@attributes']['Percent'])
                             ? $tax['@attributes']['Percent'] . ' % ' . $tax['@attributes']['Code']
@@ -374,7 +426,7 @@ class HbsiHotelPricingDto
             }
             for ($i = 0; $i < $nightsRate; $i++){
                 $breakdown[$night][] = $baseFareRate;
-                $breakdown[$night] = array_merge($breakdown[$night], $taxesRate);
+                $breakdown[$night] = array_merge($breakdown[$night], $taxesFeesRate);
                 $night++;
             }
 
