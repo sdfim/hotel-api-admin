@@ -7,14 +7,14 @@ use App\Models\GiataPlace;
 use App\Models\GiataPoi;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Modules\API\Requests\DestinationResponse;
+use Modules\API\Requests\DestinationRequest;
 
 class DestinationsController {
     /**
-     * @param DestinationResponse $request
+     * @param DestinationRequest $request
      * @return JsonResponse
      */
-    public function destinations(DestinationResponse $request): JsonResponse
+    public function destinations(DestinationRequest $request): JsonResponse
     {
         if ($request->q !== null) {
             $giataPlaces = $this->getGiataPlacesData($request);

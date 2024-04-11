@@ -4,6 +4,55 @@ namespace Modules\API\Resources\Content\Hotel;
 
 /**
  * @OA\Schema(
+ *     schema="ContentSearchRequestPlace",
+ *     title="Content Search Request Place",
+ *     description="Schema Content Search Request GIATA Place",
+ *     type="object",
+ *     required={"query"},
+ *     @OA\Property(
+ *       property="type",
+ *       type="string",
+ *       description="Type of content to search (e.g., 'hotel', 'flight', 'combo').",
+ *       example="hotel"
+ *     ),
+ *     @OA\Property(
+ *       property="place",
+ *       type="string",
+ *       description="GIATA Place key.",
+ *       example="9bb07983384eb956ae88e154b99b51a1"
+ *     ),
+ *     @OA\Property(
+ *       property="rating",
+ *       type="integer",
+ *       description="Rating of the hotel.",
+ *       example=4
+ *     ),
+ *     @OA\Property(
+ *       property="page",
+ *       type="integer",
+ *       description="Page number.",
+ *       example=1
+ *     ),
+ *     @OA\Property(
+ *       property="results_per_page",
+ *       type="integer",
+ *       description="Number of results per page.",
+ *       example=250
+ *     )
+ *   ),
+ * @OA\Examples(
+ *       example="ContentSearchRequestPlace",
+ *       summary="Example Content Search by Place",
+ *       value=
+ *          {
+ *              "type": "hotel",
+ *              "place": "9bb07983384eb956ae88e154b99b51a1",
+ *              "rating": 4,
+ *              "page": 1,
+ *              "results_per_page": 250
+ *          }
+ *   ),
+ * @OA\Schema(
  *   schema="ContentSearchRequestDestination",
  *   title="Content Search Request Destination",
  *   description="Schema Content Search Request Destination",
@@ -52,6 +101,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *            "results_per_page": 250
  *        }
  * ),
+ *
  * @OA\Schema(
  *   schema="ContentSearchRequestSupplierHotelName",
  *   title="Content Search Request Supplier and Hotel Name",

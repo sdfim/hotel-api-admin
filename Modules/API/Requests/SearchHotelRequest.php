@@ -21,12 +21,13 @@ class SearchHotelRequest extends ApiRequest
      *
      *     @OA\JsonContent(
      *       oneOf={
-     *
+     *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestPlace"),
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestDestination"),
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestCoordinates"),
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestSupplierHotelName"),
      *         },
      *       examples={
+     *           "searchByPlace": @OA\Schema(ref="#/components/examples/ContentSearchRequestPlace", example="ContentSearchRequestPlace"),
      *           "searchByDestination": @OA\Schema(ref="#/components/examples/ContentSearchRequestDestination", example="ContentSearchRequestDestination"),
      *           "searchByCoordinates": @OA\Schema(ref="#/components/examples/ContentSearchRequestCoordinates", example="ContentSearchRequestCoordinates"),
      *           "searchBySupplierHotelName": @OA\Schema(ref="#/components/examples/ContentSearchRequestSupplierHotelName", example="ContentSearchRequestSupplierHotelName"),

@@ -667,16 +667,30 @@
                 ],
                 "summary": "Get list of destinations",
                 "description": "Get list valid value of destinations by city name, can be used for autocomplete, min 3 characters",
-                "operationId": "28b3f2bb0a7778d1888c778fd4e3fd3d",
+                "operationId": "2ca225ec678afa1d3836278f1306ec0e",
                 "parameters": [
                     {
-                        "name": "city",
+                        "name": "q",
                         "in": "query",
-                        "description": "Type of content to search (e.g., 'rome', 'new y', londo').",
+                        "description": "Type of content to search (e.g., 'Turks and', 'Eiffel', Nassau', 'St Lucia', 'UVF', Cancun').",
                         "required": true,
                         "schema": {
                             "type": "string",
-                            "example": "londo"
+                            "example": "Eiffel"
+                        }
+                    },
+                    {
+                        "name": "showtticodes",
+                        "in": "query",
+                        "description": "Set to 1 to display additional tticodes.",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "enum": [
+                                0,
+                                1
+                            ]
                         }
                     }
                 ],
@@ -907,11 +921,20 @@
                                 "$ref": "#/components/schemas/PricingSearchRequest"
                             },
                             "examples": {
+                                "PricingSearchRequestPlace": {
+                                    "$ref": "#/components/examples/PricingSearchRequestPlace"
+                                },
+                                "PricingSearchRequestPlaceCancun": {
+                                    "$ref": "#/components/examples/PricingSearchRequestPlaceCancun"
+                                },
                                 "PricingSearchRequestNewYork": {
                                     "$ref": "#/components/examples/PricingSearchRequestNewYork"
                                 },
                                 "PricingSearchRequestLondon": {
                                     "$ref": "#/components/examples/PricingSearchRequestLondon"
+                                },
+                                "PricingSearchRequestCancun": {
+                                    "$ref": "#/components/examples/PricingSearchRequestCancun"
                                 },
                                 "PricingSearchRequestCurrencySupplier": {
                                     "$ref": "#/components/examples/PricingSearchRequestCurrencySupplier"
@@ -993,6 +1016,9 @@
                             "schema": {
                                 "oneOf": [
                                     {
+                                        "$ref": "#/components/schemas/ContentSearchRequestPlace"
+                                    },
+                                    {
                                         "$ref": "#/components/schemas/ContentSearchRequestDestination"
                                     },
                                     {
@@ -1004,6 +1030,9 @@
                                 ]
                             },
                             "examples": {
+                                "ContentSearchRequestPlace": {
+                                    "$ref": "#/components/examples/ContentSearchRequestPlace"
+                                },
                                 "ContentSearchRequestDestination": {
                                     "$ref": "#/components/examples/ContentSearchRequestDestination"
                                 },
@@ -2665,6 +2694,41 @@
                             }
                         },
                         "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "ContentSearchRequestPlace": {
+                "title": "Content Search Request Place",
+                "description": "Schema Content Search Request GIATA Place",
+                "required": [
+                    "query"
+                ],
+                "properties": {
+                    "type": {
+                        "description": "Type of content to search (e.g., 'hotel', 'flight', 'combo').",
+                        "type": "string",
+                        "example": "hotel"
+                    },
+                    "place": {
+                        "description": "GIATA Place key.",
+                        "type": "string",
+                        "example": "9bb07983384eb956ae88e154b99b51a1"
+                    },
+                    "rating": {
+                        "description": "Rating of the hotel.",
+                        "type": "integer",
+                        "example": 4
+                    },
+                    "page": {
+                        "description": "Page number.",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "results_per_page": {
+                        "description": "Number of results per page.",
+                        "type": "integer",
+                        "example": 250
                     }
                 },
                 "type": "object"
@@ -5039,6 +5103,16 @@
                     "message": "success"
                 }
             },
+            "ContentSearchRequestPlace": {
+                "summary": "Example Content Search by Place",
+                "value": {
+                    "type": "hotel",
+                    "place": "9bb07983384eb956ae88e154b99b51a1",
+                    "rating": 4,
+                    "page": 1,
+                    "results_per_page": 250
+                }
+            },
             "ContentSearchRequestDestination": {
                 "summary": "Example Content Search by Destination",
                 "value": {
@@ -6640,7 +6714,37 @@
                     "type": "hotel",
                     "checkin": "2024-05-11",
                     "checkout": "2024-05-20",
-                    "destination": 961,
+                    "destination": 508,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2
+                        }
+                    ]
+                }
+            },
+            "PricingSearchRequestPlaceCancun": {
+                "summary": "An Example Pricing Search Request Place Cancun, country MX, airport CUN",
+                "value": {
+                    "type": "hotel",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "place": "4b2afe6684dd81a6f73527468e05e7a6",
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2
+                        }
+                    ]
+                }
+            },
+            "PricingSearchRequestPlace": {
+                "summary": "An Example Pricing Search Request Place Eiffel Tower (Paris)",
+                "value": {
+                    "type": "hotel",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "place": "9bb07983384eb956ae88e154b99b51a1",
                     "rating": 4.5,
                     "occupancy": [
                         {

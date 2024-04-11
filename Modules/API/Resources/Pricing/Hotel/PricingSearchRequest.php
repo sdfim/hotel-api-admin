@@ -124,7 +124,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *      "type": "hotel",
  *      "checkin": "2024-05-11",
  *      "checkout": "2024-05-20",
- *      "destination": 961,
+ *      "destination": 508,
  *      "rating": 4.5,
  *      "occupancy": {
  *          {
@@ -133,6 +133,40 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *      }
  *  }
  *  ),
+ * @OA\Examples(
+ *        example="PricingSearchRequestPlaceCancun",
+ *        summary="An Example Pricing Search Request Place Cancun, country MX, airport CUN",
+ *        value=
+ *    {
+ *        "type": "hotel",
+ *        "checkin": "2024-05-11",
+ *        "checkout": "2024-05-20",
+ *        "place": "4b2afe6684dd81a6f73527468e05e7a6",
+ *        "rating": 4.5,
+ *        "occupancy": {
+ *            {
+ *               "adults": 2
+ *            }
+ *        }
+ *    }
+ *    ),
+ * @OA\Examples(
+ *       example="PricingSearchRequestPlace",
+ *       summary="An Example Pricing Search Request Place Eiffel Tower (Paris)",
+ *       value=
+ *   {
+ *       "type": "hotel",
+ *       "checkin": "2024-05-11",
+ *       "checkout": "2024-05-20",
+ *       "place": "9bb07983384eb956ae88e154b99b51a1",
+ *       "rating": 4.5,
+ *       "occupancy": {
+ *           {
+ *              "adults": 2
+ *           }
+ *       }
+ *   }
+ *   ),
  * @OA\Examples(
  *     example="PricingSearchRequestLondon",
  *     summary="An Example Pricing Search RequestLondon",

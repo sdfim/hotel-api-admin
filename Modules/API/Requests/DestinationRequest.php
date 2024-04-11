@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
-class DestinationResponse extends ApiRequest
+class DestinationRequest extends ApiRequest
 {
     /**
      * @OA\Get(
@@ -15,17 +15,28 @@ class DestinationResponse extends ApiRequest
      *   summary="Get list of destinations",
      *   description="Get list valid value of destinations by city name, can be used for autocomplete, min 3 characters",
      *
-     *    @OA\Parameter(
-     *      name="city",
-     *      in="query",
-     *      required=true,
-     *      description="Type of content to search (e.g., 'rome', 'new y', londo').",
+     *     @OA\Parameter(
+     *       name="q",
+     *       in="query",
+     *       required=true,
+     *       description="Type of content to search (e.g., 'Turks and', 'Eiffel', Nassau', 'St Lucia', 'UVF', Cancun').",
+     *       @OA\Schema(
+     *         type="string",
+     *         example="Eiffel"
+     *         )
+     *     ),
      *
-     *      @OA\Schema(
-     *        type="string",
-     *        example="londo"
+     *     @OA\Parameter(
+     *        name="showtticodes",
+     *        in="query",
+     *        required=false,
+     *        description="Set to 1 to display additional tticodes.",
+     *        @OA\Schema(
+     *          type="integer",
+     *          enum={0, 1},
+     *          default=0
      *        )
-     *    ),
+     *      ),
      *
      *   @OA\Response(
      *     response=200,
