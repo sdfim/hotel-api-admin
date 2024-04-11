@@ -86,6 +86,9 @@ class DestinationsController {
                         . (!empty($item['airports']) ? ', airport ' . implode(', ', $item['airports']) : ''),
                     'place' => $item['key'],
                     'type' => $item['poi_type'],
+                    'country_code' => $item['country_code'] ?? '',
+                    'state' => $item['state'] ?? '',
+                    'airports' => $item['airports'] ?? '',
                 ];
 
                 if ($request->showtticodes === '1') {
@@ -140,6 +143,9 @@ class DestinationsController {
                         . (!empty($item['airports']) ? ', airport ' . implode(', ', $item['airports']) : ''),
                     'place' => $item['key'],
                     'type' => $item['type'],
+                    'country_code' => $item['country_code'] ?? '',
+                    'state' => $item['state'] ?? '',
+                    'airports' => $item['airports'] ?? '',
                 ];
 
                 if ($request->showtticodes === '1') {
