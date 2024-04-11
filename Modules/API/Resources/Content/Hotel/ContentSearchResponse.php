@@ -161,7 +161,7 @@ namespace Modules\API\Resources\Content\Hotel;
  * ),
  * @OA\Examples(
  *     example="ContentSearchResponse",
- *     summary="Example Content Search Response",
+ *     summary="Content Search Response",
  *     value=
  * {
  *    "success": true,

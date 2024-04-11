@@ -228,7 +228,7 @@ namespace Modules\API\Resources\Content\Hotel;
  * ),
  * @OA\Examples(
  *     example="ContentDetailResponse",
- *     summary="Example Content Detail Response",
+ *     summary="Content Detail Response",
  *     value=
  * {
  *    "success": true,

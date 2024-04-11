@@ -13,7 +13,8 @@ class DestinationRequest extends ApiRequest
      *   tags={"Content API"},
      *   path="/api/content/destinations",
      *   summary="Get list of destinations",
-     *   description="Get list valid value of destinations by city name, can be used for autocomplete, min 3 characters",
+     *   description="Get list valid value of places/destinations by city name, can be used for autocomplete, min 3 characters<br> The Response results (places/destinations) can be used as valid values on endpoints:<br>     *      <b>api/pricing/search<br>
+     *      api/pricing/search</b>",
      *
      *     @OA\Parameter(
      *       name="q",
@@ -45,7 +46,11 @@ class DestinationRequest extends ApiRequest
      *     @OA\JsonContent(
      *       ref="#/components/schemas/ContentDestinationslResponse",
      *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/ContentDestinationslResponse", example="ContentDestinationslResponse"),
+     *          "example1": @OA\Schema(ref="#/components/examples/ContentDestinationslResponseEiffel", example="ContentDestinationslResponseEiffel"),
+     *          "example2": @OA\Schema(ref="#/components/examples/ContentDestinationslResponseTurks", example="ContentDestinationslResponseTurks"),
+     *          "example3": @OA\Schema(ref="#/components/examples/ContentDestinationslResponseStLucia", example="ContentDestinationslResponseStLucia"),
+     *          "example4": @OA\Schema(ref="#/components/examples/ContentDestinationslResponseTowerPisa", example="ContentDestinationslResponseTowerPisa"),
+     *          "example5": @OA\Schema(ref="#/components/examples/ContentDestinationslResponse", example="ContentDestinationslResponse"),
      *       }
      *     )
      *   ),

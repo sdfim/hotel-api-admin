@@ -42,7 +42,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *   ),
  * @OA\Examples(
  *       example="ContentSearchRequestPlace",
- *       summary="Example Content Search by Place",
+ *       summary="Content Search by Place Eiffel Tower (Paris)",
  *       value=
  *          {
  *              "type": "hotel",
@@ -91,7 +91,7 @@ namespace Modules\API\Resources\Content\Hotel;
  * ),
  * @OA\Examples(
  *     example="ContentSearchRequestDestination",
- *     summary="Example Content Search by Destination",
+ *     summary="Content Search by Destination",
  *     value=
  *        {
  *            "type": "hotel",
@@ -153,7 +153,7 @@ namespace Modules\API\Resources\Content\Hotel;
  * ),
  * @OA\Examples(
  *     example="ContentSearchRequestSupplierHotelName",
- *     summary="Example Content Search by Supplier and Hotel Name",
+ *     summary="Content Search by Supplier and Hotel Name",
  *     value=
  *        {
  *            "type": "hotel",
@@ -219,7 +219,7 @@ namespace Modules\API\Resources\Content\Hotel;
  * ),
  * @OA\Examples(
  *     example="ContentSearchRequestCoordinates",
- *     summary="Example Content Search by Coordinates",
+ *     summary="Content Search by Coordinates",
  *     value=
  *        {
  *            "type": "hotel",

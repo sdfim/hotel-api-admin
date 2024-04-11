@@ -666,7 +666,7 @@
                     "Content API"
                 ],
                 "summary": "Get list of destinations",
-                "description": "Get list valid value of destinations by city name, can be used for autocomplete, min 3 characters",
+                "description": "Get list valid value of places/destinations by city name, can be used for autocomplete, min 3 characters<br> The Response results (places/destinations) can be used as valid values on endpoints:<br>     *      <b>api/pricing/search<br>\n     *      api/pricing/search</b>",
                 "operationId": "2ca225ec678afa1d3836278f1306ec0e",
                 "parameters": [
                     {
@@ -703,6 +703,18 @@
                                     "$ref": "#/components/schemas/ContentDestinationslResponse"
                                 },
                                 "examples": {
+                                    "ContentDestinationslResponseEiffel": {
+                                        "$ref": "#/components/examples/ContentDestinationslResponseEiffel"
+                                    },
+                                    "ContentDestinationslResponseTurks": {
+                                        "$ref": "#/components/examples/ContentDestinationslResponseTurks"
+                                    },
+                                    "ContentDestinationslResponseStLucia": {
+                                        "$ref": "#/components/examples/ContentDestinationslResponseStLucia"
+                                    },
+                                    "ContentDestinationslResponseTowerPisa": {
+                                        "$ref": "#/components/examples/ContentDestinationslResponseTowerPisa"
+                                    },
                                     "ContentDestinationslResponse": {
                                         "$ref": "#/components/examples/ContentDestinationslResponse"
                                     }
@@ -3087,16 +3099,16 @@
                         "example": "Sheraton"
                     },
                     "checkin": {
-                        "description": "Checkin date in ISO 8601 format (e.g., '2023-11-11').",
+                        "description": "Checkin date in ISO 8601 format (e.g., '2024-11-11').",
                         "type": "string",
                         "format": "date",
-                        "example": "2023-11-11"
+                        "example": "2024-11-11"
                     },
                     "checkout": {
-                        "description": "Checkout date in ISO 8601 format (e.g., '2023-11-20').",
+                        "description": "Checkout date in ISO 8601 format (e.g., '2024-11-20').",
                         "type": "string",
                         "format": "date",
-                        "example": "2023-11-20"
+                        "example": "2024-11-20"
                     },
                     "destination": {
                         "description": "Destination ID (e.g., '961' is New York, referral code can be viewed '/api/content/destinations?city={name city}' ).",
@@ -4167,7 +4179,7 @@
                 }
             },
             "ContentDestinationslResponse": {
-                "summary": "Example Content Destinations Response",
+                "summary": "Content Destinations Response",
                 "value": {
                     "success": true,
                     "data": [
@@ -4202,8 +4214,98 @@
                     ]
                 }
             },
+            "ContentDestinationslResponseEiffel": {
+                "summary": "Content Destinations Response Eiffel Tower",
+                "value": {
+                    "success": true,
+                    "data": [
+                        {
+                            "full_name": "Eiffel Tower (Paris Region), country FR, airport PAR",
+                            "place": "451866aafc2cd344ca5091dc267cb802",
+                            "type": "Landmark"
+                        },
+                        {
+                            "full_name": "Eiffel Tower (Paris), country FR, airport PAR",
+                            "place": "9bb07983384eb956ae88e154b99b51a1",
+                            "type": "Landmark"
+                        },
+                        {
+                            "full_name": "Eiffel Tower (Central Paris), country FR, airport PAR",
+                            "place": "ed4f0cef597a1e903856b30e881f4462",
+                            "type": "Landmark"
+                        },
+                        {
+                            "full_name": "Eiffel Tower (Paris 07e Arrondissement), country FR, airport PAR",
+                            "place": "7cf40f7c174443ce6fec02704f670870",
+                            "type": "Landmark"
+                        }
+                    ]
+                }
+            },
+            "ContentDestinationslResponseTurks": {
+                "summary": "Content Destinations Response Turks and",
+                "value": {
+                    "success": true,
+                    "data": [
+                        {
+                            "full_name": "Turks & Caicos Islands, country TC, airport PLS",
+                            "place": "e90b74d1eb220d4dc290ce968fefebac",
+                            "type": "Country"
+                        }
+                    ]
+                }
+            },
+            "ContentDestinationslResponseStLucia": {
+                "summary": "Content Destinations Response St Lucia",
+                "value": {
+                    "success": true,
+                    "data": [
+                        {
+                            "full_name": "St Lucia, country ZA, airport DUR",
+                            "place": "d47e3a5fc397ff31d20924d2841caedc",
+                            "type": "City"
+                        },
+                        {
+                            "full_name": "St Lucia, country LC, airport UVF",
+                            "place": "29695f360d0556f0a644594e6b476843",
+                            "type": "Country"
+                        }
+                    ]
+                }
+            },
+            "ContentDestinationslResponseTowerPisa": {
+                "summary": "Content Destinations Response Tower Pisa and showtticodes",
+                "value": {
+                    "success": true,
+                    "data": [
+                        {
+                            "full_name": "Leaning Tower of Pisa, country IT, airport PSA",
+                            "place": "b05c2d0dec89321b9ae8c6e14c6fdc5a",
+                            "type": "Landmark",
+                            "tticodes": [
+                                "11872855",
+                                "12108455",
+                                "18774833",
+                                "26633462",
+                                "31163051",
+                                "40563302",
+                                "47958637",
+                                "48679622",
+                                "59324077",
+                                "62547051",
+                                "62592753",
+                                "69860215",
+                                "77578695",
+                                "77907437",
+                                "81799837",
+                                "86293211"
+                            ]
+                        }
+                    ]
+                }
+            },
             "ContentDetailResponse": {
-                "summary": "Example Content Detail Response",
+                "summary": "Content Detail Response",
                 "value": {
                     "success": true,
                     "data": {
@@ -5104,7 +5206,7 @@
                 }
             },
             "ContentSearchRequestPlace": {
-                "summary": "Example Content Search by Place",
+                "summary": "Content Search by Place Eiffel Tower (Paris)",
                 "value": {
                     "type": "hotel",
                     "place": "9bb07983384eb956ae88e154b99b51a1",
@@ -5114,7 +5216,7 @@
                 }
             },
             "ContentSearchRequestDestination": {
-                "summary": "Example Content Search by Destination",
+                "summary": "Content Search by Destination",
                 "value": {
                     "type": "hotel",
                     "destination": 1175,
@@ -5124,7 +5226,7 @@
                 }
             },
             "ContentSearchRequestSupplierHotelName": {
-                "summary": "Example Content Search by Supplier and Hotel Name",
+                "summary": "Content Search by Supplier and Hotel Name",
                 "value": {
                     "type": "hotel",
                     "hotel_name": "Sheraton",
@@ -5136,7 +5238,7 @@
                 }
             },
             "ContentSearchRequestCoordinates": {
-                "summary": "Example Content Search by Coordinates",
+                "summary": "Content Search by Coordinates",
                 "value": {
                     "type": "hotel",
                     "latitude": 40.748,
@@ -5148,7 +5250,7 @@
                 }
             },
             "ContentSearchResponse": {
-                "summary": "Example Content Search Response",
+                "summary": "Content Search Response",
                 "value": {
                     "success": true,
                     "data": {
@@ -6687,44 +6789,8 @@
                     "message": "success"
                 }
             },
-            "PricingSearchRequestNewYork": {
-                "summary": "An Example Pricing Search Request New York",
-                "value": {
-                    "type": "hotel",
-                    "checkin": "2024-05-11",
-                    "checkout": "2024-05-20",
-                    "destination": 961,
-                    "rating": 4.5,
-                    "occupancy": [
-                        {
-                            "adults": 2,
-                            "children_ages": [
-                                2
-                            ]
-                        },
-                        {
-                            "adults": 2
-                        }
-                    ]
-                }
-            },
-            "PricingSearchRequestCancun": {
-                "summary": "An Example Pricing Search Request Cancun",
-                "value": {
-                    "type": "hotel",
-                    "checkin": "2024-05-11",
-                    "checkout": "2024-05-20",
-                    "destination": 508,
-                    "rating": 4.5,
-                    "occupancy": [
-                        {
-                            "adults": 2
-                        }
-                    ]
-                }
-            },
             "PricingSearchRequestPlaceCancun": {
-                "summary": "An Example Pricing Search Request Place Cancun, country MX, airport CUN",
+                "summary": "Pricing Search Cancun, country MX, airport CUN using Place",
                 "value": {
                     "type": "hotel",
                     "checkin": "2024-05-11",
@@ -6739,7 +6805,7 @@
                 }
             },
             "PricingSearchRequestPlace": {
-                "summary": "An Example Pricing Search Request Place Eiffel Tower (Paris)",
+                "summary": "Pricing Search Eiffel Tower (Paris) using Place",
                 "value": {
                     "type": "hotel",
                     "checkin": "2024-05-11",
@@ -6754,7 +6820,7 @@
                 }
             },
             "PricingSearchRequestLondon": {
-                "summary": "An Example Pricing Search RequestLondon",
+                "summary": "Pricing Search London using Destination",
                 "value": {
                     "type": "hotel",
                     "checkin": "2024-05-01",
@@ -6775,21 +6841,55 @@
                     ]
                 }
             },
-            "PricingSearchRequestCurrencySupplier": {
-                "summary": "Occupavcy With Currency and Supplier",
+            "PricingSearchRequestNewYork": {
+                "summary": "Pricing Search New York using Destination",
                 "value": {
                     "type": "hotel",
-                    "currency": "EUR",
-                    "supplier": "Expedia",
-                    "hotel_name": "Sheraton",
-                    "checkin": "2023-11-19",
-                    "checkout": "2023-11-21",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
                     "destination": 961,
-                    "rating": 3.5,
+                    "rating": 4.5,
                     "occupancy": [
                         {
                             "adults": 2,
-                            "children": 1,
+                            "children_ages": [
+                                2
+                            ]
+                        },
+                        {
+                            "adults": 2
+                        }
+                    ]
+                }
+            },
+            "PricingSearchRequestCancun": {
+                "summary": "Pricing Search Cancun using Destination",
+                "value": {
+                    "type": "hotel",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "destination": 508,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2
+                        }
+                    ]
+                }
+            },
+            "PricingSearchRequestCurrencySupplier": {
+                "summary": "Pricing Search set Supplier",
+                "value": {
+                    "type": "hotel",
+                    "currency": "USD",
+                    "supplier": "Expedia",
+                    "checkin": "2024-06-19",
+                    "checkout": "2024-06-21",
+                    "destination": 951,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2,
                             "children_ages": [
                                 2
                             ]
@@ -6801,7 +6901,7 @@
                 }
             },
             "PricingSearchResponseNewYork": {
-                "summary": "An Example Pricing Search Response New York",
+                "summary": "Pricing Search Response New York",
                 "value": {
                     "success": true,
                     "data": {
@@ -7217,7 +7317,7 @@
                 }
             },
             "PricingSearchResponseLondon": {
-                "summary": "An Example Pricing Search Response London",
+                "summary": "Pricing Search Response London",
                 "value": {
                     "success": true,
                     "data": {
