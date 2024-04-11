@@ -13,7 +13,7 @@ class SearchHotelRequest extends ApiRequest
      *   tags={"Content API"},
      *   path="/api/content/search",
      *   summary="Search Hotels",
-     *   description="Search for hotels by destination or coordinates.",
+     *   description="Content Search for hotels by places/destination or coordinates.<br> The '<b>place</b>' value should be used from the endpoint api/content/destinations",
      *
      *   @OA\RequestBody(
      *     description="JSON object containing the details of the reservation.",
