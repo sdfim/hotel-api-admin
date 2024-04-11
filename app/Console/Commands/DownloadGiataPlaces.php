@@ -24,23 +24,16 @@ class DownloadGiataPlaces extends Command
     public function handle()
     {
         $filename = 'giata/giata_places.json';
-        $placesData = [];
 
         if (Storage::exists($filename)) {
-            // Read the file from the disk
             $placesData = json_decode(Storage::get($filename), true);
         } else {
-            // Fetch the data from the client
             $response = Http::withBasicAuth(config('giata.poi.username'), config('giata.poi.password'))
                 ->timeout(60)
                 ->get(config('giata.poi.base_uri') . 'places');
 
-            // Write the data to the disk
             Storage::put($filename, $response->getBody()->getContents());
-
-            // Parse the data
-            $placesData = json_decode($response->getBody()->getContents(), true);
-
+            $placesData = json_decode(Storage::get($filename), true);
         }
 
         DB::beginTransaction();
