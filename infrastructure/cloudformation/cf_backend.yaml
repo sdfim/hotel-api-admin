@@ -113,6 +113,9 @@ Parameters:
   BookingSupplierHbsiTarget:
     Description: HBSI Environment Target (Test/Production)
     Type: String
+  BookingSupplierHbsiComponentInfoId:
+    Description: HBSI Component Info ID
+    Type: String
   BookingSupplierIcePortalClientId:
     Description: Ice Portal Client ID
     Type: String
