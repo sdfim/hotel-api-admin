@@ -283,27 +283,23 @@ class ExpediaBookApiController extends BaseBookApiController
     {
         $room = $apiBookingsMetadata->supplier_booking_item_id;
         $cancellationPaths = $apiBookingsMetadata->booking_item_data['cancellation_paths'];
-        \Log::debug($cancellationPaths);
 
         foreach ($cancellationPaths as $cancellationPath)
         {
             # Delete item DELETE method query
             $props = $this->getPathParamsFromLink($cancellationPath);
+            $path = $props['path'];
+            $itineraryId = Arr::get(explode('/', $path), '3', BookingRepository::getItineraryId($filters));
 
             $bodyArr = [
-                'itinerary_id' => BookingRepository::getItineraryId($filters),
+                'itinerary_id' => $itineraryId,
                 'room_id' => $room,
             ];
             $body = json_encode($bodyArr);
 
-            \Log::debug('#####');
-            \Log::debug($props);
-            \Log::debug($body);
             try {
-                $response = $this->rapidClient->delete($props['path'], $props['paramToken'], $body, $this->headers());
-                \Log::debug('RESPONSE');
+                $response = $this->rapidClient->delete($path, $props['paramToken'], $body, $this->headers());
                 $dataResponse = json_decode($response->getBody()->getContents());
-                \Log::debug($dataResponse);
                 $res[] = [
                     'booking_item' => $apiBookingsMetadata->booking_item,
                     'room' => $room,
@@ -311,7 +307,6 @@ class ExpediaBookApiController extends BaseBookApiController
                 ];
 
             } catch (Exception $e) {
-                \Log::debug('ERROR: '.$e->getMessage());
                 $responseError = explode('response:', $e->getMessage());
                 $responseErrorArr = json_decode($responseError[1], true);
                 $res[] = [
@@ -321,6 +316,8 @@ class ExpediaBookApiController extends BaseBookApiController
                 ];
                 $dataResponse = $responseErrorArr['message'];
             }
+
+            $filters['booking_item'] = $apiBookingsMetadata->booking_item;
 
             $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
             SaveBookingInspector::dispatch([

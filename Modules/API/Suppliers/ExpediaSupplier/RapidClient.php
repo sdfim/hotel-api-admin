@@ -88,6 +88,7 @@ class RapidClient
     public function delete(string $path, array $queryParameters, string $body, array $addHeaders = []): ResponseInterface
     {
         $queryParams = [];
+
         foreach ($queryParameters as $key => $value) {
             $queryParams[$key] = $value;
         }
@@ -97,15 +98,8 @@ class RapidClient
             'Accept-Encoding' => self::GZIP,
         ];
 
-        \Log::debug('######################');
-        \Log::debug($url);
-        \Log::debug($headers + $addHeaders);
-        \Log::debug($body);
-        \Log::debug('######################');
-
         $request = new Request('DELETE', $url, $headers + $addHeaders, $body);
 
-        \Log::debug('SENDING REQUEST');
         return $this->client->send($request);
     }
 
