@@ -149,6 +149,24 @@ Parameters:
   GhConnectionArn:
     Description: ARN of the connection to GitHub (https://docs.aws.amazon.com/dtconsole/latest/userguide/connections-create-github.html)
     Type: String
+  GiataPoiBaseUri:
+    Description: GIATA POI Base Uri
+    Type: String
+  GiataPoiUsername:
+    Description: GIATA POI Username
+    Type: String
+  GiataPoiPassword:
+    Description: GIATA POI Password
+    Type: String
+  GiataMainBaseUri:
+    Description: GIATA Main Base Uri
+    Type: String
+  GiataMainUsername:
+    Description: GIATA Main Usename
+    Type: String
+  GiataMainPassword:
+    Description: GIATA Main Password
+    Type: String
   GitHubBackendBranch:
     Default: 'master'
     Description: Backend (api) branch name that will trigger the pipeline (e.g. main, dev)
