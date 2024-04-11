@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\ExpediaContent;
 use App\Models\GiataPlace;
 use App\Models\GiataProperty;
+use Illuminate\Support\Arr;
 use App\Models\MapperExpediaGiata;
 use Illuminate\Support\Collection;
 
@@ -104,12 +105,16 @@ class ExpediaContentRepository
 
         $images = [];
         $countImages = 0;
-        foreach (json_decode($expedia->images, true) as $image) {
+        foreach ((json_decode($expedia->images, true) ?? []) as $image) {
             if ($countImages == 5) {
                 break;
             }
-            $images[] = $image['links']['350px']['href'];
-            $countImages++;
+
+            if (Arr::has($image, 'links'))
+            {
+                $images[] = $image['links']['350px']['href'];
+                $countImages++;
+            }
         }
 
         return $images;
