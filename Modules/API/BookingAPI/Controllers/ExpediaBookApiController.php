@@ -7,6 +7,7 @@ use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveReservations;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ChannelRenository;
@@ -136,14 +137,13 @@ class ExpediaBookApiController extends BaseBookApiController
 
         try {
             $response = $this->rapidClient->post($props['path'], $props['paramToken'], $body, $this->headers());
+
             $content = json_decode($response->getBody()->getContents(), true);
             $content['original']['response'] = $content;
             $content['original']['request']['params'] = $props['paramToken'];
             $content['original']['request']['body'] = json_decode($body,true);
             $content['original']['request']['path'] = $props['path'];
             $content['original']['request']['headers'] = $this->headers();
-
-            $this->saveBookingInfo($filters, $content, $bookingInspector);
         } catch (RequestException $e) {
             Log::error('ExpediaBookApiHandler | book | create' . $e->getResponse()->getBody());
             $content = json_decode('' . $e->getResponse()->getBody());
@@ -198,6 +198,8 @@ class ExpediaBookApiController extends BaseBookApiController
             $booking_id, $filters, $dataResponse, $res, $supplierId, 'book',
             'retrieve' . ($queryHold ? ':hold' : ''), $bookingInspector->search_type,
         ]);
+
+        $this->saveBookingInfo($filters, $content, $bookingInspector);
 
         return $res;
     }
@@ -273,61 +275,59 @@ class ExpediaBookApiController extends BaseBookApiController
 
     /**
      * @param array $filters
-     * @param ApiBookingInspector $bookingInspector
+     * @param ApiBookingsMetadata $apiBookingsMetadata
      * @return array|null
      * @throws GuzzleException
      */
-    public function cancelBooking(array $filters, ApiBookingInspector $bookingInspector): array|null
+    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): array|null
     {
-        # step 1 Get room_id from ApiBookingItem
-        $apiBookingItem = ApiBookingItem::where('booking_item', $bookingInspector->booking_item)->first();
-        $room_id = json_decode($apiBookingItem->booking_item_data, true)['room_id'];
+        $room = $apiBookingsMetadata->supplier_booking_item_id;
+        $cancellationPaths = $apiBookingsMetadata->booking_item_data['cancellation_paths'];
+        \Log::debug($cancellationPaths);
 
-        # step 2 Read Booking Inspector, Get link  DELETE method from 'add_item | get_book'
-        $linkDeleteItems = BookingRepository::getLinkDeleteItem($filters['booking_id'], $bookingInspector->booking_item, $room_id);
-
-        $filters['search_id'] = $bookingInspector->search_id;
-        $booking_id = $filters['booking_id'];
-
-        foreach ($linkDeleteItems as $i => $linkDeleteItem) {
-            $room = $i + 1;
-
+        foreach ($cancellationPaths as $cancellationPath)
+        {
             # Delete item DELETE method query
-            $props = $this->getPathParamsFromLink($linkDeleteItem);
+            $props = $this->getPathParamsFromLink($cancellationPath);
 
             $bodyArr = [
                 'itinerary_id' => BookingRepository::getItineraryId($filters),
-                'room_id' => $room_id,
+                'room_id' => $room,
             ];
             $body = json_encode($bodyArr);
 
+            \Log::debug('#####');
+            \Log::debug($props);
+            \Log::debug($body);
             try {
                 $response = $this->rapidClient->delete($props['path'], $props['paramToken'], $body, $this->headers());
+                \Log::debug('RESPONSE');
                 $dataResponse = json_decode($response->getBody()->getContents());
-
+                \Log::debug($dataResponse);
                 $res[] = [
-                    'booking_item' => $bookingInspector->booking_item,
+                    'booking_item' => $apiBookingsMetadata->booking_item,
                     'room' => $room,
                     'status' => 'Room canceled.',
                 ];
 
             } catch (Exception $e) {
+                \Log::debug('ERROR: '.$e->getMessage());
                 $responseError = explode('response:', $e->getMessage());
                 $responseErrorArr = json_decode($responseError[1], true);
                 $res[] = [
-                    'booking_item' => $bookingInspector->booking_item,
+                    'booking_item' => $apiBookingsMetadata->booking_item,
                     'room' => $room,
                     'status' => $responseErrorArr['message'],
                 ];
                 $dataResponse = $responseErrorArr['message'];
             }
-        }
 
-        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
-        SaveBookingInspector::dispatch([
-            $booking_id, $filters, $dataResponse, $res, $supplierId, 'cancel_booking',
-            'true', $bookingInspector->search_type,
-        ]);
+            $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
+            SaveBookingInspector::dispatch([
+                $apiBookingsMetadata->booking_id, $filters, $dataResponse, $res, $supplierId, 'cancel_booking',
+                'true', 'hotel',
+            ]);
+        }
 
         return $res;
     }
@@ -362,11 +362,13 @@ class ExpediaBookApiController extends BaseBookApiController
     private function saveBookingInfo(array $filters, array $content, ApiBookingInspector $bookingInspector): void
     {
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
+        $roomId = json_decode($bookingInspector->request)?->room_id;
+
         $filters['supplier_id'] = $supplierId;
 
         $reservation = [
-            'bookingId' => json_decode($bookingInspector->request)?->room_id,
-            'url'       => Arr::get($content, 'links.retrieve.href'),
+            'bookingId'          => $roomId,
+            'cancellation_paths' => BookingRepository::getLinkDeleteItem($filters['booking_id'], $filters['booking_item'], $roomId),
         ];
 
         SaveBookingMetadata::dispatch($filters, $reservation);
