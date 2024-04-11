@@ -80,14 +80,10 @@ class DestinationsController {
         foreach ($giataPois as $item) {
             if (!empty($item['tticodes'])) {
                 $destination = [
-                    'full_name' => $item['poi_name_primary'] . ' (' . $item['place_name_primary'] . ')'
-                        . (!empty($item['country_code']) ? ', country ' . $item['country_code'] : '')
-                        . (!empty($item['state']) ? ', state ' . $item['state'] : '')
-                        . (!empty($item['airports']) ? ', airport ' . implode(', ', $item['airports']) : ''),
+                    'full_name' => $item['poi_name_primary'] . ' (' . $item['place_name_primary'] . ')',
                     'place' => $item['key'],
                     'type' => $item['poi_type'],
                     'country_code' => $item['country_code'] ?? '',
-                    'state' => $item['state'] ?? '',
                     'airports' => $item['airports'] ?? '',
                 ];
 
@@ -137,14 +133,10 @@ class DestinationsController {
         foreach ($giataPlace as $item) {
             if (!empty($item['tticodes'])) {
                 $destination = [
-                    'full_name' => $item['name_primary']
-                        . (!empty($item['country_code']) ? ', country ' . $item['country_code'] : '')
-                        . (!empty($item['state']) ? ', state ' . $item['state'] : '')
-                        . (!empty($item['airports']) ? ', airport ' . implode(', ', $item['airports']) : ''),
+                    'full_name' => $item['name_primary'],
                     'place' => $item['key'],
                     'type' => $item['type'],
                     'country_code' => $item['country_code'] ?? '',
-                    'state' => $item['state'] ?? '',
                     'airports' => $item['airports'] ?? '',
                 ];
 
