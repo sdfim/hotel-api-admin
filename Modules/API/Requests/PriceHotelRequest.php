@@ -120,18 +120,11 @@ class PriceHotelRequest extends ApiRequest
             'supplier' => 'string',
             'checkin' => 'required|date_format:Y-m-d|after:today',
             'checkout' => 'required|date_format:Y-m-d|after:checkin',
-            'destination' => [
-                'required',
-                function ($attribute, $value, $fail) {
-                    if (!is_string($value) && !is_int($value)) {
-                        $fail('The destination must be a string or a number.');
-                    } elseif (is_int($value) && (int)$value <= 0) {
-                        $fail('The destination must be a non-negative integer.');
-                    } elseif (is_int($value) && strlen((string)$value) > 6) {
-                        $fail('The destination must be an integer with 6 or fewer digits.');
-                    }
-                },
-            ],
+            'place' => 'required_without_all:latitude,longitude,destination|string|max:32',
+            'destination' => 'required_without_all:latitude,longitude,place|integer|min:1,max:999999',
+            'latitude' => 'required_without_all:destination,place|decimal:2,8|min:-90|max:90',
+            'longitude' => 'required_without_all:destination,place|decimal:2,8|min:-180|max:180',
+            'radius' => 'required_without_all:destination,place|numeric|between:1,100',
             'rating' => 'numeric|between:1,5.5',
             'occupancy' => 'required|array',
             'occupancy.*.adults' => 'required|numeric|between:1,9',

@@ -3,10 +3,12 @@
 namespace Modules\API\Suppliers\DTO\HBSI;
 
 use App\Models\GiataGeography;
+use App\Models\GiataPlace;
 use App\Models\Supplier;
 use App\Repositories\GiataGeographyRepository;
 use Exception;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
@@ -20,7 +22,7 @@ class HbsiHotelPricingDto
 {
     private string $rate_type;
 
-    private GiataGeography $destinationData;
+    private string $destinationData;
 
     private HbsiPricingRulesApplier $pricingRulesApplier;
 
@@ -130,7 +132,17 @@ class HbsiHotelPricingDto
 
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
 
-        $this->destinationData = $this->geographyRepo->getFullLocation($query['destination']);
+        if (isset($query['destination'])) {
+            $this->destinationData = $this->geographyRepo->getFullLocation($query['destination'])->full_location;
+        } else if (isset($query['place'])) {
+            $this->destinationData = GiataPlace::where('key', $query['place'])
+                ->select([
+                    DB::raw("CONCAT(name_primary, ', ', type, ', ', country_code) as full_location"),
+                ])
+                ->first()->full_location ?? '';
+        } else {
+            $this->destinationData = '';
+        }
 
         $hotelResponse = [];
         foreach ($supplierResponse as $key => $propertyGroup) {
@@ -154,7 +166,7 @@ class HbsiHotelPricingDto
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
-        $hotelResponse->setDestination($this->destinationData->full_location ?? '');
+        $hotelResponse->setDestination($this->destinationData);
 
         $hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
         $hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
