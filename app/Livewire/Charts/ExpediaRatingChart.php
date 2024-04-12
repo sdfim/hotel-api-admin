@@ -35,7 +35,7 @@ class ExpediaRatingChart extends ChartWidget
             $data = Cache::get($keyExpediaRatingChart . ':data');
         } else {
             $queryResult = DB::select("
-                SELECT rating, COUNT(*) AS total FROM ujv_api.expedia_content_main GROUP BY rating ORDER BY rating DESC
+                SELECT rating, COUNT(*) AS total FROM " . config(database.mysql2.database) . "expedia_content_main GROUP BY rating ORDER BY rating DESC
             ");
 
             $queryResult = json_decode(json_encode($queryResult), true);

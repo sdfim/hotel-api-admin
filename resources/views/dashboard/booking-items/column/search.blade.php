@@ -25,7 +25,9 @@
                         $rating .= $ratingIcon;
                     }
                 }
+				$str1 = '';
                 if ($key === 'destination') $str1 =  $destinationIcon . ' ' . $value  . ' <span style="color: #FFD700;"> ' . $rating . '</span>';
+				elseif ($key === 'place') $str1 = $destinationIcon . ' ' . $value;
                 if ($key === 'checkin') $str0 = $value . " - ";
                 if ($key === 'checkout') $str0 .= $value;
             }
