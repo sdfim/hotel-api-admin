@@ -4,8 +4,10 @@
 	$search_id = $record['search_id'];
     $booking_id = $record['booking_id'];
     $id_booking = \App\Models\ApiBookingInspector::where('booking_id', $booking_id)->where('sub_type', 'create')?->first()?->id;
+
 	$content = '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">booking_item: <a href=' . route('booking-items.show', $record['booking_item'] ) .' target="_blank" style="color: #007bff;">' . $record['booking_item']. "</a></span><br>";
 	if ($id_booking) $content .= '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">booking_id: <a href=' . route('booking-inspector.show', $id_booking ) .' target="_blank" style="color: #007bff;">' . $booking_id . '</a></span><br>';
+    else $content .= '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">booking_id: ' . $booking_id . '</span><br>';
 	$content .=  '<span  class="text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">search_id: <a href=' . route('search-inspector.show', $search_id ) .' target="_blank" style="color: #007bff;">' . $search_id . '</a></span>';
 
 	unset($record['search_id']);

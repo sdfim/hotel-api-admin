@@ -99,8 +99,8 @@ Parameters:
     Description: Expedia Endpoint
     Type: String
   BookingSupplierHbsiUsername:
-      Description: HBSI Username
-      Type: String
+    Description: HBSI Username
+    Type: String
   BookingSupplierHbsiPassword:
     Description: HBSI Username
     Type: String
@@ -597,8 +597,10 @@ Resources:
                   - s3:GetObject
                   - s3:DeleteObject
                 Effect: Allow
-                Resource:
-                  - !GetAtt 'S3StorageBucket.Arn'
+                Resource: !Join
+                  - ''
+                  - - !GetAtt 'S3StorageBucket.Arn'
+                    - /*
                 Sid: s3access
           PolicyName: s3-access
       RoleName: !Join
@@ -1266,8 +1268,10 @@ Resources:
                   - s3:GetObject
                   - s3:DeleteObject
                 Effect: Allow
-                Resource:
-                  - !GetAtt 'S3StorageBucket.Arn'
+                Resource: !Join
+                  - ''
+                  - - !GetAtt 'S3StorageBucket.Arn'
+                    - /*
                 Sid: s3access
           PolicyName: s3-access
       RoleName: !Join
