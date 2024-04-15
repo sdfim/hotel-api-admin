@@ -50,6 +50,9 @@ services:
     image: mysql:8.0.33
     container_name: booking-engine-mysql
     restart: unless-stopped
+    command:
+      - "mysqld"
+      - "--skip-log-bin" #This option disables binary logging, it eats up space locally without need.
     ports:
       - '${FORWARD_DB_PORT:-3306}:3306'
     environment:
