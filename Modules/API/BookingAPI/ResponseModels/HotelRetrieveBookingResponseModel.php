@@ -19,6 +19,10 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
     /**
      * @var array
      */
+    private array $confirmation_numbers = [];
+    /**
+     * @var array
+     */
     private array $query;
     /**
      * @var string
@@ -165,6 +169,21 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
         $this->board_basis = $board_basis;
     }
 
+    /**
+     * @return array
+     */
+    public function getConfirmationNumbers(): array
+    {
+        return $this->confirmation_numbers;
+    }
+
+    /**
+     * @param array $confirmation_numbers
+     */
+    public function setConfirmationNumbers(array $confirmation_numbers): void
+    {
+        $this->confirmation_numbers = $confirmation_numbers;
+    }
 
     /**
      * @return array
@@ -174,6 +193,7 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
         return array_merge(
             $this->toArray(),
             [
+                'confirmation_numbers_list' => $this->getConfirmationNumbers(),
                 'hotel_name' => $this->getHotelName(),
 //                'room_name' => $this->getRoomName(),
 //                'room_type' => $this->getRoomType(),

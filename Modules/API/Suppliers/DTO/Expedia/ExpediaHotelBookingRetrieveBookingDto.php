@@ -55,6 +55,10 @@ class ExpediaHotelBookingRetrieveBookingDto
 //        $responseModel->setRoomType('');
         $responseModel->setQuery($query);
         $responseModel->setSupplierBookId($dataResponse['itinerary_id'] ?? '');
+        $responseModel->setConfirmationNumbers([
+            'confirmation_number' => $responseModel->getSupplierBookId(),
+            'type' => 'Expedia',
+        ]);
         $responseModel->setBillingContact($dataResponse['billing_contact'] ?? '');
         $responseModel->setBillingEmail($dataResponse['email'] ?? '');
         $responseModel->setBillingPhone($dataResponse['phone'] ?? '');
