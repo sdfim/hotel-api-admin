@@ -5,11 +5,20 @@ namespace Modules\API\Suppliers\DTO\HBSI;
 use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiSearchInspectorRepository;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\BookingAPI\ResponseModels\HotelRetrieveBookingResponseModel as ResponseModel;
 
 class HbsiHotelBookingRetrieveBookingDto
-{    public static function RetrieveBookingToHotelBookResponseModel(array $filters, array $dataResponse): array
+{
+    private const CONFIRMATION = [
+        '8' => 'HBSI',
+        '10' => 'Synxis',
+        '14' => 'Own',
+        '3' => 'UltimateJet',
+    ];
+
+    public static function RetrieveBookingToHotelBookResponseModel(array $filters, array $dataResponse): array
     {
 
         $status = $dataResponse['ReservationsList']['HotelReservation']['@attributes']['ResStatus'] ?? '';
@@ -28,7 +37,19 @@ class HbsiHotelBookingRetrieveBookingDto
         $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
         $bookingItemData = json_decode($bookingItem->booking_item_data, true);
 
-        $supplierBookId = json_decode(Storage::get($bookData->response_path), true)['HotelReservations']['HotelReservation']['ResGlobalInfo']['HotelReservationIDs']['HotelReservationID'][0]['@attributes']['ResID_Value'] ?? '';
+        //region Confirmation Numbers
+        $bookingData = json_decode(Storage::get($bookData->response_path), true);
+        $inputConfirmationNumbers = $bookingData['HotelReservations']['HotelReservation']['ResGlobalInfo']['HotelReservationIDs']['HotelReservationID'] ?? [];
+        $supplierBookId = Arr::get($inputConfirmationNumbers, '0.@attributes.ResID_Value', '');
+
+        $confirmationNumbers = array_map(function ($item) {
+            return [
+                'confirmation_number' => $item['@attributes']['ResID_Value'],
+                'type' => self::CONFIRMATION[$item['@attributes']['ResID_Type']] ?? $item['@attributes']['ResID_Type'],
+                'type_id' => $item['@attributes']['ResID_Type'],
+            ];
+        }, $inputConfirmationNumbers);
+        //endregion
 
         $rooms[] = [
             'checkin' => $query['checkin'],
@@ -49,6 +70,7 @@ class HbsiHotelBookingRetrieveBookingDto
         $responseModel->setSupplier($saveResponse['supplier']);
         $responseModel->setHotelName($saveResponse['hotel_name']);
 
+
         $responseModel->setRooms($rooms);
 
         $cancellationTerms = is_array($saveResponse['cancellation_terms'])
@@ -67,6 +89,7 @@ class HbsiHotelBookingRetrieveBookingDto
 //        $responseModel->setRoomType('');
         $responseModel->setQuery($bookRequest);
         $responseModel->setSupplierBookId($supplierBookId);
+        $responseModel->setConfirmationNumbers($confirmationNumbers);
         $responseModel->setBillingContact($bookRequest['booking_contact']['address'] ?? []);
         $responseModel->setBillingEmail($bookRequest['booking_contact']['email'] ?? '');
         $responseModel->setBillingPhone($bookRequest['booking_contact']['phone'] ?? []);
