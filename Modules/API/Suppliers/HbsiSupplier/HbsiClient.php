@@ -11,6 +11,7 @@ use Exception;
 use Fiber;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Psr\Http\Message\ResponseInterface;
@@ -326,6 +327,7 @@ class HbsiClient
      */
     private function cancelRQ(array $reservation): string
     {
+        $type = Arr::get($reservation, 'type', 15);
 
         return '<OTA_CancelRQ Target="Test" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
                 xmlns="http://www.opentravel.org/OTA/2003/05">
@@ -337,7 +339,7 @@ class HbsiClient
                             </BookingChannel>
                         </Source>
                     </POS>
-                    <UniqueID Type="15" ID="' . $reservation['ReservationId'] . '">
+                    <UniqueID Type="'.$type.'" ID="' . $reservation['ReservationId'] . '">
                         <CompanyName>HBSI</CompanyName>
                     </UniqueID>
                     <Verification>
