@@ -38,7 +38,7 @@ class BookingInspectorController extends BaseInspectorController
             $token_id = ChannelRenository::getTokenId(request()->bearerToken());
             $booking_item = $query['booking_item'] ?? null;
             $search_id = $query['search_id'] ?? $booking_item
-                ? ApiBookingItem::where('booking_item', $booking_item)->first()->search_id
+                ? ApiBookingItem::where('booking_item', $booking_item)->first()?->search_id
                 : null;
 
             $query = json_encode($query);

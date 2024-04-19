@@ -194,7 +194,7 @@ class HbsiBookApiController extends BaseBookApiController
             'response' => $xmlPriceData['response']->asXML(),
         ];
 
-        if (isset($rdataResponse['Errors'])) {
+        if (isset($dataResponse['Errors'])) {
             $clientDataResponse = $dataResponse['Errors'];
         } else {
             $clientDataResponse = HbsiHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse);

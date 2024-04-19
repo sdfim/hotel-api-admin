@@ -68,8 +68,11 @@ class ImportTravelTekBookings extends Command
                     {
                         foreach ($chunk as $row)
                         {
-                            $bookingId = $this->getUuidFromExternalId(Arr::get($row, 'Reference2'), 'booking');
-                            $bookingItem = $this->getUuidFromExternalId(Arr::get($row, 'Reference'), 'booking_item');
+                            $bookingReference = Arr::get($row, 'Booking Reference');
+                            $bookingItemReference = Arr::get($row, 'Reference');
+
+                            $bookingId = $this->getUuidFromExternalId($bookingReference, 'booking');
+                            $bookingItem = $this->getUuidFromExternalId($bookingItemReference, 'booking_item');
 
                             if ($bookingItem === null)
                             {
@@ -82,23 +85,31 @@ class ImportTravelTekBookings extends Command
                                     'GivenName'   => Arr::get($row, 'First Name'),
                                     'Surname' => Arr::get($row, 'Last Name'),
                                 ],
-                                'ReservationId' => Arr::get($row, 'Reference'),
+                                'ReservationId' => $bookingItemReference,
                                 'type'          => 8,
                             ];
 
+                            $prevRecord = ApiBookingsMetadata::where('supplier_id', 2)
+                                ->where('supplier_booking_item_id', $bookingItemReference)
+                                ->first();
+
+                            if ($prevRecord !== null)
+                            {
+                                continue;
+                            }
 
                             ApiBookingsMetadata::insert([
                                 'booking_item'              => $bookingItem,
                                 'booking_id'                => $bookingId,
                                 'supplier_id'               => 2,
-                                'supplier_booking_item_id'  => Arr::get($row, 'Reference'),
+                                'supplier_booking_item_id'  => $bookingItemReference,
                                 'booking_item_data'         => json_encode($reservation),
                                 'created_at'                => $timeStamp,
                                 'updated_at'                => $timeStamp,
                             ]);
 
                             $csvWriter->insertOne([
-                                Arr::get($row, 'Reference2'),
+                                $bookingReference,
                                 Arr::get($row, 'Hotel ID'),
                                 $bookingId,
                                 $bookingItem,
