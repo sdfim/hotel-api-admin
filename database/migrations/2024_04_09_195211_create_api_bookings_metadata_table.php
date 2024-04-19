@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('api_bookings_metadata', function (Blueprint $table) {
+            $table->id();
             $table->uuid('booking_item');
             $table->uuid('booking_id');
             $table->unsignedBigInteger('supplier_id');

@@ -263,6 +263,18 @@ class BookApiHandler extends BaseController
             return $this->sendError('booking_id not yet booked', 'failed');
         }
 
+        $errors = [];
+
+        foreach ($data as $item) {
+            if (isset($item['Error'])) {
+                $errors[] = $item['Error'];
+            }
+        }
+
+        if (!empty($errors)) {
+            return $this->sendError($errors);
+        }
+
         return $this->sendResponse(['result' => $data], 'success');
     }
 
