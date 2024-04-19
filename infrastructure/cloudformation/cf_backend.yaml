@@ -171,6 +171,14 @@ Parameters:
     Default: 'master'
     Description: Backend (api) branch name that will trigger the pipeline (e.g. main, dev)
     Type: String
+  LogAwsCloudwatchAccessKeyId:
+    Description: Aws Access Key ID for Cloudwatch logging
+    Type: String
+    Default: ''
+  LogAwsCloudwatchSecretAccessKey:
+    Description: Aws Access Key Secret for Cloudwatch logging
+    Type: String
+    Default: ''
   GitHubBackendRepo:
     Default: 'ultimatejetvacations/booking_engine'
     Description: Backend GitHub repository in format user/repo-name or organization-name/repo-name
@@ -327,6 +335,10 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
+                Value: !Ref 'LogAwsCloudwatchAccessKeyId'
+              - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
+                Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -473,6 +485,10 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
+                Value: !Ref 'LogAwsCloudwatchAccessKeyId'
+              - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
+                Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -676,6 +692,10 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
+                Value: !Ref 'LogAwsCloudwatchAccessKeyId'
+              - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
+                Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -1674,6 +1694,12 @@ Resources:
           - '",'
           - '"GIATA_MAIN_PASSWORD":"'
           - !Ref 'GiataMainPassword'
+          - '",'
+          - '"LOG_AWSCLOUDWATCH_ACCESSKEYID":"'
+          - !Ref 'LogAwsCloudwatchAccessKeyId'
+          - '",'
+          - '"LOG_AWSCLOUDWATCH_SECRETACCESSKEY":"'
+          - !Ref 'LogAwsCloudwatchSecretAccessKey'
           - '",'
           - '"DB_DATABASE":"'
           - !Ref 'DbDatabase'
