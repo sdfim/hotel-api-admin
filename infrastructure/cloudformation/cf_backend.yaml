@@ -171,6 +171,10 @@ Parameters:
     Default: 'master'
     Description: Backend (api) branch name that will trigger the pipeline (e.g. main, dev)
     Type: String
+  LogChannel:
+    Description: Channel for Logging
+    Type: String
+    Default: 'stack'
   LogAwsCloudwatchAccessKeyId:
     Description: Aws Access Key ID for Cloudwatch logging
     Type: String
@@ -339,6 +343,8 @@ Resources:
                 Value: !Ref 'LogAwsCloudwatchAccessKeyId'
               - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
                 Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
+              - Name: LOG_CHANNEL
+                Value: !Ref 'LogChannel'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -489,6 +495,8 @@ Resources:
                 Value: !Ref 'LogAwsCloudwatchAccessKeyId'
               - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
                 Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
+              - Name: LOG_CHANNEL
+                Value: !Ref 'LogChannel'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -696,6 +704,8 @@ Resources:
                 Value: !Ref 'LogAwsCloudwatchAccessKeyId'
               - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
                 Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
+              - Name: LOG_CHANNEL
+                Value: !Ref 'LogChannel'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -1700,6 +1710,9 @@ Resources:
           - '",'
           - '"LOG_AWSCLOUDWATCH_SECRETACCESSKEY":"'
           - !Ref 'LogAwsCloudwatchSecretAccessKey'
+          - '",'
+          - '"LOG_CHANNEL":"'
+          - !Ref 'LogChannel'
           - '",'
           - '"DB_DATABASE":"'
           - !Ref 'DbDatabase'
