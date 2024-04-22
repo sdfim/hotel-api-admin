@@ -59,7 +59,7 @@ class ExpediaHotelContentDetailDto
         $hotelResponse->setAddress($supplierResponse->address ? $address : '');
 
         $rooms = [];
-        if (isset($supplierResponse->rooms) && is_iterable($supplierResponse->rooms)) {
+        if ($supplierResponse->rooms) {
             foreach ($supplierResponse->rooms as $room) {
                 $amenities = $room->amenities ? json_decode(json_encode($room->amenities), true) : [];
                 $images = [];
