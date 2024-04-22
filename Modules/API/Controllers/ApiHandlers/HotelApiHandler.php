@@ -241,7 +241,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
      */
     public function price(Request $request, array $suppliers): JsonResponse
     {
-//        try {
+        try {
             $filters = $request->all();
 
             $keyPricingSearch = $request->type . ':pricingSearch:' . http_build_query(Arr::dot($filters));
@@ -364,12 +364,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             }
 
             return $this->sendResponse($res, 'success');
-//        } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
-//            Log::error('HotelApiHandler ' . $e->getMessage());
-//            Log::error($e->getTraceAsString());
-//
-//            return $this->sendError($e->getMessage(), 'failed');
-//        }
+        } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
+            Log::error('HotelApiHandler ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+
+            return $this->sendError($e->getMessage(), 'failed');
+        }
     }
 
     /**

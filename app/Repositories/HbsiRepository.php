@@ -46,19 +46,15 @@ class HbsiRepository
             ->first()
             ->tticodes;
 
-        return MapperHbsiGiata::whereIn('giata_id', $tticodes)
+        return  MapperHbsiGiata::whereIn('giata_id', $tticodes)
             ->limit($limit)
             ->offset($offset)
             ->get()
-            ->filter(function ($value) {
-                return !is_null($value['hbsi']);
-            })
             ->mapWithKeys(function ($value) {
                 return [
-                    $value['hbsi']['hbsi_id'] => [
-                        'giata' => $value['code'],
-                        'name' => $value['name'],
-                        'hbsi' => $value['hbsi']['hbsi_id'],
+                    $value['hbsi_id'] => [
+                        'giata' => $value['giata_id'],
+                        'hbsi' => $value['hbsi_id'],
                     ]
                 ];
             })
