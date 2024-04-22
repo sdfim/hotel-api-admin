@@ -244,7 +244,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         try {
             $filters = $request->all();
 
-            $keyPricingSearch = $request->type . ':pricingSearch:' . http_build_query(Arr::dot($filters));
+            $token = $request->bearerToken();
+            $keyPricingSearch = $request->type . ':pricingSearch:' . http_build_query(Arr::dot($filters)) . ':' . $token;
 
             if (Cache::has($keyPricingSearch . ':result')) {
                 $res = Cache::get($keyPricingSearch . ':result');
