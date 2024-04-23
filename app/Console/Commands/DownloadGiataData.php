@@ -137,12 +137,11 @@ class DownloadGiataData extends Command
                 'longitude' => isset($property->Position['Longitude']) ? (float)$property->Position['Longitude'] : null,
                 'url' => isset($property->URL) ? json_encode($property->URL) : null,
                 'cross_references' => json_encode($property->CrossReferences),
-//                'cross_references' => json_encode($property->CrossReferences->CrossReference),
                 'created_at' => date('Y-m-d H:i:s'),
             ];
 
             foreach ($property->CrossReferences->CrossReference as $crossReference) {
-                if( (string)$crossReference['Code'] == 'ULTIMATE_JET_VACATIONS' ) {
+                if( (string)$crossReference['Code'] == 'ULTIMATE_JET_VACATIONS' && (string)$crossReference['Status'] !== 'Inactive') {
                     $batchDataMapperHbsi[] = [
                         'hbsi_id' => $crossReference->Code['HotelCode'],
                         'giata_id' => (int)$property['Code'],
