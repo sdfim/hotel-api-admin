@@ -14,6 +14,9 @@ class Kernel extends ConsoleKernel
     {
         # Expedia Content download archive, unzip, parse json, write to DB
         $schedule->command('download-expedia-data content 12345')->cron('0 1 * * *');
+        $schedule->command('download-giata-data')->daily()->at('05:00');
+        //TODO: temporal, remove this lineß
+        $schedule->command('download-giata-data')->at('15:35');
 
         $schedule->command('purge-baskets')->cron('0 1 * * *');
         $schedule->command('purge-inspectors')->cron('0 1 * * *');
