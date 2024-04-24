@@ -5212,7 +5212,7 @@
                     "place": "9bb07983384eb956ae88e154b99b51a1",
                     "rating": 4,
                     "page": 1,
-                    "results_per_page": 250
+                    "results_per_page": 20
                 }
             },
             "ContentSearchRequestDestination": {
@@ -5222,7 +5222,7 @@
                     "destination": 1175,
                     "rating": 2,
                     "page": 1,
-                    "results_per_page": 250
+                    "results_per_page": 20
                 }
             },
             "ContentSearchRequestSupplierHotelName": {
@@ -5234,7 +5234,7 @@
                     "destination": 961,
                     "rating": 3.5,
                     "page": 1,
-                    "results_per_page": 250
+                    "results_per_page": 20
                 }
             },
             "ContentSearchRequestCoordinates": {
@@ -6799,9 +6799,14 @@
                     "rating": 4.5,
                     "occupancy": [
                         {
-                            "adults": 2
+                            "adults": 2,
+                            "children_ages": [
+                                3
+                            ]
                         }
-                    ]
+                    ],
+                    "page": 1,
+                    "results_per_page": 10
                 }
             },
             "PricingSearchRequestPlace": {
@@ -6816,7 +6821,9 @@
                         {
                             "adults": 2
                         }
-                    ]
+                    ],
+                    "page": 1,
+                    "results_per_page": 20
                 }
             },
             "PricingSearchRequestLondon": {
@@ -6838,7 +6845,9 @@
                         {
                             "adults": 1
                         }
-                    ]
+                    ],
+                    "page": 1,
+                    "results_per_page": 20
                 }
             },
             "PricingSearchRequestNewYork": {
@@ -6859,7 +6868,9 @@
                         {
                             "adults": 2
                         }
-                    ]
+                    ],
+                    "page": 1,
+                    "results_per_page": 20
                 }
             },
             "PricingSearchRequestCancun": {
@@ -6874,7 +6885,9 @@
                         {
                             "adults": 2
                         }
-                    ]
+                    ],
+                    "page": 1,
+                    "results_per_page": 10
                 }
             },
             "PricingSearchRequestCurrencySupplier": {
@@ -6897,7 +6910,9 @@
                         {
                             "adults": 1
                         }
-                    ]
+                    ],
+                    "page": 1,
+                    "results_per_page": 20
                 }
             },
             "PricingSearchResponseNewYork": {

@@ -17,11 +17,9 @@ class HbsiRepository
      */
     public static function getIdsByDestinationGiata(string $input, int $limit = 100, int $offset = 1): ?array
     {
-        return GiataProperty::where(is_numeric($input) ? 'city_id' : 'city', $input)
+        $results = GiataProperty::where(is_numeric($input) ? 'city_id' : 'city', $input)
             ->with('hbsi')
             ->select('code', 'name')
-            ->limit($limit)
-            ->offset($offset)
             ->get()
             ->filter(function ($value) {
                 return !is_null($value['hbsi']);
@@ -35,20 +33,23 @@ class HbsiRepository
                     ]
                 ];
             })
-            ->toArray();
+        ->toArray();
+
+        $totalResults = count($results);
+        $totalPages = ceil($totalResults / $limit);
+
+        $result = array_slice($results, $offset, $limit);
+        $associativeArray = array_column($result, null, 'hbsi');
+
+        return [
+            'data' => $associativeArray,
+            'total_pages' => $totalPages,
+        ];
     }
 
     public static function getIdsByGiataPlace(string $place, int $limit = 100, int $offset = 1): ?array
     {
-
-        $tticodes = GiataPlace::where('key', $place)
-            ->select('tticodes')
-            ->first()
-            ->tticodes;
-
-        return  MapperHbsiGiata::whereIn('giata_id', $tticodes)
-            ->limit($limit)
-            ->offset($offset)
+        $results = MapperHbsiGiata::whereIn('giata_id', GiataPlace::where('key', $place)->select('tticodes')->first()->tticodes)
             ->get()
             ->mapWithKeys(function ($value) {
                 return [
@@ -59,6 +60,17 @@ class HbsiRepository
                 ];
             })
             ->toArray();
+
+        $totalResults = count($results);
+        $totalPages = ceil($totalResults / $limit);
+
+        $result = array_slice($results, $offset, $limit);
+        $associativeArray = array_column($result, null, 'hbsi');
+
+        return [
+            'data' => $associativeArray,
+            'total_pages' => $totalPages,
+        ];
     }
 
 }

@@ -71,16 +71,25 @@ class HbsiHotelController
     {
         try {
             $hotelData = $this->preSearchData($filters);
-            $hotelIds = array_keys($hotelData);
+            $hotelIds = array_keys($hotelData['data']);
 
             // TODO: remove this after using the test case add/or after using main mapper             $component_info_id = config("booking-suppliers.HBSI.credentials.component_info_id");
             $component_info_id = config("booking-suppliers.HBSI.credentials.component_info_id");
             if (empty($hotelIds)) {
-                if ($component_info_id === '72997') {
-                    $hotelIds = ['72997'];
-                } else {
-                    $hotelIds = ['51722', '51721'];
-                }
+//                if ($component_info_id === '72997') {
+//                    $hotelIds = ['72997'];
+//                } else {
+//                    $hotelIds = ['51722', '51721'];
+//                }
+                // TODO: add this after using main mapper
+                 return [
+                     'original' => [
+                         'request' => [],
+                         'response' => [],
+                     ],
+                     'array' => [],
+                     'total_pages' => 0,
+                 ];
             }
 
             /** get PriceData from HBSI */
@@ -118,6 +127,7 @@ class HbsiHotelController
                     'response' => $xmlPriceData['response']->asXML(),
                 ],
                 'array' => $groupedPriceData,
+                'total_pages' => $hotelData['total_pages'],
             ];
 
         } catch (Exception $e) {
@@ -128,6 +138,7 @@ class HbsiHotelController
                     'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
                 ],
                 'array' => [],
+                'total_pages' => 0,
             ];
         } catch (GuzzleException $e) {
             Log::error('HBSIHotelApiHandler GuzzleException ' . $e);
@@ -137,6 +148,7 @@ class HbsiHotelController
                     'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
                 ],
                 'array' => [],
+                'total_pages' => 0,
             ];
         }
     }
