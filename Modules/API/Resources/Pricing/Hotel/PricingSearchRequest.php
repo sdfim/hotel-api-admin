@@ -105,9 +105,12 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *        "rating": 4.5,
  *        "occupancy": {
  *            {
- *               "adults": 2
+ *               "adults": 2,
+ *               "children_ages": {3}
  *            }
- *        }
+ *        },
+ *        "page": 1,
+ *        "results_per_page": 10
  *    }
  *    ),
  * @OA\Examples(
@@ -124,7 +127,9 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *           {
  *              "adults": 2
  *           }
- *       }
+ *       },
+ * "page": 1,
+ * "results_per_page": 20
  *   }
  *   ),
  * @OA\Examples(
@@ -148,7 +153,9 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *       {
  *            "adults": 1
  *         }
- *     }
+ *     },
+ * "page": 1,
+ * "results_per_page": 20
  * }
  * ),
  * @OA\Examples(
@@ -171,7 +178,9 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *        {
  *             "adults": 2
  *          }
- *      }
+ *      },
+ * "page": 1,
+ * "results_per_page": 20
  *  }
  *  ),
  * @OA\Examples(
@@ -188,7 +197,9 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *           {
  *              "adults": 2
  *           }
- *       }
+ *       },
+ * "page": 1,
+ * "results_per_page": 10
  *   }
  *   ),
  * * @OA\Examples(
@@ -213,7 +224,9 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *     {
  *       "adults": 1
  *     }
- *   }
+ *   },
+ * "page": 1,
+ * "results_per_page": 20
  * }
  * )
  */

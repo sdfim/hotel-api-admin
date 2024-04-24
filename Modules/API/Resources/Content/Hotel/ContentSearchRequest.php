@@ -49,7 +49,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *              "place": "9bb07983384eb956ae88e154b99b51a1",
  *              "rating": 4,
  *              "page": 1,
- *              "results_per_page": 250
+ *              "results_per_page": 20
  *          }
  *   ),
  * @OA\Schema(
@@ -98,7 +98,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *            "destination": 1175,
  *            "rating": 2,
  *            "page": 1,
- *            "results_per_page": 250
+ *            "results_per_page": 20
  *        }
  * ),
  *
@@ -162,7 +162,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *            "destination": 961,
  *            "rating": 3.5,
  *            "page": 1,
- *            "results_per_page": 250
+ *            "results_per_page": 20
  * }
  * ),
  * @OA\Schema(

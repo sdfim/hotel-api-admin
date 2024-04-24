@@ -104,6 +104,7 @@ class ExpediaHotelController
             }
 
             $count = $results->count();
+            $totalPages = ceil($count / $resultsPerPage);
 
             $results = $results->offset($resultsPerPage * ($page - 1))
                 ->limit($resultsPerPage)
@@ -122,7 +123,13 @@ class ExpediaHotelController
         $endTime = microtime(true) - $timeStart;
         Log::info('ExpediaHotelApiHandler | preSearchData | mysql query ' . $endTime . ' seconds');
 
-        return ['ids' => $ids ?? 0, 'results' => $results, 'filters' => $filters ?? null, 'count' => $count ?? 0];
+        return [
+            'ids' => $ids ?? 0,
+            'results' => $results,
+            'filters' => $filters ?? null,
+            'count' => $count ?? 0,
+            'total_pages' => $totalPages
+        ];
     }
 
     /**
@@ -134,7 +141,11 @@ class ExpediaHotelController
         $preSearchData = $this->preSearchData($filters, 'search');
         $results = $preSearchData['results']->toArray() ?? [];
 
-        return ['results' => $results, 'count' => $preSearchData['count']];
+        return [
+            'results' => $results,
+            'count' => $preSearchData['count'],
+            'total_pages' => $preSearchData['total_pages']
+            ];
     }
 
     /**
@@ -148,6 +159,17 @@ class ExpediaHotelController
         try {
             $preSearchData = $this->preSearchData($filters, 'price');
             $filters = $preSearchData['filters'] ?? null;
+
+            if (empty($preSearchData['ids'])) {
+                return [
+                    'original' => [
+                        'request' => [],
+                        'response' => [],
+                    ],
+                    'array' => [],
+                    'total_pages' => 0,
+                ];
+            }
 
             // get PriceData from RapidAPI Expedia
             $priceData = $this->expediaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
@@ -170,6 +192,7 @@ class ExpediaHotelController
                     'response' => $priceData['response'],
                 ],
                 'array' => $output,
+                'total_pages' => $preSearchData['total_pages'] ?? 0,
             ];
 
         } catch (Exception $e) {

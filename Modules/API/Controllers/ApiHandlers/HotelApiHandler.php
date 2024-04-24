@@ -98,6 +98,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $dataResponse = [];
                 $clientResponse = [];
                 $count = [];
+                $totalPages = [];
                 $supplierContent = null;
                 $supplierContentDto = null;
 
@@ -121,6 +122,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $supplierData = $supplierContent->search($filters);
                         $data = $supplierData['results'];
                         $count[] = $supplierData['count'];
+                        $totalPages[] = $supplierData['total_pages'] ?? 0;
                         $dataResponse[$supplierName] = $data;
                         $clientResponse[$supplierName] = $supplierContentDto->SupplierToContentSearchResponse($data);
                         Log::debug('HotelApiHandler | search | ' . $supplierName . ' | runtime ' . $this->duration($supplierName));
@@ -137,6 +139,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 ];
                 $clientContent = [
                     'count' => $count,
+                    'total_pages' => max($totalPages),
                     'query' => $filters,
                     'results' => $clientResponse,
                 ];
@@ -260,7 +263,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $pricingRules = $this->pricingRulesService->rules($filters);
                 Log::info('HotelApiHandler | price | pricingRulesService ' . (microtime(true) - $st) . 's');
 
-                $dataResponse = $clientResponse = $fibers = $bookingItems = $dataOriginal = [];
+                $dataResponse = $clientResponse = $fibers = $bookingItems = $dataOriginal = $totalPages = [];
                 $countResponse = $countClientResponse = 0;
 
                 /**
@@ -330,6 +333,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $result = $fiber->getReturn();
                         $dataResponse = array_merge($dataResponse, $result['dataResponse']);
                         $clientResponse = array_merge($clientResponse, $result['clientResponse']);
+                        $totalPages = array_merge($totalPages, $result['totalPages']);
                         $countResponse += $result['countResponse'];
                         $countClientResponse += $result['countClientResponse'];
                         $bookingItems = array_merge($bookingItems, $result['bookingItems'] ?? []);
@@ -341,7 +345,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $clientResponse = $this->propsWeight->enrichmentPricing($clientResponse, 'hotel');
 
                 $content = ['count' => $countResponse, 'query' => $filters, 'results' => $dataResponse];
-                $clientContent = ['count' => $countClientResponse, 'query' => $filters, 'results' => $clientResponse];
+                $clientContent = [
+                    'count' => $countClientResponse,
+                    'total_pages' => max($totalPages),
+                    'query' => $filters,
+                    'results' => $clientResponse
+                ];
 
                 /** Save data to Inspector */
                 Log::info('HotelApiHandler | price | SaveSearchInspector | start');
@@ -380,6 +389,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     {
         $dataResponse = [];
         $clientResponse = [];
+        $totalPages = [];
         $countResponse = 0;
         $countClientResponse = 0;
 
@@ -397,6 +407,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             Log::info('HotelApiHandler | price | DTO ExpediaToHotelResponse ' . (microtime(true) - $st) . 's');
 
             $countResponse += count($expediaResponse);
+            $totalPages[$supplierName] = $expediaResponse['total_pages'] ?? 0;
             $countClientResponse += count($clientResponse[$supplierName]);
         }
 
@@ -421,6 +432,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             Log::info('HotelApiHandler | price | DTO hbsiResponse ' . (microtime(true) - $st) . 's');
 
             $countResponse += count($hbsiResponse['array']);
+            $totalPages[$supplierName] = $hbsiResponse['total_pages'] ?? 0;
             $countClientResponse += count($clientResponse[$supplierName]);
         }
 
@@ -428,6 +440,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             'dataResponse' => $dataResponse,
             'clientResponse' => $clientResponse,
             'countResponse' => $countResponse,
+            'totalPages' => $totalPages,
             'countClientResponse' => $countClientResponse,
             'bookingItems' => $bookingItems ?? [],
             'dataOriginal' => $dataOriginal ?? [],
