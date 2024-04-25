@@ -29,7 +29,7 @@ trait HasPricingRuleFields
                     TextInput::make('name')
                         ->label('Rule name')
                         ->maxLength(191)
-                        ->unique()
+                        ->unique(ignoreRecord: true)
                         ->required(),
                     DateTimePicker::make('rule_start_date')
                         ->native(false)
