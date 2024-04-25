@@ -33,7 +33,7 @@ personal use and don't leak them anywhere or you'll expose yourself to attackers
 * Run `npm run build`
 * Ask your Admin for the credentials for the following services: GIATA, HBSI, Expedia
 * Run the following commands:
-* ```
+```
 php artisan download-giata-poi
 php artisan download-giata-places
 php artisan download-giata-geography
