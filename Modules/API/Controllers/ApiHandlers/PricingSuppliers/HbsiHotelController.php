@@ -106,8 +106,8 @@ class HbsiHotelController
                 $result[$hotelCode] = [
                     'property_id' => $hotelCode,
                     'hotel_name' => $item['BasicPropertyInfo']['@attributes']['HotelName'],
-                    'hotel_name_giata' => $hotelData[$hotelCode]['name'] ?? '',
-                    'giata_id' => $hotelData[$hotelCode]['giata'] ?? 0,
+                    'hotel_name_giata' => $hotelData['data'][$hotelCode]['name'] ?? '',
+                    'giata_id' => $hotelData['data'][$hotelCode]['giata'] ?? 0,
                     'rooms' => $result[$hotelCode]['rooms'] ?? [],
                 ];
                 if (!isset($result[$hotelCode]['rooms'][$roomCode])) {

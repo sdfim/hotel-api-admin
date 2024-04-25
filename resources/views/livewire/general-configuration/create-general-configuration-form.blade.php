@@ -1,4 +1,8 @@
 <div>
+    <x-button class="mt-4 mb-8" wire:click="clearCache" style="background-color: rgb(81, 86, 190);">
+        {{ __('Clear Search Cache') }}
+    </x-button>
+
     <form wire:submit="save">
         {{ $this->form }}
 

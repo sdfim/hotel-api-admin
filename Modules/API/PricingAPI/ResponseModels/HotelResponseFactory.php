@@ -12,6 +12,7 @@ class HotelResponseFactory
         $hotelResponse = new HotelResponse();
 
         $hotelResponse->setGiataHotelId(0);
+        $hotelResponse->setRating('1');
         $hotelResponse->setHotelName('');
         $hotelResponse->setBoardBasis('');
         $hotelResponse->setSupplier('');

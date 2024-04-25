@@ -2,7 +2,7 @@
 
 namespace Modules\API\Suppliers\DTO\HBSI;
 
-use App\Models\GiataGeography;
+use App\Models\ExpediaContent;
 use App\Models\GiataPlace;
 use App\Models\Supplier;
 use App\Repositories\GiataGeographyRepository;
@@ -35,6 +35,8 @@ class HbsiHotelPricingDto
     private array $meal_plans_available;
 
     private array $roomCombinations;
+
+    private array $ratings;
 
     /**
      * @var string[]
@@ -132,6 +134,22 @@ class HbsiHotelPricingDto
 
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
 
+        $giataIds = array_map(function($item) {
+            return $item['giata_id'];
+        }, $supplierResponse);
+
+        $Ratings = ExpediaContent::with('mapperGiataExpedia')
+            ->whereHas('mapperGiataExpedia', function ($query) use ($giataIds) {
+                $query->whereIn('giata_id', $giataIds);
+            })
+            ->get();
+
+        foreach ($Ratings as $rating) {
+            foreach ($rating->mapperGiataExpedia as $mapper) {
+                $this->ratings[$mapper->giata_id] = $rating->rating;
+            }
+        }
+
         if (isset($query['destination'])) {
             $this->destinationData = $this->geographyRepo->getFullLocation($query['destination'])->full_location;
         } else if (isset($query['place'])) {
@@ -162,6 +180,7 @@ class HbsiHotelPricingDto
         $this->roomCombinations = [];
         $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id'] ?? 0);
+        $hotelResponse->setRating($this->ratings[$propertyGroup['giata_id']] ?? 0);
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
