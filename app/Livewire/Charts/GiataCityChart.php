@@ -34,7 +34,7 @@ class GiataCityChart extends ChartWidget
             $labels = Cache::get($keyGiataCityChart . ':labels');
             $data = Cache::get($keyGiataCityChart . ':data');
         } else {
-            $queryResult = DB::select("
+            $queryResult = DB::connection('mysql2')->select("
                 SELECT
                     gp.city_id,
                     CONCAT(gg.city_name, ' (', gg.locale_name, ' - ', gg.country_name, ')') AS city,
@@ -42,13 +42,12 @@ class GiataCityChart extends ChartWidget
                 FROM
                     (
                         SELECT city_id, COUNT(*) AS count
-                        FROM " . config(database.mysql2.database) . "giata_properties
+                        FROM giata_properties
                         GROUP BY city_id
                         ORDER BY count DESC
                         LIMIT 10
                     ) AS gp
-                LEFT JOIN
-                    " . config(database.mysql2.database) . "giata_geographies gg ON gp.city_id = gg.city_id");
+                LEFT JOIN giata_geographies gg ON gp.city_id = gg.city_id");
 
             $queryResult = json_decode(json_encode($queryResult), true);
 

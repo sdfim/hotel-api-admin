@@ -43,7 +43,7 @@ class SearchInspectorChildrenDoughnutChart extends ChartWidget
                 CROSS JOIN
                     JSON_TABLE(request, '$.occupancy[*]' COLUMNS (children INT PATH '$.children' DEFAULT '0' ON EMPTY)) oc
                 LEFT JOIN
-                    " . config(database.mysql2.database) . "giata_geographies AS gg ON gg.city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))
+                    " . config('database.connections.mysql2.database') . ".giata_geographies AS gg ON gg.city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))
                 GROUP BY
                     destination
                 ORDER BY

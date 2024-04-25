@@ -45,8 +45,7 @@ class SearchInspectorRadarChart extends ChartWidget
 					api_search_inspector
 				CROSS JOIN
 					JSON_TABLE(request, '$.occupancy[*]' COLUMNS (adults INT PATH '$.adults' DEFAULT '0' ON EMPTY, children INT PATH '$.children' DEFAULT '0' ON EMPTY)) oc
-				LEFT JOIN
-					" . config(database.mysql2.database) . "giata_geographies gg ON gg.city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))
+				LEFT JOIN ".config('database.connections.mysql2.database').".giata_geographies gg ON gg.city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))
 				GROUP BY
 					destination
 				ORDER BY
