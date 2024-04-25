@@ -34,7 +34,7 @@ class PricingRulesDataGenerationTools
      */
     public function getManipulablePriceTypeKeys(): array
     {
-        return ['total_price', 'net_price', 'rate_price'];
+        return ['total_price', 'net_price'];
     }
 
     /**
@@ -50,7 +50,7 @@ class PricingRulesDataGenerationTools
      */
     public function getPriceValueTargetKeys(): array
     {
-        return ['per_guest', 'per_room', 'per_night'];
+        return ['per_guest', 'per_room', 'per_night', 'not_applicable'];
     }
 
     /**
