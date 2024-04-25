@@ -59,6 +59,25 @@ class HotelResponse extends BaseResponse
 
     private array $room_combinations = [];
 
+    private string $rating;
+
+    /**
+     * @param string $rating
+     * @return void
+     */
+    public function setRating(string $rating): void
+    {
+        $this->rating = $rating;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRating(): string
+    {
+        return $this->rating;
+    }
+
     /**
      * @param array $room_combinations
      * @return void
@@ -304,6 +323,7 @@ class HotelResponse extends BaseResponse
     {
         return [
             'giata_hotel_id' => $this->getGiataHotelId(),
+            'rating' => $this->getRating(),
             'hotel_name' => $this->getHotelName(),
             'board_basis' => $this->getBoardBasis(),
             'supplier' => $this->getSupplier(),

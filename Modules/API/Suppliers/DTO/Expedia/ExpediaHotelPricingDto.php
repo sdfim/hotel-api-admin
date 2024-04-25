@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\DTO\Expedia;
 
+use App\Models\ExpediaContent;
 use App\Models\GiataGeography;
 use App\Models\GiataPlace;
 use App\Models\Supplier;
@@ -35,6 +36,8 @@ class ExpediaHotelPricingDto
 
     private array $occupancy;
 
+    private array $ratings;
+
     public function __construct()
     {
         $this->current_time = microtime(true);
@@ -54,6 +57,15 @@ class ExpediaHotelPricingDto
         $this->occupancy = $query['occupancy'];
 
         $this->pricingRulesApplier = new ExpediaPricingRulesApplier($query, $pricingRules);
+
+        $propertyIds = array_map(function($item) {
+            return $item['property_id'];
+        }, $supplierResponse);
+        $this->ratings = ExpediaContent::whereIn('property_id', $propertyIds)
+            ->select(['property_id', 'rating'])
+            ->get()
+            ->keyBy('property_id')
+            ->toArray();
 
         if (isset($query['destination'])) {
             $this->destinationData = GiataGeography::where('city_id', $query['destination'])
@@ -90,6 +102,7 @@ class ExpediaHotelPricingDto
         $destination = $this->destinationData;
         $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id']);
+        $hotelResponse->setRating($this->ratings[$propertyGroup['property_id']]['rating'] ?? '');
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
         $hotelResponse->setSupplier(SupplierNameEnum::EXPEDIA->value);
