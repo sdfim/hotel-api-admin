@@ -31,7 +31,7 @@ personal use and don't leak them anywhere or you'll expose yourself to attackers
 * Run `php artisan migrate --seed`
 * Run `npm ci`
 * Run `npm run build`
-* Ask your Admin for the credentials for the following services: GIATA, HBSI, Expedia
+* Ask your Admin for the `.env` credentials for the following services: GIATA, HBSI, Expedia
 * Run the following commands:
 ```
 php artisan download-giata-poi
