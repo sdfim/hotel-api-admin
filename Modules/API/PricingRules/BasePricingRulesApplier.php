@@ -153,53 +153,35 @@ class BasePricingRulesApplier
     protected function applyPricingRulesLogic(array $pricingRule): void
     {
         $priceValueType = (string)$pricingRule['price_value_type'];
-
-        $priceValue = (float)$pricingRule['price_value'];
-
+        $fixedValue = (float)$pricingRule['price_value'];
         $manipulablePriceType = (string)$pricingRule['manipulable_price_type'];
-
         $priceValueTarget = (string)$pricingRule['price_value_target'];
+        $totalPropertyName = match ($manipulablePriceType) {
+            'net_price' => 'totalNet',
+            default => 'totalPrice',
+        };
 
-        if ($manipulablePriceType === 'total_price') {
-            $priceValueFromTotal = ($this->totalPrice * $priceValue) / 100;
+        $percentageValue = ($this->{$totalPropertyName} * $fixedValue) / 100;
 
-            $this->affiliateServiceCharge += match ($priceValueTarget) {
-                'per_guest' => match ($priceValueType) {
-                    'percentage' => $this->totalNumberOfGuests * $priceValueFromTotal,
-                    'fixed_value' => $this->totalNumberOfGuests * $priceValue
-                },
-                'per_room' => match ($priceValueType) {
-                    'percentage' => $priceValueFromTotal * $this->numberOfRooms,
-                    'fixed_value' => $priceValue * $this->numberOfRooms
-                },
-                'per_night' => match ($priceValueType) {
-                    'percentage' => $this->numberOfNights * $priceValueFromTotal,
-                    'fixed_value' => $this->numberOfNights * $priceValue
-                },
-                'default' => 0
-            };
-        }
-
-        // in case when supplier is Expedia/HBSI total_price and rate_price should be calculated the same way
-        if ($manipulablePriceType === 'net_price' || $manipulablePriceType === 'rate_price') {
-            $priceValueFromTotalNet = ($this->totalNet * $priceValue) / 100;
-
-            $this->affiliateServiceCharge += match ($priceValueTarget) {
-                'per_guest' => match ($priceValueType) {
-                    'percentage' => $this->totalNumberOfGuests * $priceValueFromTotalNet,
-                    'fixed_value' => $this->totalNumberOfGuests * $priceValue
-                },
-                'per_room' => match ($priceValueType) {
-                    'percentage' => $priceValueFromTotalNet * $this->numberOfRooms,
-                    'fixed_value' => $priceValue * $this->numberOfRooms
-                },
-                'per_night' => match ($priceValueType) {
-                    'percentage' => $this->numberOfNights * $priceValueFromTotalNet,
-                    'fixed_value' => $this->numberOfNights * $priceValue
-                },
-                'default' => 0
-            };
-        }
+        $this->affiliateServiceCharge += match ($priceValueTarget) {
+            'per_guest' => match ($priceValueType) {
+                'percentage' => $this->totalNumberOfGuests * $percentageValue,
+                'fixed_value' => $this->totalNumberOfGuests * $fixedValue
+            },
+            'per_room' => match ($priceValueType) {
+                'percentage' => $percentageValue * $this->numberOfRooms,
+                'fixed_value' => $fixedValue * $this->numberOfRooms
+            },
+            'per_night' => match ($priceValueType) {
+                'percentage' => $this->numberOfNights * $percentageValue,
+                'fixed_value' => $this->numberOfNights * $fixedValue
+            },
+            'not_applicable' => match ($priceValueType) {
+                'percentage' => $percentageValue,
+                'fixed_value' => $fixedValue
+            },
+            'default' => 0
+        };
     }
 
     /**
