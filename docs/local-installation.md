@@ -31,6 +31,14 @@ personal use and don't leak them anywhere or you'll expose yourself to attackers
 * Run `php artisan migrate --seed`
 * Run `npm ci`
 * Run `npm run build`
+* Ask your Admin for the credentials for the following services: GIATA, HBSI, Expedia
+* Run the following commands:
+* ```
+php artisan download-giata-poi
+php artisan download-giata-places
+php artisan download-giata-geography
+php artisan download-giata-data
+```
 * At this point everything should up & running.
   * Head to https://obe.travelagentadmin.test/admin
     * You should be automatically presented with the login page. Default credentials:
