@@ -76,6 +76,8 @@ class DownloadGiataData extends Command
                     $batch++;
 
                     $this->info('XML data imported successfully, BATCH: ' . $batch);
+                    $this->info('Memory usage: ' . (memory_get_usage() / 1024 / 1024) . ' MB');
+
                 } else {
                     $this->error('Error importing XML data. HTTP status code: ' . $response->getStatusCode());
                 }
@@ -118,6 +120,11 @@ class DownloadGiataData extends Command
 
         $batchDataMapperHbsi = [];
         foreach ($xml->TTI_Property as $property) {
+
+            $batchData = [];
+            $propertyIds = [];
+            $batchDataMapperHbsi = [];
+
             $data = [
                 'code' => (int)$property['Code'],
                 'last_updated' => (string)$property['LastUpdated'],
@@ -146,7 +153,7 @@ class DownloadGiataData extends Command
                         'hbsi_id' => $crossReference->Code['HotelCode'],
                         'giata_id' => (int)$property['Code'],
                         'perc' => 100,
-                        ];
+                    ];
                 }
             }
 
@@ -175,6 +182,8 @@ class DownloadGiataData extends Command
             Log::error('ImportJsonlData insert MapperHbsiGiata ', ['error' => $e->getMessage()]);
             return false;
         }
+
+        unset($batchData, $batchDataMapperHbsi, $propertyIds);
 
         return $url;
     }
