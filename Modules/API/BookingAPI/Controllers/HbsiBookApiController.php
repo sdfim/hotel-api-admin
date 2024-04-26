@@ -2,10 +2,12 @@
 
 namespace Modules\API\BookingAPI\Controllers;
 
+use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveBookingInspector;
 use App\Jobs\SaveReservations;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingsMetadata;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
@@ -13,6 +15,7 @@ use App\Repositories\ChannelRenository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookDto;
@@ -82,6 +85,9 @@ class HbsiBookApiController extends BaseBookApiController
                 'main_guest' => $xmlPriceData['main_guest'],
             ];
             if (!isset($dataResponse['Errors'])) {
+                # Save Booking Info
+                $this->saveBookingInfo($filters, $dataResponse);
+
                 $inputConfirmationNumbers = $dataResponse['HotelReservations']['HotelReservation']['ResGlobalInfo']['HotelReservationIDs']['HotelReservationID'] ?? [];
                 $confirmationNumbers = array_map(function ($item) {
                     return [
@@ -90,6 +96,7 @@ class HbsiBookApiController extends BaseBookApiController
                     ];
                 }, $inputConfirmationNumbers);
                 $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters, $confirmationNumbers);
+
                 $error = false;
             } else {
                 $clientResponse = $dataResponse['Errors'];
@@ -100,20 +107,21 @@ class HbsiBookApiController extends BaseBookApiController
         } catch (RequestException $e) {
             Log::error('HbsiBookApiController | book | RequestException ' . $e->getResponse()->getBody());
             return [
-                'error' => $e->getResponse()->getBody(),
+                'error' => 'Request Error. '.$e->getResponse()->getBody(),
                 'booking_item' => $filters['booking_item'] ?? '',
                 'supplier' => SupplierNameEnum::HBSI->value
             ];
         } catch (\Exception $e) {
             Log::error('HbsiBookApiController | book | Exception ' . $e->getMessage());
             return [
-                'error' => $e->getMessage(),
+                'error' => 'Unexpected Error. '.$e->getMessage(),
                 'booking_item' => $filters['booking_item'] ?? '',
                 'supplier' => SupplierNameEnum::HBSI->value
             ];
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
+
         if (!$error) {
             SaveBookingInspector::dispatch([
                 $booking_id, $filters, $dataResponseToSave, $clientResponse, $supplierId, 'book', 'create', $bookingInspector->search_type
@@ -146,6 +154,28 @@ class HbsiBookApiController extends BaseBookApiController
      * @return array|null
      * @throws GuzzleException
      */
+    private function getBookingConfirmationNumbers(array $filters, ApiBookingInspector $bookingInspector): ?array
+    {
+        $booking = $this->retrieveBooking($filters, $bookingInspector);
+        $confirmationNumbers = Arr::get($booking, 'confirmation_numbers', []);
+
+        if (empty($confirmationNumbers))
+        {
+            return null;
+        }
+
+        # Save Booking Info
+        $this->saveBookingInfo($filters, $confirmationNumbers);
+
+        return $confirmationNumbers;
+    }
+
+    /**
+     * @param array $filters
+     * @param ApiBookingInspector $bookingInspector
+     * @return array|null
+     * @throws GuzzleException
+     */
     public function retrieveBooking(array $filters, ApiBookingInspector $bookingInspector): array|null
     {
         $booking_id = $filters['booking_id'];
@@ -164,7 +194,7 @@ class HbsiBookApiController extends BaseBookApiController
             'response' => $xmlPriceData['response']->asXML(),
         ];
 
-        if (isset($rdataResponse['Errors'])) {
+        if (isset($dataResponse['Errors'])) {
             $clientDataResponse = $dataResponse['Errors'];
         } else {
             $clientDataResponse = HbsiHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse);
@@ -185,17 +215,18 @@ class HbsiBookApiController extends BaseBookApiController
 
     /**
      * @param array $filters
-     * @param ApiBookingInspector $bookingInspector
+     * @param ApiBookingsMetadata $apiBookingsMetadata
      * @return array|null
      * @throws GuzzleException
      */
-    public function cancelBooking(array $filters, ApiBookingInspector $bookingInspector): array|null
+    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): array|null
     {
         $booking_id = $filters['booking_id'];
         $error = false;
-        try {
-            $reservation = $this->extractReservationDetails($bookingInspector);
-            $xmlPriceData = $this->hbsiClient->cancelBooking($reservation);
+
+        try
+        {
+            $xmlPriceData = $this->hbsiClient->cancelBooking($apiBookingsMetadata->booking_item_data);
             $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
             $dataResponse = json_decode(json_encode($response), true);
 
@@ -210,16 +241,15 @@ class HbsiBookApiController extends BaseBookApiController
                 $error = true;
             } else {
                 $res = [
-                    'booking_item' => $bookingInspector->booking_item,
+                    'booking_item' => $apiBookingsMetadata->booking_item,
                     'status' => 'Room canceled.',
                 ];
             }
-
         } catch (Exception $e) {
             $responseError = explode('response:', $e->getMessage());
             $responseErrorArr = json_decode($responseError[1], true);
             $res = [
-                'booking_item' => $bookingInspector->booking_item,
+                'booking_item' => $apiBookingsMetadata->booking_item,
                 'status' => $responseErrorArr['message'],
             ];
             $dataResponseToSave = $responseErrorArr['message'];
@@ -228,11 +258,11 @@ class HbsiBookApiController extends BaseBookApiController
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         if (!$error) SaveBookingInspector::dispatch([
             $booking_id, $filters, $dataResponseToSave, $res, $supplierId, 'cancel_booking',
-            'true', $bookingInspector->search_type,
+            'true', 'hotel',
         ]);
         else SaveBookingInspector::dispatch([
             $booking_id, $filters, $dataResponseToSave, $res, $supplierId, 'cancel_booking',
-            'error', $bookingInspector->search_type,
+            'error', 'hotel',
         ]);
 
         return $res;
@@ -311,19 +341,60 @@ class HbsiBookApiController extends BaseBookApiController
         $response = json_decode(Storage::get($bookingInspector->response_path), true);
         $mainGuestData = json_decode(Storage::get(str_replace('.json', '.original.json', $bookingInspector->response_path)), true)['main_guest'];
         $mainGuest = json_decode($mainGuestData, true)['PersonName'];
-        $hotelReservationID = $response['HotelReservations']['HotelReservation']['ResGlobalInfo']['HotelReservationIDs']['HotelReservationID'];
-        $reservation = [];
-        foreach ($hotelReservationID as $item) {
-            $attributes = $item["@attributes"];
-            if ($attributes["ResID_Type"] == "8") {
-                $reservation["bookingId"] = $attributes["ResID_Value"];
-            } elseif ($attributes["ResID_Type"] == "3") {
-                $reservation["ReservationId"] = $attributes["ResID_Value"];
-            }
-        }
+        $reservation = $this->extractReservationId($response);
+
         $reservation['main_guest'] = $mainGuest;
         return $reservation;
     }
 
+    /**
+     * This method can receive book $dataResponse or retrieveBooking confirmation_numbers array
+     * @param array $dataResponse
+     * @return array
+     */
+    private function extractReservationId(array $dataResponse): array
+    {
+        $reservation = [];
+
+        if (Arr::has($dataResponse, 'HotelReservations'))
+        {
+            $hotelReservationID = $dataResponse['HotelReservations']['HotelReservation']['ResGlobalInfo']['HotelReservationIDs']['HotelReservationID'];
+
+            foreach ($hotelReservationID as $item) {
+                $attributes = $item["@attributes"];
+                if ($attributes["ResID_Type"] == "8") {
+                    $reservation["bookingId"] = $attributes["ResID_Value"];
+                } elseif ($attributes["ResID_Type"] == "3") {
+                    $reservation["ReservationId"] = $attributes["ResID_Value"];
+                }
+            }
+        }
+        elseif (! empty($dataResponse))
+        {
+            foreach ($dataResponse as $item) {
+                if ($item["type_id"] == "8") {
+                    $reservation["bookingId"] = $item["confirmation_number"];
+                } elseif ($item["type_id"] == "3") {
+                    $reservation["ReservationId"] = $item["confirmation_number"];
+                }
+            }
+        }
+
+        return $reservation;
+    }
+
+    private function saveBookingInfo(array $filters, array $dataResponse): void
+    {
+        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
+        $filters['supplier_id'] = $supplierId;
+
+        $reservation = $this->extractReservationId($dataResponse);
+        $reservation['main_guest'] = [
+            'GivenName' => Arr::get($filters, 'booking_contact.first_name'),
+            'Surname'   => Arr::get($filters, 'booking_contact.last_name'),
+        ];
+
+        SaveBookingMetadata::dispatch($filters, $reservation);
+    }
 
 }

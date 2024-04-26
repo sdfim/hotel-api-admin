@@ -88,17 +88,18 @@ class RapidClient
     public function delete(string $path, array $queryParameters, string $body, array $addHeaders = []): ResponseInterface
     {
         $queryParams = [];
+
         foreach ($queryParameters as $key => $value) {
             $queryParams[$key] = $value;
         }
-        $url = $this->credentials->rapidBaseUrl . '/' . $path . '?' . http_build_query($queryParams);
-
+        $url = $this->credentials->rapidBaseUrl . $path . '?' . http_build_query($queryParams);
         $headers = [
             'Authorization' => $this->generateAuthHeader(),
             'Accept-Encoding' => self::GZIP,
         ];
 
         $request = new Request('DELETE', $url, $headers + $addHeaders, $body);
+
         return $this->client->send($request);
     }
 

@@ -7,6 +7,7 @@ use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
+use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiBookingItemRepository;
 use Carbon\Carbon;
 use Exception;
@@ -222,22 +223,24 @@ class BookApiHandler extends BaseController
      */
     public function cancelBooking(BookingCancelBooking $request): JsonResponse
     {
-        $determinant = $this->determinant($request);
-        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
+        //$determinant = $this->determinant($request);
+        //if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         if (isset($request->booking_item)) {
-            $itemsBooked = BookRepository::bookedItem($request->booking_id, $request->booking_item);
+            $itemsBooked = ApiBookingsMetadataRepository::bookedItem($request->booking_id, $request->booking_item);
         } else {
-            $itemsBooked = BookRepository::bookedItems($request->booking_id);
+            $itemsBooked = ApiBookingsMetadataRepository::bookedItems($request->booking_id);
         }
 
         $filters = $request->all();
         $data = [];
         foreach ($itemsBooked as $item) {
+            /*
             if (!BookRepository::isBook($request->booking_id, $item->booking_item)) {
                 $data[] = ['error' => 'booking_id and/or booking_item not yet booked'];
                 continue;
             }
+            */
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
                 $data[] = match (SupplierNameEnum::from($supplier)) {
@@ -258,6 +261,18 @@ class BookApiHandler extends BaseController
         }
         if (empty($data)) {
             return $this->sendError('booking_id not yet booked', 'failed');
+        }
+
+        $errors = [];
+
+        foreach ($data as $item) {
+            if (isset($item['Error'])) {
+                $errors[] = $item['Error'];
+            }
+        }
+
+        if (!empty($errors)) {
+            return $this->sendError($errors);
         }
 
         return $this->sendResponse(['result' => $data], 'success');

@@ -149,10 +149,40 @@ Parameters:
   GhConnectionArn:
     Description: ARN of the connection to GitHub (https://docs.aws.amazon.com/dtconsole/latest/userguide/connections-create-github.html)
     Type: String
+  GiataPoiBaseUri:
+    Description: GIATA POI Base Uri
+    Type: String
+  GiataPoiUsername:
+    Description: GIATA POI Username
+    Type: String
+  GiataPoiPassword:
+    Description: GIATA POI Password
+    Type: String
+  GiataMainBaseUri:
+    Description: GIATA Main Base Uri
+    Type: String
+  GiataMainUsername:
+    Description: GIATA Main Usename
+    Type: String
+  GiataMainPassword:
+    Description: GIATA Main Password
+    Type: String
   GitHubBackendBranch:
     Default: 'master'
     Description: Backend (api) branch name that will trigger the pipeline (e.g. main, dev)
     Type: String
+  LogChannel:
+    Description: Channel for Logging
+    Type: String
+    Default: 'stack'
+  LogAwsCloudwatchAccessKeyId:
+    Description: Aws Access Key ID for Cloudwatch logging
+    Type: String
+    Default: ''
+  LogAwsCloudwatchSecretAccessKey:
+    Description: Aws Access Key Secret for Cloudwatch logging
+    Type: String
+    Default: ''
   GitHubBackendRepo:
     Default: 'ultimatejetvacations/booking_engine'
     Description: Backend GitHub repository in format user/repo-name or organization-name/repo-name
@@ -309,6 +339,12 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
+                Value: !Ref 'LogAwsCloudwatchAccessKeyId'
+              - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
+                Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
+              - Name: LOG_CHANNEL
+                Value: !Ref 'LogChannel'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -455,6 +491,12 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
+                Value: !Ref 'LogAwsCloudwatchAccessKeyId'
+              - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
+                Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
+              - Name: LOG_CHANNEL
+                Value: !Ref 'LogChannel'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -658,6 +700,12 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
+                Value: !Ref 'LogAwsCloudwatchAccessKeyId'
+              - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
+                Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
+              - Name: LOG_CHANNEL
+                Value: !Ref 'LogChannel'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -1640,22 +1688,31 @@ Resources:
           - !Ref 'BookingSupplierIcePortalTokenUrl'
           - '",'
           - '"GIATA_POI_BASE_URI":"'
-          - !Ref 'BookingSupplierGiataPoiBaseUri'
+          - !Ref 'GiataPoiBaseUri'
           - '",'
           - '"GIATA_POI_USERNAME":"'
-          - !Ref 'BookingSupplierGiataPoiUsername'
+          - !Ref 'GiataPoiUsername'
           - '",'
           - '"GIATA_POI_PASSWORD":"'
-          - !Ref 'BookingSupplierGiataPoiPassword'
+          - !Ref 'GiataPoiPassword'
           - '",'
           - '"GIATA_MAIN_BASE_URI":"'
-          - !Ref 'BookingSupplierGiataMainBaseUri'
+          - !Ref 'GiataMainBaseUri'
           - '",'
           - '"GIATA_MAIN_USERNAME":"'
-          - !Ref 'BookingSupplierGiataMainUsername'
+          - !Ref 'GiataMainUsername'
           - '",'
           - '"GIATA_MAIN_PASSWORD":"'
-          - !Ref 'BookingSupplierGiataMainPassword'
+          - !Ref 'GiataMainPassword'
+          - '",'
+          - '"LOG_AWSCLOUDWATCH_ACCESSKEYID":"'
+          - !Ref 'LogAwsCloudwatchAccessKeyId'
+          - '",'
+          - '"LOG_AWSCLOUDWATCH_SECRETACCESSKEY":"'
+          - !Ref 'LogAwsCloudwatchSecretAccessKey'
+          - '",'
+          - '"LOG_CHANNEL":"'
+          - !Ref 'LogChannel'
           - '",'
           - '"DB_DATABASE":"'
           - !Ref 'DbDatabase'
