@@ -14,7 +14,7 @@ return new class extends Migration {
 
         if (!Schema::connection($connection)->hasTable('mapper_hbsi_giatas')) {
             Schema::connection($connection)->create('mapper_hbsi_giatas', function (Blueprint $table) {
-                $table->integer('hbsi_id')->index();
+                $table->string('hbsi_id')->index();
                 $table->integer('giata_id')->index();
 
                 $table->index(['hbsi_id', 'giata_id'], 'idx_hbsi_giatas');
