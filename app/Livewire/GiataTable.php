@@ -49,6 +49,10 @@ class GiataTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
+                TextColumn::make('rating')
+                    ->sortable()
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
                 TextColumn::make('city_id')
                     ->sortable()
                     ->toggleable()

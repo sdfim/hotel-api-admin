@@ -2,8 +2,8 @@
 
 namespace Modules\API\Suppliers\DTO\HBSI;
 
-use App\Models\ExpediaContent;
 use App\Models\GiataPlace;
+use App\Models\GiataProperty;
 use App\Models\Supplier;
 use App\Repositories\GiataGeographyRepository;
 use Exception;
@@ -138,17 +138,14 @@ class HbsiHotelPricingDto
             return $item['giata_id'];
         }, $supplierResponse);
 
-        $Ratings = ExpediaContent::with('mapperGiataExpedia')
-            ->whereHas('mapperGiataExpedia', function ($query) use ($giataIds) {
-                $query->whereIn('giata_id', $giataIds);
+        $this->ratings = GiataProperty::whereIn('code', $giataIds)
+            ->select(['code', 'rating'])
+            ->get()
+            ->keyBy('code')
+            ->map(function($item) {
+                return $item->rating;
             })
-            ->get();
-
-        foreach ($Ratings as $rating) {
-            foreach ($rating->mapperGiataExpedia as $mapper) {
-                $this->ratings[$mapper->giata_id] = $rating->rating;
-            }
-        }
+            ->toArray();
 
         if (isset($query['destination'])) {
             $this->destinationData = $this->geographyRepo->getFullLocation($query['destination'])->full_location;
@@ -373,7 +370,8 @@ class HbsiHotelPricingDto
         $roomResponse->setSupplierRoomCode($rateOccupancy);
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
         $roomResponse->setRoomType($roomType);
-        $roomResponse->setRateDescription($rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '');
+        $roomResponse->setRateName($rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '');
+        $roomResponse->setRateDescription($rate['RatePlans']['RatePlan']['RatePlanDescription']['Text'] ?? '');
         $roomResponse->setRateId($rateOrdinal);
         $roomResponse->setRatePlanCode($rate['RatePlans']['RatePlan']['@attributes']['RatePlanCode'] ?? '');
         $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);

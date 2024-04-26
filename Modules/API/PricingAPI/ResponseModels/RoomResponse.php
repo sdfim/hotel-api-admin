@@ -39,6 +39,8 @@ class RoomResponse extends BaseResponse
 
     private string $rate_plan_code;
 
+    private string $rate_name;
+
     private string $rate_description;
 
     private array $cancellation_policies;
@@ -50,6 +52,23 @@ class RoomResponse extends BaseResponse
     private array $bed_configurations;
 
     private array $breakdown;
+
+    /**
+     * @param string $rate_name
+     * @return void
+     */
+    public function setRateName(string $rate_name): void
+    {
+        $this->rate_name = $rate_name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRateName(): string
+    {
+        return $this->rate_name;
+    }
 
     /**
      * @param array $breakdown
@@ -457,6 +476,7 @@ class RoomResponse extends BaseResponse
             'room_type' => $this->getRoomType(),
             'rate_id' => $this->getRateId(),
             'rate_plan_code' => $this->getRatePlanCode() ?? '',
+            'rate_name' => $this->getRateName(),
             'rate_description' => $this->getRateDescription(),
             'total_price' => $this->getTotalPrice(),
             'total_tax' => $this->getTotalTax(),
