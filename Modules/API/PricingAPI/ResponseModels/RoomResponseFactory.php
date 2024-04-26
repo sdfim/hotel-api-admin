@@ -16,6 +16,7 @@ class RoomResponseFactory
         $roomResponse->setRoomType('');
         $roomResponse->setRateId('');
         $roomResponse->setRatePlanCode('');
+        $roomResponse->setRateName('');
         $roomResponse->setRateDescription('');
         $roomResponse->setTotalPrice(0.0);
         $roomResponse->setTotalTax(0.0);

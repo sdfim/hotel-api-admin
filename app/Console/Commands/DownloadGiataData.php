@@ -13,32 +13,13 @@ use Illuminate\Support\Facades\Log;
 
 class DownloadGiataData extends Command
 {
-    /**
-     * @var string
-     */
+
     protected $signature = 'download-giata-data';
 
-    /**
-     * @var string
-     */
     protected $description = 'Import XML data from a URL, wrtite to DB';
 
-    /**
-     * @var float|string
-     */
     protected float|string $current_time;
 
-    /**
-     *
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * @return void
-     */
     public function handle(): void
     {
         // GiataProperty::truncate();
@@ -77,6 +58,7 @@ class DownloadGiataData extends Command
 
                     $this->info('XML data imported successfully, BATCH: ' . $batch);
                     $this->info('Memory usage: ' . (memory_get_usage() / 1024 / 1024) . ' MB');
+                    $this->warn('-----------------------------------');
 
                 } else {
                     $this->error('Error importing XML data. HTTP status code: ' . $response->getStatusCode());
@@ -117,13 +99,12 @@ class DownloadGiataData extends Command
         }
 
         $xml = simplexml_load_string($xmlContent);
+        $proterties = $xml->TTI_Property;
 
         $batchDataMapperHbsi = [];
-        foreach ($xml->TTI_Property as $property) {
-
-            $batchData = [];
-            $propertyIds = [];
-            $batchDataMapperHbsi = [];
+        $batchData = [];
+        $propertyIds = [];
+        foreach ($proterties as $property) {
 
             $data = [
                 'code' => (int)$property['Code'],
@@ -144,6 +125,7 @@ class DownloadGiataData extends Command
                 'longitude' => isset($property->Position['Longitude']) ? (float)$property->Position['Longitude'] : null,
                 'url' => isset($property->URL) ? json_encode($property->URL) : null,
                 'cross_references' => json_encode($property->CrossReferences),
+                'rating' => $property->Ratings ? (float)$property->Ratings[0]->Rating['Value'] : 0.0,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
 
@@ -164,7 +146,14 @@ class DownloadGiataData extends Command
         try {
             DB::beginTransaction();
             GiataProperty::whereIn('code', $propertyIds)->delete();
+
+            // can overflow memory. if there is a memory overflow, the following block must be used
             GiataProperty::insert($batchData);
+            // this block will not overflow memory, but it is slower because it inserts records one by one.
+            // foreach ($batchData as $data) {
+            //     GiataProperty::create($data);
+            // }
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
@@ -183,7 +172,7 @@ class DownloadGiataData extends Command
             return false;
         }
 
-        unset($batchData, $batchDataMapperHbsi, $propertyIds);
+        unset($batchData, $batchDataMapperHbsi, $propertyIds, $proterties);
 
         return $url;
     }
