@@ -36,6 +36,12 @@ class DownloadGiataData extends Command
             'auth' => [$username, $password],
         ]);
 
+        //This code prevents memory overflow
+        DB::disableQueryLog();
+        $eventDispatcher = DB::connection('mysql2')->getEventDispatcher();
+        DB::connection('mysql2')->unsetEventDispatcher();
+
+
         while ($url) {
             try {
                 // Send an HTTP GET request with authentication
@@ -67,6 +73,10 @@ class DownloadGiataData extends Command
                 $this->error('Error importing XML data: ' . $e->getMessage());
             }
         }
+
+        //Restore to normal
+        DB::connection('mysql2')->setEventDispatcher($eventDispatcher);
+        DB::enableQueryLog();;
 
     }
 
@@ -172,7 +182,7 @@ class DownloadGiataData extends Command
             return false;
         }
 
-        unset($batchData, $batchDataMapperHbsi, $propertyIds, $proterties);
+        unset($batchData, $batchDataMapperHbsi, $propertyIds, $proterties, $xml, $xmlContent);
 
         return $url;
     }
