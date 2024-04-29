@@ -327,7 +327,7 @@ class HbsiClient
      */
     private function cancelRQ(array $reservation): string
     {
-        $type = Arr::get($reservation, 'type', 15);
+        $type = Arr::get($reservation, 'type', 8);
 
         return '<OTA_CancelRQ Target="Test" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
                 xmlns="http://www.opentravel.org/OTA/2003/05">
@@ -339,7 +339,7 @@ class HbsiClient
                             </BookingChannel>
                         </Source>
                     </POS>
-                    <UniqueID Type="'.$type.'" ID="' . $reservation['ReservationId'] . '">
+                    <UniqueID Type="'.$type.'" ID="' . $reservation['bookingId'] . '">
                         <CompanyName>HBSI</CompanyName>
                     </UniqueID>
                     <Verification>
