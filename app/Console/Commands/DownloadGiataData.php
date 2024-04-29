@@ -56,7 +56,6 @@ class DownloadGiataData extends Command
                     $this->info('Get XML BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
 
                     $url = $this->parseXMLToDb($textXML);
-                    if (!$url) $url = $this->parseXMLToDb($textXML);
 
                     $this->info('parseXMLToDb BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
 
@@ -93,9 +92,9 @@ class DownloadGiataData extends Command
 
     /**
      * @param string $text
-     * @return false|string
+     * @return bool|string
      */
-    private function parseXMLToDb(string $text): false|string
+    private function parseXMLToDb(string $text): bool|string
     {
         $xmlContent = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $text);
         try {
@@ -104,7 +103,7 @@ class DownloadGiataData extends Command
             $url = array_key_exists(1, $url_arr) ? $url_arr[1] : false;
             $this->comment('Get next url: ' . $url);
         } catch (Exception $e) {
-            $this->error('Error get url or it not exist: ' . $e->getMessage());
+            $this->comment('Url not found - all data retrieved. This is the last batch');
             return false;
         }
 
