@@ -11,8 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->table('giata_properties', function (Blueprint $table) {
-            $table->float('rating')->nullable();
+        $connection = env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2');
+
+        Schema::connection($connection)->table('giata_properties', function (Blueprint $table) use ($connection) {
+            if (!Schema::connection($connection)->hasColumn('giata_properties', 'rating')) {
+                $table->float('rating')->nullable();
+            }
         });
     }
 
