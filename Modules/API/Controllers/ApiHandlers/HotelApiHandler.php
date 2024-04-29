@@ -90,10 +90,14 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $filters = $request->all();
             $supplierNames = explode(', ', (GeneralConfiguration::pluck('content_supplier')->toArray()[0] ?? 'Expedia'));
             $keyPricingSearch = $request->type . ':contentSearch:' . http_build_query(Arr::dot($filters));
+            $tag = 'content_search';
+            $keyContent = $keyPricingSearch . ':content';
+            $keyClientContent = $keyPricingSearch . ':clientContent';
+            $taggedCache = Cache::tags($tag);
 
-            if (Cache::has($keyPricingSearch . ':content') && Cache::has($keyPricingSearch . ':clientContent')) {
-                $content = Cache::get($keyPricingSearch . ':content');
-                $clientContent = Cache::get($keyPricingSearch . ':clientContent');
+            if ($taggedCache->has($keyContent) && $taggedCache->has($keyClientContent)) {
+                $content = $taggedCache->get($keyContent);
+                $clientContent = $taggedCache->get($keyClientContent);
             } else {
                 $dataResponse = [];
                 $clientResponse = [];
@@ -144,8 +148,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     'results' => $clientResponse,
                 ];
 
-                Cache::put($keyPricingSearch . ':content', $content, now()->addMinutes(60));
-                Cache::put($keyPricingSearch . ':clientContent', $clientContent, now()->addMinutes(60));
+                $taggedCache->put($keyContent, $content, now()->addMinutes(60));
+                $taggedCache->put($keyClientContent, $clientContent, now()->addMinutes(60));
             }
 
             if ($request->input('supplier_data') == 'true') $res = $content;
@@ -249,9 +253,11 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             $token = $request->bearerToken();
             $keyPricingSearch = $request->type . ':pricingSearch:' . http_build_query(Arr::dot($filters)) . ':' . $token;
+            $tag = 'pricing_search';
+            $taggedCache = Cache::tags($tag);
 
-            if (Cache::has($keyPricingSearch . ':result')) {
-                $res = Cache::get($keyPricingSearch . ':result');
+            if ($taggedCache->has($keyPricingSearch . ':result')) {
+                $res = $taggedCache->get($keyPricingSearch . ':result');
             } else {
 
                 if (!isset($filters['rating']))
@@ -370,7 +376,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                 $res['search_id'] = $search_id;
 
-                Cache::put($keyPricingSearch . ':result', $res, now()->addMinutes(60));
+                $taggedCache->put($keyPricingSearch . ':result', $res, now()->addMinutes(60));
             }
 
             return $this->sendResponse($res, 'success');

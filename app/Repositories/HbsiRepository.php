@@ -38,7 +38,8 @@ class HbsiRepository
         $totalResults = count($results);
         $totalPages = ceil($totalResults / $limit);
 
-        $result = array_slice($results, $offset, $limit);
+        $offset = $offset > 1 ? ($offset -1) * $limit : 0;
+        $result = array_slice($results, $offset , $limit);
         $associativeArray = array_column($result, null, 'hbsi');
 
         return [
