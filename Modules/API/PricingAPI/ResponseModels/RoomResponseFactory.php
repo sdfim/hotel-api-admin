@@ -14,6 +14,7 @@ class RoomResponseFactory
         $roomResponse->setPerDayRateBreakdown('');
         $roomResponse->setSupplierRoomCode('');
         $roomResponse->setRoomType('');
+        $roomResponse->setRoomDescription('');
         $roomResponse->setRateId('');
         $roomResponse->setRatePlanCode('');
         $roomResponse->setRateName('');

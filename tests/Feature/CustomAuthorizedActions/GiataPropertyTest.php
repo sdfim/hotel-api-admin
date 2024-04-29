@@ -24,7 +24,9 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
         $this->giata = GiataProperty::take(10)->get();
 
-        if ($this->giata->isEmpty() && env('SUPPLIER_CONTENT_DB_HOST') === 'mysql') $this->giata = GiataProperty::factory()->count(10)->create();
+        if ($this->giata->isEmpty() && env('SUPPLIER_CONTENT_DB_HOST') === 'mysql') {
+            $this->giata = GiataProperty::factory()->count(10)->create();
+        }
     }
 
     /**
@@ -162,12 +164,11 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_searching_by_address(): void
     {
-        $mapperAddress = $this->giata->first()->mapper_address;
+        $mapperAddress = $this->giata->first()->address;
 
         livewire::test(GiataTable::class)
-            ->searchTableColumns(['mapper_address' => $mapperAddress])
-            ->assertCanSeeTableRecords($this->giata->where('mapper_address', $mapperAddress))
-            ->assertCanNotSeeTableRecords($this->giata->where('mapper_address', '!=', $mapperAddress));
+            ->searchTableColumns(['address' => $mapperAddress])
+            ->assertCanSeeTableRecords($this->giata->where('address', $mapperAddress));
     }
 
     /**

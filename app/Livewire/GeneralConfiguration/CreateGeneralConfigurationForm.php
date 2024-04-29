@@ -167,25 +167,10 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
 
     public function clearCache()
     {
-        $redis = Cache::store('redis')->connection();
-        $keys = $redis->keys('*:pricingSearch:*');
-        $count = count($keys);
-        
-        if ($count === 0) {
-            Notification::make()
-                ->title('No keys found in cache')
-                ->warning()
-                ->send();
-            return;
-        }
-
-       foreach ($keys as $key) {
-           $key = str_replace('laravel_database_laravel_cache_:', '', $key);
-           Cache::forget($key);
-         }
+        Cache::tags('pricing_search')->flush();
 
         Notification::make()
-            ->title('Successful cache clearance (pricingSearch keys: ' . $count . ')')
+            ->title('Successful cache clearance')
             ->success()
             ->send();
     }
