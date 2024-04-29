@@ -53,6 +53,24 @@ class RoomResponse extends BaseResponse
 
     private array $breakdown;
 
+    private string $room_description;
+
+    /**
+     * @param string $room_description
+     */
+    public function setRoomDescription(string $room_description): void
+    {
+        $this->room_description = $room_description;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRoomDescription(): string
+    {
+        return $this->room_description;
+    }
+
     /**
      * @param string $rate_name
      * @return void
@@ -474,6 +492,7 @@ class RoomResponse extends BaseResponse
             'supplier_room_id' => $this->getSupplierRoomCode(),
             // 'supplier_bed_groups' => $this->getSupplierBedGroups(),
             'room_type' => $this->getRoomType(),
+            'room_description' => $this->getRoomDescription(),
             'rate_id' => $this->getRateId(),
             'rate_plan_code' => $this->getRatePlanCode() ?? '',
             'rate_name' => $this->getRateName(),
