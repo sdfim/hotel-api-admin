@@ -44,9 +44,6 @@ class GiataPropertyFactory extends Factory
                 },
                 "CountryName": "IN"
             }',
-            'mapper_address' => $addressLine,
-            'mapper_postal_code' => '110037',
-            'mapper_phone_number' => '+911171558800',
             'phone' => [
                 '{
                     "@attributes": {
@@ -56,7 +53,7 @@ class GiataPropertyFactory extends Factory
                 }',
                 '{
                     "@attributes": {
-                        "PhoneNumber": "+911171558801",
+                        "PhoneNumber": ' . $this->faker->phoneNumber .',
                         "PhoneTechType": "3"
                     }
                 }'
