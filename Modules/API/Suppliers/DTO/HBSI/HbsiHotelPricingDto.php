@@ -7,6 +7,7 @@ use App\Models\GiataProperty;
 use App\Models\Supplier;
 use App\Repositories\GiataGeographyRepository;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -442,16 +443,26 @@ class HbsiHotelPricingDto
             if (isset($rate['Base']['Taxes'])) {
                 $taxes = $rate['Base']['Taxes'];
                 foreach ($taxes as $tax) {
-                    $code = strtolower($tax['@attributes']['Code']);
-                    if (in_array(strtolower($tax['@attributes']['Code']), $this->fees)) $type = 'fee';
-                    if (in_array($code, $this->taxes)) $type = 'tax';
-                    $taxesFeesRate[] = [
-                        'type' => $type ?? 'tax',
-                        'amount' => $tax['@attributes']['Amount'] / $nightsRate,
-                        'title' => isset($tax['@attributes']['Percent'])
-                            ? $tax['@attributes']['Percent'] . ' % ' . $tax['@attributes']['Code']
-                            : $tax['@attributes']['Code'],
-                    ];
+                    $_taxes = $tax;
+
+                    if (Arr::has($tax, '@attributes'))
+                    {
+                        $_taxes = [$tax];
+                    }
+
+                    foreach($_taxes as $_tax)
+                    {
+                        $code = strtolower($_tax['@attributes']['Code']);
+                        if (in_array(strtolower($_tax['@attributes']['Code']), $this->fees)) $type = 'fee';
+                        if (in_array($code, $this->taxes)) $type = 'tax';
+                        $taxesFeesRate[] = [
+                            'type' => $type ?? 'tax',
+                            'amount' => $_tax['@attributes']['Amount'] / $nightsRate,
+                            'title' => isset($_tax['@attributes']['Percent'])
+                                ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
+                                : $_tax['@attributes']['Code'],
+                        ];
+                    }
                 }
             }
             for ($i = 0; $i < $nightsRate; $i++){
