@@ -124,7 +124,7 @@ class HbsiClient
      */
     public function cancelBooking(array $reservation): ?array
     {
-        $bodyQuery = $this->makeRequest($this->cancelRQ($reservation), 'CancelRQ', '72999');
+        $bodyQuery = $this->makeRequest($this->cancelRQ($reservation), 'CancelRQ');
         $response = $this->sendRequest($bodyQuery);
         $body = $response->getBody();
         return $this->processXmlBody($body, $bodyQuery);
@@ -421,6 +421,7 @@ class HbsiClient
                         $key = rtrim($parentName, 's');
                     }
 
+                    //If the value is an array of Scalars, we must create nodes with the key name.
                     if (is_scalar(Arr::get($value, '0')))
                     {
                         foreach($value as $value2)
@@ -428,6 +429,8 @@ class HbsiClient
                             $xml->addChild($key, $value2);
                         }
                     }
+
+                    //If not a sacalar value, it's a probably a nested array.
                     else
                     {
                         $subnode = $xml->addChild($key);
