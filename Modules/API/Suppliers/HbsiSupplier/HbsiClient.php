@@ -119,12 +119,13 @@ class HbsiClient
 
     /**
      * @param array $reservation
+     * @param string|null $hotelId
      * @return array|null
      * @throws GuzzleException
      */
-    public function cancelBooking(array $reservation): ?array
+    public function cancelBooking(array $reservation, ?string $hotelId = null): ?array
     {
-        $bodyQuery = $this->makeRequest($this->cancelRQ($reservation), 'CancelRQ');
+        $bodyQuery = $this->makeRequest($this->cancelRQ($reservation), 'CancelRQ', $hotelId);
         $response = $this->sendRequest($bodyQuery);
         $body = $response->getBody();
         return $this->processXmlBody($body, $bodyQuery);

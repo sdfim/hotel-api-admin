@@ -226,7 +226,7 @@ class HbsiBookApiController extends BaseBookApiController
 
         try
         {
-            $xmlPriceData = $this->hbsiClient->cancelBooking($apiBookingsMetadata->booking_item_data);
+            $xmlPriceData = $this->hbsiClient->cancelBooking($apiBookingsMetadata->booking_item_data, $apiBookingsMetadata->hotel_supplier_id);
             $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
             $dataResponse = json_decode(json_encode($response), true);
 
