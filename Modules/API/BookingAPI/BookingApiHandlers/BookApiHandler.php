@@ -269,6 +269,9 @@ class BookApiHandler extends BaseController
             if (isset($item['Error'])) {
                 $errors[] = $item['Error'];
             }
+            if (isset($item['error'])) {
+                $errors[] = $item['error'];
+            }
         }
 
         if (!empty($errors)) {

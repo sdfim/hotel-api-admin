@@ -86,7 +86,7 @@ class HbsiBookApiController extends BaseBookApiController
             ];
             if (!isset($dataResponse['Errors'])) {
                 # Save Booking Info
-                $this->saveBookingInfo($filters, $dataResponse);
+                $this->saveBookingInfo($filters, $dataResponse, json_decode($xmlPriceData['main_guest'], true));
 
                 $inputConfirmationNumbers = $dataResponse['HotelReservations']['HotelReservation']['ResGlobalInfo']['HotelReservationIDs']['HotelReservationID'] ?? [];
                 $confirmationNumbers = array_map(function ($item) {
@@ -165,7 +165,7 @@ class HbsiBookApiController extends BaseBookApiController
         }
 
         # Save Booking Info
-        $this->saveBookingInfo($filters, $confirmationNumbers);
+        //$this->saveBookingInfo($filters, $confirmationNumbers);
 
         return $confirmationNumbers;
     }
@@ -383,16 +383,13 @@ class HbsiBookApiController extends BaseBookApiController
         return $reservation;
     }
 
-    private function saveBookingInfo(array $filters, array $dataResponse): void
+    private function saveBookingInfo(array $filters, array $dataResponse, array $mainGuest): void
     {
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $filters['supplier_id'] = $supplierId;
 
         $reservation = $this->extractReservationId($dataResponse);
-        $reservation['main_guest'] = [
-            'GivenName' => Arr::get($filters, 'booking_contact.first_name'),
-            'Surname'   => Arr::get($filters, 'booking_contact.last_name'),
-        ];
+        $reservation['main_guest'] = $mainGuest['PersonName'];
 
         SaveBookingMetadata::dispatch($filters, $reservation);
     }
