@@ -14,6 +14,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use SimpleXMLElement;
 use Throwable;
@@ -123,7 +124,7 @@ class HbsiClient
      */
     public function cancelBooking(array $reservation): ?array
     {
-        $bodyQuery = $this->makeRequest($this->cancelRQ($reservation), 'CancelRQ');
+        $bodyQuery = $this->makeRequest($this->cancelRQ($reservation), 'CancelRQ', '72999');
         $response = $this->sendRequest($bodyQuery);
         $body = $response->getBody();
         return $this->processXmlBody($body, $bodyQuery);
@@ -270,13 +271,14 @@ class HbsiClient
         foreach ($roomStaysArr as $roomStay) {
             $roomStays .= str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($roomStay, null, 'RoomStay'));
         }
-        $roomStays = '<RoomStays>' . $roomStays . '</RoomStays>';        $resGuests = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGuestsArr, null, 'ResGuests'));
+        $roomStays = '<RoomStays>' . $roomStays . '</RoomStays>';
+        $resGuests = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGuestsArr, null, 'ResGuests'));
         $iata = '';
         if (isset($filters['travel_agency_identifier'])) {
             $iata = '<UniqueID Type="5" ID="' . $filters['travel_agency_identifier'] . '"/>';
         }
 
-        return '<OTA_HotelResRQ Target="Test" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
+        return '<OTA_HotelResRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
                 xmlns="http://www.opentravel.org/OTA/2003/05">
                 <POS>
                     <Source>
@@ -305,7 +307,7 @@ class HbsiClient
     private function readRQ(array $reservation): string
     {
 
-        return '<OTA_ReadRQ Target="Test" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
+        return '<OTA_ReadRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
                 xmlns="http://www.opentravel.org/OTA/2003/05">
                     <ReadRequests>
                     <ReadRequest>
@@ -328,8 +330,7 @@ class HbsiClient
     private function cancelRQ(array $reservation): string
     {
         $type = Arr::get($reservation, 'type', 8);
-
-        return '<OTA_CancelRQ Target="Test" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
+        return '<OTA_CancelRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
                 xmlns="http://www.opentravel.org/OTA/2003/05">
                     <POS>
                         <Source>
@@ -419,8 +420,19 @@ class HbsiClient
                     if (is_numeric($key)) {
                         $key = rtrim($parentName, 's');
                     }
-                    $subnode = $xml->addChild($key);
-                    $this->arrayToXml($value, $subnode, $key);
+
+                    if (is_scalar(Arr::get($value, '0')))
+                    {
+                        foreach($value as $value2)
+                        {
+                            $xml->addChild($key, $value2);
+                        }
+                    }
+                    else
+                    {
+                        $subnode = $xml->addChild($key);
+                        $this->arrayToXml($value, $subnode, $key);
+                    }
                 }
             } else {
                 $xml->addChild($key, htmlspecialchars($value));
