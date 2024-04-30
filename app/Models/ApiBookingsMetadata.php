@@ -38,6 +38,7 @@ class ApiBookingsMetadata extends Model
         'booking_id',
         'supplier_id',
         'supplier_booking_item_id',
+        'hotel_supplier_id',
         'booking_item_data',
     ];
 
