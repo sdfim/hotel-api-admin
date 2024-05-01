@@ -111,6 +111,11 @@ return [
         ],
     ],
 
+    'active_connections' => [
+        'mysql' => env('DB_CONNECTION', 'mysql'),
+        'mysql2' => env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Migration Repository Table

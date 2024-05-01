@@ -11,8 +11,6 @@ use Tests\TestCase;
 
 class EnrichmentWeightContentSearchTest extends TestCase
 {
-    use RefreshDatabase;
-
     /**
      * @test
      * @return void
