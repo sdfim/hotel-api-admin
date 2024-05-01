@@ -248,7 +248,7 @@ class ExpediaBookApiController extends BaseBookApiController
         $filters['search_id'] = '';
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
 
-        $props = $this->getPathParamsFromLink($apiBookingsMetadata->booking_item_data['retrieve_paths']);
+        $props = $this->getPathParamsFromLink($apiBookingsMetadata->booking_item_data['retrieve_path']);
         $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
         $dataResponse = json_decode($response->getBody()->getContents(), true);
         $dataResponse['original']['response'] = $dataResponse;
@@ -365,7 +365,7 @@ class ExpediaBookApiController extends BaseBookApiController
         $reservation = [
             'bookingId'           => $roomId,
             'cancellation_paths'  => BookingRepository::getLinkDeleteItem($filters['booking_id'], $filters['booking_item'], $roomId),
-            'retrieve_paths'      => $linkBookRetrieves,
+            'retrieve_path'      => $linkBookRetrieves,
         ];
 
         SaveBookingMetadata::dispatch($filters, $reservation);
