@@ -172,20 +172,20 @@ class HbsiBookApiController extends BaseBookApiController
 
     /**
      * @param array $filters
-     * @param ApiBookingInspector $bookingInspector
+     * @param ApiBookingsMetadata $apiBookingsMetadata
      * @return array|null
      * @throws GuzzleException
      */
-    public function retrieveBooking(array $filters, ApiBookingInspector $bookingInspector): array|null
+    public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): array|null
     {
         $booking_id = $filters['booking_id'];
-        $filters['search_id'] = $bookingInspector->search_id;
-        $filters['booking_item'] = $bookingInspector->booking_item;
-        $reservation = $this->extractReservationDetails($bookingInspector);
+        $filters['booking_item'] = $apiBookingsMetadata->booking_item;
+        $filters['search_id'] = '';
 
-        $xmlPriceData = $this->hbsiClient->retrieveBooking($reservation);
+        $xmlPriceData = $this->hbsiClient->retrieveBooking($apiBookingsMetadata->booking_item_data, $apiBookingsMetadata->hotel_supplier_id);
 
         $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
+
         $dataResponse = json_decode(json_encode($response), true);
 
 		$dataResponseToSave = $dataResponse;
@@ -203,7 +203,7 @@ class HbsiBookApiController extends BaseBookApiController
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         SaveBookingInspector::dispatch([
             $booking_id, $filters, $dataResponseToSave, $clientDataResponse, $supplierId, 'retrieve_booking',
-            '', $bookingInspector->search_type,
+            '', $apiBookingsMetadata->search_type,
         ]);
 
         if (isset($filters['supplier_data']) && $filters['supplier_data'] == 'true') {

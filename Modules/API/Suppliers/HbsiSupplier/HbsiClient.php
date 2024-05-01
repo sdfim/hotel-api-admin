@@ -106,12 +106,13 @@ class HbsiClient
 
     /**
      * @param array $reservation
+     * @param string|null $hotelId
      * @return array|null
      * @throws GuzzleException
      */
-    public function retrieveBooking(array $reservation): ?array
+    public function retrieveBooking(array $reservation, ?string $hotelId = null): ?array
     {
-        $bodyQuery = $this->makeRequest($this->readRQ($reservation), 'ReadRQ');
+        $bodyQuery = $this->makeRequest($this->readRQ($reservation), 'ReadRQ', $hotelId);
         $response = $this->sendRequest($bodyQuery);
         $body = $response->getBody();
         return $this->processXmlBody($body, $bodyQuery);
@@ -181,10 +182,10 @@ class HbsiClient
     /**
      * @param string $body
      * @param string $typeRequest
-     * @param string $hotelId
+     * @param string|null $hotelId
      * @return string
      */
-    private function makeRequest(string $body, string $typeRequest, string $hotelId = ''): string
+    private function makeRequest(string $body, string $typeRequest, ?string $hotelId = ''): string
     {
         if ($hotelId === '') $hotelId = $this->credentials->componentInfoId;
         return '<?xml version="1.0" encoding="utf-8"?>
@@ -307,12 +308,13 @@ class HbsiClient
      */
     private function readRQ(array $reservation): string
     {
+        $type = Arr::get($reservation, 'type', 8);
 
         return '<OTA_ReadRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
                 xmlns="http://www.opentravel.org/OTA/2003/05">
                     <ReadRequests>
                     <ReadRequest>
-                        <UniqueID Type="14" ID="' . $reservation['bookingId'] . '"/>
+                        <UniqueID Type="'.$type.'" ID="' . $reservation['bookingId'] . '"/>
                         <Verification>
                             <PersonName>
                                 <GivenName>' . $reservation['main_guest']['GivenName'] . '</GivenName>
@@ -331,6 +333,7 @@ class HbsiClient
     private function cancelRQ(array $reservation): string
     {
         $type = Arr::get($reservation, 'type', 8);
+
         return '<OTA_CancelRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
                 xmlns="http://www.opentravel.org/OTA/2003/05">
                     <POS>
