@@ -371,7 +371,10 @@ class HbsiHotelPricingDto
         $roomResponse->setSupplierRoomCode($rateOccupancy);
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
         $roomResponse->setRoomType($roomType);
-        $roomResponse->setRoomDescription($rate['RoomTypes']['RoomType']['RoomDescription']['Text'] ?? '');
+        $roomDescription = is_array($rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
+            ? implode(' ', $rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
+            : $rate['RoomTypes']['RoomType']['RoomDescription']['Text'] ?? '';
+        $roomResponse->setRoomDescription($roomDescription);
         $roomResponse->setRateName($rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '');
         $roomResponse->setRateDescription($rate['RatePlans']['RatePlan']['RatePlanDescription']['Text'] ?? '');
         $roomResponse->setRateId($rateOrdinal);
