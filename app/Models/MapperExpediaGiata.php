@@ -34,20 +34,13 @@ class MapperExpediaGiata extends Model
      */
     protected $primaryKey = ['expedia_id', 'giata_id'];
 
+    protected $table = 'mapper_expedia_giatas';
+
     /**
      * @var bool
      */
     public $incrementing = false;
 
-    /**
-     * @param array $attributes
-     */
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-        $this->connection = env(('SUPPLIER_CONTENT_DB_CONNECTION'), 'mysql2');
-        $this->table = env(('SUPPLIER_CONTENT_DB_DATABASE'), 'ujv_api') . '.' . 'mapper_expedia_giatas';
-    }
 
     /**
      * @return HasOne

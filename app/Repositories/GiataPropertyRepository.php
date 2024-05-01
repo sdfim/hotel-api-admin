@@ -7,6 +7,7 @@ use App\Models\MapperIcePortalGiata;
 use App\Traits\Timer;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Tools\GiataPropertySearch;
+use Modules\Enums\SupplierNameEnum;
 
 class GiataPropertyRepository
 {
@@ -82,7 +83,7 @@ class GiataPropertyRepository
         $this->giataPropertySearch = new GiataPropertySearch();
         $this->availableElasticSearch = $this->giataPropertySearch->available();
 
-        if ($supplier == 'ICE_PORTAL') {
+        if ($supplier == SupplierNameEnum::ICE_PORTAL->value) {
 
             $hotelsIds = array_column($supplierData, 'listingID');
 

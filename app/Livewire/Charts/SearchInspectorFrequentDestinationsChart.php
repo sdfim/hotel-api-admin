@@ -41,7 +41,7 @@ class SearchInspectorFrequentDestinationsChart extends ChartWidget
 			FROM
 				api_search_inspector
 			LEFT JOIN
-                " . config('database.connections.mysql2.database') . "." . "giata_geographies AS gg ON gg.city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))
+                giata_geographies AS gg ON gg.city_id = JSON_UNQUOTE(JSON_EXTRACT(request, '$.destination'))
 			GROUP BY
 				destination
 			ORDER BY

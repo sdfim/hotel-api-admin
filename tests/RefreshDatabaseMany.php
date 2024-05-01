@@ -21,7 +21,7 @@ trait RefreshDatabaseMany
     {
         if (! RefreshDatabaseState::$migrated) {
 
-            $this->fresh(config('database.active_connections.mysql2'));
+            $this->fresh(config('database.active_connections.mysql_cache'));
 
             $this->artisan('migrate:fresh', $this->migrateFreshUsing());
 

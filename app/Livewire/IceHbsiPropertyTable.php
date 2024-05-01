@@ -31,11 +31,11 @@ class IceHbsiPropertyTable extends Component implements HasForms, HasTable
                         return $query
                             ->where('code', $search);
                     }, isIndividual: true),
-                TextColumn::make('mapperHbsiGiata.giata_id')
-                    ->label('Giata ID')
-                    ->toggleable()
-                    ->sortable()
-                    ->searchable(isIndividual: true),
+//                TextColumn::make('mapperHbsiGiata.giata_id')
+//                    ->label('Giata ID')
+//                    ->toggleable()
+//                    ->sortable()
+//                    ->searchable(isIndividual: true),
                 TextColumn::make('supplier_id')
                     ->toggleable()
                     ->sortable()
@@ -67,11 +67,11 @@ class IceHbsiPropertyTable extends Component implements HasForms, HasTable
                 TextColumn::make('editDate')
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                TextColumn::make('mapperHbsiGiata.perc')
-                    ->label('Perc')
-                    ->toggleable()
-                    ->sortable()
-                    ->searchable(isIndividual: true),
+//                TextColumn::make('mapperHbsiGiata.perc')
+//                    ->label('Perc')
+//                    ->toggleable()
+//                    ->sortable()
+//                    ->searchable(isIndividual: true),
             ]);
     }
 

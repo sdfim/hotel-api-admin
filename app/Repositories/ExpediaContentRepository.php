@@ -61,9 +61,11 @@ class ExpediaContentRepository
             $query = GiataProperty::where('city', $input);
         }
 
-        return $query->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
-            ->select('mapper_expedia_giatas.expedia_id')
-            ->whereNotNull('mapper_expedia_giatas.expedia_id')
+        $mainDB = config('database.connections.mysql.database');
+
+        return $query->leftJoin($mainDB . '.mapper_expedia_giatas', $mainDB . '.mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
+            ->select($mainDB . '.mapper_expedia_giatas.expedia_id')
+            ->whereNotNull($mainDB . '.mapper_expedia_giatas.expedia_id')
             ->get()
             ->pluck('expedia_id')
             ->toArray();
@@ -74,12 +76,14 @@ class ExpediaContentRepository
      */
     public static function getDetailByGiataId($giata_id): object
     {
+        $mainDB = config('database.connections.mysql.database');
+
         return ExpediaContent::leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
-            ->where('property_id', function ($query) use ($giata_id) {
-                $query->from('mapper_expedia_giatas')
-                    ->leftJoin('giata_properties', 'mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
-                    ->select('mapper_expedia_giatas.expedia_id')
-                    ->where('mapper_expedia_giatas.giata_id', $giata_id)
+            ->where('property_id', function ($query) use ($giata_id, $mainDB) {
+                $query->from($mainDB.'.mapper_expedia_giatas')
+                    ->leftJoin('giata_properties', $mainDB.'.mapper_expedia_giatas.giata_id', '=', 'giata_properties.code')
+                    ->select($mainDB.'.mapper_expedia_giatas.expedia_id')
+                    ->where($mainDB.'.mapper_expedia_giatas.giata_id', $giata_id)
                     ->limit(1);
             })->get();
     }

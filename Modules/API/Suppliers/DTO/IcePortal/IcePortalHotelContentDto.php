@@ -19,15 +19,18 @@ class IcePortalHotelContentDto implements SupplierContentDtoInterface
         foreach ($supplierResponse as $hotel) {
             $hotelResponse = ContentSearchResponseFactory::create();
 
+            $images = is_array($hotel['images']) ? $hotel['images'] : json_decode($hotel['images'], true);
+            $amenities = is_array($hotel['amenities']) ? $hotel['amenities'] : json_decode($hotel['amenities'], true);
+
             $hotelResponse->setGiataHotelCode(isset($hotel['giata_id']) ? intval($hotel['giata_id']) : 0);
-            $hotelResponse->setImages($hotel['images'] ?? []);
+            $hotelResponse->setImages($images ?? []);
             $hotelResponse->setDescription(isset($hotel['descriptions']) ? json_decode($hotel['descriptions'], true) : []);
             $hotelResponse->setHotelName($hotel['name']);
             $hotelResponse->setDistance($hotel['distance'] ?? '');
             $hotelResponse->setLatitude($hotel['address']['latitude'] ?? $hotel['latitude'] ?? '');
             $hotelResponse->setLongitude($hotel['address']['longitude'] ?? $hotel['latitude'] ?? '');
             $hotelResponse->setRating($hotel['rating'] ?? '');
-            $hotelResponse->setAmenities($hotel['amenities'] ?? []);
+            $hotelResponse->setAmenities($amenities ?? []);
             $hotelResponse->setGiataDestination($hotel['address']['city'] ?? $hotel['city'] ?? '');
             $hotelResponse->setUserRating($hotel['rating'] ?? '');
 

@@ -38,8 +38,8 @@ class DownloadGiataData extends Command
 
         //This code prevents memory overflow
         DB::disableQueryLog();
-        $eventDispatcher = DB::connection('mysql2')->getEventDispatcher();
-        DB::connection('mysql2')->unsetEventDispatcher();
+        $eventDispatcher = DB::connection('mysql_cache')->getEventDispatcher();
+        DB::connection('mysql_cache')->unsetEventDispatcher();
 
 
         while ($url) {
@@ -74,7 +74,7 @@ class DownloadGiataData extends Command
         }
 
         //Restore to normal
-        DB::connection('mysql2')->setEventDispatcher($eventDispatcher);
+        DB::connection('mysql_cache')->setEventDispatcher($eventDispatcher);
         DB::enableQueryLog();;
 
     }

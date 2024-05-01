@@ -80,7 +80,7 @@ return new class extends Migration
         });
 
 
-        $connection = config('database.active_connections.mysql2');
+        $connection = config('database.active_connections.mysql_cache');
         $schema = Schema::connection($connection);
 
         $schema->dropIfExists('mapper_expedia_giatas');
@@ -96,7 +96,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        $connection = config('database.active_connections.mysql2');
+        $connection = config('database.active_connections.mysql_cache');
         $schema = Schema::connection($connection);
 
         $schema->create('mapper_expedia_giatas', function (Blueprint $table) {

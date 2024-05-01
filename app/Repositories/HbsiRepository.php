@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\GiataPlace;
 use App\Models\GiataProperty;
 use App\Models\MapperHbsiGiata;
+use Illuminate\Support\Facades\DB;
 
 class HbsiRepository
 {
@@ -17,23 +18,24 @@ class HbsiRepository
      */
     public static function getIdsByDestinationGiata(string $input, int $limit = 100, int $offset = 1): ?array
     {
-        $results = GiataProperty::where(is_numeric($input) ? 'city_id' : 'city', $input)
-            ->with('hbsi')
-            ->select('code', 'name')
+        $mainDB = config('database.connections.mysql.database');
+        $cacheDB = config('database.connections.mysql_cache.database');
+
+        $results = DB::table($cacheDB . '.giata_properties')
+            ->join($mainDB . '.mapper_hbsi_giatas', $cacheDB . '.giata_properties.code', '=', $mainDB . '.mapper_hbsi_giatas.giata_id')
+            ->where(is_numeric($input) ? 'city_id' : 'city', $input)
+            ->select($cacheDB . '.giata_properties.code as giata', $cacheDB . '.giata_properties.name', $mainDB . '.mapper_hbsi_giatas.hbsi_id as hbsi')
             ->get()
-            ->filter(function ($value) {
-                return !is_null($value['hbsi']);
-            })
             ->mapWithKeys(function ($value) {
                 return [
-                    $value['hbsi']['hbsi_id'] => [
-                        'giata' => $value['code'],
-                        'name' => $value['name'],
-                        'hbsi' => $value['hbsi']['hbsi_id'],
+                    $value->hbsi => [
+                        'giata' => $value->giata,
+                        'name' => $value->name,
+                        'hbsi' => $value->hbsi,
                     ]
                 ];
             })
-        ->toArray();
+            ->toArray();
 
         $totalResults = count($results);
         $totalPages = ceil($totalResults / $limit);

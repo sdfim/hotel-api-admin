@@ -71,7 +71,7 @@ return [
             ]) : [],
         ],
 
-        'mysql2' => [
+        'mysql_cache' => [
             'driver' => 'mysql',
             'host' => env('SUPPLIER_CONTENT_DB_HOST', '127.0.0.1'),
             'port' => env('SUPPLIER_CONTENT_DB_PORT', '3306'),
@@ -113,7 +113,7 @@ return [
 
     'active_connections' => [
         'mysql' => env('DB_CONNECTION', 'mysql'),
-        'mysql2' => env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'),
+        'mysql_cache' => env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'),
     ],
 
     /*
