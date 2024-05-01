@@ -178,20 +178,13 @@ class BookApiHandler extends BaseController
      */
     public function retrieveBooking(BookingRetrieveItemsRequest $request): JsonResponse
     {
-        $determinant = $this->determinant($request);
-
-        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
-
         $filters = $request->all();
 
-        $itemsBooked = BookRepository::bookedItems($request->booking_id);
+        $itemsBooked = ApiBookingsMetadataRepository::bookedItems($request->booking_id);
+
         $data = [];
 
         foreach ($itemsBooked as $item) {
-            if (!BookRepository::isBook($request->booking_id, $item->booking_item)) {
-                $data[] = ['error' => 'booking_id and/or booking_item not yet booked'];
-                continue;
-            }
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
                 $data[] = match (SupplierNameEnum::from($supplier)) {
@@ -202,9 +195,8 @@ class BookApiHandler extends BaseController
             } catch (Exception $e) {
                 Log::error('BookApiHandler | retrieveBooking ' . $e->getMessage());
                 $data[] = [
-                    'booking_id' => $item['booking_id'],
-                    'booking_item' => $item['booking_item'],
-                    'search_id' => $item['search_id'],
+                    'booking_id' => $item->booking_id,
+                    'booking_item' => $item->booking_item,
                     'error' => $e->getMessage(),
                 ];
             }
@@ -252,9 +244,8 @@ class BookApiHandler extends BaseController
             } catch (Exception $e) {
                 Log::error('BookApiHandler | cancelBooking ' . $e->getMessage());
                 $data[] = [
-                    'booking_id' => $item['booking_id'],
-                    'booking_item' => $item['booking_item'],
-                    'search_id' => $item['search_id'],
+                    'booking_id' => $item->booking_id,
+                    'booking_item' => $item->booking_item,
                     'error' => $e->getMessage(),
                 ];
             }

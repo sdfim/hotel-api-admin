@@ -52,8 +52,8 @@ class HbsiHotelBookingRetrieveBookingDto
         //endregion
 
         $rooms[] = [
-            'checkin' => $query['checkin'],
-            'checkout' => $query['checkout'],
+            'checkin' => Arr::get($dataResponse, 'ReservationsList.HotelReservation.RoomStays.RoomStay.TimeSpan.@attributes.Start'),
+            'checkout' => Arr::get($dataResponse, 'ReservationsList.HotelReservation.RoomStays.RoomStay.TimeSpan.@attributes.End'),
             'number_of_adults' => $bookingItemData['rate_occupancy']
                 ? explode('-', $bookingItemData['rate_occupancy'])[0]
                 : 0,

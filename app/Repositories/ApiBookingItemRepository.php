@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\ApiBookingItem;
+use Illuminate\Support\Arr;
 use Modules\Enums\ItemTypeEnum;
 
 class ApiBookingItemRepository
@@ -60,7 +61,7 @@ class ApiBookingItemRepository
 
     public static function getHotelSupplierId(string $booking_item): string|null
     {
-        return self::getItemData($booking_item)['hotel_supplier_id'];
+        return Arr::get(self::getItemData($booking_item), 'hotel_supplier_id');
     }
 
     public static function getParentBookingItem(string $bookingItem): string
