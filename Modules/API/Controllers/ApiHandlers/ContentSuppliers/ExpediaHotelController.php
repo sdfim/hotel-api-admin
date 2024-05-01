@@ -116,6 +116,7 @@ class ExpediaHotelController
 
         } catch (Exception $e) {
             Log::error('ExpediaHotelApiHandler | preSearchData' . $e->getMessage());
+            Log::error($e->getTraceAsString());
 
             return null;
         }
@@ -197,6 +198,7 @@ class ExpediaHotelController
 
         } catch (Exception $e) {
             Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             return [];
         }
     }

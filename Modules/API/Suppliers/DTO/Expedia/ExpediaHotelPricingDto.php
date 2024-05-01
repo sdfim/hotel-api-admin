@@ -232,6 +232,7 @@ class ExpediaHotelPricingDto
             $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $occupancy_pricing);
         } catch (Exception $e) {
             Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
+            Log::error($e->getTraceAsString());
         }
 
         if ($pricingRulesApplier['total_price'] == 0.0) {

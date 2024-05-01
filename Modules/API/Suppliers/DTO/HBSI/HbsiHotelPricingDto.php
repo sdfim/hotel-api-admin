@@ -321,6 +321,7 @@ class HbsiHotelPricingDto
             $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $rateToApply);
         } catch (Exception $e) {
             Log::error('HbsiHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
+            Log::error($e->getTraceAsString());
         }
 
         $roomType = $rate['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '';

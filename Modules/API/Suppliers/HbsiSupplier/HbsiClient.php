@@ -171,6 +171,7 @@ class HbsiClient
                 return $res;
             } catch (Exception $e) {
                 Log::error('HbsiClient ' . $e->getMessage());
+                Log::error($e->getTraceAsString());
                 return null;
             }
         } else {

@@ -61,6 +61,7 @@ class ExpediaBookApiController extends BaseBookApiController
             $dataResponse = json_decode($response->getBody()->getContents());
         } catch (RequestException $e) {
             Log::error('ExpediaBookApiHandler | changeBooking | Booking PUT query ' . $e->getResponse()->getBody());
+            Log::error($e->getTraceAsString());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
         }
 
@@ -146,6 +147,7 @@ class ExpediaBookApiController extends BaseBookApiController
             $content['original']['request']['headers'] = $this->headers();
         } catch (RequestException $e) {
             Log::error('ExpediaBookApiHandler | book | create' . $e->getResponse()->getBody());
+            Log::error($e->getTraceAsString());
             $content = json_decode('' . $e->getResponse()->getBody());
             return (array)$content;
         }
@@ -178,6 +180,7 @@ class ExpediaBookApiController extends BaseBookApiController
             $clientResponse = $dataResponse ? $this->expediaBookDto->toHotelBookResponseModel($filters, $confirmationNumbers) : [];
         } catch (RequestException $e) {
             Log::error('ExpediaBookApiHandler | book | retrieve ' . $e->getResponse()->getBody());
+            Log::error($e->getTraceAsString());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
             return (array)$dataResponse;
         }
@@ -221,6 +224,7 @@ class ExpediaBookApiController extends BaseBookApiController
                 $promises[] = $this->rapidClient->getAsync($path, $item, $this->headers());
             } catch (Exception $e) {
                 Log::error('Error while creating promise: ' . $e->getMessage());
+                Log::error($e->getTraceAsString());
             }
         }
         $responses = [];
@@ -231,6 +235,7 @@ class ExpediaBookApiController extends BaseBookApiController
                 $responses[] = json_decode($data, true);
             } else {
                 Log::error('ExpediaBookApiHandler | listBookings  failed: ' . $response['reason']->getMessage());
+                Log::error($e->getTraceAsString());
             }
         }
 

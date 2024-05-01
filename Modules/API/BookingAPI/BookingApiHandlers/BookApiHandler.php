@@ -93,6 +93,7 @@ class BookApiHandler extends BaseController
                 };
             } catch (Exception $e) {
                 Log::error('BookApiHandler | book ' . $e->getMessage());
+                Log::error($e->getTraceAsString());
                 $data[] = [
                     'booking_id' => $item->booking_id,
                     'booking_item' => $item->booking_item,
@@ -140,6 +141,7 @@ class BookApiHandler extends BaseController
             };
         } catch (Exception $e) {
             Log::error('BookApiHandler | changeItems ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             return $this->sendError($e->getMessage(), 'failed');
         }
 
@@ -165,6 +167,7 @@ class BookApiHandler extends BaseController
             };
         } catch (Exception $e) {
             Log::error('HotelBookingApiHanlder | listBookings ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             return $this->sendError($e->getMessage(), 'failed');
         }
 
@@ -201,6 +204,7 @@ class BookApiHandler extends BaseController
                 };
             } catch (Exception $e) {
                 Log::error('BookApiHandler | retrieveBooking ' . $e->getMessage());
+                Log::error($e->getTraceAsString());
                 $data[] = [
                     'booking_id' => $item['booking_id'],
                     'booking_item' => $item['booking_item'],
@@ -251,6 +255,7 @@ class BookApiHandler extends BaseController
 
             } catch (Exception $e) {
                 Log::error('BookApiHandler | cancelBooking ' . $e->getMessage());
+                Log::error($e->getTraceAsString());
                 $data[] = [
                     'booking_id' => $item['booking_id'],
                     'booking_item' => $item['booking_item'],
@@ -311,6 +316,7 @@ class BookApiHandler extends BaseController
 
         } catch (Exception $e) {
             Log::error('HotelBookingApiHandler | retrieveItems ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             return $this->sendError($e->getMessage(), 'failed');
         }
 
@@ -361,6 +367,7 @@ class BookApiHandler extends BaseController
             }
 //        } catch (Exception $e) {
 //            Log::error('HotelBookingApiHandler | addPassengers ' . $e->getMessage());
+//            Log::error($e->getTraceAsString());
 //            return $this->sendError($e->getMessage(), 'failed');
 //        }
 
