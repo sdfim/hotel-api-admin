@@ -20,7 +20,6 @@ class HbsiHotelBookingRetrieveBookingDto
 
     public static function RetrieveBookingToHotelBookResponseModel(array $filters, array $dataResponse): array
     {
-
         $status = $dataResponse['ReservationsList']['HotelReservation']['@attributes']['ResStatus'] ?? '';
         $status = match ($status) {
             'Book' => 'booked',
@@ -28,18 +27,18 @@ class HbsiHotelBookingRetrieveBookingDto
             default => 'unknown',
         };
         $bookData = ApiBookingInspectorRepository::getBookItemsByBookingItem($filters['booking_item']);
-        $saveResponse = json_decode(Storage::get($bookData->client_response_path), true);
-        $saveOriginal = json_decode(Storage::get(str_replace('.json', '.original.json', $bookData->response_path)), true);
-        $mainGuest = json_decode($saveOriginal['main_guest'], true);
+        $saveResponse = $bookData ? json_decode(Storage::get($bookData->client_response_path), true) : [];
+        $saveOriginal = $bookData ? json_decode(Storage::get(str_replace('.json', '.original.json', $bookData->response_path)), true) : [];
+        $mainGuest = json_decode(Arr::get($saveOriginal, 'main_guest', ''), true);
         $query = ApiSearchInspectorRepository::getRequest($filters['search_id']);
-        $bookRequest = json_decode($bookData->request, true);
+        $bookRequest = json_decode($bookData?->request ?? '', true) ?? [];
 
         $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
-        $bookingItemData = json_decode($bookingItem->booking_item_data, true);
+        $bookingItemData = json_decode($bookingItem?->booking_item_data ?? '', true);
 
         //region Confirmation Numbers
-        $bookingData = json_decode(Storage::get($bookData->response_path), true);
-        $inputConfirmationNumbers = $bookingData['HotelReservations']['HotelReservation']['ResGlobalInfo']['HotelReservationIDs']['HotelReservationID'] ?? [];
+        $bookingData = $bookData ? json_decode(Storage::get($bookData->response_path), true) : [];
+        $inputConfirmationNumbers = Arr::get($bookingData, 'HotelReservations.HotelReservation.ResGlobalInfo.HotelReservationIDs.HotelReservationID', []);
         $supplierBookId = Arr::get($inputConfirmationNumbers, '0.@attributes.ResID_Value', '');
 
         $confirmationNumbers = array_map(function ($item) {
@@ -54,45 +53,44 @@ class HbsiHotelBookingRetrieveBookingDto
         $rooms[] = [
             'checkin' => Arr::get($dataResponse, 'ReservationsList.HotelReservation.RoomStays.RoomStay.TimeSpan.@attributes.Start'),
             'checkout' => Arr::get($dataResponse, 'ReservationsList.HotelReservation.RoomStays.RoomStay.TimeSpan.@attributes.End'),
-            'number_of_adults' => $bookingItemData['rate_occupancy']
-                ? explode('-', $bookingItemData['rate_occupancy'])[0]
+            'number_of_adults' => Arr::get($bookingItemData, 'rate_occupancy')
+                ? explode('-', Arr::get($bookingItemData, 'rate_occupancy.0'))
                 : 0,
-            'given_name' => $mainGuest['PersonName']['GivenName'],
-            'family_name' => $mainGuest['PersonName']['Surname'],
+            'given_name' => Arr::get($mainGuest, 'PersonName.GivenName'),
+            'family_name' => Arr::get($mainGuest, 'PersonName.Surname'),
             'room_name' => $saveResponse['rooms']['room_name'] ?? '',
             'room_type' => $saveResponse['room_type'] ?? '',
         ];
 
         $responseModel = new ResponseModel();
         $responseModel->setStatus($status);
-        $responseModel->setBookingId($saveResponse['booking_id']);
-        $responseModel->setBookringItem($saveResponse['booking_item']);
-        $responseModel->setSupplier($saveResponse['supplier']);
-        $responseModel->setHotelName($saveResponse['hotel_name']);
-
+        $responseModel->setBookingId(Arr::get($saveResponse, 'booking_id', ''));
+        $responseModel->setBookringItem(Arr::get($saveResponse, 'booking_item', ''));
+        $responseModel->setSupplier(Arr::get($saveResponse, 'supplier', ''));
+        $responseModel->setHotelName(Arr::get($saveResponse, 'hotel_name', ''));
 
         $responseModel->setRooms($rooms);
 
-        $cancellationTerms = is_array($saveResponse['cancellation_terms'])
-            ? $saveResponse['cancellation_terms'] : [$saveResponse['cancellation_terms']];
+        $cancellationTerms = is_array(Arr::get($saveResponse, 'cancellation_terms', []))
+            ? Arr::get($saveResponse, 'cancellation_terms', []) : [Arr::get($saveResponse, 'cancellation_terms')];
         $responseModel->setCancellationTerms($cancellationTerms);
-        $responseModel->setRate($saveResponse['rate']);
-        $responseModel->setTotalPrice($saveResponse['total_price']);
-        $responseModel->setTotalTax($saveResponse['total_tax']);
-        $responseModel->setTotalFees($saveResponse['total_fees']);
-        $responseModel->setTotalNet($saveResponse['total_net']);
-        $responseModel->setAffiliateServiceCharge($saveResponse['affiliate_service_charge']);
-        $responseModel->setCurrency($saveResponse['currency']);
-        $responseModel->setPerNightBreakdown($saveResponse['per_night_breakdown']);
+        $responseModel->setRate(Arr::get($saveResponse, 'rate', ''));
+        $responseModel->setTotalPrice(Arr::get($saveResponse, 'total_price', 0));
+        $responseModel->setTotalTax(Arr::get($saveResponse, 'total_tax', 0));
+        $responseModel->setTotalFees(Arr::get($saveResponse, 'total_fees', 0));
+        $responseModel->setTotalNet(Arr::get($saveResponse, 'total_net', 0));
+        $responseModel->setAffiliateServiceCharge(Arr::get($saveResponse, 'affiliate_service_charge', 0));
+        $responseModel->setCurrency(Arr::get($saveResponse, 'affiliate_service_charge', ''));
+        $responseModel->setPerNightBreakdown(Arr::get($saveResponse, 'per_night_breakdown', 0));
         $responseModel->setBoardBasis('');
 //        $responseModel->setRoomName('');
 //        $responseModel->setRoomType('');
         $responseModel->setQuery($bookRequest);
         $responseModel->setSupplierBookId($supplierBookId);
         $responseModel->setConfirmationNumbers($confirmationNumbers);
-        $responseModel->setBillingContact($bookRequest['booking_contact']['address'] ?? []);
-        $responseModel->setBillingEmail($bookRequest['booking_contact']['email'] ?? '');
-        $responseModel->setBillingPhone($bookRequest['booking_contact']['phone'] ?? []);
+        $responseModel->setBillingContact(Arr::get($bookRequest, 'booking_contact.address', []));
+        $responseModel->setBillingEmail(Arr::get($bookRequest, 'booking_contact.email', ''));
+        $responseModel->setBillingPhone(Arr::get($bookRequest, 'booking_contact.phone', []));
 
 
         return $responseModel->toRetrieveArray();

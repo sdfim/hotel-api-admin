@@ -70,6 +70,7 @@ class ImportTravelTekBookings extends Command
                         {
                             $bookingReference = Arr::get($row, 'Booking Reference');
                             $bookingItemReference = Arr::get($row, 'Reference');
+                            $hotelSupplierId = Arr::get($row, 'itemcode');
 
                             $bookingId = $this->getUuidFromExternalId($bookingReference, 'booking');
                             $bookingItem = $this->getUuidFromExternalId($bookingItemReference, 'booking_item');
@@ -103,6 +104,7 @@ class ImportTravelTekBookings extends Command
                                 'booking_id'                => $bookingId,
                                 'supplier_id'               => 2,
                                 'supplier_booking_item_id'  => $bookingItemReference,
+                                'hotel_supplier_id'         => $hotelSupplierId,
                                 'booking_item_data'         => json_encode($reservation),
                                 'created_at'                => $timeStamp,
                                 'updated_at'                => $timeStamp,
