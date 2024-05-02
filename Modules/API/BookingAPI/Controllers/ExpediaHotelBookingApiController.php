@@ -42,6 +42,7 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
             $content['original']['request']['path'] = $props['path'];
         } catch (RequestException $e) {
             Log::error('ExpediaHotelBookingApiHandler | addItem | price_check ' . $e->getResponse()->getBody());
+            Log::error($e->getTraceAsString());
             $content = json_decode('' . $e->getResponse()->getBody());
             return (array)$content;
         }

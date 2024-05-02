@@ -106,6 +106,7 @@ class HbsiBookApiController extends BaseBookApiController
 
         } catch (RequestException $e) {
             Log::error('HbsiBookApiController | book | RequestException ' . $e->getResponse()->getBody());
+            Log::error($e->getTraceAsString());
             return [
                 'error' => 'Request Error. '.$e->getResponse()->getBody(),
                 'booking_item' => $filters['booking_item'] ?? '',
@@ -113,6 +114,7 @@ class HbsiBookApiController extends BaseBookApiController
             ];
         } catch (\Exception $e) {
             Log::error('HbsiBookApiController | book | Exception ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             return [
                 'error' => 'Unexpected Error. '.$e->getMessage(),
                 'booking_item' => $filters['booking_item'] ?? '',
@@ -316,6 +318,7 @@ class HbsiBookApiController extends BaseBookApiController
 
         } catch (RequestException $e) {
             Log::error('HbsiBookApiController | changeBooking ' . $e->getResponse()->getBody());
+            Log::error($e->getTraceAsString());
             $dataResponse = json_decode('' . $e->getResponse()->getBody());
             return (array)$dataResponse;
         } catch (Exception $e) {

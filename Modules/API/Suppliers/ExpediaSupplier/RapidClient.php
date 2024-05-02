@@ -150,6 +150,7 @@ class RapidClient
             $res = $this->client->sendAsync($request, ['timeout' => ConfigRepository::getTimeout()]);
         } catch (Exception $e) {
             Log::error('Error while creating promise: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
         }
 
         return $res;

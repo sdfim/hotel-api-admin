@@ -203,6 +203,7 @@ class IcePortalHotelController
                 'message' => $e->getMessage(),
                 'error' => $e->getTraceAsString(),
             ]);
+            Log::error($e->getTraceAsString());
         }
 
         return $results;

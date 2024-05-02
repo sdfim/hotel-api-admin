@@ -133,6 +133,7 @@ class HbsiHotelController
 
         } catch (Exception $e) {
             Log::error('HBSIHotelApiHandler Exception ' . $e);
+            Log::error($e->getTraceAsString());
             return [
                 'original' => [
                     'request' => $xmlPriceData['request'] ?? '',
@@ -143,6 +144,7 @@ class HbsiHotelController
             ];
         } catch (GuzzleException $e) {
             Log::error('HBSIHotelApiHandler GuzzleException ' . $e);
+            Log::error($e->getTraceAsString());
             return [
                 'original' => [
                     'request' => $xmlPriceData['request'] ?? '',

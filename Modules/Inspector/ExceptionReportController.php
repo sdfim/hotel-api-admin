@@ -45,6 +45,7 @@ class ExceptionReportController extends BaseInspectorController
 
         } catch (Exception $e) {
             Log::error('Error save ExceptionReportController: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
+            Log::error($e->getTraceAsString());
 
             return false;
         }
