@@ -44,7 +44,14 @@ class ApiSearchInspectorRepository
                 $rates = $room->rates;
                 foreach ($rates as $rate) {
                     if ($rate->id == $rate_id) {
-                        $linkPriceCheck = $rate->bed_groups->$bed_groups->links->price_check->href;
+                        if (is_array($rate->bed_groups))
+                        {
+                            $linkPriceCheck = $rate->bed_groups[$bed_groups]->links->price_check->href;
+                        }
+                        else
+                        {
+                            $linkPriceCheck = $rate->bed_groups->$bed_groups->links->price_check->href;
+                        }
                     }
                 }
                 break;
