@@ -97,15 +97,6 @@ class DownloadGiataData extends Command
     private function parseXMLToDb(string $text): bool|string
     {
         $xmlContent = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $text);
-        try {
-            $url_next = explode('<More_Properties xlink:href=', $xmlContent)[1];
-            $url_arr = explode('"', $url_next);
-            $url = array_key_exists(1, $url_arr) ? $url_arr[1] : false;
-            $this->comment('Get next url: ' . $url);
-        } catch (Exception $e) {
-            $this->comment('Url not found - all data retrieved. This is the last batch');
-            return false;
-        }
 
         $xml = simplexml_load_string($xmlContent);
         $proterties = $xml->TTI_Property;
@@ -114,6 +105,14 @@ class DownloadGiataData extends Command
         $batchData = [];
         $propertyIds = [];
         foreach ($proterties as $property) {
+
+            $phones = [];
+            if (isset($property->Phone)) {
+                foreach ($property->Phone as $phone) {
+                    $phoneArray = json_decode(json_encode($phone), true);
+                    $phones[] = $phoneArray['@attributes'];
+                }
+            }
 
             $data = [
                 'code' => (int)$property['Code'],
@@ -128,7 +127,7 @@ class DownloadGiataData extends Command
                 'mapper_address' => (string)$property->Address->StreetNmbr . ' ' . (string)$property->Address->AddressLine,
                 'mapper_postal_code' => (string)$property->Address->PostalCode,
                 'mapper_phone_number' => (string)$property->Phone['PhoneNumber'],
-                'phone' => isset($property->Phone) ? json_encode($property->Phone) : null,
+                'phone' => $phones ? json_encode($phones) : null,
                 'position' => isset($property->Position) ? json_encode($property->Position) : null,
                 'latitude' => isset($property->Position['Latitude']) ? (float)$property->Position['Latitude'] : null,
                 'longitude' => isset($property->Position['Longitude']) ? (float)$property->Position['Longitude'] : null,
@@ -178,6 +177,16 @@ class DownloadGiataData extends Command
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('ImportJsonlData insert MapperHbsiGiata ', ['error' => $e->getMessage()]);
+            return false;
+        }
+
+        try {
+            $url_next = explode('<More_Properties xlink:href=', $xmlContent)[1];
+            $url_arr = explode('"', $url_next);
+            $url = array_key_exists(1, $url_arr) ? $url_arr[1] : false;
+            $this->comment('Get next url: ' . $url);
+        } catch (Exception $e) {
+            $this->comment('Url not found - all data retrieved. This is the last batch');
             return false;
         }
 
