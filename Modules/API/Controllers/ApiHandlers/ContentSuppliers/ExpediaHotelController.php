@@ -199,7 +199,9 @@ class ExpediaHotelController
         } catch (Exception $e) {
             Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
             Log::error($e->getTraceAsString());
-            return [];
+            return [
+                'error' => $e->getMessage(),
+            ];
         }
     }
 

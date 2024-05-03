@@ -288,6 +288,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                             SupplierNameEnum::HBSI => $this->hbsi->price($filters),
                             default => throw new Exception("Unknown supplier: $supplier")
                         };
+
                         return $this->handlePriceSupplier($supplierResponse, $supplier, $filters, $search_id, $pricingRules);
                     });
                 }
@@ -325,6 +326,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 foreach ($resolvedResponses as $key => $resolvedResponse) {
                     $arrKey = explode('_', $key);
                     $i = $arrKey[0];
+
                     if (count($arrKey) === 2) $resume[$i][] = $resolvedResponse;
                     else $resume[$i] = $resolvedResponse;
                 }
@@ -337,6 +339,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     }
                     if ($fiber->isTerminated()) {
                         $result = $fiber->getReturn();
+
+                        if ($error = Arr::get($result, 'error'))
+                        {
+                            return $this->sendError($error, 'failed');
+                        }
+
                         $dataResponse = array_merge($dataResponse, $result['dataResponse']);
                         $clientResponse = array_merge($clientResponse, $result['clientResponse']);
                         $totalPages = array_merge($totalPages, $result['totalPages']);
@@ -443,6 +451,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         }
 
         return [
+            'error' => Arr::get($supplierResponse, 'error'),
             'dataResponse' => $dataResponse,
             'clientResponse' => $clientResponse,
             'countResponse' => $countResponse,
