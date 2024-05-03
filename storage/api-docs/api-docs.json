@@ -673,10 +673,20 @@
                         "name": "q",
                         "in": "query",
                         "description": "Type of content to search (e.g., 'Turks and', 'Eiffel', Nassau', 'St Lucia', 'UVF', Cancun').",
-                        "required": true,
+                        "required": false,
                         "schema": {
                             "type": "string",
                             "example": "Eiffel"
+                        }
+                    },
+                    {
+                        "name": "giata",
+                        "in": "query",
+                        "description": "GIATA code of the property (Hotel)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "42851280"
                         }
                     },
                     {

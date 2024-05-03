@@ -94,9 +94,10 @@ class DestinationRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'city' => 'required_without_all:country,q|string|min:3',
-            'country' => 'required_without_all:city,q|string|min:3',
-            'q' => 'required_without_all:city,country|string|min:3',
+            'city'      => 'required_without_all:country,q,giata|string|min:3',
+            'country'   => 'required_without_all:city,q,giata|string|min:3',
+            'giata'     => 'required_without_all:city,country,q|string|min:3',
+            'q'         => 'required_without_all:city,country,giata|string|min:3',
         ];
     }
 
