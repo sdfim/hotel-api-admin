@@ -45,6 +45,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 {
     use Timer;
 
+    private const PAGINATION_TO_RESULT = true;
+
     /**
      * @param ExpediaHotelController $expedia
      * @param IcePortalHotelController $icePortal
@@ -251,6 +253,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         try {
             $filters = $request->all();
 
+            if (self::PAGINATION_TO_RESULT) {
+                // this will set up the receipt of all records from the vendors
+                unset($filters['page']);
+                unset($filters['results_per_page']);
+            }
+
             $token = $request->bearerToken();
             $keyPricingSearch = $request->type . ':pricingSearch:' . http_build_query(Arr::dot($filters)) . ':' . $token;
             $tag = 'pricing_search';
@@ -379,6 +387,10 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $taggedCache->put($keyPricingSearch . ':result', $res, now()->addMinutes(60));
             }
 
+            if (self::PAGINATION_TO_RESULT) {
+                $res = $this->paginate($res, $request->input('page', 1), $request->input('results_per_page', 10));
+            }
+
             return $this->sendResponse($res, 'success');
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             Log::error('HotelApiHandler ' . $e->getMessage());
@@ -386,6 +398,41 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             return $this->sendError($e->getMessage(), 'failed');
         }
+    }
+
+    /**
+     * Paginate the given results.
+     *
+     * @param array $results The results to paginate.
+     * @param int $page The current page number.
+     * @param int $resultsPerPage The number of results per page.
+     * @return array The paginated results.
+     */
+    public function paginate(array $results, int $page, int $resultsPerPage): array
+    {
+        $supplierResults = $results['results'];
+        $totalPages = [];
+
+        // Calculate the offset
+        $offset = ($page - 1) * $resultsPerPage;
+
+        foreach ($supplierResults as $key => $result) {
+            // Calculate the total number of pages
+            $totalPages[$key] = ceil(count($result) / $resultsPerPage);
+
+            // Slice the results array to get only the results for the current page
+            $supplierResults[$key] = array_slice($result, $offset, $resultsPerPage);
+
+            $factPerPage[$key] = count($supplierResults[$key]);
+        }
+
+        $results['total_pages'] = max($totalPages);
+        $results['results'] = $supplierResults;
+        $results['query']['page'] = $page;
+        $results['query']['results_per_page'] = $resultsPerPage;
+        $results['count_per_page'] = max($factPerPage);
+
+        return $results;
     }
 
     /**
