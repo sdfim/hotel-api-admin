@@ -32,6 +32,7 @@ class ExpediaService
             $dataPrice = $propertyPriceCall->getPriceData($propertyIds);
         } catch (Exception $e) {
             Log::error('ExpediaService | getExpediaPriceByPropertyIds' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             return [];
         }
 

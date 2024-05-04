@@ -6,6 +6,7 @@ use App\Repositories\GiataPropertyRepository;
 use App\Repositories\HbsiRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\API\Tools\Geography;
@@ -105,7 +106,7 @@ class HbsiHotelController
                 $item['rate_ordinal'] = $i;
                 $result[$hotelCode] = [
                     'property_id' => $hotelCode,
-                    'hotel_name' => $item['BasicPropertyInfo']['@attributes']['HotelName'],
+                    'hotel_name' => Arr::get($item, 'BasicPropertyInfo.@attributes.HotelName'),
                     'hotel_name_giata' => $hotelData['data'][$hotelCode]['name'] ?? '',
                     'giata_id' => $hotelData['data'][$hotelCode]['giata'] ?? 0,
                     'rooms' => $result[$hotelCode]['rooms'] ?? [],
@@ -132,6 +133,7 @@ class HbsiHotelController
 
         } catch (Exception $e) {
             Log::error('HBSIHotelApiHandler Exception ' . $e);
+            Log::error($e->getTraceAsString());
             return [
                 'original' => [
                     'request' => $xmlPriceData['request'] ?? '',
@@ -142,6 +144,7 @@ class HbsiHotelController
             ];
         } catch (GuzzleException $e) {
             Log::error('HBSIHotelApiHandler GuzzleException ' . $e);
+            Log::error($e->getTraceAsString());
             return [
                 'original' => [
                     'request' => $xmlPriceData['request'] ?? '',

@@ -194,6 +194,7 @@ class PropertyPriceCall
                 $promises[$keyChunk] = $this->client->getAsync(self::PROPERTY_CONTENT_PATH, $queryParameters);
             } catch (Exception $e) {
                 Log::error('Error while creating promise: ' . $e->getMessage());
+                Log::error($e->getTraceAsString());
             }
         }
 
@@ -214,6 +215,7 @@ class PropertyPriceCall
 
         } catch (Exception $e) {
             Log::error('Error while processing promises: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
         }
 
         $res = [];

@@ -167,6 +167,7 @@ class DownloadGiataData extends Command
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('ImportJsonlData insert GiataProperty ', ['error' => $e->getMessage()]);
+            Log::error($e->getTraceAsString());
             return false;
         }
 
@@ -178,6 +179,7 @@ class DownloadGiataData extends Command
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('ImportJsonlData insert MapperHbsiGiata ', ['error' => $e->getMessage()]);
+            Log::error($e->getTraceAsString());
             return false;
         }
 

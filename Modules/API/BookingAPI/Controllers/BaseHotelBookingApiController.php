@@ -70,6 +70,7 @@ class BaseHotelBookingApiController
                 ]
             ];
             Log::error('ExpediaHotelBookingApiHandler | removeItem | ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
         }
 
         $supplierId = ApiBookingItem::where('booking_item', $booking_item)->first()->supplier_id;
