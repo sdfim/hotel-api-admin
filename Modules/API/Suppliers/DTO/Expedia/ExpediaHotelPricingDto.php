@@ -302,6 +302,7 @@ class ExpediaHotelPricingDto
                 'room_id' => $roomGroup['id'],
                 'rate' => $rate['id'],
                 'bed_groups' => array_key_first((array)$rate['bed_groups']),
+                'hotel_supplier_id' => $propertyGroup['property_id'],
             ]),
             'booking_pricing_data' => json_encode($roomResponse->toArray()),
             'created_at' => Carbon::now(),
