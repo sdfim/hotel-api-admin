@@ -229,9 +229,6 @@ class BookApiHandler extends BaseController
         }
 
         $filters = $request->all();
-        if (!isset($filters['search_id'])) {
-            $filters['search_id'] = ApiBookingItem::where('booking_item', $request->booking_item)->first()->search_id;
-        }
         $data = [];
         foreach ($itemsBooked as $item) {
             /*
@@ -240,7 +237,10 @@ class BookApiHandler extends BaseController
                 continue;
             }
             */
+
             try {
+                $filters['search_id'] = ApiBookingItem::where('booking_item', $item->booking_item)->first()->search_id;
+                $filters['booking_item'] = $item->booking_item;
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
                 $data[] = match (SupplierNameEnum::from($supplier)) {
                     SupplierNameEnum::EXPEDIA => $this->expedia->cancelBooking($filters, $item),
