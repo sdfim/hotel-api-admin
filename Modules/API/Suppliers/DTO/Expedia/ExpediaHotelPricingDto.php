@@ -232,6 +232,7 @@ class ExpediaHotelPricingDto
             $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $occupancy_pricing);
         } catch (Exception $e) {
             Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
+            Log::error($e->getTraceAsString());
         }
 
         if ($pricingRulesApplier['total_price'] == 0.0) {
@@ -302,6 +303,7 @@ class ExpediaHotelPricingDto
                 'room_id' => $roomGroup['id'],
                 'rate' => $rate['id'],
                 'bed_groups' => array_key_first((array)$rate['bed_groups']),
+                'hotel_supplier_id' => $propertyGroup['property_id'],
             ]),
             'booking_pricing_data' => json_encode($roomResponse->toArray()),
             'created_at' => Carbon::now(),

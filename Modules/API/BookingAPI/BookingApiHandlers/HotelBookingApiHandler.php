@@ -102,6 +102,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
             Log::error('HotelBookingApiHandler | addItem ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             return $this->sendError($e->getMessage(), 'failed');
         }
 
@@ -181,6 +182,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
         } catch (Exception $e) {
             Log::error('HotelBookingApiHandler | removeItem ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
             return $this->sendError($e->getMessage(), 'failed');
         }
 

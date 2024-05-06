@@ -59,6 +59,11 @@ class ApiBookingsMetadata extends Model
         ];
     }
 
+    public function getSearchTypeAttribute()
+    {
+        return 'hotel';
+    }
+
     /**
      * @return BelongsTo
      */
