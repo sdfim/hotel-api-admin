@@ -229,6 +229,9 @@ class BookApiHandler extends BaseController
         }
 
         $filters = $request->all();
+        if (!isset($filters['search_id'])) {
+            $filters['search_id'] = ApiBookingItem::where('booking_item', $request->booking_item)->first()->search_id;
+        }
         $data = [];
         foreach ($itemsBooked as $item) {
             /*
