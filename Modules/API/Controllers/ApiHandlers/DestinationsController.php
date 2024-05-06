@@ -16,6 +16,13 @@ class DestinationsController {
      */
     public function destinations(DestinationRequest $request): JsonResponse
     {
+        if ($request->giata !== null) {
+            $response = [
+                'success' => true,
+                'data' => $this->getGiataPlacesData($request),
+            ];
+        }
+
         if ($request->q !== null) {
             $giataPlaces = $this->getGiataPlacesData($request);
             $giataPois = $this->getGiataPoisData($request);
@@ -102,16 +109,23 @@ class DestinationsController {
     {
         $giataPlace = GiataPlace::select('name_primary', 'key', 'type', 'tticodes', 'airports', 'country_code', 'state');
 
-        $cityParts = explode(' ', $request->q);
-        foreach ($cityParts as $part) {
-            if (strlen($part) == 3 && ctype_upper($part)) {
-                // If the part is 3 characters long and all uppercase, search only by airport
-                $giataPlace->where('airports', 'like', '%' . $part . '%');
-            } else {
-                $giataPlace->where('name_primary', 'like', '%' . $part . '%');
+        if ($request->q !== null)
+        {
+            $cityParts = explode(' ', $request->q);
+            foreach ($cityParts as $part) {
+                if (strlen($part) == 3 && ctype_upper($part)) {
+                    // If the part is 3 characters long and all uppercase, search only by airport
+                    $giataPlace->where('airports', 'like', '%' . $part . '%');
+                } else {
+                    $giataPlace->where('name_primary', 'like', '%' . $part . '%');
 //                    ->orWhere('airports', 'like', '%' . $part . '%');
 
+                }
             }
+        }
+        elseif ($request->giata !== null)
+        {
+            $giataPlace->where('tticodes', 'like', "%$request->giata%");
         }
 
         $giataPlace = $giataPlace->limit(35)
