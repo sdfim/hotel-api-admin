@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        $connection = env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2');
+        $connection = env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache');
 
         if (!Schema::connection($connection)->hasTable('mapper_ice_portal_giatas')) {
             Schema::connection($connection)->create('mapper_ice_portal_giatas', function (Blueprint $table) {
@@ -30,6 +30,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->dropIfExists('mapper_ice_portal_giatas');
+        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->dropIfExists('mapper_ice_portal_giatas');
     }
 };

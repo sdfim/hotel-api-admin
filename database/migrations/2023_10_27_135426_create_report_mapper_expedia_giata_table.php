@@ -10,8 +10,8 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        if (!Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->hasTable('report_mapper_expedia_giata')) {
-            Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->create('report_mapper_expedia_giata', function (Blueprint $table) {
+        if (!Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->hasTable('report_mapper_expedia_giata')) {
+            Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->create('report_mapper_expedia_giata', function (Blueprint $table) {
 
                 $table->id();
                 $table->integer('expedia_id')->index();
@@ -28,6 +28,6 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->dropIfExists('report_mapper_expedia_giata');
+        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->dropIfExists('report_mapper_expedia_giata');
     }
 };

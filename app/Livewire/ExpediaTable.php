@@ -74,20 +74,20 @@ class ExpediaTable extends Component implements HasForms, HasTable
                     ->view('dashboard.expedia.column.address-field')
                     ->searchable(isIndividual: true)
                     ->toggleable(),
-                ViewColumn::make('mapperGiataExpedia.giata_id')
-                    ->label('Giata id')
-                    ->view('dashboard.expedia.column.giata_id')
-                    ->searchable(isIndividual: true),
-                TextColumn::make('mapperGiataExpedia.step')
-                    ->searchable(isIndividual: true)
-                    ->label(new HtmlString('Strategy<br> Mapper'))
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        '1', '2', '10' => 'success',
-                        '3', '4', '5', '6', '7' => 'info',
-                        default => 'gray',
-                    })
-                    ->toggleable(),
+//                ViewColumn::make('mapperGiataExpedia.giata_id')
+//                    ->label('Giata id')
+//                    ->view('dashboard.expedia.column.giata_id')
+//                    ->searchable(isIndividual: true),
+//                TextColumn::make('mapperGiataExpedia.step')
+//                    ->searchable(isIndividual: true)
+//                    ->label(new HtmlString('Strategy<br> Mapper'))
+//                    ->badge()
+//                    ->color(fn(string $state): string => match ($state) {
+//                        '1', '2', '10' => 'success',
+//                        '3', '4', '5', '6', '7' => 'info',
+//                        default => 'gray',
+//                    })
+//                    ->toggleable(),
                 TextColumn::make('is_active')
                     ->searchable(isIndividual: true)
                     ->label('Active')
@@ -102,23 +102,23 @@ class ExpediaTable extends Component implements HasForms, HasTable
                     ->toggleable(),
             ])
             ->filters([
-                Filter::make('is_empty')
-                    ->form([
-                        Checkbox::make('is_empty')
-                            ->label('Without Giata ID')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if ($data['is_empty']) {
-                            return $query->with('mapperGiataExpedia')->whereDoesntHave('mapperGiataExpedia', function (Builder $query) {
-                                $query->whereNotNull('giata_id');
-                            });
-                        } else return $query;
-                    })->indicateUsing(function (array $data): ?string {
-                        if (!$data['is_empty']) {
-                            return null;
-                        }
-                        return 'Without Giata ID';
-                    })
+//                Filter::make('is_empty')
+//                    ->form([
+//                        Checkbox::make('is_empty')
+//                            ->label('Without Giata ID')
+//                    ])
+//                    ->query(function (Builder $query, array $data): Builder {
+//                        if ($data['is_empty']) {
+//                            return $query->with('mapperGiataExpedia')->whereDoesntHave('mapperGiataExpedia', function (Builder $query) {
+//                                $query->whereNotNull('giata_id');
+//                            });
+//                        } else return $query;
+//                    })->indicateUsing(function (array $data): ?string {
+//                        if (!$data['is_empty']) {
+//                            return null;
+//                        }
+//                        return 'Without Giata ID';
+//                    })
             ]);
     }
 

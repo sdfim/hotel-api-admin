@@ -34,7 +34,7 @@ class ExpediaRatingChart extends ChartWidget
             $labels = Cache::get($keyExpediaRatingChart . ':labels');
             $data = Cache::get($keyExpediaRatingChart . ':data');
         } else {
-            $queryResult = DB::connection('mysql2')->select("
+            $queryResult = DB::connection('mysql_cache')->select("
                 SELECT rating, COUNT(*) AS total FROM expedia_content_main GROUP BY rating ORDER BY rating DESC
             ");
 

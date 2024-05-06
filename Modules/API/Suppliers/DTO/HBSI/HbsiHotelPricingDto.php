@@ -377,7 +377,9 @@ class HbsiHotelPricingDto
             : $rate['RoomTypes']['RoomType']['RoomDescription']['Text'] ?? '';
         $roomResponse->setRoomDescription($roomDescription);
         $roomResponse->setRateName($rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '');
-        $roomResponse->setRateDescription($rate['RatePlans']['RatePlan']['RatePlanDescription']['Text'] ?? '');
+        if (is_string($rate['RoomTypes']['RoomType']['RoomDescription']['Text'])) {
+            $roomResponse->setRateDescription($rate['RoomTypes']['RoomType']['RoomDescription']['Text'] ?? '');
+        }
         $roomResponse->setRateId($rateOrdinal);
         $roomResponse->setRatePlanCode($rate['RatePlans']['RatePlan']['@attributes']['RatePlanCode'] ?? '');
         $roomResponse->setTotalPrice($pricingRulesApplier['total_price']);

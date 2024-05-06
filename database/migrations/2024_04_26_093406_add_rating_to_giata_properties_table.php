@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->table('giata_properties', function (Blueprint $table) {
+        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->table('giata_properties', function (Blueprint $table) {
             $table->float('rating')->nullable();
         });
     }
@@ -21,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql2'))->table('giata_properties', function (Blueprint $table) {
+        Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->table('giata_properties', function (Blueprint $table) {
             $table->dropColumn('rating');
         });
     }

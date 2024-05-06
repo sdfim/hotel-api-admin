@@ -44,6 +44,8 @@ class GiataPropertyFactory extends Factory
                 },
                 "CountryName": "IN"
             }',
+            'mapper_phone_number' => $this->faker->phoneNumber,
+            'mapper_address' => $addressLine,
             'phone' => [
                 '{
                     "@attributes": {
@@ -65,8 +67,8 @@ class GiataPropertyFactory extends Factory
                     "PositionAccuracy": "1"
                 }
             }',
-            'latitude' => '28.550831',
-            'longitude' => '77.120576',
+            'latitude' => $this->faker->latitude,
+            'longitude' => $this->faker->longitude,
             'url' => '{}',
             'cross_references' => '[
                 {

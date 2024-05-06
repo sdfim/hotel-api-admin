@@ -38,13 +38,6 @@ class MapperIcePortalGiata extends Model
      */
     public $incrementing = false;
 
-    /**
-     * @param array $attributes
-     */
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-        $this->connection = env(('SUPPLIER_CONTENT_DB_CONNECTION'), 'mysql2');
-        $this->table = env(('SUPPLIER_CONTENT_DB_DATABASE'), 'ujv_api') . '.' . 'mapper_ice_portal_giatas';
-    }
+    protected $table = 'mapper_ice_portal_giatas';
+
 }

@@ -14,13 +14,14 @@ class ReportMapperExpediaGiata extends Model
      */
     protected $connection;
 
+    protected $table = 'report_mapper_expedia_giata';
+
     /**
      * @param array $attributes
      */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->connection = env(('SUPPLIER_CONTENT_DB_CONNECTION'), 'mysql2');
-        $this->table = env(('SUPPLIER_CONTENT_DB_DATABASE'), 'ujv_api') . '.' . 'report_mapper_expedia_giata';
+        $this->connection = config('database.active_connections.mysql_cache');
     }
 }

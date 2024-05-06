@@ -52,14 +52,15 @@ class IcePortalPropery extends Model
         'amenities' => 'json',
     ];
 
+    protected $table = 'ice_hbsi_properties';
+
     /**
      * @param array $attributes
      */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
-        $this->connection = env(('SUPPLIER_CONTENT_DB_CONNECTION'), 'mysql2');
-        $this->table = env(('SUPPLIER_CONTENT_DB_DATABASE'), 'ujv_api') . '.' . 'ice_hbsi_properties';
+        $this->connection = config('database.active_connections.mysql_cache');
     }
 
     /**
