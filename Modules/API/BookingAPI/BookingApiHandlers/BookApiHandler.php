@@ -38,7 +38,7 @@ use Modules\Enums\TypeRequestEnum;
  */
 class BookApiHandler extends BaseController
 {
-    private const AGE_ADULT = 17;
+    private const AGE_ADULT = 18;
 
     /**
      * @param ExpediaBookApiController $expedia
