@@ -20,15 +20,13 @@ class MappingExpediaGiatasController extends Controller
         $giata_last_id = $request->get('giata_last_id') ?? null;
         $mapper = MapperExpediaGiata::where('expedia_id', $expedia_id)->where('giata_id', $giata_last_id)->first();
 
-        // dd($request->get('expedia_id'), $request->get('giata_id'), $request->get('giata_last_id'));
-
         if (is_null($giata_id)) {
-            DB::table('ujv_api.mapper_expedia_giatas')
+            DB::table('mapper_expedia_giatas')
                 ->where('expedia_id', $expedia_id)
                 ->where('giata_id', $giata_last_id)
                 ->delete();
         } elseif ($mapper) {
-            DB::table('ujv_api.mapper_expedia_giatas')
+            DB::table('mapper_expedia_giatas')
                 ->where('expedia_id', $expedia_id)
                 ->where('giata_id', $giata_last_id)
                 ->update(['giata_id' => $giata_id]);

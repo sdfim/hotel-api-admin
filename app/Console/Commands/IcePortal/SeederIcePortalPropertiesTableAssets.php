@@ -33,10 +33,10 @@ class SeederIcePortalPropertiesTableAssets extends Command
         $p = $this->argument('p');
         $this->info('seeder-ice-portal-assets started ' . $p);
         if ($p === 'all') {
-            $ct = DB::table('ujv_api.giata_properties')
+            $ct = DB::connection(config('database.active_connections.mysql_cache'))->table('giata_properties')
                 ->distinct()
                 ->whereNotIn('city', function ($query) {
-                    $query->select('city')->from('ujv_api.ice_hbsi_properties');
+                    $query->select('city')->from('ice_hbsi_properties');
                 })
                 ->pluck('city');
         } else {

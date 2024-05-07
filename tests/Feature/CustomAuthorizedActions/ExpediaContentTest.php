@@ -22,10 +22,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
     {
         parent::setUp();
 
-        $this->expedia = ExpediaContent::take(10)->orderBy('rating', 'desc')->get();
-
-        if ($this->expedia->isEmpty() && env('SUPPLIER_CONTENT_DB_HOST') === 'mysql')
-            $this->expedia = ExpediaContent::factory()->count(10)->create()->sortByDesc('rating');
+        $this->expedia = ExpediaContent::factory()->count(10)->create()->sortByDesc('rating');
     }
 
     /**
@@ -164,16 +161,17 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_searching_by_address(): void
     {
-        $address = data_get($this->expedia[rand(0, 9)]->address, 'line_1');
+        $address = json_decode($this->expedia->random()->address, true)['line_1'];
 
         livewire::test(ExpediaTable::class)
             ->searchTableColumns(['address' => $address])
             ->assertCanSeeTableRecords($this->expedia->filter(function ($item) use ($address) {
-                return data_get($item->address, 'line_1') === $address;
+                return json_decode($item->address, true)['line_1'] === $address;
             }))
             ->assertCanNotSeeTableRecords($this->expedia->filter(function ($item) use ($address) {
-                return data_get($item->address, 'line_1') !== $address;
-            }));
+                return json_decode($item->address, true)['line_1'] !== $address;
+            }))
+        ;
     }
 
     /**
@@ -182,12 +180,11 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
      */
     public function test_possibility_of_searching_by_is_active(): void
     {
-        $isActive = $this->expedia[rand(0, 9)]->is_active;
+        $isActive = $this->expedia->random()->is_active;
 
         livewire::test(ExpediaTable::class)
             ->searchTableColumns(['is_active' => $isActive])
-            ->sortTable('rating', 'desc')
-            ->assertCanSeeTableRecords($this->expedia->where('is_active', $isActive))
+            ->assertCanSeeTableRecords($this->expedia->where('is_active', $isActive)->pluck('id'))
             ->assertCanNotSeeTableRecords($this->expedia->where('is_active', '!=', $isActive));
     }
 }

@@ -71,12 +71,14 @@ class ExpediaHotelController
             $searchBuilder = new HotelSearchBuilder($query);
             $results = $searchBuilder->applyFilters($filters);
 
+            $mainDB = config('database.connections.mysql.database');
+
             $selectFields = [
                 'expedia_content_main.*',
                 'expedia_content_slave.images as images',
                 'expedia_content_slave.amenities as amenities',
-                'mapper_expedia_giatas.expedia_id',
-                'mapper_expedia_giatas.giata_id'
+                $mainDB . '.mapper_expedia_giatas.expedia_id',
+                $mainDB . '.mapper_expedia_giatas.giata_id'
             ];
 
             if ($initiator === 'search') {
@@ -91,9 +93,9 @@ class ExpediaHotelController
             }
 
             $results->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
-                ->leftJoin('mapper_expedia_giatas', 'mapper_expedia_giatas.expedia_id', '=', 'expedia_content_main.property_id')
+                ->leftJoin($mainDB . '.mapper_expedia_giatas', $mainDB . '.mapper_expedia_giatas.expedia_id', '=', 'expedia_content_main.property_id')
                 ->where('expedia_content_main.is_active', 1)
-                ->whereNotNull('mapper_expedia_giatas.expedia_id')
+                ->whereNotNull($mainDB . '.mapper_expedia_giatas.expedia_id')
                 ->select($selectFields);
 
             if (isset($filters['hotel_name'])) {
@@ -199,7 +201,9 @@ class ExpediaHotelController
         } catch (Exception $e) {
             Log::error('ExpediaHotelApiHandler ' . $e->getMessage());
             Log::error($e->getTraceAsString());
-            return [];
+            return [
+                'error' => $e->getMessage(),
+            ];
         }
     }
 

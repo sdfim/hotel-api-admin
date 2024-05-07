@@ -54,16 +54,6 @@ class ExpediaContent extends Model
     ];
 
     /**
-     * @param array $attributes
-     */
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-        $this->connection = env(('SUPPLIER_CONTENT_DB_CONNECTION'), 'mysql2');
-        $this->table = env(('SUPPLIER_CONTENT_DB_DATABASE'), 'ujv_api') . '.' . self::TABLE;
-    }
-
-    /**
      * @return string[]
      */
     public static function getFullListFields(): array
@@ -79,6 +69,17 @@ class ExpediaContent extends Model
             'spoken_languages', 'all_inclusive', 'rooms_occupancy',
             'total_occupancy', 'city', 'rating'
         ];
+    }
+
+    protected $table = 'expedia_content_main';
+
+    /**
+     * @param array $attributes
+     */
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $this->connection = config('database.active_connections.mysql_cache');
     }
 
     /**

@@ -38,7 +38,7 @@ use Modules\Enums\TypeRequestEnum;
  */
 class BookApiHandler extends BaseController
 {
-    private const AGE_ADULT = 16;
+    private const AGE_ADULT = 18;
 
     /**
      * @param ExpediaBookApiController $expedia
@@ -237,7 +237,10 @@ class BookApiHandler extends BaseController
                 continue;
             }
             */
+
             try {
+                $filters['search_id'] = ApiBookingItem::where('booking_item', $item->booking_item)->first()->search_id;
+                $filters['booking_item'] = $item->booking_item;
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
                 $data[] = match (SupplierNameEnum::from($supplier)) {
                     SupplierNameEnum::EXPEDIA => $this->expedia->cancelBooking($filters, $item),

@@ -26,11 +26,11 @@
                         <div class="modal-body">
                             @csrf
                             <input hidden name="expedia_id" value="{{ $getRecord()->property_id }}">
-                            <input hidden name="giata_last_id"
-                                   value="{{ $getRecord()->mapperGiataExpedia[0]->giata_id ?? '' }}">
-                            <label for="giata_id">Giata ID</label>
-                            <input class="form-control" id="giata_id" type="text" name="giata_id"
-                                   value="{{ $getRecord()->mapperGiataExpedia[0]->giata_id ?? '' }}">
+{{--                            <input hidden name="giata_last_id"--}}
+{{--                                   value="{{ $getRecord()->mapperGiataExpedia[0]->giata_id ?? '' }}">--}}
+{{--                            <label for="giata_id">Giata ID</label>--}}
+{{--                            <input class="form-control" id="giata_id" type="text" name="giata_id"--}}
+{{--                                   value="{{ $getRecord()->mapperGiataExpedia[0]->giata_id ?? '' }}">--}}
                         </div>
                         <!-- Modal footer -->
                         <div

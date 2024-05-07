@@ -26,13 +26,4 @@ class GiataPlace extends Model
         'tticodes' => 'array',
     ];
 
-    /**
-     * @param array $attributes
-     */
-    public function __construct(array $attributes = [])
-    {
-        parent::__construct($attributes);
-        $this->connection = env(('SUPPLIER_CONTENT_DB_CONNECTION'), 'mysql2');
-        $this->table = env(('SUPPLIER_CONTENT_DB_DATABASE'), 'ujv_api') . '.' . 'giata_places';
-    }
 }
