@@ -248,7 +248,7 @@ class PropertyPriceCall
         $queryParams[self::CHECKIN] = $this->checkin;
         $queryParams[self::CHECKOUT] = $this->checkout;
 
-        $queryParams[self::CURRENCY] = $this->currency;
+        $queryParams[self::CURRENCY] = $this->currency === '*' ? 'USD' : $this->currency;
 
         foreach ($this->occupancy as $room) {
             if (isset($room['children_ages'])) {
