@@ -53,48 +53,26 @@ class ContentSearchResponse
      */
     private array $important_information;
     /**
-     * @var string
+     * @var array
      */
-    private string $supplier_terms_and_conditions_client;
-    /**
-     * @var string
-     */
-    private string $supplier_terms_and_conditions_agent;
+    private array $supplier_information;
 
     /**
-     * @param string
+     * @param array $supplier_information
      * @return void
      */
-    public function setSupplierTermsAndConditionsClient(string $supplier_terms_and_conditions_client): void
+    public function setSupplierInformation(array $supplier_information): void
     {
-        $this->supplier_terms_and_conditions_client = $supplier_terms_and_conditions_client;
+        $this->supplier_information = $supplier_information;
     }
 
     /**
-     * @return string
+     * @return array
      */
-    public function getSupplierTermsAndConditionsClient(): string
+    public function getSupplierInformation(): array
     {
-        return $this->supplier_terms_and_conditions_client;
+        return $this->supplier_information;
     }
-
-    /**
-     * @param string
-     * @return void
-     */
-    public function setSupplierTermsAndConditionsAgent(string $supplier_terms_and_conditions_agent): void
-    {
-        $this->supplier_terms_and_conditions_agent = $supplier_terms_and_conditions_agent;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSupplierTermsAndConditionsAgent(): string
-    {
-        return $this->supplier_terms_and_conditions_agent;
-    }
-
 
     /**
      * @return array
@@ -318,8 +296,7 @@ class ContentSearchResponse
             'giata_destination' => $this->getGiataDestination(),
             'user_rating' => $this->getUserRating(),
             'important_information' => $this->getImportantInformation(),
-            'supplier_terms_and_conditions_client' => $this->getSupplierTermsAndConditionsClient(),
-            'supplier_terms_and_conditions_agent' => $this->getSupplierTermsAndConditionsAgent(),
+            'supplier_information' => $this->getSupplierInformation(),
         ];
     }
 }
