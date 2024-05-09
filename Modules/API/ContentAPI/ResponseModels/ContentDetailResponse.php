@@ -80,6 +80,27 @@ class ContentDetailResponse
      * @var string
      */
     private string $address;
+    /**
+     * @var array
+     */
+    private array $supplier_information;
+
+    /**
+     * @param array $supplier_information
+     * @return void
+     */
+    public function setSupplierInformation(array $supplier_information): void
+    {
+        $this->supplier_information = $supplier_information;
+    }
+
+    /**
+     * @return array
+     */
+    public function getSupplierInformation(): array
+    {
+        return $this->supplier_information;
+    }
 
     /**
      * @param string $address
@@ -429,6 +450,7 @@ class ContentDetailResponse
             'descriptions' => $this->getDescriptions(),
             'address' => $this->getAddress(),
             'rooms' => $this->getRooms(),
+            'supplier_information' => $this->getSupplierInformation(),
         ];
     }
 }
