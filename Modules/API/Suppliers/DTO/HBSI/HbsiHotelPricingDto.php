@@ -254,8 +254,16 @@ class HbsiHotelPricingDto
         $roomGroupsResponse->setRateDescription($roomGroup['RoomRateDescription'] ?? '');
         $roomGroupsResponse->setOpaque($roomGroup['opaque'] ?? '');
 
-        $this->currency = $roomGroup['rates']['RoomRates']['RoomRate']['Rates']['Rate'][0]['Base']['@attributes']['CurrencyCode'] ?? 'USD';
-        $roomGroupsResponse->setCurrency($this->currency ?? 'USD');
+
+        $currency = Arr::get($roomGroup, 'rates.RoomRates.RoomRate.Rates.Rate.0.Base.@attributes.CurrencyCode');
+
+        if ($currency === null)
+        {
+            $currency = Arr::get($roomGroup, 'rates.0.RoomRates.RoomRate.Rates.Rate.Base.@attributes.CurrencyCode');
+        }
+
+        $this->currency = $currency ?? 'USD';
+        $roomGroupsResponse->setCurrency($this->currency);
 
         $rooms = [];
         $priceRoomData = [];
