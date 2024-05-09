@@ -20,8 +20,7 @@ class ContentSearchResponseFactory
         $contentSearchResponse->setGiataDestination('');
         $contentSearchResponse->setUserRating('');
         $contentSearchResponse->setImportantInformation([]);
-        $contentSearchResponse->setSupplierTermsAndConditionsClient('');
-        $contentSearchResponse->setSupplierTermsAndConditionsAgent('');
+        $contentSearchResponse->setSupplierInformation([]);
 
         return $contentSearchResponse;
     }

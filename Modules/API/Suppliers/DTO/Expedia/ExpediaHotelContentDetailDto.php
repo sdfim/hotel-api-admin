@@ -3,12 +3,16 @@
 namespace Modules\API\Suppliers\DTO\Expedia;
 
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponse;
+use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponse;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
 class ExpediaHotelContentDetailDto
 {
+    private const TA_CLIENT = 'https://developer.expediapartnersolutions.com/terms/en';
+    private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
+
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -31,7 +35,7 @@ class ExpediaHotelContentDetailDto
             $supplierResponse->address['city'] . ' - ' .
             $supplierResponse->address['postal_code'];
 
-        $hotelResponse = new ContentDetailResponse();
+        $hotelResponse = ContentDetailResponseFactory::create();
         $hotelResponse->setGiataHotelCode($giata_id);
         $hotelResponse->setImages($hotelImages);
         $hotelResponse->setDescription($supplierResponse->description ?? '');
@@ -57,6 +61,10 @@ class ExpediaHotelContentDetailDto
         $hotelResponse->setPolicies($supplierResponse->policies ? json_decode(json_encode($supplierResponse->policies), true) : []);
         $hotelResponse->setDescriptions($supplierResponse->descriptions ? json_decode(json_encode($supplierResponse->descriptions), true) : []);
         $hotelResponse->setAddress($supplierResponse->address ? $address : '');
+        $hotelResponse->setSupplierInformation([
+            'supplier_terms_and_conditions_client' => self::TA_CLIENT,
+            'supplier_terms_and_conditions_agent' => self::TA_AGENT,
+        ]);
 
         $rooms = [];
         if ($supplierResponse->rooms) {

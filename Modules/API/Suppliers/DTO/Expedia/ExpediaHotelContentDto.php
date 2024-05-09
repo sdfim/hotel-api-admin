@@ -62,8 +62,10 @@ class ExpediaHotelContentDto implements SupplierContentDtoInterface
                 'fees' => $hotel['fees'] ? json_decode($hotel['fees']) : '',
                 'policies' => $hotel['policies'] ? json_decode($hotel['policies']) : '',
             ]);
-            $hotelResponse->setSupplierTermsAndConditionsClient(self::TA_CLIENT);
-            $hotelResponse->setSupplierTermsAndConditionsAgent(self::TA_AGENT);
+            $hotelResponse->setSupplierInformation([
+                'supplier_terms_and_conditions_client' => self::TA_CLIENT,
+                'supplier_terms_and_conditions_agent' => self::TA_AGENT,
+            ]);
 
             $contentSearchResponse[] = $hotelResponse->toArray();
         }
