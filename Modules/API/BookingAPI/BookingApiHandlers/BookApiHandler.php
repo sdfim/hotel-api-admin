@@ -239,7 +239,7 @@ class BookApiHandler extends BaseController
             */
 
             try {
-                $filters['search_id'] = ApiBookingItem::where('booking_item', $item->booking_item)->first()->search_id;
+                $filters['search_id'] = ApiBookingItem::where('booking_item', $item->booking_item)->first()?->search_id;
                 $filters['booking_item'] = $item->booking_item;
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
                 $data[] = match (SupplierNameEnum::from($supplier)) {

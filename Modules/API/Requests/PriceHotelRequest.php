@@ -88,7 +88,7 @@ class PriceHotelRequest extends ApiRequest
             'AED', 'ARS', 'AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'COP', 'DKK', 'EGP',
             'EUR', 'GBP', 'HKD', 'IDR', 'ILS', 'INR', 'JPY', 'KRW', 'LBP', 'MAD',
             'MXN', 'MYR', 'NOK', 'NZD', 'PHP', 'PLN', 'QAR', 'RUB', 'SAR', 'SEK',
-            'SGD', 'THB', 'TRY', 'TWD', 'USD', 'VND', 'ZAR'
+            'SGD', 'THB', 'TRY', 'TWD', 'USD', 'VND', 'ZAR', '*'
         ];
 
         $supplier = Supplier::get()->pluck('name')->map('ucfirst')->toArray();

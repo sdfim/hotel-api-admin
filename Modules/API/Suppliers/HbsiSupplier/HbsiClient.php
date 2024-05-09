@@ -216,7 +216,7 @@ class HbsiClient
 
         $start = $params['checkin'] ?? '2024-02-10';
         $end = $params['checkout'] ?? '2024-02-15';
-        $currency = $params['currency'] ?? 'USD';
+        $currency = $params['currency'] ?? '*';
 
         $roomStayCandidates = $this->occupancyToXml($params['occupancy']);
 
