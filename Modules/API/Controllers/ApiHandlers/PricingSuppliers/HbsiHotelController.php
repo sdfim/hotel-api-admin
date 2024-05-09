@@ -97,7 +97,22 @@ class HbsiHotelController
             $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($hotelIds, $filters);
 
             $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
-            $priceData = $this->object2array($response->RoomStays)['RoomStay'];
+            $arrayResponse = $this->object2array($response);
+            if (isset($arrayResponse['Errors'])) {
+                Log::error('HBSIHotelApiHandler | price ', ['supplier response' => $arrayResponse['Errors']['Error']]);
+            }
+            if (!isset($arrayResponse['RoomStays']['RoomStay'])) {
+                return [
+                    'original' => [
+                        'request' => [],
+                        'response' => [],
+                    ],
+                    'array' => [],
+                    'total_pages' => 0,
+                ];
+            }
+
+            $priceData = $arrayResponse['RoomStays']['RoomStay'];
 
             $i = 1;
             $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($hotelData, &$i) {
