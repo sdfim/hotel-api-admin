@@ -114,25 +114,31 @@ class DownloadGiataData extends Command
                 }
             }
 
+            $chain = $this->processProperty($property, 'Chain');
+            $crossReferences = $this->processProperty($property, 'CrossReferences');
+            $address = $this->processProperty($property, 'Address');
+            $position = $this->processProperty($property, 'Position');
+            $url = $this->processProperty($property, 'URL');
+
             $data = [
                 'code' => (int)$property['Code'],
                 'last_updated' => (string)$property['LastUpdated'],
                 'name' => (string)$property->Name,
-                'chain' => isset($property->Chain) ? json_encode($property->Chain) : null,
+                'chain' => $chain,
                 'city' => (string)$property->City,
                 'city_id' => (int)$property->City['CityId'],
                 'locale' => (string)$property->Locale,
                 'locale_id' => (int)$property->Locale['LocaleId'],
-                'address' => json_encode($property->Address),
+                'address' => $address,
                 'mapper_address' => (string)$property->Address->StreetNmbr . ' ' . (string)$property->Address->AddressLine,
                 'mapper_postal_code' => (string)$property->Address->PostalCode,
                 'mapper_phone_number' => (string)$property->Phone['PhoneNumber'],
                 'phone' => $phones ? json_encode($phones) : null,
-                'position' => isset($property->Position) ? json_encode($property->Position) : null,
+                'position' => $position,
                 'latitude' => isset($property->Position['Latitude']) ? (float)$property->Position['Latitude'] : null,
                 'longitude' => isset($property->Position['Longitude']) ? (float)$property->Position['Longitude'] : null,
-                'url' => isset($property->URL) ? json_encode($property->URL) : null,
-                'cross_references' => json_encode($property->CrossReferences),
+                'url' => $url,
+                'cross_references' => $crossReferences,
                 'rating' => $property->Ratings ? (float)$property->Ratings[0]->Rating['Value'] : 0.0,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
@@ -195,5 +201,36 @@ class DownloadGiataData extends Command
         unset($batchData, $batchDataMapperHbsi, $propertyIds, $proterties, $xml, $xmlContent);
 
         return $url;
+    }
+
+    private function processProperty($property, $key)
+    {
+        $result = null;
+        if (isset($property->$key)) {
+            $array = json_decode(json_encode($property->$key), true);
+            $result = json_encode($this->removeAttributesKey($array));
+        }
+        return $result;
+    }
+
+    private function removeAttributesKey($array)
+    {
+        $result = [];
+        foreach ($array as $key => $value) {
+            if ($key === '@attributes') {
+                if (is_array($value)) {
+                    $result = array_merge($result, $this->removeAttributesKey($value));
+                } else {
+                    $result[] = $value;
+                }
+            } else {
+                if (is_array($value)) {
+                    $result[$key] = $this->removeAttributesKey($value);
+                } else {
+                    $result[$key] = $value;
+                }
+            }
+        }
+        return $result;
     }
 }
