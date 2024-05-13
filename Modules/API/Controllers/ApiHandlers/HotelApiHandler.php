@@ -396,7 +396,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             }
 
             if (self::PAGINATION_TO_RESULT) {
-                $res = $this->paginate($res, $request->input('page', 1), $request->input('results_per_page', 10));
+//                $res = $this->paginate($res, $request->input('page', 1), $request->input('results_per_page', 10));
+                $res = $this->combinedAndPaginate($res, $request->input('page', 1), $request->input('results_per_page', 10));
             }
 
             return $this->sendResponse($res, 'success');
@@ -439,6 +440,55 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         $results['query']['page'] = $page;
         $results['query']['results_per_page'] = $resultsPerPage;
         $results['count_per_page'] = max($factPerPage);
+
+        return $results;
+    }
+
+    public function combinedAndPaginate(array $results, int $page, int $resultsPerPage): array
+    {
+        // Merge all supplier results into one array
+        $mergedResults = [];
+        foreach ($results['results'] as $supplierResults) {
+            $mergedResults = array_merge($mergedResults, $supplierResults);
+        }
+
+        // Sort the merged results by 'weight' and 'lowest_priced_room_group'
+        usort($mergedResults, function ($a, $b) {
+            // Check if 'weight' key exists and is not zero for both items
+            $aWeightExists = isset($a['weight']) && $a['weight'] != 0;
+            $bWeightExists = isset($b['weight']) && $b['weight'] != 0;
+
+            // If 'weight' key exists and is not zero for both items, compare these
+            if ($aWeightExists && $bWeightExists) {
+                return $b['weight'] <=> $a['weight']; // Changed order for descending sort
+            }
+
+            // If 'weight' key exists and is not zero only for one item, that item should come first
+            if ($aWeightExists) {
+                return -1; // $a comes first
+            }
+            if ($bWeightExists) {
+                return 1; // $b comes first
+            }
+
+            // If 'weight' key does not exist or is zero for both items, compare 'lowest_priced_room_group'
+            return $a['lowest_priced_room_group'] <=> $b['lowest_priced_room_group'];
+        });
+
+        // Calculate the offset
+        $offset = ($page - 1) * $resultsPerPage;
+
+        // Slice the merged results array to get only the results for the current page
+        $pagedResults = array_slice($mergedResults, $offset, $resultsPerPage);
+
+        // Calculate the total number of pages
+        $totalPages = ceil(count($mergedResults) / $resultsPerPage);
+
+        $results['total_pages'] = $totalPages;
+        $results['results'] = $pagedResults;
+        $results['query']['page'] = $page;
+        $results['query']['results_per_page'] = $resultsPerPage;
+        $results['count_per_page'] =count($pagedResults);
 
         return $results;
     }
