@@ -4,6 +4,7 @@ namespace App\Livewire\Inspectors;
 
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
+use Carbon\Carbon;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
@@ -57,7 +58,12 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                 TextColumn::make('created_at')
                     ->toggleable()
                     ->searchable(isIndividual: true)
-                    ->sortable(),
+                    ->sortable()
+                    ->formatStateUsing(function (ApiSearchInspector $record) {
+                        return Carbon::parse($record->created_at)
+                            ->timezone('America/New_York')
+                            ->toDateTimeString();
+                    })
             ]);
     }
 
