@@ -96,6 +96,18 @@ class HbsiHotelController
             /** get PriceData from HBSI */
             $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($hotelIds, $filters);
 
+            if (isset($xmlPriceData['error'])) {
+                return [
+                    'error' => $xmlPriceData['error'],
+                    'original' => [
+                        'request' =>  '',
+                        'response' => '',
+                    ],
+                    'array' => [],
+                    'total_pages' => 0,
+                ];
+            }
+
             $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
             $arrayResponse = $this->object2array($response);
             if (isset($arrayResponse['Errors'])) {
