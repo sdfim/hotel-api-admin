@@ -60,9 +60,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->sortable()
                     ->formatStateUsing(function (ApiSearchInspector $record) {
-                        return Carbon::parse($record->created_at)
-                            ->timezone('America/New_York')
-                            ->toDateTimeString();
+                        return \App\Helpers\TimezoneConverter::convertUtcToEst($record->created_at);
                     })
             ]);
     }
