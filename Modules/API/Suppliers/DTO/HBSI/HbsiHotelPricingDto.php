@@ -37,7 +37,7 @@ class HbsiHotelPricingDto
 
     private array $roomCombinations;
 
-    private array $ratings;
+    private array $giata;
 
     /**
      * @var string[]
@@ -139,12 +139,15 @@ class HbsiHotelPricingDto
             return $item['giata_id'];
         }, $supplierResponse);
 
-        $this->ratings = GiataProperty::whereIn('code', $giataIds)
-            ->select(['code', 'rating'])
+        $this->giata = GiataProperty::whereIn('code', $giataIds)
+            ->select(['code', 'rating', 'name'])
             ->get()
             ->keyBy('code')
             ->map(function($item) {
-                return $item->rating;
+                return [
+                    'rating' => $item->rating,
+                    'hotel_name' => $item->name
+                ];
             })
             ->toArray();
 
@@ -178,8 +181,8 @@ class HbsiHotelPricingDto
         $this->roomCombinations = [];
         $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id'] ?? 0);
-        $hotelResponse->setRating($this->ratings[$propertyGroup['giata_id']] ?? 0);
-        $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
+        $hotelResponse->setRating($this->giata[$propertyGroup['giata_id']]['rating'] ?? 0);
+        $hotelResponse->setHotelName($this->giata[$propertyGroup['giata_id']]['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
@@ -353,6 +356,9 @@ class HbsiHotelPricingDto
                 if (isset($cancelPenalty['Deadline']['@attributes']['AbsoluteDeadline'])) {
                     $absoluteDeadline = $cancelPenalty['Deadline']['@attributes']['AbsoluteDeadline'];
                     $data['penalty_start_date'] = date('Y-m-d', strtotime($absoluteDeadline));
+                    if ($data['penalty_start_date'] < date('Y-m-d')) {
+                        $nonRefundable = true;
+                    }
                 }
                 if (isset($cancelPenalty['AmountPercent']['@attributes']['Percent'])) {
                     $data['percentage'] = $cancelPenalty['AmountPercent']['@attributes']['Percent'];
@@ -368,7 +374,6 @@ class HbsiHotelPricingDto
                 }
 
                 $cancellationPolicies[] = $data;
-                $nonRefundable = $cancelPenalty['@attributes']['NonRefundable'] ?? 'false';
             }
         }
 
