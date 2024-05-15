@@ -477,9 +477,9 @@ class HbsiHotelPricingDto
                         $taxesFeesRate[] = [
                             'type' => $type ?? 'tax',
                             'amount' => $_tax['@attributes']['Amount'] / $nightsRate,
-                            'title' => isset($_tax['@attributes']['Percent'])
+                            'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
                                 ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
-                                : $_tax['@attributes']['Code'],
+                                : $_tax['@attributes']['Code']),
                         ];
                     }
                 }
