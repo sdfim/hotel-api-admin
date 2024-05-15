@@ -158,6 +158,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
     {
         $code = strtolower($tax['@attributes']['Code']);
 
+        /*
         if (in_array(strtolower($tax['@attributes']['Code']), $this->fees)) {
             $totals['total_fees'] += (float)$tax['@attributes']['Amount'];
         }
@@ -165,6 +166,10 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         if (in_array($code, $this->taxes)) {
             $totals['total_tax'] += (float)$tax['@attributes']['Amount'];
         }
+        */
+
+        // TODO: check that logic when there are actual lists of taxes and fees.
+        $totals['total_tax'] += (float)$tax['@attributes']['Amount'];
 
         return $totals;
     }
