@@ -59,6 +59,9 @@ class HbsiClient
     public function getHbsiPriceByPropertyIds(array $hotelIds, array $filters): ?array
     {
         $bodyQuery = $this->makeRequest($this->hotelAvailRQ($hotelIds, $filters), 'HotelAvailRQ');
+
+        $start = microtime(true);
+
         $promise = $this->client->requestAsync('POST', $this->credentials->searchBookUrl, [
             'headers' => $this->headers,
             'body' => $bodyQuery,
@@ -66,6 +69,14 @@ class HbsiClient
         ]);
 
         $result = Fiber::suspend($promise);
+
+        $end = microtime(true);
+        $duration = $end - $start;
+
+        if (!isset($result['value'])) {
+            Log::error('HBSIHotelApiHandler Timeout Exception after ' . $duration . ' seconds');
+            return ['error' => 'Timeout Exception after ' . $duration . ' seconds'];
+        }
 
         $body = $result['value']->getBody()->getContents();
 
