@@ -30,7 +30,10 @@ class BookingItemsTable extends Component implements HasForms, HasTable
             ->columns([
                 TextColumn::make('created_at')
                     ->toggleable()
-                    ->searchable(isIndividual: true),
+                    ->searchable(isIndividual: true)
+                    ->formatStateUsing(function (ApiBookingItem $record) {
+                        return \App\Helpers\TimezoneConverter::convertUtcToEst($record->created_at);
+                    }),
                 TextColumn::make('search.search_type')
                     ->label('Type')
                     ->numeric()

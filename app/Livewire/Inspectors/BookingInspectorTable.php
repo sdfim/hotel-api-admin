@@ -72,6 +72,9 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable()
+                    ->formatStateUsing(function (ApiBookingInspector $record) {
+                        return \App\Helpers\TimezoneConverter::convertUtcToEst($record->created_at);
+                    }),
             ])
             ->actions([
 //                ActionGroup::make([

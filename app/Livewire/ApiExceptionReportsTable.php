@@ -58,7 +58,10 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
                     ->label('Response'),
                 TextColumn::make('created_at')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->formatStateUsing(function (ApiExceptionReport $record) {
+                        return \App\Helpers\TimezoneConverter::convertUtcToEst($record->created_at);
+                    }),
             ])
             ->filters([
                 SelectFilter::make('level')
