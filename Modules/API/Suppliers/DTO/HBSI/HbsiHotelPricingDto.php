@@ -356,6 +356,9 @@ class HbsiHotelPricingDto
                 if (isset($cancelPenalty['Deadline']['@attributes']['AbsoluteDeadline'])) {
                     $absoluteDeadline = $cancelPenalty['Deadline']['@attributes']['AbsoluteDeadline'];
                     $data['penalty_start_date'] = date('Y-m-d', strtotime($absoluteDeadline));
+                    if ($data['penalty_start_date'] < date('Y-m-d')) {
+                        $nonRefundable = true;
+                    }
                 }
                 if (isset($cancelPenalty['AmountPercent']['@attributes']['Percent'])) {
                     $data['percentage'] = $cancelPenalty['AmountPercent']['@attributes']['Percent'];
@@ -371,7 +374,6 @@ class HbsiHotelPricingDto
                 }
 
                 $cancellationPolicies[] = $data;
-                $nonRefundable = $cancelPenalty['@attributes']['NonRefundable'] ?? 'false';
             }
         }
 
