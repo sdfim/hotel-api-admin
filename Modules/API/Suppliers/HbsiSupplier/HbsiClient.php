@@ -496,14 +496,14 @@ class HbsiClient
             if (isset($filters['special_requests'])) {
                 foreach ($filters['special_requests'] as $specialRequest) {
                     if ($specialRequest['booking_item'] === $filters['booking_item'] && $specialRequest['room'] === $roomByQuery) {
-                        $roomStaysArr['SpecialRequests'][]['@attributes']['Text'] = $specialRequest['special_request'];
+                        $roomStaysArr['SpecialRequests'][]['Text'] = $specialRequest['special_request'];
                     }
                 }
             }
             if (isset($filters['comments'])) {
                 foreach ($filters['comments'] as $commentRequest) {
                     if ($commentRequest['booking_item'] === $filters['booking_item'] && $commentRequest['room'] === $roomByQuery) {
-                        $roomStaysArr['Comments'][]['@attributes']['Text'] = $commentRequest['comment'];
+                        $roomStaysArr['Comments'][]['Text'] = $commentRequest['comment'];
                     }
                 }
             }
