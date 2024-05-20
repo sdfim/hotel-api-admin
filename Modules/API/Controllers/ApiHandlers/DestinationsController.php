@@ -6,6 +6,7 @@ use App\Models\GiataGeography;
 use App\Models\GiataPlace;
 use App\Models\GiataPoi;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Modules\API\Requests\DestinationRequest;
 
@@ -61,6 +62,11 @@ class DestinationsController {
                 }
             });
 
+        if ($request->include !== null)
+        {
+            $giataPois->whereIn('giata_pois.type', $request->include);
+        }
+
         $queryParts = explode(' ', $request->q);
         foreach ($queryParts as $part) {
             $giataPois->where('giata_pois.name_primary', 'like', '%' . $part . '%');
@@ -113,19 +119,25 @@ class DestinationsController {
         {
             $cityParts = explode(' ', $request->q);
             foreach ($cityParts as $part) {
-                if (strlen($part) == 3 && ctype_upper($part)) {
-                    // If the part is 3 characters long and all uppercase, search only by airport
-                    $giataPlace->where('airports', 'like', '%' . $part . '%');
-                } else {
-                    $giataPlace->where('name_primary', 'like', '%' . $part . '%');
-//                    ->orWhere('airports', 'like', '%' . $part . '%');
+                $giataPlace->where(function ($query) use ($part)
+                {
+                    $query->where('name_primary', 'like', '%' . $part . '%');
 
-                }
+                    if (strlen($part) == 3)
+                    {
+                        $query->orWhere('airports', 'like', '%' . strtoupper($part) . '%');
+                    }
+                });
             }
         }
         elseif ($request->giata !== null)
         {
             $giataPlace->where('tticodes', 'like', "%$request->giata%");
+        }
+
+        if ($request->include !== null)
+        {
+            $giataPlace->whereIn('type', $request->include);
         }
 
         $giataPlace = $giataPlace->limit(35)

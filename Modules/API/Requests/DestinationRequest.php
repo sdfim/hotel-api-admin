@@ -97,6 +97,7 @@ class DestinationRequest extends ApiRequest
             'city'      => 'required_without_all:country,q,giata|string|min:3',
             'country'   => 'required_without_all:city,q,giata|string|min:3',
             'giata'     => 'required_without_all:city,country,q|string|min:3',
+            'include'   => 'nullable|array',
             'q'         => 'required_without_all:city,country,giata|string|min:3',
         ];
     }

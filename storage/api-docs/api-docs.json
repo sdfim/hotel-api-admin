@@ -702,6 +702,29 @@
                                 1
                             ]
                         }
+                    },
+                    {
+                        "name": "include[]",
+                        "in": "query",
+                        "description": "Destination types list",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "example": "Region",
+
+                                "enum": [
+                                    "Region",
+                                    "Country",
+                                    "City",
+                                    "Resort",
+                                    "Airport",
+                                    "Landmark",
+                                    "State"
+                                ]
+                            }
+                        }
                     }
                 ],
                 "responses": {
