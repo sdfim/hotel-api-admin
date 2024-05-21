@@ -130,16 +130,16 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         foreach ($roomPricingLoop as $rate) {
             $totals['total_net'] += (float)$rate['Total']['@attributes']['AmountBeforeTax'];
 
-            // TODO: check this logic when the real data will be available
             if (isset($rate['Base']['Taxes']['Tax'])) {
+                $unitMultiplier = (int)$rate['@attributes']['UnitMultiplier'];
                 if (array_key_first($rate['Base']['Taxes']['Tax']) === 0) {
                     foreach ($rate['Base']['Taxes']['Tax'] as $tax) {
-                        $totals = $this->calculateTaxAndFees($tax, $totals);
+                        $totals = $this->calculateTaxAndFees($tax, $totals, $unitMultiplier);
                     }
                 } else {
                     $tax = $rate['Base']['Taxes']['Tax'];
 
-                    $totals = $this->calculateTaxAndFees($tax, $totals);
+                    $totals = $this->calculateTaxAndFees($tax, $totals, $unitMultiplier);
                 }
             }
         }
@@ -152,9 +152,10 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
     /**
      * @param $tax
      * @param $totals
+     * @param $unitMultiplier
      * @return int[]
      */
-    private function calculateTaxAndFees($tax, $totals): array
+    private function calculateTaxAndFees($tax, $totals, $unitMultiplier): array
     {
         $code = strtolower($tax['@attributes']['Code']);
 
@@ -169,7 +170,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         */
 
         // TODO: check that logic when there are actual lists of taxes and fees.
-        $totals['total_tax'] += (float)$tax['@attributes']['Amount'];
+        $totals['total_tax'] += (float)$tax['@attributes']['Amount'] * $unitMultiplier;
 
         return $totals;
     }

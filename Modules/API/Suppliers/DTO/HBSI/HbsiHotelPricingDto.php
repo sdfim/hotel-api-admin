@@ -472,11 +472,12 @@ class HbsiHotelPricingDto
                     foreach($_taxes as $_tax)
                     {
                         $code = strtolower($_tax['@attributes']['Code']);
+                        $name = strtolower($_tax['@attributes']['Type']);
                         if (in_array(strtolower($_tax['@attributes']['Code']), $this->fees)) $type = 'fee';
                         if (in_array($code, $this->taxes)) $type = 'tax';
                         $taxesFeesRate[] = [
-                            'type' => $type ?? 'tax',
-                            'amount' => $_tax['@attributes']['Amount'] / $nightsRate,
+                            'type' => $type ?? 'tax' . ' ' . $name,
+                            'amount' => $_tax['@attributes']['Amount'],
                             'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
                                 ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
                                 : $_tax['@attributes']['Code']),
