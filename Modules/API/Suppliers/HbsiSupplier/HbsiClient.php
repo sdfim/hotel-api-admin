@@ -3,6 +3,7 @@
 namespace Modules\API\Suppliers\HbsiSupplier;
 
 use App\Jobs\SaveBookingInspector;
+use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
@@ -59,7 +60,7 @@ class HbsiClient
      * @throws GuzzleException
      * @throws Exception|Throwable
      */
-    public function getHbsiPriceByPropertyIds(array $hotelIds, array $filters): ?array
+    public function getHbsiPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
     {
         $bodyQuery = $this->makeRequest($this->hotelAvailRQ($hotelIds, $filters), 'HotelAvailRQ');
 
@@ -71,13 +72,35 @@ class HbsiClient
             'timeout' => ConfigRepository::getTimeout()
         ]);
 
-        $result = Fiber::suspend($promise);
+        try {
+            $result = Fiber::suspend($promise);
+        } catch (ConnectException $e) {
+            // Timeout
+            Log::error('Connection timeout: ' . $e->getMessage());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',
+                ['side' => 'supplier', 'message' => 'Connection timeout', 'parent_search_id' => $parent_search_id]);
+            return ['error' => 'Connection timeout'];
+        } catch (ServerException $e) {
+            // Error 500
+            Log::error('HBSI Server error: ' . $e->getMessage());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',
+                ['side' => 'supplier', 'message' => 'HBSI Server error', 'parent_search_id' => $parent_search_id]);
+            return ['error' => 'Server error'];
+        }
 
         $end = microtime(true);
         $duration = $end - $start;
 
         if (!isset($result['value'])) {
             Log::error('HBSIHotelApiHandler Timeout Exception after ' . $duration . ' seconds');
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',
+                ['side' => 'supplier', 'message' => 'HBSI  Timeout Exception after ' . $duration . ' seconds', 'parent_search_id' => $parent_search_id]);
             return ['error' => 'Timeout Exception after ' . $duration . ' seconds'];
         }
 

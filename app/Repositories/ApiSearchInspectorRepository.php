@@ -173,4 +173,32 @@ class ApiSearchInspectorRepository
 
         return $totalChildren;
     }
+
+    public static function newSearchInspector(array $input): array
+    {
+        /**
+         * @param string $search_id
+         * @param string $type
+         * @param string $search_type
+         * @param string $suppliers
+         * @param array $request
+         */
+        [$search_id, $request, $suppliers, $type, $search_type] = $input;
+
+        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+
+        $inspector = new ApiSearchInspector();
+        $inspector->search_id = $search_id;
+        $inspector->type = $type;
+        $inspector->search_type = $search_type;
+        $inspector->suppliers = implode(',', $suppliers);
+        $inspector->request = json_encode($request);
+        $inspector->token_id = $token_id;
+
+        \Log::info('Created ApiSearchInspector:', ['inspector' => $inspector]);
+
+        return $inspector->toArray();
+
+
+    }
 }

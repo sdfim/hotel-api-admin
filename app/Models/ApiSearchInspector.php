@@ -43,12 +43,15 @@ class ApiSearchInspector extends Model
      */
     protected $fillable = [
         'search_id',
+        'status',
+        'status_describe',
         'token_id',
         'suppliers',
         'search_type',
         'type',
         'request',
         'response_path',
+        'original_path',
         'client_response_path'
     ];
 

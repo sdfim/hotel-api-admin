@@ -49,7 +49,7 @@ class BookingInspectorController extends BaseInspectorController
                     'sub_type' => $inspector['sub_type'],
                     'supplier_id' => $inspector['supplier_id'],
                     'token_id' => $inspector['token_id'],
-                    ],
+                ],
                 $inspector
             );
 

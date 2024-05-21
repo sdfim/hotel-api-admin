@@ -2,11 +2,11 @@
 
 namespace Modules\API\Suppliers\ExpediaSupplier;
 
+use App\Jobs\SaveSearchInspector;
 use Exception;
 use Fiber;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Modules\Enums\TypeRequestEnum;
+use Illuminate\Support\Str;
 use Throwable;
 
 class PropertyPriceCall
@@ -175,10 +175,11 @@ class PropertyPriceCall
 
     /**
      * @param array $propertyIds
+     * @param array $searchInspector
      * @return array
      * @throws Throwable
      */
-    public function getPriceData(array $propertyIds = []): array
+    public function getPriceData(array $propertyIds, array $searchInspector): array
     {
         $chunkPropertyIds = array_chunk($propertyIds, self::BATCH_SIZE);
         $rq = [];
@@ -205,7 +206,16 @@ class PropertyPriceCall
                 if ($response['state'] === 'fulfilled') {
                     $data = $response['value']->getBody()->getContents();
                     $responses = array_merge($responses, json_decode($data, true));
-                } else {
+                }
+                elseif (!isset($response['value'])) {
+                    Log::error('Expedia Timeout Exception after ' . $duration . ' seconds');
+                    $parent_search_id = $searchInspector['search_id'];
+                    $searchInspector['search_id'] = Str::uuid();
+                    SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',
+                        ['side' => 'supplier', 'message' => 'Expedia Timeout Exception  ', 'parent_search_id' => $parent_search_id]);
+                    return ['error' => 'Timeout Exception '];
+                }
+                else {
                     Log::error('PropertyPriceCall | getPriceData ', [
                         'propertyChunk' => $this->propertyChunk,
                         'reason' => $response['reason']->getMessage()
@@ -213,6 +223,24 @@ class PropertyPriceCall
                 }
             }
 
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            // Timeout
+            Log::error('Connection timeout: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',
+                ['side' => 'supplier', 'message' => 'Expedia Connection timeout', 'parent_search_id' => $parent_search_id]);
+            return ['error' => 'Connection timeout'];
+        } catch (\GuzzleHttp\Exception\ServerException $e) {
+            // Error 500
+            Log::error('Server error: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',
+                ['side' => 'supplier', 'message' => 'Expedia Server error', 'parent_search_id' => $parent_search_id]);
+            return ['error' => 'Server error'];
         } catch (Exception $e) {
             Log::error('Error while processing promises: ' . $e->getMessage());
             Log::error($e->getTraceAsString());
@@ -228,10 +256,8 @@ class PropertyPriceCall
         return [
             'request' => $rq,
             'response' => $res,
-
         ];
     }
-
 
     /**
      * @return array

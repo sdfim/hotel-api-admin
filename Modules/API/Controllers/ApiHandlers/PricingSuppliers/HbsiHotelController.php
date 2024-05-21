@@ -10,6 +10,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\API\Tools\Geography;
+use Throwable;
 
 class HbsiHotelController
 {
@@ -65,24 +66,17 @@ class HbsiHotelController
 
     /**
      * @param array $filters
+     * @param array $searchInspector
      * @return array|null
-     * @throws \Throwable
+     * @throws Throwable
      */
-    public function price(array $filters): ?array
+    public function price(array $filters, array $searchInspector): ?array
     {
         try {
             $hotelData = $this->preSearchData($filters);
             $hotelIds = array_keys($hotelData['data']);
 
-            // TODO: remove this after using the test case add/or after using main mapper             $component_info_id = config("booking-suppliers.HBSI.credentials.component_info_id");
-            $component_info_id = config("booking-suppliers.HBSI.credentials.component_info_id");
             if (empty($hotelIds)) {
-//                if ($component_info_id === '72997') {
-//                    $hotelIds = ['72997'];
-//                } else {
-//                    $hotelIds = ['51722', '51721'];
-//                }
-                // TODO: add this after using main mapper
                  return [
                      'original' => [
                          'request' => [],
@@ -94,7 +88,7 @@ class HbsiHotelController
             }
 
             /** get PriceData from HBSI */
-            $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($hotelIds, $filters);
+            $xmlPriceData = $this->hbsiClient->getHbsiPriceByPropertyIds($hotelIds, $filters, $searchInspector);
 
             if (isset($xmlPriceData['error'])) {
                 return [
