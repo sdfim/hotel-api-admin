@@ -128,7 +128,13 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         }
 
         foreach ($roomPricingLoop as $rate) {
-            $totals['total_net'] += (float)$rate['Total']['@attributes']['AmountBeforeTax'];
+            // check if AmountBeforeTax is equal to AmountAfterTax
+            $current_total_net = (float)$rate['Total']['@attributes']['AmountBeforeTax'];
+            $current_total_price = (float)$rate['Total']['@attributes']['AmountAfterTax'];
+
+            $totals['total_net'] += $current_total_net;
+
+            if ($current_total_net ==  $current_total_price) continue;
 
             if (isset($rate['Base']['Taxes']['Tax'])) {
                 $unitMultiplier = (int)$rate['@attributes']['UnitMultiplier'];
