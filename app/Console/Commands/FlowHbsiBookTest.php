@@ -54,6 +54,9 @@ class FlowHbsiBookTest extends Command
         while ($retryCount < 7 && $bookingItem === null) {
             $responseData = $this->makeSearchRequest($s);
             if (!isset($responseData['data']['query']['occupancy'])) continue;
+
+            $this->info('query search_' . $s . ' = ' . json_encode($responseData['data']['query']));
+
             $this->query['search_' . $s] = $responseData['data']['query']['occupancy'];
             $searchId = $responseData['data']['search_id'];
             $bookingItem = $this->getBookingItem($responseData);
@@ -118,17 +121,18 @@ class FlowHbsiBookTest extends Command
         if ($countRooms === 1) {
             foreach ($flattened as $key => $value) {
                 if (str_contains($key, 'booking_item')
-                    && str_contains($key, $this->supplier)
-                    && $flattened[str_replace('booking_item', 'room_type', $key)] != 'Luxury'
-                    && $flattened[str_replace('booking_item', 'room_type', $key)] != 'STD'
+//                    && str_contains($key, $this->supplier)
+//                    && $flattened[str_replace('booking_item', 'room_type', $key)] != 'Luxury'
+//                    && $flattened[str_replace('booking_item', 'room_type', $key)] != 'STD'
                 ) {
                     $bookingItems[$key] = $value;
                 }
             }
         } else {
+//            dd($flattened);
             foreach ($flattened as $key => $value) {
                 if (str_contains($key, 'room_combinations')) {
-                    $bookingItems[$key] = explode('.',$key)[5];
+                    $bookingItems[$key] = explode('.', $key)[4];
                 }
             }
         }
@@ -148,6 +152,7 @@ class FlowHbsiBookTest extends Command
     private function makeSearchRequest(int $count = 1): array
     {
         $faker = Faker::create();
+        if ($count > 2) $count = 2;
         $checkin = Carbon::now()->addDays()->toDateString();
         $checkout = Carbon::now()->addDays(1 + rand(2, 5))->toDateString();
 
@@ -156,27 +161,26 @@ class FlowHbsiBookTest extends Command
 
             $room['adults'] = rand(1, 2);
 
-            $children = rand(0, 2);
-            $children_ages = [];
-            if ($children > 0) {
-                foreach (range(1, $children) as $index) {
-                    $children_ages[] = rand(1, 15);
-                }
-                $room['children'] = $children;
-                $room['children_ages'] = $children_ages;
-            }
+//            $children = rand(0, 2);
+//            $children_ages = [];
+//            if ($children > 0) {
+//                foreach (range(1, $children) as $index) {
+//                    $children_ages[] = rand(1, 15);
+//                }
+//                $room['children'] = $children;
+//                $room['children_ages'] = $children_ages;
+//            }
 
             $occupancy[] = $room;
         }
 
         $requestData = [
             'type' => 'hotel',
-            'currency' => $faker->randomElement(['USD', 'EUR', 'GBP']),
             'destination' => $this->destination,
+            'supplier' => $this->supplier,
             'checkin' => $checkin,
             'checkout' => $checkout,
             'occupancy' => $occupancy,
-            'rating' => $faker->numberBetween(3, 5),
         ];
 
         $response = $this->client->post($this->url . '/api/pricing/search', $requestData);
@@ -194,6 +198,8 @@ class FlowHbsiBookTest extends Command
         if ($bookingId !== null) $requestData['booking_id'] = $bookingId;
 
         $response = $this->client->post($this->url . '/api/booking/add-item', $requestData);
+
+        dump($response->json());
         $bookingId = $response->json()['data']['booking_id'];
         $this->info('booking_id = ' . $bookingId);
 

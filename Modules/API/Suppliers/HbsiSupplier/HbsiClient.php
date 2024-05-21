@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\HbsiSupplier;
 
+use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
@@ -10,7 +11,9 @@ use App\Repositories\ConfigRepository;
 use Exception;
 use Fiber;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\ServerException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -85,62 +88,94 @@ class HbsiClient
 
     /**
      * @param array $filters
+     * @param array $inspectorBook
      * @return array|null
-     * @throws GuzzleException
+     * @throws Exception
      */
-    public function handleBook(array $filters): ?array
+    public function handleBook(array $filters, array $inspectorBook): ?array
     {
         $this->mainGuest = [];
         $hotelId = ApiBookingItemRepository::getHotelSupplierId($filters['booking_item']);
         $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResRQ', $hotelId);
-        $response = $this->sendRequest($bodyQuery);
-        $body = $response->getBody()->getContents();
 
-        return $this->processXmlBody($body, $bodyQuery, true);
+        return $this->executeApiRequest(function() use ($bodyQuery) {
+            return $this->sendRequest($bodyQuery);
+        }, $inspectorBook, $bodyQuery);
     }
 
     /**
      * @param array $filters
+     * @param array $inspector
      * @return array|null
-     * @throws GuzzleException
+     * @throws Exception
      */
-    public function modifyBook(array $filters): ?array
+    public function modifyBook(array $filters, array $inspector): ?array
     {
         $this->mainGuest = [];
         $hotelId = ApiBookingItemRepository::getHotelSupplierId($filters['booking_item']);
         $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResModifyRQ', $hotelId);
-        $response = $this->sendRequest($bodyQuery);
-        $body = $response->getBody()->getContents();
 
-        return $this->processXmlBody($body, $bodyQuery, true);
+        return $this->executeApiRequest(function() use ($bodyQuery) {
+            return $this->sendRequest($bodyQuery);
+        }, $inspector, $bodyQuery);
     }
 
     /**
      * @param array $reservation
-     * @param string|null $hotelId
+     * @param string $hotelId
+     * @param array $inspector
      * @return array|null
-     * @throws GuzzleException
      */
-    public function retrieveBooking(array $reservation, ?string $hotelId = null): ?array
+    public function retrieveBooking(array $reservation, string $hotelId, array $inspector): ?array
     {
         $bodyQuery = $this->makeRequest($this->readRQ($reservation), 'ReadRQ', $hotelId);
-        $response = $this->sendRequest($bodyQuery);
-        $body = $response->getBody();
-        return $this->processXmlBody($body, $bodyQuery);
+        return $this->executeApiRequest(function() use ($bodyQuery) {
+            return $this->sendRequest($bodyQuery);
+        }, $inspector, $bodyQuery);
     }
 
     /**
      * @param array $reservation
-     * @param string|null $hotelId
+     * @param string $hotelId
+     * @param $inspectorCansel
      * @return array|null
-     * @throws GuzzleException
      */
-    public function cancelBooking(array $reservation, ?string $hotelId = null): ?array
+    public function cancelBooking(array $reservation, string $hotelId, $inspectorCansel): ?array
     {
         $bodyQuery = $this->makeRequest($this->cancelRQ($reservation), 'CancelRQ', $hotelId);
-        $response = $this->sendRequest($bodyQuery);
-        $body = $response->getBody();
-        return $this->processXmlBody($body, $bodyQuery);
+        return $this->executeApiRequest(function() use ($bodyQuery) {
+            return $this->sendRequest($bodyQuery);
+        }, $inspectorCansel, $bodyQuery);
+    }
+
+    /**
+     * @param callable $apiCall
+     * @param array $inspector
+     * @param string $bodyQuery
+     * @return array|null
+     */
+    private function executeApiRequest(callable $apiCall, array $inspector, string $bodyQuery): ?array
+    {
+        try {
+            $response = $apiCall();
+            $body = $response->getBody()->getContents();
+
+            return $this->processXmlBody($body, $bodyQuery, true);
+        } catch (ConnectException $e) {
+            // Timeout
+            Log::error('Connection timeout: ' . $e->getMessage());
+            SaveBookingInspector::dispatch($inspector, [], [], 'error', ['side' => 'supplier', 'message' => 'Connection timeout']);
+            return null;
+        } catch (ServerException $e) {
+            // Error 500
+            Log::error('Server error: ' . $e->getMessage());
+            SaveBookingInspector::dispatch($inspector, [], [], 'error', ['side' => 'supplier', 'message' => 'Server error']);
+            return null;
+        } catch (Exception $e) {
+            Log::error('Unexpected error: ' . $e->getMessage());
+            SaveBookingInspector::dispatch($inspector, [], [], 'error', ['side' => 'supplier', 'message' => $e->getMessage()]);
+            return null;
+        }
     }
 
     /**

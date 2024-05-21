@@ -56,6 +56,15 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->label('Category'),
+                TextColumn::make('status')
+                    ->searchable(isIndividual: true)
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'error' => 'danger',
+                        'pending' => 'warning',
+                        'success' => 'success',
+                        default => 'gray',
+                    }),
                 TextColumn::make('token.id')
                     ->numeric()
                     ->searchable(isIndividual: true)

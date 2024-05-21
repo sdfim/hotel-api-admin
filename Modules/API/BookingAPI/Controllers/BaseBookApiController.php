@@ -113,9 +113,10 @@ class BaseBookApiController extends BaseController
         ];
 
         $supplierId = Supplier::where('name', $supplierName)->first()->id;
-        SaveBookingInspector::dispatch([
-            $booking_id, $filters, [], $res, $supplierId, 'add_passengers', $subType, 'hotel',
+        $bookingInspector = BookingRepository::newBookingInspector([
+            $booking_id, $filters, $supplierId, 'add_passengers', $subType, 'hotel',
         ]);
+        SaveBookingInspector::dispatch($bookingInspector, [], $res);
 
         return $res;
     }

@@ -4,6 +4,7 @@ namespace Modules\API\BookingAPI\Controllers;
 
 use App\Jobs\SaveBookingInspector;
 use App\Models\Supplier;
+use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Facades\Log;
@@ -34,29 +35,34 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
         # step 2 Get POST link for booking
         // TODO: need check if price changed
         $props = $this->getPathParamsFromLink($linkPriceCheck);
+
+        $booking_id = $filters['booking_id'] ?? (string)Str::uuid();
+
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
+        $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
+            $booking_id, $filters, $supplierId, 'add_item', 'price_check', 'hotel'
+        ]);
+
         try {
             $response = $this->rapidClient->get($props['path'], $props['paramToken']);
             $content = json_decode($response->getBody()->getContents(), true);
             $content['original']['response'] = $content;
             $content['original']['request']['params'] = $props['paramToken'];
             $content['original']['request']['path'] = $props['path'];
+
+            SaveBookingInspector::dispatch($bookingInspector, $content, []);
         } catch (RequestException $e) {
             Log::error('ExpediaHotelBookingApiHandler | addItem | price_check ' . $e->getResponse()->getBody());
             Log::error($e->getTraceAsString());
             $content = json_decode('' . $e->getResponse()->getBody());
+
+            SaveBookingInspector::dispatch($bookingInspector, $content, [], 'error', ['error' => $e->getMessage()]);
             return (array)$content;
         }
 
         if (!$content) {
             return [];
         }
-
-        $booking_id = $filters['booking_id'] ?? (string)Str::uuid();
-
-        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
-        SaveBookingInspector::dispatch([
-            $booking_id, $filters, $content, [], $supplierId, 'add_item', 'price_check', 'hotel',
-        ]);
 
         return ['booking_id' => $booking_id];
     }

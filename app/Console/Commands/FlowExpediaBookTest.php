@@ -60,7 +60,7 @@ class FlowExpediaBookTest extends Command
 
         $bookingItems = [];
         foreach ($flattened as $key => $value) {
-            if (str_contains($key, 'booking_item') && str_contains($key, $this->supplier)) {
+            if (str_contains($key, 'booking_item')) {
                 $bookingItems[] = $value;
             }
         }

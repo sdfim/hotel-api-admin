@@ -28,6 +28,8 @@ class ApiBookingInspector extends Model
         'supplier_id',
         'search_type',
         'booking_item',
+        'status',
+        'status_describe',
         'type',
         'sub_type',
         'request',
