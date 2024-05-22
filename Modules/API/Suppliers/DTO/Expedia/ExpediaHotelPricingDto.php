@@ -327,11 +327,11 @@ class ExpediaHotelPricingDto
                         $breakdown[$night][$key]['title'] = 'Room Base Fare';
                     } elseif (str_contains($expenseItem['type'], 'tax')) {
                         $key = 'tax';
-                        $breakdown[$night][$key]['type'] = 'tax';
+                        $breakdown[$night][$key]['type'] = 'tax inclusive';
                         $breakdown[$night][$key]['title'] = $expenseItem['type'];
                     } elseif (str_contains($expenseItem['type'], 'fee')) {
                         $key = 'fee';
-                        $breakdown[$night][$key]['type'] = 'fee';
+                        $breakdown[$night][$key]['type'] = 'fee inclusive';
                         $breakdown[$night][$key]['title'] = $expenseItem['type'];
                     }
                     if (!isset($breakdown[$night][$key]['amount'])) $breakdown[$night][$key]['amount'] = 0;
