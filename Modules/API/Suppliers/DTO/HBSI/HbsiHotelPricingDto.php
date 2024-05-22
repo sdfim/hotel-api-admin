@@ -453,7 +453,7 @@ class HbsiHotelPricingDto
         }
         foreach ($loopRates as $rate) {
             // check if AmountBeforeTax is equal to AmountAfterTax
-            // if ($rate['Base']['@attributes']['AmountBeforeTax'] == $rate['Base']['@attributes']['AmountAfterTax']) continue;
+            //if ($rate['Base']['@attributes']['AmountBeforeTax'] == $rate['Base']['@attributes']['AmountAfterTax']) continue;
 
             $nightsRate = $rate['@attributes']['UnitMultiplier'];
             $baseFareRate = [
