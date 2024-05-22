@@ -110,7 +110,7 @@ class FlowHbsiBookTest extends Command
 
     /**
      * @param array $responseData
-     * @return string
+     * @return array|null
      */
     private function getBookingItem(array $responseData): array|null
     {
@@ -120,16 +120,11 @@ class FlowHbsiBookTest extends Command
         $bookingItems = [];
         if ($countRooms === 1) {
             foreach ($flattened as $key => $value) {
-                if (str_contains($key, 'booking_item')
-//                    && str_contains($key, $this->supplier)
-//                    && $flattened[str_replace('booking_item', 'room_type', $key)] != 'Luxury'
-//                    && $flattened[str_replace('booking_item', 'room_type', $key)] != 'STD'
-                ) {
+                if (str_contains($key, 'booking_item')) {
                     $bookingItems[$key] = $value;
                 }
             }
         } else {
-//            dd($flattened);
             foreach ($flattened as $key => $value) {
                 if (str_contains($key, 'room_combinations')) {
                     $bookingItems[$key] = explode('.', $key)[4];

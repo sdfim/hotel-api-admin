@@ -54,6 +54,7 @@ class HbsiClient
         $this->requestId = time() . '_tentravel';
         $this->timeStamp = date('Y-m-d\TH:i:sP');
         $this->credentials = CredentialsFactory::fromConfig();
+        $this->mainGuest = [];
     }
 
     /**
@@ -117,7 +118,6 @@ class HbsiClient
      */
     public function handleBook(array $filters, array $inspectorBook): ?array
     {
-        $this->mainGuest = [];
         $hotelId = ApiBookingItemRepository::getHotelSupplierId($filters['booking_item']);
         $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResRQ', $hotelId);
 
@@ -134,7 +134,6 @@ class HbsiClient
      */
     public function modifyBook(array $filters, array $inspector): ?array
     {
-        $this->mainGuest = [];
         $hotelId = ApiBookingItemRepository::getHotelSupplierId($filters['booking_item']);
         $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResModifyRQ', $hotelId);
 
