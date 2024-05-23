@@ -61,7 +61,7 @@ class BasePricingRulesApplier
     /**
      * @var float|int
      */
-    protected float|int $affiliateServiceCharge = 0;
+    protected float|int $markup = 0;
 
     /**
      * @param array $requestArray
@@ -95,7 +95,7 @@ class BasePricingRulesApplier
 
         $this->totalNet = 0;
 
-        $this->affiliateServiceCharge = 0;
+        $this->markup = 0;
 
         $this->totalNumberOfGuests = 0;
     }
@@ -163,7 +163,7 @@ class BasePricingRulesApplier
 
         $percentageValue = ($this->{$totalPropertyName} * $fixedValue) / 100;
 
-        $this->affiliateServiceCharge += match ($priceValueTarget) {
+        $this->markup += match ($priceValueTarget) {
             'per_guest' => match ($priceValueType) {
                 'percentage' => $this->totalNumberOfGuests * $percentageValue,
                 'fixed_value' => $this->totalNumberOfGuests * $fixedValue
@@ -206,12 +206,12 @@ class BasePricingRulesApplier
             'total_net' => $this->totalNet
         ];
 
-        $affiliateServiceCharge = round($this->affiliateServiceCharge, 2);
+        $markup = round($this->markup, 2);
 
-        $b2b ? $totals['affiliate_service_charge'] = $affiliateServiceCharge : $totals['total_price'] += $affiliateServiceCharge;
+        $b2b ? $totals['markup'] = $markup : $totals['total_price'] += $markup;
 
         /**
-         * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int,affiliate_service_charge: float|int} $totals
+         * @var array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int,markup: float|int} $totals
          */
         return $totals;
     }

@@ -60,7 +60,7 @@ class FlowExpediaBookTest extends Command
 
         $bookingItems = [];
         foreach ($flattened as $key => $value) {
-            if (str_contains($key, 'booking_item') && str_contains($key, $this->supplier)) {
+            if (str_contains($key, 'booking_item')) {
                 $bookingItems[] = $value;
             }
         }
@@ -127,8 +127,8 @@ class FlowExpediaBookTest extends Command
     private function makeSearchRequest(int $count = 1): array
     {
         $faker = Faker::create();
-        $checkin = Carbon::now()->addDays()->toDateString();
-        $checkout = Carbon::now()->addDays(1 + rand(2, 5))->toDateString();
+        $checkin = Carbon::now()->addDays(240)->toDateString();
+        $checkout = Carbon::now()->addDays(241 + rand(2, 5))->toDateString();
 
         $occupancy = [];
         foreach (range(1, $count) as $index) {
@@ -151,8 +151,9 @@ class FlowExpediaBookTest extends Command
 
         $requestData = [
             'type' => 'hotel',
-            'currency' => 'USD', // $faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
+            'currency' => 'USD',
             'destination' => $this->destination,
+            'supplier' => $this->supplier,
             'checkin' => $checkin,
             'checkout' => $checkout,
             'occupancy' => $occupancy,

@@ -203,7 +203,7 @@ class ExpediaHotelPricingDto
         $roomGroupsResponse->setTotalTax($priceRoomData[$keyLowestPricedRoom]['total_tax'] ?? 0.0);
         $roomGroupsResponse->setTotalFees($priceRoomData[$keyLowestPricedRoom]['total_fees'] ?? 0.0);
         $roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom]['total_net'] ?? 0.0);
-        $roomGroupsResponse->setAffiliateServiceCharge($priceRoomData[$keyLowestPricedRoom]['affiliate_service_charge'] ?? 0.0);
+        $roomGroupsResponse->setMarkup($priceRoomData[$keyLowestPricedRoom]['markup'] ?? 0.0);
 
         $roomGroupsResponse->setNonRefundable(!$roomGroup['rates'][$keyLowestPricedRoom]['refundable']);
         $roomGroupsResponse->setRateId(intval($roomGroup['rates'][$keyLowestPricedRoom]['id']) ?? null);
@@ -226,7 +226,7 @@ class ExpediaHotelPricingDto
         $pricingRulesApplier['total_tax'] = 0.0;
         $pricingRulesApplier['total_fees'] = 0.0;
         $pricingRulesApplier['total_net'] = 0.0;
-        $pricingRulesApplier['affiliate_service_charge'] = 0.0;
+        $pricingRulesApplier['markup'] = 0.0;
         $occupancy_pricing = $rate['occupancy_pricing'];
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $occupancy_pricing);
@@ -279,7 +279,7 @@ class ExpediaHotelPricingDto
         $roomResponse->setTotalTax($pricingRulesApplier['total_tax']);
         $roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
-        $roomResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge']);
+        $roomResponse->setMarkup($pricingRulesApplier['markup']);
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setCurrency($this->currency);
         if (isset($rate['bed_groups'][array_key_first((array)$rate['bed_groups'])]['configuration'])) {

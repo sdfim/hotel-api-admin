@@ -58,7 +58,7 @@ class ReservationFactory extends Factory
                     'giata_room_name' => '',
                     'supplier_room_name' => $this->faker->text,
                     'per_day_rate_breakdown' => '',
-                    'affiliate_service_charge' => $this->faker->numberBetween(1, 200),
+                    'markup' => $this->faker->numberBetween(1, 200),
                 ],
                 'hotel_images' => json_encode([
                     $this->faker->imageUrl,

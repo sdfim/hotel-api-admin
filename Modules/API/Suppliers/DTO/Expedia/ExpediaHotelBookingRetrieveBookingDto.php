@@ -47,7 +47,7 @@ class ExpediaHotelBookingRetrieveBookingDto
         $responseModel->setTotalTax($saveResponse['total_tax']);
         $responseModel->setTotalFees($saveResponse['total_fees']);
         $responseModel->setTotalNet($saveResponse['total_net']);
-        $responseModel->setAffiliateServiceCharge($saveResponse['affiliate_service_charge']);
+        $responseModel->setMarkup($saveResponse['markup']);
         $responseModel->setCurrency($saveResponse['currency']);
         $responseModel->setPerNightBreakdown($saveResponse['per_night_breakdown']);
         $responseModel->setBoardBasis('');

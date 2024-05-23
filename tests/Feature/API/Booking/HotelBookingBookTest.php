@@ -47,7 +47,7 @@ class HotelBookingBookTest extends HotelBookingApiTestCase
                         'total_tax',
                         'total_fees',
                         'total_net',
-                        'affiliate_service_charge',
+                        'markup',
                         'currency',
                         'per_night_breakdown',
                         'links' => [

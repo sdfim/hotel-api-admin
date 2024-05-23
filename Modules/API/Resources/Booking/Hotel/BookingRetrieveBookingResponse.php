@@ -24,7 +24,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     type="array",
  *     @OA\Items(
  *     type="object",
- *     required={"status", "booking_id", "booking_item", "supplier", "hotel_name", "rooms", "cancellation_terms", "rate", "total_price", "total_tax", "total_fees", "total_net", "affiliate_service_charge", "currency", "per_night_breakdown", "board_basis", "supplier_book_id", "billing_contact", "billing_email", "billing_phone", "query"},
+ *     required={"status", "booking_id", "booking_item", "supplier", "hotel_name", "rooms", "cancellation_terms", "rate", "total_price", "total_tax", "total_fees", "total_net", "markup", "currency", "per_night_breakdown", "board_basis", "supplier_book_id", "billing_contact", "billing_email", "billing_phone", "query"},
  *     @OA\Property(
  *     property="status",
  *     type="string",
@@ -139,9 +139,9 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     example="574720"
  * ),
  *     @OA\Property(
- *     property="affiliate_service_charge",
+ *     property="markup",
  *     type="integer",
- *     description="Affiliate Service Charge (e.g., '0').",
+ *     description="Markup (e.g., '0').",
  *     example="0"
  * ),
  *     @OA\Property(
@@ -358,7 +358,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  * "total_tax": 57472,
  * "total_fees": 33.04,
  * "total_net": 574720,
- * "affiliate_service_charge": 0,
+ * "markup": 0,
  * "currency": "JPY",
  * "per_night_breakdown": 316096,
  * "board_basis": "",
@@ -420,7 +420,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  * "total_tax": 69567,
  * "total_fees": 0,
  * "total_net": 451884,
- * "affiliate_service_charge": 0,
+ * "markup": 0,
  * "currency": "JPY",
  * "per_night_breakdown": 173817,
  * "board_basis": "",
