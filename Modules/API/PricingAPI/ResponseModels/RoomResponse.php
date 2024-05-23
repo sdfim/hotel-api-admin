@@ -27,7 +27,7 @@ class RoomResponse extends BaseResponse
 
     private float $total_net;
 
-    private float $affiliate_service_charge;
+    private float $markup;
 
     private string $booking_item;
 
@@ -310,20 +310,20 @@ class RoomResponse extends BaseResponse
     }
 
     /**
-     * @param float $affiliate_service_charge
+     * @param float $markup
      * @return void
      */
-    public function setAffiliateServiceCharge(float $affiliate_service_charge): void
+    public function setMarkup(float $markup): void
     {
-        $this->affiliate_service_charge = $affiliate_service_charge;
+        $this->markup = $markup;
     }
 
     /**
      * @return float
      */
-    public function getAffiliateServiceCharge(): float
+    public function getMarkup(): float
     {
-        return $this->affiliate_service_charge;
+        return $this->markup;
     }
 
     /**
@@ -501,7 +501,7 @@ class RoomResponse extends BaseResponse
             'total_tax' => $this->getTotalTax(),
             'total_fees' => $this->getTotalFees(),
             'total_net' => $this->getTotalNet(),
-            'affiliate_service_charge' => $this->getAffiliateServiceCharge(),
+            'markup' => $this->getMarkup(),
             'currency' => $this->getCurrency(),
             // 'links' => $this->getLinks(),
             'booking_item' => $this->getBookingItem(),

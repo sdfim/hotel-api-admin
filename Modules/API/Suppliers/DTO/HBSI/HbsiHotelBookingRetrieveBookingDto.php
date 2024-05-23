@@ -79,8 +79,8 @@ class HbsiHotelBookingRetrieveBookingDto
         $responseModel->setTotalTax(Arr::get($saveResponse, 'total_tax', 0));
         $responseModel->setTotalFees(Arr::get($saveResponse, 'total_fees', 0));
         $responseModel->setTotalNet(Arr::get($saveResponse, 'total_net', 0));
-        $responseModel->setAffiliateServiceCharge(Arr::get($saveResponse, 'affiliate_service_charge', 0));
-        $responseModel->setCurrency(Arr::get($saveResponse, 'affiliate_service_charge', ''));
+        $responseModel->setMarkup(Arr::get($saveResponse, 'markup', 0));
+        $responseModel->setCurrency(Arr::get($saveResponse, 'markup', ''));
         $responseModel->setPerNightBreakdown(Arr::get($saveResponse, 'per_night_breakdown', 0));
         $responseModel->setBoardBasis('');
 //        $responseModel->setRoomName('');

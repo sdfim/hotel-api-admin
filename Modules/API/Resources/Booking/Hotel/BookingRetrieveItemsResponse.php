@@ -123,9 +123,9 @@ namespace Modules\API\Resources\Booking\Hotel;
  *                 example=5840
  *               ),
  *               @OA\Property(
- *                 property="affiliate_service_charge",
+ *                 property="markup",
  *                 type="number",
- *                 description="Affiliate Service Charge (e.g., 5197.6).",
+ *                 description="Markup (e.g., 5197.6).",
  *                 example=5197.6
  *               ),
  *               @OA\Property(
@@ -176,7 +176,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *                     "giata_room_name": "",
  *                     "supplier_room_name": "Luxury Apartment, 3 Bedrooms",
  *                     "per_day_rate_breakdown": "",
- *                     "affiliate_service_charge": 0
+ *                     "markup": 0
  *                 },
  *                 "passengers": {
  *                     "rooms": {
@@ -237,7 +237,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *                     "giata_room_name": "",
  *                     "supplier_room_name": "Suite (Hyde Park)",
  *                     "per_day_rate_breakdown": "",
- *                     "affiliate_service_charge": 0
+ *                     "markup": 0
  *                 },
  *                 "passengers": {},
  *                 "request": {
