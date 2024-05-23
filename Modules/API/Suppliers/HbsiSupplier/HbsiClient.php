@@ -73,6 +73,8 @@ class HbsiClient
             'timeout' => ConfigRepository::getTimeout()
         ]);
 
+        $original = ['HBSI' => ['request' => $bodyQuery]];
+
         try {
             $result = Fiber::suspend($promise);
         } catch (ConnectException $e) {
@@ -80,7 +82,7 @@ class HbsiClient
             Log::error('Connection timeout: ' . $e->getMessage());
             $parent_search_id = $searchInspector['search_id'];
             $searchInspector['search_id'] = Str::uuid();
-            SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [],'error',
                 ['side' => 'supplier', 'message' => 'Connection timeout', 'parent_search_id' => $parent_search_id]);
             return ['error' => 'Connection timeout'];
         } catch (ServerException $e) {
@@ -88,7 +90,7 @@ class HbsiClient
             Log::error('HBSI Server error: ' . $e->getMessage());
             $parent_search_id = $searchInspector['search_id'];
             $searchInspector['search_id'] = Str::uuid();
-            SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [],'error',
                 ['side' => 'supplier', 'message' => 'HBSI Server error', 'parent_search_id' => $parent_search_id]);
             return ['error' => 'Server error'];
         }
@@ -100,7 +102,7 @@ class HbsiClient
             Log::error('HBSIHotelApiHandler Timeout Exception after ' . $duration . ' seconds');
             $parent_search_id = $searchInspector['search_id'];
             $searchInspector['search_id'] = Str::uuid();
-            SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [],'error',
                 ['side' => 'supplier', 'message' => 'HBSI  Timeout Exception after ' . $duration . ' seconds', 'parent_search_id' => $parent_search_id]);
             return ['error' => 'Timeout Exception after ' . $duration . ' seconds'];
         }

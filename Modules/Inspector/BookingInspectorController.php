@@ -41,17 +41,7 @@ class BookingInspectorController extends BaseInspectorController
 
             Log::debug('BookingInspectorController save data: ', $inspector);
 
-            $booking = ApiBookingInspector::updateOrCreate(
-                [
-                    'booking_id' => $inspector['booking_id'],
-                    'booking_item' => $inspector['booking_item'],
-                    'type' => $inspector['type'],
-                    'sub_type' => $inspector['sub_type'],
-                    'supplier_id' => $inspector['supplier_id'],
-                    'token_id' => $inspector['token_id'],
-                ],
-                $inspector
-            );
+            $booking = ApiBookingInspector::create($inspector);
 
             Log::debug('BookingInspectorController save to DB: ' . $this->executionTime() . ' seconds');
 
