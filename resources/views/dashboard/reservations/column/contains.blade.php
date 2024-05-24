@@ -26,7 +26,7 @@
 		}
     }
 
-	$orderTooltip = ['type', 'supplier', 'total_net', 'total_tax', 'total_fees', 'total_price', 'affiliate_service_charge'];
+	$orderTooltip = ['type', 'supplier', 'total_net', 'total_tax', 'total_fees', 'total_price', 'markup'];
 	$orderedArray = array_replace(array_flip($orderTooltip), $array);
 	$tooltipCol1 = '<div class="grid grid-cols-2"><div>';
 	$tooltipCol2 = '</div><div>';

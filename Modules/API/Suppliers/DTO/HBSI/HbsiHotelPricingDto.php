@@ -293,7 +293,7 @@ class HbsiHotelPricingDto
         $roomGroupsResponse->setTotalTax($priceRoomData[$keyLowestPricedRoom]['total_tax'] ?? 0.0);
         $roomGroupsResponse->setTotalFees($priceRoomData[$keyLowestPricedRoom]['total_fees'] ?? 0.0);
         $roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom]['total_net'] ?? 0.0);
-        $roomGroupsResponse->setAffiliateServiceCharge($priceRoomData[$keyLowestPricedRoom]['affiliate_service_charge'] ?? 0.0);
+        $roomGroupsResponse->setMarkup($priceRoomData[$keyLowestPricedRoom]['markup'] ?? 0.0);
 
         $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom]['non_refundable'] ?? false);
         $roomGroupsResponse->setRateId($rooms[$keyLowestPricedRoom]['rate_id'] ?? 0);
@@ -325,7 +325,7 @@ class HbsiHotelPricingDto
         $pricingRulesApplier['total_tax'] = 0.0;
         $pricingRulesApplier['total_fees'] = 0.0;
         $pricingRulesApplier['total_net'] = 0.0;
-        $pricingRulesApplier['affiliate_service_charge'] = 0.0;
+        $pricingRulesApplier['markup'] = 0.0;
         try {
             $rateToApply['Rates'] = $rate['RoomRates']['RoomRate']['Rates'];
             $rateToApply['rateOccupancy'] = $rateOccupancy;
@@ -399,7 +399,7 @@ class HbsiHotelPricingDto
         $roomResponse->setTotalTax($pricingRulesApplier['total_tax']);
         $roomResponse->setTotalFees($pricingRulesApplier['total_fees']);
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
-        $roomResponse->setAffiliateServiceCharge($pricingRulesApplier['affiliate_service_charge']);
+        $roomResponse->setMarkup($pricingRulesApplier['markup']);
         $roomResponse->setCurrency($this->currency ?? 'USD');
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setNonRefundable($nonRefundable);

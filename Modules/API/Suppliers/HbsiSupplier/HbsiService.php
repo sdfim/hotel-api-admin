@@ -50,8 +50,8 @@ class HbsiService
             $completeBookingItem['booking_pricing_data']['total_fees'] += $booking_pricing_data['total_fees'];
             if (!isset($completeBookingItem['booking_pricing_data']['total_net'])) $completeBookingItem['booking_pricing_data']['total_net'] = 0;
             $completeBookingItem['booking_pricing_data']['total_net'] += $booking_pricing_data['total_net'];
-            if (!isset($completeBookingItem['booking_pricing_data']['affiliate_service_charge'])) $completeBookingItem['booking_pricing_data']['affiliate_service_charge'] = 0;
-            $completeBookingItem['booking_pricing_data']['affiliate_service_charge'] += $booking_pricing_data['affiliate_service_charge'];
+            if (!isset($completeBookingItem['booking_pricing_data']['markup'])) $completeBookingItem['booking_pricing_data']['markup'] = 0;
+            $completeBookingItem['booking_pricing_data']['markup'] += $booking_pricing_data['markup'];
             $completeBookingItem['booking_pricing_data']['rate_id'][] = $booking_pricing_data['rate_id'];
             $completeBookingItem['booking_pricing_data']['currency'] = $booking_pricing_data['currency'];
             $completeBookingItem['booking_pricing_data']['meal_plan'][] = $booking_pricing_data['meal_plan'];
@@ -184,7 +184,7 @@ class HbsiService
             foreach ($hotel['room_groups'] as $rgk => $room_groups) {
                 /** loop rate type  (Promo, BAR, etc)*/
                 $occupancy = $unionRooms = $rateId = [];
-                $total_price = $total_tax = $total_fees = $total_net = $affiliate_service_charge = [];
+                $total_price = $total_tax = $total_fees = $total_net = $markup = [];
                 foreach ($room_groups['rooms'] as $rk => $rooms) {
                     $rate = $rooms['rate_plan_code'];
                     $occupancy[$rate][] = $rooms['supplier_room_id'];
@@ -194,7 +194,7 @@ class HbsiService
                     $total_tax[$rate] = ($total_tax[$rate] ?? 0) + round($rooms['total_tax'], 2);
                     $total_fees[$rate] = ($total_fees[$rate] ?? 0) + round($rooms['total_fees'], 2);
                     $total_net[$rate] = ($total_net[$rate] ?? 0) + round($rooms['total_net'], 2);
-                    $affiliate_service_charge[$rate] = ($affiliate_service_charge[$rate] ?? 0) + round($rooms['affiliate_service_charge'], 2);
+                    $markup[$rate] = ($markup[$rate] ?? 0) + round($rooms['markup'], 2);
 
                     $item = $hotel['giata_hotel_id'] . '_' . $rooms['supplier_room_name'] . '_' . $rate;
                     $search_result = array_search($item, array_column($keyBookingIitem, 'key'));
@@ -214,7 +214,7 @@ class HbsiService
                     $unionRooms[$rate]['total_tax'] = round($total_tax[$rate], 2);
                     $unionRooms[$rate]['total_fees'] = round($total_fees[$rate], 2);
                     $unionRooms[$rate]['total_net'] = round($total_net[$rate], 2);
-                    $unionRooms[$rate]['affiliate_service_charge'] = round($affiliate_service_charge[$rate], 2);
+                    $unionRooms[$rate]['markup'] = round($markup[$rate], 2);
                     $unionRooms[$rate]['supplier_room_id'] = implode(';', $occupancy[$rate]);
                     $unionRooms[$rate]['rate_id'] = implode(';', $rateId[$rate]);
                     $unionRooms[$rate]['booking_item'] = $booking_item;
@@ -239,7 +239,7 @@ class HbsiService
                 $result[$hk]['room_groups'][$rgk]['total_tax'] = round($minGroupePrice['total_tax'], 2);
                 $result[$hk]['room_groups'][$rgk]['total_fees'] = round($minGroupePrice['total_fees'], 2);
                 $result[$hk]['room_groups'][$rgk]['total_net'] = round($minGroupePrice['total_net'], 2);
-                $result[$hk]['room_groups'][$rgk]['affiliate_service_charge'] = round($minGroupePrice['affiliate_service_charge'], 2);
+                $result[$hk]['room_groups'][$rgk]['markup'] = round($minGroupePrice['markup'], 2);
                 if ($minHotelPrice > $minGroupePrice['total_price']) {
                     $minHotelPrice = round($minGroupePrice['total_price'], 2);
                 }

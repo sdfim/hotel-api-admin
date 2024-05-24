@@ -145,7 +145,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *          type="array",
  *          @OA\Items(
  *            type="object",
- *            required={"total_price", "total_tax", "total_fees", "total_net", "affiliate_service_charge", "currency", "pay_now", "pay_at_hotel", "non_refundable", "meal_plan", "rate_id", "rate_description", "cancellation_policies", "opaque", "rooms"},
+ *            required={"total_price", "total_tax", "total_fees", "total_net", "markup", "currency", "pay_now", "pay_at_hotel", "non_refundable", "meal_plan", "rate_id", "rate_description", "cancellation_policies", "opaque", "rooms"},
  *            @OA\Property(
  *              property="total_price",
  *              description="Total price.",
@@ -171,8 +171,8 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *              example="27090"
  *            ),
  *            @OA\Property(
- *              property="affiliate_service_charge",
- *              description="Affiliate service charge.",
+ *              property="markup",
+ *              description="Markup.",
  *              type="number",
  *              example="44"
  *            ),
@@ -265,7 +265,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *               type="array",
  *               @OA\Items(
  *                 type="object",
- *                 required={"giata_room_code", "giata_room_name", "supplier_room_name", "per_day_rate_breakdown", "total_price", "total_tax", "total_fees", "total_net", "affiliate_service_charge", "booking_item"},
+ *                 required={"giata_room_code", "giata_room_name", "supplier_room_name", "per_day_rate_breakdown", "total_price", "total_tax", "total_fees", "total_net", "markup", "booking_item"},
  *                 @OA\Property(
  *                   property="giata_room_code",
  *                   description="Giata room code.",
@@ -315,8 +315,8 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                   example="27090"
  *                 ),
  *                 @OA\Property(
- *                   property="affiliate_service_charge",
- *                   description="Affiliate service charge.",
+ *                   property="markup",
+ *                   description="Markup.",
  *                   type="number",
  *                   example="44"
  *                 ),
@@ -388,7 +388,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                             "total_tax": 4094.74,
  *                             "total_fees": 0,
  *                             "total_net": 27090,
- *                             "affiliate_service_charge": 44,
+ *                             "markup": 44,
  *                             "currency": "USD",
  *                             "pay_now": false,
  *                             "pay_at_hotel": false,
@@ -415,7 +415,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 4094.74,
  *                                     "total_fees": 0,
  *                                     "total_net": 27090,
- *                                     "affiliate_service_charge": 44,
+ *                                     "markup": 44,
  *                                     "booking_item": "4154e990-6d0b-4852-bcd3-52f1e5a44f14"
  *                                 }
  *                             }
@@ -440,7 +440,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                             "total_tax": 20144.2,
  *                             "total_fees": 900,
  *                             "total_net": 135900.2,
- *                             "affiliate_service_charge": 2718,
+ *                             "markup": 2718,
  *                             "currency": "USD",
  *                             "pay_now": false,
  *                             "pay_at_hotel": false,
@@ -467,7 +467,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 20144.2,
  *                                     "total_fees": 900,
  *                                     "total_net": 135900.2,
- *                                     "affiliate_service_charge": 2718,
+ *                                     "markup": 2718,
  *                                     "booking_item": "cd362e27-62ac-4231-897d-06b29347e78a"
  *                                 }
  *                             }
@@ -492,7 +492,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                             "total_tax": 3203.68,
  *                             "total_fees": 619.74,
  *                             "total_net": 21293.3,
- *                             "affiliate_service_charge": 21293.3,
+ *                             "markup": 21293.3,
  *                             "currency": "USD",
  *                             "pay_now": false,
  *                             "pay_at_hotel": false,
@@ -519,7 +519,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 3203.68,
  *                                     "total_fees": 619.74,
  *                                     "total_net": 21293.3,
- *                                     "affiliate_service_charge": 21293.3,
+ *                                     "markup": 21293.3,
  *                                     "booking_item": "dcb9a74e-29db-4b15-aff9-4468eb8c90c1"
  *                                 }
  *                             }
@@ -529,7 +529,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                             "total_tax": 3444.6,
  *                             "total_fees": 619.74,
  *                             "total_net": 22682,
- *                             "affiliate_service_charge": 22682,
+ *                             "markup": 22682,
  *                             "currency": "USD",
  *                             "pay_now": false,
  *                             "pay_at_hotel": false,
@@ -556,7 +556,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 3444.6,
  *                                     "total_fees": 619.74,
  *                                     "total_net": 22682,
- *                                     "affiliate_service_charge": 22682,
+ *                                     "markup": 22682,
  *                                     "booking_item": "e4b0ec3a-be3c-423c-ad6d-3165bd368683"
  *                                 }
  *                             }
@@ -581,7 +581,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                             "total_tax": 9328.92,
  *                             "total_fees": 0,
  *                             "total_net": 62576,
- *                             "affiliate_service_charge": 42551.68,
+ *                             "markup": 42551.68,
  *                             "currency": "USD",
  *                             "pay_now": false,
  *                             "pay_at_hotel": false,
@@ -608,7 +608,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 9328.92,
  *                                     "total_fees": 0,
  *                                     "total_net": 62576,
- *                                     "affiliate_service_charge": 42551.68,
+ *                                     "markup": 42551.68,
  *                                     "booking_item": "c1d6cd10-311a-4d84-8be7-faab6358eca1"
  *                                 }
  *                             }
@@ -633,7 +633,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                             "total_tax": 15656.18,
  *                             "total_fees": 0,
  *                             "total_net": 105472,
- *                             "affiliate_service_charge": 95979.52,
+ *                             "markup": 95979.52,
  *                             "currency": "USD",
  *                             "pay_now": false,
  *                             "pay_at_hotel": false,
@@ -660,7 +660,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 15656.18,
  *                                     "total_fees": 0,
  *                                     "total_net": 105472,
- *                                     "affiliate_service_charge": 95979.52,
+ *                                     "markup": 95979.52,
  *                                     "booking_item": "6f33bcc4-6d98-4659-af02-0dd061b97ab2"
  *                                 }
  *                             }
@@ -685,7 +685,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                             "total_tax": 4008.26,
  *                             "total_fees": 929.34,
  *                             "total_net": 26503.5,
- *                             "affiliate_service_charge": 18287.42,
+ *                             "markup": 18287.42,
  *                             "currency": "USD",
  *                             "pay_now": false,
  *                             "pay_at_hotel": false,
@@ -712,7 +712,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 4008.26,
  *                                     "total_fees": 929.34,
  *                                     "total_net": 26503.5,
- *                                     "affiliate_service_charge": 18287.42,
+ *                                     "markup": 18287.42,
  *                                     "booking_item": "3732b4c8-0b11-4750-bf1c-18f3727927c4"
  *                                 }
  *                             }
@@ -722,7 +722,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                             "total_tax": 3560.24,
  *                             "total_fees": 929.34,
  *                             "total_net": 23466,
- *                             "affiliate_service_charge": 16191.54,
+ *                             "markup": 16191.54,
  *                             "currency": "USD",
  *                             "pay_now": false,
  *                             "pay_at_hotel": false,
@@ -749,7 +749,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 3560.24,
  *                                     "total_fees": 929.34,
  *                                     "total_net": 23466,
- *                                     "affiliate_service_charge": 16191.54,
+ *                                     "markup": 16191.54,
  *                                     "booking_item": "77471766-4455-4294-a433-7188e0993a69"
  *                                 }
  *                             }
@@ -806,7 +806,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                             "total_tax": 1235.92,
  *                             "total_fees": 2089.26,
  *                             "total_net": 4090.56,
- *                             "affiliate_service_charge": 0,
+ *                             "markup": 0,
  *                             "currency": "USD",
  *                             "pay_now": false,
  *                             "pay_at_hotel": false,
@@ -833,7 +833,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 1235.92,
  *                                     "total_fees": 2089.26,
  *                                     "total_net": 4090.56,
- *                                     "affiliate_service_charge": 0,
+ *                                     "markup": 0,
  *                                     "booking_item": "d47dd61b-fee2-4406-91b4-f5087382bed0"
  *                                 },
  *                                 {
@@ -845,7 +845,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 1480.93,
  *                                     "total_fees": 2089.26,
  *                                     "total_net": 5315.5,
- *                                     "affiliate_service_charge": 0,
+ *                                     "markup": 0,
  *                                     "booking_item": "dfc62bc3-5e33-4f5f-8df8-407a94f517ad"
  *                                 },
  *                                 {
@@ -857,7 +857,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 1405.4,
  *                                     "total_fees": 2089.26,
  *                                     "total_net": 4937.88,
- *                                     "affiliate_service_charge": 0,
+ *                                     "markup": 0,
  *                                     "booking_item": "91cbc3de-7c26-475d-b9e4-4526f4efc294"
  *                                 }
  *                             }
@@ -882,7 +882,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                             "total_tax": 1888.68,
  *                             "total_fees": 0,
  *                             "total_net": 9443.48,
- *                             "affiliate_service_charge": 0,
+ *                             "markup": 0,
  *                             "currency": "USD",
  *                             "pay_now": false,
  *                             "pay_at_hotel": false,
@@ -909,7 +909,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 2098.54,
  *                                     "total_fees": 0,
  *                                     "total_net": 10492.78,
- *                                     "affiliate_service_charge": 0,
+ *                                     "markup": 0,
  *                                     "booking_item": "bfc54dd3-1ca5-4624-98cc-0d1ab8d8f153"
  *                                 },
  *                                 {
@@ -921,7 +921,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 2339.05,
  *                                     "total_fees": 0,
  *                                     "total_net": 11695.26,
- *                                     "affiliate_service_charge": 0,
+ *                                     "markup": 0,
  *                                     "booking_item": "871198e4-d02f-47f5-9cb7-b52abf20ae93"
  *                                 },
  *                                 {
@@ -933,7 +933,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 2105.14,
  *                                     "total_fees": 0,
  *                                     "total_net": 10525.71,
- *                                     "affiliate_service_charge": 0,
+ *                                     "markup": 0,
  *                                     "booking_item": "3125f606-c4b2-4795-ac35-9597fa92b4d4"
  *                                 },
  *                                 {
@@ -945,7 +945,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *                                     "total_tax": 1888.68,
  *                                     "total_fees": 0,
  *                                     "total_net": 9443.48,
- *                                     "affiliate_service_charge": 0,
+ *                                     "markup": 0,
  *                                     "booking_item": "7f9dd9b9-3812-4077-8288-0cb5bb1b1e32"
  *                                 }
  *                             }

@@ -113,7 +113,7 @@ class FakeDataEndpoints
             "total_tax": 618.14,
             "total_fees": 0,
             "total_net": 3552.34,
-            "affiliate_service_charge": 0,
+            "markup": 0,
             "currency": "CAD",
             "per_night_breakdown": 2085.24,
             "board_basis": "",
@@ -192,7 +192,7 @@ class FakeDataEndpoints
             "total_tax": 52248,
             "total_fees": 0,
             "total_net": 300282,
-            "affiliate_service_charge": 0,
+            "markup": 0,
             "currency": "JPY",
             "per_night_breakdown": 88132.5,
             "links": {

@@ -68,8 +68,7 @@
                         <p><strong>Total tax:</strong> {{ $field['price']['total_tax'] }}</p>
                         <p><strong>Total fees:</strong> {{ $field['price']['total_fees'] }}</p>
                         <p><strong>Total price:</strong> {{ $field['price']['total_price'] }}</p>
-                        <p><strong>Affiliate service
-                                charge:</strong> {{ $field['price']['affiliate_service_charge'] ?? 0 }}
+                        <p><strong>Markup:</strong> {{ $field['price']['markup'] ?? 0 }}
                         </p>
                     </div>
 

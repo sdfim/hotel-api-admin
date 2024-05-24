@@ -113,9 +113,9 @@ namespace Modules\API\Resources\Booking\Hotel;
  *         example=1110.2
  *       ),
  *       @OA\Property(
- *         property="affiliate_service_charge",
+ *         property="markup",
  *         type="number",
- *         description="Affiliate Service Charge (e.g., 988.08).",
+ *         description="Markup (e.g., 988.08).",
  *         example=988.08
  *       ),
  *       @OA\Property(
@@ -218,7 +218,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *            "total_tax": 176.82,
  *            "total_fees": 120,
  *            "total_net": 1110.2,
- *            "affiliate_service_charge": 988.08,
+ *            "markup": 988.08,
  *            "currency": "EUR",
  *            "per_night_breakdown": 643.51,
  *            "links": {

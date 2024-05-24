@@ -47,7 +47,7 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
                                 'giata_room_name',
                                 'supplier_room_name',
                                 'per_day_rate_breakdown',
-                                'affiliate_service_charge',
+                                'markup',
                             ],
                             'passengers',
                             'request' => [
@@ -117,7 +117,7 @@ class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
                                 'giata_room_name',
                                 'supplier_room_name',
                                 'per_day_rate_breakdown',
-                                'affiliate_service_charge',
+                                'markup',
                             ],
                             'passengers' => [
                                 'rooms' => [

@@ -39,7 +39,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
         $this->assertArrayHasKey('total_tax', $result);
         $this->assertArrayHasKey('total_fees', $result);
         $this->assertArrayHasKey('total_net', $result);
-        $this->assertArrayHasKey('affiliate_service_charge', $result);
+        $this->assertArrayHasKey('markup', $result);
 
         $this->assertNotNull($result['total_price']);
         $this->assertNotNull($result['total_tax']);
@@ -61,7 +61,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
             'total_tax' => 355.5,
             'total_fees' => 270.0,
             'total_net' => 2196.0,
-            'affiliate_service_charge' => 60.0
+            'markup' => 60.0
         ];
     }
 

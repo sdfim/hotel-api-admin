@@ -27,7 +27,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
      *      total_tax: float|int,
      *      total_fees: float|int,
      *      total_net: float|int,
-     *      affiliate_service_charge: float|int
+     *      markup: float|int
      *  }
      */
     public function apply(int $giataId, array $roomsPricingArray, bool $b2b = true): array
