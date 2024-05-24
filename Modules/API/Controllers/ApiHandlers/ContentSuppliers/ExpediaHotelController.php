@@ -156,7 +156,7 @@ class ExpediaHotelController
      * @return array|null
      * @throws \Throwable
      */
-    public function price(array $filters): ?array
+    public function price(array $filters, array $searchInspector): ?array
     {
 
         try {
@@ -175,7 +175,7 @@ class ExpediaHotelController
             }
 
             // get PriceData from RapidAPI Expedia
-            $priceData = $this->expediaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters);
+            $priceData = $this->expediaService->getExpediaPriceByPropertyIds($preSearchData['ids'], $filters, $searchInspector);
 
             $output = [];
             // add price to response

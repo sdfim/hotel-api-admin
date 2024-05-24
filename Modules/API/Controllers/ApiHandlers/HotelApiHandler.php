@@ -6,6 +6,7 @@ use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveSearchInspector;
 use App\Models\GeneralConfiguration;
 use App\Models\Supplier;
+use App\Repositories\ApiSearchInspectorRepository;
 use App\Traits\Timer;
 use Exception;
 use Fiber;
@@ -253,6 +254,10 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         try {
             $filters = $request->all();
 
+            $supplierNames = $request->supplier ? explode(',', $request->supplier) : [];
+            $supplierIds = Supplier::whereIn('name', $supplierNames)->pluck('id')->toArray();
+            if (!empty($supplierIds)) $suppliers = $supplierIds;
+
             if (self::PAGINATION_TO_RESULT) {
                 // this will set up the receipt of all records from the vendors
                 unset($filters['page']);
@@ -272,6 +277,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     $filters['rating'] = GeneralConfiguration::latest()->first()->star_ratings ?? 3;
 
                 $search_id = (string)Str::uuid();
+                $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$search_id, $filters, $suppliers, 'price', 'hotel']);
 
                 $st = microtime(true);
                 $pricingRules = $this->pricingRulesService->rules($filters);
@@ -290,10 +296,10 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $supplierQuery = explode(',', $request->supplier);
                         if (!in_array($supplier, $supplierQuery)) continue;
                     }
-                    $fibers[$supplier] = new Fiber(function () use ($supplier, $filters, $search_id, $pricingRules) {
+                    $fibers[$supplier] = new Fiber(function () use ($supplier, $filters, $search_id, $pricingRules, $searchInspector) {
                         $supplierResponse = match (SupplierNameEnum::from($supplier)) {
-                            SupplierNameEnum::EXPEDIA => $this->expedia->price($filters),
-                            SupplierNameEnum::HBSI => $this->hbsi->price($filters),
+                            SupplierNameEnum::EXPEDIA => $this->expedia->price($filters, $searchInspector),
+                            SupplierNameEnum::HBSI => $this->hbsi->price($filters, $searchInspector),
                             default => throw new Exception("Unknown supplier: $supplier")
                         };
 
@@ -376,9 +382,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                 /** Save data to Inspector */
                 Log::info('HotelApiHandler | price | SaveSearchInspector | start');
-                SaveSearchInspector::dispatch([
-                    $search_id, $filters, $dataOriginal, $content, $clientContent, $suppliers, 'price', 'hotel',
-                ]);
+                SaveSearchInspector::dispatch($searchInspector, $dataOriginal, $content, $clientContent);
+
                 Log::info('HotelApiHandler | price | SaveSearchInspector | end');
 
                 if (!empty($bookingItems)) {

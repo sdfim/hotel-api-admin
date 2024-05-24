@@ -25,11 +25,11 @@ class ExpediaService
      * @return array
      * @throws \Throwable
      */
-    public function getExpediaPriceByPropertyIds(array $propertyIds, array $query): array
+    public function getExpediaPriceByPropertyIds(array $propertyIds, array $query, array $searchInspector): array
     {
         try {
             $propertyPriceCall = new PropertyPriceCall($this->rapidClient, $query);
-            $dataPrice = $propertyPriceCall->getPriceData($propertyIds);
+            $dataPrice = $propertyPriceCall->getPriceData($propertyIds, $searchInspector);
         } catch (Exception $e) {
             Log::error('ExpediaService | getExpediaPriceByPropertyIds' . $e->getMessage());
             Log::error($e->getTraceAsString());

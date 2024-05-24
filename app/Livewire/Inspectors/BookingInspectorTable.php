@@ -7,8 +7,6 @@ use Exception;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -56,6 +54,17 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->label('Category'),
+                TextColumn::make('status')
+                    ->searchable(isIndividual: true)
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'error' => 'danger',
+                        'success' => 'success',
+                        default => 'gray',
+                    }),
+                ViewColumn::make('view error data')
+                    ->label('')
+                    ->view('dashboard.booking-inspector.column.error-data'),
                 TextColumn::make('token.id')
                     ->numeric()
                     ->searchable(isIndividual: true)

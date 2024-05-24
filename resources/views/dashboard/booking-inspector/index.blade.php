@@ -46,6 +46,18 @@
             el.classList.remove("opened-modal-block");
         }
 
+        function openModalError(id, type) {
+            const el = document.querySelector('#modal-idmodal-' + id + '-' + type);
+            el.classList.remove("hidden");
+            el.classList.add("opened-modal-block");
+        }
+
+        function closeModalError(id, type) {
+            const el = document.querySelector('#modal-idmodal-' + id + '-' + type);
+            el.classList.add("hidden");
+            el.classList.remove("opened-modal-block");
+        }
+
         document.addEventListener('click', (e) => {
             const div = document.querySelector('.opened-modal-block');
             if (e.srcElement.classList.contains('modal-overlay') && div) {

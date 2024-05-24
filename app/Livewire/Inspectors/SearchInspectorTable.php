@@ -4,7 +4,6 @@ namespace App\Livewire\Inspectors;
 
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
-use Carbon\Carbon;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Columns\TextColumn;
@@ -35,6 +34,17 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->tooltip('view Search ID data')
                     ->searchable(isIndividual: true)
                     ->view('dashboard.search-inspector.column.search-id'),
+                TextColumn::make('status')
+                    ->searchable(isIndividual: true)
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'error' => 'danger',
+                        'success' => 'success',
+                        default => 'gray',
+                    }),
+                ViewColumn::make('view error data')
+                    ->label('')
+                    ->view('dashboard.search-inspector.column.error-data'),
                 ViewColumn::make('request')
                     ->toggleable()
                     ->searchable(isIndividual: true)

@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\ApiBookingInspector;
+use App\Models\ApiBookingItem;
 use Illuminate\Support\Facades\Storage;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
@@ -282,6 +283,42 @@ class ApiBookingInspectorRepository
                 ->where('sub_type', 'create')
                 ->first();
         }
+    }
+
+    public static function newBookingInspector(array $input): array
+    {
+        /**
+         * @param string $booking_id
+         * @param array $query
+         * @param array $content
+         * @param array $client_content
+         * @param int $supplier_id
+         * @param string $type
+         * @param string $subType
+         * @param string $search_type
+         */
+        [$booking_id, $query, $supplier_id, $type, $subType, $search_type] = $input;
+
+        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $booking_item = $query['booking_item'] ?? null;
+        $search_id = $query['search_id'] ?? $booking_item
+            ? ApiBookingItem::where('booking_item', $booking_item)->first()?->search_id
+            : null;
+
+        $inspector = new ApiBookingInspector();
+        $inspector->booking_id = $booking_id;
+        $inspector->token_id = $token_id;
+        $inspector->supplier_id = $supplier_id;
+        $inspector->search_id = $search_id;
+        $inspector->booking_item = $booking_item;
+        $inspector->search_type = $search_type;
+        $inspector->type = $type;
+        $inspector->sub_type = $subType;
+        $inspector->request = $query;
+
+        \Log::info('Created ApiBookingInspector:', ['inspector' => $inspector]);
+
+        return $inspector->toArray();
     }
 
 }
