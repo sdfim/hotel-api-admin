@@ -127,8 +127,8 @@ class FlowExpediaBookTest extends Command
     private function makeSearchRequest(int $count = 1): array
     {
         $faker = Faker::create();
-        $checkin = Carbon::now()->addDays()->toDateString();
-        $checkout = Carbon::now()->addDays(1 + rand(2, 5))->toDateString();
+        $checkin = Carbon::now()->addDays(240)->toDateString();
+        $checkout = Carbon::now()->addDays(241 + rand(2, 5))->toDateString();
 
         $occupancy = [];
         foreach (range(1, $count) as $index) {
@@ -151,12 +151,13 @@ class FlowExpediaBookTest extends Command
 
         $requestData = [
             'type' => 'hotel',
-            'currency' => 'USD', // $faker->randomElement(['USD', 'EUR', 'GBP', 'CAD', 'JPY']),
+            'currency' => 'USD',
             'destination' => $this->destination,
+            'supplier' => $this->supplier,
             'checkin' => $checkin,
             'checkout' => $checkout,
             'occupancy' => $occupancy,
-            'rating' => $faker->numberBetween(3, 5),
+            'rating' => $faker->numberBetween(4, 5),
         ];
 
         $response = $this->client->post($this->url . '/api/pricing/search', $requestData);
@@ -300,7 +301,7 @@ class FlowExpediaBookTest extends Command
                     'line_1' => $faker->streetAddress,
                     'city' => $faker->city,
                     'state_province_code' => $faker->stateAbbr,
-                    'postal_code' => $faker->lexify(str_repeat('?', rand(1, 7))), //$faker->postcode,
+                    'postal_code' => $faker->lexify(str_repeat('?', rand(1, 7))),
                     'country_code' => $faker->countryCode,
                 ],
             ],

@@ -35,7 +35,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->view('dashboard.search-inspector.column.search-id'),
                 TextColumn::make('status')
-                    ->searchable(isIndividual: true)
+//                    ->searchable(isIndividual: true)
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'error' => 'danger',

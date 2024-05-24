@@ -76,6 +76,15 @@ class HbsiClient
         $original = ['HBSI' => ['request' => $bodyQuery]];
 
         try {
+            /*
+            // Imitation error 500
+            throw new \GuzzleHttp\Exception\ServerException(
+                "Server error",
+                new \GuzzleHttp\Psr7\Request('POST', 'test'),
+                new \GuzzleHttp\Psr7\Response(500)
+            );
+            */
+
             $result = Fiber::suspend($promise);
         } catch (ConnectException $e) {
             // Timeout
@@ -180,25 +189,42 @@ class HbsiClient
      */
     private function executeApiRequest(callable $apiCall, array $inspector, string $bodyQuery): ?array
     {
+        $content['original']['request'] = $bodyQuery;
+        $content['original']['response'] = '';
+
         try {
+/*
+            // Imitation error 500
+            throw new \GuzzleHttp\Exception\ServerException(
+                "Server error",
+                new \GuzzleHttp\Psr7\Request('POST', 'test'),
+                new \GuzzleHttp\Psr7\Response(500)
+            );
+*/
             $response = $apiCall();
             $body = $response->getBody()->getContents();
+
+            $content['original']['response'] = $body;
+
+            if (str_contains($body, 'Errors')) {
+                SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'app', 'message' => 'RQ Error']);
+            }
 
             return $this->processXmlBody($body, $bodyQuery, true);
         } catch (ConnectException $e) {
             // Timeout
             Log::error('Connection timeout: ' . $e->getMessage());
-            SaveBookingInspector::dispatch($inspector, [], [], 'error', ['side' => 'supplier', 'message' => 'Connection timeout']);
-            return null;
+            SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'supplier', 'message' => 'Connection timeout']);
+            return ['error' => 'HBSI Connection timeout'];
         } catch (ServerException $e) {
             // Error 500
             Log::error('Server error: ' . $e->getMessage());
-            SaveBookingInspector::dispatch($inspector, [], [], 'error', ['side' => 'supplier', 'message' => 'Server error']);
-            return null;
+            SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'supplier', 'message' => 'Server error']);
+            return ['error' => 'HBSI Server error'];
         } catch (Exception $e) {
             Log::error('Unexpected error: ' . $e->getMessage());
-            SaveBookingInspector::dispatch($inspector, [], [], 'error', ['side' => 'supplier', 'message' => $e->getMessage()]);
-            return null;
+            SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'supplier', 'message' => $e->getMessage()]);
+            return ['error' => $e->getMessage()];
         }
     }
 

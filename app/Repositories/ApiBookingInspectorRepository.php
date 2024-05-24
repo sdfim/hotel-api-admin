@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use Illuminate\Support\Facades\Storage;
+use Modules\Enums\InspectorStatusEnum;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 
@@ -22,6 +23,7 @@ class ApiBookingInspectorRepository
             ->where('booking_item', $booking_item)
             ->where('sub_type', 'like', 'retrieve' . '%')
             ->where('booking_id', $booking_id)
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
         if (!isset($inspector)) return [];
@@ -49,6 +51,7 @@ class ApiBookingInspectorRepository
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve' . '%')
             ->where('booking_id', $booking_id)
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
         $json_response = json_decode(Storage::get($inspector->response_path));
@@ -76,6 +79,7 @@ class ApiBookingInspectorRepository
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve' . '%')
             ->where('booking_id', $booking_id)
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
         $json_response = json_decode(Storage::get($inspector->response_path));
@@ -94,6 +98,7 @@ class ApiBookingInspectorRepository
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve' . '%')
             ->where('booking_id', $booking_id)
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
         return $inspector->search_id;
@@ -108,6 +113,7 @@ class ApiBookingInspectorRepository
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'create' . '%')
             ->where('booking_id', $booking_id)
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
         $json_response = json_decode(Storage::get($inspector->response_path));
@@ -125,7 +131,8 @@ class ApiBookingInspectorRepository
             ->where(function ($query) {
                 $query->where(function ($query) {
                     $query->where('type', 'book')
-                        ->where('sub_type', 'like', 'retrieve' . '%');
+                        ->where('sub_type', 'like', 'retrieve' . '%')
+                        ->where('status', '!=', InspectorStatusEnum::ERROR->value);
                 });
             })
             ->get();
@@ -171,6 +178,7 @@ class ApiBookingInspectorRepository
             ->where('booking_item', $booking_item)
             ->where('type', 'book')
             ->where('sub_type', '!=', 'error')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->exists();
     }
 
@@ -184,6 +192,7 @@ class ApiBookingInspectorRepository
         return ApiBookingInspector::where('booking_item', $booking_item)
             ->where('booking_id', $booking_id)
             ->where('type', 'add_item')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->exists();
     }
 
@@ -196,6 +205,7 @@ class ApiBookingInspectorRepository
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('type', 'book')
             ->where('sub_type', 'create')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->get();
     }
 
@@ -208,6 +218,7 @@ class ApiBookingInspectorRepository
         $itemsBooked = ApiBookingInspector::where('booking_id', $booking_id)
             ->where('type', 'book')
             ->where('sub_type', 'create')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->get()
             ->pluck('booking_item')
             ->toArray();
@@ -234,6 +245,7 @@ class ApiBookingInspectorRepository
             ->where('booking_item', $booking_item)
             ->where('type', 'book')
             ->where('sub_type', 'create')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->get();
     }
 
@@ -247,6 +259,7 @@ class ApiBookingInspectorRepository
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
             ->where('type', 'add_passengers')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
     }
 
@@ -259,6 +272,7 @@ class ApiBookingInspectorRepository
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('type', 'add_item')
 //            ->where('sub_type', 'like', 'price_check' . '%')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->get();
     }
 
@@ -270,6 +284,7 @@ class ApiBookingInspectorRepository
     {
         $bookingInspector = ApiBookingInspector::where('booking_item', $booking_item)
             ->where('type', 'book')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
         if ($bookingInspector && $bookingInspector->supplier->name === SupplierNameEnum::EXPEDIA->value) {
