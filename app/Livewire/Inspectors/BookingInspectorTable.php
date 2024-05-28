@@ -65,6 +65,9 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 ViewColumn::make('view error data')
                     ->label('')
                     ->view('dashboard.booking-inspector.column.error-data'),
+                ViewColumn::make('request')
+                    ->toggleable()
+                    ->view('dashboard.booking-inspector.column.request'),
                 TextColumn::make('token.id')
                     ->numeric()
                     ->searchable(isIndividual: true)
@@ -74,9 +77,6 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     ->numeric()
                     ->toggleable()
                     ->searchable(isIndividual: true),
-                ViewColumn::make('request')
-                    ->toggleable()
-                    ->view('dashboard.booking-inspector.column.request'),
                 TextColumn::make('created_at')
                     ->searchable(isIndividual: true)
                     ->toggleable()

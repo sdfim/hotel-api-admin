@@ -1,5 +1,5 @@
 <button type="button" onClick="openModal('{{ $getRecord()->search_id }}','request')"
-        class="text-white bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
+        class="text-white bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600 ml-3"
         data-tw-target="#modal-idlargemodal-{{ $getRecord()->id }}-request">View request
 </button>
 <div class="relative z-50 hidden modal" id="modal-idlargemodal-{{ $getRecord()->search_id }}-request"
