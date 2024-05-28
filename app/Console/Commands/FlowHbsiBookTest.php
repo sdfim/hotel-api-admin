@@ -14,7 +14,7 @@ class FlowHbsiBookTest extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'hbsi-book-test {step} {destination} {supplier}';
+    protected $signature = 'hbsi-book-test {step} {destination} {supplier} {type}';
 
     /** @var PendingRequest */
     protected PendingRequest $client;
@@ -23,6 +23,7 @@ class FlowHbsiBookTest extends Command
     private string $destination;
     private string $supplier;
     private array $query;
+    private string $type;
 
     public function __construct()
     {
@@ -39,6 +40,7 @@ class FlowHbsiBookTest extends Command
         $step = $this->argument('step');
         $this->destination = $this->argument('destination');
         $this->supplier = $this->argument('supplier');
+        $this->type = $this->argument('type');
 
         foreach (range(1, $step) as $index) {
             $this->warn('STEP ' . $index . ' of ' . $step);
@@ -148,8 +150,14 @@ class FlowHbsiBookTest extends Command
     {
         $faker = Faker::create();
         if ($count > 2) $count = 2;
-        $checkin = Carbon::now()->addDays()->toDateString();
-        $checkout = Carbon::now()->addDays(1 + rand(2, 5))->toDateString();
+        if ($this->type != 'test') {
+            $checkin = Carbon::now()->addDays(240)->toDateString();
+            $checkout = Carbon::now()->addDays(241 + rand(2, 5))->toDateString();
+        }
+        else {
+            $checkin = Carbon::now()->addDays(10)->toDateString();
+            $checkout = Carbon::now()->addDays(12 + rand(2, 5))->toDateString();
+        }
 
         $occupancy = [];
         foreach (range(1, $count) as $index) {
@@ -204,7 +212,6 @@ class FlowHbsiBookTest extends Command
     /**
      * @param string $bookingId
      * @param array $bookingItems
-     * @param array $bookingRateOrdinals
      * @param array $occupancy
      * @return void
      */
@@ -295,6 +302,7 @@ class FlowHbsiBookTest extends Command
 
     /**
      * @param string $bookingId
+     * @param array $bookingItems
      * @return void
      */
     private function book(string $bookingId, array $bookingItems): void
@@ -305,8 +313,8 @@ class FlowHbsiBookTest extends Command
             'booking_id' => $bookingId,
             'amount_pay' => 'Deposit',
             'booking_contact' => [
-                'first_name' => $faker->firstName,
-                'last_name' => $faker->lastName,
+                'first_name' => 'Andri test',
+                'last_name' => 'TEST',
                 'email' => 'test@gmail.com',
                 'phone' => [
                     'country_code' => '1',
@@ -321,6 +329,13 @@ class FlowHbsiBookTest extends Command
                     'country_code' => 'US', //$faker->countryCode,
                 ],
             ],
+            'special_requests' => [
+                [
+                    'booking_item' => $bookingItems['search_1'],
+                    'room' => 1,
+                    'special_request' => 'UJV Test Booking, please disregard.',
+                ]
+            ]
         ];
 
         if ($this->supplier === 'HBSI') {

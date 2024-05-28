@@ -80,6 +80,14 @@ class HbsiBookApiController extends BaseBookApiController
             Log::info('HbsiBookApiController | book | ' . json_encode($filters));
             $xmlPriceData = $this->hbsiClient->handleBook($filters, $inspectorBook);
 
+            if (isset($xmlPriceData['error'])) {
+                return [
+                    'error' => $xmlPriceData['error'],
+                    'booking_item' => $filters['booking_item'] ?? '',
+                    'supplier' => SupplierNameEnum::HBSI->value
+                ];
+            }
+
             $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
             $dataResponse = json_decode(json_encode($response), true) ?? [];
 
@@ -136,9 +144,6 @@ class HbsiBookApiController extends BaseBookApiController
         }
 
         if (!$error) {
-            SaveBookingInspector::dispatch([
-                $booking_id, $filters, $dataResponseToSave, $clientResponse, $supplierId, 'book', 'create', $bookingInspector->search_type
-            ]);
             SaveBookingInspector::dispatch($inspectorBook, $dataResponseToSave, $clientResponse);
             # Save Book data to Reservation
             SaveReservations::dispatch($booking_id, $filters, $dataPassengers);
@@ -271,15 +276,17 @@ class HbsiBookApiController extends BaseBookApiController
             }
         } catch (Exception $e) {
             $responseError = explode('response:', $e->getMessage());
-            $responseErrorArr = json_decode($responseError[1], true);
+            $message = isset($responseError[1])
+                ? json_decode($responseError[1], true)['message']
+                : $e->getMessage();
             $res = [
                 'booking_item' => $apiBookingsMetadata->booking_item,
-                'status' => $responseErrorArr['message'],
+                'status' => $message,
             ];
-            $dataResponseToSave = $responseErrorArr['message'];
+            $dataResponseToSave = $message;
 
             SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res, 'error',
-                ['side' => 'app', 'message' => $responseErrorArr['message']]);
+                ['side' => 'app', 'message' => $message]);
         }
 
         return $res;

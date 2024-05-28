@@ -53,7 +53,6 @@ class SearchInspectorController extends BaseInspectorController
                 $inspector['response_path'] = $path;
             }
 
-//            $inspector['request'] = json_encode($inspector['request']);
             $inspector['status_describe'] = json_encode($inspector['status_describe']);
 
             $inspector = ApiSearchInspector::updateOrCreate(

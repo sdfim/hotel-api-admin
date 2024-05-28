@@ -1,7 +1,7 @@
 @if($getRecord()->status === 'error')
     <button type="button" onClick="openModalError('{{ $getRecord()->search_id }}','request')"
             class="text-white bg-red-500 border-red-500 btn hover:bg-red-600 focus:ring ring-red-200 focus:bg-red-600"
-            data-tw-target="#modal-idmodal-{{ $getRecord()->id }}-request">{{ json_decode($getRecord()->status_describe, true)['side'] }}
+            data-tw-target="#modal-idmodal-{{ $getRecord()->id }}-request">{{ ucfirst(json_decode($getRecord()->status_describe, true)['side']) }}
     </button>
 @endif
 <div class="relative z-50 hidden modal" id="modal-idmodal-{{ $getRecord()->search_id }}-request"

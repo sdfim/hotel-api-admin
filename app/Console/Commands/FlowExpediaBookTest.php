@@ -157,7 +157,7 @@ class FlowExpediaBookTest extends Command
             'checkin' => $checkin,
             'checkout' => $checkout,
             'occupancy' => $occupancy,
-            'rating' => $faker->numberBetween(3, 5),
+            'rating' => $faker->numberBetween(4, 5),
         ];
 
         $response = $this->client->post($this->url . '/api/pricing/search', $requestData);
@@ -301,7 +301,7 @@ class FlowExpediaBookTest extends Command
                     'line_1' => $faker->streetAddress,
                     'city' => $faker->city,
                     'state_province_code' => $faker->stateAbbr,
-                    'postal_code' => $faker->lexify(str_repeat('?', rand(1, 7))), //$faker->postcode,
+                    'postal_code' => $faker->lexify(str_repeat('?', rand(1, 7))),
                     'country_code' => $faker->countryCode,
                 ],
             ],

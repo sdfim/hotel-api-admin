@@ -35,7 +35,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->view('dashboard.search-inspector.column.search-id'),
                 TextColumn::make('status')
-                    ->searchable(isIndividual: true)
+//                    ->searchable(isIndividual: true)
                     ->badge()
                     ->color(fn(string $state): string => match ($state) {
                         'error' => 'danger',
@@ -45,13 +45,13 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                 ViewColumn::make('view error data')
                     ->label('')
                     ->view('dashboard.search-inspector.column.error-data'),
+                ViewColumn::make('request json')
+                    ->label('')
+                    ->view('dashboard.search-inspector.column.request'),
                 ViewColumn::make('request')
                     ->toggleable()
                     ->searchable(isIndividual: true)
                     ->view('dashboard.search-inspector.column.request-data'),
-                ViewColumn::make('request json')
-                    ->label('')
-                    ->view('dashboard.search-inspector.column.request'),
                 TextColumn::make('token.name')
                     ->label('Channel')
                     ->numeric()

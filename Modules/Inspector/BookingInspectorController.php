@@ -17,9 +17,18 @@ class BookingInspectorController extends BaseInspectorController
             $this->current_time = microtime(true);
 
             $generalPath = self::PATH_INSPECTORS . 'booking_inspector/' . date("Y-m-d") . '/' . $inspector['type']
-                . '_' . $inspector['sub_type'] . '_' . $inspector['booking_item'] . '__' . $inspector['booking_id'];
+                . '_' . $inspector['sub_type'] . '_' . $inspector['booking_item'] . '__' . time();
             $path = $generalPath . '.json';
             $client_path = $generalPath . '.client.json';
+
+            $original = null;
+            if (!$content instanceof \stdClass) {
+                if (isset($content['original'])) {
+                    $original = $content['original'];
+                    unset($content['original']);
+                    $original = is_array($original) ? json_encode($original) : $original;
+                }
+            }
 
             $inspector['response_path'] = '';
             $inspector['client_response_path'] = '';
@@ -36,22 +45,18 @@ class BookingInspectorController extends BaseInspectorController
                 $inspector['client_response_path'] = $client_path;
             }
 
+            if ($original) {
+                $original_path = $generalPath . '.original.json';
+                Storage::put($original_path, $original);
+                Log::debug('BookingInspectorController save original to Storage: ' . $this->executionTime() . ' seconds');
+            }
+
             $inspector['request'] = json_encode($inspector['request']);
             $inspector['status_describe'] = json_encode($inspector['status_describe']);
 
             Log::debug('BookingInspectorController save data: ', $inspector);
 
-            $booking = ApiBookingInspector::updateOrCreate(
-                [
-                    'booking_id' => $inspector['booking_id'],
-                    'booking_item' => $inspector['booking_item'],
-                    'type' => $inspector['type'],
-                    'sub_type' => $inspector['sub_type'],
-                    'supplier_id' => $inspector['supplier_id'],
-                    'token_id' => $inspector['token_id'],
-                ],
-                $inspector
-            );
+            $booking = ApiBookingInspector::create($inspector);
 
             Log::debug('BookingInspectorController save to DB: ' . $this->executionTime() . ' seconds');
 
