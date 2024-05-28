@@ -54,7 +54,10 @@ class ExpediaHotelContentDetailDto
         }
         $hotelResponse->setGiataDestination($supplierResponse->city ?? '');
         $hotelResponse->setUserRating($supplierResponse->rating ?? '');
-        $hotelResponse->setSpecialInstructions($supplierResponse->room ?? []);
+        $hotelResponse->setSpecialInstructions([
+            'checkin'  => $supplierResponse->checkin ?? null,
+            'checkout' => $supplierResponse->checkout ?? null,
+        ]);
         $hotelResponse->setCheckInTime($supplierResponse->checkin_time ?? '');
         $hotelResponse->setCheckOutTime($supplierResponse->checkout_time ?? '');
         $hotelResponse->setHotelFees($supplierResponse->fees ? json_decode(json_encode($supplierResponse->fees), true) : []);
