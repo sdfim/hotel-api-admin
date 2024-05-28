@@ -7,6 +7,7 @@ use App\Models\GiataGeography;
 use App\Models\GiataPlace;
 use App\Models\Supplier;
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -281,6 +282,8 @@ class ExpediaHotelPricingDto
         $roomResponse->setTotalNet($pricingRulesApplier['total_net']);
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
         $roomResponse->setCancellationPolicies($cancellationPolicies);
+        $roomResponse->setPackageDeal(Arr::get($rate, 'sale_scenario.package', false));
+
         $roomResponse->setCurrency($this->currency);
         if (isset($rate['bed_groups'][array_key_first((array)$rate['bed_groups'])]['configuration'])) {
             $roomResponse->setBedConfigurations($rate['bed_groups'][array_key_first((array)$rate['bed_groups'])]['configuration']);

@@ -55,6 +55,8 @@ class RoomResponse extends BaseResponse
 
     private string $room_description;
 
+    private bool $package_deal = false;
+
     /**
      * @param string $room_description
      */
@@ -480,6 +482,22 @@ class RoomResponse extends BaseResponse
     }
 
     /**
+     * @return bool
+     */
+    public function isPackageDeal(): bool
+    {
+        return $this->package_deal;
+    }
+
+    /**
+     * @param bool $package_deal
+     */
+    public function setPackageDeal(bool $package_deal): void
+    {
+        $this->package_deal = $package_deal;
+    }
+
+    /**
      * @return array
      */
     public function toArray(): array
@@ -510,6 +528,7 @@ class RoomResponse extends BaseResponse
             'meal_plan' => $this->getMealPlans(),
             'bed_configurations' => $this->getBedConfigurations(),
             'breakdown' => $this->getBreakdown(),
+            'package_deal' => $this->isPackageDeal(),
         ];
     }
 }
