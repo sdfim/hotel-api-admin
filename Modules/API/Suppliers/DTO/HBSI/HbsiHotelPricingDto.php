@@ -461,6 +461,12 @@ class HbsiHotelPricingDto
                 'title' => 'Base Rate',
                 'type' => 'base_rate'
             ];
+
+            $totals = [
+                'total_inclusive' => 0,
+                'total_exclusive' => 0,
+            ];
+
             $taxesFeesRate = [];
             if (isset($rate['Base']['Taxes'])) {
                 $taxes = $rate['Base']['Taxes'];
@@ -485,9 +491,23 @@ class HbsiHotelPricingDto
                                 ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
                                 : $_tax['@attributes']['Code']),
                         ];
+
+
+                        $taxType = strtolower($_tax['@attributes']['Type']);
+
+                        if (Arr::has($totals, "total_$taxType"))
+                        {
+                            $totals["total_$taxType"] += $_tax['@attributes']['Amount'];
+                        }
                     }
                 }
             }
+
+            if ($rate['Base']['@attributes']['AmountBeforeTax'] === $rate['Base']['@attributes']['AmountAfterTax'] && $totals['total_inclusive'] > 0)
+            {
+                $baseFareRate['amount'] -= $totals['total_inclusive'];
+            }
+
             for ($i = 0; $i < $nightsRate; $i++){
                 $breakdown[$night][] = $baseFareRate;
                 $breakdown[$night] = array_merge($breakdown[$night], $taxesFeesRate);
