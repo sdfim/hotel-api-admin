@@ -47,7 +47,17 @@
                                 </button>
                                 <button type="button"
                                         class="text-white px-4 py-3 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
-                                        id="loadResponse">Load JSON Response
+                                        id="loadResponse">Download Response as JSON
+                                </button>
+
+                                <button type="button"
+                                        class="text-white px-4 py-3 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
+                                        id="downLoadRawRequest">Download Raw Request
+                                </button>
+
+                                <button type="button"
+                                        class="text-white px-4 py-3 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
+                                        id="downloadRawResponse">Download Raw Response
                                 </button>
                             </div>
                         </div>
@@ -199,6 +209,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
     <script type="module">
+        var fileOriginal = {!! $file_original !!};
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
 
         //original request request
         document.querySelector('#json-original').data = <?= $file_original ?>;
@@ -278,6 +291,24 @@
         document.getElementById('loadResponse').addEventListener('click', function() {
             var blob = new Blob([<?= json_encode($file_client_response) ?>], {type: "application/json;charset=utf-8"});
             saveAs(blob, "file.json");
+        });
+
+        document.getElementById('downLoadRawRequest').addEventListener('click', function() {
+            Object.keys(fileOriginal).forEach(function(key) {
+                if (fileOriginal[key].request) {
+                    var blob = new Blob([fileOriginal[key].request], {type: "application/plain;charset=utf-8"});
+                    saveAs(blob, `request_${key}_${formattedDate}_{{$inspector->search_id}}.txt`);
+                }
+            });
+        });
+
+        document.getElementById('downloadRawResponse').addEventListener('click', function() {
+            Object.keys(fileOriginal).forEach(function(key) {
+                if (fileOriginal[key].response) {
+                    var blob = new Blob([fileOriginal[key].response], {type: "application/plain;charset=utf-8"});
+                    saveAs(blob, `response_${key}_${formattedDate}_{{$inspector->search_id}}.txt`);
+                }
+            });
         });
 
     </script>

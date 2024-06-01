@@ -57,16 +57,30 @@
                                         class="text-white px-4 py-3 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
                                         data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">View Request
                                 </button>
+
+                                @if($inspector->sub_type === 'create')
+                                    <button type="button"
+                                            class="text-white px-4 py-3 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
+                                            data-tw-toggle="modal" data-tw-target="#modal-file-response">View Response
+                                    </button>
+                                @endif
+
                                 <button type="button"
                                         class="text-white px-4 py-3 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
-                                        id="loadResponse">Load JSON Response
+                                        id="loadResponse">Download Response as JSON
                                 </button>
-                                @php if ($inspector->sub_type == 'create') { @endphp
-                                <button type="button"
-                                        class="text-white px-4 py-3 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
-                                        data-tw-toggle="modal" data-tw-target="#modal-file-response">View Response
-                                </button>
-                                @php  } @endphp
+
+                                @if ($inspector->sub_type == 'create')
+                                    <button type="button"
+                                            class="text-white px-4 py-3 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
+                                            id="downLoadRawRequest">Download Raw Request
+                                    </button>
+
+                                    <button type="button"
+                                            class="text-white px-4 py-3 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
+                                            id="downloadRawResponse">Download Raw Response
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -256,6 +270,10 @@
 
 
     <script type="module">
+        var fileOriginal = {!! $file_original !!};
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+
         //original request request
         document.querySelector('#json-original').data = <?= $file_original ?>;
         const original_viewer = document.querySelector('#json-original');
@@ -334,6 +352,21 @@
         document.getElementById('loadResponse').addEventListener('click', function () {
             var blob = new Blob([<?= json_encode($file_client_response) ?>], {type: "application/json;charset=utf-8"});
             saveAs(blob, "file.json");
+        });
+
+
+        document.getElementById('downLoadRawRequest').addEventListener('click', function() {
+            if (fileOriginal.request) {
+                var blob = new Blob([fileOriginal.request], {type: "application/plain;charset=utf-8"});
+                saveAs(blob, `request_{{$inspector->Supplier->name}}_${formattedDate}_{{$inspector->booking_item}}.txt`);
+            }
+        });
+
+        document.getElementById('downloadRawResponse').addEventListener('click', function() {
+            if (fileOriginal.response) {
+                var blob = new Blob([fileOriginal.response], {type: "application/plain;charset=utf-8"});
+                saveAs(blob, `response_{{$inspector->supplier->name}}_${formattedDate}_{{$inspector->booking_item}}.txt`);
+            }
         });
 
     </script>
