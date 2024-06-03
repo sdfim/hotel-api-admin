@@ -118,7 +118,14 @@ class HbsiHotelController
                 ];
             }
 
-            $priceData = $arrayResponse['RoomStays']['RoomStay'];
+            /**
+             * Normally RoomStay is an array when several rates come from the same hotel, if only one rate comes, the
+             * array becomes assoc instead of sequential, so we force it to be sequential so the foreach below does not
+             * fail
+             */
+            $priceData = Arr::isAssoc($arrayResponse['RoomStays']['RoomStay'])
+                ? [$arrayResponse['RoomStays']['RoomStay']]
+                : $arrayResponse['RoomStays']['RoomStay'];
 
             $i = 1;
             $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($hotelData, &$i) {
