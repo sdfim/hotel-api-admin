@@ -369,8 +369,8 @@ class HbsiHotelPricingDto
                 if (isset($cancelPenalty['AmountPercent']['@attributes']['CurrencyCode'])) {
                     $data['currency'] = $cancelPenalty['AmountPercent']['@attributes']['CurrencyCode'];
                 }
-                if (isset($cancelPenalty['AmountPercent']['NmbrOfNights'])) {
-                    $data['nights'] = $cancelPenalty['AmountPercent']['NmbrOfNights'];
+                if (isset($cancelPenalty['AmountPercent']['@attributes']['NmbrOfNights'])) {
+                    $data['nights'] = $cancelPenalty['AmountPercent']['@attributes']['NmbrOfNights'];
                 }
 
                 $cancellationPolicies[] = $data;
