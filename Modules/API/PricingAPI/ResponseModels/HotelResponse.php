@@ -15,7 +15,7 @@ class HotelResponse extends BaseResponse
     /**
      * @var int
      */
-    private int $supplier_hotel_id;
+    private string $supplier_hotel_id;
     /**
      * @var string
      */
@@ -167,7 +167,7 @@ class HotelResponse extends BaseResponse
      * @param int $supplier_hotel_id
      * @return void
      */
-    public function setSupplierHotelId(int $supplier_hotel_id): void
+    public function setSupplierHotelId(string $supplier_hotel_id): void
     {
         $this->supplier_hotel_id = $supplier_hotel_id;
     }
@@ -175,7 +175,7 @@ class HotelResponse extends BaseResponse
     /**
      * @return int
      */
-    public function getSupplierHotelId(): int
+    public function getSupplierHotelId(): string
     {
         return $this->supplier_hotel_id;
     }
