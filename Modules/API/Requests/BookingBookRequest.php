@@ -132,7 +132,7 @@ class BookingBookRequest extends ApiRequest
             $rules['credit_cards.*.credit_card.number'] = 'required|int|digits_between:13,19';
             $rules['credit_cards.*.credit_card.card_type'] = 'required|string|in:MSC,VISA,AMEX,DIS';
             $rules['credit_cards.*.credit_card.expiry_date'] = 'required|date_format:m/Y|after_or_equal:today';
-            $rules['credit_cards.*.credit_card.cvv'] = 'required|int|digits:3';
+            $rules['credit_cards.*.credit_card.cvv'] = 'required|int|digits_between:3,4';
             $rules['credit_cards.*.credit_card.billing_address'] = 'nullable|string';
         }
 
