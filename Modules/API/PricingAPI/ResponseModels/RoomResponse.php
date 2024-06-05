@@ -57,6 +57,8 @@ class RoomResponse extends BaseResponse
 
     private bool $package_deal = false;
 
+    private ?string $penalty_date = null;
+
     /**
      * @param string $room_description
      */
@@ -498,6 +500,24 @@ class RoomResponse extends BaseResponse
     }
 
     /**
+     * @return string|null
+     */
+    public function getPenaltyDate(): ?string
+    {
+        return $this->penalty_date;
+    }
+
+    /**
+     * @param string|null $penalty_date
+     */
+    public function setPenaltyDate(?string $penalty_date): void
+    {
+        $this->penalty_date = $penalty_date;
+    }
+
+
+
+    /**
      * @return array
      */
     public function toArray(): array
@@ -529,6 +549,7 @@ class RoomResponse extends BaseResponse
             'bed_configurations' => $this->getBedConfigurations(),
             'breakdown' => $this->getBreakdown(),
             'package_deal' => $this->isPackageDeal(),
+            'penalty_date' => $this->getPenaltyDate(),
         ];
     }
 }

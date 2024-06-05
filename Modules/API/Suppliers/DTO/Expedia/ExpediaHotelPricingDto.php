@@ -16,6 +16,8 @@ use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
+use Modules\API\Suppliers\Enums\Expedia\PolicyCode;
+use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 
@@ -243,10 +245,21 @@ class ExpediaHotelPricingDto
         /** https://developers.expediagroup.com/docs/products/rapid/resources/reference/constructing-cancellation-policies */
         $cancelPenalty = $rate['cancel_penalties'];
         $cancellationPolicies = [];
+        $penaltyDate = null;
+
         foreach ($cancelPenalty as $key => $penalty) {
             $data = [];
+
+            $data['description'] = PolicyCode::General->value;
+            $data['type'] = PolicyCode::getObeCode()->value;
+
             if (isset($penalty['start'])) {
                 $data['penalty_start_date'] = $penalty['start'];
+
+                if ($penaltyDate === null || $penaltyDate > $data['penalty_start_date'])
+                {
+                    $penaltyDate = $data['penalty_start_date'];
+                }
             }
             if (isset($penalty['end'])) {
                 $data['penalty_end_date'] = $penalty['end'];
@@ -263,12 +276,26 @@ class ExpediaHotelPricingDto
             if (isset($penalty['currency'])) {
                 $data['currency'] = $penalty['currency'];
             }
+
             $cancellationPolicies[] = $data;
+        }
+
+        if ($penaltyDate === null)
+        {
+            $penaltyDate = date('Y-m-d');
+
+            $cancellationPolicies[] = [
+                'description'        => PolicyCode::General->value,
+                'type'               => CancellationPolicyTypesEnum::General->value,
+                'penalty_start_date' => $penaltyDate,
+                'percentage'         => '100',
+            ];
         }
 
         $roomResponse = RoomResponseFactory::create();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
+        $roomResponse->setPenaltyDate($penaltyDate);
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
         $roomResponse->setSupplierRoomName($roomGroup['room_name'] ?? '');
         $roomResponse->setSupplierRoomCode(intval($roomGroup['id']) ?? null);

@@ -16,6 +16,8 @@ use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
+use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
+use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 
@@ -87,13 +89,6 @@ class HbsiHotelPricingDto
         'tourism tax',
         'vat/gst tax',
         'value added tax (vat)'
-    ];
-
-    private const POLICE_CODE = [
-        'CXP' => 'General Cancellation Policy',
-        'CKP' => 'Early check-out penalty.',
-        'CFC' => 'Criteria for cancelling the reservation free of charge.',
-        'CNS' => 'Penalty for no show.'
     ];
 
     private const MEAL_PLAN = [
@@ -339,6 +334,8 @@ class HbsiHotelPricingDto
         $cancellationPolicies = [];
         $cancellationPoliciesInput = [];
         $nonRefundable = false;
+        $penaltyDate = null;
+
         if (isset($rate['CancelPenalties'])) {
             if (isset($rate['CancelPenalties']['CancelPenalty']['@attributes'])) {
                 $cancellationPoliciesInput[] = $rate['CancelPenalties']['CancelPenalty'];
@@ -349,14 +346,22 @@ class HbsiHotelPricingDto
             }
             foreach ($cancellationPoliciesInput as $cancelPenalty) {
                 $data = [];
-                if (isset($cancelPenalty['@attributes']['PolicyCode'])) {
-                    $data['description'] = self::POLICE_CODE[$cancelPenalty['@attributes']['PolicyCode']] ?? '';
-                }
+
+                $policy = PolicyCode::fromCode(Arr::get($cancelPenalty, '@attributes.PolicyCode', PolicyCode::CXP->name));
+                $data['description'] = $policy->value;
+                $data['type'] = PolicyCode::getObeCode($policy)->value;
+
                 if (isset($cancelPenalty['Deadline']['@attributes']['AbsoluteDeadline'])) {
                     $absoluteDeadline = $cancelPenalty['Deadline']['@attributes']['AbsoluteDeadline'];
                     $data['penalty_start_date'] = date('Y-m-d', strtotime($absoluteDeadline));
-                    if ($data['penalty_start_date'] < date('Y-m-d')) {
+
+                    if ($data['penalty_start_date'] <= date('Y-m-d')) {
                         $nonRefundable = true;
+                    }
+
+                    if ($policy === PolicyCode::CXP && ($penaltyDate === null || $penaltyDate > $data['penalty_start_date']))
+                    {
+                        $penaltyDate = $data['penalty_start_date'];
                     }
                 }
                 if (isset($cancelPenalty['AmountPercent']['@attributes']['Percent'])) {
@@ -376,9 +381,22 @@ class HbsiHotelPricingDto
             }
         }
 
+        if ($penaltyDate === null)
+        {
+            $penaltyDate = date('Y-m-d');
+
+            $cancellationPolicies[] = [
+                'description'        => PolicyCode::CXP->value,
+                'type'               => CancellationPolicyTypesEnum::General->value,
+                'penalty_start_date' => $penaltyDate,
+                'percentage'         => '100',
+            ];
+        }
+
         $roomResponse = RoomResponseFactory::create();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
+        $roomResponse->setPenaltyDate($penaltyDate);
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
         $roomResponse->setSupplierRoomName($rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
         $roomResponse->setSupplierRoomCode($rateOccupancy);
