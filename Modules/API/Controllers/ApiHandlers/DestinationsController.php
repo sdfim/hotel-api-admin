@@ -41,8 +41,10 @@ class DestinationsController {
         return response()->json($response);
     }
 
-    private function  getGiataPoisData($request)
+    private function  getGiataPoisData(DestinationRequest $request)
     {
+        $searchCriteria = $this->getSearchCriteria($request->q);
+
         $giataPois = GiataPoi::select(
                 'giata_pois.name_primary as poi_name_primary',
                 'giata_places.name_primary as place_name_primary',
@@ -54,8 +56,8 @@ class DestinationsController {
                 'giata_places.country_code',
                 'giata_places.state'
             )
-            ->join('giata_places', function ($join) use ($request) {
-                $poi = GiataPoi::where('name_primary', 'like', '%' . $request->q . '%')->first();
+            ->join('giata_places', function ($join) use ($searchCriteria) {
+                $poi = GiataPoi::where('name_primary', 'like', $searchCriteria)->first();
                 if ($poi !== null) {
                     $places = $poi->places;
                     $join->whereIn('giata_places.key', $places);
@@ -67,10 +69,7 @@ class DestinationsController {
             $giataPois->whereIn('giata_pois.type', $request->include);
         }
 
-        $queryParts = explode(' ', $request->q);
-        foreach ($queryParts as $part) {
-            $giataPois->where('giata_pois.name_primary', 'like', '%' . $part . '%');
-        }
+        $giataPois->where('giata_pois.name_primary', 'like', $searchCriteria);
 
         $giataPois = $giataPois
             ->limit(35)
@@ -111,24 +110,24 @@ class DestinationsController {
         return $destinations;
     }
 
-    private function getGiataPlacesData($request)
+    private function getGiataPlacesData(DestinationRequest $request)
     {
         $giataPlace = GiataPlace::select('name_primary', 'key', 'type', 'tticodes', 'airports', 'country_code', 'state');
+        $searchCriteria = $this->getSearchCriteria($request->q);
+        $cleanSearchCriteria = $this->getCleanSearchCriteria($request->q);
 
-        if ($request->q !== null)
+        if ($searchCriteria !== null)
         {
-            $cityParts = explode(' ', $request->q);
-            foreach ($cityParts as $part) {
-                $giataPlace->where(function ($query) use ($part)
-                {
-                    $query->where('name_primary', 'like', '%' . $part . '%');
+            $giataPlace->where(function ($query) use ($searchCriteria, $cleanSearchCriteria)
+            {
+                $query->where('name_primary', 'like', $searchCriteria);
 
-                    if (strlen($part) == 3)
-                    {
-                        $query->orWhere('airports', 'like', '%' . strtoupper($part) . '%');
-                    }
-                });
-            }
+                if (strlen($cleanSearchCriteria) === 3)
+                {
+                    $query->orWhereRaw('JSON_CONTAINS(`airports`, \'"'. strtoupper($cleanSearchCriteria) .'"\', "$")');
+                    //Original => $query->orWhere('airports', 'like', '%' . strtoupper($cleanSearchCriteria) . '%');
+                }
+            });
         }
         elseif ($request->giata !== null)
         {
@@ -140,7 +139,9 @@ class DestinationsController {
             $giataPlace->whereIn('type', $request->include);
         }
 
-        $giataPlace = $giataPlace->limit(35)
+        $giataPlace = $giataPlace
+            ->orderBy('type')
+            ->limit(100)
             ->get()
             ->map(function ($item) {
                 return [
@@ -177,7 +178,7 @@ class DestinationsController {
         return $destinations;
     }
 
-    private function getGiataGeographyData($request) {
+    private function getGiataGeographyData(DestinationRequest $request) {
         $query = GiataGeography::select(DB::raw('CONCAT(city_name, ", ", country_name, " (", country_code, ", ", locale_name, ")") AS full_name'), 'city_id');
 
         if (!empty($request->city)) {
@@ -216,4 +217,28 @@ class DestinationsController {
         return $response;
     }
 
+    private function getCleanSearchCriteria(?string $criteria): ?string
+    {
+        if ($criteria === null)
+        {
+            return null;
+        }
+
+        return str_replace('%', '', $criteria, );
+    }
+
+    private function getSearchCriteria(?string $criteria): ?string
+    {
+        if ($criteria === null)
+        {
+            return null;
+        }
+
+        if (str_contains($criteria, '%'))
+        {
+            return $criteria;
+        }
+
+        return "$criteria%";
+    }
 }
