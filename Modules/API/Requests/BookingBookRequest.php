@@ -117,11 +117,11 @@ class BookingBookRequest extends ApiRequest
             'booking_contact.email' => 'required|email:rfc,dns',
             'booking_contact.phone.country_code' => 'required|int|in:' . implode(',', $phoneCountryCodes),
             'booking_contact.phone.area_code' => 'required|int|digits:3',
-            'booking_contact.phone.number' => 'required|numeric|digits_between:4,8',
+            'booking_contact.phone.number' => 'required|numeric|digits_between:3,10',
             'booking_contact.address.line_1' => 'required|string|min:1|max:255',
             'booking_contact.address.city' => 'required|string|min:1|max:100',
-            'booking_contact.address.state_province_code' => ['required', 'regex:/^([A-Z]{2}|[A-Z]{2}-[A-Z]{2})$/'],
-            'booking_contact.address.postal_code' => 'required|string|between:1,7',
+            'booking_contact.address.state_province_code' => 'required|string',
+            'booking_contact.address.postal_code' => 'required|string',
             'booking_contact.address.country_code' => 'required|string|in:' . implode(',', $countryCodes),
         ];
 
