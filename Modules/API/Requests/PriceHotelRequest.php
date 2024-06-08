@@ -123,7 +123,7 @@ class PriceHotelRequest extends ApiRequest
             'supplier' => 'string',
             'checkin' => 'required|date_format:Y-m-d|after:today',
             'checkout' => 'required|date_format:Y-m-d|after:checkin',
-            'place' => 'required_without_all:latitude,longitude,destination|string|max:32',
+            'place' => 'required_without_all:latitude,longitude,destination|nullable|string|max:32',
             'destination' => 'required_without_all:latitude,longitude,place|integer|min:1,max:999999',
             'latitude' => 'required_without_all:destination,place|decimal:2,8|min:-90|max:90',
             'longitude' => 'required_without_all:destination,place|decimal:2,8|min:-180|max:180',

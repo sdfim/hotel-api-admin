@@ -680,6 +680,20 @@
                         }
                     },
                     {
+                        "name": "strategy",
+                        "in": "query",
+                        "description": "Select the strategy to get search suggestions.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "Default",
+                            "enum": [
+                                "Default",
+                                "Google"
+                            ]
+                        }
+                    },
+                    {
                         "name": "showtticodes",
                         "in": "query",
                         "description": "Set to 1 to display additional tticodes.",
@@ -6793,9 +6807,13 @@
                 "summary": "Pricing Search Cancun, country MX, airport CUN using Place",
                 "value": {
                     "type": "hotel",
-                    "checkin": "2024-05-11",
-                    "checkout": "2024-05-20",
+                    "checkin": "2025-03-11",
+                    "checkout": "2025-03-20",
                     "place": "4b2afe6684dd81a6f73527468e05e7a6",
+                    "location": {
+                        "latitude": "21.035333192",
+                        "longitude": "-86.872829842"
+                    },
                     "rating": 4.5,
                     "occupancy": [
                         {
@@ -6805,6 +6823,7 @@
                             ]
                         }
                     ],
+                    "supplier": "HBSI",
                     "page": 1,
                     "results_per_page": 10
                 }
@@ -6813,15 +6832,20 @@
                 "summary": "Pricing Search Eiffel Tower (Paris) using Place",
                 "value": {
                     "type": "hotel",
-                    "checkin": "2024-05-11",
-                    "checkout": "2024-05-20",
+                    "checkin": "2025-03-11",
+                    "checkout": "2025-03-20",
                     "place": "9bb07983384eb956ae88e154b99b51a1",
+                    "location": {
+                        "latitude": "21.035333192",
+                        "longitude": "-86.872829842"
+                    },
                     "rating": 4.5,
                     "occupancy": [
                         {
                             "adults": 2
                         }
                     ],
+                    "supplier": "HBSI",
                     "page": 1,
                     "results_per_page": 20
                 }

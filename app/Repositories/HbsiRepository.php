@@ -92,4 +92,45 @@ class HbsiRepository
         ];
     }
 
+
+    /**
+     * @param array $minMaxCoordinate
+     * @return array
+     */
+    public static function getIdsByCoordinate(array $minMaxCoordinate, int $limit = 100, int $page = 1): array
+    {
+        $mainDB = config('database.connections.mysql.database');
+        $cacheDB = config('database.connections.mysql_cache.database');
+
+        $results = DB::table($cacheDB . '.giata_properties')
+            ->where($cacheDB . '.giata_properties.latitude', '>', $minMaxCoordinate['min_latitude'])
+            ->where($cacheDB . '.giata_properties.latitude', '<', $minMaxCoordinate['max_latitude'])
+            ->where($cacheDB . '.giata_properties.longitude', '>', $minMaxCoordinate['min_longitude'])
+            ->where($cacheDB . '.giata_properties.longitude', '<', $minMaxCoordinate['max_longitude'])
+            ->join($mainDB . '.mapper_hbsi_giatas', $cacheDB . '.giata_properties.code', '=', $mainDB . '.mapper_hbsi_giatas.giata_id')
+            ->select($cacheDB . '.giata_properties.code as giata', $cacheDB . '.giata_properties.name', $mainDB . '.mapper_hbsi_giatas.hbsi_id as hbsi')
+            ->get()
+            ->mapWithKeys(function ($value) {
+                return [
+                    $value->hbsi => [
+                        'giata' => $value->giata,
+                        'name' => $value->name,
+                        'hbsi' => $value->hbsi,
+                    ]
+                ];
+            })
+            ->toArray();
+
+        $totalResults = count($results);
+        $totalPages = ceil($totalResults / $limit);
+
+        $offset = $page > 1 ? ($page -1) * $limit : 0;
+        $result = array_slice($results, $offset , $limit);
+        $associativeArray = array_column($result, null, 'hbsi');
+
+        return [
+            'data' => $associativeArray,
+            'total_pages' => $totalPages,
+        ];
+    }
 }

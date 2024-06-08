@@ -135,13 +135,14 @@ class HbsiHotelPricingDto
         }, $supplierResponse);
 
         $this->giata = GiataProperty::whereIn('code', $giataIds)
-            ->select(['code', 'rating', 'name'])
+            ->select(['code', 'rating', 'name', 'city'])
             ->get()
             ->keyBy('code')
             ->map(function($item) {
                 return [
                     'rating' => $item->rating,
-                    'hotel_name' => $item->name
+                    'hotel_name' => $item->name,
+                    'city' => $item->city
                 ];
             })
             ->toArray();
@@ -181,7 +182,7 @@ class HbsiHotelPricingDto
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
-        $hotelResponse->setDestination($this->destinationData);
+        $hotelResponse->setDestination($this->giata[$propertyGroup['giata_id']]['city'] ?? $this->destinationData);
 
         $hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
         $hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
