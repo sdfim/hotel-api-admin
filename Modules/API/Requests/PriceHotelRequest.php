@@ -127,7 +127,7 @@ class PriceHotelRequest extends ApiRequest
             'destination' => 'required_without_all:latitude,longitude,place|integer|min:1,max:999999',
             'latitude' => 'required_without_all:destination,place|decimal:2,8|min:-90|max:90',
             'longitude' => 'required_without_all:destination,place|decimal:2,8|min:-180|max:180',
-            'radius' => 'required_without_all:destination,place|numeric|between:1,100',
+            'radius' => 'required_without_all:destination,place|numeric|between:1,1000',
             'rating' => 'numeric|between:1,5.5',
             'occupancy' => 'required|array',
             'occupancy.*.adults' => 'required|numeric|between:1,9',
