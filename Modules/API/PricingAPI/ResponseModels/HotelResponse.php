@@ -5,6 +5,11 @@ namespace Modules\API\PricingAPI\ResponseModels;
 class HotelResponse extends BaseResponse
 {
     /**
+     * @var float
+     */
+    private float $distanceFromSearchLocation;
+
+    /**
      * @var int
      */
     private int $giata_hotel_id;
@@ -317,11 +322,28 @@ class HotelResponse extends BaseResponse
     }
 
     /**
+     * @return float
+     */
+    public function getDistanceFromSearchLocation(): float
+    {
+        return $this->distanceFromSearchLocation;
+    }
+
+    /**
+     * @param float $distanceFromSearchLocation
+     */
+    public function setDistanceFromSearchLocation(float $distanceFromSearchLocation): void
+    {
+        $this->distanceFromSearchLocation = $distanceFromSearchLocation;
+    }
+
+    /**
      * @return array
      */
     public function toArray(): array
     {
         return [
+            'distance' => $this->getDistanceFromSearchLocation(),
             'giata_hotel_id' => $this->getGiataHotelId(),
             'rating' => $this->getRating(),
             'hotel_name' => $this->getHotelName(),

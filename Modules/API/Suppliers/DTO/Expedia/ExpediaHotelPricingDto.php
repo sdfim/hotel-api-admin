@@ -78,13 +78,17 @@ class ExpediaHotelPricingDto
             ->keyBy('property_id')
             ->toArray();
 
+        $latitude = Arr::get($query, 'latitude', 0);
+        $longitude = Arr::get($query, 'longitude', 0);
+
         $this->giata = GiataProperty::whereIn('code', $giataIds)
-            ->select(['code', 'rating', 'name', 'city'])
+            ->selectRaw('code, rating, name, city, 6371 * 2 * ASIN(SQRT(POWER(SIN((latitude - abs(?)) * pi()/180 / 2), 2) + COS(latitude * pi()/180 ) * COS(abs(?) * pi()/180) * POWER(SIN((longitude - ?) *  pi()/180 / 2), 2))) as distance', [$latitude, $latitude, $longitude])
             ->get()
             ->keyBy('code')
             ->map(function($item) {
                 return [
-                    'city' => $item->city
+                    'city' => $item->city,
+                    'distance' => $item->distance,
                 ];
             })
             ->toArray();
@@ -124,6 +128,7 @@ class ExpediaHotelPricingDto
         $destination = $this->giata[$propertyGroup['giata_id']]['city'] ?? $this->destinationData;
         $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id']);
+        $hotelResponse->setDistanceFromSearchLocation($this->giata[$propertyGroup['giata_id']]['distance'] ?? 0);
         $hotelResponse->setRating($this->ratings[$propertyGroup['property_id']]['rating'] ?? '');
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));

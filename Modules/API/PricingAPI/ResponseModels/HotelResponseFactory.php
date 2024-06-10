@@ -11,6 +11,7 @@ class HotelResponseFactory
     {
         $hotelResponse = new HotelResponse();
 
+        $hotelResponse->setDistanceFromSearchLocation(0);
         $hotelResponse->setGiataHotelId(0);
         $hotelResponse->setRating('1');
         $hotelResponse->setHotelName('');
