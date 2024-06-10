@@ -458,7 +458,13 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         }
 
         // Sort the merged results by 'weight' and 'lowest_priced_room_group'
-        usort($mergedResults, function ($a, $b) {
+        usort($mergedResults, function ($a, $b) use ($results) {
+
+            if (Arr::has($results, 'query.latitude'))
+            {
+                return ($a['distance'] < $b['distance']) ? -1 : 1;
+            }
+
             // Check if 'weight' key exists and is not zero for both items
             $aWeightExists = isset($a['weight']) && $a['weight'] != 0;
             $bWeightExists = isset($b['weight']) && $b['weight'] != 0;

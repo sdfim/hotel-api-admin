@@ -5,6 +5,7 @@ namespace Modules\API\Suppliers\DTO\Expedia;
 use App\Models\ExpediaContent;
 use App\Models\GiataGeography;
 use App\Models\GiataPlace;
+use App\Models\GiataProperty;
 use App\Models\Supplier;
 use Exception;
 use Illuminate\Support\Arr;
@@ -41,6 +42,8 @@ class ExpediaHotelPricingDto
 
     private array $ratings;
 
+    private array $giata;
+
     public function __construct()
     {
         $this->current_time = microtime(true);
@@ -61,13 +64,33 @@ class ExpediaHotelPricingDto
 
         $this->pricingRulesApplier = new ExpediaPricingRulesApplier($query, $pricingRules);
 
+        $giataIds = array_map(function($item) {
+            return $item['giata_id'];
+        }, $supplierResponse);
+
         $propertyIds = array_map(function($item) {
             return $item['property_id'];
         }, $supplierResponse);
+
         $this->ratings = ExpediaContent::whereIn('property_id', $propertyIds)
             ->select(['property_id', 'rating'])
             ->get()
             ->keyBy('property_id')
+            ->toArray();
+
+        $latitude = Arr::get($query, 'latitude', 0);
+        $longitude = Arr::get($query, 'longitude', 0);
+
+        $this->giata = GiataProperty::whereIn('code', $giataIds)
+            ->selectRaw('code, rating, name, city, 6371 * 2 * ASIN(SQRT(POWER(SIN((latitude - abs(?)) * pi()/180 / 2), 2) + COS(latitude * pi()/180 ) * COS(abs(?) * pi()/180) * POWER(SIN((longitude - ?) *  pi()/180 / 2), 2))) as distance', [$latitude, $latitude, $longitude])
+            ->get()
+            ->keyBy('code')
+            ->map(function($item) {
+                return [
+                    'city' => $item->city,
+                    'distance' => $item->distance,
+                ];
+            })
             ->toArray();
 
         if (isset($query['destination'])) {
@@ -102,9 +125,10 @@ class ExpediaHotelPricingDto
     public function setHotelResponse(array $propertyGroup): array
     {
         $this->roomCombinations = [];
-        $destination = $this->destinationData;
+        $destination = $this->giata[$propertyGroup['giata_id']]['city'] ?? $this->destinationData;
         $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id']);
+        $hotelResponse->setDistanceFromSearchLocation($this->giata[$propertyGroup['giata_id']]['distance'] ?? 0);
         $hotelResponse->setRating($this->ratings[$propertyGroup['property_id']]['rating'] ?? '');
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));

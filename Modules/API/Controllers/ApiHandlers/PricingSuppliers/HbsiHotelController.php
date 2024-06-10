@@ -32,7 +32,6 @@ class HbsiHotelController
     public function __construct(
         private readonly HbsiClient $hbsiClient = new HbsiClient(),
         private readonly Geography  $geography = new Geography(),
-        private readonly GiataPropertyRepository $giataRepo = new GiataPropertyRepository(),
     )
     {
     }
@@ -54,8 +53,7 @@ class HbsiHotelController
             $ids = HbsiRepository::getIdsByDestinationGiata($filters['destination'], $limit, $offset);
         } else {
             $minMaxCoordinate = $this->geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
-            $cityId = $this->giataRepo->getCityIdByCoordinate($minMaxCoordinate);
-            $ids = HbsiRepository::getIdsByDestinationGiata($cityId, $limit, $offset);
+            $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset);
         }
 
         $endTime = microtime(true) - $timeStart;

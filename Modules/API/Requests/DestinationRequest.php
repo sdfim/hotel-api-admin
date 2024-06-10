@@ -39,6 +39,18 @@ class DestinationRequest extends ApiRequest
      *        )
      *      ),
      *
+     *     @OA\Parameter(
+     *        name="strategy",
+     *        in="query",
+     *        required=false,
+     *        description="Define strategy for the search suggestions.",
+     *        @OA\Schema(
+     *          type="string",
+     *          enum={Default,Google},
+     *          default=Default
+     *        )
+     *      ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK",
@@ -99,6 +111,7 @@ class DestinationRequest extends ApiRequest
             'giata'     => 'required_without_all:city,country,q|string|min:3',
             'include'   => 'nullable|array',
             'q'         => 'required_without_all:city,country,giata|string|min:3',
+            'strategy'  => 'nullable|string|in:Default,Google',
         ];
     }
 

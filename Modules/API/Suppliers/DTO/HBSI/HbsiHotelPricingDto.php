@@ -134,14 +134,19 @@ class HbsiHotelPricingDto
             return $item['giata_id'];
         }, $supplierResponse);
 
+        $latitude = Arr::get($query, 'latitude', 0);
+        $longitude = Arr::get($query, 'longitude', 0);
+
         $this->giata = GiataProperty::whereIn('code', $giataIds)
-            ->select(['code', 'rating', 'name'])
+            ->selectRaw('code, rating, name, city, 6371 * 2 * ASIN(SQRT(POWER(SIN((latitude - abs(?)) * pi()/180 / 2), 2) + COS(latitude * pi()/180 ) * COS(abs(?) * pi()/180) * POWER(SIN((longitude - ?) *  pi()/180 / 2), 2))) as distance', [$latitude, $latitude, $longitude])
             ->get()
             ->keyBy('code')
             ->map(function($item) {
                 return [
                     'rating' => $item->rating,
-                    'hotel_name' => $item->name
+                    'hotel_name' => $item->name,
+                    'city' => $item->city,
+                    'distance' => $item->distance
                 ];
             })
             ->toArray();
@@ -176,12 +181,13 @@ class HbsiHotelPricingDto
         $this->roomCombinations = [];
         $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id'] ?? 0);
+        $hotelResponse->setDistanceFromSearchLocation($this->giata[$propertyGroup['giata_id']]['distance'] ?? 0);
         $hotelResponse->setRating($this->giata[$propertyGroup['giata_id']]['rating'] ?? 0);
         $hotelResponse->setHotelName($this->giata[$propertyGroup['giata_id']]['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
-        $hotelResponse->setDestination($this->destinationData);
+        $hotelResponse->setDestination($this->giata[$propertyGroup['giata_id']]['city'] ?? $this->destinationData);
 
         $hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
         $hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');

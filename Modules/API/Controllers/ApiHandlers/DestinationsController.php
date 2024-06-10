@@ -5,10 +5,14 @@ namespace Modules\API\Controllers\ApiHandlers;
 use App\Models\GiataGeography;
 use App\Models\GiataPlace;
 use App\Models\GiataPoi;
+use Google\Client;
+use Google\Service\MapsPlaces;
+use Google\Service\MapsPlaces\GoogleMapsPlacesV1Place;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Modules\API\Requests\DestinationRequest;
+use Google\Service\MapsPlaces\GoogleMapsPlacesV1SearchTextRequest;
+use Modules\Enums\SearchSuggestionStrategy;
 
 class DestinationsController {
     /**
@@ -17,6 +21,14 @@ class DestinationsController {
      */
     public function destinations(DestinationRequest $request): JsonResponse
     {
+        if ($request->strategy === SearchSuggestionStrategy::Google->value && $request->giata === null)
+        {
+            return response()->json([
+                'success' => true,
+                'data' => $this->getGooglePlaceSuggestions($request),
+            ]);
+        }
+
         if ($request->giata !== null) {
             $response = [
                 'success' => true,
@@ -215,6 +227,53 @@ class DestinationsController {
         ];
 
         return $response;
+    }
+
+    private function getGooglePlaceSuggestions(DestinationRequest $request)
+    {
+        $client = new Client();
+        $client->setApplicationName("OBE");
+        $client->setDeveloperKey("AIzaSyD2WsimQb0Xgu9vIYRrTa1nbS9CBEZBJC0");
+
+        $service = new MapsPlaces($client);
+
+        $searchCriteria = $request->q;
+
+        if ($searchCriteria === null)
+        {
+            return collect();
+        }
+
+        // It's probably an airport
+        if (strlen($searchCriteria) === 3)
+        {
+            $searchCriteria .= ' airport';
+        }
+
+        $params = new GoogleMapsPlacesV1SearchTextRequest();
+        $params->textQuery = $searchCriteria;
+        //$params->rankPreference = 'RELEVANCE';
+        $params->languageCode = 'en';
+        //$params->includedType = 'airport|hospital';//|hospital|library|museum|park|restaurant|shopping_mall|stadium|tourist_attraction|train_station|university|zoo';
+
+        $results = $service->places->searchText($params, ['fields' => 'places.id,places.location,places.name,places.formattedAddress,places.displayName,places.primaryType']);
+
+        return collect($results->getPlaces())->map(fn (GoogleMapsPlacesV1Place $place) => [
+            'full_name' => $place->getDisplayName()->text,
+            'place'     => $place->getId(),
+            'type'      => match ($place->getPrimaryType())
+            {
+                'airport'   => 'Airport',
+                'country'   => 'Country',
+                'continent' => 'Continent',
+                'hotel'     => 'Resort',
+                default     => 'Landmark',
+            },
+            'location'  => [
+                'latitude'  => $place->getLocation()->latitude,
+                'longitude' => $place->getLocation()->longitude,
+            ],
+        ]);
     }
 
     private function getCleanSearchCriteria(?string $criteria): ?string
