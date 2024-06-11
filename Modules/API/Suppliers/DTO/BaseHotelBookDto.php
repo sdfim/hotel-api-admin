@@ -28,11 +28,6 @@ class BaseHotelBookDto
         $booking_item_data = json_decode($bookringItem->booking_item_data, true);
         $booking_pricing_data = json_decode($bookringItem->booking_pricing_data, true);
 
-//        if ($booking_item_data['hotel_id'] == 0 || $booking_item_data['hotel_id'] == '') {
-//            $booking_item_data['hotel_id'] = MapperHbsiGiata::where('hbsi_id', $booking_item_data['hotel_supplier_id'])->first()->giata_id;
-//        }
-//        $hotelName = GiataProperty::where('code', $booking_item_data['hotel_id'])->first()->name;
-
         $hotel_id = '';
         $hotelName = '';
         if (!isset($booking_item_data['hotel_id']) || $booking_item_data['hotel_id'] == 0 || $booking_item_data['hotel_id'] == '') {

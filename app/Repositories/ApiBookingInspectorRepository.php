@@ -287,17 +287,12 @@ class ApiBookingInspectorRepository
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
-        if ($bookingInspector && $bookingInspector->supplier->name === SupplierNameEnum::EXPEDIA->value) {
-            return ApiBookingInspector::where('booking_item', $booking_item)
-                ->where('type', 'book')
-                ->where('sub_type', 'retrieve')
-                ->first();
-        } else {
-            return ApiBookingInspector::where('booking_item', $booking_item)
-                ->where('type', 'book')
-                ->where('sub_type', 'create')
-                ->first();
-        }
+        if (!$bookingInspector) return null;
+
+        return ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->first();
     }
 
     public static function newBookingInspector(array $input): array

@@ -19,6 +19,11 @@ class ApiBookingItemRepository
         return (bool)ApiBookingItem::where('booking_item', $booking_item);
     }
 
+    public static function getSearchId(string $booking_item): string
+    {
+        return ApiBookingItem::where('booking_item', $booking_item)->first()->search_id;
+    }
+
     /**
      * @param string $booking_item
      * @return array|null

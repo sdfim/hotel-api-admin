@@ -10,6 +10,7 @@ use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
+use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ChannelRenository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -159,7 +160,14 @@ class ExpediaBookApiController extends BaseBookApiController
             $content['original']['request']['path'] = $props['path'];
             $content['original']['request']['headers'] = $this->headers();
 
-            SaveBookingInspector::dispatch($inspectorBook, array_merge($filters, $bodyArr), $content);
+            $confirmationNumbers = [
+                'confirmation_number' => $content['itinerary_id'] ?? '',
+                'type' => SupplierNameEnum::EXPEDIA->value,
+            ];
+
+            $clientResponse = $this->expediaBookDto->toHotelBookResponseModel($filters, $confirmationNumbers);
+            SaveBookingInspector::dispatch($inspectorBook, $content, $clientResponse);
+
         } catch (ConnectException $e) {
             $this->handleException($e, $inspectorBook, 'Connection timeout', 'Connection timeout');
         } catch (ServerException $e) {
@@ -174,38 +182,6 @@ class ExpediaBookApiController extends BaseBookApiController
 
         # Save Book data to Reservation
         SaveReservations::dispatch($booking_id, $filters, $dataPassengers);
-
-        $linkBookRetrieves = $content['links']['retrieve']['href'];
-
-        $inspectorBook = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'book', 'retrieve' . ($queryHold ? ':hold' : ''), $bookingInspector->search_type,
-        ]);
-
-        # Booking GET query - Retrieve Booking
-        $props = $this->getPathParamsFromLink($linkBookRetrieves);
-        $dataResponse = [];
-
-        try {
-            $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
-            $dataResponse = json_decode($response->getBody()->getContents(), true);
-            $confirmationNumbers = [
-                'confirmation_number' => $dataResponse['itinerary_id'] ?? '',
-                'type' => SupplierNameEnum::EXPEDIA->value,
-            ];
-            SaveBookingInspector::dispatch($inspectorBook, $dataResponse, $dataResponse);
-        } catch (ConnectException $e) {
-            $this->handleException($e, $inspectorBook, 'Connection timeout', 'Connection timeout');
-        } catch (ServerException $e) {
-            $this->handleException($e, $inspectorBook, 'Server error', 'Server error');
-        } catch (RequestException $e) {
-            $this->handleException($e, $inspectorBook, 'Request Exception occurred', $e->getMessage());
-        } catch (Exception $e) {
-            $this->handleException($e, $inspectorBook, 'Unexpected error', $e->getMessage());
-        }
-
-        $clientResponse = $dataResponse ? $this->expediaBookDto->toHotelBookResponseModel($filters, $confirmationNumbers) : [];
-
-        if (empty($dataResponse)) return [];
 
         $viewSupplierData = $filters['supplier_data'] ?? false;
         if ($viewSupplierData) {
@@ -262,8 +238,8 @@ class ExpediaBookApiController extends BaseBookApiController
     public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): array|null
     {
         $booking_id = $filters['booking_id'];
-        $filters['search_id'] = '';
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
+        $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['booking_item']);
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
@@ -289,7 +265,7 @@ class ExpediaBookApiController extends BaseBookApiController
             $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage());
         }
 
-        $clientDataResponse = ExpediaHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse);
+        $clientDataResponse = ExpediaHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse['original']['response']);
 
         SaveBookingInspector::dispatch($bookingInspector, $dataResponse, $clientDataResponse);
 
