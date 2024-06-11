@@ -243,7 +243,7 @@ class ExpediaBookApiController extends BaseBookApiController
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'retrieve_booking', '', $apiBookingsMetadata->search_type,
+            $booking_id, $filters, $supplierId, 'book', 'retrieve', $apiBookingsMetadata->search_type,
         ]);
 
         $props = $this->getPathParamsFromLink($apiBookingsMetadata->booking_item_data['retrieve_path']);
