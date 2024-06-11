@@ -121,7 +121,7 @@ class PriceHotelRequest extends ApiRequest
             'currency' => ['string', 'in:' . implode(',', $validCurrencies)],
             'hotel_name' => 'string',
             'supplier' => 'string',
-            'checkin' => 'required|date_format:Y-m-d|after:today',
+            'checkin' => 'required|date_format:Y-m-d|after:yesterday',
             'checkout' => 'required|date_format:Y-m-d|after:checkin',
             'place' => 'required_without_all:latitude,longitude,destination|nullable|string|max:32',
             'destination' => 'required_without_all:latitude,longitude,place|integer|min:1,max:999999',
