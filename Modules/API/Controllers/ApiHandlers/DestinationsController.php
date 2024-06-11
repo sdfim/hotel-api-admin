@@ -8,6 +8,7 @@ use App\Models\GiataPoi;
 use Google\Client;
 use Google\Service\MapsPlaces;
 use Google\Service\MapsPlaces\GoogleMapsPlacesV1Place;
+use Google\Service\MapsPlaces\GoogleMapsPlacesV1PlaceAddressComponent;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Modules\API\Requests\DestinationRequest;
@@ -256,12 +257,13 @@ class DestinationsController {
         $params->languageCode = 'en';
         //$params->includedType = 'airport|hospital';//|hospital|library|museum|park|restaurant|shopping_mall|stadium|tourist_attraction|train_station|university|zoo';
 
-        $results = $service->places->searchText($params, ['fields' => 'places.id,places.location,places.name,places.formattedAddress,places.displayName,places.primaryType']);
+        $results = $service->places->searchText($params, ['fields' => 'places.id,places.location,places.name,places.formattedAddress,places.displayName,places.primaryType,places.addressComponents']);
 
         return collect($results->getPlaces())->map(fn (GoogleMapsPlacesV1Place $place) => [
-            'full_name' => $place->getDisplayName()->text,
-            'place'     => $place->getId(),
-            'type'      => match ($place->getPrimaryType())
+            'full_name'     => $place->getDisplayName()->text,
+            'place'         => $place->getId(),
+            'country_code'  => collect($place->getAddressComponents())->filter(fn (GoogleMapsPlacesV1PlaceAddressComponent $component) => in_array('country', $component->types))->first()?->longText,
+            'type'          => match ($place->getPrimaryType())
             {
                 'airport'   => 'Airport',
                 'country'   => 'Country',
@@ -269,7 +271,7 @@ class DestinationsController {
                 'hotel'     => 'Resort',
                 default     => 'Landmark',
             },
-            'location'  => [
+            'location'      => [
                 'latitude'  => $place->getLocation()->latitude,
                 'longitude' => $place->getLocation()->longitude,
             ],
