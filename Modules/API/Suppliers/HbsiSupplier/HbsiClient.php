@@ -204,8 +204,6 @@ class HbsiClient
             $response = $apiCall();
             $body = $response->getBody()->getContents();
 
-            dd($bodyQuery, $body);
-
             $content['original']['response'] = $body;
 
             if (str_contains($body, 'Errors')) {
