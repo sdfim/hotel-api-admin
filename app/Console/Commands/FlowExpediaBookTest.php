@@ -54,7 +54,7 @@ class FlowExpediaBookTest extends Command
      * @param array $responseData
      * @return string
      */
-    private function getBookingItem(array $responseData): string
+    private function getBookingItemOld(array $responseData): string
     {
         $flattened = Arr::dot($responseData);
 
@@ -65,6 +65,30 @@ class FlowExpediaBookTest extends Command
             }
         }
         return $bookingItems[array_rand($bookingItems)];
+    }
+
+    /**
+     * @param array $responseData
+     * @return string
+     */
+    private function getBookingItem(array $responseData): string
+    {
+        $filteredItems = [];
+        foreach ($responseData['data']['results'] as $room_groups) {
+            foreach ($room_groups['room_groups'] as $room_group) {
+                foreach ($room_group['rooms'] as $room) {
+                    foreach ($room['cancellation_policies'] as $policy) {
+                        if (isset($policy['nights']) && $policy['nights'] === '1') {
+                            $filteredItems[] = $room['booking_item'];
+                        }
+                    }
+                }
+            }
+        }
+
+//        dd($filteredItems[array_rand($filteredItems)], $filteredItems);
+
+        return $filteredItems[array_rand($filteredItems)];
     }
 
     /**
@@ -97,21 +121,23 @@ class FlowExpediaBookTest extends Command
         $this->warn('addPassengers group for SEARCH 1, SEARCH 2');
         $this->addPassengers($bookingId, $bookingItems, $query);
 
-        $this->warn('SEARCH 3');
-        $responseData = $this->makeSearchRequest(2);
-        $query2['search_3'] = $responseData['data']['query']['occupancy'];
-        $searchId = $responseData['data']['search_id'];
-        $bookingItem = $this->getBookingItem($responseData);
-        $this->info('search_id = ' . $searchId);
-        $this->info('booking_item = ' . $bookingItem);
+        if ($this->argument('step') !== '1') {
+            $this->warn('SEARCH 3');
+            $responseData = $this->makeSearchRequest(2);
+            $query2['search_3'] = $responseData['data']['query']['occupancy'];
+            $searchId = $responseData['data']['search_id'];
+            $bookingItem = $this->getBookingItem($responseData);
+            $this->info('search_id = ' . $searchId);
+            $this->info('booking_item = ' . $bookingItem);
 
-        $bookingId = $this->addBookingItem($bookingItem, $bookingId);
-        $bookingItems2['search_3'] = $bookingItem;
-        $this->addPassengers($bookingId, $bookingItems2, $query2);
+            $bookingId = $this->addBookingItem($bookingItem, $bookingId);
+            $bookingItems2['search_3'] = $bookingItem;
+            $this->addPassengers($bookingId, $bookingItems2, $query2);
 
-        sleep(3);
-        $this->warn('REMOVE ITEM');
-        $this->removeBookingItem($bookingId, $bookingItem);
+            sleep(3);
+            $this->warn('REMOVE ITEM');
+            $this->removeBookingItem($bookingId, $bookingItem);
+        }
 
         $this->warn('RETRIEVE ITEMS');
         $this->retrieveItems($bookingId);
@@ -127,8 +153,10 @@ class FlowExpediaBookTest extends Command
     private function makeSearchRequest(int $count = 1): array
     {
         $faker = Faker::create();
-        $checkin = Carbon::now()->addDays(1)->toDateString();
-        $checkout = Carbon::now()->addDays(2 + rand(2, 5))->toDateString();
+//        $checkin = Carbon::now()->addDays(1)->toDateString();
+//        $checkout = Carbon::now()->addDays(2 + rand(2, 5))->toDateString();
+        $checkin = '2024-12-15';
+        $checkout = '2024-12-17';
 
         $occupancy = [];
         foreach (range(1, $count) as $index) {

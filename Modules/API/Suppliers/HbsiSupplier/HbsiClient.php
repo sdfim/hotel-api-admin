@@ -146,7 +146,7 @@ class HbsiClient
     public function modifyBook(array $filters, array $inspector): ?array
     {
         $hotelId = ApiBookingItemRepository::getHotelSupplierId($filters['booking_item']);
-        $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResModifyRQ', $hotelId);
+        $bodyQuery = $this->makeRequest($this->hotelResModifyRQ($filters), 'HotelResModifyRQ', $hotelId);
 
         return $this->executeApiRequest(function() use ($bodyQuery) {
             return $this->sendRequest($bodyQuery);
@@ -203,6 +203,8 @@ class HbsiClient
 */
             $response = $apiCall();
             $body = $response->getBody()->getContents();
+
+            dd($bodyQuery, $body);
 
             $content['original']['response'] = $body;
 
@@ -366,6 +368,62 @@ class HbsiClient
         $resGlobalInfoArr = $this->processDepositPaymentsArr($filters, $roomStaysArr);
 
         $resGlobalInfo = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGlobalInfoArr, null, 'ResGlobalInfo'));
+        $roomStays = '';
+        foreach ($roomStaysArr as $roomStay) {
+            $roomStays .= str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($roomStay, null, 'RoomStay'));
+        }
+        $roomStays = '<RoomStays>' . $roomStays . '</RoomStays>';
+        $resGuests = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGuestsArr, null, 'ResGuests'));
+        $iata = '';
+        if (isset($filters['travel_agency_identifier'])) {
+            $iata = '<UniqueID Type="5" ID="' . $filters['travel_agency_identifier'] . '"/>';
+        }
+
+        return '<OTA_HotelResRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
+                xmlns="http://www.opentravel.org/OTA/2003/05">
+                <POS>
+                    <Source>
+                        <RequestorID Type="18" ID="Partner"/>
+                        <BookingChannel Type="2" Primary="true">
+                            <CompanyName>HBSI</CompanyName>
+                        </BookingChannel>
+                    </Source>
+                </POS>
+                <HotelReservations>
+                <HotelReservation RoomStayReservation="true" CreateDateTime="' . date('Y-m-d\TH:i:sP') . '" CreatorID="Partner">
+                    ' . $iata . '
+                    <UniqueID Type="14" ID="' . $bookingItem->booking_item . '"/>
+                    ' . $roomStays . '
+                    ' . $resGuests . '
+                    ' . $resGlobalInfo . '
+                </HotelReservation>
+            </HotelReservations>
+        </OTA_HotelResRQ>';
+    }
+
+    /**
+     * @param array $filters
+     * @return string
+     * @throws Exception
+     */
+    private function hotelResModifyRQ(array $filters): string
+    {
+        if (!isset($filters['search_id'])) $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['booking_item']);
+        $response = ApiSearchInspectorRepository::getResponse($filters['search_id']);
+        $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
+        $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
+        $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+        $guests = json_decode($passengersData->request, true)['rooms'];
+
+        $roomStaysArr = $this->processRoomStaysArr($response, $bookingItemData, $filters, $guests);
+        $resGuestsArr = $this->processResGuestsArr($guests, $filters);
+        $resGlobalInfoArr = $this->processDepositPaymentsArr($filters, $roomStaysArr);
+
+
+        $resGlobalInfo = $resGlobalInfoArr
+            ? str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGlobalInfoArr, null, 'ResGlobalInfo'))
+            : '';
+
         $roomStays = '';
         foreach ($roomStaysArr as $roomStay) {
             $roomStays .= str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($roomStay, null, 'RoomStay'));
@@ -629,6 +687,7 @@ class HbsiClient
                 } elseif ($age < 18) {
                     $ageQualifyingCode = 8;
                 }
+
                 $resGuestsArr[$index] = $this->createGuestArr($index, $ageQualifyingCode, $guest, $filters);
                 if ($index === 0) {
                     $this->mainGuest = $resGuestsArr[$index]['Profiles']['ProfileInfo']['Profile']['Customer'];
@@ -670,9 +729,11 @@ class HbsiClient
         $customer = [];
         $customer['PersonName']['GivenName'] = $guest['given_name'];
         $customer['PersonName']['Surname'] = $guest['family_name'];
-        $customer['Telephone']['@attributes']['PhoneNumber'] = $filters['booking_contact']['phone']['country_code'] . $filters['booking_contact']['phone']['area_code'] . $filters['booking_contact']['phone']['number'];
-        $customer['Email'] = $filters['booking_contact']['email'];
-        $customer['Address'] = $this->createAddressArr($filters);
+        if (isset($filters['booking_contact'])) {
+            $customer['Telephone']['@attributes']['PhoneNumber'] = $filters['booking_contact']['phone']['country_code'] . $filters['booking_contact']['phone']['area_code'] . $filters['booking_contact']['phone']['number'];
+            $customer['Email'] = $filters['booking_contact']['email'];
+            $customer['Address'] = $this->createAddressArr($filters);
+        }
         return $customer;
     }
 
@@ -694,10 +755,12 @@ class HbsiClient
     /**
      * @param array $filters
      * @param array $roomStaysArr
-     * @return array
+     * @return array|null
      */
-    private function processDepositPaymentsArr(array $filters, array $roomStaysArr): array
+    private function processDepositPaymentsArr(array $filters, array $roomStaysArr): array|null
     {
+        if (!isset($filters['credit_cards'])) return null;
+
         $depositPaymentsArr = [];
         foreach ($filters['credit_cards'] as $creditCard) {
             if ($creditCard['booking_item'] === $filters['booking_item']) {

@@ -26,7 +26,7 @@ class BookingItemsTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(ApiBookingItem::where('complete_id', null)->orderBy('created_at', 'DESC'))
+            ->query(ApiBookingItem::where('rate_type', 'complete')->orderBy('created_at', 'DESC'))
             ->columns([
                 TextColumn::make('created_at')
                     ->toggleable()

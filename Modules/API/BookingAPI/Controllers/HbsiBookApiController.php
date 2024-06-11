@@ -6,11 +6,10 @@ use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveBookingInspector;
 use App\Jobs\SaveReservations;
 use App\Models\ApiBookingInspector;
-use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
-use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
+use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ChannelRenository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -22,7 +21,6 @@ use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookDto;
 use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookingRetrieveBookingDto;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\Enums\SupplierNameEnum;
-use Modules\Enums\TypeRequestEnum;
 
 class HbsiBookApiController extends BaseBookApiController
 {
@@ -167,28 +165,6 @@ class HbsiBookApiController extends BaseBookApiController
 
     /**
      * @param array $filters
-     * @param ApiBookingInspector $bookingInspector
-     * @return array|null
-     * @throws GuzzleException
-     */
-    private function getBookingConfirmationNumbers(array $filters, ApiBookingInspector $bookingInspector): ?array
-    {
-        $booking = $this->retrieveBooking($filters, $bookingInspector);
-        $confirmationNumbers = Arr::get($booking, 'confirmation_numbers', []);
-
-        if (empty($confirmationNumbers))
-        {
-            return null;
-        }
-
-        # Save Booking Info
-        //$this->saveBookingInfo($filters, $confirmationNumbers);
-
-        return $confirmationNumbers;
-    }
-
-    /**
-     * @param array $filters
      * @param ApiBookingsMetadata $apiBookingsMetadata
      * @return array|null
      * @throws GuzzleException
@@ -197,11 +173,11 @@ class HbsiBookApiController extends BaseBookApiController
     {
         $booking_id = $filters['booking_id'];
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
-        $filters['search_id'] = '';
+        $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['booking_item']);
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'retrieve_booking', '', $apiBookingsMetadata->search_type,
+            $booking_id, $filters, $supplierId, 'booking', 'retrieve', $apiBookingsMetadata->search_type,
         ]);
 
         $xmlPriceData = $this->hbsiClient->retrieveBooking(
@@ -315,13 +291,11 @@ class HbsiBookApiController extends BaseBookApiController
 
     public function changeBooking(array $filters): array|null
     {
-        $dataResponseToSave = [];
-        $clientResponse = [];
         $dataResponse = [];
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $filters['booking_id'], $filters, $supplierId, 'change_booking', '', 'hotel',
+            $filters['booking_id'], $filters, $supplierId, 'book', 'change-soft', 'hotel',
         ]);
 
         try {

@@ -8,7 +8,6 @@ use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
-use App\Repositories\ApiBookingItemRepository;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -341,7 +340,7 @@ class BookApiHandler extends BaseController
                 return $this->sendError('This booking_item is not in the cart.', 'failed');
         }
 
-//        try {
+        try {
             $response = [];
             foreach ($bookingRequestItems as $booking_item) {
                 if (BookRepository::isBook($request->booking_id, $booking_item)) {
@@ -359,11 +358,11 @@ class BookApiHandler extends BaseController
                     default => [],
                 };
             }
-//        } catch (Exception $e) {
-//            Log::error('HotelBookingApiHandler | addPassengers ' . $e->getMessage());
-//            Log::error($e->getTraceAsString());
-//            return $this->sendError($e->getMessage(), 'failed');
-//        }
+        } catch (Exception $e) {
+            Log::error('HotelBookingApiHandler | addPassengers ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            return $this->sendError($e->getMessage(), 'failed');
+        }
 
         return $this->sendResponse(['result' => $response], 'success');
     }
@@ -422,7 +421,7 @@ class BookApiHandler extends BaseController
         $output = [];
         foreach ($input['passengers'] as $passenger) {
             foreach ($passenger['booking_items'] as $booking) {
-                $bookingItem = ApiBookingItemRepository::getParentBookingItem($booking['booking_item']);
+                $bookingItem = $booking['booking_item'];
 
                 # type hotel
                 if (isset($booking['room'])) {

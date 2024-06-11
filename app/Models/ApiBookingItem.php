@@ -50,8 +50,14 @@ class ApiBookingItem extends Model
         'search_id',
         'supplier_id',
         'booking_item_data',
-        'created_at',
-        'complete_id',
+        'created_at'
+    ];
+
+    /**
+     * @var string[]
+     */
+    protected $casts = [
+        'child_items' => 'array',
     ];
 
     /**
