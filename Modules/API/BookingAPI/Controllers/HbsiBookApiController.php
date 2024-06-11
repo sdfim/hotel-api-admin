@@ -33,6 +33,8 @@ class HbsiBookApiController extends BaseBookApiController
         '3' => 'UltimateJet',
     ];
 
+    private const CODE_ALREADY_CANCELLED = '95';
+
     public function __construct(
         private readonly HbsiClient       $hbsiClient = new HbsiClient(),
         private readonly HbsiHotelBookDto $hbsiHotelBookDto = new HbsiHotelBookDto(),
@@ -267,6 +269,14 @@ class HbsiBookApiController extends BaseBookApiController
                 $res = $dataResponse['Errors'];
                 SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res, 'error',
                     ['side' => 'app', 'message' => $dataResponse['Errors']]);
+
+                if (static::CODE_ALREADY_CANCELLED == $response->children()->attributes()['Code'])
+                {
+                    return [
+                        'booking_item' => $apiBookingsMetadata->booking_item,
+                        'status' => 'Room canceled.',
+                    ];
+                }
             } else {
                 $res = [
                     'booking_item' => $apiBookingsMetadata->booking_item,
