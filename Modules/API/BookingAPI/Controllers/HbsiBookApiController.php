@@ -21,6 +21,7 @@ use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookDto;
 use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookingRetrieveBookingDto;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\Enums\SupplierNameEnum;
+use SimpleXMLElement;
 
 class HbsiBookApiController extends BaseBookApiController
 {
@@ -292,6 +293,8 @@ class HbsiBookApiController extends BaseBookApiController
     public function changeBooking(array $filters): array|null
     {
         $dataResponse = [];
+        $clientResponse = [];
+        $soapError = false;
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
@@ -301,16 +304,23 @@ class HbsiBookApiController extends BaseBookApiController
         try {
             $xmlPriceData = $this->hbsiClient->modifyBook($filters, $bookingInspector);
 
-            $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
-            $dataResponse = json_decode(json_encode($response), true);
+            if ($xmlPriceData['response'] instanceof SimpleXMLElement) {
+                $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
+                $dataResponse = json_decode(json_encode($response), true);
+            } else $soapError = true;
 
             $dataResponseToSave = $dataResponse;
             $dataResponseToSave['original'] = [
                 'request' => $xmlPriceData['request'],
-                'response' => $xmlPriceData['response']->asXML(),
-                'main_guest' => $xmlPriceData['main_guest'],
+                'response' => $xmlPriceData['response'] instanceof SimpleXMLElement ? $xmlPriceData['response']->asXML() : $xmlPriceData['response'],
+                'main_guest' => Arr::get($xmlPriceData, 'main_guest'),
             ];
-            if (!isset($dataResponse['Errors'])) {
+            if ($soapError) {
+                SaveBookingInspector::dispatch($bookingInspector, $dataResponseToSave, [],
+                    'error', ['side' => 'app', 'message' => $xmlPriceData['response']]);
+                return [$xmlPriceData['response']];
+            }
+            elseif (!isset($dataResponse['Errors'])) {
                 $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters);
             } else {
                 $clientResponse = $dataResponse['Errors'];
@@ -330,7 +340,11 @@ class HbsiBookApiController extends BaseBookApiController
 
             return (array)$dataResponse;
         } catch (Exception $e) {
-            Log::error('HbsiBookApiController | changeBooking ' . $e->getMessage());
+            Log::error('HbsiBookApiController | changeBooking ' . $e->getMessage(),
+                [
+                    'booking_id' => $filters['booking_id'],
+                    'dataResponseToSave' => $dataResponseToSave ?? '',
+                ]);
             Log::error($e->getTraceAsString());
 
             SaveBookingInspector::dispatch($bookingInspector, [], [], 'error',

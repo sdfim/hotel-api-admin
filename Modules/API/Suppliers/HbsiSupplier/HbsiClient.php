@@ -7,6 +7,7 @@ use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
+use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\ConfigRepository;
 use Exception;
@@ -247,9 +248,16 @@ class HbsiClient
      * @param string $bodyQuery
      * @param bool $addGuest
      * @return array|null
+     * @throws Exception
      */
     private function processXmlBody(object|string $body, string $bodyQuery, bool $addGuest = false): ?array
     {
+        if ($this->isErrorSoap($body)) {
+            return [
+                'request' => $bodyQuery,
+                'response' => $body
+            ];
+        }
         if ($this->isXml($body)) {
             try {
                 $res = [
@@ -415,8 +423,20 @@ class HbsiClient
 
         $roomStaysArr = $this->processRoomStaysArr($response, $bookingItemData, $filters, $guests);
         $resGuestsArr = $this->processResGuestsArr($guests, $filters);
-        $resGlobalInfoArr = $this->processDepositPaymentsArr($filters, $roomStaysArr);
+        $resGlobalInfoArr = $this->processDepositPaymentsArr($filters, $roomStaysArr) ?? [];
 
+        // info about booking
+        $resID = ApiBookingsMetadataRepository::bookedItem($filters['booking_id'], $filters['booking_item'])->first();
+        $hotelReservationIDs['HotelReservationIDs'][]['HotelReservationID'] = [
+            '@attributes' => [
+                'ResID_Type' => '8',
+                'ResID_Value' => $resID->supplier_booking_item_id,
+                'ResID_Source' => 'HBSI',
+                'ResID_Date' => $resID->created_at->format('Y-m-d\TH:i:sP')
+            ]
+        ];
+
+        $resGlobalInfoArr = array_merge($resGlobalInfoArr, $hotelReservationIDs);
 
         $resGlobalInfo = $resGlobalInfoArr
             ? str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGlobalInfoArr, null, 'ResGlobalInfo'))
@@ -433,7 +453,7 @@ class HbsiClient
             $iata = '<UniqueID Type="5" ID="' . $filters['travel_agency_identifier'] . '"/>';
         }
 
-        return '<OTA_HotelResRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
+        return '<OTA_HotelResModifyRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
                 xmlns="http://www.opentravel.org/OTA/2003/05">
                 <POS>
                     <Source>
@@ -443,16 +463,16 @@ class HbsiClient
                         </BookingChannel>
                     </Source>
                 </POS>
-                <HotelReservations>
-                <HotelReservation RoomStayReservation="true" CreateDateTime="' . date('Y-m-d\TH:i:sP') . '" CreatorID="Partner">
+                <HotelResModifies>
+                <HotelResModify RoomStayReservation="true" CreateDateTime="' . date('Y-m-d\TH:i:sP') . '" CreatorID="Partner">
                     ' . $iata . '
                     <UniqueID Type="14" ID="' . $bookingItem->booking_item . '"/>
                     ' . $roomStays . '
                     ' . $resGuests . '
                     ' . $resGlobalInfo . '
-                </HotelReservation>
-            </HotelReservations>
-        </OTA_HotelResRQ>';
+                </HotelResModify>
+            </HotelResModifies>
+        </OTA_HotelResModifyRQ>';
     }
 
     /**
@@ -515,8 +535,16 @@ class HbsiClient
      */
     private function isXml(string $body): bool
     {
-        if (str_contains($body, 'soap-env:Envelope')) return true;
-        return false;
+        return str_contains($body, 'soap-env:Envelope');
+    }
+
+    /**
+     * @param string $body
+     * @return bool
+     */
+    private function isErrorSoap(string $body): bool
+    {
+        return str_contains($body, 'soap:Fault');
     }
 
     /**
