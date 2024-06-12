@@ -24,6 +24,7 @@ use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersReques
 use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingCancelBooking;
 use Modules\API\Requests\BookingChangeBookHotelRequest;
+use Modules\API\Requests\BookingOptionsChangeBookHotelRequest;
 use Modules\API\Requests\BookingRetrieveBooking;
 use Modules\API\Requests\BookingRetrieveItemsRequest;
 use Modules\API\Requests\ListBookingsRequest;
@@ -136,6 +137,40 @@ class BookApiHandler extends BaseController
             $data = match (SupplierNameEnum::from($supplier)) {
                 SupplierNameEnum::EXPEDIA => $this->expedia->changeBooking($filters),
                 SupplierNameEnum::HBSI => $this->hbsi->changeBooking($filters),
+                default => [],
+            };
+        } catch (Exception $e) {
+            Log::error('BookApiHandler | changeItems ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            return $this->sendError($e->getMessage(), 'failed');
+        }
+
+        if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
+
+        return $this->sendResponse($data ?? [], 'success');
+    }
+
+    /**
+     * @param BookingOptionsChangeBookHotelRequest $request
+     * @return JsonResponse
+     */
+    public function optionsChangeBooking(BookingOptionsChangeBookHotelRequest $request): JsonResponse
+    {
+        $determinant = $this->determinant($request);
+        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
+
+        if (!BookRepository::isBook($request->booking_id, $request->booking_item)) {
+            return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
+        }
+        $filters = $request->all();
+
+        $supplierId = ApiBookingItem::where('booking_item', $request->booking_item)->first()->supplier_id;
+        $supplier = Supplier::where('id', $supplierId)->first()->name;
+
+        try {
+            $data = match (SupplierNameEnum::from($supplier)) {
+//                SupplierNameEnum::EXPEDIA => $this->expedia->changeBooking($filters),
+                SupplierNameEnum::HBSI => $this->hbsi->optionsChangeBooking($filters),
                 default => [],
             };
         } catch (Exception $e) {

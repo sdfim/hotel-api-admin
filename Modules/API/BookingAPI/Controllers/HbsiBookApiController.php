@@ -363,6 +363,11 @@ class HbsiBookApiController extends BaseBookApiController
         return (array)$dataResponse;
     }
 
+    public function optionsChangeBooking(array $filters): array|null
+    {
+        return ['test' => 'test'];
+    }
+
 
     /**
      * @param ApiBookingInspector $bookingInspector

@@ -24,6 +24,8 @@ class BookingApiRoutes
             Route::put('/change-booking', [BookApiHandler::class, 'changeBooking'])->name('changeBooking');
             Route::get('/retrieve-booking', [BookApiHandler::class, 'retrieveBooking'])->name('retrieveBooking');
             Route::delete('/cancel-booking', [BookApiHandler::class, 'cancelBooking'])->name('cancelBooking');
+
+            Route::get('/options-change-booking', [BookApiHandler::class, 'optionsChangeBooking'])->name('optionsChangeBooking');
         });
     }
 }

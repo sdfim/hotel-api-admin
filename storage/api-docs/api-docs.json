@@ -435,6 +435,98 @@
                 ]
             }
         },
+        "/api/booking/options-change-booking": {
+            "get": {
+                "tags": [
+                    "Booking API | Booking Endpoints"
+                ],
+                "summary": "Retrieve available changes for modifying an existing booking.",
+                "description": "This endpoint provides information about available changes for modifying an existing booking.",
+                "operationId": "6a0e44b578ae404a321d8551886a6e8a",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "Booking ID",
+                        "required": true,
+                        "example": "3333cee5-b4a3-4e51-bfb0-02d09370b585"
+                    },
+                    {
+                        "name": "booking_item",
+                        "in": "query",
+                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property.",
+                        "required": true,
+                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                    }
+                ],
+                "requestBody": {
+                    "description": "JSON object containing the details of the reservation.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingChangeBookingRequest"
+                            },
+                            "examples": {
+                                "BookingChangeBookingRequest": {
+                                    "$ref": "#/components/examples/BookingChangeBookingRequest"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BookingChangeBookingResponse"
+                                },
+                                "examples": {
+                                    "BookingChangeBookingResponse": {
+                                        "$ref": "#/components/examples/BookingChangeBookingResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {},
+                                "examples": {
+                                    "BookingChangeBookingResponseError": {
+                                        "$ref": "#/components/examples/BookingChangeBookingResponseError"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/booking/add-item": {
             "post": {
                 "tags": [
