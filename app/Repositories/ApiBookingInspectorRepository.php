@@ -43,18 +43,21 @@ class ApiBookingInspectorRepository
 
     /**
      * @param string $booking_id
+     * @param string $booking_item
      * @param int $room_id
      * @return string|null
      */
-    public static function getLinkPutMethod(string $booking_id, int $room_id): string|null
+    public static function getLinkPutMethod(string $booking_id, string $booking_item, int $room_id): string|null
     {
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve' . '%')
             ->where('booking_id', $booking_id)
+            ->where('booking_item', $booking_item)
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
         $json_response = json_decode(Storage::get($inspector->response_path));
+
         $rooms = $json_response->rooms;
 
         $linkPutMethod = '';

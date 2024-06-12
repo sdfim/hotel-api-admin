@@ -80,9 +80,7 @@ class BookApiHandler extends BaseController
         }
 
         $data = [];
-        Log::debug('BookApiHandler book items: ' . $items);
         foreach ($items as $item) {
-            Log::debug('BookApiHandler book LOOP item: ' . $item);
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first();
                 $supplierName = SupplierNameEnum::from($supplier->name);

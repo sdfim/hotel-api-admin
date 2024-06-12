@@ -54,7 +54,7 @@ class FlowExpediaBookTest extends Command
      * @param array $responseData
      * @return string
      */
-    private function getBookingItemOld(array $responseData): string
+    private function getBookingItem(array $responseData): string
     {
         $flattened = Arr::dot($responseData);
 
@@ -71,7 +71,7 @@ class FlowExpediaBookTest extends Command
      * @param array $responseData
      * @return string
      */
-    private function getBookingItem(array $responseData): string
+    private function getBookingItemTest(array $responseData): string
     {
         $filteredItems = [];
         foreach ($responseData['data']['results'] as $room_groups) {
@@ -153,10 +153,10 @@ class FlowExpediaBookTest extends Command
     private function makeSearchRequest(int $count = 1): array
     {
         $faker = Faker::create();
-//        $checkin = Carbon::now()->addDays(1)->toDateString();
-//        $checkout = Carbon::now()->addDays(2 + rand(2, 5))->toDateString();
-        $checkin = '2024-12-15';
-        $checkout = '2024-12-17';
+        $checkin = Carbon::now()->addDays(30)->toDateString();
+        $checkout = Carbon::now()->addDays(31 + rand(2, 5))->toDateString();
+//        $checkin = '2024-12-15';
+//        $checkout = '2024-12-17';
 
         $occupancy = [];
         foreach (range(1, $count) as $index) {
