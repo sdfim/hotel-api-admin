@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
 
-class BookingOptionsChangeBookHotelRequest extends ApiRequest
+class BookingAdditionalRatesBookHotelRequest extends ApiRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -15,7 +15,7 @@ class BookingOptionsChangeBookHotelRequest extends ApiRequest
     /**
      * @OA\Get(
      *   tags={"Booking API | Booking Endpoints"},
-     *   path="/api/booking/options-change-booking",
+     *   path="/api/booking/change/additional_rates",
      *   summary="Retrieve available changes for modifying an existing booking.",
      *   description="This endpoint provides information about available changes for modifying an existing booking.",
      *   @OA\Parameter(
