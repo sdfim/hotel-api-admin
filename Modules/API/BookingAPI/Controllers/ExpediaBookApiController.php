@@ -43,6 +43,15 @@ class ExpediaBookApiController extends BaseBookApiController
      * @param array $filters
      * @return array|null
      */
+    public function availabilityChange(array $filters): array|null
+    {
+        return ['error' => 'This method is not implemented.'];
+    }
+
+    /**
+     * @param array $filters
+     * @return array|null
+     */
     public function changeBooking(array $filters): array|null
     {
         # step 1 Get room_id from ApiBookingItem
