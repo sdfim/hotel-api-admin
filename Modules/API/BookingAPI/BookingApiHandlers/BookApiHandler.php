@@ -162,8 +162,16 @@ class BookApiHandler extends BaseController
         }
         $filters = $request->all();
 
-        $supplierId = ApiBookingItem::where('booking_item', $request->booking_item)->first()->supplier_id;
+        $bookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->first();
+
+        $supplierId = $bookingItem->supplier_id;
         $supplier = Supplier::where('id', $supplierId)->first()->name;
+
+        $search_id = $bookingItem->search_id;
+
+        $firstQuery = ApiSearchInspector::where('search_id', $search_id)->first()->request;
+
+        $filters = array_merge($filters, json_decode($firstQuery, true));
 
         try {
             $data = match (SupplierNameEnum::from($supplier)) {
