@@ -153,6 +153,7 @@ class ExpediaHotelController
 
     /**
      * @param array $filters
+     * @param array $searchInspector
      * @return array|null
      * @throws \Throwable
      */

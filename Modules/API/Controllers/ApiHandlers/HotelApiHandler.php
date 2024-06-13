@@ -386,6 +386,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                 Log::info('HotelApiHandler | price | SaveSearchInspector | end');
 
+                /** Save booking_items */
                 if (!empty($bookingItems)) {
                     foreach ($bookingItems as $items) {
                         SaveBookingItems::dispatch($items);

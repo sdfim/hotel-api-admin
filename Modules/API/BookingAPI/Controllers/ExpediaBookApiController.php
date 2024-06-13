@@ -3,15 +3,18 @@
 namespace Modules\API\BookingAPI\Controllers;
 
 use App\Jobs\SaveBookingInspector;
+use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveReservations;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
+use App\Models\GiataProperty;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
+use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\ChannelRenository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -25,7 +28,9 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookDto;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookingRetrieveBookingDto;
+use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelPricingDto;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
+use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
 
 class ExpediaBookApiController extends BaseBookApiController
@@ -33,8 +38,11 @@ class ExpediaBookApiController extends BaseBookApiController
     private const PAYMENTS_TYPE = 'affiliate_collect';
 
     public function __construct(
-        private readonly RapidClient         $rapidClient = new RapidClient(),
-        private readonly ExpediaHotelBookDto $expediaBookDto = new ExpediaHotelBookDto(),
+        private readonly RapidClient            $rapidClient = new RapidClient(),
+        private readonly ExpediaHotelBookDto    $expediaBookDto = new ExpediaHotelBookDto(),
+        private readonly ExpediaHotelPricingDto $ExpediaHotelPricingDto = new ExpediaHotelPricingDto(),
+        private readonly PricingRulesTools      $pricingRulesService = new PricingRulesTools(),
+
     )
     {
     }
@@ -45,7 +53,88 @@ class ExpediaBookApiController extends BaseBookApiController
      */
     public function availabilityChange(array $filters): array|null
     {
-        return ['error' => 'This method is not implemented.'];
+
+        $booking_item = $filters['booking_item'];
+        $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
+        $search_id = $bookingItem->search_id;
+
+        $linkAvailability = ApiSearchInspectorRepository::getLinkAvailability($search_id, $bookingItem);
+        if(!$linkAvailability) return ['error' => 'This item is not available for modification.'];
+
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
+        $bookingInspector = BookingRepository::newBookingInspector([
+            $filters['booking_id'], $filters, $supplierId, 'booking', 'availability-change', 'hotel',
+        ]);
+
+        # Booking Get query Availability
+        $props = $this->getPathParamsFromLink($linkAvailability);
+
+        foreach ($filters['occupancy'] as $room) {
+            if (isset($room['children_ages'])) $params['occupancy'][] = $room['adults'] . '-' . implode(',', $room['children_ages']);
+            else $params['occupancy'][] = $room['adults'];
+        }
+        $params['checkin'] = $filters['checkin'];
+        $params['checkout'] = $filters['checkout'];
+        $params['token'] = $props['paramToken']['token'];
+
+        $originalRQ = [
+            'params' => $params,
+            'path' => $props['path'],
+            'headers' => $this->headers(),
+        ];
+
+        // TODO: It doesn't work for 'Test'.
+        $headers = $this->headers();
+        unset($headers['Test']);
+
+        try {
+            $response = $this->rapidClient->get($props['path'], $params, $headers);
+
+            $originalResponse = json_decode($response->getBody()->getContents(), true) ?? [];
+
+            $dataResponse['original']['response'] = $originalResponse;
+            $dataResponse['original']['request'] = $originalRQ;
+        } catch (ClientException $e) {
+            $this->handleException($e, $bookingInspector, 'Client error', $e->getMessage(), $originalRQ);
+        } catch (ConnectException $e) {
+            $this->handleException($e, $bookingInspector, 'Connection timeout', 'Connection timeout', $originalRQ);
+        } catch (ServerException $e) {
+            $this->handleException($e, $bookingInspector, 'Server error', 'Server error', $originalRQ);
+        } catch (RequestException $e) {
+            $this->handleException($e, $bookingInspector, 'Request Exception occurred', $e->getMessage(), $originalRQ);
+        } catch (Exception $e) {
+            $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage(), $originalRQ);
+        }
+
+        if (empty($dataResponse)) {
+            $err = $e ? $e->getMessage() : '';
+            return ['error' => 'Booking not changed. ' . $err, 'booking_item' => $filters['booking_item']];
+        }
+
+        $booking_item_data = json_decode($bookingItem->booking_item_data, true);
+        $giata_id = Arr::get($booking_item_data, 'hotel_id');
+        $hotel_giata_name = GiataProperty::where('code', $giata_id)->first()->name;
+
+        $output = [];
+        // add price to response
+        $output[$giata_id] = ['giata_id' => $giata_id, 'hotel_name' => $hotel_giata_name] + $originalResponse[0];
+
+        $pricingRules = $this->pricingRulesService->rules($filters);
+
+        $dtoData = $this->ExpediaHotelPricingDto->ExpediaToHotelResponse($output, $filters, $search_id, $pricingRules);
+        $bookingItems = $dtoData['bookingItems'];
+        $clientResponse = $dtoData['response'];
+
+        SaveBookingInspector::dispatch($bookingInspector, $dataResponse, $clientResponse);
+
+        /** Save booking_items */
+        if (!empty($bookingItems)) {
+            foreach ($bookingItems as $item) {
+                SaveBookingItems::dispatch($item);
+            }
+        }
+
+        return $clientResponse;
     }
 
     /**

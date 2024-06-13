@@ -153,10 +153,8 @@ class FlowExpediaBookTest extends Command
     private function makeSearchRequest(int $count = 1): array
     {
         $faker = Faker::create();
-        $checkin = Carbon::now()->addDays(30)->toDateString();
-        $checkout = Carbon::now()->addDays(31 + rand(2, 5))->toDateString();
-//        $checkin = '2024-12-15';
-//        $checkout = '2024-12-17';
+        $checkin = Carbon::now()->addDays(100)->toDateString();
+        $checkout = Carbon::now()->addDays(100 + rand(2, 5))->toDateString();
 
         $occupancy = [];
         foreach (range(1, $count) as $index) {

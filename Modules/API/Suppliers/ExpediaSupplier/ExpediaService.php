@@ -22,6 +22,7 @@ class ExpediaService
     /**
      * @param array $propertyIds
      * @param array $query
+     * @param array $searchInspector
      * @return array
      * @throws \Throwable
      */

@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\MapperExpediaGiata;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 
 class ApiSearchInspectorRepository
@@ -59,6 +60,25 @@ class ApiSearchInspectorRepository
         }
 
         return $linkPriceCheck;
+    }
+
+    /**
+     * @param $search_id
+     * @param ApiBookingItem $bookingItem
+     * @return string|null
+     */
+    public static function getLinkAvailability($search_id, ApiBookingItem $bookingItem): string|null
+    {
+        try {
+            $searchId = ApiSearchInspector::where('search_id', $search_id)->first();
+            $hotel_id = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_id'); // giata
+            $json_response = json_decode(Storage::get($searchId->response_path));
+            $link = $json_response->results->Expedia->$hotel_id->links->additional_rates->href;
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        return $link;
     }
 
     /**

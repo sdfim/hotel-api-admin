@@ -154,7 +154,7 @@ class BookApiHandler extends BaseController
      */
     public function availabilityChange(BookingAvailabilityChangeBookHotelRequest $request): JsonResponse
     {
-        $determinant = $this->determinant($request);
+        $determinant = $this->determinant($request, false);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         if (!BookRepository::isBook($request->booking_id, $request->booking_item)) {
@@ -173,6 +173,15 @@ class BookApiHandler extends BaseController
 
         $filters = array_merge($filters, json_decode($firstQuery, true));
 
+        if ($request->has('checkin') && $request->has('checkout')) {
+            $filters['checkin'] = $request->checkin;
+            $filters['checkout'] = $request->checkout;
+        }
+
+        if ($request->has('occupancy')) {
+            $filters['occupancy'] = $request->occupancy;
+        }
+
         try {
             $data = match (SupplierNameEnum::from($supplier)) {
                 SupplierNameEnum::EXPEDIA => $this->expedia->availabilityChange($filters),
@@ -187,7 +196,12 @@ class BookApiHandler extends BaseController
 
         if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
 
-        return $this->sendResponse($data ?? [], 'success');
+        $result['data'] = [
+            'query' => $filters,
+            'result' => $data ?? [],
+        ];
+
+        return $this->sendResponse($result, 'success');
     }
 
     /**
@@ -412,7 +426,7 @@ class BookApiHandler extends BaseController
      * @param Request $request
      * @return array
      */
-    private function determinant(Request $request): array
+    private function determinant(Request $request, $checkCache = true): array
     {
         $requestTokenId = PersonalAccessToken::findToken($request->bearerToken())->id;
 
@@ -420,7 +434,7 @@ class BookApiHandler extends BaseController
         if ($request->has('booking_item')) {
             if (!$this->validatedUuid('booking_item')) return [];
             $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->with('search')->first();
-            $cacheBookingItem = Cache::get('room_combinations:' . $request->booking_item);
+            $cacheBookingItem = $checkCache ? Cache::get('room_combinations:' . $request->booking_item) : true;
             if (!$apiBookingItem && !$cacheBookingItem ) return ['error' => 'Invalid booking_item'];
             $dbTokenId = $apiBookingItem->search->token_id;
             if ($dbTokenId !== $requestTokenId) return ['error' => 'Owner token not match'];
