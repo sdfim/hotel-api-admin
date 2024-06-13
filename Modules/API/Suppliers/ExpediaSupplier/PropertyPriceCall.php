@@ -29,7 +29,7 @@ class PropertyPriceCall
         'sales_environment' => 'hotel_package',
     ];
 
-    private const RATE_PLAN_COUNT = 249;
+    public const RATE_PLAN_COUNT = 249;
 
     # https://developers.expediagroup.com/docs/rapid/lodging/shopping#get-/properties/availability
 
@@ -208,7 +208,6 @@ class PropertyPriceCall
                     $responses = array_merge($responses, json_decode($data, true));
                 }
                 elseif (!isset($response['value'])) {
-                    Log::error('Expedia Timeout Exception after ' . $duration . ' seconds');
                     $parent_search_id = $searchInspector['search_id'];
                     $searchInspector['search_id'] = Str::uuid();
                     SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',

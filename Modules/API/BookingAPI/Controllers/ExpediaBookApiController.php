@@ -29,6 +29,7 @@ use Illuminate\Support\Facades\Storage;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookDto;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookingRetrieveBookingDto;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelPricingDto;
+use Modules\API\Suppliers\ExpediaSupplier\PropertyPriceCall;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
@@ -36,15 +37,17 @@ use Modules\Enums\SupplierNameEnum;
 class ExpediaBookApiController extends BaseBookApiController
 {
     private const PAYMENTS_TYPE = 'affiliate_collect';
+    private array $base_params;
 
     public function __construct(
         private readonly RapidClient            $rapidClient = new RapidClient(),
         private readonly ExpediaHotelBookDto    $expediaBookDto = new ExpediaHotelBookDto(),
         private readonly ExpediaHotelPricingDto $ExpediaHotelPricingDto = new ExpediaHotelPricingDto(),
         private readonly PricingRulesTools      $pricingRulesService = new PricingRulesTools(),
-
     )
     {
+        $this->base_params = env('SUPPLIER_EXPEDIA_RATE_TYPE', 'standalone') === 'package'
+            ? PropertyPriceCall::PACKAGE_RATES : PropertyPriceCall::STANDALONE_RATES;
     }
 
     /**
@@ -53,7 +56,6 @@ class ExpediaBookApiController extends BaseBookApiController
      */
     public function availabilityChange(array $filters): array|null
     {
-
         $booking_item = $filters['booking_item'];
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
         $search_id = $bookingItem->search_id;
@@ -77,9 +79,11 @@ class ExpediaBookApiController extends BaseBookApiController
         $params['checkout'] = $filters['checkout'];
         $params['token'] = $props['paramToken']['token'];
 
+        $url = $props['path'];
+
         $originalRQ = [
             'params' => $params,
-            'path' => $props['path'],
+            'path' => $url,
             'headers' => $this->headers(),
         ];
 
@@ -87,11 +91,26 @@ class ExpediaBookApiController extends BaseBookApiController
         $headers = $this->headers();
         unset($headers['Test']);
 
+        $booking_item_data = json_decode($bookingItem->booking_item_data, true);
+
+        // TODO: test get data from v3/properties/availability
+        if (isset($filters['availability']) && $filters['availability'] === 'true') {
+            $url = 'v3/properties/availability';
+            $params = array_merge($params, $this->base_params);
+            unset($params['token']);
+            $params['property_id'] = $booking_item_data['hotel_supplier_id'];
+            $params['currency'] = $filters['currency'] ?? 'USD';
+            $params['country_code'] = $filters['country_code'] ?? 'US';
+            $params['language'] = 'en-US';
+            $params['rate_plan_count'] = PropertyPriceCall::RATE_PLAN_COUNT;
+        }
+
         try {
-            $response = $this->rapidClient->get($props['path'], $params, $headers);
+            $response = $this->rapidClient->get($url, $params, $headers);
 
             $originalResponse = json_decode($response->getBody()->getContents(), true) ?? [];
 
+            $dataResponse = $originalResponse;
             $dataResponse['original']['response'] = $originalResponse;
             $dataResponse['original']['request'] = $originalRQ;
         } catch (ClientException $e) {
@@ -111,7 +130,6 @@ class ExpediaBookApiController extends BaseBookApiController
             return ['error' => 'Booking not changed. ' . $err, 'booking_item' => $filters['booking_item']];
         }
 
-        $booking_item_data = json_decode($bookingItem->booking_item_data, true);
         $giata_id = Arr::get($booking_item_data, 'hotel_id');
         $hotel_giata_name = GiataProperty::where('code', $giata_id)->first()->name;
 
