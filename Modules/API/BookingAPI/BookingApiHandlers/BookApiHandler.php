@@ -24,7 +24,7 @@ use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersReques
 use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingCancelBooking;
 use Modules\API\Requests\BookingChangeBookHotelRequest;
-use Modules\API\Requests\BookingAdditionalRatesBookHotelRequest;
+use Modules\API\Requests\BookingAvailabilityChangeBookHotelRequest;
 use Modules\API\Requests\BookingRetrieveBooking;
 use Modules\API\Requests\BookingRetrieveItemsRequest;
 use Modules\API\Requests\ListBookingsRequest;
@@ -149,10 +149,10 @@ class BookApiHandler extends BaseController
     }
 
     /**
-     * @param BookingAdditionalRatesBookHotelRequest $request
+     * @param BookingAvailabilityChangeBookHotelRequest $request
      * @return JsonResponse
      */
-    public function additionalRates(BookingAdditionalRatesBookHotelRequest $request): JsonResponse
+    public function availabilityChange(BookingAvailabilityChangeBookHotelRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);

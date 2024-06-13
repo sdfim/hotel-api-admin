@@ -30,7 +30,7 @@ class BookingApiRoutes
             Route::get('/options-change-booking', [BookApiHandler::class, 'optionsChangeBooking'])->name('optionsChangeBooking');
 
 
-            Route::get('/change/additional_rates', [BookApiHandler::class, 'additionalRates'])->name('additionalRates');
+            Route::get('/change/availability', [BookApiHandler::class, 'availabilityChange'])->name('availabilityChange');
             // TODO: need to change name method to changeSoftBooking
             Route::put('/change/soft-change', [BookApiHandler::class, 'changeBooking'])->name('changeBooking');
             Route::put('/change/hard-change', [BookApiHandler::class, 'changeHardBooking'])->name('changeHardBooking');
