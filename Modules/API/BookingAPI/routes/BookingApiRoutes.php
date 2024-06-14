@@ -21,18 +21,11 @@ class BookingApiRoutes
 
             Route::post('/book', [BookApiHandler::class, 'book'])->name('book');
             Route::get('/list-bookings', [BookApiHandler::class, 'listBookings'])->name('listBookings');
-            // TODO: need to delete this route after refactoring (we ned use only one route for change booking /change/soft-change)
-            Route::put('/change-booking', [BookApiHandler::class, 'changeBooking'])->name('changeBooking');
-
             Route::get('/retrieve-booking', [BookApiHandler::class, 'retrieveBooking'])->name('retrieveBooking');
             Route::delete('/cancel-booking', [BookApiHandler::class, 'cancelBooking'])->name('cancelBooking');
 
-            Route::get('/options-change-booking', [BookApiHandler::class, 'optionsChangeBooking'])->name('optionsChangeBooking');
-
-
-            Route::get('/change/availability', [BookApiHandler::class, 'availabilityChange'])->name('availabilityChange');
-            // TODO: need to change name method to changeSoftBooking
-            Route::put('/change/soft-change', [BookApiHandler::class, 'changeBooking'])->name('changeBooking');
+            Route::post('/change/availability', [BookApiHandler::class, 'availabilityChange'])->name('availabilityChange');
+            Route::put('/change/soft-change', [BookApiHandler::class, 'changeSoftBooking'])->name('changeSoftBooking');
             Route::put('/change/hard-change', [BookApiHandler::class, 'changeHardBooking'])->name('changeHardBooking');
         });
     }

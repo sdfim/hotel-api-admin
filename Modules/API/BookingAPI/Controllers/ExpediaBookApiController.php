@@ -65,7 +65,7 @@ class ExpediaBookApiController extends BaseBookApiController
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $filters['booking_id'], $filters, $supplierId, 'booking', 'availability-change', 'hotel',
+            $filters['booking_id'], $filters, $supplierId, 'book', 'availability-change', 'hotel',
         ]);
 
         # Booking Get query Availability
@@ -159,7 +159,7 @@ class ExpediaBookApiController extends BaseBookApiController
      * @param array $filters
      * @return array|null
      */
-    public function changeBooking(array $filters): array|null
+    public function changeSoftBooking(array $filters): array|null
     {
         # step 1 Get room_id from ApiBookingItem
         $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
@@ -176,7 +176,7 @@ class ExpediaBookApiController extends BaseBookApiController
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'booking', 'change-soft', 'hotel',
+            $booking_id, $filters, $supplierId, 'book', 'change-soft', 'hotel',
         ]);
 
         # Booking PUT query

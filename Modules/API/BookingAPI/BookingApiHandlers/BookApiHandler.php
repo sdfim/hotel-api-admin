@@ -118,7 +118,7 @@ class BookApiHandler extends BaseController
      * @param BookingChangeBookHotelRequest $request
      * @return JsonResponse
      */
-    public function changeBooking(BookingChangeBookHotelRequest $request): JsonResponse
+    public function changeSoftBooking(BookingChangeBookHotelRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
@@ -133,8 +133,8 @@ class BookApiHandler extends BaseController
 
         try {
             $data = match (SupplierNameEnum::from($supplier)) {
-                SupplierNameEnum::EXPEDIA => $this->expedia->changeBooking($filters),
-                SupplierNameEnum::HBSI => $this->hbsi->changeBooking($filters),
+                SupplierNameEnum::EXPEDIA => $this->expedia->changeSoftBooking($filters),
+                SupplierNameEnum::HBSI => $this->hbsi->changeSoftBooking($filters),
                 default => [],
             };
         } catch (Exception $e) {

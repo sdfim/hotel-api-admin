@@ -178,7 +178,7 @@ class HbsiBookApiController extends BaseBookApiController
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'booking', 'retrieve', $apiBookingsMetadata->search_type,
+            $booking_id, $filters, $supplierId, 'book', 'retrieve', $apiBookingsMetadata->search_type,
         ]);
 
         $xmlPriceData = $this->hbsiClient->retrieveBooking(
@@ -290,10 +290,9 @@ class HbsiBookApiController extends BaseBookApiController
         return $data;
     }
 
-    public function changeBooking(array $filters): array|null
+    public function changeSoftBooking(array $filters): array|null
     {
         $dataResponse = [];
-        $clientResponse = [];
         $soapError = false;
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
