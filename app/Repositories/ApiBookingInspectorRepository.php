@@ -314,9 +314,9 @@ class ApiBookingInspectorRepository
 
         $token_id = ChannelRenository::getTokenId(request()->bearerToken());
         $booking_item = $query['booking_item'] ?? null;
-        $search_id = $query['search_id'] ?? $booking_item
+        $search_id = $query['search_id'] ?? ($booking_item
             ? ApiBookingItem::where('booking_item', $booking_item)->first()?->search_id
-            : null;
+            : null);
 
         $inspector = new ApiBookingInspector();
         $inspector->booking_id = $booking_id;

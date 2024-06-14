@@ -6,6 +6,7 @@ use App\Jobs\SaveBookingInspector;
 use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveReservations;
+use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
@@ -26,6 +27,7 @@ use GuzzleHttp\Promise;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookDto;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelBookingRetrieveBookingDto;
 use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelPricingDto;
@@ -61,18 +63,20 @@ class ExpediaBookApiController extends BaseBookApiController
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
         $search_id = $bookingItem->search_id;
 
-        $linkAvailability = ApiSearchInspectorRepository::getLinkAvailability($search_id, $bookingItem);
-        if(!$linkAvailability) return ['error' => 'This item is not available for modification.'];
-
-        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
-        $bookingInspector = BookingRepository::newBookingInspector([
-            $filters['booking_id'], $filters, $supplierId, 'book', 'availability-change', 'hotel',
-        ]);
-
         foreach ($filters['occupancy'] as $room) {
             if (isset($room['children_ages'])) $params['occupancy'][] = $room['adults'] . '-' . implode(',', $room['children_ages']);
             else $params['occupancy'][] = $room['adults'];
         }
+
+        $linkAvailability = ApiSearchInspectorRepository::getLinkAvailability($search_id, $bookingItem);
+        if(!$linkAvailability) return ['error' => 'This item is not available for modification.'];
+
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
+        $change_search_id = (string)Str::uuid();
+        $searchInspector = ApiSearchInspectorRepository::newSearchInspector(
+            [$change_search_id, $filters, [$supplierId], 'change', 'hotel']
+        );
+
         $params['checkin'] = $filters['checkin'];
         $params['checkout'] = $filters['checkout'];
 
@@ -114,15 +118,15 @@ class ExpediaBookApiController extends BaseBookApiController
             $dataResponse['original']['response'] = $originalResponse;
             $dataResponse['original']['request'] = $originalRQ;
         } catch (ClientException $e) {
-            $this->handleException($e, $bookingInspector, 'Client error', $e->getMessage(), $originalRQ);
+            return $this->handleExceptionSearchInspector($e, $searchInspector, $originalRQ, 'Expedia Client error', 'Client error');
         } catch (ConnectException $e) {
-            $this->handleException($e, $bookingInspector, 'Connection timeout', 'Connection timeout', $originalRQ);
+            return $this->handleExceptionSearchInspector($e, $searchInspector, $originalRQ, 'Expedia Connection timeout', 'Connection timeout');
         } catch (ServerException $e) {
-            $this->handleException($e, $bookingInspector, 'Server error', 'Server error', $originalRQ);
+            return $this->handleExceptionSearchInspector($e, $searchInspector, $originalRQ, 'Expedia Server error', 'Server error');
         } catch (RequestException $e) {
-            $this->handleException($e, $bookingInspector, 'Request Exception occurred', $e->getMessage(), $originalRQ);
+            return $this->handleExceptionSearchInspector($e, $searchInspector, $originalRQ, 'Expedia Request Exception occurred', 'Request Exception occurred');
         } catch (Exception $e) {
-            $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage(), $originalRQ);
+            return $this->handleExceptionSearchInspector($e, $searchInspector, $originalRQ, 'Expedia Unexpected error', 'Unexpected error');
         }
 
         if (empty($dataResponse)) {
@@ -142,8 +146,11 @@ class ExpediaBookApiController extends BaseBookApiController
         $dtoData = $this->ExpediaHotelPricingDto->ExpediaToHotelResponse($output, $filters, $search_id, $pricingRules);
         $bookingItems = $dtoData['bookingItems'];
         $clientResponse = $dtoData['response'];
+        $clientResponse['change_search_id'] = $change_search_id;
 
-        SaveBookingInspector::dispatch($bookingInspector, $dataResponse, $clientResponse);
+        /** Save data to Inspector */
+        Log::info('HotelApiHandler | price | SaveSearchInspector | start');
+        SaveSearchInspector::dispatch($searchInspector, $dataResponse['original'], $originalResponse, $clientResponse);
 
         /** Save booking_items */
         if (!empty($bookingItems)) {
@@ -157,8 +164,9 @@ class ExpediaBookApiController extends BaseBookApiController
         $filters['rate'] = Arr::get($booking_item_data, 'rate');
         $filters['bed_groups'] = Arr::get($booking_item_data, 'bed_groups');
         $filters['search_id'] = $search_id;
+        $filters['change_search_id'] = $change_search_id;
 
-        $this->expediaHotelBookingApiController->addItem($filters, 'availability-change', ['Test' => 'hard_change']);
+        $this->expediaHotelBookingApiController->addItem($filters, 'change', ['Test' => 'hard_change']);
 
         return $clientResponse;
     }
@@ -507,6 +515,16 @@ class ExpediaBookApiController extends BaseBookApiController
             $content['original']['request'] = $originalRQ;
         }
         SaveBookingInspector::dispatch($bookingInspector, $content, [], 'error', ['side' => 'supplier', 'message' => $errorMessage]);
+    }
+
+    private function handleExceptionSearchInspector(Exception $e, $searchInspector, $originalRQ, $errorMessage, $logMessage)
+    {
+        Log::error($logMessage . ': ' . $e->getMessage());
+        Log::error($e->getTraceAsString());
+        SaveSearchInspector::dispatch($searchInspector, ['request' => $originalRQ], [], [],'error',
+            ['side' => 'supplier', 'message' => $errorMessage, 'parent_search_id' => $searchInspector['search_id']]);
+        Log::error($logMessage . ': ' . $e->getMessage());
+        return ['error' => $errorMessage];
     }
 
     /**

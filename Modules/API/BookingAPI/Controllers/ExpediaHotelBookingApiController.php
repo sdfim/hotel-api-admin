@@ -40,6 +40,7 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
 
         $booking_id = $filters['booking_id'] ?? (string)Str::uuid();
 
+        if ($type === 'change') $filters['search_id'] = $filters['change_search_id'];
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
             $booking_id, $filters, $supplierId, $type, 'price_check', 'hotel'

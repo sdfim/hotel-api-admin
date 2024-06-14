@@ -63,7 +63,7 @@ class BookingInspectorController extends BaseInspectorController
             return $booking->id;
 
         } catch (Exception $e) {
-            Log::error('Error save ApiSearchInspector: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
+            Log::error('Error save BookingInspector: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
             Log::error($e->getTraceAsString());
 
             return false;

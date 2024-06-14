@@ -45,6 +45,13 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                         'success' => 'success',
                         default => 'gray',
                     }),
+                TextColumn::make('type')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'price' => 'success',
+                        'change' => 'gray',
+                        default => 'gray',
+                    }),
                 ViewColumn::make('view error data')
                     ->label('')
                     ->view('dashboard.search-inspector.column.error-data'),
@@ -85,7 +92,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                         ->requiresConfirmation()
                         ->action(fn (Collection $records) => $records->each->forceDelete()),
                 ]),
-            ]);;
+            ]);
     }
 
     /**
