@@ -40,10 +40,11 @@ class ExpediaBookApiController extends BaseBookApiController
     private array $base_params;
 
     public function __construct(
-        private readonly RapidClient            $rapidClient = new RapidClient(),
-        private readonly ExpediaHotelBookDto    $expediaBookDto = new ExpediaHotelBookDto(),
-        private readonly ExpediaHotelPricingDto $ExpediaHotelPricingDto = new ExpediaHotelPricingDto(),
-        private readonly PricingRulesTools      $pricingRulesService = new PricingRulesTools(),
+        private readonly RapidClient                      $rapidClient = new RapidClient(),
+        private readonly ExpediaHotelBookDto              $expediaBookDto = new ExpediaHotelBookDto(),
+        private readonly ExpediaHotelPricingDto           $ExpediaHotelPricingDto = new ExpediaHotelPricingDto(),
+        private readonly PricingRulesTools                $pricingRulesService = new PricingRulesTools(),
+        private readonly ExpediaHotelBookingApiController $expediaHotelBookingApiController = new ExpediaHotelBookingApiController(),
     )
     {
         $this->base_params = env('SUPPLIER_EXPEDIA_RATE_TYPE', 'standalone') === 'package'
@@ -68,28 +69,14 @@ class ExpediaBookApiController extends BaseBookApiController
             $filters['booking_id'], $filters, $supplierId, 'book', 'availability-change', 'hotel',
         ]);
 
-        # Booking Get query Availability
-        $props = $this->getPathParamsFromLink($linkAvailability);
-
         foreach ($filters['occupancy'] as $room) {
             if (isset($room['children_ages'])) $params['occupancy'][] = $room['adults'] . '-' . implode(',', $room['children_ages']);
             else $params['occupancy'][] = $room['adults'];
         }
         $params['checkin'] = $filters['checkin'];
         $params['checkout'] = $filters['checkout'];
-        $params['token'] = $props['paramToken']['token'];
 
-        $url = $props['path'];
-
-        $originalRQ = [
-            'params' => $params,
-            'path' => $url,
-            'headers' => $this->headers(),
-        ];
-
-        // TODO: It doesn't work for 'Test'.
         $headers = $this->headers();
-        unset($headers['Test']);
 
         $booking_item_data = json_decode($bookingItem->booking_item_data, true);
 
@@ -103,7 +90,20 @@ class ExpediaBookApiController extends BaseBookApiController
             $params['country_code'] = $filters['country_code'] ?? 'US';
             $params['language'] = 'en-US';
             $params['rate_plan_count'] = PropertyPriceCall::RATE_PLAN_COUNT;
+        } else {
+            # Booking Get query Availability
+            $props = $this->getPathParamsFromLink($linkAvailability);
+            $params['token'] = $props['paramToken']['token'];
+            $url = $props['path'];
+            // TODO: It doesn't work for 'Test'.
+            unset($headers['Test']);
         }
+
+        $originalRQ = [
+            'params' => $params,
+            'path' => $url,
+            'headers' => $this->headers(),
+        ];
 
         try {
             $response = $this->rapidClient->get($url, $params, $headers);
@@ -151,6 +151,14 @@ class ExpediaBookApiController extends BaseBookApiController
                 SaveBookingItems::dispatch($item);
             }
         }
+
+        $filters['hotel_id'] = Arr::get($booking_item_data, 'hotel_id');
+        $filters['room_id'] = Arr::get($booking_item_data, 'room_id');
+        $filters['rate'] = Arr::get($booking_item_data, 'rate');
+        $filters['bed_groups'] = Arr::get($booking_item_data, 'bed_groups');
+        $filters['search_id'] = $search_id;
+
+        $this->expediaHotelBookingApiController->addItem($filters, 'availability-change', ['Test' => 'hard_change']);
 
         return $clientResponse;
     }
