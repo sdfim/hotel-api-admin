@@ -141,8 +141,6 @@ class RapidClient
 
         $url = $this->credentials->rapidBaseUrl . '/' . $path . '?' . $http_query;
 
-        \Log::debug('RapidClient getAsync url: ' . $url);
-
         $headers = [
             'Accept-Encoding' => self::GZIP,
             'Authorization' => $this->generateAuthHeader()
