@@ -85,7 +85,7 @@ class ExpediaBookApiController extends BaseBookApiController
         $booking_item_data = json_decode($bookingItem->booking_item_data, true);
 
         // TODO: test get data from v3/properties/availability
-        if (isset($filters['availability']) && $filters['availability'] === 'true') {
+        if (Arr::get($filters, 'availability')) {
             $url = 'v3/properties/availability';
             $params = array_merge($params, $this->base_params);
             unset($params['token']);
@@ -100,7 +100,6 @@ class ExpediaBookApiController extends BaseBookApiController
             $params['token'] = $props['paramToken']['token'];
             $url = $props['path'];
             // TODO: It doesn't work for 'Test'.
-            unset($headers['Test']);
         }
 
         $originalRQ = [
@@ -108,6 +107,8 @@ class ExpediaBookApiController extends BaseBookApiController
             'path' => $url,
             'headers' => $this->headers(),
         ];
+
+        unset($headers['Test']);
 
         try {
             $response = $this->rapidClient->get($url, $params, $headers);
@@ -144,6 +145,7 @@ class ExpediaBookApiController extends BaseBookApiController
         $pricingRules = $this->pricingRulesService->rules($filters);
 
         $dtoData = $this->ExpediaHotelPricingDto->ExpediaToHotelResponse($output, $filters, $search_id, $pricingRules);
+
         $bookingItems = $dtoData['bookingItems'];
         $clientResponse = $dtoData['response'];
         $clientResponse['change_search_id'] = $change_search_id;
