@@ -412,7 +412,10 @@ class HbsiBookApiController extends BaseBookApiController
             }
         }
 
-        return $clientResponse[SupplierNameEnum::HBSI->value];
+        return [
+            'result' => $clientResponse[SupplierNameEnum::HBSI->value],
+            'change_search_id' => $searchId
+        ];
     }
 
     private function priceByHotel(string $hotelId, array $filters, array $searchInspector): ?array

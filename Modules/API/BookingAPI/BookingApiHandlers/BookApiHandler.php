@@ -13,6 +13,7 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -198,7 +199,8 @@ class BookApiHandler extends BaseController
 
         $result = [
             'query' => $filters,
-            'result' => $data ?? [],
+            'result' => $data ? Arr::get($data, 'result'): [],
+            'change_search_id' => $data ? Arr::get($data, 'change_search_id') : '',
         ];
 
         return $this->sendResponse($result, 'success');

@@ -170,7 +170,10 @@ class ExpediaBookApiController extends BaseBookApiController
 
         $this->expediaHotelBookingApiController->addItem($filters, 'change', ['Test' => 'hard_change']);
 
-        return $clientResponse;
+        return [
+            'result' => array_values($clientResponse),
+            'change_search_id' => $change_search_id
+            ];
     }
 
     /**
