@@ -94,7 +94,9 @@ class BaseBookApiController extends BaseController
         $type = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->search_type;
         if (TypeRequestEnum::from($type) === TypeRequestEnum::HOTEL)
             for ($i = 1; $i <= $countRooms; $i++) {
-                $filters['rooms'][] = $passengersData['rooms'][$i]['passengers'];
+                if (array_key_exists($i, $passengersData['rooms'])) {
+                    $filters['rooms'][] = $passengersData['rooms'][$i]['passengers'];
+                }
             }
 
         if ($bookingItem->get()->count() > 0) {

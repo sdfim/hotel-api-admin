@@ -3,7 +3,6 @@
 namespace App\Repositories;
 
 use App\Models\GiataPlace;
-use App\Models\GiataProperty;
 use App\Models\MapperHbsiGiata;
 use Illuminate\Support\Facades\DB;
 
@@ -90,6 +89,11 @@ class HbsiRepository
             'data' => $associativeArray,
             'total_pages' => $totalPages,
         ];
+    }
+
+    public static function getByGiataId(string $giataId): ?array
+    {
+        return MapperHbsiGiata::where('giata_id', $giataId)->first()?->toArray();
     }
 
 }

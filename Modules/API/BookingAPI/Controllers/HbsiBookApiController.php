@@ -2,24 +2,34 @@
 
 namespace Modules\API\BookingAPI\Controllers;
 
+use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveBookingInspector;
 use App\Jobs\SaveReservations;
+use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingInspector;
+use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
+use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\ChannelRenository;
+use App\Repositories\HbsiRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Modules\API\PropertyWeighting\EnrichmentWeight;
 use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookDto;
 use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookingRetrieveBookingDto;
+use Modules\API\Suppliers\DTO\HBSI\HbsiHotelPricingDto;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
+use Modules\API\Suppliers\HbsiSupplier\HbsiService;
+use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
 use SimpleXMLElement;
 
@@ -33,8 +43,12 @@ class HbsiBookApiController extends BaseBookApiController
     ];
 
     public function __construct(
-        private readonly HbsiClient       $hbsiClient = new HbsiClient(),
-        private readonly HbsiHotelBookDto $hbsiHotelBookDto = new HbsiHotelBookDto(),
+        private readonly HbsiClient          $hbsiClient = new HbsiClient(),
+        private readonly HbsiHotelBookDto    $hbsiHotelBookDto = new HbsiHotelBookDto(),
+        private readonly HbsiHotelPricingDto $HbsiHotelPricingDto = new HbsiHotelPricingDto(),
+        private readonly HbsiService         $hbsiService = new HbsiService(),
+        private readonly PricingRulesTools   $pricingRulesService = new PricingRulesTools(),
+        private readonly EnrichmentWeight    $propsWeight = new EnrichmentWeight(),
     )
     {
     }
@@ -364,9 +378,207 @@ class HbsiBookApiController extends BaseBookApiController
 
     public function availabilityChange(array $filters): array|null
     {
-        return ['test' => 'test'];
+        $booking_item = $filters['booking_item'];
+        $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
+        $searchId = Str::uuid();
+        $hotelId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_id');
+        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
+        $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$searchId, $filters, [$supplierId], 'change', 'hotel']);
+
+        $response = $this->priceByHotel($hotelId, $filters, $searchInspector);
+        $handleResponse = $this->handlePriceHbsi(
+            $response,
+            $filters,
+            $searchId,
+            $this->pricingRulesService->rules($filters)
+        );
+
+        /** Enrichment Property Weighting */
+        $clientResponse = $this->propsWeight->enrichmentPricing($handleResponse['clientResponse'], 'hotel');
+        $content = ['count' => $handleResponse['countResponse'], 'query' => $filters, 'results' => $handleResponse['dataResponse']];
+        $result = [
+            'count' => $handleResponse['countClientResponse'],
+            'total_pages' => max($handleResponse['totalPages']),
+            'query' => $filters,
+            'results' => $clientResponse
+        ];
+
+        /** Save data to Inspector */
+        Log::info('HbsiBookApiController | price | SaveSearchInspector | start');
+        SaveSearchInspector::dispatch($searchInspector, $handleResponse['dataOriginal'] ?? [], $content, $result);
+        Log::info('HbsiBookApiController | price | SaveSearchInspector | end');
+
+        /** Save booking_items */
+        if (!empty($handleResponse['bookingItems'])) {
+            foreach ($handleResponse['bookingItems'] as $items) {
+                SaveBookingItems::dispatch($items);
+            }
+        }
+
+        return $clientResponse;
     }
 
+    private function priceByHotel(string $hotelId, array $filters, array $searchInspector): ?array
+    {
+        try {
+            $hbsiHotel = HbsiRepository::getByGiataId($hotelId);
+            $hotelIds = [$hbsiHotel['hbsi_id']];
+
+            if (empty($hotelIds)) {
+                return [
+                    'original' => [
+                        'request' => [],
+                        'response' => [],
+                    ],
+                    'array' => [],
+                    'total_pages' => 0,
+                ];
+            }
+
+            /** get PriceData from HBSI */
+            $xmlPriceData = $this->hbsiClient->getSyncHbsiPriceByPropertyIds($hotelIds, $filters, $searchInspector);
+
+            if (isset($xmlPriceData['error'])) {
+                return [
+                    'error' => $xmlPriceData['error'],
+                    'original' => [
+                        'request' =>  '',
+                        'response' => '',
+                    ],
+                    'array' => [],
+                    'total_pages' => 0,
+                ];
+            }
+
+            $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
+            $arrayResponse = json_decode(json_encode($response), 1);
+            if (isset($arrayResponse['Errors'])) {
+                Log::error('HBSIHotelApiHandler | price ', ['supplier response' => $arrayResponse['Errors']['Error']]);
+            }
+            if (!isset($arrayResponse['RoomStays']['RoomStay'])) {
+                return [
+                    'original' => [
+                        'request' => [],
+                        'response' => [],
+                    ],
+                    'array' => [],
+                    'total_pages' => 0,
+                ];
+            }
+
+            /**
+             * Normally RoomStay is an array when several rates come from the same hotel, if only one rate comes, the
+             * array becomes assoc instead of sequential, so we force it to be sequential so the foreach below does not
+             * fail
+             */
+            $priceData = Arr::isAssoc($arrayResponse['RoomStays']['RoomStay'])
+                ? [$arrayResponse['RoomStays']['RoomStay']]
+                : $arrayResponse['RoomStays']['RoomStay'];
+
+            $i = 1;
+            $groupedPriceData = array_reduce($priceData, function ($result, $item) use ($hbsiHotel, &$i) {
+                $hotelCode = $item['BasicPropertyInfo']['@attributes']['HotelCode'];
+                $roomCode = $item['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'];
+                $item['rate_ordinal'] = $i;
+                $result[$hotelCode] = [
+                    'property_id' => $hotelCode,
+                    'hotel_name' => Arr::get($item, 'BasicPropertyInfo.@attributes.HotelName'),
+                    'hotel_name_giata' => $hbsiHotel['name'] ?? '',
+                    'giata_id' => $hbsiHotel['giata_id'] ?? 0,
+                    'rooms' => $result[$hotelCode]['rooms'] ?? [],
+                ];
+                if (!isset($result[$hotelCode]['rooms'][$roomCode])) {
+                    $result[$hotelCode]['rooms'][$roomCode] = [
+                        'room_code' => $roomCode,
+                        'room_name' => $item['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '',
+                    ];
+                }
+                $result[$hotelCode]['rooms'][$roomCode]['rates'][] = $item;
+                $i++;
+                return $result;
+            }, []);
+
+            return [
+                'original' => [
+                    'request' => $xmlPriceData['request'],
+                    'response' => $xmlPriceData['response']->asXML(),
+                ],
+                'array' => $groupedPriceData,
+                'total_pages' => 1,
+            ];
+
+        } catch (GuzzleException $e) {
+            Log::error('HBSIHotelApiHandler GuzzleException ' . $e);
+            Log::error($e->getTraceAsString());
+            return [
+                'error' => $e->getMessage(),
+                'original' => [
+                    'request' => $xmlPriceData['request'] ?? '',
+                    'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
+                ],
+                'array' => [],
+                'total_pages' => 0,
+            ];
+        } catch (\Throwable $e) {
+            Log::error('HBSIHotelApiHandler Exception ' . $e);
+            Log::error($e->getTraceAsString());
+            return [
+                'error' => $e->getMessage(),
+                'original' => [
+                    'request' => $xmlPriceData['request'] ?? '',
+                    'response' => isset($xmlPriceData['response']) ? $xmlPriceData['response']->asXML() : '',
+                ],
+                'array' => [],
+                'total_pages' => 0,
+            ];
+        }
+    }
+
+    /**
+     * @throws Throwable
+     */
+    private function handlePriceHbsi($supplierResponse, array $filters, string $search_id, array $pricingRules): array
+    {
+        $dataResponse = [];
+        $clientResponse = [];
+        $totalPages = [];
+        $countResponse = 0;
+        $countClientResponse = 0;
+
+        $hbsiResponse = $supplierResponse;
+
+        $supplierName = SupplierNameEnum::HBSI->name;
+        $dataResponse[$supplierName] = $hbsiResponse['array'];
+        $dataOriginal[$supplierName] = $hbsiResponse['original'];
+
+        $st = microtime(true);
+        $dtoData = $this->HbsiHotelPricingDto->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules);
+
+        /** Enrichment Room Combinations */
+        $countRooms = count($filters['occupancy']);
+        if ($countRooms > 1) {
+            $clientResponse[$supplierName] = $this->hbsiService->enrichmentRoomCombinations($dtoData['response'], $filters);
+        }
+        else $clientResponse[$supplierName] = $dtoData['response'];
+        $bookingItems[$supplierName] = $dtoData['bookingItems'];
+
+        Log::info('HotelApiHandler | price | DTO hbsiResponse ' . (microtime(true) - $st) . 's');
+
+        $countResponse += count($hbsiResponse['array']);
+        $totalPages[$supplierName] = $hbsiResponse['total_pages'] ?? 0;
+        $countClientResponse += count($clientResponse[$supplierName]);
+
+        return [
+            'error' => Arr::get($supplierResponse, 'error'),
+            'dataResponse' => $dataResponse,
+            'clientResponse' => $clientResponse,
+            'countResponse' => $countResponse,
+            'totalPages' => $totalPages,
+            'countClientResponse' => $countClientResponse,
+            'bookingItems' => $bookingItems ?? [],
+            'dataOriginal' => $dataOriginal ?? [],
+        ];
+    }
 
     /**
      * @param ApiBookingInspector $bookingInspector
