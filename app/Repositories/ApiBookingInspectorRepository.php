@@ -177,7 +177,7 @@ class ApiBookingInspectorRepository
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
             ->where('type', 'book')
-            ->where('sub_type', '!=', 'error')
+            ->where('sub_type', 'create')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->exists();
     }
@@ -232,6 +232,21 @@ class ApiBookingInspectorRepository
             })
             ->whereNotIn('booking_item', $itemsBooked)
             ->get();
+    }
+
+    /**
+     * @param string $booking_id
+     * @return array
+     */
+    public static function bookedBookingItems(string $booking_id): array
+    {
+        return ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->get()
+            ->pluck('booking_item')
+            ->toArray();
     }
 
     /**
