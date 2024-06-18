@@ -23,7 +23,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Modules\API\PropertyWeighting\EnrichmentWeight;
 use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookDto;
 use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookingRetrieveBookingDto;
 use Modules\API\Suppliers\DTO\HBSI\HbsiHotelPricingDto;
@@ -48,7 +47,6 @@ class HbsiBookApiController extends BaseBookApiController
         private readonly HbsiHotelPricingDto $HbsiHotelPricingDto = new HbsiHotelPricingDto(),
         private readonly HbsiService         $hbsiService = new HbsiService(),
         private readonly PricingRulesTools   $pricingRulesService = new PricingRulesTools(),
-        private readonly EnrichmentWeight    $propsWeight = new EnrichmentWeight(),
     )
     {
     }
@@ -393,8 +391,7 @@ class HbsiBookApiController extends BaseBookApiController
             $this->pricingRulesService->rules($filters)
         );
 
-        /** Enrichment Property Weighting */
-        $clientResponse = $this->propsWeight->enrichmentPricing($handleResponse['clientResponse'], 'hotel');
+        $clientResponse = $handleResponse['clientResponse'];
         $content = ['count' => $handleResponse['countResponse'], 'query' => $filters, 'results' => $handleResponse['dataResponse']];
         $result = [
             'count' => $handleResponse['countClientResponse'],
@@ -415,7 +412,7 @@ class HbsiBookApiController extends BaseBookApiController
             }
         }
 
-        return $clientResponse;
+        return $clientResponse[SupplierNameEnum::HBSI->value];
     }
 
     private function priceByHotel(string $hotelId, array $filters, array $searchInspector): ?array
