@@ -16,6 +16,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\ServerException;
+use GuzzleHttp\Exception\TransferException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -118,6 +119,44 @@ class HbsiClient
         }
 
         $body = $result['value']->getBody()->getContents();
+
+        return $this->processXmlBody($body, $bodyQuery);
+    }
+
+    /**
+     * @throws GuzzleException
+     * @throws Exception|Throwable
+     */
+    public function getSyncHbsiPriceByPropertyIds(array $hotelIds, array $filters, array $searchInspector): ?array
+    {
+        $bodyQuery = $this->makeRequest($this->hotelAvailRQ($hotelIds, $filters), 'HotelAvailRQ');
+        $original = ['HBSI' => ['request' => $bodyQuery]];
+
+        try {
+            $result = $this->client->request('POST', $this->credentials->searchBookUrl, [
+                'headers' => $this->headers,
+                'body' => $bodyQuery,
+                'timeout' => ConfigRepository::getTimeout()
+            ]);
+        } catch (ServerException $e) {
+            // Error 500
+            Log::error('HBSI Server error: ' . $e->getMessage());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [],'error',
+                ['side' => 'supplier', 'message' => 'HBSI Server error', 'parent_search_id' => $parent_search_id]);
+            return ['error' => 'Server error'];
+        } catch (TransferException $e) {
+            // Timeout
+            Log::error('Connection timeout: ' . $e->getMessage());
+            $parent_search_id = $searchInspector['search_id'];
+            $searchInspector['search_id'] = Str::uuid();
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [],'error',
+                ['side' => 'supplier', 'message' => 'Connection timeout', 'parent_search_id' => $parent_search_id]);
+            return ['error' => 'Connection timeout'];
+        }
+
+        $body = $result->getBody()->getContents();
 
         return $this->processXmlBody($body, $bodyQuery);
     }

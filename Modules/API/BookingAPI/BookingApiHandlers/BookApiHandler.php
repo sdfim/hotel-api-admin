@@ -196,7 +196,7 @@ class BookApiHandler extends BaseController
 
         if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
 
-        $result['data'] = [
+        $result = [
             'query' => $filters,
             'result' => $data ?? [],
         ];
