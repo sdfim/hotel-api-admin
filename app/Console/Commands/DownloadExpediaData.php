@@ -38,7 +38,7 @@ class DownloadExpediaData extends Command
 
     private const BATCH_SIZE = 100;
 
-    private const MIN_RATING = 4;
+    private const MIN_RATING = 3;
 
     private string|null $type;
 
@@ -393,7 +393,7 @@ class DownloadExpediaData extends Command
 
             $ratingConfig = GeneralConfiguration::latest()->first()->star_ratings;
 
-            $rating = $ratingConfig ?? self::MIN_RATING ?? 4;
+            $rating = $ratingConfig ?? self::MIN_RATING ?? 3;
             // $rating = 0;
 
             if ($output['rating'] < $rating) $is_write = false;
