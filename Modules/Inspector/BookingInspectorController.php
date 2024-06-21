@@ -56,6 +56,12 @@ class BookingInspectorController extends BaseInspectorController
 
             Log::debug('BookingInspectorController save data: ', $inspector);
 
+            // avoid null exception column DB
+            if ($inspector['search_id'] === null)
+            {
+                $inspector['search_id'] = '';
+            }
+
             $booking = ApiBookingInspector::create($inspector);
 
             Log::debug('BookingInspectorController save to DB: ' . $this->executionTime() . ' seconds');

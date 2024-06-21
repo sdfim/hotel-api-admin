@@ -19,6 +19,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Modules\API\Suppliers\Enums\HBSI\CreditCardType;
 use Psr\Http\Message\ResponseInterface;
 use SimpleXMLElement;
 use Throwable;
@@ -130,6 +131,7 @@ class HbsiClient
     public function handleBook(array $filters, array $inspectorBook): ?array
     {
         $hotelId = ApiBookingItemRepository::getHotelSupplierId($filters['booking_item']);
+
         $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResRQ', $hotelId);
 
         return $this->executeApiRequest(function() use ($bodyQuery) {
@@ -721,8 +723,10 @@ class HbsiClient
     {
         $depositPaymentArr = [];
         $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardType'] = '1';
-        $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardCode'] = $creditCard['credit_card']['card_type'];
+        $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardCode'] = CreditCardType::getFrom($creditCard['credit_card']['card_type'])->value;
         $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['CardNumber'] = $creditCard['credit_card']['number'];
+        $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['SeriesCode'] = $creditCard['credit_card']['cvv'];
+
         $expiryDate = $creditCard['credit_card']['expiry_date'];
         $expiryDate = Carbon::createFromFormat('m/Y', $expiryDate);
         $month = $expiryDate->format('m');
@@ -731,6 +735,9 @@ class HbsiClient
         $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['@attributes']['ExpireDate'] = $formattedExpiryDate;
         $depositPaymentArr['RequiredPayment']['AmountPercent']['@attributes']['Amount'] = $amount;
         $depositPaymentArr['RequiredPayment']['Deadline']['@attributes']['AbsoluteDeadline'] = Carbon::createFromFormat('m/Y', $creditCard['credit_card']['expiry_date'])->format('Y-m-d');
+
+        $depositPaymentArr['RequiredPayment']['AcceptedPayments']['AcceptedPayment']['PaymentCard']['CardHolderName'] = $creditCard['credit_card']['name_card'];
+
         return $depositPaymentArr;
     }
 }
