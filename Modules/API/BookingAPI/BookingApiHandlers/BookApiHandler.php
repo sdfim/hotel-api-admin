@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Modules\API\BookingAPI\BookingApiHandlers;
 
+use App\Jobs\ClearSearchCacheByBookingItemsJob;
 use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
@@ -112,6 +113,13 @@ class BookApiHandler extends BaseController
                 return $this->sendError($item);
             }
         }
+
+        /**
+         * Based on these booking_items, all cached pricing search responses will be determined and this cache will be cleared.
+         * This prevents the possibility of booking an already booked booking_item.
+         */
+        $itemsToDeleteFromCache = BookRepository::bookedBookingItems($request->booking_id);
+        ClearSearchCacheByBookingItemsJob::dispatch($itemsToDeleteFromCache);
 
         return $this->sendResponse($data, 'success');
     }
