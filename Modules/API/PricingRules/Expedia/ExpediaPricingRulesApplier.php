@@ -86,6 +86,12 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
             }
         }
 
+        if (isset($roomPricing['stay'])) {
+            foreach ($roomPricing['stay'] as $expenseItem) {
+                $totals['total_price'] += $expenseItem['value'];
+            }
+        }
+
         $totals['total_fees'] += (float)($roomPricing['totals']['property_fees']['billable_currency']['value'] ?? 0);
 
         return $totals;

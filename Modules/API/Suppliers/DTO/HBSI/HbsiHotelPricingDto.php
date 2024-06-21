@@ -544,6 +544,9 @@ class HbsiHotelPricingDto
             $breakdownWithoutKeys[] = array_values($item);
         }
 
-        return $breakdownWithoutKeys;
+        return [
+            'nightly' => $breakdownWithoutKeys,
+            'stay' => [],
+        ];
     }
 }

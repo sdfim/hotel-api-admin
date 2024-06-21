@@ -369,8 +369,11 @@ class ExpediaHotelPricingDto
     private function getBreakdown(array $roomsPricingArray): array
     {
         $breakdown = [];
+        $breakdownStay = [];
         foreach ($this->occupancy as $room) {
-            $roomsKey = isset($room['children_ages']) ? $room['adults'] . '-' . implode(',', $room['children_ages']) : $room['adults'];
+            $roomsKey = isset($room['children_ages'])
+                ? $room['adults'] . '-' . implode(',', $room['children_ages'])
+                : $room['adults'];
 
             foreach ($roomsPricingArray[$roomsKey]['nightly'] as $night => $expenseItems) {
                 foreach ($expenseItems as $expenseItem) {
@@ -392,6 +395,23 @@ class ExpediaHotelPricingDto
                     $breakdown[$night][$key]['amount'] += $expenseItem['value'];
                 }
             }
+
+            if (isset($roomsPricingArray[$roomsKey]['stay'])) {
+                foreach ($roomsPricingArray[$roomsKey]['stay'] as $stay => $expenseItem) {
+                    $key = '';
+                    if (str_contains($expenseItem['type'], 'tax')) {
+                        $key = 'tax';
+                        $breakdownStay[$stay][$key]['type'] = 'tax inclusive';
+                        $breakdownStay[$stay][$key]['title'] = $expenseItem['type'];
+                    } elseif (str_contains($expenseItem['type'], 'fee')) {
+                        $key = 'fee';
+                        $breakdownStay[$stay][$key]['type'] = 'fee inclusive';
+                        $breakdownStay[$stay][$key]['title'] = $expenseItem['type'];
+                    }
+                    if (!isset($breakdownStay[$stay][$key]['amount'])) $breakdownStay[$stay][$key]['amount'] = 0;
+                    $breakdownStay[$stay][$key]['amount'] += $expenseItem['value'];
+                }
+            }
         }
 
         $breakdownWithoutKeys = [];
@@ -399,6 +419,16 @@ class ExpediaHotelPricingDto
             $breakdownWithoutKeys[] = array_values($item);
         }
 
-        return $breakdownWithoutKeys;
+        $breakdownStayWithoutKeys = [];
+        foreach ($breakdownStay as $items) {
+            foreach ($items as $item) {
+                $breakdownStayWithoutKeys[] = json_decode(json_encode($item), false);
+            }
+        }
+
+        return [
+            'nightly' => $breakdownWithoutKeys,
+            'stay' => $breakdownStayWithoutKeys,
+        ];
     }
 }
