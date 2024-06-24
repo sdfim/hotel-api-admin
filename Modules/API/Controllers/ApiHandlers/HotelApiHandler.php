@@ -4,6 +4,7 @@ namespace Modules\API\Controllers\ApiHandlers;
 
 use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveSearchInspector;
+use App\Jobs\SaveSearchInspectorByCacheKey;
 use App\Models\GeneralConfiguration;
 use App\Models\Supplier;
 use App\Repositories\ApiSearchInspectorRepository;
@@ -253,6 +254,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
      */
     public function price(Request $request, array $suppliers): JsonResponse
     {
+        Log::info('Memory usage start: ' . memory_get_usage() / 1024 / 1024 . ' MB');
+
         try {
             $filters = $request->all();
 
@@ -288,6 +291,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $dataResponse = $clientResponse = $fibers = $bookingItems = $dataOriginal = $totalPages = [];
                 $countResponse = $countClientResponse = 0;
 
+                $filters['query_package'] = $filters['query_package'] ?? 'both';
+
                 /**
                  * Fiber is used to collect all the promises first,
                  * and then together execute them asynchronously
@@ -298,15 +303,33 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $supplierQuery = explode(',', $request->supplier);
                         if (!in_array($supplier, $supplierQuery)) continue;
                     }
-                    $fibers[$supplier] = new Fiber(function () use ($supplier, $filters, $search_id, $pricingRules, $searchInspector) {
-                        $supplierResponse = match (SupplierNameEnum::from($supplier)) {
-                            SupplierNameEnum::EXPEDIA => $this->expedia->price($filters, $searchInspector),
-                            SupplierNameEnum::HBSI => $this->hbsi->price($filters, $searchInspector),
-                            default => throw new Exception("Unknown supplier: $supplier")
-                        };
 
-                        return $this->handlePriceSupplier($supplierResponse, $supplier, $filters, $search_id, $pricingRules);
-                    });
+                    /**
+                     * The $optionsQueries array contains the possible values for the 'query_package' key.
+                     * If the 'query_package' key is set to 'both', the array will contain both 'hotel_only' and 'hotel_package'.
+                     * This for Expedia supplier, which can return both types of results.
+                     * standalone -> hotel_only; package -> hotel_package
+                     */
+                    if ($supplier === SupplierNameEnum::EXPEDIA->value) {
+                        $optionsQueries = $filters['query_package'] === 'both' ? ['standalone', 'package'] : [$filters['query_package']];
+                    } else $optionsQueries = ['package'];
+
+                    foreach ($optionsQueries as $optionsQuery) {
+                        $fiberKey = $supplier . '_' . $optionsQuery;
+
+                        $currentFilters = $filters;
+                        $currentFilters['query_package'] = $optionsQuery;
+
+                        $fibers[$fiberKey] = new Fiber(function () use ($supplier, $currentFilters, $search_id, $pricingRules, $searchInspector) {
+                            $supplierResponse = match (SupplierNameEnum::from($supplier)) {
+                                SupplierNameEnum::EXPEDIA => $this->expedia->price($currentFilters, $searchInspector),
+                                SupplierNameEnum::HBSI => $this->hbsi->price($currentFilters, $searchInspector),
+                                default => throw new Exception("Unknown supplier: $supplier")
+                            };
+
+                            return $this->handlePriceSupplier($supplierResponse, $supplier, $currentFilters, $search_id, $pricingRules);
+                        });
+                    }
                 }
 
                 /**
@@ -314,7 +337,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                  * Each Supplier's request may contain a group of promises/requests
                  * Running Fiber returns a value, which can be either a promise or an array of promises.
                  * If it is an array, the code iterates over each promise in the array and adds it to the $promises array using a key in the format i_j,
-                 * where i is the Fiber index and j is the index of the promises in the array.
+                 * where i is the Fiber index and j is the index (chunk) of the promises in the array.
                  * If the returned value is not an array, it is assumed to be a promise and is added to the $promises array using the key corresponding to the fiber index.
                  */
                 $promises = [];
@@ -333,6 +356,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 /** Running the promises asynchronously */
                 $resolvedResponses = Promise\Utils::settle($promises)->wait();
 
+                Log::info('Memory usage get promises: ' . memory_get_usage() / 1024 / 1024 . ' MB');
+
                 /**
                  * As a result of this code, the $resume array will contain all values from $resolvedResponses,
                  * but they will be grouped by the first part of the source keys. If the source key contained two parts,
@@ -341,17 +366,22 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $resume = [];
                 foreach ($resolvedResponses as $key => $resolvedResponse) {
                     $arrKey = explode('_', $key);
-                    $i = $arrKey[0];
+                    $supplierName = $arrKey[0];
+                    $queryPackage = $arrKey[1];
 
-                    if (count($arrKey) === 2) $resume[$i][] = $resolvedResponse;
-                    else $resume[$i] = $resolvedResponse;
+                    if (count($arrKey) === 3) $resume[$supplierName][$queryPackage][] = $resolvedResponse;
+                    else $resume[$supplierName][$queryPackage] = $resolvedResponse;
                 }
                 Log::info('HotelApiHandler | price | asyncResponses ' . (microtime(true) - $st) . 's');
 
                 /** Results processing */
-                foreach ($fibers as $i => $fiber) {
+                foreach ($fibers as $fiber_key => $fiber) {
+                    $arrKey = explode('_', $fiber_key);
+                    $supplierName = $arrKey[0];
+                    $queryPackage = $arrKey[1];
+
                     if ($fiber->isSuspended()) {
-                        $fiber->resume($resume[$i] ?? null);
+                        $fiber->resume($resume[$supplierName][$queryPackage] ?? null);
                     }
                     if ($fiber->isTerminated()) {
                         $result = $fiber->getReturn();
@@ -361,13 +391,13 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                             return $this->sendError($error, 'failed');
                         }
 
-                        $dataResponse = array_merge($dataResponse, $result['dataResponse']);
-                        $clientResponse = array_merge($clientResponse, $result['clientResponse']);
-                        $totalPages = array_merge($totalPages, $result['totalPages']);
+                        $dataResponse[$fiber_key] = $result['dataResponse'][$supplierName];
+                        $clientResponse[$fiber_key] = $result['clientResponse'][$supplierName];
+                        $totalPages[$fiber_key] = $result['totalPages'][$supplierName];
+                        $bookingItems[$fiber_key] = $result['bookingItems'][$supplierName] ?? [];
+                        $dataOriginal[$fiber_key] = $result['dataOriginal'][$supplierName] ?? [];
                         $countResponse += $result['countResponse'];
                         $countClientResponse += $result['countClientResponse'];
-                        $bookingItems = array_merge($bookingItems, $result['bookingItems'] ?? []);
-                        $dataOriginal = array_merge($dataOriginal, $result['dataOriginal'] ?? []);
                     }
                 }
 
@@ -382,11 +412,25 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     'results' => $clientResponse
                 ];
 
+                Log::info('Memory usage after Weighting: ' . memory_get_usage() / 1024 / 1024 . ' MB');
+                Log::info('Peak memory usage Weighting: ' . memory_get_peak_usage() / 1024 / 1024 . ' MB');
+
                 /** Save data to Inspector */
                 Log::info('HotelApiHandler | price | SaveSearchInspector | start');
-                SaveSearchInspector::dispatch($searchInspector, $dataOriginal, $content, $clientContent);
+//                SaveSearchInspector::dispatch($searchInspector, $dataOriginal, $content, $clientContent);
 
+                $cacheKeys = [];
+                foreach (['dataOriginal', 'content', 'clientContent'] as $variableName) {
+                    $key = $variableName . '_' . uniqid();
+                    $cacheKeys[$variableName] = $key;
+                    Cache::put($key, json_encode($$variableName), now()->addMinutes(10));
+                }
+                // this approach is more memory-efficient.
+                SaveSearchInspectorByCacheKey::dispatch($searchInspector, $cacheKeys);
                 Log::info('HotelApiHandler | price | SaveSearchInspector | end');
+
+                Log::info('Memory usage after Save data to Inspector: ' . memory_get_usage() / 1024 / 1024 . ' MB');
+                Log::info('Peak memory usage Save data to Inspector: ' . memory_get_peak_usage() / 1024 / 1024 . ' MB');
 
                 if (!empty($bookingItems)) {
                     foreach ($bookingItems as $items) {
@@ -521,6 +565,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         $dataResponse = [];
         $clientResponse = [];
         $totalPages = [];
+        $bookingItems = [];
         $countResponse = 0;
         $countClientResponse = 0;
 

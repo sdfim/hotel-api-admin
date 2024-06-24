@@ -43,6 +43,7 @@ class ExpediaHotelController
 
     /**
      * @param array $filters
+     * @param string $initiator
      * @return array|null
      */
     public function preSearchData(array $filters, string $initiator): ?array
@@ -153,6 +154,7 @@ class ExpediaHotelController
 
     /**
      * @param array $filters
+     * @param array $searchInspector
      * @return array|null
      * @throws \Throwable
      */

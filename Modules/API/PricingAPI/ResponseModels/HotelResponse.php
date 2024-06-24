@@ -66,6 +66,25 @@ class HotelResponse extends BaseResponse
 
     private string $rating;
 
+    private string $query_package;
+
+    /**
+     * @param string $query_package
+     * @return void
+     */
+    public function setQueryPackage(string $query_package): void
+    {
+        $this->query_package = $query_package;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQueryPackage(): string
+    {
+        return $this->query_package;
+    }
+
     /**
      * @param string $rating
      * @return void
@@ -349,6 +368,7 @@ class HotelResponse extends BaseResponse
             'hotel_name' => $this->getHotelName(),
             'board_basis' => $this->getBoardBasis(),
             'supplier' => $this->getSupplier(),
+            'query_package' => $this->getQueryPackage(),
             'supplier_hotel_id' => $this->getSupplierHotelId(),
             'destination' => $this->getDestination(),
             'meal_plans_available' => $this->getMealPlansAvailable(),
