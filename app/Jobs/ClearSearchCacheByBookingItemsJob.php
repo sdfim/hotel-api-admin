@@ -38,7 +38,7 @@ class ClearSearchCacheByBookingItemsJob implements ShouldQueue
         $tag = 'pricing_search';
         $taggedCache = Cache::tags($tag);
 
-        $arr_pricing_search = $taggedCache->get('arr_pricing_search');
+        $arr_pricing_search = $taggedCache->get('arr_pricing_search') ?? []; // local dev none cache
 //        Log::debug('ClearSearchCacheByBookingItemsJob | $arr_pricing_search : ' . json_encode($arr_pricing_search));
 
         try {
