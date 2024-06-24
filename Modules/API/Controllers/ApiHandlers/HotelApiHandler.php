@@ -312,7 +312,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                      */
                     if ($supplier === SupplierNameEnum::EXPEDIA->value) {
                         $optionsQueries = $filters['query_package'] === 'both' ? ['standalone', 'package'] : [$filters['query_package']];
-                    } else $optionsQueries = ['package'];
+                    } else $optionsQueries = ['any'];
 
                     foreach ($optionsQueries as $optionsQuery) {
                         $fiberKey = $supplier . '_' . $optionsQuery;
@@ -390,6 +390,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         {
                             return $this->sendError($error, 'failed');
                         }
+
+                        if (!str_contains($fiber_key, SupplierNameEnum::EXPEDIA->value)) $fiber_key = $supplierName;
 
                         $dataResponse[$fiber_key] = $result['dataResponse'][$supplierName];
                         $clientResponse[$fiber_key] = $result['clientResponse'][$supplierName];
