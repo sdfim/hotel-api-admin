@@ -687,9 +687,34 @@ class HbsiClient
         $address = [];
         $address['AddressLine'] = $filters['booking_contact']['address']['line_1'];
         $address['CityName'] = $filters['booking_contact']['address']['city'];
-        $address['StateProv']['@attributes']['StateCode'] = $filters['booking_contact']['address']['state_province_code'];
+
+        $countryCode = $filters['booking_contact']['address']['country_code'];
+        $stateCode = $filters['booking_contact']['address']['state_province_code'];
+
+        // We uppercase the 2 digits just in case: Us => US
+        $countryCode = strlen($countryCode) === 2 ? strtoupper($countryCode) : $countryCode;
+        $stateCode = strlen($stateCode) === 2 ? strtoupper($stateCode) : $stateCode;
+
+        if (in_array($countryCode, config('codes.countries')))
+        {
+            $address['CountryName']['@attributes']['Code'] = $countryCode;
+        }
+        else
+        {
+            $address['CountryName'] = $countryCode;
+        }
+
+
+        if (in_array($stateCode, config('codes.states')))
+        {
+            $address['StateProv']['@attributes']['StateCode'] = $stateCode;
+        }
+        else
+        {
+            $address['StateProv'] = $stateCode;
+        }
+
         $address['PostalCode'] = $filters['booking_contact']['address']['postal_code'];
-        $address['CountryName']['@attributes']['Code'] = $filters['booking_contact']['address']['country_code'];
         return $address;
     }
 
