@@ -547,6 +547,8 @@ class HbsiHotelPricingDto
         return [
             'nightly' => $breakdownWithoutKeys,
             'stay' => [],
+            'fees' => [],
+
         ];
     }
 }

@@ -370,6 +370,8 @@ class ExpediaHotelPricingDto
     {
         $breakdown = [];
         $breakdownStay = [];
+        $breakdownFees = [];
+
         foreach ($this->occupancy as $room) {
             $roomsKey = isset($room['children_ages'])
                 ? $room['adults'] . '-' . implode(',', $room['children_ages'])
@@ -412,6 +414,10 @@ class ExpediaHotelPricingDto
                     $breakdownStay[$stay][$key]['amount'] += $expenseItem['value'];
                 }
             }
+
+            if (isset($roomsPricingArray[$roomsKey]['fees'])) {
+                $breakdownFees = $roomsPricingArray[$roomsKey]['fees'];
+            }
         }
 
         $breakdownWithoutKeys = [];
@@ -429,6 +435,7 @@ class ExpediaHotelPricingDto
         return [
             'nightly' => $breakdownWithoutKeys,
             'stay' => $breakdownStayWithoutKeys,
+            'fees' => $breakdownFees,
         ];
     }
 }
