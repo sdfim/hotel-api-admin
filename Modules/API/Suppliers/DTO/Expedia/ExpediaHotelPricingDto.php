@@ -416,7 +416,13 @@ class ExpediaHotelPricingDto
             }
 
             if (isset($roomsPricingArray[$roomsKey]['fees'])) {
-                $breakdownFees = $roomsPricingArray[$roomsKey]['fees'];
+                foreach ($roomsPricingArray[$roomsKey]['fees'] as $fee => $expenseItem) {
+                    $breakdownFees[$fee]['type'] = 'fee exclusive';
+                    $breakdownFees[$fee]['title'] = $fee;
+                    $breakdownFees[$fee]['amount'] = $expenseItem['request_currency']['value'];
+                    $breakdownFees[$fee]['local_amount'] = $expenseItem['billable_currency']['value'];
+                    $breakdownFees[$fee]['local_currency'] = $expenseItem['billable_currency']['currency'];
+                }
             }
         }
 
@@ -435,7 +441,7 @@ class ExpediaHotelPricingDto
         return [
             'nightly' => $breakdownWithoutKeys,
             'stay' => $breakdownStayWithoutKeys,
-            'fees' => $breakdownFees,
+            'fees' => array_values($breakdownFees),
         ];
     }
 }
