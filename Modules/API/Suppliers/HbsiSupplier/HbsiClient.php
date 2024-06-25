@@ -30,11 +30,13 @@ class HbsiClient
 
     private const INTERFACE = 'HBSI XML 4 OTA';
 
+    public const AGE_ADULTS = 30;
+    public const AGE_INFANT = 3;
+    public const AGE_CHILD = 18;
+
     private string $requestId;
 
     private string $timeStamp;
-
-    private string $componentInfoId;
 
     private array $mainGuest;
 
@@ -364,7 +366,7 @@ class HbsiClient
         $guests = json_decode($passengersData->request, true)['rooms'];
 
         $roomStaysArr = $this->processRoomStaysArr($response, $bookingItemData, $filters, $guests);
-        $resGuestsArr = $this->processResGuestsArr($guests, $filters);
+        $resGuestsArr = $this->processResGuestsArrByAge($guests, $filters);
         $resGlobalInfoArr = $this->processDepositPaymentsArr($filters, $roomStaysArr);
 
         $resGlobalInfo = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGlobalInfoArr, null, 'ResGlobalInfo'));
@@ -484,14 +486,16 @@ class HbsiClient
 
             // Add adults
             $guestCount = $guestCounts->addChild('GuestCount');
-            $guestCount->addAttribute('AgeQualifyingCode', '10');
+//            $guestCount->addAttribute('AgeQualifyingCode', '10');
+            $guestCount->addAttribute('Age', self::AGE_ADULTS);
             $guestCount->addAttribute('Count', $occupancy['adults']);
 
             // Add children and infants
             if (isset($occupancy['children_ages'])) {
                 foreach ($occupancy['children_ages'] as $age) {
                     $guestCount = $guestCounts->addChild('GuestCount');
-                    $guestCount->addAttribute('AgeQualifyingCode', $age > 2 ? '8' : '7');
+//                    $guestCount->addAttribute('AgeQualifyingCode', $age > 2 ? '8' : '7');
+                    $guestCount->addAttribute('Age', $age);
                     $guestCount->addAttribute('Count', '1');
                 }
             }
@@ -626,12 +630,32 @@ class HbsiClient
                 $age = $diff->y;
 
                 $ageQualifyingCode = 10;
-                if ($age < 3) {
+                if ($age < self::AGE_INFANT) {
                     $ageQualifyingCode = 7;
-                } elseif ($age < 18) {
+                } elseif ($age < self::AGE_CHILD) {
                     $ageQualifyingCode = 8;
                 }
                 $resGuestsArr[$index] = $this->createGuestArr($index, $ageQualifyingCode, $guest, $filters);
+                if ($index === 0) {
+                    $this->mainGuest = $resGuestsArr[$index]['Profiles']['ProfileInfo']['Profile']['Customer'];
+                }
+                $index++;
+            }
+        }
+        return $resGuestsArr;
+    }
+
+    private function processResGuestsArrByAge(array $guests, array $filters): array
+    {
+        $resGuestsArr = [];
+        $index = 0;
+        foreach ($guests as $guestRoom) {
+            foreach ($guestRoom as $guest) {
+                $dob = Carbon::parse($guest['date_of_birth']);
+                $diff = $dob->diff(Carbon::parse());
+                $age = $diff->y < self::AGE_CHILD ? $diff->y : self::AGE_ADULTS;
+
+                $resGuestsArr[$index] = $this->createGuestArrByAge($index, $age, $guest, $filters);
                 if ($index === 0) {
                     $this->mainGuest = $resGuestsArr[$index]['Profiles']['ProfileInfo']['Profile']['Customer'];
                 }
@@ -653,6 +677,20 @@ class HbsiClient
         $guestArr = [];
         $guestArr['@attributes']['ResGuestRPH'] = $index + 1;
         $guestArr['@attributes']['AgeQualifyingCode'] = $ageQualifyingCode;
+        if ($index === 0) {
+            $guestArr['Profiles']['ProfileInfo']['Profile']['Customer'] = $this->createCustomerArr($guest, $filters);
+        } else {
+            $guestArr['Profiles']['ProfileInfo']['Profile']['Customer']['PersonName']['GivenName'] = $guest['given_name'];
+            $guestArr['Profiles']['ProfileInfo']['Profile']['Customer']['PersonName']['Surname'] = $guest['family_name'];
+        }
+        return $guestArr;
+    }
+
+    private function createGuestArrByAge(int $index, int $age, array $guest, array $filters): array
+    {
+        $guestArr = [];
+        $guestArr['@attributes']['ResGuestRPH'] = $index + 1;
+        $guestArr['@attributes']['Age'] = $age;
         if ($index === 0) {
             $guestArr['Profiles']['ProfileInfo']['Profile']['Customer'] = $this->createCustomerArr($guest, $filters);
         } else {
