@@ -60,34 +60,22 @@ class GiataProperty extends Model
 
     protected $table = 'giata_properties';
 
-    /**
-     * @param array $attributes
-     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->connection = config('database.active_connections.mysql_cache');
     }
 
-    /**
-     * @return HasOne
-     */
     public function mapperExpediaGiata(): HasOne
     {
         return $this->hasOne(MapperExpediaGiata::class, 'giata_id', 'code');
     }
 
-    /**
-     * @return HasOne
-     */
     public function giataGeography(): HasOne
     {
         return $this->hasOne(GiataGeography::class, 'city_id', 'city_id');
     }
 
-    /**
-     * @return HasOne
-     */
     public function hbsi(): HasOne
     {
         return $this->hasOne(MapperHbsiGiata::class, 'giata_id', 'code')

@@ -7,9 +7,6 @@ use Modules\API\Controllers\RouteApiController;
 
 class PricingApiRoutes
 {
-    /**
-     * @return void
-     */
     public static function routes(): void
     {
         Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'pricing'], function () {

@@ -8,7 +8,6 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_remove_item_method_response_200(): void
     {
@@ -28,16 +27,15 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
                     'result' => [
                         'booking_id' => $bookingId,
                         'booking_item' => $firstBookingItem,
-                        'status' => 'Item removed from cart.'
-                    ]
+                        'status' => 'Item removed from cart.',
+                    ],
                 ],
-                'message' => 'success'
+                'message' => 'success',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_remove_attempting_to_remove_previously_removed_item_again_method_response_200(): void
     {
@@ -60,16 +58,15 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
                     'result' => [
                         'booking_id' => $bookingId,
                         'booking_item' => $firstBookingItem,
-                        'status' => 'This item is not in the cart'
-                    ]
+                        'status' => 'This item is not in the cart',
+                    ],
                 ],
-                'message' => 'success'
+                'message' => 'success',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_remove_item_with_non_existent_booking_id_and_booking_item_method_response_400(): void
     {
@@ -84,13 +81,12 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
 
         $bookingRemoveItemResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_remove_item_with_non_existent_booking_item_and_booking_id_method_response_400(): void
     {
@@ -105,13 +101,12 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
 
         $bookingRemoveItemResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid booking_item'
+                'error' => 'Invalid booking_item',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_remove_item_with_empty_booking_item_and_correct_booking_id_method_response_400(): void
     {
@@ -124,13 +119,12 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
 
         $bookingRemoveItemResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid type'
+                'error' => 'Invalid type',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_remove_item_with_missed_booking_id_and_correct_booking_item_method_response_400(): void
     {
@@ -146,15 +140,14 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'booking_id' => [
-                        'The booking id field is required.'
-                    ]
-                ]
+                        'The booking id field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_remove_item_with_missed_booking_item_and_correct_booking_id_method_response_400(): void
     {
@@ -170,9 +163,9 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'booking_item' => [
-                        'The booking item field is required.'
-                    ]
-                ]
+                        'The booking item field is required.',
+                    ],
+                ],
             ]);
     }
 }

@@ -20,7 +20,7 @@ class PricingRule extends Model
         'price_value',
         'price_value_type',
         'rule_expiration_date',
-        'rule_start_date'
+        'rule_start_date',
     ];
 
     /**
@@ -33,9 +33,6 @@ class PricingRule extends Model
         'rule_expiration_date' => 'datetime',
     ];
 
-    /**
-     * @return HasMany
-     */
     public function conditions(): HasMany
     {
         return $this->hasMany(PricingRuleCondition::class, 'pricing_rule_id', 'id');

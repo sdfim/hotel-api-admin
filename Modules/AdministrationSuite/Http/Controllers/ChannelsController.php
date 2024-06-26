@@ -9,7 +9,6 @@ use Illuminate\View\View;
 
 class ChannelsController extends Controller
 {
-
     /**
      * @var array|string[]
      */

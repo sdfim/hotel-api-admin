@@ -17,6 +17,7 @@ class BookingBookRequest extends ApiRequest
      *   path="/api/booking/book",
      *   summary="Create a new booking for a service or event",
      *   description="Create a new booking for a service or event. Use this endpoint to make reservations.",
+     *
      *    @OA\Parameter(
      *      name="booking_id",
      *      in="query",
@@ -24,9 +25,11 @@ class BookingBookRequest extends ApiRequest
      *      description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
      *      In the response object for each rate is a **booking_id** property.",
      *   ),
+     *
      *   @OA\RequestBody(
      *     description="JSON object containing the details of the reservation.",
      *     required=true,
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BookingBookRequest",
      *       examples={
@@ -35,9 +38,11 @@ class BookingBookRequest extends ApiRequest
      *       },
      *     ),
      *   ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BookingBookResponse",
      *       examples={
@@ -45,9 +50,11 @@ class BookingBookRequest extends ApiRequest
      *       }
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BookingBookResponseErrorItem",
      *       examples={
@@ -56,9 +63,11 @@ class BookingBookRequest extends ApiRequest
      *       }
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -100,7 +109,7 @@ class BookingBookRequest extends ApiRequest
             'booking_contact.first_name' => 'required|string',
             'booking_contact.last_name' => 'required|string',
             'booking_contact.email' => 'required|email:rfc,dns',
-            'booking_contact.phone.country_code' => 'required|int|in:' . implode(',', $phoneCountryCodes),
+            'booking_contact.phone.country_code' => 'required|int|in:'.implode(',', $phoneCountryCodes),
             'booking_contact.phone.area_code' => 'required|int|digits:3',
             'booking_contact.phone.number' => 'required|numeric|digits_between:3,10',
             'booking_contact.address.line_1' => 'required|string|min:1|max:255',
@@ -138,9 +147,6 @@ class BookingBookRequest extends ApiRequest
         return $rules;
     }
 
-    /**
-     * @return array
-     */
     public function validatedDate(): array
     {
         return parent::validated();

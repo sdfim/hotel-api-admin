@@ -27,99 +27,52 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
      */
     public const RPS_LIMIT = 5;
 
-    /**
-     * @var int
-     */
     private int $batchSize;
 
-    /**
-     * @var array
-     */
     private array $buffer = [];
 
-    /**
-     * @var CloudWatchLogsClient
-     */
     private CloudWatchLogsClient $client;
 
-    /**
-     * @var bool
-     */
     private bool $createGroup;
 
-    /**
-     * @var int
-     */
     private int $currentDataAmount = 0;
 
     /**
      * Data amount limit (http://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutLogEvents.html)
-     *
-     * @var int
      */
     private int $dataAmountLimit = 1048576;
 
-    /**
-     * @var string
-     */
     private string $group;
 
-    /**
-     * @var bool
-     */
     private bool $initialized = false;
 
-    /**
-     * @var int
-     */
     private int $remainingRequests = self::RPS_LIMIT;
 
-    /**
-     * @var int
-     */
     private int $retention;
 
-    /**
-     * @var DateTime
-     */
     private DateTime $savedTime;
 
-    /**
-     * @var string
-     */
     private string $sequenceToken;
 
-    /**
-     * @var string
-     */
     private string $stream;
 
-    /**
-     * @var array
-     */
     private array $tags;
 
     /**
      * CloudWatchLogs constructor.
-     * @param CloudWatchLogsClient $client
+     *
+     * @param  CloudWatchLogsClient  $client
      *
      *  Log group names must be unique within a region for an AWS account.
      *  Log group names can be between 1 and 512 characters long.
      *  Log group names consist of the following characters: a-z, A-Z, 0-9, '_' (underscore), '-' (hyphen),
      * '/' (forward slash), and '.' (period).
-     * @param string $group
+     * @param  string  $group
      *
      *  Log stream names must be unique within the log group.
      *  Log stream names can be between 1 and 512 characters long.
      *  The ':' (colon) and '*' (asterisk) characters are not allowed.
-     * @param string $stream
-     *
-     * @param int $retention
-     * @param int $batchSize
-     * @param array $tags
-     * @param int $level
-     * @param bool $bubble
-     * @param bool $createGroup
+     * @param  int  $level
      *
      * @throws Exception
      */
@@ -152,7 +105,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function close(): void
     {
@@ -160,7 +113,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getDefaultFormatter(): FormatterInterface
     {
@@ -168,7 +121,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function write(LogRecord $record): void
     {
@@ -187,9 +140,6 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
         }
     }
 
-    /**
-     * @param array $record
-     */
     private function addToBuffer(array $record): void
     {
         $this->currentDataAmount += $this->getMessageSize($record);
@@ -218,7 +168,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
     private function flushBuffer(): void
     {
         if (! empty($this->buffer)) {
-            if (false === $this->initialized) {
+            if ($this->initialized === false) {
                 $this->initialize();
             }
 
@@ -242,9 +192,6 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
     /**
      * Event size in the batch can not be bigger than 256 KB
      * https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/cloudwatch_limits_cwl.html
-     *
-     * @param LogRecord $entry
-     * @return array
      */
     private function formatRecords(LogRecord $entry): array
     {
@@ -254,7 +201,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
 
         foreach ($entries as $item) {
             $records[] = [
-                'message'   => $item,
+                'message' => $item,
                 'timestamp' => $timestamp,
             ];
         }
@@ -264,9 +211,6 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
 
     /**
      * http://docs.aws.amazon.com/AmazonCloudWatchLogs/latest/APIReference/API_PutLogEvents.html
-     *
-     * @param array $record
-     * @return int
      */
     private function getMessageSize(array $record): int
     {
@@ -309,7 +253,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
             if ($this->retention !== null) {
                 $this->client->putRetentionPolicy(
                     [
-                        'logGroupName'    => $this->group,
+                        'logGroupName' => $this->group,
                         'retentionInDays' => $this->retention,
                     ]
                 );
@@ -321,7 +265,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
     {
         $existingStreams = $this->client->describeLogStreams(
             [
-                'logGroupName'        => $this->group,
+                'logGroupName' => $this->group,
                 'logStreamNamePrefix' => $this->stream,
             ]
         )->get('logStreams');
@@ -340,7 +284,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
         if (! in_array($this->stream, $existingStreamsNames, true)) {
             $this->client->createLogStream(
                 [
-                    'logGroupName'  => $this->group,
+                    'logGroupName' => $this->group,
                     'logStreamName' => $this->stream,
                 ]
             );
@@ -360,7 +304,6 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
      *  - The maximum number of log events in a batch is 10,000.
      *  - A batch of log events in a single request cannot span more than 24 hours. Otherwise, the operation fails.
      *
-     * @param array $entries
      *
      * @throws CloudWatchLogsException
      */
@@ -380,9 +323,9 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
         });
 
         $data = [
-            'logGroupName'  => $this->group,
+            'logGroupName' => $this->group,
             'logStreamName' => $this->stream,
-            'logEvents'     => $entries,
+            'logEvents' => $entries,
         ];
 
         if (! empty($this->sequenceToken)) {

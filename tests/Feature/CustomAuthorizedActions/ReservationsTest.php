@@ -9,7 +9,6 @@ class ReservationsTest extends CustomAuthorizedActionsTestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_reservation_index_is_opening(): void
     {
@@ -20,7 +19,6 @@ class ReservationsTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_showing_an_existing_reservation_record(): void
     {

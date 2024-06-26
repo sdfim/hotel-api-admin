@@ -8,6 +8,7 @@ class HotelContentDestinationsSearchTest extends ApiTestCase
 {
     /**
      * @test
+     *
      * @return void
      */
     public function test_hotel_destination_method_response_200()
@@ -21,14 +22,15 @@ class HotelContentDestinationsSearchTest extends ApiTestCase
                 'data' => [
                     '*' => [
                         'full_name',
-                        'city_id'
-                    ]
-                ]
+                        'city_id',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
+     *
      * @return void
      */
     public function test_hotel_destination_with_empty_city_method_response_400()
@@ -44,6 +46,7 @@ class HotelContentDestinationsSearchTest extends ApiTestCase
 
     /**
      * @test
+     *
      * @return void
      */
     public function test_hotel_destination_without_city_method_response_400()

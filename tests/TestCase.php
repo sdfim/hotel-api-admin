@@ -10,9 +10,6 @@ abstract class TestCase extends BaseTestCase
     use CreatesApplication;
     use RefreshDatabaseMany;
 
-    /**
-     * @return void
-     */
     protected function auth(): void
     {
         $user = User::factory()->create();

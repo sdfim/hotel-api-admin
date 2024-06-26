@@ -41,10 +41,6 @@ class MapperExpediaGiata extends Model
      */
     public $incrementing = false;
 
-
-    /**
-     * @return HasOne
-     */
     public function expedia(): HasOne
     {
         return $this->hasOne(ExpediaContent::class, 'property_id', 'expedia_id');

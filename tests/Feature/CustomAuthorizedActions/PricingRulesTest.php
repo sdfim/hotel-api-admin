@@ -16,7 +16,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_pricing_rules_index_is_opening(): void
     {
@@ -27,7 +26,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_pricing_rules_creating_is_opening(): void
     {
@@ -38,7 +36,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_pricing_rules_showing_is_opening(): void
     {
@@ -53,7 +50,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_validation_of_pricing_rules_form_during_creation(): void
     {
@@ -65,7 +61,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
                 'price_value' => '',
                 'price_value_type' => '',
                 'rule_start_date' => '',
-                'rule_expiration_date' => ''
+                'rule_expiration_date' => '',
             ])
             ->call('create')
             ->assertHasErrors([
@@ -75,13 +71,12 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
                 'data.price_value_type',
                 'data.rule_expiration_date',
                 'data.rule_start_date',
-                'data.conditions'
+                'data.conditions',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_creating_new_pricing_rule(): void
     {
@@ -93,7 +88,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $formData = [
             ...$pricingRuleData,
-            'conditions' => $pricingRuleConditionsData
+            'conditions' => $pricingRuleConditionsData,
         ];
 
         Livewire::test(CreatePricingRule::class)
@@ -113,7 +108,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_updating_an_existing_pricing_rule(): void
     {
@@ -129,7 +123,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $formData = [
             ...$pricingRuleData,
-            'conditions' => $pricingRuleConditionsData
+            'conditions' => $pricingRuleConditionsData,
         ];
 
         Livewire::test(UpdatePricingRule::class, ['pricingRule' => $pricingRule])
@@ -149,7 +143,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_destroying_an_existing_pricing_rule(): void
     {

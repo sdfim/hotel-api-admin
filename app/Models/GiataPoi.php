@@ -24,5 +24,4 @@ class GiataPoi extends Model
         'places' => 'json',
         'name_others' => 'json',
     ];
-
 }

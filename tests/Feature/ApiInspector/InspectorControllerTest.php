@@ -14,7 +14,6 @@ class InspectorControllerTest extends TestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_search_index_is_opening(): void
     {
@@ -25,9 +24,6 @@ class InspectorControllerTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @return void
-     */
     public function auth(): void
     {
         $user = User::factory()->create();

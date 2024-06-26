@@ -10,19 +10,10 @@ use Illuminate\Support\Carbon;
 
 class PricingRulesDataGenerationTools
 {
-    /**
-     * @var Generator
-     */
     public Generator $faker;
 
-    /**
-     * @var Carbon
-     */
     public Carbon $today;
 
-    /**
-     *
-     */
     public function __construct()
     {
         $this->faker = Factory::create();
@@ -72,14 +63,10 @@ class PricingRulesDataGenerationTools
             'number_of_rooms',
             'rate_code',
             'room_type',
-            'meal_plan'
+            'meal_plan',
         ];
     }
 
-    /**
-     * @param $ruleName
-     * @return array
-     */
     public function generatePricingRuleWithConditionsData($ruleName): array
     {
         $pricingRule = $this->generatePricingRuleData($ruleName);
@@ -91,10 +78,6 @@ class PricingRulesDataGenerationTools
         return $pricingRule;
     }
 
-    /**
-     * @param $name
-     * @return array
-     */
     public function generatePricingRuleData($name): array
     {
         $priceValueType = $this->faker->randomElement($this->getPriceValueTypeKeys());
@@ -106,15 +89,11 @@ class PricingRulesDataGenerationTools
             'manipulable_price_type' => $this->faker->randomElement($this->getManipulablePriceTypeKeys()),
             'price_value' => $priceValueType === 'percentage' ? rand(1, 6) : rand(1, 100),
             'price_value_type' => $priceValueType,
-            'price_value_target' => $this->faker->randomElement($this->getPriceValueTargetKeys())
+            'price_value_target' => $this->faker->randomElement($this->getPriceValueTargetKeys()),
         ];
     }
 
-    /**
-     * @param int|null $giataId
-     * @return array
-     */
-    public function generatePricingRuleConditionsData(int $giataId = null): array
+    public function generatePricingRuleConditionsData(?int $giataId = null): array
     {
         $pricingRuleConditionsData = [];
 
@@ -127,9 +106,6 @@ class PricingRulesDataGenerationTools
         return $pricingRuleConditionsData;
     }
 
-    /**
-     * @return array
-     */
     public function generatePricingRuleConditionData(): array
     {
         $field = $this->faker->randomElement($this->getPricingRuleConditionFields());
@@ -137,12 +113,7 @@ class PricingRulesDataGenerationTools
         return $this->pricingRuleConditionApplyLogic($field);
     }
 
-    /**
-     * @param string $field
-     * @param int|null $giataId
-     * @return array
-     */
-    protected function pricingRuleConditionApplyLogic(string $field, int $giataId = null): array
+    protected function pricingRuleConditionApplyLogic(string $field, ?int $giataId = null): array
     {
         $channelIds = Channel::pluck('id')->toArray();
 
@@ -168,35 +139,35 @@ class PricingRulesDataGenerationTools
                 'destination' => 961, //New York
                 'rate_code', 'room_type', 'meal_plan' => $this->faker->word
             };
-        } else if (in_array($field, ['travel_date', 'booking_date'])) {
+        } elseif (in_array($field, ['travel_date', 'booking_date'])) {
             $condition['value_from'] = $this->today->copy()->addDay()->toDateString();
 
             $condition['value_to'] = match ($compare) {
                 '=', '<', '>' => null,
                 'between' => $this->today->copy()->addDays(rand(2, 7))->toDateString()
             };
-        } else if ($field === 'total_guests') {
+        } elseif ($field === 'total_guests') {
             $condition['value_from'] = rand(3, 4);
 
             $condition['value_to'] = match ($compare) {
                 '=', '<', '>' => null,
                 'between' => rand(5, 8)
             };
-        } else if ($field === 'days_until_departure') {
+        } elseif ($field === 'days_until_departure') {
             $condition['value_from'] = rand(1, 8);
 
             $condition['value_to'] = match ($compare) {
                 '=', '<', '>' => null,
                 'between' => rand(9, 16)
             };
-        } else if ($field === 'nights') {
+        } elseif ($field === 'nights') {
             $condition['value_from'] = rand(1, 6);
 
             $condition['value_to'] = match ($compare) {
                 '=', '<', '>' => null,
                 'between' => rand(7, 14)
             };
-        } else if ($field === 'rating') {
+        } elseif ($field === 'rating') {
             $condition['value_from'] = $this->faker->randomFloat(2, 1.0, 3.0);
 
             $condition['value_to'] = match ($compare) {

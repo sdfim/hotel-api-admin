@@ -22,8 +22,6 @@ class ApiBookingsMetadata extends Model
 
     /**
      * Get the auto-incrementing key type.
-     *
-     * @return string
      */
     public function getKeyType(): string
     {
@@ -64,9 +62,6 @@ class ApiBookingsMetadata extends Model
         return 'hotel';
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);

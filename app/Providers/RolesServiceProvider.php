@@ -19,8 +19,6 @@ class RolesServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
     public function boot(): void
     {
@@ -29,7 +27,7 @@ class RolesServiceProvider extends ServiceProvider
         });
 
         Blade::directive('endrole', function ($role) {
-            return "<?php endif; ?>";
+            return '<?php endif; ?>';
         });
     }
 }

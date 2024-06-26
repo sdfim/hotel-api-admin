@@ -21,7 +21,7 @@ Artisan::command('inspire', function () {
 /**
  * REMOVE THIS COMMAND WHEN MULTI ROOM IS PROPERLY INTEGRATED
  */
-Artisan::command('obe {scenario} {action}', function() {
+Artisan::command('obe {scenario} {action}', function () {
     $scenario = $this->argument('scenario');
     $action = $this->argument('action');
 

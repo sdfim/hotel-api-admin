@@ -25,6 +25,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
 
     /**
      * @test
+     *
      * @return void
      */
     public function test_apply_pricing_rules_to_rooms()
@@ -61,13 +62,10 @@ class ExpediaPricingRulesApplierTest extends TestCase
             'total_tax' => 355.5,
             'total_fees' => 270.0,
             'total_net' => 2196.0,
-            'markup' => 60.0
+            'markup' => 60.0,
         ];
     }
 
-    /**
-     * @return array
-     */
     public function createMockRequestArray(): array
     {
         return [
@@ -79,22 +77,19 @@ class ExpediaPricingRulesApplierTest extends TestCase
             'occupancy' => [
                 [
                     'adults' => 2,
-                    'children_ages' => [2, 2]
+                    'children_ages' => [2, 2],
                 ],
                 [
-                    'adults' => 3
+                    'adults' => 3,
                 ],
                 [
                     'adults' => 1,
-                    'children_ages' => [2, 0]
-                ]
-            ]
+                    'children_ages' => [2, 0],
+                ],
+            ],
         ];
     }
 
-    /**
-     * @return array
-     */
     public function createMockPricingRule(): array
     {
         return [
@@ -107,9 +102,9 @@ class ExpediaPricingRulesApplierTest extends TestCase
                 'price_value_type' => 'fixed_value',
                 'price_value_target' => 'per_room',
                 'conditions' => [
-                    ['field' => 'destination', 'compare' => '=', 'value_from' => 961, 'value_to' => null]
-                ]
-            ]
+                    ['field' => 'destination', 'compare' => '=', 'value_from' => 961, 'value_to' => null],
+                ],
+            ],
         ];
     }
 
@@ -125,83 +120,83 @@ class ExpediaPricingRulesApplierTest extends TestCase
                         [
                             'type' => 'base_rate',
                             'value' => '244.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         [
                             'type' => 'tax_and_service_fee',
                             'value' => '39.50',
-                            'currency' => 'USD'
-                        ]
+                            'currency' => 'USD',
+                        ],
                     ],
                     [
                         [
                             'type' => 'base_rate',
                             'value' => '244.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         [
                             'type' => 'tax_and_service_fee',
                             'value' => '39.50',
-                            'currency' => 'USD'
-                        ]
+                            'currency' => 'USD',
+                        ],
                     ],
                     [
                         [
                             'type' => 'base_rate',
                             'value' => '244.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         [
                             'type' => 'tax_and_service_fee',
                             'value' => '39.50',
-                            'currency' => 'USD'
-                        ]
-                    ]
+                            'currency' => 'USD',
+                        ],
+                    ],
                 ],
                 'fees' => [
                     'mandatory_fee' => [
                         'billable_currency' => [
                             'value' => '90.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'request_currency' => [
                             'value' => '90.00',
-                            'currency' => 'USD'
-                        ]
-                    ]
+                            'currency' => 'USD',
+                        ],
+                    ],
                 ],
                 'totals' => [
                     'exclusive' => [
                         'billable_currency' => [
                             'value' => '732.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'request_currency' => [
                             'value' => '732.00',
-                            'currency' => 'USD'
-                        ]
+                            'currency' => 'USD',
+                        ],
                     ],
                     'inclusive' => [
                         'billable_currency' => [
                             'value' => '850.50',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'request_currency' => [
                             'value' => '850.50',
-                            'currency' => 'USD'
-                        ]
+                            'currency' => 'USD',
+                        ],
                     ],
                     'property_fees' => [
                         'billable_currency' => [
                             'value' => '90.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'request_currency' => [
                             'value' => '90.00',
-                            'currency' => 'USD'
-                        ]
-                    ]
-                ]
+                            'currency' => 'USD',
+                        ],
+                    ],
+                ],
             ],
             '1-2,0' => [
                 'nightly' => [
@@ -209,83 +204,83 @@ class ExpediaPricingRulesApplierTest extends TestCase
                         [
                             'type' => 'base_rate',
                             'value' => '244.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         [
                             'type' => 'tax_and_service_fee',
                             'value' => '39.50',
-                            'currency' => 'USD'
-                        ]
+                            'currency' => 'USD',
+                        ],
                     ],
                     [
                         [
                             'type' => 'base_rate',
                             'value' => '244.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         [
                             'type' => 'tax_and_service_fee',
                             'value' => '39.50',
-                            'currency' => 'USD'
-                        ]
+                            'currency' => 'USD',
+                        ],
                     ],
                     [
                         [
                             'type' => 'base_rate',
                             'value' => '244.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         [
                             'type' => 'tax_and_service_fee',
                             'value' => '39.50',
-                            'currency' => 'USD'
-                        ]
-                    ]
+                            'currency' => 'USD',
+                        ],
+                    ],
                 ],
                 'fees' => [
                     'mandatory_fee' => [
                         'billable_currency' => [
                             'value' => '90.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'request_currency' => [
                             'value' => '90.00',
-                            'currency' => 'USD'
-                        ]
-                    ]
+                            'currency' => 'USD',
+                        ],
+                    ],
                 ],
                 'totals' => [
                     'exclusive' => [
                         'billable_currency' => [
                             'value' => '732.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'request_currency' => [
                             'value' => '732.00',
-                            'currency' => 'USD'
-                        ]
+                            'currency' => 'USD',
+                        ],
                     ],
                     'inclusive' => [
                         'billable_currency' => [
                             'value' => '850.50',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'request_currency' => [
                             'value' => '850.50',
-                            'currency' => 'USD'
-                        ]
+                            'currency' => 'USD',
+                        ],
                     ],
                     'property_fees' => [
                         'billable_currency' => [
                             'value' => '90.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'request_currency' => [
                             'value' => '90.00',
-                            'currency' => 'USD'
-                        ]
-                    ]
-                ]
+                            'currency' => 'USD',
+                        ],
+                    ],
+                ],
             ],
             '3' => [
                 'nightly' => [
@@ -293,84 +288,84 @@ class ExpediaPricingRulesApplierTest extends TestCase
                         [
                             'type' => 'base_rate',
                             'value' => '244.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         [
                             'type' => 'tax_and_service_fee',
                             'value' => '39.50',
-                            'currency' => 'USD'
-                        ]
+                            'currency' => 'USD',
+                        ],
                     ],
                     [
                         [
                             'type' => 'base_rate',
                             'value' => '244.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         [
                             'type' => 'tax_and_service_fee',
                             'value' => '39.50',
-                            'currency' => 'USD'
-                        ]
+                            'currency' => 'USD',
+                        ],
                     ],
                     [
                         [
                             'type' => 'base_rate',
                             'value' => '244.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         [
                             'type' => 'tax_and_service_fee',
                             'value' => '39.50',
-                            'currency' => 'USD'
-                        ]
-                    ]
+                            'currency' => 'USD',
+                        ],
+                    ],
                 ],
                 'fees' => [
                     'mandatory_fee' => [
                         'billable_currency' => [
                             'value' => '90.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'request_currency' => [
                             'value' => '90.00',
-                            'currency' => 'USD'
-                        ]
-                    ]
+                            'currency' => 'USD',
+                        ],
+                    ],
                 ],
                 'totals' => [
                     'exclusive' => [
                         'billable_currency' => [
                             'value' => '732.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'request_currency' => [
                             'value' => '732.00',
-                            'currency' => 'USD'
-                        ]
+                            'currency' => 'USD',
+                        ],
                     ],
                     'inclusive' => [
                         'billable_currency' => [
                             'value' => '850.50',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'request_currency' => [
                             'value' => '850.50',
-                            'currency' => 'USD'
-                        ]
+                            'currency' => 'USD',
+                        ],
                     ],
                     'property_fees' => [
                         'billable_currency' => [
                             'value' => '90.00',
-                            'currency' => 'USD'
+                            'currency' => 'USD',
                         ],
                         'request_currency' => [
                             'value' => '90.00',
-                            'currency' => 'USD'
-                        ]
-                    ]
-                ]
-            ]
+                            'currency' => 'USD',
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 }

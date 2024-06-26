@@ -24,7 +24,8 @@ class ClearSearchCacheByBookingItemsJob implements ShouldQueue
      */
     public function __construct(
         private array $bookingItems
-    ){}
+    ) {
+    }
 
     /**
      * Execute the job.
@@ -39,7 +40,7 @@ class ClearSearchCacheByBookingItemsJob implements ShouldQueue
         $taggedCache = Cache::tags($tag);
 
         $arr_pricing_search = $taggedCache->get('arr_pricing_search') ?? []; // local dev none cache
-//        Log::debug('ClearSearchCacheByBookingItemsJob | $arr_pricing_search : ' . json_encode($arr_pricing_search));
+        //        Log::debug('ClearSearchCacheByBookingItemsJob | $arr_pricing_search : ' . json_encode($arr_pricing_search));
 
         try {
             // Process each booking item
@@ -66,13 +67,14 @@ class ClearSearchCacheByBookingItemsJob implements ShouldQueue
                         ->get(['search_id', 'request', 'api_search_inspector.token_id', 'channels.access_token'])
                         ->toArray();
 
-//                    Log::debug('ClearSearchCacheByBookingItemsJob | $search_ids_data : ' . json_encode($search_ids_data));
+                    //                    Log::debug('ClearSearchCacheByBookingItemsJob | $search_ids_data : ' . json_encode($search_ids_data));
 
                     // Process each search data item
                     foreach ($search_ids_data as $search_id_data) {
 
-                        if (!in_array($search_id_data['search_id'], $arr_pricing_search)) {
-                            Log::debug('ClearSearchCacheByBookingItemsJob | Cache not found: ' . $search_id_data['search_id']);
+                        if (! in_array($search_id_data['search_id'], $arr_pricing_search)) {
+                            Log::debug('ClearSearchCacheByBookingItemsJob | Cache not found: '.$search_id_data['search_id']);
+
                             continue;
                         }
 
@@ -82,25 +84,27 @@ class ClearSearchCacheByBookingItemsJob implements ShouldQueue
                         $taggedCache->forget($currentKeyPricingSearch);
 
                         $key = array_search($search_id_data['search_id'], $arr_pricing_search);
-                        if ($key !== false) unset($arr_pricing_search[$key]);
+                        if ($key !== false) {
+                            unset($arr_pricing_search[$key]);
+                        }
                         $taggedCache->put('arr_pricing_search', $arr_pricing_search, now()->addMinutes(HotelApiHandler::TTL));
 
-                        Log::debug('ClearSearchCacheByBookingItemsJob | Cache removed: ' . $search_id_data['search_id'],
+                        Log::debug('ClearSearchCacheByBookingItemsJob | Cache removed: '.$search_id_data['search_id'],
                             [
                                 'currentKeyPricingSearch' => $currentKeyPricingSearch,
-                                'arr_pricing_search' => $arr_pricing_search
-                        ]);
+                                'arr_pricing_search' => $arr_pricing_search,
+                            ]);
                     }
                 }
             }
         } catch (\Exception $e) {
-            Log::error('Error in ClearSearchCacheByBookingItemsJob: ' . $e->getMessage());
-            Log::error('Trace: ' . $e->getTraceAsString());
+            Log::error('Error in ClearSearchCacheByBookingItemsJob: '.$e->getMessage());
+            Log::error('Trace: '.$e->getTraceAsString());
             $this->fail($e);
         }
         $end = microtime(true);
         $execution_time = $end - $start;
 
-        Log::info('ClearSearchCacheByBookingItemsJob | Execution time of handle() in seconds: ' . $execution_time);
+        Log::info('ClearSearchCacheByBookingItemsJob | Execution time of handle() in seconds: '.$execution_time);
     }
 }

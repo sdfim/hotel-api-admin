@@ -36,7 +36,7 @@ class ExpediaContentFactory extends Factory
             'is_active' => rand(0, 1),
             'address' => '{
                 "city": "New Delhi",
-                "line_1": "Plot No. ' . $this->faker->numberBetween(1, 100) . ', GMR' . $this->faker->word . '",
+                "line_1": "Plot No. '.$this->faker->numberBetween(1, 100).', GMR'.$this->faker->word.'",
                 "line_2": "Indira Gandhi International Airport",
                 "localized": {
                     "links": {

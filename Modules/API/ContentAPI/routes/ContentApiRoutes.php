@@ -8,9 +8,6 @@ use Modules\API\Controllers\RouteApiController;
 
 class ContentApiRoutes
 {
-    /**
-     * @return void
-     */
     public static function routes(): void
     {
         Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'content'], function () {

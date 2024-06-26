@@ -24,9 +24,6 @@ class ExpediaContentSlave extends Model
      */
     public $incrementing = false;
 
-    /**
-     *
-     */
     protected const TABLE = 'expedia_content_slave';
 
     /**
@@ -59,13 +56,9 @@ class ExpediaContentSlave extends Model
 
     protected $table = 'expedia_content_slave';
 
-    /**
-     * @param array $attributes
-     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->connection = config('database.active_connections.mysql_cache');
     }
-
 }

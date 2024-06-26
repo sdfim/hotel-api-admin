@@ -25,5 +25,4 @@ class GiataPlace extends Model
         'name_others' => 'array',
         'tticodes' => 'array',
     ];
-
 }

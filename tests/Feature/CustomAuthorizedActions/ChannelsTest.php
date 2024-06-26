@@ -14,7 +14,6 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_channels_index_is_opening(): void
     {
@@ -25,7 +24,6 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_creating_channel(): void
     {
@@ -38,7 +36,6 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_storing_new_channel(): void
     {
@@ -61,7 +58,6 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_updating_new_channel(): void
     {
@@ -81,7 +77,6 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_editing_an_existing_channel(): void
     {
@@ -94,7 +89,6 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_showing_an_existing_channel(): void
     {
@@ -111,7 +105,6 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_destroying_an_existing_channel(): void
     {
@@ -128,7 +121,6 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_validation_of_channel_form_and_updating_an_existing_channel(): void
     {
@@ -149,7 +141,6 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_validation_of_channel_form_and_storing_new_channel(): void
     {

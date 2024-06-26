@@ -9,14 +9,16 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
 {
     /**
      * @test
+     *
      * @coversNothing
+     *
      * @return void
      */
     public function test_book_method_response()
     {
-        ## SEARCH 1
+        //# SEARCH 1
 
-        # step 1 Search endpoint api/pricing/search
+        // step 1 Search endpoint api/pricing/search
         $jsonData = $this->searchRequest();
         $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
         $responseArr = $response->json();
@@ -25,23 +27,23 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
 
         dump($booking_item, $search_id);
 
-        # step 2 add to cart api/pricing/add-item
+        // step 2 add to cart api/pricing/add-item
         $response = $this->withHeaders($this->headers)->postJson('/api/booking/add-item', ['booking_item' => $booking_item]);
         $responseArr = $response->json();
         $booking_id = $responseArr['data']['booking_id'];
 
         dump($booking_id);
 
-        # step 3 add passenger api/booking/add-passengers
+        // step 3 add passenger api/booking/add-passengers
         $jsonData = $this->addPassengersRequest($booking_id, [$booking_item], [$jsonData['occupancy']]);
         $jsonData = array_merge($jsonData, ['booking_id' => $booking_id, 'booking_item' => $booking_item]);
         $response = $this->withHeaders($this->headers)->postJson('/api/booking/add-passengers', $jsonData);
         $responseArr = $response->json();
         dump($responseArr);
 
-        ## SEARCH 2
+        //# SEARCH 2
 
-        # step 1 Search endpoint api/pricing/search
+        // step 1 Search endpoint api/pricing/search
         $jsonData = $this->searchRequest();
         $response = $this->withHeaders($this->headers)->postJson('/api/pricing/search', $jsonData);
         $responseArr = $response->json();
@@ -50,7 +52,7 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
 
         dump($booking_item, $search_id);
 
-        # step 2 add to cart api/pricing/add-item
+        // step 2 add to cart api/pricing/add-item
         $response = $this->withHeaders($this->headers)->postJson('/api/booking/add-item', [
             'booking_item' => $booking_item,
             'booking_id' => $booking_id,
@@ -59,19 +61,19 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
         $booking_id = $responseArr['data']['booking_id'];
         dump($booking_id);
 
-        # step 3 add passenger api/booking/add-passengers
+        // step 3 add passenger api/booking/add-passengers
         $jsonData = $this->addPassengersRequest($booking_id, [$booking_item], [$jsonData['occupancy']]);
         $jsonData = array_merge($jsonData, ['booking_id' => $booking_id, 'booking_item' => $booking_item]);
         $response = $this->withHeaders($this->headers)->postJson('/api/booking/add-passengers', $jsonData);
         $responseArr = $response->json();
         dump($responseArr);
 
-        # step 4 retrieve api/booking/retrieve-items
+        // step 4 retrieve api/booking/retrieve-items
         $response = $this->withHeaders($this->headers)->getJson('/api/booking/retrieve-items', ['booking_id' => $booking_id]);
         $responseArr = $response->json();
         dump($responseArr);
 
-        # step 5 book api/booking/book
+        // step 5 book api/booking/book
         $jsonData = $this->addBookRequest();
         $jsonData = array_merge($jsonData, ['booking_id' => $booking_id]);
         $response = $this->withHeaders($this->headers)->postJson('/api/booking/book', $jsonData);
@@ -86,13 +88,11 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @return array
-     */
     private function searchRequest(): array
     {
         $checkin = Carbon::now()->addDays(7)->toDateString();
         $checkout = Carbon::now()->addDays(7 + rand(2, 5))->toDateString();
+
         return [
             'type' => 'hotel',
             'checkin' => $checkin,
@@ -102,22 +102,20 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
             'occupancy' => [
                 [
                     'adults' => 2,
-                    'children_ages' => [2]
+                    'children_ages' => [2],
                 ],
                 [
-                    'adults' => 3
-                ]
-            ]
+                    'adults' => 3,
+                ],
+            ],
         ];
     }
 
-    /**
-     * @return array
-     */
     private function searchRequestStep2(): array
     {
         $checkin = Carbon::now()->addDays(7)->toDateString();
         $checkout = Carbon::now()->addDays(7 + rand(2, 5))->toDateString();
+
         return [
             'type' => 'hotel',
             'checkin' => $checkin,
@@ -127,22 +125,19 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
             'occupancy' => [
                 [
                     'adults' => 2,
-                    'children_ages' => [5, 1]
+                    'children_ages' => [5, 1],
                 ],
                 [
-                    'adults' => 3
+                    'adults' => 3,
                 ],
                 [
-                    'adults' => 1
-                ]
-            ]
+                    'adults' => 1,
+                ],
+            ],
         ];
     }
 
     /**
-     * @param string $bookingId
-     * @param array $bookingItems
-     * @param array $occupancy
      * @return array[]
      */
     private function addPassengersRequest(string $bookingId, array $bookingItems, array $occupancy): array
@@ -159,7 +154,7 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
                         'title' => 'mr',
                         'given_name' => $faker->firstName,
                         'family_name' => $faker->lastName,
-                        'date_of_birth' => $faker->date('Y-m-d', strtotime('-' . rand(20, 60) . ' years')),
+                        'date_of_birth' => $faker->date('Y-m-d', strtotime('-'.rand(20, 60).' years')),
                         'booking_items' => [
                             [
                                 'booking_item' => $bookingItem,
@@ -198,9 +193,6 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
         return $requestData;
     }
 
-    /**
-     * @return array
-     */
     private function addBookRequest(): array
     {
         return [
@@ -212,16 +204,16 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
                 'phone' => [
                     'country_code' => '1',
                     'area_code' => '487',
-                    'number' => '5550077'
+                    'number' => '5550077',
                 ],
                 'address' => [
                     'line_1' => '555 1st St',
                     'city' => 'Seattle',
                     'state_province_code' => 'WA',
                     'postal_code' => '98121',
-                    'country_code' => 'US'
-                ]
-            ]
+                    'country_code' => 'US',
+                ],
+            ],
         ];
     }
 }

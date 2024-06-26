@@ -88,37 +88,42 @@ class PriceHotelRequest extends ApiRequest
             'AED', 'ARS', 'AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'COP', 'DKK', 'EGP',
             'EUR', 'GBP', 'HKD', 'IDR', 'ILS', 'INR', 'JPY', 'KRW', 'LBP', 'MAD',
             'MXN', 'MYR', 'NOK', 'NZD', 'PHP', 'PLN', 'QAR', 'RUB', 'SAR', 'SEK',
-            'SGD', 'THB', 'TRY', 'TWD', 'USD', 'VND', 'ZAR', '*'
+            'SGD', 'THB', 'TRY', 'TWD', 'USD', 'VND', 'ZAR', '*',
         ];
 
         $supplier = Supplier::get()->pluck('name')->map('ucfirst')->toArray();
 
         $occupancy = request()->occupancy;
-        if (is_null($occupancy)) return [
-            'occupancy' => ['required', function ($attribute, $value, $fail) {
-                $fail('The occupancy must be an array.');
-            }],
-        ];
-        foreach ($occupancy as $key => $value) {
-            if (empty($value['children_ages']) && isset($value['children_ages'])) return [
-                'occupancy.' . $key . '.children_ages' => ['required'],
+        if (is_null($occupancy)) {
+            return [
+                'occupancy' => ['required', function ($attribute, $value, $fail) {
+                    $fail('The occupancy must be an array.');
+                }],
             ];
-            else
-                if (isset($value['children']) && !isset($value['children_ages'])) return [
-                    'occupancy.' . $key . '.children_ages' => 'required|array',
+        }
+        foreach ($occupancy as $key => $value) {
+            if (empty($value['children_ages']) && isset($value['children_ages'])) {
+                return [
+                    'occupancy.'.$key.'.children_ages' => ['required'],
                 ];
-                else if (isset($value['children']) && (count($value['children_ages']) !== $value['children'])) return [
-                    'occupancy.' . $key . '.children_ages' => ['required',
-                        function ($attribute, $value, $fail) {
-                            $fail('The number of children must equal the number of records of their age children_ages.');
-                        }
-                    ],
+            } elseif (isset($value['children']) && ! isset($value['children_ages'])) {
+                return [
+                    'occupancy.'.$key.'.children_ages' => 'required|array',
                 ];
+            } elseif (isset($value['children']) && (count($value['children_ages']) !== $value['children'])) {
+                return [
+                        'occupancy.'.$key.'.children_ages' => ['required',
+                            function ($attribute, $value, $fail) {
+                                $fail('The number of children must equal the number of records of their age children_ages.');
+                            },
+                        ],
+                    ];
+            }
         }
 
         return [
             'type' => 'required|string',
-            'currency' => ['string', 'in:' . implode(',', $validCurrencies)],
+            'currency' => ['string', 'in:'.implode(',', $validCurrencies)],
             'hotel_name' => 'string',
             'supplier' => 'string',
             'checkin' => 'required|date_format:Y-m-d|after:yesterday',
@@ -137,9 +142,6 @@ class PriceHotelRequest extends ApiRequest
         ];
     }
 
-    /**
-     * @return array
-     */
     public function validatedDate(): array
     {
         return parent::validated();

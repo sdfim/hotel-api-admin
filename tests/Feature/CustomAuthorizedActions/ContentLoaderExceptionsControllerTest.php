@@ -6,7 +6,6 @@ class ContentLoaderExceptionsControllerTest extends CustomAuthorizedActionsTestC
 {
     /**
      * @test
-     * @return void
      */
     public function test_content_loader_exceptions_is_opening(): void
     {

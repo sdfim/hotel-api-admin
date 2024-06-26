@@ -25,6 +25,7 @@ class ChannelFactory extends Factory
     public function definition(): array
     {
         $token = auth()->user()->createToken('name');
+
         return [
             'token_id' => $token->accessToken->id,
             'access_token' => $token->plainTextToken,

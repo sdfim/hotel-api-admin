@@ -8,7 +8,6 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_first_item_method_response_200(): void
     {
@@ -25,15 +24,14 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
             ->assertJson([
                 'success' => true,
                 'data' => [
-                    'booking_id' => $bookingId
+                    'booking_id' => $bookingId,
                 ],
-                'message' => 'success'
+                'message' => 'success',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_item_to_an_existing_booking_method_response_200(): void
     {
@@ -50,15 +48,14 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
             ->assertJson([
                 'success' => true,
                 'data' => [
-                    'booking_id' => $createBooking['booking_id']
+                    'booking_id' => $createBooking['booking_id'],
                 ],
-                'message' => 'success'
+                'message' => 'success',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_previously_deleted_item_again_method_response_200(): void
     {
@@ -78,15 +75,14 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
             ->assertJson([
                 'success' => true,
                 'data' => [
-                    'booking_id' => $bookingId
+                    'booking_id' => $bookingId,
                 ],
-                'message' => 'success'
+                'message' => 'success',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_item_with_non_existent_booking_item_and_missed_booking_id_method_response_400(): void
     {
@@ -97,13 +93,12 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
 
         $bookingAddItemResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid booking_item'
+                'error' => 'Invalid booking_item',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_item_to_non_existent_booking_id_and_correct_booking_item_method_response_400(): void
     {
@@ -118,53 +113,50 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
 
         $bookingAddItemResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_item_with_empty_booking_item_and_missed_booking_id_method_response_400(): void
     {
         $bookingAddItemResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-item?booking_item=");
+            ->postJson('api/booking/add-item?booking_item=');
 
         $bookingAddItemResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid type'
+                'error' => 'Invalid type',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_item_with_empty_booking_id_and_missed_booking_item_method_response_400(): void
     {
         $bookingAddItemResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-item?booking_id=");
+            ->postJson('api/booking/add-item?booking_id=');
 
         $bookingAddItemResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id',
 
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_item_without_parameters_method_response_400(): void
     {
         $bookingAddItemResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-item");
+            ->postJson('api/booking/add-item');
 
         $bookingAddItemResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid type'
+                'error' => 'Invalid type',
             ]);
     }
 }

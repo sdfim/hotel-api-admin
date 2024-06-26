@@ -26,6 +26,7 @@ class PropertyWeightingFactory extends Factory
     public function definition(): array
     {
         $supplier = Supplier::factory()->create();
+
         return [
             'property' => $this->faker->numberBetween(1, 10000),
             'weight' => 1,

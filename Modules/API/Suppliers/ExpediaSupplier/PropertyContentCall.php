@@ -5,88 +5,50 @@ namespace Modules\API\Suppliers\ExpediaSupplier;
 class PropertyContentCall
 {
     // Path
-    /**
-     *
-     */
-    private const PROPERTY_CONTENT_PATH = "v3/properties/content";
+    private const PROPERTY_CONTENT_PATH = 'v3/properties/content';
 
     // Headers
-    /**
-     *
-     */
-    private const LINK = "Link";
-    /**
-     *
-     */
-    private const PAGINATION_TOTAL_RESULTS = "Pagination-Total-Results";
+    private const LINK = 'Link';
+
+    private const PAGINATION_TOTAL_RESULTS = 'Pagination-Total-Results';
 
     // Query parameters keys
-    /**
-     *
-     */
-    private const LANGUAGE = "language";
-    /**
-     *
-     */
-    private const SUPPLY_SOURCE = "supply_source";
-    /**
-     *
-     */
-    private const COUNTRY_CODE = "country_code";
-    /**
-     *
-     */
-    private const CATEGORY_ID_EXCLUDE = "category_id_exclude";
-    /**
-     *
-     */
-    private const TOKEN = "token";
-    /**
-     *
-     */
-    private const INCLUDE = "include";
-    /**
-     *
-     */
-    private const PROPERTY_RATING_MIN = "property_rating_min";
-    /**
-     *
-     */
-    private const PROPERTY_RATING_MAX = "property_rating_max";
-    /**
-     *
-     */
+    private const LANGUAGE = 'language';
+
+    private const SUPPLY_SOURCE = 'supply_source';
+
+    private const COUNTRY_CODE = 'country_code';
+
+    private const CATEGORY_ID_EXCLUDE = 'category_id_exclude';
+
+    private const TOKEN = 'token';
+
+    private const INCLUDE = 'include';
+
+    private const PROPERTY_RATING_MIN = 'property_rating_min';
+
+    private const PROPERTY_RATING_MAX = 'property_rating_max';
+
     private const MAX_EXECUTION_COUNT = 200;
-    /**
-     *
-     */
+
     private const MAX_EXECUTION_TIME = 120; // seconds
 
     // Call parameters
-    /**
-     * @var RapidClient|null
-     */
-    private RapidClient|null $client;
-    /**
-     * @var mixed
-     */
+    private ?RapidClient $client;
+
     private mixed $language;
-    /**
-     * @var mixed
-     */
+
     private mixed $supplySource;
-    /**
-     * @var mixed
-     */
+
     private mixed $countryCodes;
-    /**
-     * @var mixed
-     */
+
     private mixed $categoryIdExcludes;
+
     /**
      * @var float|mixed
      */
     private mixed $propertyRatingMin;
+
     /**
      * @var float|mixed
      */
@@ -97,10 +59,6 @@ class PropertyContentCall
      */
     private mixed $token;
 
-    /**
-     * @param $client
-     * @param $property
-     */
     public function __construct($client, $property)
     {
         $this->client = $client;
@@ -112,9 +70,6 @@ class PropertyContentCall
         $this->propertyRatingMax = $property['propertyRatingMax'] ?? 5.0;
     }
 
-    /**
-     * @return array
-     */
     public function stream(): array
     {
         $results = [];
@@ -142,7 +97,7 @@ class PropertyContentCall
             $count++;
             // dump('$propertyContents', current((array)json_decode($propertyContents))->property_id, array_keys((array)json_decode($propertyContents)));
 
-            $ids = array_merge($ids, array_keys((array)json_decode($propertyContents)));
+            $ids = array_merge($ids, array_keys((array) json_decode($propertyContents)));
             // $uniqueArray = array_unique($ids);
             // dump('$count', $count, count(json_decode($propertyContents, true)), $uniqueArray);
             dump('$count', $count, count(json_decode($propertyContents, true)));
@@ -164,15 +119,11 @@ class PropertyContentCall
         return $results;
     }
 
-
-    /**
-     * @return int
-     */
     public function size(): int
     {
         // Make the call to Rapid.
         $queryParameters = $this->queryParameters();
-        $queryParameters[self::INCLUDE] = "property_ids";
+        $queryParameters[self::INCLUDE] = 'property_ids';
         $response = $this->client->get(self::PROPERTY_CONTENT_PATH, $queryParameters);
 
         // Read the size to return.
@@ -182,9 +133,6 @@ class PropertyContentCall
         return intval($response->getHeaderLine(self::PAGINATION_TOTAL_RESULTS));
     }
 
-    /**
-     * @return array
-     */
     private function queryParameters(): array
     {
         $queryParams = [];
@@ -197,16 +145,16 @@ class PropertyContentCall
             $queryParams[self::SUPPLY_SOURCE] = $this->supplySource;
 
             // Add optional parameters
-            if (!empty($this->countryCodes)) {
+            if (! empty($this->countryCodes)) {
                 $queryParams[self::COUNTRY_CODE] = $this->countryCodes;
             }
-            if (!empty($this->categoryIdExcludes)) {
+            if (! empty($this->categoryIdExcludes)) {
                 $queryParams[self::CATEGORY_ID_EXCLUDE] = $this->categoryIdExcludes;
             }
-            if (!empty($this->propertyRatingMin)) {
+            if (! empty($this->propertyRatingMin)) {
                 $queryParams[self::PROPERTY_RATING_MIN] = $this->propertyRatingMin;
             }
-            if (!empty($this->propertyRatingMax)) {
+            if (! empty($this->propertyRatingMax)) {
                 $queryParams[self::PROPERTY_RATING_MAX] = $this->propertyRatingMax;
             }
         }
@@ -214,18 +162,14 @@ class PropertyContentCall
         return $queryParams;
     }
 
-    /**
-     * @param $linkHeader
-     * @return string|null
-     */
     private function getTokenFromLink($linkHeader): ?string
     {
         if (empty($linkHeader)) {
             return null;
         }
 
-        $startOfToken = strpos($linkHeader, "=") + 1;
-        $endOfToken = strpos($linkHeader, ">");
+        $startOfToken = strpos($linkHeader, '=') + 1;
+        $endOfToken = strpos($linkHeader, '>');
 
         // dd($linkHeader, $startOfToken, $endOfToken, substr($linkHeader, $startOfToken, $endOfToken - $startOfToken));
 

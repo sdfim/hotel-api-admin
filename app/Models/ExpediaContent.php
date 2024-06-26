@@ -26,9 +26,6 @@ class ExpediaContent extends Model
      */
     public $incrementing = false;
 
-    /**
-     *
-     */
     public const TABLE = 'expedia_content_main';
 
     /**
@@ -67,15 +64,12 @@ class ExpediaContent extends Model
             'dates', 'descriptions', 'themes', 'chain', 'brand',
             'statistics', 'vacation_rental_details', 'airports',
             'spoken_languages', 'all_inclusive', 'rooms_occupancy',
-            'total_occupancy', 'city', 'rating'
+            'total_occupancy', 'city', 'rating',
         ];
     }
 
     protected $table = 'expedia_content_main';
 
-    /**
-     * @param array $attributes
-     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -92,17 +86,11 @@ class ExpediaContent extends Model
         ];
     }
 
-    /**
-     * @return HasMany
-     */
     public function mapperGiataExpedia(): HasMany
     {
         return $this->hasMany(MapperExpediaGiata::class, 'expedia_id', 'property_id');
     }
 
-    /**
-     * @return HasOne
-     */
     public function expediaSlave(): HasOne
     {
         return $this->hasOne(ExpediaContentSlave::class, 'expedia_property_id', 'property_id');

@@ -22,7 +22,6 @@ class ReservationFactory extends Factory
      */
     protected $model = Reservation::class;
 
-
     /**
      * Define the model's default state.
      *
@@ -62,7 +61,7 @@ class ReservationFactory extends Factory
                 ],
                 'hotel_images' => json_encode([
                     $this->faker->imageUrl,
-                    $this->faker->imageUrl
+                    $this->faker->imageUrl,
                 ]),
             ]),
             'channel_id' => 1,

@@ -16,9 +16,6 @@ class ReportMapperExpediaGiata extends Model
 
     protected $table = 'report_mapper_expedia_giata';
 
-    /**
-     * @param array $attributes
-     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

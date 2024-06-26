@@ -9,25 +9,16 @@ use Illuminate\Support\Facades\Storage;
 
 class ExceptionReportController extends BaseInspectorController
 {
-    /**
-     * @param $uuid
-     * @param $level
-     * @param $supplier_id
-     * @param $action
-     * @param $description
-     * @param $content
-     * @return string|bool
-     */
     public function save($uuid, $level, $supplier_id, $action, $description, $content): string|bool
     {
         try {
             $this->current_time = microtime(true);
-            $hash = md5($description . date("Y-m-d H:i:s"));
+            $hash = md5($description.date('Y-m-d H:i:s'));
 
-            $path = 'exception_report_' . $level . '/' . date("Y-m-d") . '/' . $hash . '.json';
+            $path = 'exception_report_'.$level.'/'.date('Y-m-d').'/'.$hash.'.json';
 
             Storage::put($path, $content);
-            Log::debug('ExceptionReportController save to Storage: ' . $this->executionTime() . ' seconds');
+            Log::debug('ExceptionReportController save to Storage: '.$this->executionTime().' seconds');
 
             $data = [
                 'report_id' => $uuid,
@@ -35,16 +26,16 @@ class ExceptionReportController extends BaseInspectorController
                 'supplier_id' => $supplier_id,
                 'action' => $action,
                 'description' => $description,
-                'response_path' => $path
+                'response_path' => $path,
             ];
 
             $inspector = ApiExceptionReport::create($data);
-            Log::debug('ExceptionReportController save to DB: ' . $this->executionTime() . ' seconds');
+            Log::debug('ExceptionReportController save to DB: '.$this->executionTime().' seconds');
 
             return $inspector ? $uuid : false;
 
         } catch (Exception $e) {
-            Log::error('Error save ExceptionReportController: ' . $e->getMessage() . ' | ' . $e->getLine() . ' | ' . $e->getFile());
+            Log::error('Error save ExceptionReportController: '.$e->getMessage().' | '.$e->getLine().' | '.$e->getFile());
             Log::error($e->getTraceAsString());
 
             return false;

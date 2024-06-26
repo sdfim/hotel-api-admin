@@ -21,10 +21,6 @@ class SuppliersTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    /**
-     * @param Table $table
-     * @return Table
-     */
     public function table(Table $table): Table
     {
         return $table
@@ -47,21 +43,18 @@ class SuppliersTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Supplier $record): string => route('suppliers.show', $record)),
+                        ->url(fn (Supplier $record): string => route('suppliers.show', $record)),
                     EditAction::make()
-                        ->disabled(fn(Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
-                        ->url(fn(Supplier $record): string => route('suppliers.edit', $record)),
+                        ->disabled(fn (Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
+                        ->url(fn (Supplier $record): string => route('suppliers.edit', $record)),
                     DeleteAction::make()
-                        ->disabled(fn(Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
+                        ->disabled(fn (Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
                         ->requiresConfirmation()
-                        ->action(fn(Supplier $record) => $record->delete())
-                ])
+                        ->action(fn (Supplier $record) => $record->delete()),
+                ]),
             ]);
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.suppliers.suppliers-table');

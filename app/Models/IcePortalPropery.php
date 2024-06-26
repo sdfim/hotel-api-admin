@@ -54,18 +54,12 @@ class IcePortalPropery extends Model
 
     protected $table = 'ice_hbsi_properties';
 
-    /**
-     * @param array $attributes
-     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->connection = config('database.active_connections.mysql_cache');
     }
 
-    /**
-     * @return HasMany
-     */
     public function mapperHbsiGiata(): HasMany
     {
         return $this->hasMany(MapperIcePortalGiata::class, 'ice_portal_id', 'code');

@@ -92,7 +92,7 @@ return [
             'handler_with' => [
                 'host' => env('PAPERTRAIL_URL'),
                 'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://' . env('PAPERTRAIL_URL') . ':' . env('PAPERTRAIL_PORT'),
+                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
             ],
             'processors' => [PsrLogMessageProcessor::class],
         ],
@@ -131,25 +131,25 @@ return [
         ],
 
         'cloudwatch' => [
-            'driver'       => 'monolog',
-            'handler'      => AwsCloudwatchLogHandler::class,
+            'driver' => 'monolog',
+            'handler' => AwsCloudwatchLogHandler::class,
             'handler_with' => [
-                'client'    => new CloudWatchLogsClient([
-                    'region'      => env('LOG_CLOUDWATCH_DEFAULT_REGION', 'us-east-1'),
-                    'version'     => env('LOG_CLOUDWATCH_VERSION', 'latest'),
+                'client' => new CloudWatchLogsClient([
+                    'region' => env('LOG_CLOUDWATCH_DEFAULT_REGION', 'us-east-1'),
+                    'version' => env('LOG_CLOUDWATCH_VERSION', 'latest'),
                     'credentials' => [
-                        'key'    => env('LOG_AWSCLOUDWATCH_ACCESSKEYID', ''),
+                        'key' => env('LOG_AWSCLOUDWATCH_ACCESSKEYID', ''),
                         'secret' => env('LOG_AWSCLOUDWATCH_SECRETACCESSKEY', ''),
                     ],
                 ]),
-                'group'     => env('LOG_CLOUDWATCH_GROUP_NAME', '/aws/apprunner/booking-engine'),
-                'stream'    => date('Y-m-d'),
+                'group' => env('LOG_CLOUDWATCH_GROUP_NAME', '/aws/apprunner/booking-engine'),
+                'stream' => date('Y-m-d'),
                 'retention' => env('LOG_CLOUDWATCH_RETENTION_DAYS', 30),
                 'batchSize' => env('LOG_CLOUDWATCH_BATCH_SIZE', 1000),
             ],
-            'level'        => env('LOG_LEVEL', 'debug'),
-            'region'       => env('LOG_CLOUDWATCH_DEFAULT_REGION', 'us-east-1'),
-            'formatter'    => JsonFormatter::class,
+            'level' => env('LOG_LEVEL', 'debug'),
+            'region' => env('LOG_CLOUDWATCH_DEFAULT_REGION', 'us-east-1'),
+            'formatter' => JsonFormatter::class,
             'formatter_with' => [
                 'includeStacktraces' => true,
             ],

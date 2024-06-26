@@ -65,7 +65,7 @@ return [
 
     'paths' => [
         'login' => 'admin/login',
-		'logout' => 'admin/logout',
+        'logout' => 'admin/logout',
     ],
 
     /*

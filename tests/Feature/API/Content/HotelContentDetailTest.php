@@ -11,6 +11,7 @@ class HotelContentDetailTest extends ApiTestCase
 
     /**
      * @test
+     *
      * @return void
      */
     public function test_hotel_detail_method_response_true()
@@ -36,11 +37,12 @@ class HotelContentDetailTest extends ApiTestCase
 
     /**
      * @test
+     *
      * @return void
      */
     public function test_hotel_detail_non_existent_property_id_method_response_400()
     {
-        $hotelDetailResponse = $this->withHeaders($this->headers)->get("/api/content/detail?property_id=99999999999999&type=hotel");
+        $hotelDetailResponse = $this->withHeaders($this->headers)->get('/api/content/detail?property_id=99999999999999&type=hotel');
 
         $hotelDetailResponse
             ->assertStatus(400)
@@ -51,11 +53,12 @@ class HotelContentDetailTest extends ApiTestCase
 
     /**
      * @test
+     *
      * @return void
      */
     public function test_hotel_detail_with_correct_property_id_and_missed_type_method_response_400()
     {
-        $hotelDetailResponse = $this->withHeaders($this->headers)->get("/api/content/detail?property_id=98736411");
+        $hotelDetailResponse = $this->withHeaders($this->headers)->get('/api/content/detail?property_id=98736411');
 
         $hotelDetailResponse
             ->assertStatus(400)
@@ -67,6 +70,7 @@ class HotelContentDetailTest extends ApiTestCase
 
     /**
      * @test
+     *
      * @return void
      */
     public function test_hotel_detail_with_type_and_missed_property_id_parameter_method_response_400()
@@ -79,15 +83,12 @@ class HotelContentDetailTest extends ApiTestCase
                 'success' => false,
                 'error' => [
                     'property_id' => [
-                        'The property id field is required.'
-                    ]
-                ]
+                        'The property id field is required.',
+                    ],
+                ],
             ]);
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchData(): array
     {
         return [

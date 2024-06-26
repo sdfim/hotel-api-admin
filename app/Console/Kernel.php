@@ -12,7 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        # Expedia Content download archive, unzip, parse json, write to DB
+        // Expedia Content download archive, unzip, parse json, write to DB
         $schedule->command('download-expedia-data content 12345')->cron('0 1 * * *');
         //$schedule->command('download-giata-data')->daily()->at('05:00');
 
@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__ . '/Commands');
+        $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
     }

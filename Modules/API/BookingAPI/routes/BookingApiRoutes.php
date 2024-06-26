@@ -8,9 +8,6 @@ use Modules\API\Controllers\RouteBookingApiController;
 
 class BookingApiRoutes
 {
-    /**
-     * @return void
-     */
     public static function routes(): void
     {
         Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'booking'], function () {

@@ -17,7 +17,6 @@ class BookingInspectorController extends Controller
         return view('dashboard.booking-inspector.index');
     }
 
-
     /**
      * Display the specified resource.
      */
@@ -25,8 +24,7 @@ class BookingInspectorController extends Controller
     {
         $text = $this->message;
         $inspector = ApiBookingInspector::findOrFail($id);
+
         return view('dashboard.booking-inspector.show', compact('inspector', 'text'));
     }
-
-
 }
