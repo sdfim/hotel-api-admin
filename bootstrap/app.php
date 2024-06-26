@@ -1,5 +1,6 @@
 <?php
 
+use App\Providers\AppServiceProvider;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->redirectUsersTo(config('app.url').RouteServiceProvider::HOME);
+        $middleware->redirectUsersTo(config('app.url').AppServiceProvider::HOME);
 
         $middleware->append([
             \App\Http\Middleware\SetLocationHeader::class,

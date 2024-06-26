@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\BaseAuthorizedActions;
 
+use App\Providers\AppServiceProvider;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Verified;
@@ -53,7 +54,7 @@ class EmailVerificationTest extends TestCase
 
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
 
-        $response->assertRedirect(RouteServiceProvider::HOME.'?verified=1');
+        $response->assertRedirect(AppServiceProvider::HOME.'?verified=1');
     }
 
     /**
