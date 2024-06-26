@@ -10,7 +10,7 @@ class BookingApiRoutes
 {
     public static function routes(): void
     {
-        Route::group(['middleware' => 'auth:sanctum', 'prefix' => 'booking'], function () {
+        Route::middleware('auth:sanctum')->prefix('booking')->group(function () {
             Route::post('/add-item', [RouteBookingApiController::class, 'handle'])->name('addItem');
             Route::delete('/remove-item', [RouteBookingApiController::class, 'handle'])->name('removeItem');
             Route::get('/retrieve-items', [BookApiHandler::class, 'retrieveItems'])->name('retrieveItems');
