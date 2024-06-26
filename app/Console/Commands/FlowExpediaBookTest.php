@@ -182,8 +182,8 @@ class FlowExpediaBookTest extends Command
                 for ($i = 0; $i < $occupant['adults']; $i++) {
                     $passenger = [
                         'title' => 'mr',
-                        'given_name' => $faker->firstName,
-                        'family_name' => $faker->lastName,
+                        'given_name' => $faker->firstName(),
+                        'family_name' => $faker->lastName(),
                         'date_of_birth' => $faker->date('Y-m-d', strtotime('-'.rand(20, 60).' years')),
                         'booking_items' => [
                             [
@@ -254,20 +254,20 @@ class FlowExpediaBookTest extends Command
             'booking_id' => $bookingId,
             'amount_pay' => 'Deposit',
             'booking_contact' => [
-                'first_name' => $faker->firstName,
-                'last_name' => $faker->lastName,
-                'email' => 'test@gmail.com', //$faker->safeEmail,
+                'first_name' => $faker->firstName(),
+                'last_name' => $faker->lastName(),
+                'email' => 'test@gmail.com', //$faker->safeEmail(),
                 'phone' => [
                     'country_code' => '1',
                     'area_code' => '487',
                     'number' => '5550077',
                 ],
                 'address' => [
-                    'line_1' => $faker->streetAddress,
-                    'city' => $faker->city,
-                    'state_province_code' => $faker->stateAbbr,
+                    'line_1' => $faker->streetAddress(),
+                    'city' => $faker->city(),
+                    'state_province_code' => $faker->stateAbbr(),
                     'postal_code' => $faker->lexify(str_repeat('?', rand(1, 7))),
-                    'country_code' => $faker->countryCode,
+                    'country_code' => $faker->countryCode(),
                 ],
             ],
         ];

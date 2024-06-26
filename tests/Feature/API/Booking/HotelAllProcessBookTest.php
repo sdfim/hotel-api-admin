@@ -152,8 +152,8 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
                 for ($i = 0; $i < $occupant['adults']; $i++) {
                     $passenger = [
                         'title' => 'mr',
-                        'given_name' => $faker->firstName,
-                        'family_name' => $faker->lastName,
+                        'given_name' => $faker->firstName(),
+                        'family_name' => $faker->lastName(),
                         'date_of_birth' => $faker->date('Y-m-d', strtotime('-'.rand(20, 60).' years')),
                         'booking_items' => [
                             [

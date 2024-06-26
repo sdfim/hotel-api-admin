@@ -45,7 +45,7 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
             'token_id' => $token->accessToken->id,
             'access_token' => $token->plainTextToken,
             'name' => 'New Channel Name',
-            'description' => $this->faker->sentence,
+            'description' => $this->faker->sentence(),
         ]);
 
         $response->assertStatus(302);
@@ -62,8 +62,8 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
     public function test_possibility_of_updating_new_channel(): void
     {
         $data = [
-            'name' => $this->faker->name,
-            'description' => $this->faker->word,
+            'name' => $this->faker->name(),
+            'description' => $this->faker->word(),
         ];
 
         $response = $this->post(route('channels.store'), $data);

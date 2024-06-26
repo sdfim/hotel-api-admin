@@ -137,7 +137,7 @@ class PricingRulesDataGenerationTools
                 'channel_id' => $this->faker->randomElement($channelIds) ?? 1,
                 'property' => $giataId ?? $this->faker->randomElement($giataIds),
                 'destination' => 961, //New York
-                'rate_code', 'room_type', 'meal_plan' => $this->faker->word
+                'rate_code', 'room_type', 'meal_plan' => $this->faker->word()
             };
         } elseif (in_array($field, ['travel_date', 'booking_date'])) {
             $condition['value_from'] = $this->today->copy()->addDay()->toDateString();

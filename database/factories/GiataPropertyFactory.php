@@ -24,16 +24,16 @@ class GiataPropertyFactory extends Factory
      */
     public function definition(): array
     {
-        $addressLine = "Delhy No. {$this->faker->numberBetween(1, 100)}, Viln {$this->faker->word}";
+        $addressLine = "Delhy No. {$this->faker->numberBetween(1, 100)}, Viln {$this->faker->word()}";
 
         return [
             'code' => $this->faker->numberBetween(1, 100000),
-            'last_updated' => $this->faker->dateTimeThisDecade,
-            'name' => $this->faker->name,
+            'last_updated' => $this->faker->dateTimeThisDecade(),
+            'name' => $this->faker->name(),
             'chain' => '{}',
-            'city' => $this->faker->city,
+            'city' => $this->faker->city(),
             'city_id' => $this->faker->numberBetween(1, 100000),
-            'locale' => $this->faker->locale,
+            'locale' => $this->faker->locale(),
             'address' => '{
                 "CityName": "New Delhi",
                 "AddressLine": "'.$addressLine.'",
@@ -44,7 +44,7 @@ class GiataPropertyFactory extends Factory
                 },
                 "CountryName": "IN"
             }',
-            'mapper_phone_number' => $this->faker->phoneNumber,
+            'mapper_phone_number' => $this->faker->phoneNumber(),
             'mapper_address' => $addressLine,
             'phone' => [
                 '{
@@ -55,7 +55,7 @@ class GiataPropertyFactory extends Factory
                 }',
                 '{
                     "@attributes": {
-                        "PhoneNumber": '.$this->faker->phoneNumber.',
+                        "PhoneNumber": '.$this->faker->phoneNumber().',
                         "PhoneTechType": "3"
                     }
                 }',
@@ -67,8 +67,8 @@ class GiataPropertyFactory extends Factory
                     "PositionAccuracy": "1"
                 }
             }',
-            'latitude' => $this->faker->latitude,
-            'longitude' => $this->faker->longitude,
+            'latitude' => $this->faker->latitude(),
+            'longitude' => $this->faker->longitude(),
             'url' => '{}',
             'cross_references' => '[
                 {
@@ -257,8 +257,8 @@ class GiataPropertyFactory extends Factory
                     }
                 }
             ]',
-            'created_at' => $this->faker->dateTimeThisDecade, // Пример значения для created_at
-            'updated_at' => $this->faker->dateTimeThisDecade, // Пример значения для updated_at
+            'created_at' => $this->faker->dateTimeThisDecade(), // Пример значения для created_at
+            'updated_at' => $this->faker->dateTimeThisDecade(), // Пример значения для updated_at
         ];
     }
 }

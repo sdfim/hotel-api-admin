@@ -67,8 +67,8 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
     public function test_possibility_of_storing_supplier(): void
     {
         $data = [
-            'name' => $this->faker->name,
-            'description' => $this->faker->word,
+            'name' => $this->faker->name(),
+            'description' => $this->faker->word(),
         ];
 
         $response = $this->post(route('suppliers.store'), $data);

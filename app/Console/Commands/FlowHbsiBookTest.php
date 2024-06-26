@@ -217,8 +217,8 @@ class FlowHbsiBookTest extends Command
                 for ($i = 0; $i < $occupant['adults']; $i++) {
                     $passenger = [
                         'title' => 'mr',
-                        'given_name' => $faker->firstName,
-                        'family_name' => $faker->lastName,
+                        'given_name' => $faker->firstName(),
+                        'family_name' => $faker->lastName(),
                         'date_of_birth' => $faker->date('Y-m-d', strtotime('-'.rand(20, 60).' years')),
                         'booking_items' => [
                             [
@@ -298,11 +298,11 @@ class FlowHbsiBookTest extends Command
                     'number' => '5550077',
                 ],
                 'address' => [
-                    'line_1' => '5047 Kessler Glens', //$faker->streetAddress,
-                    'city' => 'Ortizville', //$faker->city,
-                    'state_province_code' => 'VT', //$faker->stateAbbr,
-                    'postal_code' => 'mt', //$faker->lexify(str_repeat('?', rand(1, 7))), //$faker->postcode,
-                    'country_code' => 'US', //$faker->countryCode,
+                    'line_1' => '5047 Kessler Glens', //$faker->streetAddress(),
+                    'city' => 'Ortizville', //$faker->city(),
+                    'state_province_code' => 'VT', //$faker->stateAbbr(),
+                    'postal_code' => 'mt', //$faker->lexify(str_repeat('?', rand(1, 7))), //$faker->postcode(),
+                    'country_code' => 'US', //$faker->countryCode(),
                 ],
             ],
             'special_requests' => [

@@ -168,17 +168,17 @@ class HotelBookingApiTestCase extends ApiTestCase
         $data = [
             'amount_pay' => $this->faker->randomElement(['Deposit', 'Full Payment']),
             'booking_contact' => [
-                'first_name' => $this->faker->firstName,
-                'last_name' => $this->faker->lastName,
-                'email' => $this->faker->freeEmail,
+                'first_name' => $this->faker->firstName(),
+                'last_name' => $this->faker->lastName(),
+                'email' => $this->faker->freeEmail(),
                 'phone' => [
                     'country_code' => 1,
                     'area_code' => $this->faker->numberBetween(201, 989),
                     'number' => $this->faker->numerify('########'),
                 ],
                 'address' => [
-                    'line_1' => $this->faker->streetAddress,
-                    'city' => $this->faker->city,
+                    'line_1' => $this->faker->streetAddress(),
+                    'city' => $this->faker->city(),
                     'state_province_code' => Address::stateAbbr(),
                     'postal_code' => Address::postcode(),
                     'country_code' => 'US',
@@ -188,12 +188,12 @@ class HotelBookingApiTestCase extends ApiTestCase
 
         if ($withCreditCard) {
             $data['credit_card'] = [
-                'name_card' => $this->faker->creditCardType,
-                'number' => (int) $this->faker->creditCardNumber,
+                'name_card' => $this->faker->creditCardType(),
+                'number' => (int) $this->faker->creditCardNumber(),
                 'card_type' => $this->faker->randomElement(['MSC', 'VISA', 'AMEX', 'DIS']),
                 'expiry_date' => $this->faker->creditCardExpirationDateString(true, 'm/Y'),
                 'cvv' => $this->faker->randomNumber(3),
-                'billing_address' => $this->faker->streetAddress,
+                'billing_address' => $this->faker->streetAddress(),
             ];
         }
 
@@ -233,8 +233,8 @@ class HotelBookingApiTestCase extends ApiTestCase
     {
         return [
             'query' => [
-                'given_name' => $this->faker->firstName,
-                'family_name' => $this->faker->lastName,
+                'given_name' => $this->faker->firstName(),
+                'family_name' => $this->faker->lastName(),
                 'smoking' => $randomSmoking && rand(0, 1),
                 'special_request' => $this->faker->text(255),
                 'loyalty_id' => $this->faker->text(10),
