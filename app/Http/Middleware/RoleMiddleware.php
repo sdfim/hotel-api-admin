@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Illuminate\Http\Request;
 use Closure;
 
 class RoleMiddleware
@@ -11,7 +12,7 @@ class RoleMiddleware
      *
      * @param  null  $permission
      */
-    public function handle($request, Closure $next, $role, $permission = null): mixed
+    public function handle(Request $request, Closure $next, $role, $permission = null): mixed
     {
         if (! auth()->user()->hasRole($role)) {
             abort(404);

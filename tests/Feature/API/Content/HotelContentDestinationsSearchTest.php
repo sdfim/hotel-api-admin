@@ -11,7 +11,7 @@ class HotelContentDestinationsSearchTest extends ApiTestCase
      *
      * @return void
      */
-    public function test_hotel_destination_method_response_200()
+    public function test_hotel_destination_method_response_200(): void
     {
         $hotelDestinationSearchResponse = $this->withHeaders($this->headers)->get('/api/content/destinations?city=London');
 
@@ -33,7 +33,7 @@ class HotelContentDestinationsSearchTest extends ApiTestCase
      *
      * @return void
      */
-    public function test_hotel_destination_with_empty_city_method_response_400()
+    public function test_hotel_destination_with_empty_city_method_response_400(): void
     {
         $hotelDestinationSearchResponse = $this->withHeaders($this->headers)->get('/api/content/destinations?city=');
 
@@ -49,7 +49,7 @@ class HotelContentDestinationsSearchTest extends ApiTestCase
      *
      * @return void
      */
-    public function test_hotel_destination_without_city_method_response_400()
+    public function test_hotel_destination_without_city_method_response_400(): void
     {
         $hotelDestinationSearchResponse = $this->withHeaders($this->headers)->get('/api/content/destinations');
 

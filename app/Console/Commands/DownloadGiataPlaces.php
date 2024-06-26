@@ -21,7 +21,7 @@ class DownloadGiataPlaces extends Command
 
     protected const BATCH = 500;
 
-    public function handle()
+    public function handle(): void
     {
         $filename = 'giata/giata_places.json';
 

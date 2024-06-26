@@ -35,7 +35,7 @@ class ImportTravelTekBookings extends Command
     /**
      * @throws Exception
      */
-    public function handle()
+    public function handle(): void
     {
         $timeStamp = Carbon::now();
 

@@ -14,7 +14,7 @@ class HotelAllProcessBookTest extends HotelBookingApiTestCase
      *
      * @return void
      */
-    public function test_book_method_response()
+    public function test_book_method_response(): void
     {
         //# SEARCH 1
 

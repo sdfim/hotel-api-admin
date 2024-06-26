@@ -32,7 +32,7 @@ class ClearSearchCacheByBookingItemsJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $start = microtime(true);
 

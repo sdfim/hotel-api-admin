@@ -20,7 +20,7 @@ class DownloadGiataPoi extends Command
 
     protected const BATCH = 500;
 
-    public function handle()
+    public function handle(): void
     {
         $response = Http::withBasicAuth(config('giata.poi.username'), config('giata.poi.password'))
             ->get(config('giata.poi.base_uri').'pois');
