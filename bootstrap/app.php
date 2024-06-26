@@ -14,7 +14,23 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->redirectUsersTo(config('app.url').RouteServiceProvider::HOME);
+
+        $middleware->append([
+            \App\Http\Middleware\SetLocationHeader::class,
+            \App\Http\Middleware\RewriteUrls::class,
+        ]);
+
+        $middleware->throttleApi();
+        $middleware->api(\App\Http\Middleware\FakeDataEndpoints::class);
+
+        $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustProxies::class);
+
+        $middleware->alias([
+            'auth' => \App\Http\Middleware\Authenticate::class,
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'signed' => \App\Http\Middleware\ValidateSignature::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
