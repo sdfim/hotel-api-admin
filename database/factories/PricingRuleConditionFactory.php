@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\PricingRuleCondition;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\API\Tools\PricingRulesDataGenerationTools;
 

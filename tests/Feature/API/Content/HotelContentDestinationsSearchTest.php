@@ -8,8 +8,6 @@ class HotelContentDestinationsSearchTest extends ApiTestCase
 {
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_destination_method_response_200(): void
     {
@@ -30,8 +28,6 @@ class HotelContentDestinationsSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_destination_with_empty_city_method_response_400(): void
     {
@@ -46,8 +42,6 @@ class HotelContentDestinationsSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_destination_without_city_method_response_400(): void
     {

@@ -26,8 +26,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_without_type_method_response_400(): void
     {
@@ -45,8 +43,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_with_incorrect_type_method_response_400(): void
     {
@@ -64,8 +60,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_with_incorrect_currency_method_response_400(): void
     {
@@ -87,8 +81,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_with_incorrect_supplier_method_response_400(): void
     {
@@ -110,8 +102,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_with_incorrect_check_in_method_response_400(): void
     {
@@ -133,8 +123,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_with_incorrect_check_out_method_response_400(): void
     {
@@ -156,8 +144,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_without_check_in_method_response_400(): void
     {
@@ -179,8 +165,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_without_check_out_method_response_400(): void
     {
@@ -202,8 +186,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_with_incorrect_destination_method_response_400(): void
     {
@@ -225,8 +207,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_without_destination_method_response_400(): void
     {
@@ -248,8 +228,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_with_incorrect_rating_method_response_400(): void
     {
@@ -271,8 +249,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_with_incorrect_occupancy_method_response_400(): void
     {
@@ -294,8 +270,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_without_occupancy_method_response_400(): void
     {
@@ -315,8 +289,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_without_occupancy_adults_method_response_400(): void
     {
@@ -341,8 +313,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_with_incorrect_occupancy_adults_method_response_400(): void
     {
@@ -367,8 +337,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_without_children_ages_method_response_400(): void
     {
@@ -396,8 +364,6 @@ class HotelPricingSearchTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_pricing_search_with_incorrect_children_ages_method_response_400(): void
     {

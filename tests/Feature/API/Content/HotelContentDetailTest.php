@@ -11,8 +11,6 @@ class HotelContentDetailTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_detail_method_response_true(): void
     {
@@ -37,8 +35,6 @@ class HotelContentDetailTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_detail_non_existent_property_id_method_response_400(): void
     {
@@ -53,8 +49,6 @@ class HotelContentDetailTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_detail_with_correct_property_id_and_missed_type_method_response_400(): void
     {
@@ -70,8 +64,6 @@ class HotelContentDetailTest extends ApiTestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_hotel_detail_with_type_and_missed_property_id_parameter_method_response_400(): void
     {

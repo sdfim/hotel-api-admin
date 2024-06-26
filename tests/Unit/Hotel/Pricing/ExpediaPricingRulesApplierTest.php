@@ -25,8 +25,6 @@ class ExpediaPricingRulesApplierTest extends TestCase
 
     /**
      * @test
-     *
-     * @return void
      */
     public function test_apply_pricing_rules_to_rooms(): void
     {

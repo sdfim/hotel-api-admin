@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Reservation;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -14,6 +13,7 @@ use Illuminate\Support\Str;
 class ReservationFactory extends Factory
 {
     use WithFaker;
+
     /**
      * Define the model's default state.
      *

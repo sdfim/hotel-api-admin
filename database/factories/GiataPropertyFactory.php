@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\GiataProperty;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
