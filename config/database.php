@@ -7,7 +7,7 @@ return [
     'connections' => [
         'sqlite2' => [
             'driver' => 'sqlite',
-            'url' => env('DATABASE_URL'),
+            'url' => env('DB_URL'),
             'database' => env('SUPPLIER_CONTENT_DB_DATABASE', database_path('database2.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),

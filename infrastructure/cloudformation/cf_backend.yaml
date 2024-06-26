@@ -317,7 +317,7 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiTarget'
               - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
                 Value: !Ref 'BookingSupplierHbsiComponentInfoId'
-              - Name: CACHE_DRIVER
+              - Name: CACHE_STORE
                 Value: !Ref 'CacheDriver'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
@@ -471,7 +471,7 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiTarget'
               - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
                 Value: !Ref 'BookingSupplierHbsiComponentInfoId'
-              - Name: CACHE_DRIVER
+              - Name: CACHE_STORE
                 Value: !Ref 'CacheDriver'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
@@ -682,7 +682,7 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiTarget'
               - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
                 Value: !Ref 'BookingSupplierHbsiComponentInfoId'
-              - Name: CACHE_DRIVER
+              - Name: CACHE_STORE
                 Value: !Ref 'CacheDriver'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
@@ -1676,7 +1676,7 @@ Resources:
           - '"BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID":"'
           - !Ref 'BookingSupplierHbsiComponentInfoId'
           - '",'
-          - '"CACHE_DRIVER":"'
+          - '"CACHE_STORE":"'
           - !Ref 'CacheDriver'
           - '",'
           - '"SUPPLIER_EXPEDIA_API_KEY":"'
