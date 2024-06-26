@@ -18,6 +18,7 @@ use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
 use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
 use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
+use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 
@@ -313,11 +314,26 @@ class HbsiHotelPricingDto
     public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId): array
     {
         $counts = [];
+//        foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {
+//            if (isset($guestCount['AgeQualifyingCode'])) $counts[$guestCount['AgeQualifyingCode']] = $guestCount['Count'];
+//            else $counts[$guestCount['@attributes']['AgeQualifyingCode']] = $guestCount['@attributes']['Count'];
+//        }
+//        $rateOccupancy = $counts['10'] . '-' . ($counts['8'] ?? 0) . '-' . ($counts['7'] ?? 0);
+//        $rateOrdinal = $rate['rate_ordinal'] ?? 0;
+
         foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {
-            if (isset($guestCount['AgeQualifyingCode'])) $counts[$guestCount['AgeQualifyingCode']] = $guestCount['Count'];
-            else $counts[$guestCount['@attributes']['AgeQualifyingCode']] = $guestCount['@attributes']['Count'];
+            if (isset($guestCount['Age'])) $counts[$guestCount['Age']] = $guestCount['Count'];
+            else $counts[$guestCount['@attributes']['Age']] = $guestCount['@attributes']['Count'];
         }
-        $rateOccupancy = $counts['10'] . '-' . ($counts['8'] ?? 0) . '-' . ($counts['7'] ?? 0);
+
+        $adults = $children = $infants = 0;
+        foreach ($counts as $age => $count) {
+            if ($age < HbsiClient::AGE_INFANT) $infants += $count;
+            elseif ($age < HbsiClient::AGE_CHILD) $children += $count;
+            else $adults += $count;
+        }
+
+        $rateOccupancy = $adults . '-' . $children . '-' . $infants;
         $rateOrdinal = $rate['rate_ordinal'] ?? 0;
 
         // enrichment Pricing Rules / Application of Pricing Rules

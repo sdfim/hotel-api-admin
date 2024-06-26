@@ -342,7 +342,7 @@ class FlowHbsiBookTest extends Command
             foreach ($bookingItems as $item) {
                 $cards[] = [
                     'credit_card' => [
-                        'cvv' => 123,
+                        'cvv' => '123',
                         'number' => 4001919257537193,
                         'card_type' => 'VISA',
                         'name_card' => 'Visa',
