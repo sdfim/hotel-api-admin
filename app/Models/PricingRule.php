@@ -24,14 +24,17 @@ class PricingRule extends Model
     ];
 
     /**
-     * The attributes that should be cast to native types.
+     * Get the attributes that should be cast.
      *
-     * @var array
+     * @return array<string, string>
      */
-    protected $casts = [
-        'rule_start_date' => 'datetime',
-        'rule_expiration_date' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'rule_start_date' => 'datetime',
+            'rule_expiration_date' => 'datetime',
+        ];
+    }
 
     public function conditions(): HasMany
     {

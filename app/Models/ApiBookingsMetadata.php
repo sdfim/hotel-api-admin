@@ -41,11 +41,16 @@ class ApiBookingsMetadata extends Model
     ];
 
     /**
-     * @var string[]
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
-    protected $casts = [
-        'booking_item_data' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'booking_item_data' => 'array',
+        ];
+    }
 
     /**
      * @return array<string, string>

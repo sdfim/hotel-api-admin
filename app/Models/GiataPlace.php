@@ -20,9 +20,12 @@ class GiataPlace extends Model
         'tticodes',
     ];
 
-    protected $casts = [
-        'airports' => 'array',
-        'name_others' => 'array',
-        'tticodes' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'airports' => 'array',
+            'name_others' => 'array',
+            'tticodes' => 'array',
+        ];
+    }
 }

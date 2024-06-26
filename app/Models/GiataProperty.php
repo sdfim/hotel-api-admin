@@ -47,23 +47,28 @@ class GiataProperty extends Model
         'cross_references',
     ];
 
-    /**
-     * @var string[]
-     */
-    protected $casts = [
-        'chain' => 'json',
-        'address' => 'json',
-        'phone' => 'json',
-        'position' => 'json',
-        'cross_references' => 'json',
-    ];
-
     protected $table = 'giata_properties';
 
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
         $this->connection = config('database.active_connections.mysql_cache');
+    }
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'chain' => 'json',
+            'address' => 'json',
+            'phone' => 'json',
+            'position' => 'json',
+            'cross_references' => 'json',
+        ];
     }
 
     public function mapperExpediaGiata(): HasOne

@@ -42,15 +42,6 @@ class ExpediaContent extends Model
     ];
 
     /**
-     * @var string[]
-     */
-    protected $casts = [
-        'address' => 'array',
-        'ratings' => 'array',
-        'location' => 'array',
-    ];
-
-    /**
      * @return string[]
      */
     public static function getFullListFields(): array
@@ -69,6 +60,20 @@ class ExpediaContent extends Model
     }
 
     protected $table = 'expedia_content_main';
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'address' => 'array',
+            'ratings' => 'array',
+            'location' => 'array',
+        ];
+    }
 
     public function __construct(array $attributes = [])
     {
