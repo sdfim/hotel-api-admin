@@ -14,14 +14,6 @@ use Illuminate\Support\Str;
 class ReservationFactory extends Factory
 {
     use WithFaker;
-
-    /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
-    protected $model = Reservation::class;
-
     /**
      * Define the model's default state.
      *
