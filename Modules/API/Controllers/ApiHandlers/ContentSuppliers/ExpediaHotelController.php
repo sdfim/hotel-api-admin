@@ -213,6 +213,14 @@ class ExpediaHotelController
      */
     public function detail(Request $request): object
     {
+        /* Detail request example
+        $response = (new RapidClient())->get("v3/properties/content", [
+            'property_id' => '1190549',
+            'language' => 'en-US',
+            'supply_source' => 'expedia',
+        ]);
+        */
+
         $results = ExpediaRepository::getDetailByGiataId($request->get('property_id'));
 
         return ExpediaRepository::dtoDbToResponse($results, ExpediaContent::getFullListFields());

@@ -8,6 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Arr;
 use Modules\Inspector\BookingInspectorController;
 
 class SaveBookingInspector implements ShouldQueue
@@ -33,6 +34,7 @@ class SaveBookingInspector implements ShouldQueue
     {
         $this->inspector['status'] = $this->status;
         $this->inspector['status_describe'] = $this->status_describe;
+        $this->inspector['type'] = Arr::get($this->inspector, 'type', 'hotel');
 
         $this->bookingInspector->save(
             $this->inspector,
