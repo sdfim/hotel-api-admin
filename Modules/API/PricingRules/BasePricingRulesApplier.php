@@ -38,7 +38,7 @@ class BasePricingRulesApplier
 
         $checkOut = Carbon::parse($requestArray['checkout']);
 
-        $this->numberOfNights = $checkIn->diffInDays($checkOut);
+        $this->numberOfNights = floor($checkIn->diffInDays($checkOut, true));
 
         $this->numberOfRooms = count($requestArray['occupancy']);
     }

@@ -550,7 +550,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 if (in_array('number_of_adults_mismatch', $keysToFail)) {
                     foreach ($data['passengers'] as $passengerId => $passenger) {
                         $dateOfBirth = Carbon::createFromFormat('Y-m-d', $passenger['date_of_birth']);
-                        if ($dateOfBirth->diffInYears($now) >= 18) {
+                        if (floor($dateOfBirth->diffInYears($now, true)) >= 18) {
                             unset($data['passengers'][$passengerId]);
                         }
                     }

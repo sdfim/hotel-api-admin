@@ -523,7 +523,7 @@ class BookApiHandler extends BaseController
             foreach ($roomData['passengers'] as $passenger) {
                 $dob = Carbon::parse($passenger['date_of_birth']);
                 $now = Carbon::now();
-                $ages[] = $now->diffInYears($dob);
+                $ages[] = floor($now->diffInYears($dob, true));
             }
 
             $childrenCount = 0;
@@ -578,7 +578,7 @@ class BookApiHandler extends BaseController
             foreach ($roomData['passengers'] as $passenger) {
                 $givenDate = Carbon::create($passenger['date_of_birth']);
                 $currentDate = Carbon::now();
-                $years = $givenDate->diffInYears($currentDate);
+                $years = floor($givenDate->diffInYears($currentDate, true));
                 if ($years >= self::AGE_ADULT) {
                     continue;
                 }
