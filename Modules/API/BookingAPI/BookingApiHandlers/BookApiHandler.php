@@ -29,6 +29,7 @@ use Modules\API\Requests\BookingChangeBookHotelRequest;
 use Modules\API\Requests\BookingRetrieveBooking;
 use Modules\API\Requests\BookingRetrieveItemsRequest;
 use Modules\API\Requests\ListBookingsRequest;
+use Modules\API\Tools\ClearSearchCacheByBookingItemsTools;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
 
@@ -44,13 +45,14 @@ class BookApiHandler extends BaseController
     /**
      * @param ExpediaBookApiController $expedia
      * @param HbsiBookApiController $hbsi
+     * @param ClearSearchCacheByBookingItemsTools $searchCache
      */
     public function __construct(
-        private readonly ExpediaBookApiController $expedia,
-        private readonly HbsiBookApiController    $hbsi
-    )
-    {
-    }
+        private readonly ExpediaBookApiController            $expedia,
+        private readonly HbsiBookApiController               $hbsi,
+        private readonly ClearSearchCacheByBookingItemsTools $searchCache = new ClearSearchCacheByBookingItemsTools(),
+
+    ) { }
 
     /**
      * @param BookingBookRequest $request
@@ -119,7 +121,8 @@ class BookApiHandler extends BaseController
          * This prevents the possibility of booking an already booked booking_item.
          */
         $itemsToDeleteFromCache = BookRepository::bookedBookingItems($request->booking_id);
-        ClearSearchCacheByBookingItemsJob::dispatch($itemsToDeleteFromCache);
+//        ClearSearchCacheByBookingItemsJob::dispatch($itemsToDeleteFromCache); // Dispatch job to clear cache
+        $this->searchCache->clear($itemsToDeleteFromCache);
 
         return $this->sendResponse($data, 'success');
     }
