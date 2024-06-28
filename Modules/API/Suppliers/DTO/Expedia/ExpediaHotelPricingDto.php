@@ -73,7 +73,7 @@ class ExpediaHotelPricingDto
             ->toArray();
 
         $this->giata = $this->pricingDtoTools->getGiataProperties($query, $giataIds);
-        $this->destinationData = $this->pricingDtoTools->getDestinationData($query);
+        $this->destinationData = $this->pricingDtoTools->getDestinationData($query) ?? '';
 
         $hotelResponse = [];
         foreach ($supplierResponse as $propertyGroup) {
