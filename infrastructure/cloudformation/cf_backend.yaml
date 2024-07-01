@@ -132,6 +132,10 @@ Parameters:
     Description: The driver to use for Cache
     Type: String
     Default: 'file'
+  CacheStore:
+    Description: The store to use for Cache
+    Type: String
+    Default: 'redis'
   DbDatabase:
     Default: booking_engine
     Description: Mysql database name (DB_DATABASE)
@@ -317,8 +321,10 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiTarget'
               - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
                 Value: !Ref 'BookingSupplierHbsiComponentInfoId'
-              - Name: CACHE_STORE
+              - Name: CACHE_DRIVER
                 Value: !Ref 'CacheDriver'
+              - Name: CACHE_STORE
+                Value: !Ref 'CacheStore'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -471,8 +477,10 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiTarget'
               - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
                 Value: !Ref 'BookingSupplierHbsiComponentInfoId'
-              - Name: CACHE_STORE
+              - Name: CACHE_DRIVER
                 Value: !Ref 'CacheDriver'
+              - Name: CACHE_STORE
+                Value: !Ref 'CacheStore'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -682,8 +690,10 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiTarget'
               - Name: BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID
                 Value: !Ref 'BookingSupplierHbsiComponentInfoId'
-              - Name: CACHE_STORE
+              - Name: CACHE_DRIVER
                 Value: !Ref 'CacheDriver'
+              - Name: CACHE_STORE
+                Value: !Ref 'CacheStore'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -1676,8 +1686,11 @@ Resources:
           - '"BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID":"'
           - !Ref 'BookingSupplierHbsiComponentInfoId'
           - '",'
-          - '"CACHE_STORE":"'
+          - '"CACHE_DRIVER":"'
           - !Ref 'CacheDriver'
+          - '",'
+          - '"CACHE_STORE":"'
+          - !Ref 'CacheStore'
           - '",'
           - '"SUPPLIER_EXPEDIA_API_KEY":"'
           - !Ref 'BookingSupplierExpediaApiKey'
