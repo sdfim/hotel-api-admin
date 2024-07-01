@@ -560,7 +560,7 @@ class HbsiClient
         foreach ($guests as $guestRoom) {
             foreach ($guestRoom as $guest) {
                 $dob = Carbon::parse($guest['date_of_birth']);
-                $diff = $dob->diff(Carbon::parse());
+                $diff = $dob->diff(Carbon::now(), true);
                 $age = $diff->y;
 
                 $ageQualifyingCode = 10;
@@ -587,7 +587,8 @@ class HbsiClient
         foreach ($guests as $guestRoom) {
             foreach ($guestRoom as $guest) {
                 $dob = Carbon::parse($guest['date_of_birth']);
-                $diff = $dob->diff(Carbon::parse());
+                $diff = $dob->diff(Carbon::now(), true);
+                \Log::info($diff->y);
                 $age = $diff->y < self::AGE_CHILD ? $diff->y : self::AGE_ADULTS;
 
                 $resGuestsArr[$index] = $this->createGuestArrByAge($index, $age, $guest, $filters);

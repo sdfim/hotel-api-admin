@@ -150,7 +150,7 @@ class AwsCloudwatchLogHandler extends AbstractProcessingHandler
     private function checkThrottle(): void
     {
         $current = new DateTime();
-        $diff = $current->diff($this->savedTime)->s;
+        $diff = $current->diff($this->savedTime, true)->s;
         $sameSecond = $diff === 0;
 
         if ($sameSecond && $this->remainingRequests > 0) {

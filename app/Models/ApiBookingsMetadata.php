@@ -52,16 +52,6 @@ class ApiBookingsMetadata extends Model
         ];
     }
 
-    /**
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'booking_item_data' => 'array',
-        ];
-    }
-
     public function getSearchTypeAttribute()
     {
         return 'hotel';

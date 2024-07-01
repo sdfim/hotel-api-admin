@@ -23,7 +23,7 @@ class BaseHotelBookDto
             ->first();
 
         $request = json_decode($bookringItem->search->request, true);
-        $nights = (new DateTime($request['checkout']))->diff(new DateTime($request['checkin']))->days;
+        $nights = floor((new DateTime($request['checkout']))->diff(new DateTime($request['checkin']), true)->days);
 
         $booking_item_data = json_decode($bookringItem->booking_item_data, true);
         $booking_pricing_data = json_decode($bookringItem->booking_pricing_data, true);
