@@ -95,6 +95,10 @@ class ExpediaBookApiController extends BaseBookApiController
         $booking_id = $bookingInspector->booking_id;
         $filters['search_id'] = $bookingInspector->search_id;
         $filters['booking_item'] = $bookingInspector->booking_item;
+        $error = [
+            'error'          => [],
+            'supplier_error' => false,
+        ];
 
         $passengers = BookingRepository::getPassengers($booking_id, $filters['booking_item']);
 
@@ -166,6 +170,11 @@ class ExpediaBookApiController extends BaseBookApiController
             $this->handleException($e, $inspectorBook, 'Server error', 'Server error');
         } catch (RequestException $e) {
             $this->handleException($e, $inspectorBook, 'Request Exception occurred', $e->getMessage());
+
+            $error = [
+                'error'          => [...$error['error'], $e->getMessage()],
+                'supplier_error' => true,
+            ];
         } catch (Exception $e) {
             $this->handleException($e, $inspectorBook, 'Unexpected error', $e->getMessage());
         }
@@ -199,6 +208,11 @@ class ExpediaBookApiController extends BaseBookApiController
             $this->handleException($e, $inspectorBook, 'Server error', 'Server error');
         } catch (RequestException $e) {
             $this->handleException($e, $inspectorBook, 'Request Exception occurred', $e->getMessage());
+
+            $error = [
+                'error'          => [...$error['error'], $e->getMessage()],
+                'supplier_error' => true,
+            ];
         } catch (Exception $e) {
             $this->handleException($e, $inspectorBook, 'Unexpected error', $e->getMessage());
         }
@@ -216,7 +230,12 @@ class ExpediaBookApiController extends BaseBookApiController
 
         $this->saveBookingInfo($filters, $content, $bookingInspector);
 
-        return $res;
+        $error = empty($error['error']) ? [] : $error;
+
+        return [
+            ...$res,
+            ...$error
+        ];
     }
 
     /**
