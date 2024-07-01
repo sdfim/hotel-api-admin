@@ -31,6 +31,7 @@ use Modules\API\Suppliers\DTO\HBSI\HbsiHotelPricingDto;
 use Modules\API\Suppliers\DTO\IcePortal\IcePortalHotelContentDetailDto;
 use Modules\API\Suppliers\DTO\IcePortal\IcePortalHotelContentDto;
 use Modules\API\Suppliers\HbsiSupplier\HbsiService;
+use Modules\API\Tools\PricingDtoTools;
 use Modules\API\Tools\PricingRulesTools;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Inspector\SearchInspectorController;
@@ -67,6 +68,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
      * @param HbsiService $hbsiService
      */
     public function __construct(
+        private readonly PricingDtoTools                $pricingDtoTools = new PricingDtoTools(),
         private readonly ExpediaHotelController         $expedia = new ExpediaHotelController(),
         private readonly IcePortalHotelController       $icePortal = new IcePortalHotelController(),
         private readonly SearchInspectorController      $apiInspector = new SearchInspectorController(),
@@ -401,6 +403,13 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $countResponse += $result['countResponse'];
                         $countClientResponse += $result['countClientResponse'];
                     }
+                }
+
+                /** Expedia RS aggregation If the 'query_package' key is set to 'both' */
+                if ($filters['query_package'] === 'both') {
+                    $clientResponse['Expedia_both'] = $this->pricingDtoTools->mergeHotelData($clientResponse['Expedia_standalone'], $clientResponse['Expedia_package']);
+                    unset($clientResponse['Expedia_standalone']);
+                    unset($clientResponse['Expedia_package']);
                 }
 
                 /** Enrichment Property Weighting */

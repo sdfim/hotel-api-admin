@@ -59,6 +59,25 @@ class RoomResponse extends BaseResponse
 
     private ?string $penalty_date = null;
 
+    private string $query_package;
+
+    /**
+     * @param string $query_package
+     * @return void
+     */
+    public function setQueryPackage(string $query_package): void
+    {
+        $this->query_package = $query_package;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQueryPackage(): string
+    {
+        return $this->query_package;
+    }
+
     /**
      * @param string $room_description
      */
@@ -528,6 +547,7 @@ class RoomResponse extends BaseResponse
             'supplier_room_name' => $this->getSupplierRoomName(),
             'per_day_rate_breakdown' => $this->getPerDayRateBreakdown(),
             'supplier_room_id' => $this->getSupplierRoomCode(),
+            'query_package' => $this->getQueryPackage(),
             // 'supplier_bed_groups' => $this->getSupplierBedGroups(),
             'room_type' => $this->getRoomType(),
             'room_description' => $this->getRoomDescription(),

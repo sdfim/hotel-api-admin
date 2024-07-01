@@ -95,7 +95,6 @@ class ExpediaHotelPricingDto
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id']);
         $hotelResponse->setDistanceFromSearchLocation($this->giata[$propertyGroup['giata_id']]['distance'] ?? 0);
         $hotelResponse->setRating($this->ratings[$propertyGroup['property_id']]['rating'] ?? '');
-        $hotelResponse->setQueryPackage($this->query_package);
         $hotelResponse->setHotelName($propertyGroup['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
         $hotelResponse->setSupplier(SupplierNameEnum::EXPEDIA->value);
@@ -285,6 +284,7 @@ class ExpediaHotelPricingDto
         $roomResponse = RoomResponseFactory::create();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
+        $roomResponse->setQueryPackage($this->query_package);
         $roomResponse->setPenaltyDate($penaltyDate);
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
         $roomResponse->setSupplierRoomName($roomGroup['room_name'] ?? '');
