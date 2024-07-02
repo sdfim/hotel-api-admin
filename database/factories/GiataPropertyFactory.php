@@ -59,8 +59,8 @@ class GiataPropertyFactory extends Factory
                     "PositionAccuracy": "1"
                 }
             }',
-            'latitude' => $this->faker->latitude(),
-            'longitude' => $this->faker->longitude(),
+            'latitude' => $this->faker->randomFloat(4, -90, 90),
+            'longitude' => $this->faker->randomFloat(3, -180, 180),
             'url' => '{}',
             'cross_references' => '[
                 {
