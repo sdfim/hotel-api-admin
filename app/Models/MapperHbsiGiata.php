@@ -39,5 +39,4 @@ class MapperHbsiGiata extends Model
     public $incrementing = false;
 
     protected $table = 'mapper_hbsi_giatas';
-
 }

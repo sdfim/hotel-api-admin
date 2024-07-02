@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *   description="Schema Content Detail Response",
  *   type="object",
  *   required={"success", "data"},
+ *
  *   @OA\Property(
  *     property="success",
  *     type="boolean",
@@ -27,9 +28,11 @@ namespace Modules\API\Resources\Content\Hotel;
  *         property="Expedia",
  *         type="array",
  *         description="Hotel information from Expedia.",
+ *
  *         @OA\Items(
  *           type="object",
  *           description="Details of a specific hotel from Expedia.",
+ *
  *           @OA\Property(
  *             property="giata_hotel_code",
  *             type="integer",
@@ -40,8 +43,10 @@ namespace Modules\API\Resources\Content\Hotel;
  *             property="images",
  *             type="array",
  *             description="Array of URLs for hotel images.",
+ *
  *             @OA\Items(type="string", format="url")
  *           ),
+ *
  *           @OA\Property(
  *             property="description",
  *             type="string",
@@ -80,10 +85,12 @@ namespace Modules\API\Resources\Content\Hotel;
  *             property="amenities",
  *             type="object",
  *             description="Hotel amenities.",
+ *
  *             @OA\AdditionalProperties(
  *               type="string"
  *             )
  *           ),
+ *
  *           @OA\Property(
  *             property="giata_destination",
  *             type="string",
@@ -100,8 +107,10 @@ namespace Modules\API\Resources\Content\Hotel;
  *             property="special_instructions",
  *             type="array",
  *             description="Special instructions for the hotel.",
+ *
  *             @OA\Items(type="string")
  *           ),
+ *
  *           @OA\Property(
  *             property="check_in_time",
  *             type="string",
@@ -187,9 +196,11 @@ namespace Modules\API\Resources\Content\Hotel;
  *             property="rooms",
  *             type="array",
  *             description="Information about available rooms at the hotel.",
+ *
  *             @OA\Items(
  *               type="object",
  *               description="Details of a specific room type.",
+ *
  *               @OA\Property(
  *                 property="supplier_room_id",
  *                 type="integer",
@@ -204,16 +215,20 @@ namespace Modules\API\Resources\Content\Hotel;
  *                 property="amenities",
  *                 type="object",
  *                 description="Amenities available in the room.",
+ *
  *                 @OA\AdditionalProperties(
  *                   type="string"
  *                 )
  *               ),
+ *
  *               @OA\Property(
  *                 property="images",
  *                 type="array",
  *                 description="Array of URLs for room images.",
+ *
  *                 @OA\Items(type="string", format="url")
  *               ),
+ *
  *               @OA\Property(
  *                 property="descriptions",
  *                 type="string",
@@ -226,6 +241,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *     )
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="ContentDetailResponse",
  *     summary="Content Detail Response",

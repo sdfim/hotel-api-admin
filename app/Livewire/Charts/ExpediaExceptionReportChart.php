@@ -8,35 +8,26 @@ use Illuminate\Support\Facades\DB;
 
 class ExpediaExceptionReportChart extends ChartWidget
 {
-    /**
-     * @var string|null
-     */
     protected static ?string $heading = 'Expedia Exception Report Chart';
 
-    /**
-     * @var string|null
-     */
     protected static ?string $pollingInterval = '7200s';
 
-    /**
-     * @return array
-     */
     protected function getData(): array
     {
         self::$options['scales'] = [
             'y' => [
                 'max' => 60,
                 'ticks' => [
-                    'stepSize' => 2
-                ]
-            ]
+                    'stepSize' => 2,
+                ],
+            ],
         ];
 
         $keyExceptionsReportChart = 'ExceptionsReportChart';
 
-        if (Cache::has($keyExceptionsReportChart . ':labels') && Cache::has($keyExceptionsReportChart . ':data')) {
-            $labels = Cache::get($keyExceptionsReportChart . ':labels');
-            $data = Cache::get($keyExceptionsReportChart . ':data');
+        if (Cache::has($keyExceptionsReportChart.':labels') && Cache::has($keyExceptionsReportChart.':data')) {
+            $labels = Cache::get($keyExceptionsReportChart.':labels');
+            $data = Cache::get($keyExceptionsReportChart.':data');
         } else {
             $queryResult = DB::select("
                 SELECT
@@ -55,37 +46,34 @@ class ExpediaExceptionReportChart extends ChartWidget
             $labels = array_column($queryResult, 'date');
             $data = [
                 'successes' => array_column($queryResult, 'success_count'),
-                'errors' => array_column($queryResult, 'error_count')
+                'errors' => array_column($queryResult, 'error_count'),
             ];
 
-            Cache::put($keyExceptionsReportChart . ':labels', $labels, now()->addMinutes(1440));
-            Cache::put($keyExceptionsReportChart . ':data', $data, now()->addMinutes(1440));
+            Cache::put($keyExceptionsReportChart.':labels', $labels, now()->addMinutes(1440));
+            Cache::put($keyExceptionsReportChart.':data', $data, now()->addMinutes(1440));
         }
 
         return [
             'datasets' => [
                 [
-                    'label' => "Success",
-                    'backgroundColor' => "rgba(75, 192, 192, 0.2)",
-                    'borderColor' => "rgba(75, 192, 192, 1)",
+                    'label' => 'Success',
+                    'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
+                    'borderColor' => 'rgba(75, 192, 192, 1)',
                     'borderWidth' => 1,
                     'data' => $data['successes'],
                 ],
                 [
-                    'label' => "Error",
-                    'backgroundColor' => "rgba(255, 99, 132, 0.2)",
-                    'borderColor' => "rgba(255, 99, 132, 1)",
+                    'label' => 'Error',
+                    'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
+                    'borderColor' => 'rgba(255, 99, 132, 1)',
                     'borderWidth' => 1,
                     'data' => $data['errors'],
-                ]
+                ],
             ],
             'labels' => $labels,
         ];
     }
 
-    /**
-     * @return string
-     */
     protected function getType(): string
     {
         return 'bar';

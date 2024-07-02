@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *   description="Schema Content Search Response",
  *   type="object",
  *   required={"success", "data"},
+ *
  *   @OA\Property(
  *     property="success",
  *     type="boolean",
@@ -74,8 +75,10 @@ namespace Modules\API\Resources\Content\Hotel;
  *         property="Expedia",
  *         type="array",
  *         description="Expedia.",
+ *
  *         @OA\Items(
  *           type="object",
+ *
  *           @OA\Property(
  *             property="giata_hotel_code",
  *             type="integer",
@@ -86,11 +89,13 @@ namespace Modules\API\Resources\Content\Hotel;
  *             property="images",
  *             type="array",
  *             description="Images.",
+ *
  *             @OA\Items(
  *               type="string",
  *               example="https://i.travelapi.com/lodging/1000000/10000/100/87/cce95a1e_b.jpg"
  *             )
  *           ),
+ *
  *           @OA\Property(
  *             property="description",
  *             type="string",
@@ -131,11 +136,13 @@ namespace Modules\API\Resources\Content\Hotel;
  *             property="amenities",
  *             type="array",
  *             description="Amenities.",
+ *
  *             @OA\Items(
  *               type="string",
  *               example="Elevator"
  *             )
  *           ),
+ *
  *           @OA\Property(
  *             property="giata_destination",
  *             type="string",
@@ -159,6 +166,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *     )
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="ContentSearchResponse",
  *     summary="Content Search Response",

@@ -19,7 +19,7 @@ class SuppliersController extends Controller
      */
     private array $validate = [
         'name' => 'bail|required|string|max:190',
-        'description' => 'bail|required|string|max:190'
+        'description' => 'bail|required|string|max:190',
     ];
 
     /**
@@ -37,6 +37,7 @@ class SuppliersController extends Controller
     {
         $text = $this->message;
         $suppliers = Supplier::all();
+
         return view('dashboard.suppliers.create', compact('suppliers', 'text'));
     }
 

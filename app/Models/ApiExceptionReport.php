@@ -20,12 +20,9 @@ class ApiExceptionReport extends Model
         'supplier_id',
         'action',
         'description',
-        'response_path'
+        'response_path',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);

@@ -16,26 +16,31 @@ class ListBookingsRequest extends ApiRequest
      *   path="/api/booking/list-bookings",
      *   summary="Retrieve a list of all your booking reservations. ",
      *   description="Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
+     *
      *    @OA\Parameter(
      *      name="type",
      *      in="query",
      *      required=true,
      *      description="Type",
+     *
      *      @OA\Schema(
      *        type="string",
      *        example="hotel"
      *      )
      *    ),
+     *
      *    @OA\Parameter(
      *      name="supplier",
      *      in="query",
      *      required=true,
      *      description="Supplier",
+     *
      *      @OA\Schema(
      *        type="string",
      *        example="Expedia"
      *      )
      *    ),
+     *
      *    @OA\Response(
      *      response=200,
      *      description="OK",
@@ -43,6 +48,7 @@ class ListBookingsRequest extends ApiRequest
      *    @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -50,9 +56,11 @@ class ListBookingsRequest extends ApiRequest
      *       }
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse",
      *       examples={
@@ -72,7 +80,7 @@ class ListBookingsRequest extends ApiRequest
     {
         return [
             'supplier' => 'required|string',
-            'type' => 'required|string|in:hotel,flight,combo'
+            'type' => 'required|string|in:hotel,flight,combo',
         ];
     }
 }

@@ -20,9 +20,6 @@ use Modules\API\Tools\Geography;
 
 class IcePortalHotelController
 {
-    /**
-     * @var IceHBSIClient
-     */
     private IceHBSIClient $client;
 
     private const RESULT_PER_PAGE = 500;
@@ -36,15 +33,11 @@ class IcePortalHotelController
         $this->client = new IceHBSIClient();
     }
 
-    /**
-     * @param array $filters
-     * @return array
-     */
     public function search(array $filters): array
     {
         if (isset($filters['place'])) {
             $tticodes = GiataPlace::where('key', $filters['place'])->first()->tticodes;
-            $city_id =  0;
+            $city_id = 0;
             foreach ($tticodes as $tticode) {
                 $giataData = GiataProperty::where('code', $tticode)->first();
                 if ($giataData) {
@@ -65,17 +58,13 @@ class IcePortalHotelController
         $propertyRepository = new GiataPropertyRepository();
 
         $results = IcePortalRepository::dataByCity($geographyData->city_name);
-        if (count($results) > 0 && !request()->supplier_data) return $results;
+        if (count($results) > 0 && ! request()->supplier_data) {
+            return $results;
+        }
 
         return $this->icePortalHttpRequest($geographyData, $filters, $propertyRepository);
     }
 
-    /**
-     * @param GiataGeography $geographyData
-     * @param array $filters
-     * @param GiataPropertyRepository $propertyRepository
-     * @return array
-     */
     public function icePortalHttpRequest(GiataGeography $geographyData, array $filters, GiataPropertyRepository $propertyRepository): array
     {
         $results = ['$results' => [], 'count' => '0'];
@@ -94,7 +83,7 @@ class IcePortalHotelController
                 $filters['results_per_page'] : self::RESULT_PER_PAGE,
         ]);
         Log::info('IceHBSIClient | search | runtime /v1/listings', [
-            'runtime' => microtime(true) - $ct . ' seconds',
+            'runtime' => microtime(true) - $ct.' seconds',
         ]);
 
         if ($response->successful()) {
@@ -111,7 +100,7 @@ class IcePortalHotelController
 
             $missingProperties = [];
             foreach ($results['results'] as $key => $result) {
-                if (!in_array($result['listingID'], $existingPropertiesIds)) {
+                if (! in_array($result['listingID'], $existingPropertiesIds)) {
                     $missingProperties['results'][] = $result;
                     unset($results['results'][$key]);
                 } else {
@@ -122,11 +111,11 @@ class IcePortalHotelController
 
             // This is an asynchronous call to fetch the hotel assets
             $resultsFromIseAsync = ['results' => []];
-            if (!empty($missingProperties)) {
+            if (! empty($missingProperties)) {
                 $ct = microtime(true);
                 $resultsFromIseAsync = $this->fetchHotelAssets($missingProperties);
                 Log::info('IceHBSIClient | search | runtime fetchHotelAssets', [
-                    'runtime' => microtime(true) - $ct . ' seconds',
+                    'runtime' => microtime(true) - $ct.' seconds',
                 ]);
             }
 
@@ -144,17 +133,13 @@ class IcePortalHotelController
         return $results;
     }
 
-    /**
-     * @param array $results
-     * @return array
-     */
     public function fetchHotelAssets(array $results): array
     {
         $responses = Http::pool(function (Pool $pool) use ($results) {
             Log::info('IceHBSIClient | search | results', $results);
             foreach ($results['results'] as $result) {
                 $pool->withToken($this->client->fetchToken())
-                    ->get($this->client->url('/v1/listings/' . $result['listingID'] . '/assets'), [
+                    ->get($this->client->url('/v1/listings/'.$result['listingID'].'/assets'), [
                         'includeDisabledAssets' => 'true',
                         'includeNotApprovedAssets' => 'true',
                         'page' => '1',
@@ -174,7 +159,9 @@ class IcePortalHotelController
             ]);
             $asset = $icePortalAssetDto->IcePortalToAssets($responseData['results']);
             if (isset($results['results'][$key])) {
-                if (!isset($results['results'][$key]['listingID'])) continue;
+                if (! isset($results['results'][$key]['listingID'])) {
+                    continue;
+                }
 
                 $results['results'][$key]['images'] = $asset['hotelImages'];
                 $results['results'][$key]['amenities'] = $asset['hotelAmenities'];
@@ -209,19 +196,15 @@ class IcePortalHotelController
         return $results;
     }
 
-    /**
-     * @param Request $request
-     * @return array
-     */
     public function detail(Request $request): array
     {
         $id = MapperIcePortalGiata::where('giata_id', $request->get('property_id'))->first();
 
-        if (!$id) {
+        if (! $id) {
             return [];
         }
 
-        $response = $this->client->get('/v1/listings/' . $id->ice_portal_id . '/', [
+        $response = $this->client->get('/v1/listings/'.$id->ice_portal_id.'/', [
             'mType' => self::ICE_MTYPE,
         ]);
 

@@ -10,7 +10,6 @@ class GeneralConfigurationTest extends CustomAuthorizedActionsTestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_general_configuration_index_is_opening(): void
     {
@@ -21,7 +20,6 @@ class GeneralConfigurationTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_inserting_into_general_configuration(): void
     {
@@ -37,7 +35,6 @@ class GeneralConfigurationTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_updating_of_general_configuration(): void
     {
@@ -53,9 +50,6 @@ class GeneralConfigurationTest extends CustomAuthorizedActionsTestCase
         $this->assertDatabaseHas('general_configurations', $data);
     }
 
-    /**
-     * @return array
-     */
     protected function generate_test_data(): array
     {
         return [
@@ -68,5 +62,4 @@ class GeneralConfigurationTest extends CustomAuthorizedActionsTestCase
             'stop_bookings' => 1,
         ];
     }
-
 }

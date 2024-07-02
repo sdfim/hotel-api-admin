@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *   description="Schema Booking Retrieve Booking Response",
  *   type="object",
  *     required={"success", "data"},
+ *
  *     @OA\Property(
  *     property="success",
  *     type="boolean",
@@ -22,9 +23,11 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     @OA\Property(
  *     property="result",
  *     type="array",
+ *
  *     @OA\Items(
  *     type="object",
  *     required={"status", "booking_id", "booking_item", "supplier", "hotel_name", "rooms", "cancellation_terms", "rate", "total_price", "total_tax", "total_fees", "total_net", "markup", "currency", "per_night_breakdown", "board_basis", "supplier_book_id", "billing_contact", "billing_email", "billing_phone", "query"},
+ *
  *     @OA\Property(
  *     property="status",
  *     type="string",
@@ -55,9 +58,11 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     @OA\Property(
  *     property="rooms",
  *     type="array",
+ *
  *     @OA\Items(
  *     type="object",
  *     required={"checkin", "checkout", "number_of_adults", "given_name", "family_name", "room_name", "room_type"},
+ *
  *     @OA\Property(
  *     property="checkin",
  *     type="string",
@@ -288,9 +293,11 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     @OA\Property(
  *     property="occupancy",
  *     type="array",
+ *
  *     @OA\Items(
  *     type="object",
  *     required={"adults"},
+ *
  *     @OA\Property(
  *     property="adults",
  *     type="integer",
@@ -318,6 +325,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  * )
  * )
  * ),
+ *
  * @OA\Examples(
  *     example="BookingRetrieveBookingResponse",
  *     summary="Example Booking Retrieve Booking Response",
@@ -468,5 +476,4 @@ namespace Modules\API\Resources\Booking\Hotel;
  */
 class BookingRetrieveBookingResponse
 {
-
 }

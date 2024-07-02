@@ -15,17 +15,14 @@ class SaveReservations implements ShouldQueue
 
     /**
      * Create a new job instance.
-     * @param string $booking_id
-     * @param array $filters
-     * @param array $dataPassengers
-     * @param ExpediaTools $expediaTools
      */
     public function __construct(
-        private readonly string   $booking_id,
+        private readonly string $booking_id,
         private readonly array $filters,
         private readonly array $dataPassengers,
         private readonly ExpediaTools $expediaTools = new ExpediaTools(),
-    ) {}
+    ) {
+    }
 
     /**
      * Execute the job.

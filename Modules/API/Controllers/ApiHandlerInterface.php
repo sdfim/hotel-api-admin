@@ -7,22 +7,9 @@ use Illuminate\Http\Request;
 
 interface ApiHandlerInterface
 {
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
     public function search(Request $request): JsonResponse;
 
-    /**
-     * @param Request $request
-     * @return JsonResponse
-     */
     public function detail(Request $request): JsonResponse;
 
-    /**
-     * @param Request $request
-     * @param array $suppliers
-     * @return JsonResponse
-     */
     public function price(Request $request, array $suppliers): JsonResponse;
 }

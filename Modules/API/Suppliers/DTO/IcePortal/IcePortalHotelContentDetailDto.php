@@ -10,27 +10,16 @@ use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
 
 class IcePortalHotelContentDetailDto
 {
-    /**
-     * @var IceHBSIClient
-     */
     private IceHBSIClient $client;
 
-    /**
-     *
-     */
     public function __construct()
     {
         $this->client = new IceHBSIClient();
     }
 
-    /**
-     * @param object $supplierResponse
-     * @param int $giata_id
-     * @return array
-     */
     public function HbsiToContentDetailResponse(object $supplierResponse, int $giata_id): array
     {
-        $assets = $this->client->get('/v1/listings/' . $supplierResponse->listingID . '/assets', [
+        $assets = $this->client->get('/v1/listings/'.$supplierResponse->listingID.'/assets', [
             'includeDisabledAssets' => 'true',
             'includeNotApprovedAssets' => 'true',
             'page' => '1',
@@ -41,7 +30,7 @@ class IcePortalHotelContentDetailDto
         } else {
             $assetsResponse = $assets->json()['results'];
         }
-        $rating = $assetsResponse[0]['rating'] ? (string)$assetsResponse[0]['rating'] : '';
+        $rating = $assetsResponse[0]['rating'] ? (string) $assetsResponse[0]['rating'] : '';
 
         $contentResponse = [];
 
@@ -54,8 +43,8 @@ class IcePortalHotelContentDetailDto
         $roomAmenitiesGeneral = $result['roomAmenitiesGeneral'];
         $hotelAmenities = $result['hotelAmenities'];
 
-        $address = $supplierResponse->address['addressLine1'] . ', ' .
-            $supplierResponse->address['city'] . ' - ' .
+        $address = $supplierResponse->address['addressLine1'].', '.
+            $supplierResponse->address['city'].' - '.
             $supplierResponse->address['postalCode'];
 
         $hotelResponse = new ContentDetailResponse();

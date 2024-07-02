@@ -12,7 +12,6 @@ class RoleMiddlewareTest extends TestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_it_aborts_request_if_user_does_not_have_required_role(): void
     {
@@ -24,7 +23,6 @@ class RoleMiddlewareTest extends TestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_it_aborts_request_if_user_does_not_have_required_permission(): void
     {
@@ -33,5 +31,4 @@ class RoleMiddlewareTest extends TestCase
         $response = $this->get('/test-admin');
         $response->assertStatus(404);
     }
-
 }

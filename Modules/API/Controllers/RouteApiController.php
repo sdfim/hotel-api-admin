@@ -18,8 +18,6 @@ use Modules\Enums\TypeRequestEnum as TypeEnum;
 class RouteApiController extends Controller
 {
     /**
-     * @param Request $request
-     * @return mixed
      * @throws \Throwable
      */
     public function handle(Request $request): mixed
@@ -27,13 +25,13 @@ class RouteApiController extends Controller
         $type = $request->type;
         $route = Route::currentRouteName();
 
-        if (!$this->isTypeValid($type)) {
+        if (! $this->isTypeValid($type)) {
             return response()->json([
                 'success' => false,
                 'error' => 'Invalid type',
             ], 400);
         }
-        if (!$this->isRouteValid($route)) {
+        if (! $this->isRouteValid($route)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid route',
@@ -55,10 +53,6 @@ class RouteApiController extends Controller
         };
     }
 
-    /**
-     * @param string $type
-     * @return Request
-     */
     private function searchRequest(string $type): Request
     {
         return match (TypeEnum::from($type)) {
@@ -67,10 +61,6 @@ class RouteApiController extends Controller
         };
     }
 
-    /**
-     * @param string $type
-     * @return Request
-     */
     private function detailRequest(string $type): Request
     {
         return match (TypeEnum::from($type)) {
@@ -79,10 +69,6 @@ class RouteApiController extends Controller
         };
     }
 
-    /**
-     * @param string $type
-     * @return Request
-     */
     private function priceRequest(string $type): Request
     {
         return match (TypeEnum::from($type)) {
@@ -91,27 +77,21 @@ class RouteApiController extends Controller
         };
     }
 
-    /**
-     * @param $value
-     * @return bool
-     */
     private function isTypeValid($value): bool
     {
         $values = array_map(function ($case) {
             return $case->value;
         }, TypeEnum::cases());
+
         return in_array($value, $values, true);
     }
 
-    /**
-     * @param $value
-     * @return bool
-     */
     public function isRouteValid($value): bool
     {
         $values = array_map(function ($case) {
             return $case->value;
         }, RouteEnum::cases());
+
         return in_array($value, $values, true);
     }
 }

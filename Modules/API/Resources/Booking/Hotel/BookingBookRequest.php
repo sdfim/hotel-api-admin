@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *   description="Schema Booking Book Request",
  *   type="object",
  *   required={"amount_pay", "email", "phone", "booking_contact"},
+ *
  *   @OA\Property(
  *     property="amount_pay",
  *     type="string",
@@ -89,9 +90,11 @@ namespace Modules\API\Resources\Booking\Hotel;
  *   @OA\Property(
  *     property="credit_cards",
  *     type="array",
+ *
  *     @OA\Items(
  *     type="object",
  *     required={"credit_card", "booking_item"},
+ *
  *     @OA\Property(
  *     property="credit_card",
  *     type="object",
@@ -163,9 +166,11 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     @OA\Property(
  *     property="special_requests",
  *     type="array",
+ *
  *     @OA\Items(
  *     type="object",
  *     required={"booking_item", "room", "special_request"},
+ *
  *     @OA\Property(
  *     property="booking_item",
  *     type="string",
@@ -187,9 +192,11 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     @OA\Property(
  *     property="comments",
  *     type="array",
+ *
  *     @OA\Items(
  *     type="object",
  *     required={"booking_item", "room", "comment"},
+ *
  *     @OA\Property(
  *     property="booking_item",
  *     type="string",
@@ -209,6 +216,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *  )
  * )
  * ),
+ *
  * @OA\Examples(
  *     example="BookingBookRequest",
  *     summary="Example Booking Book Request",
@@ -292,12 +300,14 @@ namespace Modules\API\Resources\Booking\Hotel;
  * 	}
  * }
  * ),
+ *
  * @OA\Schema(
  *   schema="BookingBookRequestExpedia",
  *   title="Booking Book Request Expedia",
  *   description="Schema Booking Book Request Expedia",
  *   type="object",
  *   required={"amount_pay", "email", "phone", "booking_contact"},
+ *
  *   @OA\Property(
  *     property="amount_pay",
  *     type="string",
@@ -376,6 +386,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     )
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="BookingBookRequestExpedia",
  *     summary="Example Booking Book Request Expedia",

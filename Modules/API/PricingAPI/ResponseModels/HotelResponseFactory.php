@@ -4,9 +4,6 @@ namespace Modules\API\PricingAPI\ResponseModels;
 
 class HotelResponseFactory
 {
-    /**
-     * @return HotelResponse
-     */
     public static function create(): HotelResponse
     {
         $hotelResponse = new HotelResponse();

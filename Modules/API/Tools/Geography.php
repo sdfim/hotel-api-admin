@@ -6,12 +6,6 @@ use App\Models\GiataProperty;
 
 class Geography
 {
-    /**
-     * @param float $latitude
-     * @param float $longitude
-     * @param float $radius
-     * @return array
-     */
     public function calculateBoundingBox(float $latitude, float $longitude, float $radius): array
     {
         $earthRadius = 6371;
@@ -36,25 +30,19 @@ class Geography
             'min_latitude' => $minLatitude,
             'max_latitude' => $maxLatitude,
             'min_longitude' => $minLongitude,
-            'max_longitude' => $maxLongitude
+            'max_longitude' => $maxLongitude,
         ];
     }
 
-    /**
-     * @param float $latitude
-     * @param float $longitude
-     * @param float $radius
-     * @return string|int|null
-     */
     public function findTheClosestCityInRadius(float $latitude, float $longitude, float $radius): string|int|null
     {
         $destinationCoordinates = $this->calculateBoundingBox($latitude, $longitude, $radius);
 
         return GiataProperty::whereBetween('latitude', [
-            $destinationCoordinates['min_latitude'], $destinationCoordinates['max_latitude']
+            $destinationCoordinates['min_latitude'], $destinationCoordinates['max_latitude'],
         ])
             ->whereBetween('longitude', [
-                $destinationCoordinates['min_longitude'], $destinationCoordinates['max_longitude']
+                $destinationCoordinates['min_longitude'], $destinationCoordinates['max_longitude'],
             ])
             ->first()->city_id ?? null;
     }

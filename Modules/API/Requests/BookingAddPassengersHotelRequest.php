@@ -6,13 +6,10 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
-
 class BookingAddPassengersHotelRequest extends ApiRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
     /**
      * @OA\Post(
@@ -20,6 +17,7 @@ class BookingAddPassengersHotelRequest extends ApiRequest
      *   path="/api/booking/add-passengers",
      *   summary="Add passengers to a booking.",
      *   description="Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
+     *
      *     @OA\Parameter(
      *       name="booking_id",
      *       in="query",
@@ -27,9 +25,11 @@ class BookingAddPassengersHotelRequest extends ApiRequest
      *       description="To retrieve the **booking_id**, you need to execute a **'/api/booking/add-item'** request. <br>
      *       In the response object for each rate is a **booking_id** property.",
      *     ),
+     *
      *     @OA\RequestBody(
      *     description="JSON object containing the details of the reservation. If you don't pass booking_item(s), these passengers will be added to all booking_items that are in the cart (booking_id)",
      *     required=true,
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BookingAddPassengersRequest",
      *       examples={
@@ -37,9 +37,11 @@ class BookingAddPassengersHotelRequest extends ApiRequest
      *       },
      *     ),
      *   ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BookingAddPassengersResponse",
      *       examples={
@@ -48,9 +50,11 @@ class BookingAddPassengersHotelRequest extends ApiRequest
      *       },
      *     ),
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BookingAddPassengersResponse",
      *       examples={
@@ -58,9 +62,11 @@ class BookingAddPassengersHotelRequest extends ApiRequest
      *       },
      *     ),
      *   ),
+     *
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -96,9 +102,6 @@ class BookingAddPassengersHotelRequest extends ApiRequest
         ];
     }
 
-    /**
-     * @return array
-     */
     public function validatedDate(): array
     {
         return parent::validated();

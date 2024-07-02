@@ -14,7 +14,6 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_validation_of_supplier_form_as_well_as_new_supplier_creating(): void
     {
@@ -42,7 +41,6 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_suppliers_index_is_opening(): void
     {
@@ -53,7 +51,6 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_creating_supplier(): void
     {
@@ -66,13 +63,12 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_storing_supplier(): void
     {
         $data = [
-            'name' => $this->faker->name,
-            'description' => $this->faker->word,
+            'name' => $this->faker->name(),
+            'description' => $this->faker->word(),
         ];
 
         $response = $this->post(route('suppliers.store'), $data);
@@ -86,7 +82,6 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_showing_an_existing_supplier(): void
     {
@@ -104,7 +99,6 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_editing_an_existing_supplier(): void
     {
@@ -115,10 +109,8 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_destroying_an_existing_supplier(): void
     {
@@ -131,7 +123,6 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_updating_an_existing_supplier(): void
     {

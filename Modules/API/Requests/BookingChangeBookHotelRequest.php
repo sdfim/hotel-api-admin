@@ -6,7 +6,6 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
-
 class BookingChangeBookHotelRequest extends ApiRequest
 {
     /**
@@ -18,6 +17,7 @@ class BookingChangeBookHotelRequest extends ApiRequest
      *   path="/api/booking/change-booking",
      *   summary="Modify an existing booking..",
      *   description="Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
+     *
      *   @OA\Parameter(
      *      name="booking_id",
      *      in="query",
@@ -33,9 +33,11 @@ class BookingChangeBookHotelRequest extends ApiRequest
      *      In the response object for each rate is a **booking_item** property.",
      *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
      *    ),
+     *
      *     @OA\RequestBody(
      *     description="JSON object containing the details of the reservation.",
      *     required=true,
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BookingChangeBookingRequest",
      *       examples={
@@ -43,9 +45,11 @@ class BookingChangeBookHotelRequest extends ApiRequest
      *       },
      *     ),
      *   ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BookingChangeBookingResponse",
      *           examples={
@@ -53,18 +57,22 @@ class BookingChangeBookHotelRequest extends ApiRequest
      *         },
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       examples={
      *         "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingResponseError", example="BookingChangeBookingResponseError"),
      *       },
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -99,9 +107,6 @@ class BookingChangeBookHotelRequest extends ApiRequest
         ];
     }
 
-    /**
-     * @return array
-     */
     public function validatedDate(): array
     {
         return parent::validated();

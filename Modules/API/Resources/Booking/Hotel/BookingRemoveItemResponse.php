@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *   description="Schema of Booking Remove Item Response",
  *   type="object",
  *   required={"success", "data", "message"},
+ *
  *   @OA\Property(
  *     property="success",
  *     type="boolean",
@@ -50,6 +51,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     example="success"
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="BookingRemoveItemResponse",
  *     summary="Example of Booking Remove Item Response",

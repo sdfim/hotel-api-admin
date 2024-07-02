@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
         $admin_role = Role::where('slug', 'admin')->first();
         $createAdminPermission = Permission::where('slug', 'admin')->first();
 
-        if (!User::where('email', 'admin@ujv.com')->first()) {
+        if (! User::where('email', 'admin@ujv.com')->first()) {
             $admin = new User();
             $admin->name = 'Admin';
             $admin->email = 'admin@ujv.com';
@@ -34,7 +34,7 @@ class UserSeeder extends Seeder
         $user_role = Role::where('slug', 'user')->first();
         $createUserPermission = Permission::where('slug', 'user')->first();
 
-        if (!User::where('email', 'user@ujv.com')->first()) {
+        if (! User::where('email', 'user@ujv.com')->first()) {
             $user = new User();
             $user->name = 'User';
             $user->email = 'user@ujv.com';

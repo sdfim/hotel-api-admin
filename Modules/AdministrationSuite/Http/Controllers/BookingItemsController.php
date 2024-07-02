@@ -17,7 +17,6 @@ class BookingItemsController extends Controller
         return view('dashboard.booking-items.index');
     }
 
-
     /**
      * Display the specified resource.
      */
@@ -25,8 +24,7 @@ class BookingItemsController extends Controller
     {
         $text = $this->message;
         $item = ApiBookingItem::findOrFail($id);
+
         return view('dashboard.booking-items.show', compact('item', 'text'));
     }
-
-
 }

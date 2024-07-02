@@ -17,19 +17,10 @@ use Modules\Enums\TypeRequestEnum;
 
 class ExpediaTools
 {
-    /**
-     *
-     */
     public function __construct()
     {
     }
 
-    /**
-     * @param string $booking_id
-     * @param array $filters
-     * @param array $passenger
-     * @return void
-     */
     public function saveAddItemToReservations(string $booking_id, array $filters, array $passenger): void
     {
         try {
@@ -44,7 +35,7 @@ class ExpediaTools
 
             foreach ($passenger['rooms'] as $room) {
                 foreach ($room as $passenger) {
-                    $passenger_surname = ($passenger['family_name'] ?? '') . ' ' . ($passenger['given_name'] ?? '');
+                    $passenger_surname = ($passenger['family_name'] ?? '').' '.($passenger['given_name'] ?? '');
                 }
             }
 
@@ -56,19 +47,18 @@ class ExpediaTools
             if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI
                 || SupplierNameEnum::from($supplier) === SupplierNameEnum::EXPEDIA) {
                 $reservationsData = SearchRepository::getReservationsData($apiBookingItem, $apiSearchInspector);
-                $hotelName = !is_null($reservationsData['expedia_hotel_id']) ? ExpediaRepository::getHotelNameByHotelId($reservationsData['expedia_hotel_id']) : '';
-                $hotelImages = !is_null($reservationsData['expedia_hotel_id']) ? ExpediaRepository::getHotelImagesByHotelId($reservationsData['expedia_hotel_id']) : '';
+                $hotelName = ! is_null($reservationsData['expedia_hotel_id']) ? ExpediaRepository::getHotelNameByHotelId($reservationsData['expedia_hotel_id']) : '';
+                $hotelImages = ! is_null($reservationsData['expedia_hotel_id']) ? ExpediaRepository::getHotelImagesByHotelId($reservationsData['expedia_hotel_id']) : '';
                 $hotelId = $reservationsData['hotel_id'];
                 $checkin = $reservationsData['query']['checkin'];
                 $totalCost = $reservationsData['price']['total_price'];
             }
 
-
             if (TypeRequestEnum::from($search_type) === TypeRequestEnum::HOTEL) {
                 $reservation = new Reservation();
 
                 $reservation->date_offload = null;
-                $reservation->date_travel = date("Y-m-d", strtotime($checkin));
+                $reservation->date_travel = date('Y-m-d', strtotime($checkin));
                 $reservation->passenger_surname = $passenger_surname;
                 $reservation->reservation_contains = json_encode([
                     'type' => $search_type,
@@ -89,9 +79,8 @@ class ExpediaTools
                 $reservation->save();
             }
 
-
         } catch (Exception $e) {
-            Log::error('ExpediaTools | saveAddItemToReservations' . $e->getMessage());
+            Log::error('ExpediaTools | saveAddItemToReservations'.$e->getMessage());
             Log::error($e->getTraceAsString());
         }
     }

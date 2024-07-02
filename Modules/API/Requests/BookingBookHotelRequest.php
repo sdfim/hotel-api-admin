@@ -46,9 +46,6 @@ class BookingBookHotelRequest extends ApiRequest
         ];
     }
 
-    /**
-     * @return array
-     */
     public function validatedDate(): array
     {
         return parent::validated();

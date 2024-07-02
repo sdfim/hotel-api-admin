@@ -22,37 +22,23 @@ class UpdatePropertyWeighting extends Component implements HasForms
 {
     use InteractsWithForms;
 
-    /**
-     * @var array|null
-     */
     public ?array $data = [];
 
-    /**
-     * @var PropertyWeighting
-     */
     public PropertyWeighting $record;
 
-    /**
-     * @param PropertyWeighting $propertyWeighting
-     * @return void
-     */
     public function mount(PropertyWeighting $propertyWeighting): void
     {
         $this->record = $propertyWeighting;
         $this->form->fill($this->record->attributesToArray());
     }
 
-    /**
-     * @param Form $form
-     * @return Form
-     */
     public function form(Form $form): Form
     {
         return $form
             ->schema([
                 Select::make('property')
                     ->searchable()
-                    ->getSearchResultsUsing(fn(string $search): array => GiataProperty::select(
+                    ->getSearchResultsUsing(fn (string $search): array => GiataProperty::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
                         ->where('name', 'like', "%$search%")
                         ->orWhere('code', $search)
@@ -60,7 +46,7 @@ class UpdatePropertyWeighting extends Component implements HasForms
                         ->pluck('full_name', 'code')
                         ->toArray()
                     )
-                    ->getOptionLabelUsing(fn($value): ?string => GiataProperty::select(
+                    ->getOptionLabelUsing(fn ($value): ?string => GiataProperty::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
                         ->where('code', $value)->first()->full_name)
                     ->live()
@@ -79,10 +65,6 @@ class UpdatePropertyWeighting extends Component implements HasForms
             ->model($this->record);
     }
 
-    /**
-     * @param ValidationException $exception
-     * @return void
-     */
     protected function onValidationError(ValidationException $exception): void
     {
         Notification::make()
@@ -91,9 +73,6 @@ class UpdatePropertyWeighting extends Component implements HasForms
             ->send();
     }
 
-    /**
-     * @return RedirectResponse|Redirector
-     */
     public function edit(): RedirectResponse|Redirector
     {
         $data = $this->form->getState();
@@ -108,9 +87,6 @@ class UpdatePropertyWeighting extends Component implements HasForms
         return redirect()->route('property-weighting.index');
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.property-weighting.update-property-weighting');
