@@ -20,4 +20,3 @@ ContentApiRoutes::routes();
 PricingApiRoutes::routes();
 
 BookingApiRoutes::routes();
-

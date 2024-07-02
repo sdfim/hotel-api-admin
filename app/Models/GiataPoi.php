@@ -20,9 +20,11 @@ class GiataPoi extends Model
         'name_others',
     ];
 
-    protected $casts = [
-        'places' => 'json',
-        'name_others' => 'json',
-    ];
-
+    protected function casts(): array
+    {
+        return [
+            'places' => 'json',
+            'name_others' => 'json',
+        ];
+    }
 }

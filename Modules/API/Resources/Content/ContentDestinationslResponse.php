@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Content;
  *   description="Schema Content Destinations Response",
  *   type="object",
  *   required={"success", "data"},
+ *
  *   @OA\Property(
  *     property="success",
  *     type="boolean",
@@ -38,6 +39,7 @@ namespace Modules\API\Resources\Content;
  *     )
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="ContentDestinationslResponse",
  *     summary="Content Destinations Response",

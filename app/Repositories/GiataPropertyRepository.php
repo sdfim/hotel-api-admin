@@ -13,49 +13,22 @@ class GiataPropertyRepository
 {
     use Timer;
 
-    /**
-     *
-     */
     private const BATCH_SIZE = 200;
 
-    /**
-     *
-     */
     private const MIN_PERC = 65;
 
-    /**
-     * @var bool
-     */
     private bool $availableElasticSearch;
 
-    /**
-     * @var GiataPropertySearch
-     */
     private GiataPropertySearch $giataPropertySearch;
 
-    /**
-     * @var array
-     */
     private array $batchIcePortal = [];
 
-    /**
-     * @var array
-     */
     private array $listBatchHbsi = [];
 
-    /**
-     *
-     */
     public function __construct()
     {
     }
 
-    /**
-     * @param string $hotelName
-     * @param float $latitude
-     * @param string $city
-     * @return array
-     */
     public function search(string $hotelName, float $latitude, string $city): array
     {
         $hotelName = explode(', ', $hotelName)[0];
@@ -67,17 +40,12 @@ class GiataPropertyRepository
             return $this->giataPropertySearch->search($hotelName, $latitude, $city);
         }
 
-        return GiataProperty::where('latitude', 'like', $latitude . '%')
+        return GiataProperty::where('latitude', 'like', $latitude.'%')
             ->whereRaw('MATCH(name) AGAINST(? IN BOOLEAN MODE)', $hotelNameSearch)
             ->get()
             ->toArray();
     }
 
-    /**
-     * @param array $supplierData
-     * @param string $supplier
-     * @return array
-     */
     public function associateByGiata(array $supplierData, string $supplier): array
     {
         $this->giataPropertySearch = new GiataPropertySearch();
@@ -103,7 +71,7 @@ class GiataPropertyRepository
                 } else {
                     $res = $this->getGiataCode(
                         'ICE_PORTAL',
-                        (int)$hotel['listingID'],
+                        (int) $hotel['listingID'],
                         $hotel['name'],
                         floatval($hotel['address']['latitude'] ?? 0),
                         $hotel['address']['city']
@@ -120,20 +88,14 @@ class GiataPropertyRepository
         return $supplierData;
     }
 
-    /**
-     * @param string $supplier
-     * @param int $id
-     * @param string $hotelName
-     * @param float $latitude
-     * @param string $city
-     * @return array
-     */
     public function getGiataCode(string $supplier, int $id, string $hotelName, float $latitude, string $city): array
     {
         $this->start();
         $hotelName = iconv('UTF-8', 'ISO-8859-1//TRANSLIT//IGNORE', $hotelName);
         $giata = $this->search($hotelName, $latitude, $city);
-        if (empty($giata)) $giata = $this->search($hotelName, 0, $city);
+        if (empty($giata)) {
+            $giata = $this->search($hotelName, 0, $city);
+        }
 
         $perc = 0;
         $code = 0;
@@ -147,16 +109,16 @@ class GiataPropertyRepository
             }
         }
 
-        if ($supplier == 'ICE_PORTAL' && !in_array($id . '_' . $code, $this->listBatchHbsi) && $perc !== 0) {
+        if ($supplier == 'ICE_PORTAL' && ! in_array($id.'_'.$code, $this->listBatchHbsi) && $perc !== 0) {
             $this->batchIcePortal[] = [
                 'ice_portal_id' => $id,
                 'giata_id' => $code,
                 'perc' => $perc,
             ];
-            $this->listBatchHotels[] = $id . '_' . $code;
+            $this->listBatchHotels[] = $id.'_'.$code;
         }
 
-        Log::debug('GiataPropertyRepository | getGiataCode | runtime ' . $this->duration(), [
+        Log::debug('GiataPropertyRepository | getGiataCode | runtime '.$this->duration(), [
             'supplier' => $supplier,
             'count' => count($giata),
             'id' => $id,
@@ -172,10 +134,6 @@ class GiataPropertyRepository
         return ['code' => $code, 'perc' => $perc];
     }
 
-    /**
-     * @param bool $insertAnyway
-     * @return void
-     */
     private function insertBatch(bool $insertAnyway = false): void
     {
         if ($insertAnyway || count($this->batchIcePortal) > self::BATCH_SIZE) {
@@ -185,9 +143,6 @@ class GiataPropertyRepository
         }
     }
 
-    /**
-     * @return int
-     */
     public function getCityIdByCoordinate(array $minMaxCoordinate): ?int
     {
         return GiataProperty::where('latitude', '>', $minMaxCoordinate['min_latitude'])

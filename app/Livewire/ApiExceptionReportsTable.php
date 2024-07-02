@@ -17,12 +17,10 @@ use Livewire\Component;
 
 class ApiExceptionReportsTable extends Component implements HasForms, HasTable
 {
-    use InteractsWithTable;
     use InteractsWithForms;
+    use InteractsWithTable;
 
     /**
-     * @param Table $table
-     * @return Table
      * @throws Exception
      */
     public function table(Table $table): Table
@@ -37,7 +35,7 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
                 TextColumn::make('level')
                     ->sortable()
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'error' => 'danger',
                         'warning' => 'warning',
                         'success' => 'success',
@@ -70,13 +68,10 @@ class ApiExceptionReportsTable extends Component implements HasForms, HasTable
                         'Error' => 'Error',
                         'Warning' => 'Warning',
                         'success' => 'Success',
-                    ])
+                    ]),
             ]);
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.api-exception-reports-table');

@@ -12,24 +12,16 @@ abstract class ApiRequest extends LaravelFormRequest
 {
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array
      */
     abstract public function rules(): array;
 
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
     abstract public function authorize(): bool;
 
     /**
      * Handle a failed validation attempt.
-     *
-     * @param Validator $validator
-     * @return void
-     *
      */
     protected function failedValidation(Validator $validator): void
     {

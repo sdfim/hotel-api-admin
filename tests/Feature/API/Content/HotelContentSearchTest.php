@@ -11,9 +11,8 @@ class HotelContentSearchTest extends ApiTestCase
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_method_response_200()
+    public function test_hotel_search_method_response_200(): void
     {
         $hotelSearchData = $this->hotelSearchData();
 
@@ -28,9 +27,8 @@ class HotelContentSearchTest extends ApiTestCase
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_without_type_method_response_400()
+    public function test_hotel_search_without_type_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchWithoutTypeData();
 
@@ -40,15 +38,14 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'error' => 'Invalid type'
+                'error' => 'Invalid type',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_with_incorrect_type_method_response_400()
+    public function test_hotel_search_with_incorrect_type_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchWithIncorrectTypeData();
 
@@ -58,15 +55,14 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'error' => 'Invalid type'
+                'error' => 'Invalid type',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_with_incorrect_destination_method_response_400()
+    public function test_hotel_search_with_incorrect_destination_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchWithIncorrectDestinationData();
 
@@ -81,9 +77,8 @@ class HotelContentSearchTest extends ApiTestCase
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_with_incorrect_rating_method_response_400()
+    public function test_hotel_search_with_incorrect_rating_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchWithIncorrectRatingData();
 
@@ -94,16 +89,15 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'rating' => ['The rating must be a number.']
-                ]
+                    'rating' => ['The rating must be a number.'],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_method_response_200()
+    public function test_hotel_search_by_coordinates_method_response_200(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesData();
 
@@ -118,9 +112,8 @@ class HotelContentSearchTest extends ApiTestCase
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_without_type_method_response_400()
+    public function test_hotel_search_by_coordinates_without_type_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithoutTypeData();
 
@@ -130,15 +123,14 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'error' => 'Invalid type'
+                'error' => 'Invalid type',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_with_incorrect_type_method_response_400()
+    public function test_hotel_search_by_coordinates_with_incorrect_type_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithIncorrectTypeData();
 
@@ -148,15 +140,14 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertStatus(400)
             ->assertJson([
                 'success' => false,
-                'error' => 'Invalid type'
+                'error' => 'Invalid type',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_without_latitude_method_response_400()
+    public function test_hotel_search_by_coordinates_without_latitude_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithoutLatitudeData();
 
@@ -167,16 +158,15 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'latitude' => ['The latitude field is required when destination is not present.']
-                ]
+                    'latitude' => ['The latitude field is required when destination is not present.'],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_with_incorrect_latitude_method_response_400()
+    public function test_hotel_search_by_coordinates_with_incorrect_latitude_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithIncorrectLatitudeData();
 
@@ -187,16 +177,15 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'latitude' => ['The latitude must be at least -90.']
-                ]
+                    'latitude' => ['The latitude must be at least -90.'],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_without_longitude_method_response_400()
+    public function test_hotel_search_by_coordinates_without_longitude_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithoutLongitudeData();
 
@@ -207,16 +196,15 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'longitude' => ['The longitude field is required when destination is not present.']
-                ]
+                    'longitude' => ['The longitude field is required when destination is not present.'],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_with_incorrect_longitude_method_response_400()
+    public function test_hotel_search_by_coordinates_with_incorrect_longitude_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithIncorrectLongitudeData();
 
@@ -227,16 +215,15 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'longitude' => ['The longitude must be at least -180.']
-                ]
+                    'longitude' => ['The longitude must be at least -180.'],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_without_radius_method_response_400()
+    public function test_hotel_search_by_coordinates_without_radius_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithoutRadiusData();
 
@@ -247,16 +234,15 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'radius' => ['The radius field is required when destination is not present.']
-                ]
+                    'radius' => ['The radius field is required when destination is not present.'],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_with_incorrect_radius_method_response_400()
+    public function test_hotel_search_by_coordinates_with_incorrect_radius_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithIncorrectRadiusData();
 
@@ -267,16 +253,15 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'radius' => ['The radius must be between 1 and 100.']
-                ]
+                    'radius' => ['The radius must be between 1 and 100.'],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_without_rating_method_response_400()
+    public function test_hotel_search_by_coordinates_without_rating_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithoutRatingData();
 
@@ -287,16 +272,15 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'radius' => ['The radius must be between 1 and 100.']
-                ]
+                    'radius' => ['The radius must be between 1 and 100.'],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_with_incorrect_rating_method_response_400()
+    public function test_hotel_search_by_coordinates_with_incorrect_rating_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithIncorrectRatingData();
 
@@ -307,16 +291,15 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'rating' => ['The rating must be between 1 and 5.5.']
-                ]
+                    'rating' => ['The rating must be between 1 and 5.5.'],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_without_page_method_response_200()
+    public function test_hotel_search_by_coordinates_without_page_method_response_200(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithoutPageData();
 
@@ -331,9 +314,8 @@ class HotelContentSearchTest extends ApiTestCase
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_with_incorrect_page_method_response_400()
+    public function test_hotel_search_by_coordinates_with_incorrect_page_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithIncorrectPageData();
 
@@ -344,16 +326,15 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'page' => ['The page must be between 1 and 1000.']
-                ]
+                    'page' => ['The page must be between 1 and 1000.'],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_without_results_per_page_method_response_200()
+    public function test_hotel_search_by_coordinates_without_results_per_page_method_response_200(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithoutResultsPerPageData();
 
@@ -368,9 +349,8 @@ class HotelContentSearchTest extends ApiTestCase
 
     /**
      * @test
-     * @return void
      */
-    public function test_hotel_search_by_coordinates_with_incorrect_results_per_page_method_response_400()
+    public function test_hotel_search_by_coordinates_with_incorrect_results_per_page_method_response_400(): void
     {
         $hotelSearchData = $this->hotelSearchByCoordinatesWithIncorrectResultsPerPageData();
 
@@ -381,14 +361,11 @@ class HotelContentSearchTest extends ApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'results_per_page' => ['The results per page must be between 1 and 1000.']
-                ]
+                    'results_per_page' => ['The results per page must be between 1 and 1000.'],
+                ],
             ]);
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchData(): array
     {
         return [
@@ -400,9 +377,6 @@ class HotelContentSearchTest extends ApiTestCase
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchWithoutTypeData(): array
     {
         return [
@@ -414,9 +388,6 @@ class HotelContentSearchTest extends ApiTestCase
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchWithIncorrectTypeData(): array
     {
         return [
@@ -428,9 +399,6 @@ class HotelContentSearchTest extends ApiTestCase
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchWithIncorrectDestinationData(): array
     {
         return [
@@ -442,9 +410,6 @@ class HotelContentSearchTest extends ApiTestCase
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchWithIncorrectRatingData(): array
     {
         return [
@@ -456,9 +421,6 @@ class HotelContentSearchTest extends ApiTestCase
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesData(): array
     {
         return [
@@ -468,13 +430,10 @@ class HotelContentSearchTest extends ApiTestCase
             'radius' => rand(10, 50),
             'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesWithoutTypeData(): array
     {
         return [
@@ -483,13 +442,10 @@ class HotelContentSearchTest extends ApiTestCase
             'radius' => rand(10, 50),
             'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesWithIncorrectTypeData(): array
     {
         return [
@@ -499,13 +455,10 @@ class HotelContentSearchTest extends ApiTestCase
             'radius' => rand(10, 50),
             'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesWithoutLatitudeData(): array
     {
         return [
@@ -514,7 +467,7 @@ class HotelContentSearchTest extends ApiTestCase
             'radius' => rand(10, 50),
             'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
@@ -524,8 +477,6 @@ class HotelContentSearchTest extends ApiTestCase
      * Valid range: -90° to +90°
      * Northern Hemisphere: 0° to +90°
      * Southern Hemisphere: 0° to -90°
-     *
-     * @return array
      */
     private function hotelSearchByCoordinatesWithIncorrectLatitudeData(): array
     {
@@ -536,13 +487,10 @@ class HotelContentSearchTest extends ApiTestCase
             'radius' => rand(10, 50),
             'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesWithoutLongitudeData(): array
     {
         return [
@@ -551,7 +499,7 @@ class HotelContentSearchTest extends ApiTestCase
             'radius' => rand(10, 50),
             'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
@@ -561,8 +509,6 @@ class HotelContentSearchTest extends ApiTestCase
      * Valid range: -180° to +180°
      * Eastern Hemisphere: 0° to +180°
      * Western Hemisphere: 0° to -180°
-     *
-     * @return array
      */
     private function hotelSearchByCoordinatesWithIncorrectLongitudeData(): array
     {
@@ -573,13 +519,10 @@ class HotelContentSearchTest extends ApiTestCase
             'radius' => rand(10, 50),
             'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesWithoutRadiusData(): array
     {
         return [
@@ -588,13 +531,10 @@ class HotelContentSearchTest extends ApiTestCase
             'longitude' => $this->faker->randomFloat(2, -180, 180),
             'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesWithIncorrectRadiusData(): array
     {
         return [
@@ -604,13 +544,10 @@ class HotelContentSearchTest extends ApiTestCase
             'radius' => -1,
             'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesWithoutRatingData(): array
     {
         return [
@@ -619,13 +556,10 @@ class HotelContentSearchTest extends ApiTestCase
             'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => -1,
             'page' => 1,
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesWithIncorrectRatingData(): array
     {
         return [
@@ -635,13 +569,10 @@ class HotelContentSearchTest extends ApiTestCase
             'radius' => rand(10, 50),
             'rating' => -1,
             'page' => 1,
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesWithoutPageData(): array
     {
         return [
@@ -650,13 +581,10 @@ class HotelContentSearchTest extends ApiTestCase
             'longitude' => $this->faker->randomFloat(2, -180, 180),
             'radius' => rand(10, 50),
             'rating' => $this->faker->randomFloat(1, 1, 5.5),
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesWithIncorrectPageData(): array
     {
         return [
@@ -666,13 +594,10 @@ class HotelContentSearchTest extends ApiTestCase
             'radius' => rand(10, 50),
             'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => -1,
-            'results_per_page' => 20
+            'results_per_page' => 20,
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesWithoutResultsPerPageData(): array
     {
         return [
@@ -685,9 +610,6 @@ class HotelContentSearchTest extends ApiTestCase
         ];
     }
 
-    /**
-     * @return array
-     */
     private function hotelSearchByCoordinatesWithIncorrectResultsPerPageData(): array
     {
         return [
@@ -697,7 +619,7 @@ class HotelContentSearchTest extends ApiTestCase
             'radius' => rand(10, 50),
             'rating' => $this->faker->randomFloat(1, 1, 5.5),
             'page' => 1,
-            'results_per_page' => -1
+            'results_per_page' => -1,
         ];
     }
 }

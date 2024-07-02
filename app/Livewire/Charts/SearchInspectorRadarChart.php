@@ -8,30 +8,18 @@ use Illuminate\Support\Facades\DB;
 
 class SearchInspectorRadarChart extends ChartWidget
 {
-    /**
-     * @var string|null
-     */
     protected static ?string $heading = 'Search Inspector Radar Chart';
 
-    /**
-     * @var string|null
-     */
     protected static ?string $pollingInterval = '3600s';
 
-    /**
-     * @var string|null
-     */
     protected static ?string $maxHeight = '500px';
 
-    /**
-     * @return array
-     */
     protected function getData(): array
     {
         $keySearchInspectorRadarChart = 'SearchInspectorRadarChart';
 
-        if (Cache::has($keySearchInspectorRadarChart . ':data')) {
-            $data = Cache::get($keySearchInspectorRadarChart . ':data');
+        if (Cache::has($keySearchInspectorRadarChart.':data')) {
+            $data = Cache::get($keySearchInspectorRadarChart.':data');
         } else {
             $data = DB::select("
 				SELECT
@@ -55,7 +43,7 @@ class SearchInspectorRadarChart extends ChartWidget
 
             $data = json_decode(json_encode($data), true);
 
-            Cache::put($keySearchInspectorRadarChart . ':data', $data, now()->addMinutes(60));
+            Cache::put($keySearchInspectorRadarChart.':data', $data, now()->addMinutes(60));
         }
 
         $labels = [
@@ -63,7 +51,7 @@ class SearchInspectorRadarChart extends ChartWidget
             'Rooms',
             'Occupancy',
             'Children',
-            'Nights'
+            'Nights',
         ];
 
         $colors = [
@@ -92,7 +80,7 @@ class SearchInspectorRadarChart extends ChartWidget
                 'pointBackgroundColor' => "rgb($colors[$index])",
                 'pointBorderColor' => '#fff',
                 'pointHoverBackgroundColor' => '#fff',
-                'pointHoverBorderColor' => "rgb($colors[$index])"
+                'pointHoverBorderColor' => "rgb($colors[$index])",
             ];
 
             $datasets[] = $dataset;
@@ -104,9 +92,6 @@ class SearchInspectorRadarChart extends ChartWidget
         ];
     }
 
-    /**
-     * @return string
-     */
     protected function getType(): string
     {
         return 'radar';

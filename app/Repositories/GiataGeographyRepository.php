@@ -7,10 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class GiataGeographyRepository
 {
-    /**
-     * @param int $cityId
-     * @return GiataGeography
-     */
     public function getFullLocation(int $cityId): GiataGeography
     {
         return GiataGeography::where('city_id', $cityId)

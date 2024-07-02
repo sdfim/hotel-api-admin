@@ -27,6 +27,7 @@ class GiataController extends Controller
     {
         $text = $this->message;
         $giata = GiataProperty::where('code', $id)->first();
+
         return view('dashboard.giata.show', compact('giata', 'text'));
     }
 }

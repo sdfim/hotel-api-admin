@@ -16,29 +16,19 @@ class Supplier extends Model
     protected $fillable = [
         'id',
         'name',
-        'description'
+        'description',
     ];
 
-    /**
-     * @return HasMany
-     */
     public function pricingRules(): HasMany
     {
         return $this->hasMany(PricingRule::class);
     }
 
-    /**
-     * @return int|null
-     */
     public static function getExpediaId(): ?int
     {
         return Supplier::where('name', 'Expedia')->first()?->id;
     }
 
-    /**
-     * @param string $supplierName
-     * @return int|null
-     */
     public static function getSupplierId(string $supplierName): ?int
     {
         return Supplier::where('name', $supplierName)->first()?->id;

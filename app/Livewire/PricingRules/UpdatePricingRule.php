@@ -15,32 +15,18 @@ use Livewire\Features\SupportRedirects\Redirector;
 
 class UpdatePricingRule extends Component implements HasForms
 {
-    use InteractsWithForms, HasPricingRuleFields;
+    use HasPricingRuleFields, InteractsWithForms;
 
-    /**
-     * @var array|null
-     */
     public ?array $data = [];
 
-    /**
-     * @var PricingRule
-     */
     public PricingRule $record;
 
-    /**
-     * @param PricingRule $pricingRule
-     * @return void
-     */
     public function mount(PricingRule $pricingRule): void
     {
         $this->record = $pricingRule;
         $this->form->fill($this->record->attributesToArray());
     }
 
-    /**
-     * @param Form $form
-     * @return Form
-     */
     public function form(Form $form): Form
     {
         return $form
@@ -55,10 +41,6 @@ class UpdatePricingRule extends Component implements HasForms
             ->model($this->record);
     }
 
-    /**
-     * @param ValidationException $exception
-     * @return void
-     */
     protected function onValidationError(ValidationException $exception): void
     {
         Notification::make()
@@ -67,9 +49,6 @@ class UpdatePricingRule extends Component implements HasForms
             ->send();
     }
 
-    /**
-     * @return RedirectResponse|Redirector
-     */
     public function edit(): RedirectResponse|Redirector
     {
         $data = $this->form->getState();
@@ -84,9 +63,6 @@ class UpdatePricingRule extends Component implements HasForms
         return redirect()->route('pricing-rules.index');
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.pricing-rules.update-pricing-rules');

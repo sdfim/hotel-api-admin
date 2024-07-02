@@ -8,11 +8,11 @@ use Modules\API\Suppliers\DTO\SupplierContentDtoInterface;
 
 class ExpediaHotelContentDto implements SupplierContentDtoInterface
 {
-
     private const TA_CLIENT = 'https://developer.expediapartnersolutions.com/terms/en';
+
     private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
+
     /**
-     * @param array $supplierResponse
      * @return ContentSearchResponse[]
      */
     public function SupplierToContentSearchResponse(array $supplierResponse): array
@@ -48,7 +48,7 @@ class ExpediaHotelContentDto implements SupplierContentDtoInterface
             $hotelResponse->setLongitude($hotel['location']['coordinates']['longitude']);
             $hotelResponse->setRating($hotel['rating']);
             $amenities = $hotel['amenities'] ? json_decode(json_encode($hotel['amenities']), true) : [];
-            if (!is_array($amenities)) {
+            if (! is_array($amenities)) {
                 $amenities = [];
             }
             $hotelResponse->setAmenities(array_map(function ($amenity) {

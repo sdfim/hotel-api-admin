@@ -16,10 +16,8 @@ class FlowExpediaBookTest extends Command
      */
     protected $signature = 'expedia-book-test {step} {destination} {supplier}';
 
-
     protected $description = 'Command description';
 
-    /** @var PendingRequest */
     protected PendingRequest $client;
 
     protected string $url;
@@ -35,9 +33,6 @@ class FlowExpediaBookTest extends Command
         $this->url = env('BASE_URI_FLOW_HBSI_BOOK_TEST', 'http://localhost:8000');
     }
 
-    /**
-     * @return void
-     */
     public function handle(): void
     {
         $step = $this->argument('step');
@@ -45,15 +40,11 @@ class FlowExpediaBookTest extends Command
         $this->supplier = $this->argument('supplier');
 
         foreach (range(1, $step) as $index) {
-            $this->warn('STEP ' . $index . ' of ' . $step);
+            $this->warn('STEP '.$index.' of '.$step);
             $this->strategy1();
         }
     }
 
-    /**
-     * @param array $responseData
-     * @return string
-     */
     private function getBookingItem(array $responseData): string
     {
         $flattened = Arr::dot($responseData);
@@ -64,12 +55,10 @@ class FlowExpediaBookTest extends Command
                 $bookingItems[] = $value;
             }
         }
+
         return $bookingItems[array_rand($bookingItems)];
     }
 
-    /**
-     * @return void
-     */
     public function strategy1(): void
     {
         $this->warn('SEARCH 1');
@@ -77,8 +66,8 @@ class FlowExpediaBookTest extends Command
         $query['search_1'] = $responseData1['data']['query']['occupancy'];
         $searchId = $responseData1['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData1);
-        $this->info('search_id = ' . $searchId);
-        $this->info('booking_item = ' . $bookingItem);
+        $this->info('search_id = '.$searchId);
+        $this->info('booking_item = '.$bookingItem);
 
         $bookingId = $this->addBookingItem($bookingItem);
         $bookingItems['search_1'] = $bookingItem;
@@ -88,8 +77,8 @@ class FlowExpediaBookTest extends Command
         $query['search_2'] = $responseData2['data']['query']['occupancy'];
         $searchId = $responseData2['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData2);
-        $this->info('search_id = ' . $searchId);
-        $this->info('booking_item = ' . $bookingItem);
+        $this->info('search_id = '.$searchId);
+        $this->info('booking_item = '.$bookingItem);
 
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
         $bookingItems['search_2'] = $bookingItem;
@@ -102,8 +91,8 @@ class FlowExpediaBookTest extends Command
         $query2['search_3'] = $responseData['data']['query']['occupancy'];
         $searchId = $responseData['data']['search_id'];
         $bookingItem = $this->getBookingItem($responseData);
-        $this->info('search_id = ' . $searchId);
-        $this->info('booking_item = ' . $bookingItem);
+        $this->info('search_id = '.$searchId);
+        $this->info('booking_item = '.$bookingItem);
 
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
         $bookingItems2['search_3'] = $bookingItem;
@@ -116,14 +105,10 @@ class FlowExpediaBookTest extends Command
         $this->warn('RETRIEVE ITEMS');
         $this->retrieveItems($bookingId);
 
-        $this->warn('BOOK ' . $bookingId);
+        $this->warn('BOOK '.$bookingId);
         $this->book($bookingId);
     }
 
-    /**
-     * @param int $count
-     * @return array
-     */
     private function makeSearchRequest(int $count = 1): array
     {
         $faker = Faker::create();
@@ -135,8 +120,11 @@ class FlowExpediaBookTest extends Command
 
             $room['adults'] = $faker->numberBetween(1, 3);
 
-            if ($count % 2 != 0) $children = rand(0, 2);
-            else $children = 0;
+            if ($count % 2 != 0) {
+                $children = rand(0, 2);
+            } else {
+                $children = 0;
+            }
             $children_ages = [];
             if ($children > 0) {
                 foreach (range(1, $children) as $index) {
@@ -160,15 +148,11 @@ class FlowExpediaBookTest extends Command
             'rating' => $faker->numberBetween(4, 5),
         ];
 
-        $response = $this->client->post($this->url . '/api/pricing/search', $requestData);
+        $response = $this->client->post($this->url.'/api/pricing/search', $requestData);
+
         return $response->json();
     }
 
-    /**
-     * @param string $bookingItem
-     * @param string|null $bookingId
-     * @return string
-     */
     private function addBookingItem(string $bookingItem, ?string $bookingId = null): string
     {
         $requestData = [
@@ -179,19 +163,13 @@ class FlowExpediaBookTest extends Command
             $requestData['booking_id'] = $bookingId;
         }
 
-        $response = $this->client->post($this->url . '/api/booking/add-item', $requestData);
+        $response = $this->client->post($this->url.'/api/booking/add-item', $requestData);
         $bookingId = $response->json()['data']['booking_id'];
-        $this->info('booking_id = ' . $bookingId);
+        $this->info('booking_id = '.$bookingId);
 
         return $bookingId;
     }
 
-    /**
-     * @param string $bookingId
-     * @param array $bookingItems
-     * @param array $occupancy
-     * @return void
-     */
     private function addPassengers(string $bookingId, array $bookingItems, array $occupancy): void
     {
         $faker = Faker::create();
@@ -204,9 +182,9 @@ class FlowExpediaBookTest extends Command
                 for ($i = 0; $i < $occupant['adults']; $i++) {
                     $passenger = [
                         'title' => 'mr',
-                        'given_name' => $faker->firstName,
-                        'family_name' => $faker->lastName,
-                        'date_of_birth' => $faker->date('Y-m-d', strtotime('-' . rand(20, 60) . ' years')),
+                        'given_name' => $faker->firstName(),
+                        'family_name' => $faker->lastName(),
+                        'date_of_birth' => $faker->date('Y-m-d', strtotime('-'.rand(20, 60).' years')),
                         'booking_items' => [
                             [
                                 'booking_item' => $bookingItem,
@@ -242,16 +220,11 @@ class FlowExpediaBookTest extends Command
 
         $requestData['booking_id'] = $bookingId;
 
-        $response = $this->client->post($this->url . '/api/booking/add-passengers', $requestData);
+        $response = $this->client->post($this->url.'/api/booking/add-passengers', $requestData);
 
-        $this->info('addPassengers: ' . json_encode($response->json()));
+        $this->info('addPassengers: '.json_encode($response->json()));
     }
 
-    /**
-     * @param string $bookingId
-     * @param string $bookingItem
-     * @return void
-     */
     private function removeBookingItem(string $bookingId, string $bookingItem): void
     {
         $requestData = [
@@ -259,28 +232,20 @@ class FlowExpediaBookTest extends Command
             'booking_item' => $bookingItem,
         ];
 
-        $response = $this->client->delete($this->url . '/api/booking/remove-item', $requestData);
-        $this->info('removeBookingItem: ' . json_encode($response->json()));
+        $response = $this->client->delete($this->url.'/api/booking/remove-item', $requestData);
+        $this->info('removeBookingItem: '.json_encode($response->json()));
     }
 
-    /**
-     * @param string $bookingId
-     * @return void
-     */
     private function retrieveItems(string $bookingId): void
     {
         $requestData = [
             'booking_id' => $bookingId,
         ];
 
-        $response = $this->client->get($this->url . '/api/booking/retrieve-items', $requestData);
-        $this->info('retrieveItems: ' . json_encode($response->json()));
+        $response = $this->client->get($this->url.'/api/booking/retrieve-items', $requestData);
+        $this->info('retrieveItems: '.json_encode($response->json()));
     }
 
-    /**
-     * @param string $bookingId
-     * @return void
-     */
     private function book(string $bookingId): void
     {
         $faker = Faker::create();
@@ -289,25 +254,25 @@ class FlowExpediaBookTest extends Command
             'booking_id' => $bookingId,
             'amount_pay' => 'Deposit',
             'booking_contact' => [
-                'first_name' => $faker->firstName,
-                'last_name' => $faker->lastName,
-                'email' => 'test@gmail.com', //$faker->safeEmail,
+                'first_name' => $faker->firstName(),
+                'last_name' => $faker->lastName(),
+                'email' => 'test@gmail.com', //$faker->safeEmail(),
                 'phone' => [
                     'country_code' => '1',
                     'area_code' => '487',
                     'number' => '5550077',
                 ],
                 'address' => [
-                    'line_1' => $faker->streetAddress,
-                    'city' => $faker->city,
-                    'state_province_code' => $faker->stateAbbr,
+                    'line_1' => $faker->streetAddress(),
+                    'city' => $faker->city(),
+                    'state_province_code' => $faker->stateAbbr(),
                     'postal_code' => $faker->lexify(str_repeat('?', rand(1, 7))),
-                    'country_code' => $faker->countryCode,
+                    'country_code' => $faker->countryCode(),
                 ],
             ],
         ];
 
-        $response = $this->client->post($this->url . '/api/booking/book', $requestData);
-        $this->info('book: ' . json_encode($response->json()));
+        $response = $this->client->post($this->url.'/api/booking/book', $requestData);
+        $this->info('book: '.json_encode($response->json()));
     }
 }

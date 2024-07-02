@@ -79,7 +79,7 @@ return [
             */
             'docs' => storage_path('api-docs'),
 
-			'components' => storage_path('components'),
+            'components' => storage_path('components'),
 
             /*
              * Absolute path to directory where to export views

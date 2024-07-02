@@ -41,5 +41,4 @@ trait RefreshDatabaseMany
             $table->string('migration');
         });
     }
-
 }

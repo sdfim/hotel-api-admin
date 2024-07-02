@@ -25,18 +25,19 @@ class PurgeInspectors extends Command
 
     /**
      * Execute the console command.
-     * @return void
      */
     public function handle(): void
     {
-        # delete by day config (time_inspector_retained)
+        // delete by day config (time_inspector_retained)
         $this->info('PurgeInspectors: delete by day config (time_inspector_retained)');
         $kept_days = GeneralConfiguration::first()->time_inspector_retained;
-        $kept_date = date('Y-m-d H:i:s', strtotime('-' . $kept_days . ' days'));
+        $kept_date = date('Y-m-d H:i:s', strtotime('-'.$kept_days.' days'));
         $inspector = ApiSearchInspector::where('created_at', '<', $kept_date);
-        if ($inspector->count() > 0) $this->clear($inspector);
+        if ($inspector->count() > 0) {
+            $this->clear($inspector);
+        }
 
-        # test
+        // test
         // $this->info('PurgeInspectors: test');
         // $kept_days = 1;
         // $kept_date = date('Y-m-d H:i:s', strtotime('+' . $kept_days . ' days'));
@@ -44,9 +45,6 @@ class PurgeInspectors extends Command
         // if ($inspector->count() > 0) $this->clear($inspector);
     }
 
-    /**
-     * @param $inspector
-     */
     private function clear($inspector): void
     {
         $this->info('PurgeInspectors: clear');

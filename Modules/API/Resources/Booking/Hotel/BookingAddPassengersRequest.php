@@ -9,13 +9,16 @@ namespace Modules\API\Resources\Booking\Hotel;
  *   description="Schema Booking Add Passengers Request",
  *   type="object",
  *   required={"passengers"},
+ *
  *   @OA\Property(
  *     property="passengers",
  *     type="array",
  *     description="Passengers",
+ *
  *     @OA\Items(
  *       type="object",
  *       required={"title", "given_name", "family_name", "date_of_birth", "booking_items"},
+ *
  *       @OA\Property(
  *         property="title",
  *         type="string",
@@ -44,9 +47,11 @@ namespace Modules\API\Resources\Booking\Hotel;
  *         property="booking_items",
  *         type="array",
  *         description="Booking Items",
+ *
  *         @OA\Items(
  *           type="object",
  *           required={"booking_item", "room"},
+ *
  *           @OA\Property(
  *             property="booking_item",
  *             type="string",
@@ -70,6 +75,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     example="5abcab52-00b0-423c-aafe-2fed6f6d1f4e"
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="BookingAddPassengersRequest",
  *     summary="Example Booking Add Passengers Request",

@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -11,6 +15,15 @@ use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * The path to your application's "home" route.
+     *
+     * Typically, users are redirected here after authentication.
+     *
+     * @var string
+     */
+    public const HOME = '/admin/reservations';
+
     /**
      * Register any application services.
      */
@@ -22,12 +35,14 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(PropertyCallFactory::class, function ($app) {
             $rapidClient = $app->make(RapidClient::class);
+
             return new PropertyCallFactory($rapidClient);
         });
 
         $this->app->singleton(ExpediaService::class, function ($app) {
             // TODO: need to review the next two lines, as the constructor of the ExpediaService class does not have any input parameters.
             $propertyCallFactory = $app->make(PropertyCallFactory::class);
+
             return new ExpediaService($propertyCallFactory);
         });
     }
@@ -38,9 +53,19 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $currentUrl = URL::current();
-        if (!str_contains($currentUrl, 'localhost') && !str_contains($currentUrl, '127.0.0.1')) {
+        if (! str_contains($currentUrl, 'localhost') && ! str_contains($currentUrl, '127.0.0.1')) {
             URL::forceScheme('https');
         }
         Schema::defaultStringLength(191);
+
+        $this->bootRoute();
+    }
+
+    public function bootRoute(): void
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
     }
 }

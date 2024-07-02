@@ -15,8 +15,7 @@ class HotelBookingApiTestCase extends ApiTestCase
     use WithFaker;
 
     /**
-     * @param bool $withChildren if true then children will definitely be generated, otherwise randomly true/false
-     * @return array
+     * @param  bool  $withChildren  if true then children will definitely be generated, otherwise randomly true/false
      */
     protected function createHotelBooking(bool $withChildren = false): array
     {
@@ -32,16 +31,10 @@ class HotelBookingApiTestCase extends ApiTestCase
         return [
             'booking_id' => $bookingId ?? '',
             'booking_items' => $bookingItems,
-            'hotel_pricing_request_data' => $pricingSearchRequestResponse['data']['query']
+            'hotel_pricing_request_data' => $pricingSearchRequestResponse['data']['query'],
         ];
     }
 
-    /**
-     * @param string $bookingId
-     * @param string $bookingItem
-     * @param array $occupancy
-     * @return bool
-     */
     protected function addPassengersToBookingItem(string $bookingId, string $bookingItem, array $occupancy): bool
     {
         $addPassengersRequestData = $this->generateAddPassengersData($bookingItem, $occupancy);
@@ -53,12 +46,6 @@ class HotelBookingApiTestCase extends ApiTestCase
         return $addPassengersRequestResponse['success'];
     }
 
-    /**
-     * @param string $bookingId
-     * @param string $bookingItem
-     * @param array $occupancy
-     * @return bool
-     */
     protected function hotelBook(string $bookingId, string $bookingItem, array $occupancy): bool
     {
         $hotelBookData = $this->generateHotelBookData($bookingItem, $occupancy);
@@ -85,7 +72,7 @@ class HotelBookingApiTestCase extends ApiTestCase
         return [
             'booking_id' => $bookingId,
             'booking_item' => $bookingItem,
-            'occupancy' => $occupancy
+            'occupancy' => $occupancy,
         ];
     }
 
@@ -105,13 +92,12 @@ class HotelBookingApiTestCase extends ApiTestCase
         return [
             'booking_id' => $bookingId,
             'booking_item' => $bookingItem,
-            'occupancy' => $occupancy
+            'occupancy' => $occupancy,
         ];
     }
 
     /**
-     * @param bool $withChildren if true then children will definitely be generated, otherwise randomly true/false
-     * @return array
+     * @param  bool  $withChildren  if true then children will definitely be generated, otherwise randomly true/false
      */
     protected function getHotelPricingSearchData(bool $withChildren = false): array
     {
@@ -123,8 +109,6 @@ class HotelBookingApiTestCase extends ApiTestCase
     }
 
     /**
-     * @param string $bookingItem
-     * @param array $occupancy
      * @return array[]
      */
     protected function generateAddPassengersData(string $bookingItem, array $occupancy): array
@@ -149,9 +133,9 @@ class HotelBookingApiTestCase extends ApiTestCase
                     'booking_items' => [
                         [
                             'booking_item' => $bookingItem,
-                            'room' => $roomNumber + 1
-                        ]
-                    ]
+                            'room' => $roomNumber + 1,
+                        ],
+                    ],
                 ];
             }
 
@@ -165,9 +149,9 @@ class HotelBookingApiTestCase extends ApiTestCase
                     'booking_items' => [
                         [
                             'booking_item' => $bookingItem,
-                            'room' => $roomNumber + 1
-                        ]
-                    ]
+                            'room' => $roomNumber + 1,
+                        ],
+                    ],
                 ];
             }
         }
@@ -175,49 +159,41 @@ class HotelBookingApiTestCase extends ApiTestCase
         return $addPassengersRequestData;
     }
 
-    /**
-     * @param string $bookingItem
-     * @param array $occupancy
-     * @param bool $withCreditCard
-     * @param bool $withSpecialRequests
-     * @return array
-     */
     protected function generateHotelBookData(
         string $bookingItem,
-        array  $occupancy,
-        bool   $withCreditCard = true,
-        bool   $withSpecialRequests = true
-    ): array
-    {
+        array $occupancy,
+        bool $withCreditCard = true,
+        bool $withSpecialRequests = true
+    ): array {
         $data = [
             'amount_pay' => $this->faker->randomElement(['Deposit', 'Full Payment']),
             'booking_contact' => [
-                'first_name' => $this->faker->firstName,
-                'last_name' => $this->faker->lastName,
-                'email' => $this->faker->freeEmail,
+                'first_name' => $this->faker->firstName(),
+                'last_name' => $this->faker->lastName(),
+                'email' => $this->faker->freeEmail(),
                 'phone' => [
                     'country_code' => 1,
                     'area_code' => $this->faker->numberBetween(201, 989),
                     'number' => $this->faker->numerify('########'),
                 ],
                 'address' => [
-                    'line_1' => $this->faker->streetAddress,
-                    'city' => $this->faker->city,
+                    'line_1' => $this->faker->streetAddress(),
+                    'city' => $this->faker->city(),
                     'state_province_code' => Address::stateAbbr(),
                     'postal_code' => Address::postcode(),
                     'country_code' => 'US',
                 ],
-            ]
+            ],
         ];
 
         if ($withCreditCard) {
             $data['credit_card'] = [
-                'name_card' => $this->faker->creditCardType,
-                'number' => (int)$this->faker->creditCardNumber,
+                'name_card' => $this->faker->creditCardType(),
+                'number' => (int) $this->faker->creditCardNumber(),
                 'card_type' => $this->faker->randomElement(['MSC', 'VISA', 'AMEX', 'DIS']),
                 'expiry_date' => $this->faker->creditCardExpirationDateString(true, 'm/Y'),
                 'cvv' => $this->faker->randomNumber(3),
-                'billing_address' => $this->faker->streetAddress,
+                'billing_address' => $this->faker->streetAddress(),
             ];
         }
 
@@ -230,7 +206,7 @@ class HotelBookingApiTestCase extends ApiTestCase
                     $data['special_requests'][] = [
                         'booking_item' => $bookingItem,
                         'room' => $roomNumber + 1,
-                        'special_request' => $this->faker->text(255)
+                        'special_request' => $this->faker->text(255),
                     ];
                 }
 
@@ -238,7 +214,7 @@ class HotelBookingApiTestCase extends ApiTestCase
                     $data['special_requests'][] = [
                         'booking_item' => $bookingItem,
                         'room' => $roomNumber + 1,
-                        'special_request' => $this->faker->text(255)
+                        'special_request' => $this->faker->text(255),
                     ];
                 }
             }
@@ -248,29 +224,24 @@ class HotelBookingApiTestCase extends ApiTestCase
     }
 
     /**
-     * @param bool $randomSmoking
-     * When set to true, it indicates that the smoking preference should be randomly assigned (either true or false)
-     * using the rand(0, 1) function. If set to false (the default), the smoking preference will be explicitly set to false.
+     * @param  bool  $randomSmoking
+     *                               When set to true, it indicates that the smoking preference should be randomly assigned (either true or false)
+     *                               using the rand(0, 1) function. If set to false (the default), the smoking preference will be explicitly set to false.
      * @return array[]
      */
     protected function generateChangeBookingData(bool $randomSmoking = false): array
     {
         return [
             'query' => [
-                'given_name' => $this->faker->firstName,
-                'family_name' => $this->faker->lastName,
+                'given_name' => $this->faker->firstName(),
+                'family_name' => $this->faker->lastName(),
                 'smoking' => $randomSmoking && rand(0, 1),
                 'special_request' => $this->faker->text(255),
-                'loyalty_id' => $this->faker->text(10)
-            ]
+                'loyalty_id' => $this->faker->text(10),
+            ],
         ];
     }
 
-    /**
-     * @param array $requestResponse
-     * @param string $supplier
-     * @return array
-     */
     protected function getBookingItemsFromPricingSearchResult(array $requestResponse, string $supplier = 'Expedia'): array
     {
         $flattenedData = Arr::dot($requestResponse['data']['results'][$supplier]);

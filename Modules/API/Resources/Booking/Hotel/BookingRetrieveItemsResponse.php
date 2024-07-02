@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *   description="Schema of Booking Retrieve Items Response",
  *   type="object",
  *   required={"success", "data", "message"},
+ *
  *   @OA\Property(
  *     property="success",
  *     type="boolean",
@@ -33,9 +34,11 @@ namespace Modules\API\Resources\Booking\Hotel;
  *         property="booking_items",
  *         type="array",
  *         description="Booking Items",
+ *
  *         @OA\Items(
  *           type="object",
  *           description="Booking Item",
+ *
  *           @OA\Property(
  *             property="booking_item",
  *             type="string",
@@ -147,6 +150,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     example="success"
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="BookingRetrieveItemsResponse",
  *     summary="Example of Booking Retrieve Items Response",

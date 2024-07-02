@@ -20,20 +20,20 @@ class DownloadGiataPoi extends Command
 
     protected const BATCH = 500;
 
-    public function handle()
+    public function handle(): void
     {
         $response = Http::withBasicAuth(config('giata.poi.username'), config('giata.poi.password'))
-            ->get(config('giata.poi.base_uri') . 'pois');
+            ->get(config('giata.poi.base_uri').'pois');
 
         $res = $response->getBody()->getContents();
 
         // TODO: it is a temporary solution for fixing the issue with the json format response
-        $res = str_replace("\n", "", $res);
-        $res = ltrim($res, "{");
-        $res = rtrim($res, "}");
-        $res = rtrim($res, ",");
-        $res = '[{' . $res . ']';
-//        Storage::put('Giata/giataPoi.json', $res);
+        $res = str_replace("\n", '', $res);
+        $res = ltrim($res, '{');
+        $res = rtrim($res, '}');
+        $res = rtrim($res, ',');
+        $res = '[{'.$res.']';
+        //        Storage::put('Giata/giataPoi.json', $res);
 
         $pois = json_decode($res, true);
 
@@ -67,7 +67,7 @@ class DownloadGiataPoi extends Command
         } catch (\Exception $e) {
             DB::rollBack();
 
-            $this->error('Failed to fetch POIs: ' . $e->getMessage());
+            $this->error('Failed to fetch POIs: '.$e->getMessage());
         }
     }
 }

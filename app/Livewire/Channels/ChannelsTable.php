@@ -21,10 +21,6 @@ class ChannelsTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    /**
-     * @param Table $table
-     * @return Table
-     */
     public function table(Table $table): Table
     {
         return $table
@@ -49,19 +45,16 @@ class ChannelsTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Channel $record): string => route('channels.show', $record)),
+                        ->url(fn (Channel $record): string => route('channels.show', $record)),
                     EditAction::make()
-                        ->url(fn(Channel $record): string => route('channels.edit', $record)),
+                        ->url(fn (Channel $record): string => route('channels.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(Channel $record) => $record->delete())
-                ])
+                        ->action(fn (Channel $record) => $record->delete()),
+                ]),
             ]);
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.channels-table');

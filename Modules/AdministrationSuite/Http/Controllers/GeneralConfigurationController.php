@@ -7,9 +7,6 @@ use Illuminate\View\View;
 
 class GeneralConfigurationController extends Controller
 {
-    /**
-     * @return View
-     */
     public function index(): View
     {
         $result = GeneralConfiguration::first();

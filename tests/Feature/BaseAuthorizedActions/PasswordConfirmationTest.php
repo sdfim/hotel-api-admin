@@ -10,7 +10,6 @@ class PasswordConfirmationTest extends TestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_confirm_password_screen_can_be_rendered(): void
     {
@@ -23,7 +22,7 @@ class PasswordConfirmationTest extends TestCase
 
     /**
      * @test
-     * @return void
+     *
      * @throws JsonException
      */
     public function test_password_can_be_confirmed(): void
@@ -41,7 +40,6 @@ class PasswordConfirmationTest extends TestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_password_is_not_confirmed_with_invalid_password(): void
     {

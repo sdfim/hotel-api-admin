@@ -10,18 +10,17 @@ use Illuminate\Support\Str;
 /**
  * DELETE THIS FILE AND MOVE TEST CASES TO A DOC WHEN MULTI ROOM IS FULLY INTEGRATED.
  */
-
 class MultiRoomTesting
 {
     private const URL = 'https://uat.demandmatrix.net/app/dm/xml/tentravel/search';
 
-    public function __construct( private readonly Client $client = new Client(),
-                                 private readonly array  $headers = [
-                                     'Content-Type' => 'text/xml; charset=UTF8',
-                                 ])
+    public function __construct(private readonly Client $client = new Client(),
+        private readonly array $headers = [
+            'Content-Type' => 'text/xml; charset=UTF8',
+        ])
     {
 
-        $this->requestId = time() . '_tentravel';
+        $this->requestId = time().'_tentravel';
         $this->timeStamp = date('Y-m-d\TH:i:sP');
     }
 
@@ -31,7 +30,7 @@ class MultiRoomTesting
      */
     public function execute($scenario, $action)
     {
-        switch($scenario){
+        switch ($scenario) {
             /**
              * SCENARIO 1:
              * Book Room Only with 4 Adults, and 2 Child in 2 rooms for 5 nights(2 adults and 1 child in each room) -- Verify rates by person if policy is applied - (Same rate plan-Same room type- Same Occupancy)
@@ -44,44 +43,39 @@ class MultiRoomTesting
                     'room1' => [
                         'type' => 'Suite',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'room2' => [
                         'type' => 'Suite',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'bookingId' => Str::uuid()->toString(),
                 ];
 
-
-                if ($action === 'search')
-                {
+                if ($action === 'search') {
                     $this->sendRequest($this->getSearch1($params1));
                 }
 
-                if ($action === 'book')
-                {
+                if ($action === 'book') {
                     //Book
                     $this->sendRequest($this->getBook1($params1));
                 }
 
-                if ($action === 'cancel')
-                {
+                if ($action === 'cancel') {
                     return $this->sendRequest($this->getCancel1($params1, '1a828875-7f85-4e4a-8921-553e6658d019'));
                 }
 
-                if ($action === 'read')
-                {
+                if ($action === 'read') {
                     $this->sendRequest($this->readRq($params1, '721bntDczG'));
                 }
 
                 break;
 
-            /**
-             * SCENARIO 2:
-             * Book 2 Adults and 2 children in 1 room and 2 adults and 1 child in another room. Verify correct splitting of guests. (Same rate plan-Same room type- Different Occupancy)
-             */
+                /**
+                 * SCENARIO 2:
+                 * Book 2 Adults and 2 children in 1 room and 2 adults and 1 child in another room. Verify correct splitting of guests. (Same rate plan-Same room type- Different Occupancy)
+                 */
             case '2':
                 $params2 = [
                     'from' => '2024-07-01',
@@ -90,44 +84,39 @@ class MultiRoomTesting
                     'room1' => [
                         'type' => 'Suite',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'room2' => [
                         'type' => 'Suite',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'bookingId' => Str::uuid()->toString(),
                 ];
 
-
-                if ($action === 'search')
-                {
+                if ($action === 'search') {
                     $this->sendRequest($this->getSearch2($params2));
                 }
 
-                if ($action === 'book')
-                {
+                if ($action === 'book') {
                     //Book
                     $this->sendRequest($this->getBook2($params2));
                 }
 
-                if ($action === 'cancel')
-                {
+                if ($action === 'cancel') {
                     $this->sendRequest($this->getCancel2($params2, 'caa30ad1-a263-4c46-b96b-90d8768ff7e5'));
                 }
 
-                if ($action === 'read')
-                {
+                if ($action === 'read') {
                     $this->sendRequest($this->readRq($params2, ''));
                 }
 
                 break;
 
-            /**
-             * SCENARIO 3:
-             * Book 2 Rooms with 2 Adults for 5 nights  (Same rate plan-Different room type- Same Occupancy)
-             */
+                /**
+                 * SCENARIO 3:
+                 * Book 2 Rooms with 2 Adults for 5 nights  (Same rate plan-Different room type- Same Occupancy)
+                 */
             case '3':
                 $params3 = [
                     'from' => '2024-08-01',
@@ -136,43 +125,38 @@ class MultiRoomTesting
                     'room1' => [
                         'type' => 'Suite',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'room2' => [
                         'type' => 'Double',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'bookingId' => Str::uuid()->toString(),
                 ];
 
-
-                if ($action === 'search')
-                {
+                if ($action === 'search') {
                     $this->sendRequest($this->getSearch3($params3));
                 }
 
-                if ($action === 'book')
-                {
+                if ($action === 'book') {
                     //Book
                     $this->sendRequest($this->getBook3($params3));
                 }
 
-                if ($action === 'cancel')
-                {
+                if ($action === 'cancel') {
                     $this->sendRequest($this->getCancel3($params3, ''));
                 }
 
-                if ($action === 'read')
-                {
+                if ($action === 'read') {
                     $this->sendRequest($this->readRq($params3, ''));
                 }
                 break;
 
-            /**
-             * SCENARIO 4:
-             * Book 2 rooms with 2 different occupancies. 2 adults and 1 child in one room and 3 adults in second room  (Different rate plan-Different room type- Same Occupancy) (Different occupancy  in same rateplan-roomtype)
-             */
+                /**
+                 * SCENARIO 4:
+                 * Book 2 rooms with 2 different occupancies. 2 adults and 1 child in one room and 3 adults in second room  (Different rate plan-Different room type- Same Occupancy) (Different occupancy  in same rateplan-roomtype)
+                 */
             case '4':
                 $params4 = [
                     'from' => '2024-09-01',
@@ -181,43 +165,38 @@ class MultiRoomTesting
                     'room1' => [
                         'type' => 'Suite',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'room2' => [
                         'type' => 'Suite',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'bookingId' => Str::uuid()->toString(),
                 ];
 
-
-                if ($action === 'search')
-                {
+                if ($action === 'search') {
                     $this->sendRequest($this->getSearch4($params4));
                 }
 
-                if ($action === 'book')
-                {
+                if ($action === 'book') {
                     //Book
                     $this->sendRequest($this->getBook4($params4));
                 }
 
-                if ($action === 'cancel')
-                {
+                if ($action === 'cancel') {
                     $this->sendRequest($this->getCancel4($params4, ''));
                 }
 
-                if ($action === 'read')
-                {
+                if ($action === 'read') {
                     $this->sendRequest($this->readRq($params4, ''));
                 }
                 break;
 
-            /**
-             * SCENARIO 5:
-             * Book 2 rooms with 2 different rate plan  for 5 nights 2 adults (Different Rate Plan same occupancy  same roomtype)
-             */
+                /**
+                 * SCENARIO 5:
+                 * Book 2 rooms with 2 different rate plan  for 5 nights 2 adults (Different Rate Plan same occupancy  same roomtype)
+                 */
             case '5':
                 $params5 = [
                     'from' => '2024-05-01',
@@ -226,43 +205,38 @@ class MultiRoomTesting
                     'room1' => [
                         'type' => 'Suite',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'room2' => [
                         'type' => 'Suite',
                         'rate' => 'BAR',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'bookingId' => Str::uuid()->toString(),
                 ];
 
-
-                if ($action === 'search')
-                {
+                if ($action === 'search') {
                     $this->sendRequest($this->getSearch5($params5));
                 }
 
-                if ($action === 'book')
-                {
+                if ($action === 'book') {
                     //Book
                     $this->sendRequest($this->getBook5($params5));
                 }
 
-                if ($action === 'cancel')
-                {
+                if ($action === 'cancel') {
                     $this->sendRequest($this->getCancel5($params5, '721rF0EQik'));
                 }
 
-                if ($action === 'read')
-                {
+                if ($action === 'read') {
                     $this->sendRequest($this->readRq($params5, ''));
                 }
                 break;
 
-            /**
-             * SCENARIO 6:
-             * Book 2 rooms with 2 different occupancies. 2 adult and 1 child in one room and 3 adults in second room (Different occupancy  in different rateplan-same roomtype)
-             */
+                /**
+                 * SCENARIO 6:
+                 * Book 2 rooms with 2 different occupancies. 2 adult and 1 child in one room and 3 adults in second room (Different occupancy  in different rateplan-same roomtype)
+                 */
             case '6':
                 $params6 = [
                     'from' => '2024-07-01',
@@ -271,43 +245,38 @@ class MultiRoomTesting
                     'room1' => [
                         'type' => 'Suite',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'room2' => [
                         'type' => 'Suite',
                         'rate' => 'BAR',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'bookingId' => Str::uuid()->toString(),
                 ];
 
-
-                if ($action === 'search')
-                {
+                if ($action === 'search') {
                     $this->sendRequest($this->getSearch6($params6));
                 }
 
-                if ($action === 'book')
-                {
+                if ($action === 'book') {
                     //Book
                     $this->sendRequest($this->getBook6($params6));
                 }
 
-                if ($action === 'cancel')
-                {
+                if ($action === 'cancel') {
                     $this->sendRequest($this->getCancel6($params6, ''));
                 }
 
-                if ($action === 'read')
-                {
+                if ($action === 'read') {
                     $this->sendRequest($this->readRq($params6, ''));
                 }
                 break;
 
-            /**
-             * SCENARIO 7:
-             * Book 2 rooms with 2 different occupancies. 1 adult and 1 child in one room and 3 adults in second room (Different occupancy  in different roomtype and different rateplan)
-             */
+                /**
+                 * SCENARIO 7:
+                 * Book 2 rooms with 2 different occupancies. 1 adult and 1 child in one room and 3 adults in second room (Different occupancy  in different roomtype and different rateplan)
+                 */
             case '7':
                 $params7 = [
                     'from' => '2024-09-01',
@@ -316,43 +285,38 @@ class MultiRoomTesting
                     'room1' => [
                         'type' => 'Suite',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'room2' => [
                         'type' => 'Double',
                         'rate' => 'BAR',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'bookingId' => Str::uuid()->toString(),
                 ];
 
-
-                if ($action === 'search')
-                {
+                if ($action === 'search') {
                     $this->sendRequest($this->getSearch7($params7));
                 }
 
-                if ($action === 'book')
-                {
+                if ($action === 'book') {
                     //Book
                     $this->sendRequest($this->getBook7($params7));
                 }
 
-                if ($action === 'cancel')
-                {
+                if ($action === 'cancel') {
                     $this->sendRequest($this->getCancel7($params7, ''));
                 }
 
-                if ($action === 'read')
-                {
+                if ($action === 'read') {
                     $this->sendRequest($this->readRq($params7, ''));
                 }
                 break;
 
-            /**
-             * SCENARIO 8:
-             * Book Room Only with 2 Adults with Special Requests (if Partner Supports)
-             */
+                /**
+                 * SCENARIO 8:
+                 * Book Room Only with 2 Adults with Special Requests (if Partner Supports)
+                 */
             case '8':
                 $params8 = [
                     'from' => '2024-09-01',
@@ -361,38 +325,33 @@ class MultiRoomTesting
                     'room1' => [
                         'type' => 'Suite',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'bookingId' => Str::uuid()->toString(),
                 ];
 
-
-                if ($action === 'search')
-                {
+                if ($action === 'search') {
                     $this->sendRequest($this->getSearch8($params8));
                 }
 
-                if ($action === 'book')
-                {
+                if ($action === 'book') {
                     //Book
                     $this->sendRequest($this->getBook8($params8));
                 }
 
-                if ($action === 'cancel')
-                {
+                if ($action === 'cancel') {
                     $this->sendRequest($this->getCancel8($params8, ''));
                 }
 
-                if ($action === 'read')
-                {
+                if ($action === 'read') {
                     $this->sendRequest($this->readRq($params8, ''));
                 }
                 break;
 
-            /**
-             * SCENARIO 2:
-             * Book 2 rooms with same occupancies. 2 adults and 1 child each room  (Different rate plan-Different room type- Same Occupancy)
-             */
+                /**
+                 * SCENARIO 2:
+                 * Book 2 rooms with same occupancies. 2 adults and 1 child each room  (Different rate plan-Different room type- Same Occupancy)
+                 */
             case '9':
                 $params9 = [
                     'from' => '2024-08-08',
@@ -401,35 +360,30 @@ class MultiRoomTesting
                     'room1' => [
                         'type' => 'Suite',
                         'rate' => 'Promo',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'room2' => [
                         'type' => 'Double',
                         'rate' => 'BAR',
-                        'meal' => 'NoM'
+                        'meal' => 'NoM',
                     ],
                     'bookingId' => Str::uuid()->toString(),
                 ];
 
-
-                if ($action === 'search')
-                {
+                if ($action === 'search') {
                     $this->sendRequest($this->getSearch9($params9));
                 }
 
-                if ($action === 'book')
-                {
+                if ($action === 'book') {
                     //Book
                     $this->sendRequest($this->getBook9($params9));
                 }
 
-                if ($action === 'cancel')
-                {
+                if ($action === 'cancel') {
                     $this->sendRequest($this->getCancel9($params9, '8bd92e6a-bf2b-498f-971c-df7ab68f0309'));
                 }
 
-                if ($action === 'read')
-                {
+                if ($action === 'read') {
                     $this->sendRequest($this->readRq($params9, '721KeMSE0b'));
                 }
 
@@ -500,6 +454,7 @@ class MultiRoomTesting
                 </soap-env:Envelope>
         ';
     }
+
     public function getBook1($params)
     {
         $bookingId = $params['bookingId'];
@@ -842,7 +797,6 @@ class MultiRoomTesting
         ';
     }
 
-
     /** case 2 */
     public function getSearch2($params)
     {
@@ -904,6 +858,7 @@ class MultiRoomTesting
                 </soap-env:Envelope>
         ';
     }
+
     public function getBook2($params)
     {
         $bookingId = $params['bookingId'];
@@ -1221,6 +1176,7 @@ class MultiRoomTesting
 </soap-env:Envelope>
         ';
     }
+
     public function getCancel2($params, $id)
     {
         return '<?xml version="1.0" encoding="utf-8"?>
@@ -1256,7 +1212,6 @@ class MultiRoomTesting
             </soap-env:Envelope>
         ';
     }
-
 
     /** case 3 */
     public function getSearch3($params)
@@ -1317,6 +1272,7 @@ class MultiRoomTesting
                 </soap-env:Envelope>
         ';
     }
+
     public function getBook3($params)
     {
         $bookingId = $params['bookingId'];
@@ -1685,6 +1641,7 @@ class MultiRoomTesting
                 </soap-env:Envelope>
         ';
     }
+
     public function getBook4($params)
     {
         $bookingId = $params['bookingId'];
@@ -1988,6 +1945,7 @@ class MultiRoomTesting
 </soap-env:Envelope>
         ';
     }
+
     public function getCancel4($params, $id)
     {
         return '<?xml version="1.0" encoding="utf-8"?>
@@ -2083,6 +2041,7 @@ class MultiRoomTesting
                 </soap-env:Envelope>
         ';
     }
+
     public function getBook5($params)
     {
         $bookingId = $params['bookingId'];
@@ -2375,7 +2334,6 @@ class MultiRoomTesting
         ';
     }
 
-
     /** case 6 */
     public function getSearch6($params)
     {
@@ -2436,6 +2394,7 @@ class MultiRoomTesting
                 </soap-env:Envelope>
         ';
     }
+
     public function getBook6($params)
     {
         $bookingId = $params['bookingId'];
@@ -2729,6 +2688,7 @@ class MultiRoomTesting
 </soap-env:Envelope>
         ';
     }
+
     public function getCancel6($params, $id)
     {
         return '<?xml version="1.0" encoding="utf-8"?>
@@ -2825,6 +2785,7 @@ class MultiRoomTesting
                 </soap-env:Envelope>
         ';
     }
+
     public function getBook7($params)
     {
         $bookingId = $params['bookingId'];
@@ -3101,6 +3062,7 @@ class MultiRoomTesting
 </soap-env:Envelope>
         ';
     }
+
     public function getCancel7($params, $id)
     {
         return '<?xml version="1.0" encoding="utf-8"?>
@@ -3191,6 +3153,7 @@ class MultiRoomTesting
                 </soap-env:Envelope>
         ';
     }
+
     public function getBook8($params)
     {
         $bookingId = $params['bookingId'];
@@ -3353,6 +3316,7 @@ class MultiRoomTesting
 </soap-env:Envelope>
         ';
     }
+
     public function getCancel8($params, $id)
     {
         return '<?xml version="1.0" encoding="utf-8"?>
@@ -3388,7 +3352,6 @@ class MultiRoomTesting
             </soap-env:Envelope>
         ';
     }
-
 
     /** case 9 */
     public function getSearch9($params)
@@ -3451,6 +3414,7 @@ class MultiRoomTesting
                 </soap-env:Envelope>
         ';
     }
+
     public function getBook9($params)
     {
         $bookingId = $params['bookingId'];
@@ -3694,6 +3658,7 @@ class MultiRoomTesting
 </soap-env:Envelope>
         ';
     }
+
     public function getCancel9($params, $id)
     {
         return '<?xml version="1.0" encoding="utf-8"?>
@@ -3730,7 +3695,6 @@ class MultiRoomTesting
         ';
     }
 
-
     public function readRq($params, $id)
     {
         return '<?xml version="1.0" encoding="utf-8"?>
@@ -3760,6 +3724,7 @@ class MultiRoomTesting
             </soap-env:Envelope>
         ';
     }
+
     private function sendRequest($body)
     {
         Log::info('--------------------------------------------------------  REQUEST --------------------------------------------------------');

@@ -2,7 +2,8 @@
 
 namespace Modules\API\Suppliers\Enums\HBSI;
 
-enum CreditCardType: string {
+enum CreditCardType: string
+{
     case AX = 'AX';
     case BC = 'BC';
     case BL = 'BL';
@@ -17,12 +18,11 @@ enum CreditCardType: string {
 
     public static function getFrom(string $code): CreditCardType
     {
-        return match ($code)
-        {
-            'MSC'   => CreditCardType::MC,
-            'VISA'  => CreditCardType::VI,
-            'AMEX'  => CreditCardType::AX,
-            'DIS'   => CreditCardType::DS,
+        return match ($code) {
+            'MSC' => CreditCardType::MC,
+            'VISA' => CreditCardType::VI,
+            'AMEX' => CreditCardType::AX,
+            'DIS' => CreditCardType::DS,
             default => CreditCardType::BC,
 
         };

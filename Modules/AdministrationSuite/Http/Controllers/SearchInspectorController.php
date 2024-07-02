@@ -27,7 +27,7 @@ class SearchInspectorController extends Controller
     {
         $text = $this->message;
         $inspector = ApiSearchInspector::findOrFail($id);
+
         return view('dashboard.search-inspector.show', compact('inspector', 'text'));
     }
-
 }

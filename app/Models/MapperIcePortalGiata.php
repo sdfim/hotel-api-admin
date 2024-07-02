@@ -39,5 +39,4 @@ class MapperIcePortalGiata extends Model
     public $incrementing = false;
 
     protected $table = 'mapper_ice_portal_giatas';
-
 }
