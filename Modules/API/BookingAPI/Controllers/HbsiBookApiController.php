@@ -80,6 +80,7 @@ class HbsiBookApiController extends BaseBookApiController
                     'error' => $xmlPriceData['error'],
                     'booking_item' => $filters['booking_item'] ?? '',
                     'supplier' => SupplierNameEnum::HBSI->value,
+                    'supplier_error' => true,
                 ];
             }
 
