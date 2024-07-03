@@ -18,13 +18,9 @@ use Livewire\Component;
 
 class PropertyWeightingTable extends Component implements HasForms, HasTable
 {
-    use InteractsWithTable;
     use InteractsWithForms;
+    use InteractsWithTable;
 
-    /**
-     * @param Table $table
-     * @return Table
-     */
     public function table(Table $table): Table
     {
         return $table
@@ -51,19 +47,16 @@ class PropertyWeightingTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(PropertyWeighting $record): string => route('property-weighting.show', $record)),
+                        ->url(fn (PropertyWeighting $record): string => route('property-weighting.show', $record)),
                     EditAction::make()
-                        ->url(fn(PropertyWeighting $record): string => route('property-weighting.edit', $record)),
+                        ->url(fn (PropertyWeighting $record): string => route('property-weighting.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(PropertyWeighting $record) => $record->delete())
-                ])
+                        ->action(fn (PropertyWeighting $record) => $record->delete()),
+                ]),
             ]);
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.property-weighting.property-weighting-table');

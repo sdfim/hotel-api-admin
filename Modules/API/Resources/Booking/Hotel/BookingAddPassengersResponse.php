@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *   description="Schema Booking Add Passengers Response",
  *   type="object",
  *   required={"success", "data", "message"},
+ *
  *   @OA\Property(
  *     property="success",
  *     type="boolean",
@@ -46,6 +47,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     example="success"
  *   )
  * ),
+ *
  * @OA\Examples(
  *   example="BookingAddPassengersResponseUpdate",
  *   summary="Example Booking Add Passengers Response Update",

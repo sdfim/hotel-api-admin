@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Models\ApiBookingInspector;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -25,7 +24,8 @@ class SaveBookingInspector implements ShouldQueue
         private readonly string $status = 'success',
         private readonly array $status_describe = [],
         private readonly BookingInspectorController $bookingInspector = new BookingInspectorController(),
-    ) {}
+    ) {
+    }
 
     /**
      * Execute the job.

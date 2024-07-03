@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Log;
 
 class DownloadGiataData extends Command
 {
-
     protected $signature = 'download-giata-data';
 
     protected $description = 'Import XML data from a URL, wrtite to DB';
@@ -27,7 +26,7 @@ class DownloadGiataData extends Command
         $this->current_time = microtime(true);
 
         $batch = 1;
-        $url = config('giata.main.base_uri') . 'properties';
+        $url = config('giata.main.base_uri').'properties';
         $username = config('giata.main.username');
         $password = config('giata.main.password');
 
@@ -41,47 +40,43 @@ class DownloadGiataData extends Command
         $eventDispatcher = DB::connection('mysql_cache')->getEventDispatcher();
         DB::connection('mysql_cache')->unsetEventDispatcher();
 
-
         while ($url) {
             try {
                 // Send an HTTP GET request with authentication
                 $response = $client->get($url);
 
-                $this->info(' GET request  BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
+                $this->info(' GET request  BATCH: '.$batch.' in '.$this->executionTime().' seconds');
 
                 if ($response->getStatusCode() === 200) {
                     // Get the XML content from the response body
                     $textXML = $response->getBody()->getContents();
 
-                    $this->info('Get XML BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
+                    $this->info('Get XML BATCH: '.$batch.' in '.$this->executionTime().' seconds');
 
                     $url = $this->parseXMLToDb($textXML);
 
-                    $this->info('parseXMLToDb BATCH: ' . $batch . ' in ' . $this->executionTime() . ' seconds');
+                    $this->info('parseXMLToDb BATCH: '.$batch.' in '.$this->executionTime().' seconds');
 
                     $batch++;
 
-                    $this->info('XML data imported successfully, BATCH: ' . $batch);
-                    $this->info('Memory usage: ' . (memory_get_usage() / 1024 / 1024) . ' MB');
+                    $this->info('XML data imported successfully, BATCH: '.$batch);
+                    $this->info('Memory usage: '.(memory_get_usage() / 1024 / 1024).' MB');
                     $this->warn('-----------------------------------');
 
                 } else {
-                    $this->error('Error importing XML data. HTTP status code: ' . $response->getStatusCode());
+                    $this->error('Error importing XML data. HTTP status code: '.$response->getStatusCode());
                 }
             } catch (Exception|GuzzleException $e) {
-                $this->error('Error importing XML data: ' . $e->getMessage());
+                $this->error('Error importing XML data: '.$e->getMessage());
             }
         }
 
         //Restore to normal
         DB::connection('mysql_cache')->setEventDispatcher($eventDispatcher);
-        DB::enableQueryLog();;
+        DB::enableQueryLog();
 
     }
 
-    /**
-     * @return float|string
-     */
     private function executionTime(): float|string
     {
         $execution_time = (microtime(true) - $this->current_time);
@@ -90,10 +85,6 @@ class DownloadGiataData extends Command
         return $execution_time;
     }
 
-    /**
-     * @param string $text
-     * @return bool|string
-     */
     private function parseXMLToDb(string $text): bool|string
     {
         $xmlContent = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $text);
@@ -121,33 +112,33 @@ class DownloadGiataData extends Command
             $url = $this->processProperty($property, 'URL');
 
             $data = [
-                'code' => (int)$property['Code'],
-                'last_updated' => (string)$property['LastUpdated'],
-                'name' => (string)$property->Name,
+                'code' => (int) $property['Code'],
+                'last_updated' => (string) $property['LastUpdated'],
+                'name' => (string) $property->Name,
                 'chain' => $chain,
-                'city' => (string)$property->City,
-                'city_id' => (int)$property->City['CityId'],
-                'locale' => (string)$property->Locale,
-                'locale_id' => (int)$property->Locale['LocaleId'],
+                'city' => (string) $property->City,
+                'city_id' => (int) $property->City['CityId'],
+                'locale' => (string) $property->Locale,
+                'locale_id' => (int) $property->Locale['LocaleId'],
                 'address' => $address,
-                'mapper_address' => (string)$property->Address->StreetNmbr . ' ' . (string)$property->Address->AddressLine,
-                'mapper_postal_code' => (string)$property->Address->PostalCode,
-                'mapper_phone_number' => (string)$property->Phone['PhoneNumber'],
+                'mapper_address' => (string) $property->Address->StreetNmbr.' '.(string) $property->Address->AddressLine,
+                'mapper_postal_code' => (string) $property->Address->PostalCode,
+                'mapper_phone_number' => (string) $property->Phone['PhoneNumber'],
                 'phone' => $phones ? json_encode($phones) : null,
                 'position' => $position,
-                'latitude' => isset($property->Position['Latitude']) ? (float)$property->Position['Latitude'] : null,
-                'longitude' => isset($property->Position['Longitude']) ? (float)$property->Position['Longitude'] : null,
+                'latitude' => isset($property->Position['Latitude']) ? (float) $property->Position['Latitude'] : null,
+                'longitude' => isset($property->Position['Longitude']) ? (float) $property->Position['Longitude'] : null,
                 'url' => $url,
                 'cross_references' => $crossReferences,
-                'rating' => $property->Ratings ? (float)$property->Ratings[0]->Rating['Value'] : 0.0,
+                'rating' => $property->Ratings ? (float) $property->Ratings[0]->Rating['Value'] : 0.0,
                 'created_at' => date('Y-m-d H:i:s'),
             ];
 
             foreach ($property->CrossReferences->CrossReference as $crossReference) {
-                if( (string)$crossReference['Code'] == 'ULTIMATE_JET_VACATIONS' && (string)$crossReference['Status'] !== 'Inactive') {
+                if ((string) $crossReference['Code'] == 'ULTIMATE_JET_VACATIONS' && (string) $crossReference['Status'] !== 'Inactive') {
                     $batchDataMapperHbsi[] = [
                         'hbsi_id' => $crossReference->Code['HotelCode'],
-                        'giata_id' => (int)$property['Code'],
+                        'giata_id' => (int) $property['Code'],
                         'perc' => 100,
                     ];
                 }
@@ -173,6 +164,7 @@ class DownloadGiataData extends Command
             DB::rollBack();
             Log::error('ImportJsonlData insert GiataProperty ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
+
             return false;
         }
 
@@ -185,6 +177,7 @@ class DownloadGiataData extends Command
             DB::rollBack();
             Log::error('ImportJsonlData insert MapperHbsiGiata ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
+
             return false;
         }
 
@@ -192,9 +185,10 @@ class DownloadGiataData extends Command
             $url_next = explode('<More_Properties xlink:href=', $xmlContent)[1];
             $url_arr = explode('"', $url_next);
             $url = array_key_exists(1, $url_arr) ? $url_arr[1] : false;
-            $this->comment('Get next url: ' . $url);
+            $this->comment('Get next url: '.$url);
         } catch (Exception $e) {
             $this->comment('Url not found - all data retrieved. This is the last batch');
+
             return false;
         }
 
@@ -210,6 +204,7 @@ class DownloadGiataData extends Command
             $array = json_decode(json_encode($property->$key), true);
             $result = json_encode($this->removeAttributesKey($array));
         }
+
         return $result;
     }
 
@@ -231,6 +226,7 @@ class DownloadGiataData extends Command
                 }
             }
         }
+
         return $result;
     }
 }

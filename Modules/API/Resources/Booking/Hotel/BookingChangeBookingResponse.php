@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *   description="Schema Booking Change Booking Response",
  *   type="object",
  *   required={"success", "data", "message"},
+ *
  *   @OA\Property(
  *     property="success",
  *     type="boolean",
@@ -22,6 +23,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     example="success"
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="BookingChangeBookingResponse",
  *     summary="Example Booking Change Booking Response",

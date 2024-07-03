@@ -9,7 +9,6 @@ use Modules\API\Suppliers\DTO\SupplierContentDtoInterface;
 class IcePortalHotelContentDto implements SupplierContentDtoInterface
 {
     /**
-     * @param array $supplierResponse
      * @return ContentSearchResponse[]
      */
     public function SupplierToContentSearchResponse(array $supplierResponse): array

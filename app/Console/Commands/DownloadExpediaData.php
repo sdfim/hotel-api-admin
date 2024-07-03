@@ -20,40 +20,37 @@ use Modules\Inspector\ExceptionReportController;
 
 class DownloadExpediaData extends Command
 {
-
     use BaseTrait;
 
     protected $signature = 'download-expedia-data {type} {step}';
 
     protected $description = 'Command description';
 
-    /**
-     * @var RapidClient
-     */
     protected RapidClient $rapidClient;
 
     protected ExceptionReportController $apiExceptionReport;
 
-    private const PROPERTY_CONTENT_PATH = "v3/files/properties/";
+    private const PROPERTY_CONTENT_PATH = 'v3/files/properties/';
 
     private const BATCH_SIZE = 100;
 
     private const MIN_RATING = 3;
 
-    private string|null $type;
+    private ?string $type;
 
-    private string|null $step;
+    private ?string $step;
 
     protected int $expedia_id = 1;
 
-    protected string|null $report_id;
+    protected ?string $report_id;
 
     protected string $savePath;
 
     private string $partnerPointSale;
-    private string $billingTerms;
-    private string $paymentTerms;
 
+    private string $billingTerms;
+
+    private string $paymentTerms;
 
     /**
      * Create a new command instance.
@@ -68,7 +65,7 @@ class DownloadExpediaData extends Command
         $this->current_time['main'] = microtime(true);
         $this->current_time['step'] = microtime(true);
         $this->current_time['report'] = microtime(true);
-        $this->savePath = storage_path() . '/app';
+        $this->savePath = storage_path().'/app';
 
         $rateType = env('SUPPLIER_EXPEDIA_RATE_TYPE', 'standalone');
         $rates = $rateType === 'package' ? PropertyPriceCall::PACKAGE_RATES : PropertyPriceCall::STANDALONE_RATES;
@@ -79,7 +76,6 @@ class DownloadExpediaData extends Command
 
     /**
      * Execute the console command.
-     * @return void
      */
     public function handle(): void
     {
@@ -92,47 +88,46 @@ class DownloadExpediaData extends Command
         $this->executionTime('report');
 
         $result = Process::run('df -h')->output();
-        $this->info('DownloadExpediaData df -h: ' . $result);
+        $this->info('DownloadExpediaData df -h: '.$result);
         $result = Process::run('free -h')->output();
-        $this->info('DownloadExpediaData free -h: ' . $result);
+        $this->info('DownloadExpediaData free -h: '.$result);
 
         if (str_contains($this->step, 1)) {
-            # get url from expedia
+            // get url from expedia
             $url = $this->getUrlArchive();
-            $this->info('url from expedia ' . $url . ' in ' . $this->executionTime('step') . ' seconds');
+            $this->info('url from expedia '.$url.' in '.$this->executionTime('step').' seconds');
 
             $this->saveSuccessReport('DownloadExpediaData', 'Step:1 get url', json_encode([
                 'url' => $url,
-                'execution_time' => $this->executionTime('report') . ' sec',
+                'execution_time' => $this->executionTime('report').' sec',
             ]));
         }
 
         if (str_contains($this->step, 2)) {
-            # download file from url and save to storage
+            // download file from url and save to storage
             $this->downloadArchive($url);
         }
 
         if (str_contains($this->step, 3)) {
-            # unzip file
+            // unzip file
             $this->unzipFile();
         }
 
         if (str_contains($this->step, 4)) {
-            # parse json to db
+            // parse json to db
             $this->parseJsonToDb();
         }
 
         if (str_contains($this->step, 5)) {
-            # set inactive status
+            // set inactive status
             $this->setInactiveStatus();
         }
     }
 
     /**
      * Get url from expedia
-     * @return string
      */
-    function getUrlArchive(): string
+    public function getUrlArchive(): string
     {
         $url = '';
         $this->executionTime('report');
@@ -144,14 +139,14 @@ class DownloadExpediaData extends Command
             'payment_terms' => $this->paymentTerms,
         ];
         try {
-            $response = $this->rapidClient->get(self::PROPERTY_CONTENT_PATH . $this->type, $queryParams);
+            $response = $this->rapidClient->get(self::PROPERTY_CONTENT_PATH.$this->type, $queryParams);
             $propertyContents = $response->getBody()->getContents();
             $url = json_decode($propertyContents, true)['href'];
         } catch (Exception $e) {
             $this->saveErrorReport('DownloadExpediaData', 'getUrlArchive', json_encode([
                 'getMessage' => $e->getMessage(),
                 'getTraceAsString' => $e->getTraceAsString(),
-                'execution_time' => $this->executionTime('report') . ' sec',
+                'execution_time' => $this->executionTime('report').' sec',
             ]));
         }
 
@@ -160,10 +155,8 @@ class DownloadExpediaData extends Command
 
     /**
      * Download file from url and save to storage
-     * @param string $url
-     * @return void
      */
-    function downloadArchive(string $url): void
+    public function downloadArchive(string $url): void
     {
         $this->executionTime('report');
         $this->executionTime('step');
@@ -171,15 +164,15 @@ class DownloadExpediaData extends Command
             $client = new Client(['timeout' => 3600]);
             $response = $client->get($url);
 
-            $fileName = 'expedia_' . $this->type . '.gz';
+            $fileName = 'expedia_'.$this->type.'.gz';
 
             if ($response->getStatusCode() === 200) {
                 $stream = $response->getBody();
-                $filePath = $this->savePath . '/' . $fileName;
+                $filePath = $this->savePath.'/'.$fileName;
                 $file = fopen($filePath, 'w');
 
                 if ($file) {
-                    while (!$stream->eof()) {
+                    while (! $stream->eof()) {
                         fwrite($file, $stream->read(1024));
                     }
 
@@ -188,13 +181,13 @@ class DownloadExpediaData extends Command
                     // Get the file size
                     $fileSize = filesize($filePath) / (1024 * 1024 * 1024);
 
-                    $this->info('Step:2 download file ' . $fileName . ' in ' . $this->executionTime('step') . ' seconds');
+                    $this->info('Step:2 download file '.$fileName.' in '.$this->executionTime('step').' seconds');
 
                     $this->saveSuccessReport('DownloadExpediaData', 'Step:2 download file', json_encode([
                         'path' => $this->savePath,
                         'fileName' => $fileName,
-                        'execution_time' => $this->executionTime('report') . ' sec',
-                        'fileSize' => $fileSize . " GB",
+                        'execution_time' => $this->executionTime('report').' sec',
+                        'fileSize' => $fileSize.' GB',
                     ]));
                 } else {
                     $this->errorStep2($response);
@@ -203,46 +196,41 @@ class DownloadExpediaData extends Command
                 $this->errorStep2($response);
             }
         } catch (Exception|GuzzleException $e) {
-            $this->error('Error downloading gz file:  ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+            $this->error('Error downloading gz file:  '.$e->getMessage().' | '.$e->getTraceAsString());
             $this->saveErrorReport('DownloadExpediaData', 'Step:2 download File Gz', json_encode([
                 'getMessage' => $e->getMessage(),
                 'getTraceAsString' => $e->getTraceAsString(),
-                'execution_time' => $this->executionTime('report') . ' sec',
+                'execution_time' => $this->executionTime('report').' sec',
             ]));
         }
     }
 
-    /**
-     * @param $response
-     * @return void
-     */
     private function errorStep2($response): void
     {
-        $this->error('Error downloading gz file:  ' . json_encode([
-                'response-status' => $response->status(),
-                'response-body' => $response->body(),
-                'path' => $this->savePath,
-                'execution_time' => $this->executionTime('step') . ' sec',
-            ]));
+        $this->error('Error downloading gz file:  '.json_encode([
+            'response-status' => $response->status(),
+            'response-body' => $response->body(),
+            'path' => $this->savePath,
+            'execution_time' => $this->executionTime('step').' sec',
+        ]));
         $this->saveErrorReport('DownloadExpediaData', 'Step:2 download file', json_encode([
             'response-status' => $response->status(),
             'response-body' => $response->body(),
             'path' => $this->savePath,
-            'execution_time' => $this->executionTime('report') . ' sec',
+            'execution_time' => $this->executionTime('report').' sec',
         ]));
     }
 
     /**
      * Unzip file
-     * @return void
      */
-    function unzipFile(): void
+    public function unzipFile(): void
     {
         $this->executionTime('report');
         $this->executionTime('step');
         try {
-            $archive = $this->savePath . '/expedia_' . $this->type . '.gz';
-            $result = Process::timeout(3600)->run('gunzip -f ' . $archive);
+            $archive = $this->savePath.'/expedia_'.$this->type.'.gz';
+            $result = Process::timeout(3600)->run('gunzip -f '.$archive);
 
             if ($result->successful()) {
 
@@ -252,51 +240,51 @@ class DownloadExpediaData extends Command
                 $this->saveSuccessReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
                     'archive' => $archive,
                     'result' => $result,
-                    'execution_time' => $this->executionTime('report') . ' sec',
-                    'fileSize' => $fileSize . " GB",
+                    'execution_time' => $this->executionTime('report').' sec',
+                    'fileSize' => $fileSize.' GB',
                 ]));
-                $this->info('DownloadExpediaData Step:3 unzip file: ' . json_encode([
-                        'archive' => $archive,
-                        'result' => $result,
-                        'execution_time' => $this->executionTime('step') . ' sec',
-                        'fileSize' => $fileSize . " GB",
-                    ]));
+                $this->info('DownloadExpediaData Step:3 unzip file: '.json_encode([
+                    'archive' => $archive,
+                    'result' => $result,
+                    'execution_time' => $this->executionTime('step').' sec',
+                    'fileSize' => $fileSize.' GB',
+                ]));
             } else {
-                $this->error('Error DownloadExpediaData Step:3 unzip file:  ' . json_encode([
-                        'result' => $result->throw(),
-                        'execution_time' => $this->executionTime('step') . ' sec',
-                    ]));
+                $this->error('Error DownloadExpediaData Step:3 unzip file:  '.json_encode([
+                    'result' => $result->throw(),
+                    'execution_time' => $this->executionTime('step').' sec',
+                ]));
                 $this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip file', json_encode([
                     'getMessage' => $result->throw(),
-                    'execution_time' => $this->executionTime('report') . ' sec',
+                    'execution_time' => $this->executionTime('report').' sec',
                 ]));
             }
         } catch (Exception $e) {
-            $this->error('Error unzip file:  ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+            $this->error('Error unzip file:  '.$e->getMessage().' | '.$e->getTraceAsString());
             $this->saveErrorReport('DownloadExpediaData', 'Step:3 unzip File', json_encode([
                 'getMessage' => $e->getMessage(),
                 'getTraceAsString' => $e->getTraceAsString(),
-                'execution_time' => $this->executionTime('report') . ' sec',
+                'execution_time' => $this->executionTime('report').' sec',
             ]));
         }
     }
 
     /**
      * Parse json to db
-     * @return void
      */
-    function parseJsonToDb(): void
+    public function parseJsonToDb(): void
     {
         $this->executionTime('report');
         $this->executionTime('step');
 
-        $filePath = $this->savePath . '/expedia_' . $this->type;
+        $filePath = $this->savePath.'/expedia_'.$this->type;
 
         // Open the JSONL file for reading
         $file = fopen($filePath, 'r');
 
-        if (!$file) {
+        if (! $file) {
             $this->error('Unable to open the JSONL file.');
+
             return;
         }
 
@@ -341,7 +329,9 @@ class DownloadExpediaData extends Command
                 $outputSlave[$key] = '';
             }
 
-            if (!is_array($data)) break;
+            if (! is_array($data)) {
+                break;
+            }
 
             $output['rating'] = 0;
 
@@ -386,8 +376,12 @@ class DownloadExpediaData extends Command
                     $value = json_encode($value);
                 }
 
-                if (in_array($key, $arr_json) || in_array($key, $arr)) $output[$key] = $value;
-                if (in_array($key, $arr_json_slave) || in_array($key, $arr_slave)) $outputSlave[$key] = $value;
+                if (in_array($key, $arr_json) || in_array($key, $arr)) {
+                    $output[$key] = $value;
+                }
+                if (in_array($key, $arr_json_slave) || in_array($key, $arr_slave)) {
+                    $outputSlave[$key] = $value;
+                }
             }
             // dd($outputSlave, $output);
 
@@ -396,7 +390,9 @@ class DownloadExpediaData extends Command
             $rating = $ratingConfig ?? self::MIN_RATING ?? 3;
             // $rating = 0;
 
-            if ($output['rating'] < $rating) $is_write = false;
+            if ($output['rating'] < $rating) {
+                $is_write = false;
+            }
 
             if ($is_write) {
                 $batchData[] = $output;
@@ -417,17 +413,17 @@ class DownloadExpediaData extends Command
                     DB::commit();
                 } catch (Exception $e) {
                     DB::rollBack();
-                    $this->error('ImportJsonlData error' . $e->getMessage());
+                    $this->error('ImportJsonlData error'.$e->getMessage());
                     $this->saveErrorReport('DownloadExpediaData', 'Import Json lData', json_encode([
                         'getMessage' => $e->getMessage(),
                         'getTraceAsString' => $e->getTraceAsString(),
                         'batch' => $batchCount,
                         'countBatch' => count($batchData),
-                        'execution_time' => $this->executionTime('report') . ' sec',
+                        'execution_time' => $this->executionTime('report').' sec',
                     ]));
                 }
                 $batchCount++;
-                $this->info('Data imported batchData: ' . $batchCount . ' count =  ' . count($batchData));
+                $this->info('Data imported batchData: '.$batchCount.' count =  '.count($batchData));
                 $batchData = [];
                 $batchDataSlave = [];
                 $propertyIds = [];
@@ -435,7 +431,7 @@ class DownloadExpediaData extends Command
         }
 
         // Insert any remaining data as the last batch
-        if (!empty($batchData)) {
+        if (! empty($batchData)) {
             try {
                 DB::beginTransaction();
 
@@ -448,29 +444,28 @@ class DownloadExpediaData extends Command
                 DB::commit();
             } catch (Exception $e) {
                 DB::rollBack();
-                $this->error('ImportJsonlData error' . $e->getMessage());
+                $this->error('ImportJsonlData error'.$e->getMessage());
                 $this->saveErrorReport('DownloadExpediaData', 'Step:4 Import Json to Data', json_encode([
                     'getMessage' => $e->getMessage(),
                     'getTraceAsString' => $e->getTraceAsString(),
-                    'execution_time' => $this->executionTime('report') . ' sec',
+                    'execution_time' => $this->executionTime('report').' sec',
                 ]));
             }
         }
 
         fclose($file);
 
-        if (env('APP_URL') !== 'http://localhost:8008') unlink($filePath);
+        if (env('APP_URL') !== 'http://localhost:8008') {
+            unlink($filePath);
+        }
 
-        $this->info('Import completed. ' . $this->executionTime('step') . " seconds");
+        $this->info('Import completed. '.$this->executionTime('step').' seconds');
 
         $this->saveSuccessReport('DownloadExpediaData', 'Step:4 Import Json to Data', json_encode([
-            'execution_time' => $this->executionTime('report') . ' sec',
+            'execution_time' => $this->executionTime('report').' sec',
         ]));
     }
 
-    /**
-     * @return void
-     */
     private function setInactiveStatus(): void
     {
         $this->executionTime('report');
@@ -480,7 +475,7 @@ class DownloadExpediaData extends Command
             'Customer-Ip' => '5.5.5.5',
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
-            'Test' => 'standard'
+            'Test' => 'standard',
         ];
         $params = [
             'since' => Carbon::now()->format('Y-m-d'),
@@ -507,51 +502,32 @@ class DownloadExpediaData extends Command
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            $this->error('SetInactiveStasus error' . $e->getMessage());
+            $this->error('SetInactiveStasus error'.$e->getMessage());
             $this->saveErrorReport('DownloadExpediaData', 'Step:5 Set Inactive Stasus', json_encode([
                 'getMessage' => $e->getMessage(),
                 'getTraceAsString' => $e->getTraceAsString(),
-                'execution_time' => $this->executionTime('report') . ' sec',
+                'execution_time' => $this->executionTime('report').' sec',
             ]));
         }
 
-        $this->info('SetInactiveStasus. ' . $this->executionTime('step') . " seconds");
+        $this->info('SetInactiveStasus. '.$this->executionTime('step').' seconds');
 
         $this->saveSuccessReport('DownloadExpediaData', 'Step:5 Set Inactive Stasus', json_encode([
-            'execution_time' => $this->executionTime('report') . ' sec',
+            'execution_time' => $this->executionTime('report').' sec',
             'propertyIds_set_inactive' => $propertyIds,
         ]));
     }
 
-    /**
-     * @param string $action
-     * @param string $description
-     * @param string $content
-     * @return void
-     */
     private function saveSuccessReport(string $action, string $description, string $content): void
     {
         $this->saveReport($action, $description, $content, 'success');
     }
 
-    /**
-     * @param string $action
-     * @param string $description
-     * @param string $content
-     * @return void
-     */
     private function saveErrorReport(string $action, string $description, string $content): void
     {
         $this->saveReport($action, $description, $content);
     }
 
-    /**
-     * @param string $action
-     * @param string $description
-     * @param string $content
-     * @param string $level
-     * @return void
-     */
     private function saveReport(string $action, string $description, string $content, string $level = 'error'): void
     {
         $this->apiExceptionReport

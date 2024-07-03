@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             ChannelSeeder::class,
             GeneralConfigurationSeeder::class,
             PropertyWeightingSeeder::class,
-            PricingRuleSeeder::class
+            PricingRuleSeeder::class,
         ]);
     }
 }

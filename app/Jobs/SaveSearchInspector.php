@@ -15,13 +15,6 @@ class SaveSearchInspector implements ShouldQueue
 
     /**
      * Create a new job instance.
-     * @param array $inspector
-     * @param array $original
-     * @param array $content
-     * @param array $client_content
-     * @param string $status
-     * @param array $status_describe
-     * @param SearchInspectorController $searchInspector
      */
     public function __construct(
         private array $inspector,
@@ -31,7 +24,8 @@ class SaveSearchInspector implements ShouldQueue
         private readonly string $status = 'success',
         private readonly array $status_describe = [],
         private readonly SearchInspectorController $searchInspector = new SearchInspectorController(),
-    ) {}
+    ) {
+    }
 
     /**
      * Execute the job.

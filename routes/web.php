@@ -34,15 +34,15 @@ use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 */
 
 Route::get('/admin/', function () {
-    if (!Auth::check()) {
-        return redirect(config('app.url') . '/admin/login');
+    if (! Auth::check()) {
+        return redirect(config('app.url').'/admin/login');
     } else {
-        return redirect(config('app.url') . '/admin/reservations');
+        return redirect(config('app.url').'/admin/reservations');
     }
 })->name('root');
 
 Route::prefix('admin')->group(function () {
-    Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified',])->group(function () {
+    Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
         Route::resource('channels', ChannelsController::class);
         Route::resource('pricing-rules', PricingRulesController::class);
         Route::resource('suppliers', SuppliersController::class);

@@ -13,8 +13,7 @@ enum PolicyCode: string
 
     public static function fromCode(string $name): PolicyCode
     {
-        if (defined("self::$name"))
-        {
+        if (defined("self::$name")) {
             return constant("self::$name");
         }
 
@@ -23,10 +22,9 @@ enum PolicyCode: string
 
     public static function getObeCode(PolicyCode $policyCode): CancellationPolicyTypesEnum
     {
-        return match ($policyCode)
-        {
+        return match ($policyCode) {
             PolicyCode::CNS => CancellationPolicyTypesEnum::NoShow,
-            default         => CancellationPolicyTypesEnum::General,
+            default => CancellationPolicyTypesEnum::General,
         };
     }
 }

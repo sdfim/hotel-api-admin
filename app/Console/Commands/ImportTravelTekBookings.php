@@ -3,12 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Models\ApiBookingsMetadata;
-use App\Models\GiataPlace;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use League\Csv\Exception;
@@ -29,16 +27,15 @@ class ImportTravelTekBookings extends Command
 
     protected const BATCH = 100;
 
-
     // variables to validate uuid with external ids
     private $bookingIds = [];
-    private $bookingItemIds = [];
 
+    private $bookingItemIds = [];
 
     /**
      * @throws Exception
      */
-    public function handle()
+    public function handle(): void
     {
         $timeStamp = Carbon::now();
 
@@ -57,17 +54,13 @@ class ImportTravelTekBookings extends Command
             'OBE Item',
         ]);
 
-        if (Storage::exists($filename))
-        {
+        if (Storage::exists($filename)) {
             Storage::disk('local')->put($tempImportFilePath, Storage::get($filename));
 
-            try
-            {
+            try {
                 DB::transaction(function () use ($tempImportFilePath, $timeStamp, $csvWriter) {
-                    foreach ($this->readCsvRowsInChunks($tempImportFilePath, self::BATCH) as $chunk)
-                    {
-                        foreach ($chunk as $row)
-                        {
+                    foreach ($this->readCsvRowsInChunks($tempImportFilePath, self::BATCH) as $chunk) {
+                        foreach ($chunk as $row) {
                             $bookingReference = Arr::get($row, 'Booking Reference');
                             $bookingItemReference = Arr::get($row, 'Reference');
                             $hotelSupplierId = Arr::get($row, 'itemcode');
@@ -75,39 +68,37 @@ class ImportTravelTekBookings extends Command
                             $bookingId = $this->getUuidFromExternalId($bookingReference, 'booking');
                             $bookingItem = $this->getUuidFromExternalId($bookingItemReference, 'booking_item');
 
-                            if ($bookingItem === null)
-                            {
+                            if ($bookingItem === null) {
                                 continue;
                             }
 
                             $reservation = [
-                                'bookingId'     => Arr::get($row, 'Reference'),
-                                'main_guest'    => [
-                                    'GivenName'   => Arr::get($row, 'First Name'),
+                                'bookingId' => Arr::get($row, 'Reference'),
+                                'main_guest' => [
+                                    'GivenName' => Arr::get($row, 'First Name'),
                                     'Surname' => Arr::get($row, 'Last Name'),
                                 ],
                                 'ReservationId' => $bookingItemReference,
-                                'type'          => 8,
+                                'type' => 8,
                             ];
 
                             $prevRecord = ApiBookingsMetadata::where('supplier_id', 2)
                                 ->where('supplier_booking_item_id', $bookingItemReference)
                                 ->first();
 
-                            if ($prevRecord !== null)
-                            {
+                            if ($prevRecord !== null) {
                                 continue;
                             }
 
                             ApiBookingsMetadata::insert([
-                                'booking_item'              => $bookingItem,
-                                'booking_id'                => $bookingId,
-                                'supplier_id'               => 2,
-                                'supplier_booking_item_id'  => $bookingItemReference,
-                                'hotel_supplier_id'         => $hotelSupplierId,
-                                'booking_item_data'         => json_encode($reservation),
-                                'created_at'                => $timeStamp,
-                                'updated_at'                => $timeStamp,
+                                'booking_item' => $bookingItem,
+                                'booking_id' => $bookingId,
+                                'supplier_id' => 2,
+                                'supplier_booking_item_id' => $bookingItemReference,
+                                'hotel_supplier_id' => $hotelSupplierId,
+                                'booking_item_data' => json_encode($reservation),
+                                'created_at' => $timeStamp,
+                                'updated_at' => $timeStamp,
                             ]);
 
                             $csvWriter->insertOne([
@@ -121,37 +112,29 @@ class ImportTravelTekBookings extends Command
                 });
 
                 Storage::put($exportFilename, $csvWriter->toString());
-            }
-            catch (\Exception $e)
-            {
+            } catch (\Exception $e) {
                 $this->error($e->getMessage());
             }
 
             Storage::delete($tempImportFilePath);
         }
 
-
     }
 
     private function getUuidFromExternalId($externalId, $type): ?string
     {
-        if ($type === 'booking')
-        {
+        if ($type === 'booking') {
             $bookingId = Arr::get($this->bookingIds, $externalId);
 
-            if ($bookingId === null)
-            {
+            if ($bookingId === null) {
                 $bookingId = Str::uuid()->toString();
 
                 $this->bookingIds[$externalId] = $bookingId;
             }
 
             return $bookingId;
-        }
-        else
-        {
-            if (! in_array($externalId, $this->bookingItemIds))
-            {
+        } else {
+            if (! in_array($externalId, $this->bookingItemIds)) {
                 $this->bookingItemIds[] = $externalId;
 
                 return Str::uuid()->toString();
@@ -165,7 +148,8 @@ class ImportTravelTekBookings extends Command
      * @throws UnavailableStream
      * @throws Exception
      */
-    private function readCsvRowsInChunks($filePath, $chunkSize = 100) {
+    private function readCsvRowsInChunks($filePath, $chunkSize = 100)
+    {
         // Initialize the CSV reader
         $csvReader = Reader::createFromPath(storage_path("app$filePath"));
 
@@ -187,7 +171,7 @@ class ImportTravelTekBookings extends Command
         }
 
         // Yield the remaining chunk
-        if (!empty($chunk)) {
+        if (! empty($chunk)) {
             yield $chunk;
         }
     }

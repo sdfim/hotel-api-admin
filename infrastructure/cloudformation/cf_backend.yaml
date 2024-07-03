@@ -132,6 +132,14 @@ Parameters:
     Description: The driver to use for Cache
     Type: String
     Default: 'file'
+  CacheStore:
+    Description: The store to use for Cache
+    Type: String
+    Default: 'redis'
+  DbConnection:
+    Default: 'mysql'
+    Description: Db connection (mysql)
+    Type: String
   DbDatabase:
     Default: booking_engine
     Description: Mysql database name (DB_DATABASE)
@@ -319,6 +327,8 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiComponentInfoId'
               - Name: CACHE_DRIVER
                 Value: !Ref 'CacheDriver'
+              - Name: CACHE_STORE
+                Value: !Ref 'CacheStore'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -351,6 +361,8 @@ Resources:
                 Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
               - Name: LOG_CHANNEL
                 Value: !Ref 'LogChannel'
+              - Name: DB_CONNECTION
+                Value: !Ref 'DbConnection'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -473,6 +485,8 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiComponentInfoId'
               - Name: CACHE_DRIVER
                 Value: !Ref 'CacheDriver'
+              - Name: CACHE_STORE
+                Value: !Ref 'CacheStore'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -505,6 +519,8 @@ Resources:
                 Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
               - Name: LOG_CHANNEL
                 Value: !Ref 'LogChannel'
+              - Name: DB_CONNECTION
+                Value: !Ref 'DbConnection'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -684,6 +700,8 @@ Resources:
                 Value: !Ref 'BookingSupplierHbsiComponentInfoId'
               - Name: CACHE_DRIVER
                 Value: !Ref 'CacheDriver'
+              - Name: CACHE_STORE
+                Value: !Ref 'CacheStore'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -716,6 +734,8 @@ Resources:
                 Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
               - Name: LOG_CHANNEL
                 Value: !Ref 'LogChannel'
+              - Name: DB_CONNECTION
+                Value: !Ref 'DbConnection'
               - Name: DB_DATABASE
                 Value: !Ref 'DbDatabase'
               - Name: DB_HOST
@@ -1679,6 +1699,9 @@ Resources:
           - '"CACHE_DRIVER":"'
           - !Ref 'CacheDriver'
           - '",'
+          - '"CACHE_STORE":"'
+          - !Ref 'CacheStore'
+          - '",'
           - '"SUPPLIER_EXPEDIA_API_KEY":"'
           - !Ref 'BookingSupplierExpediaApiKey'
           - '",'
@@ -1726,6 +1749,9 @@ Resources:
           - '",'
           - '"LOG_CHANNEL":"'
           - !Ref 'LogChannel'
+          - '",'
+          - '"DB_CONNECTION":"'
+          - !Ref 'DbConnection'
           - '",'
           - '"DB_DATABASE":"'
           - !Ref 'DbDatabase'

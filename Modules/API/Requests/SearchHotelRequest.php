@@ -21,6 +21,7 @@ class SearchHotelRequest extends ApiRequest
      *
      *     @OA\JsonContent(
      *       oneOf={
+     *
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestPlace"),
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestDestination"),
      *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestCoordinates"),
@@ -100,9 +101,6 @@ class SearchHotelRequest extends ApiRequest
         ];
     }
 
-    /**
-     * @return array
-     */
     public function validatedDate(): array
     {
         return parent::validated();

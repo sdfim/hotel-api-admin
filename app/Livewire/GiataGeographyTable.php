@@ -14,13 +14,9 @@ use Livewire\Component;
 
 class GiataGeographyTable extends Component implements HasForms, HasTable
 {
-    use InteractsWithTable;
     use InteractsWithForms;
+    use InteractsWithTable;
 
-    /**
-     * @param Table $table
-     * @return Table
-     */
     public function table(Table $table): Table
     {
         return $table
@@ -57,9 +53,6 @@ class GiataGeographyTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.giata-geography-table');

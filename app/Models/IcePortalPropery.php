@@ -44,19 +44,8 @@ class IcePortalPropery extends Model
         'editDate',
     ];
 
-    /**
-     * @var string[]
-     */
-    protected $casts = [
-        'images' => 'json',
-        'amenities' => 'json',
-    ];
-
     protected $table = 'ice_hbsi_properties';
 
-    /**
-     * @param array $attributes
-     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -64,8 +53,18 @@ class IcePortalPropery extends Model
     }
 
     /**
-     * @return HasMany
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
+    protected function casts(): array
+    {
+        return [
+            'images' => 'json',
+            'amenities' => 'json',
+        ];
+    }
+
     public function mapperHbsiGiata(): HasMany
     {
         return $this->hasMany(MapperIcePortalGiata::class, 'ice_portal_id', 'code');

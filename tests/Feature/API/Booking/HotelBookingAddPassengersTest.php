@@ -10,7 +10,6 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_method_response_200(): void
     {
@@ -47,7 +46,6 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_again_method_response_200(): void
     {
@@ -89,22 +87,20 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_empty_booking_id_method_response_400(): void
     {
         $addPassengersResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-passengers?booking_id=");
+            ->postJson('api/booking/add-passengers?booking_id=');
 
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_non_existent_booking_id_method_response_400(): void
     {
@@ -115,33 +111,31 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
 
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_without_parameters_method_response_400(): void
     {
         $addPassengersResponse = $this->withHeaders($this->headers)
-            ->postJson("api/booking/add-passengers");
+            ->postJson('api/booking/add-passengers');
 
         $addPassengersResponse->assertStatus(400)
             ->assertJson([
                 'success' => false,
                 'error' => [
                     'booking_id' => [
-                        'The booking id field is required.'
-                    ]
-                ]
+                        'The booking id field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_children_ages_mismatch_method_response_400(): void
     {
@@ -156,19 +150,18 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                     'search_id',
                     'room',
                     'children_ages_in_search',
-                    'children_ages_in_query'
+                    'children_ages_in_query',
                 ],
-                'message'
+                'message',
             ])
             ->assertJson([
                 'success' => false,
-                'message' => 'failed'
+                'message' => 'failed',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_number_of_children_mismatch_method_response_400(): void
     {
@@ -183,19 +176,18 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                     'search_id',
                     'room',
                     'number_of_children_in_search',
-                    'number_of_children_in_query'
+                    'number_of_children_in_query',
                 ],
-                'message'
+                'message',
             ])
             ->assertJson([
                 'success' => false,
-                'message' => 'failed'
+                'message' => 'failed',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_number_of_adults_mismatch_method_response_400(): void
     {
@@ -210,19 +202,18 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                     'search_id',
                     'room',
                     'number_of_adults_in_search',
-                    'number_of_adults_in_query'
+                    'number_of_adults_in_query',
                 ],
-                'message'
+                'message',
             ])
             ->assertJson([
                 'success' => false,
-                'message' => 'failed'
+                'message' => 'failed',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_missed_passenger_title_method_response_400(): void
     {
@@ -233,15 +224,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.title' => [
-                        'The passengers.0.title field is required.'
-                    ]
-                ]
+                        'The passengers.0.title field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_empty_passenger_title_method_response_400(): void
     {
@@ -252,15 +242,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.title' => [
-                        'The passengers.0.title field is required.'
-                    ]
-                ]
+                        'The passengers.0.title field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_missed_passenger_given_name_method_response_400(): void
     {
@@ -271,15 +260,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.given_name' => [
-                        'The passengers.0.given_name field is required.'
-                    ]
-                ]
+                        'The passengers.0.given_name field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_empty_passenger_given_name_method_response_400(): void
     {
@@ -290,15 +278,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.given_name' => [
-                        'The passengers.0.given_name field is required.'
-                    ]
-                ]
+                        'The passengers.0.given_name field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_missed_passenger_family_name_method_response_400(): void
     {
@@ -309,15 +296,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.family_name' => [
-                        'The passengers.0.family_name field is required.'
-                    ]
-                ]
+                        'The passengers.0.family_name field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_empty_passenger_family_name_method_response_400(): void
     {
@@ -328,15 +314,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.family_name' => [
-                        'The passengers.0.family_name field is required.'
-                    ]
-                ]
+                        'The passengers.0.family_name field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_missed_passenger_date_of_birth_method_response_400(): void
     {
@@ -347,15 +332,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.date_of_birth' => [
-                        'The passengers.0.date_of_birth field is required.'
-                    ]
-                ]
+                        'The passengers.0.date_of_birth field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_empty_passenger_date_of_birth_method_response_400(): void
     {
@@ -366,15 +350,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.date_of_birth' => [
-                        'The passengers.0.date_of_birth field is required.'
-                    ]
-                ]
+                        'The passengers.0.date_of_birth field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_incorrect_passenger_date_of_birth_method_response_400(): void
     {
@@ -385,15 +368,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.date_of_birth' => [
-                        'The passengers.0.date_of_birth does not match the format Y-m-d.'
-                    ]
-                ]
+                        'The passengers.0.date_of_birth does not match the format Y-m-d.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_missed_passenger_booking_items_method_response_400(): void
     {
@@ -404,15 +386,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.booking_items' => [
-                        'The passengers.0.booking_items field is required.'
-                    ]
-                ]
+                        'The passengers.0.booking_items field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_empty_passenger_booking_items_method_response_400(): void
     {
@@ -423,15 +404,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.booking_items' => [
-                        'The passengers.0.booking_items field is required.'
-                    ]
-                ]
+                        'The passengers.0.booking_items field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_missed_passenger_booking_item_method_response_400(): void
     {
@@ -442,15 +422,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.booking_items.0.booking_item' => [
-                        'The passengers.0.booking_items.0.booking_item field is required.'
-                    ]
-                ]
+                        'The passengers.0.booking_items.0.booking_item field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_empty_passenger_booking_item_method_response_400(): void
     {
@@ -461,15 +440,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.booking_items.0.booking_item' => [
-                        'The passengers.0.booking_items.0.booking_item field is required.'
-                    ]
-                ]
+                        'The passengers.0.booking_items.0.booking_item field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_non_existent_passenger_booking_item_method_response_400(): void
     {
@@ -479,15 +457,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ->assertJson([
                 'success' => false,
                 'error' => [
-                    'booking_item' => 'Invalid booking_item'
+                    'booking_item' => 'Invalid booking_item',
                 ],
-                'message' => 'failed'
+                'message' => 'failed',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_add_passengers_with_invalid_uuid_passenger_booking_item_method_response_400(): void
     {
@@ -498,16 +475,14 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'passengers.0.booking_items.0.booking_item' => [
-                        'The passengers.0.booking_items.0.booking_item must be a valid UUID.'
-                    ]
-                ]
+                        'The passengers.0.booking_items.0.booking_item must be a valid UUID.',
+                    ],
+                ],
             ]);
     }
 
     /**
-     * @param array $keysToFail
-     * @param bool $withChildren if true then children will definitely be generated, otherwise randomly true/false
-     * @return TestResponse
+     * @param  bool  $withChildren  if true then children will definitely be generated, otherwise randomly true/false
      */
     protected function sendAddPassengersRequestWithIncorrectData(array $keysToFail = [], bool $withChildren = false): TestResponse
     {
@@ -524,29 +499,26 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
     }
 
     /**
-     * @param string $bookingItem
-     * @param array $occupancy
-     * @param array $keysToFail
-     * Possible values:
-     *    - 'children_ages_mismatch': Indicates that there is a mismatch in the ages of the children passengers.
-     *    - 'number_of_children_mismatch': Indicates that there is a mismatch in the number of children passengers.
-     *    - 'number_of_adults_mismatch': Indicates that there is a mismatch in the number of adult passengers.
-     *    - 'missed_passenger_title': Indicates that the 'title' key is missing for the first passenger in the $data array.
-     *    - 'empty_passenger_title': Indicates that the 'title' key is empty for the first passenger in the $data array.
-     *    - 'missed_passenger_given_name': Indicates that the 'given_name' key is missing for the first passenger in the $data array.
-     *    - 'empty_passenger_given_name': Indicates that the 'given_name' key is empty for the first passenger in the $data array.
-     *    - 'missed_passenger_family_name': Indicates that the 'family_name' key is missing for the first passenger in the $data array.
-     *    - 'empty_passenger_family_name': Indicates that the 'family_name' key is empty for the first passenger in the $data array.
-     *    - 'missed_passenger_date_of_birth': Indicates that the 'date_of_birth' key is missing for the first passenger in the $data array.
-     *    - 'empty_passenger_date_of_birth': Indicates that the 'date_of_birth' key is empty for the first passenger in the $data array.
-     *    - 'incorrect_passenger_date_of_birth': Indicates that the 'date_of_birth' key for the first passenger in the $data array has an incorrect format.
-     *    - 'missed_passenger_booking_items': Indicates that the 'booking_items' key is missing for the first passenger in the $data array.
-     *    - 'empty_passenger_booking_items': Indicates that the 'booking_items' key is empty for the first passenger in the $data array.
-     *    - 'missed_passenger_booking_item': Indicates that the 'booking_item' key is missing for the first booking item of the first passenger in the $data array.
-     *    - 'empty_passenger_booking_item': Indicates that the 'booking_item' key is empty for the first booking item of the first passenger in the $data array.
-     *    - 'non_existent_passenger_booking_item': Indicates that the 'booking_item' key for the first booking item of the first passenger in the $data array contains a non-existent booking item.
-     *    - 'invalid_uuid_passenger_booking_item': Indicates that the 'booking_item' key for the first booking item of the first passenger in the $data array contains an invalid UUID.
-     * @return array
+     * @param  array  $keysToFail
+     *                             Possible values:
+     *                             - 'children_ages_mismatch': Indicates that there is a mismatch in the ages of the children passengers.
+     *                             - 'number_of_children_mismatch': Indicates that there is a mismatch in the number of children passengers.
+     *                             - 'number_of_adults_mismatch': Indicates that there is a mismatch in the number of adult passengers.
+     *                             - 'missed_passenger_title': Indicates that the 'title' key is missing for the first passenger in the $data array.
+     *                             - 'empty_passenger_title': Indicates that the 'title' key is empty for the first passenger in the $data array.
+     *                             - 'missed_passenger_given_name': Indicates that the 'given_name' key is missing for the first passenger in the $data array.
+     *                             - 'empty_passenger_given_name': Indicates that the 'given_name' key is empty for the first passenger in the $data array.
+     *                             - 'missed_passenger_family_name': Indicates that the 'family_name' key is missing for the first passenger in the $data array.
+     *                             - 'empty_passenger_family_name': Indicates that the 'family_name' key is empty for the first passenger in the $data array.
+     *                             - 'missed_passenger_date_of_birth': Indicates that the 'date_of_birth' key is missing for the first passenger in the $data array.
+     *                             - 'empty_passenger_date_of_birth': Indicates that the 'date_of_birth' key is empty for the first passenger in the $data array.
+     *                             - 'incorrect_passenger_date_of_birth': Indicates that the 'date_of_birth' key for the first passenger in the $data array has an incorrect format.
+     *                             - 'missed_passenger_booking_items': Indicates that the 'booking_items' key is missing for the first passenger in the $data array.
+     *                             - 'empty_passenger_booking_items': Indicates that the 'booking_items' key is empty for the first passenger in the $data array.
+     *                             - 'missed_passenger_booking_item': Indicates that the 'booking_item' key is missing for the first booking item of the first passenger in the $data array.
+     *                             - 'empty_passenger_booking_item': Indicates that the 'booking_item' key is empty for the first booking item of the first passenger in the $data array.
+     *                             - 'non_existent_passenger_booking_item': Indicates that the 'booking_item' key for the first booking item of the first passenger in the $data array contains a non-existent booking item.
+     *                             - 'invalid_uuid_passenger_booking_item': Indicates that the 'booking_item' key for the first booking item of the first passenger in the $data array contains an invalid UUID.
      */
     protected function addPassengersData(string $bookingItem, array $occupancy, array $keysToFail = []): array
     {
@@ -578,35 +550,58 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
                 if (in_array('number_of_adults_mismatch', $keysToFail)) {
                     foreach ($data['passengers'] as $passengerId => $passenger) {
                         $dateOfBirth = Carbon::createFromFormat('Y-m-d', $passenger['date_of_birth']);
-                        if ($dateOfBirth->diffInYears($now) >= 18) {
+                        if (floor($dateOfBirth->diffInYears($now, true)) >= 18) {
                             unset($data['passengers'][$passengerId]);
                         }
                     }
                 }
             }
 
-            if (in_array('missed_passenger_title', $keysToFail)) unset($data['passengers'][0]['title']);
-            if (in_array('empty_passenger_title', $keysToFail)) $data['passengers'][0]['title'] = '';
-            if (in_array('missed_passenger_given_name', $keysToFail)) unset($data['passengers'][0]['given_name']);
-            if (in_array('empty_passenger_given_name', $keysToFail)) $data['passengers'][0]['given_name'] = '';
-            if (in_array('missed_passenger_family_name', $keysToFail)) unset($data['passengers'][0]['family_name']);
-            if (in_array('empty_passenger_family_name', $keysToFail)) $data['passengers'][0]['family_name'] = '';
-            if (in_array('missed_passenger_date_of_birth', $keysToFail)) unset($data['passengers'][0]['date_of_birth']);
-            if (in_array('empty_passenger_date_of_birth', $keysToFail)) $data['passengers'][0]['date_of_birth'] = '';
-            if (in_array('incorrect_passenger_date_of_birth', $keysToFail))
+            if (in_array('missed_passenger_title', $keysToFail)) {
+                unset($data['passengers'][0]['title']);
+            }
+            if (in_array('empty_passenger_title', $keysToFail)) {
+                $data['passengers'][0]['title'] = '';
+            }
+            if (in_array('missed_passenger_given_name', $keysToFail)) {
+                unset($data['passengers'][0]['given_name']);
+            }
+            if (in_array('empty_passenger_given_name', $keysToFail)) {
+                $data['passengers'][0]['given_name'] = '';
+            }
+            if (in_array('missed_passenger_family_name', $keysToFail)) {
+                unset($data['passengers'][0]['family_name']);
+            }
+            if (in_array('empty_passenger_family_name', $keysToFail)) {
+                $data['passengers'][0]['family_name'] = '';
+            }
+            if (in_array('missed_passenger_date_of_birth', $keysToFail)) {
+                unset($data['passengers'][0]['date_of_birth']);
+            }
+            if (in_array('empty_passenger_date_of_birth', $keysToFail)) {
+                $data['passengers'][0]['date_of_birth'] = '';
+            }
+            if (in_array('incorrect_passenger_date_of_birth', $keysToFail)) {
                 $data['passengers'][0]['date_of_birth'] = $this->faker->randomNumber(8);
-            if (in_array('missed_passenger_booking_items', $keysToFail)) unset($data['passengers'][0]['booking_items']);
-            if (in_array('empty_passenger_booking_items', $keysToFail)) $data['passengers'][0]['booking_items'] = [];
-            if (in_array('missed_passenger_booking_item', $keysToFail))
+            }
+            if (in_array('missed_passenger_booking_items', $keysToFail)) {
+                unset($data['passengers'][0]['booking_items']);
+            }
+            if (in_array('empty_passenger_booking_items', $keysToFail)) {
+                $data['passengers'][0]['booking_items'] = [];
+            }
+            if (in_array('missed_passenger_booking_item', $keysToFail)) {
                 unset($data['passengers'][0]['booking_items'][0]['booking_item']);
-            if (in_array('empty_passenger_booking_item', $keysToFail))
+            }
+            if (in_array('empty_passenger_booking_item', $keysToFail)) {
                 $data['passengers'][0]['booking_items'][0]['booking_item'] = '';
+            }
             if (in_array('non_existent_passenger_booking_item', $keysToFail)) {
                 $nonExistentBookingItem = Str::uuid();
                 $data['passengers'][0]['booking_items'][0]['booking_item'] = $nonExistentBookingItem;
             }
             if (in_array('invalid_uuid_passenger_booking_item', $keysToFail)) {
-                $invalidUuid = Str::uuid() . 't';
+                $invalidUuid = Str::uuid().'t';
                 $data['passengers'][0]['booking_items'][0]['booking_item'] = $invalidUuid;
             }
         }

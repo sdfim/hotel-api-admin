@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,7 +22,7 @@ Artisan::command('inspire', function () {
 /**
  * REMOVE THIS COMMAND WHEN MULTI ROOM IS PROPERLY INTEGRATED
  */
-Artisan::command('obe {scenario} {action}', function() {
+Artisan::command('obe {scenario} {action}', function () {
     $scenario = $this->argument('scenario');
     $action = $this->argument('action');
 
@@ -29,3 +30,11 @@ Artisan::command('obe {scenario} {action}', function() {
 
     $this->info($client->execute($scenario, $action));
 });
+
+// Expedia Content download archive, unzip, parse json, write to DB
+Schedule::command('download-expedia-data content 12345')->cron('0 1 * * *');
+//Schedule::command('download-giata-data')->daily()->at('05:00');
+
+Schedule::command('purge-baskets')->cron('0 1 * * *');
+Schedule::command('purge-inspectors')->cron('0 1 * * *');
+Schedule::command('purge-pricing-rules')->cron('0 1 * * *');

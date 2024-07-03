@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *   description="Pricing Search Response",
  *   type="object",
  *   required={"success", "data"},
+ *
  *   @OA\Property(
  *     property="data",
  *     type="object",
@@ -54,9 +55,11 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *         property="occupancy",
  *         description="Occupancy of the hotel",
  *         type="array",
+ *
  *         @OA\Items(
  *          type="object",
  *          required={"adults"},
+ *
  *          @OA\Property(
  *            property="adults",
  *            description="Number of adults.",
@@ -76,9 +79,11 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *      type="results",
  *      description="Results of the search.",
  *      type="array",
+ *
  *      @OA\Items(
  *        type="object",
  *        required={"giata_hotel_id", "supplier", "supplier_hotel_id", "destination", "lowest_priced_room_group", "non_refundable_rates", "refundable_rates", "room_groups", "weight"},
+ *
  *        @OA\Property(
  *          property="giata_hotel_id",
  *          description="Giata hotel ID.",
@@ -143,9 +148,11 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *          property="room_groups",
  *          description="Room groups.",
  *          type="array",
+ *
  *          @OA\Items(
  *            type="object",
  *            required={"total_price", "total_tax", "total_fees", "total_net", "markup", "currency", "pay_now", "pay_at_hotel", "non_refundable", "meal_plan", "rate_id", "rate_description", "cancellation_policies", "opaque", "rooms"},
+ *
  *            @OA\Property(
  *              property="total_price",
  *              description="Total price.",
@@ -222,9 +229,11 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *               property="cancellation_policies",
  *               description="Cancellation policies.",
  *               type="array",
+ *
  *               @OA\Items(
  *                 type="object",
  *                 required={"start", "end", "percent", "currency"},
+ *
  *                 @OA\Property(
  *                   property="start",
  *                   description="Start date.",
@@ -263,9 +272,11 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *               property="rooms",
  *               description="Rooms.",
  *               type="array",
+ *
  *               @OA\Items(
  *                 type="object",
  *                 required={"giata_room_code", "giata_room_name", "supplier_room_name", "per_day_rate_breakdown", "total_price", "total_tax", "total_fees", "total_net", "markup", "booking_item"},
+ *
  *                 @OA\Property(
  *                   property="giata_room_code",
  *                   description="Giata room code.",
@@ -346,6 +357,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *     )
  *   )
  * )
+ *
  * @OA\Examples(
  *     example="PricingSearchResponseNewYork",
  *     summary="Pricing Search Response New York",

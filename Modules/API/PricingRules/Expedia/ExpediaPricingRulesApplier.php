@@ -6,9 +6,6 @@ use App\Models\Supplier;
 use Modules\API\PricingRules\BasePricingRulesApplier;
 use Modules\API\PricingRules\PricingRulesApplierInterface;
 
-/**
- *
- */
 class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements PricingRulesApplierInterface
 {
     public function __construct(array $requestArray, array $pricingRules)
@@ -19,9 +16,6 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
     }
 
     /**
-     * @param int $giataId
-     * @param array $roomsPricingArray
-     * @param bool $b2b
      * @return array{
      *      total_price: float|int,
      *      total_tax: float|int,
@@ -37,7 +31,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
         foreach ($this->requestArray['occupancy'] as $room) {
             $this->totalNumberOfGuests += $this->totalNumberOfGuestsInRoom($room);
 
-            $roomsPricingKey = isset($room['children_ages']) ? $room['adults'] . '-' . implode(',', $room['children_ages']) : $room['adults'];
+            $roomsPricingKey = isset($room['children_ages']) ? $room['adults'].'-'.implode(',', $room['children_ages']) : $room['adults'];
 
             $roomTotals = $this->calculateRoomTotals($roomsPricingArray[$roomsPricingKey]);
 
@@ -56,7 +50,6 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
     /**
      * Calculates total_price(net_price, fees, taxes)
      *
-     * @param array $roomPricing
      * @return array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int}
      */
     private function calculateRoomTotals(array $roomPricing): array
@@ -68,7 +61,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
             'total_price' => 0,
             'total_tax' => 0,
             'total_fees' => 0,
-            'total_net' => 0
+            'total_net' => 0,
         ];
 
         foreach ($roomPricing['nightly'] as $night) {

@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Booking;
  *   description="Schema of UnAuthenticated 401 error",
  *   type="object",
  *   required={"api_status", "message"},
+ *
  *   @OA\Property(
  *     property="api_status",
  *     type="integer",
@@ -22,6 +23,7 @@ namespace Modules\API\Resources\Booking;
  *     example="UnAuthenticated"
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="UnAuthenticatedResponse",
  *     summary="Example of UnAuthenticated",

@@ -22,5 +22,4 @@ class GiataGeography extends Model
         'country_code',
         'country_name',
     ];
-
 }

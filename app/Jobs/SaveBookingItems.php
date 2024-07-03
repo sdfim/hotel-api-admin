@@ -18,7 +18,8 @@ class SaveBookingItems implements ShouldQueue
      */
     public function __construct(
         private readonly array $bookingItems
-    ) {}
+    ) {
+    }
 
     /**
      * Execute the job.

@@ -22,12 +22,9 @@ class Reservation extends Model
         'total_cost',
         'canceled_at',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function channel(): BelongsTo
     {
         return $this->belongsTo(Channel::class);

@@ -23,8 +23,6 @@ class GiataTable extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     /**
-     * @param Table $table
-     * @return Table
      * @throws Exception
      */
     public function table(Table $table): Table
@@ -82,15 +80,12 @@ class GiataTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(GiataProperty $record): string => route('giata.show', $record->code))
+                        ->url(fn (GiataProperty $record): string => route('giata.show', $record->code))
                         ->color('info'),
-                ])
+                ]),
             ]);
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.giata-table');

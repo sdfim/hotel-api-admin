@@ -8,7 +8,6 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_list_bookings_method_response_200(): void
     {
@@ -37,9 +36,9 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
                                         'checkin',
                                         'checkout',
                                         'number_of_adults',
-//                                        'child_ages' => [
-//                                            '*',
-//                                        ],
+                                        //                                        'child_ages' => [
+                                        //                                            '*',
+                                        //                                        ],
                                         'given_name',
                                         'family_name',
                                         'status',
@@ -55,7 +54,7 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
                                             'cancel_penalties' => [
                                                 '*' => [
                                                     'currency',
-//                                                    'nights',
+                                                    //                                                    'nights',
                                                     'start',
                                                     'end',
                                                 ],
@@ -76,7 +75,7 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
                                                             'value',
                                                             'currency',
                                                         ],
-                                                    ]
+                                                    ],
                                                 ],
                                                 '*' => [
                                                     '*' => [
@@ -135,13 +134,12 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
             ])
             ->assertJson([
                 'success' => true,
-                'message' => 'success'
+                'message' => 'success',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_list_bookings_with_type_and_missed_supplier_method_response_400(): void
     {
@@ -153,15 +151,14 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'supplier' => [
-                        'The supplier field is required.'
-                    ]
-                ]
+                        'The supplier field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_list_bookings_with_supplier_and_missed_type_method_response_400(): void
     {
@@ -173,15 +170,14 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'type' => [
-                        'The type field is required.'
-                    ]
-                ]
+                        'The type field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_list_bookings_with_incorrect_supplier_or_type_method_response_400(): void
     {
@@ -196,15 +192,14 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'type' => [
-                        'The selected type is invalid.'
-                    ]
-                ]
+                        'The selected type is invalid.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_list_bookings_without_parameters_method_response_400(): void
     {
@@ -216,12 +211,12 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'supplier' => [
-                        'The supplier field is required.'
+                        'The supplier field is required.',
                     ],
                     'type' => [
-                        'The type field is required.'
-                    ]
-                ]
+                        'The type field is required.',
+                    ],
+                ],
             ]);
     }
 }

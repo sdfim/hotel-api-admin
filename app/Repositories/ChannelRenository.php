@@ -6,17 +6,13 @@ use App\Models\Channel;
 
 class ChannelRenository
 {
-    /**
-     * @param $token
-     * @return int|null
-     */
-    public static function getTokenId($token): int|null
+    public static function getTokenId($token): ?int
     {
-        return Channel::where('access_token', 'like', '%' . $token)->first()->token_id ?? null;
+        return Channel::where('access_token', 'like', '%'.$token)->first()->token_id ?? null;
     }
 
-    public static function getTokenName($token): string|null
+    public static function getTokenName($token): ?string
     {
-        return Channel::where('access_token', 'like', '%' . $token)->first()->name ?? null;
+        return Channel::where('access_token', 'like', '%'.$token)->first()->name ?? null;
     }
 }

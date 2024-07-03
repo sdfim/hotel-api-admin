@@ -6,23 +6,13 @@ use Illuminate\Database\Eloquent\Builder;
 
 class HotelSearchBuilder
 {
-    /**
-     * @var Builder
-     */
     protected Builder $query;
 
-    /**
-     * @param $query
-     */
     public function __construct($query)
     {
         $this->query = $query;
     }
 
-    /**
-     * @param array $filters
-     * @return Builder
-     */
     public function applyFilters(array $filters): Builder
     {
         if (isset($filters['ids'])) {

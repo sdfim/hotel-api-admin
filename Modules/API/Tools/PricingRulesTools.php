@@ -11,7 +11,6 @@ use Illuminate\Support\Carbon;
 class PricingRulesTools
 {
     /**
-     * @param array $query
      * @return array<PricingRule>
      */
     public function rules(array $query): array
@@ -37,12 +36,11 @@ class PricingRulesTools
         }
 
         $carbonCheckIn = Carbon::parse($checkIn);
-        $daysUntilDeparture = $today->diffInDays($carbonCheckIn);
-        $nights = Carbon::parse($query['checkout'])->diffInDays($carbonCheckIn);
-        $rating = (float)$query['rating'] ?? 4.0;
+        $daysUntilDeparture = floor($today->diffInDays($carbonCheckIn, true));
+        $nights = floor(Carbon::parse($query['checkout'])->diffInDays($carbonCheckIn, true));
+        $rating = (float) $query['rating'] ?? 4.0;
         $numberOfRooms = count($query['occupancy']);
         $totalGuests = $generalTools->calcTotalNumberOfGuestsInAllRooms($query['occupancy']);
-
 
         return PricingRule::with('conditions')
             ->whereHas('conditions', function (Builder $q) use (

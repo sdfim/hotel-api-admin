@@ -26,7 +26,6 @@ class PurgeBaskets extends Command
 
     /**
      * Execute the console command.
-     * @return void
      */
     public function handle(): void
     {
@@ -37,20 +36,24 @@ class PurgeBaskets extends Command
         that will be set within the Administration Suite.
         */
 
-        # delete by day config (time_Reservation_kept)
+        // delete by day config (time_Reservation_kept)
         $this->info('PurgeBaskets: delete by day config (time_Reservation_kept)');
         $kept_days = GeneralConfiguration::first()->time_reservations_kept;
-        $kept_date = date('Y-m-d H:i:s', strtotime('-' . $kept_days . ' days'));
+        $kept_date = date('Y-m-d H:i:s', strtotime('-'.$kept_days.' days'));
         $reservation = Reservation::where('date_travel', '<', $kept_date);
-        if ($reservation->count() > 0) $this->clear($reservation);
+        if ($reservation->count() > 0) {
+            $this->clear($reservation);
+        }
 
-        # if is Offload Date delete by offload date three_months
+        // if is Offload Date delete by offload date three_months
         $this->info('PurgeBaskets: if is Offload Date delete by offload date three_months');
         $three_months = date('Y-m-d H:i:s', strtotime('-3 months'));
         $reservation = Reservation::where('date_offload', '<', $three_months);
-        if ($reservation->count() > 0) $this->clear($reservation);
+        if ($reservation->count() > 0) {
+            $this->clear($reservation);
+        }
 
-        # Stop bookings with in a number of hours from time of search execution, hours*
+        // Stop bookings with in a number of hours from time of search execution, hours*
         $this->info('PurgeBaskets: Stop bookings with in a number of hours from time of search execution, hours*');
         $kept_hours = GeneralConfiguration::first()->stop_bookings;
         // Is NOT Book Status
@@ -73,7 +76,7 @@ class PurgeBaskets extends Command
         }
         ApiBookingInspector::whereIn('booking_id', $deleteBookingItems)->delete();
 
-        # test
+        // test
         // $this->info('PurgeBaskets: test');
         // $kept_days = 5;
         // $kept_date = date('Y-m-d H:i:s', strtotime('+' . $kept_days . ' days'));
@@ -81,10 +84,6 @@ class PurgeBaskets extends Command
         // if ($reservation->count() > 0) $this->clear($reservation);
     }
 
-    /**
-     * @param $reservation
-     * @return void
-     */
     private function clear($reservation): void
     {
         $list = $reservation->get();

@@ -16,9 +16,6 @@ class Channel extends Model
         'name',
         'description',
         'token_id',
-        'access_token'
+        'access_token',
     ];
-
 }
-
-

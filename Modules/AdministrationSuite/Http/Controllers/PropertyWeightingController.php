@@ -46,6 +46,7 @@ class PropertyWeightingController extends Controller
     {
         $text = $this->message;
         $propertyWeighting = PropertyWeighting::findOrFail($id);
+
         return view('dashboard.property-weighting.update', compact(['propertyWeighting', 'text']));
     }
 }
