@@ -30,11 +30,11 @@ class BaseHotelBookingApiController
             $bookItems = ApiBookingInspector::where('booking_id', $booking_id)
                 ->where('type', 'book')
                 ->where('sub_type', '!=', 'error')
-                ->get()->pluck('booking_id')->toArray();
+                ->get()->pluck('booking_item')->toArray();
 
             $bookingItems = ApiBookingInspector::where('booking_item', $booking_item)
                 ->where('type', 'add_item')
-                ->whereNotIn('booking_id', $bookItems);
+                ->whereNotIn('booking_item', $bookItems);
 
             if ($bookingItems->get()->count() === 0) {
                 $res = [
