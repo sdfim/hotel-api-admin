@@ -406,7 +406,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 }
 
                 /** Expedia RS aggregation If the 'query_package' key is set to 'both' */
-                if ($filters['query_package'] === 'both') {
+                if ($filters['query_package'] === 'both' && isset($clientResponse['Expedia_standalone'], $clientResponse['Expedia_package'])) {
                     $clientResponse['Expedia_both'] = $this->pricingDtoTools->mergeHotelData($clientResponse['Expedia_standalone'], $clientResponse['Expedia_package']);
                     unset($clientResponse['Expedia_standalone']);
                     unset($clientResponse['Expedia_package']);
