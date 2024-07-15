@@ -7,11 +7,6 @@ use Monolog\Formatter\JsonFormatter;
 return [
 
     'channels' => [
-        'stack' => [
-            'driver' => 'stack',
-            'channels' => ['daily'],
-            'ignore_exceptions' => false,
-        ],
         'cloudwatch' => [
             'driver' => 'monolog',
             'handler' => AwsCloudwatchLogHandler::class,
