@@ -2,9 +2,13 @@
 
 return [
 
+    'default' => env('CACHE_DRIVER', 'redis'),
+
     'stores' => [
-        'none' => [
-            'driver' => 'null',
+        'redis' => [
+            'driver' => 'redis',
+            'connection' => 'cache',
+            'lock_connection' => 'default',
         ],
     ],
 

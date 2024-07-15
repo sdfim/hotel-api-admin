@@ -36,7 +36,9 @@ class ExpediaHotelController
         try {
             $expedia = new ExpediaContent();
 
-            if (isset($filters['place'])) {
+            if (isset($filters['giata_ids'])) {
+                $filters['ids'] = ExpediaRepository::getIdsByGiataIds($filters['giata_ids']);
+            } elseif (isset($filters['place'])) {
                 $filters['ids'] = ExpediaRepository::getIdsByGiataPlace($filters['place']);
             } elseif (isset($filters['destination'])) {
                 $filters['ids'] = ExpediaRepository::getIdsByDestinationGiata($filters['destination']);
@@ -133,7 +135,6 @@ class ExpediaHotelController
      */
     public function price(array $filters, array $searchInspector): ?array
     {
-
         try {
             $preSearchData = $this->preSearchData($filters, 'price');
             $filters = $preSearchData['filters'] ?? null;
