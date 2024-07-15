@@ -120,4 +120,34 @@ class HbsiRepository
             'total_pages' => $totalPages,
         ];
     }
+
+    public static function getIdsByGiataIds(array $giataIds, int $limit = 100, int $page = 1): ?array
+    {
+        $results = MapperHbsiGiata::whereIn('giata_id', $giataIds)
+            ->get()
+            ->mapWithKeys(function ($value) {
+                return [
+                    $value['hbsi_id'] => [
+                        'giata' => $value['giata_id'],
+                        'hbsi' => $value['hbsi_id'],
+                    ],
+                ];
+            })
+            ->toArray();
+
+        $totalResults = count($results);
+        $totalPages = ceil($totalResults / $limit);
+
+        // If $page is greater than 1, adjust it to match zero-based array indexing
+        // Otherwise, leave $offset as 0
+        $offset = $page > 1 ? ($page - 1) * $limit : 0;
+        // Extract a portion of $results array starting from $offset and containing $limit number of items
+        $result = array_slice($results, $offset, $limit);
+        $associativeArray = array_column($result, null, 'hbsi');
+
+        return [
+            'data' => $associativeArray,
+            'total_pages' => $totalPages,
+        ];
+    }
 }

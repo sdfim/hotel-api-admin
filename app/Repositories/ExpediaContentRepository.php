@@ -42,6 +42,16 @@ class ExpediaContentRepository
 
         return $expedia_id;
     }
+    public static function getIdsByGiataIds(array $giataIds): array
+    {
+        $expedia_id = MapperExpediaGiata::whereIn('giata_id', $giataIds)
+            ->select('expedia_id')
+            ->get()
+            ->pluck('expedia_id')
+            ->toArray();
+
+        return $expedia_id;
+    }
 
     public static function getIdsByDestinationGiata(string $input): array
     {
