@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ApiBookingItem;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
+use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiSearchInspectorRepository as SearchRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -111,8 +112,22 @@ class RouteBookingApiController extends Controller
                 return ['error' => 'Invalid booking_id'];
             }
             $bi = BookingRepository::geTypeSupplierByBookingId($request->get('booking_id'));
-            if (empty($bi)) {
-                return ['error' => 'Invalid booking_id'];
+
+            if (empty($bi))
+            {
+                /**
+                 * This logic was added to support imported bookings from TravelTek
+                 */
+                $bi = ApiBookingsMetadataRepository::geTypeSupplierByBookingId($request->get('booking_id'));
+
+                if (empty($bi))
+                {
+                    return ['error' => 'Invalid booking_id'];
+                }
+                else
+                {
+                    $bi['token_id'] = $requestTokenId;
+                }
             }
             $dbTokenId = $bi['token_id'];
             if ($dbTokenId !== $requestTokenId) {
