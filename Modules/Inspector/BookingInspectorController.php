@@ -54,14 +54,20 @@ class BookingInspectorController extends BaseInspectorController
 
             Log::debug('BookingInspectorController save data: ', $inspector);
 
-            // avoid null/foreign exception column DB (this validation comes from retrieveBooking empty search_id)
-            if (! empty($inspector['search_id'])) {
-                $booking = ApiBookingInspector::create($inspector);
-
-                Log::debug('BookingInspectorController save to DB: '.$this->executionTime().' seconds');
-
-                return $booking->id;
+            /**
+             * Added compatibility to save logs for imported TravelTek bookings
+             */
+            if (empty($inspector['search_id']))
+            {
+                $inspector['search_id'] = 'traveltek_import';
+                $inspector['booking_item'] = 'traveltek_import';
             }
+
+            $booking = ApiBookingInspector::create($inspector);
+
+            Log::debug('BookingInspectorController save to DB: '.$this->executionTime().' seconds');
+
+            return $booking->id;
 
         } catch (Exception $e) {
             Log::error('Error save ApiSearchInspector: '.$e->getMessage().' | '.$e->getLine().' | '.$e->getFile());
