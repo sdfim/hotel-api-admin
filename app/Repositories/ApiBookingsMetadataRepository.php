@@ -18,4 +18,17 @@ class ApiBookingsMetadataRepository
         return ApiBookingsMetadata::where('booking_id', $booking_id)
             ->get();
     }
+
+    public static function geTypeSupplierByBookingId(string $booking_id): array
+    {
+        $search = ApiBookingsMetadata::where('booking_id', $booking_id)->first();
+
+        return $search ?
+            [
+                'type'      => 'hotel',
+                'supplier'  => $search->supplier->name,
+                'token_id'  => null,
+            ] :
+            [];
+    }
 }
