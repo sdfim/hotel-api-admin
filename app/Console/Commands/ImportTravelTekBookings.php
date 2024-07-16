@@ -52,6 +52,10 @@ class ImportTravelTekBookings extends Command
             'Hotel Id',
             'OBE Booking',
             'OBE Item',
+            'Hotel Name',
+            'Passenger First Name',
+            'Passenger Last Name',
+            'Booked Date',
         ]);
 
         if (Storage::exists($filename)) {
@@ -106,6 +110,10 @@ class ImportTravelTekBookings extends Command
                                 Arr::get($row, 'Hotel ID'),
                                 $bookingId,
                                 $bookingItem,
+                                Arr::get($row, 'Hotel Name'),
+                                Arr::get($row, 'First Name'),
+                                Arr::get($row, 'Last Name'),
+                                Arr::get($row, 'datebooked'),
                             ]);
                         }
                     }
