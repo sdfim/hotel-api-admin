@@ -28,20 +28,22 @@ class PricingDtoTools {
                 ->toArray();
         } else {
             return GiataProperty::whereIn('code', $giataIds)
-                ->selectRaw('code, city, 6371 * 2 * ASIN(SQRT(POWER(SIN((latitude - abs(?)) * pi()/180 / 2), 2) + COS(latitude * pi()/180 ) * COS(abs(?) * pi()/180) * POWER(SIN((longitude - ?) *  pi()/180 / 2), 2))) as distance', [$latitude, $latitude, $longitude])
+                ->selectRaw('code, rating, name, city, 6371 * 2 * ASIN(SQRT(POWER(SIN((latitude - abs(?)) * pi()/180 / 2), 2) + COS(latitude * pi()/180 ) * COS(abs(?) * pi()/180) * POWER(SIN((longitude - ?) *  pi()/180 / 2), 2))) as distance', [$latitude, $latitude, $longitude])
                 ->get()
                 ->keyBy('code')
                 ->map(function($item) {
                     return [
                         'city' => $item->city,
                         'distance' => $item->distance,
+                        'rating' => $item->rating,
+                        'hotel_name' => $item->name,
                     ];
                 })
                 ->toArray();
         }
     }
 
-    public function getDestinationData(array $query): string|null
+    public function getDestinationData(array $query): string
     {
         if (isset($query['destination'])) {
             $destinationData = GiataGeography::where('city_id', $query['destination'])
@@ -56,7 +58,7 @@ class PricingDtoTools {
                 ])
                 ->first()->full_location ?? '';
         } else {
-            $destinationData = null;
+            $destinationData = '';
         }
 
         return $destinationData;
