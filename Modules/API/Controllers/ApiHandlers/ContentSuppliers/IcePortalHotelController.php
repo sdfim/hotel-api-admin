@@ -69,6 +69,9 @@ class IcePortalHotelController
     {
         $results = ['$results' => [], 'count' => '0'];
 
+        //TEMPORAL FIX WHILE WE CHECK SOURCE OF ISSUES.
+        return $results;
+
         $ct = microtime(true);
         $response = $this->client->get('/v1/listings', [
             'mType' => self::ICE_MTYPE,
