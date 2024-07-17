@@ -9,6 +9,7 @@ use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
+use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ChannelRenository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -31,6 +32,8 @@ class HbsiBookApiController extends BaseBookApiController
     ];
 
     private const CODE_ALREADY_CANCELLED = '95';
+    private const CODE_WRONG_PASSENGER_NAME = '251';
+    private const MAX_CANCEL_BOOKING_RETRY_COUNT = 1;
 
     public function __construct(
         private readonly HbsiClient $hbsiClient = new HbsiClient(),
@@ -223,7 +226,7 @@ class HbsiBookApiController extends BaseBookApiController
     /**
      * @throws GuzzleException
      */
-    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): ?array
+    public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata, int $iterations = 0): ?array
     {
         $booking_id = $filters['booking_id'];
 
@@ -249,20 +252,42 @@ class HbsiBookApiController extends BaseBookApiController
 
             if (isset($dataResponse['Errors'])) {
                 $res = $dataResponse['Errors'];
-                SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res, 'error',
-                    ['side' => 'app', 'message' => $dataResponse['Errors']]);
+                $code = $response->children()->attributes()['Code'];
 
-                if (static::CODE_ALREADY_CANCELLED == $response->children()->attributes()['Code']) {
+                if (static::CODE_ALREADY_CANCELLED == $code) {
                     return [
                         'booking_item' => $apiBookingsMetadata->booking_item,
                         'status' => 'Room canceled.',
                     ];
+                }
+
+                if (static::CODE_WRONG_PASSENGER_NAME == $code)
+                {
+                    $mainGuest = $this->getNameFromError(Arr::get($dataResponse, 'Errors.Error'));
+
+                    if ($mainGuest === null)
+                    {
+                        return $dataResponse['Errors'];
+                    }
+
+                    $data = [
+                        ...$apiBookingsMetadata->booking_item_data,
+                        'main_guest' => $mainGuest,
+                    ];
+
+                    $apiBookingsMetadata = ApiBookingsMetadataRepository::updateBookingItemData($apiBookingsMetadata, $data);
+
+                    if ($iterations < static::MAX_CANCEL_BOOKING_RETRY_COUNT)
+                    {
+                        return $this->cancelBooking($filters, $apiBookingsMetadata, $iterations + 1);
+                    }
                 }
             } else {
                 $res = [
                     'booking_item' => $apiBookingsMetadata->booking_item,
                     'status' => 'Room canceled.',
                 ];
+
                 SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res);
             }
         } catch (Exception $e) {
@@ -409,6 +434,25 @@ class HbsiBookApiController extends BaseBookApiController
         }
 
         return $reservation;
+    }
+
+    private function getNameFromError(mixed $error): ?array
+    {
+        if (empty($error))
+        {
+            return null;
+        }
+
+        $pattern = '/GivenName:\s*(\w+),\s*Surname:\s*(\w+)/';
+
+        if (preg_match($pattern, $error, $matches)) {
+            return [
+                'GivenName' => $matches[1],
+                'Surname' => $matches[2]
+            ];
+        } else {
+            return null;
+        }
     }
 
     private function saveBookingInfo(array $filters, array $dataResponse, array $mainGuest): void

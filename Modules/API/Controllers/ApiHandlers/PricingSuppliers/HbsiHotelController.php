@@ -19,7 +19,8 @@ class HbsiHotelController
     private const PAGE = 1;
 
     /**
-     * @param  GiataPropertyRepository  $giataRepo
+     * @param HbsiClient $hbsiClient
+     * @param Geography $geography
      */
     public function __construct(
         private readonly HbsiClient $hbsiClient = new HbsiClient(),
@@ -34,7 +35,9 @@ class HbsiHotelController
         $limit = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
         $offset = $filters['page'] ?? self::PAGE;
 
-        if (isset($filters['place'])) {
+        if (isset($filters['giata_ids'])) {
+            $ids = HbsiRepository::getIdsByGiataIds($filters['giata_ids'], $limit, $offset);
+        } elseif (isset($filters['place'])) {
             $ids = HbsiRepository::getIdsByGiataPlace($filters['place'], $limit, $offset);
         } elseif (isset($filters['destination'])) {
             $ids = HbsiRepository::getIdsByDestinationGiata($filters['destination'], $limit, $offset);

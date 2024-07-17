@@ -26,6 +26,7 @@
 					}
 				}
                 $str1 = '';
+                $str0 = '';
 				if ($key === 'destination') $str1 =  $destinationIcon . ' ' . $value  . ' <span style="color: #FFD700;"> ' . $rating . '</span>';
                 elseif ($key === 'place') $str1 = $destinationIcon . ' ' . $value;
 				if ($key === 'checkin') $str0 = $value . " - ";
