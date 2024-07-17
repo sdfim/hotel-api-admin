@@ -286,6 +286,13 @@ class ExpediaHotelPricingDto
             ];
         }
 
+        $promotions = [];
+
+        if ($_promotions = Arr::get($rate, 'promotions'))
+        {
+            $promotions = $this->getPromotions($_promotions);
+        }
+
         $roomResponse = RoomResponseFactory::create();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
@@ -304,6 +311,7 @@ class ExpediaHotelPricingDto
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setPackageDeal(Arr::get($rate, 'sale_scenario.package', false));
+        $roomResponse->setPromotions($promotions);
 
         $roomResponse->setCurrency($this->currency);
         if (isset($rate['bed_groups'][array_key_first((array) $rate['bed_groups'])]['configuration'])) {
@@ -390,8 +398,17 @@ class ExpediaHotelPricingDto
                 foreach ($roomsPricingArray[$roomsKey]['fees'] as $fee => $expenseItem) {
                     $breakdownFees[$fee]['type'] = 'fee exclusive';
                     $breakdownFees[$fee]['title'] = $fee;
-                    $breakdownFees[$fee]['amount'] = $expenseItem['request_currency']['value'];
-                    $breakdownFees[$fee]['local_amount'] = $expenseItem['billable_currency']['value'];
+
+                    if (! isset($breakdownFees[$fee]['amount'])) {
+                        $breakdownFees[$fee]['amount'] = 0;
+                    }
+
+                    if (! isset($breakdownFees[$fee]['local_amount'])) {
+                        $breakdownFees[$fee]['local_amount'] = 0;
+                    }
+
+                    $breakdownFees[$fee]['amount'] += floatval($expenseItem['request_currency']['value']);
+                    $breakdownFees[$fee]['local_amount'] += floatval($expenseItem['billable_currency']['value']);
                     $breakdownFees[$fee]['local_currency'] = $expenseItem['billable_currency']['currency'];
                 }
             }
@@ -414,5 +431,27 @@ class ExpediaHotelPricingDto
             'stay' => $breakdownStayWithoutKeys,
             'fees' => array_values($breakdownFees),
         ];
+    }
+
+    private function getPromotions(mixed $_promotions): array
+    {
+        $promotions = [];
+
+        foreach ($_promotions as $type => $promotion)
+        {
+            if (! Arr::has($promotion, 'description') && is_array($promotion))
+            {
+                $promotions = array_merge($promotions, $this->getPromotions($promotion));
+            }
+            else
+            {
+                $promotions[] = [
+                    'type' => $type,
+                    'description' => Arr::get($promotion, 'description', '-'),
+                ];
+            }
+        }
+
+        return $promotions;
     }
 }

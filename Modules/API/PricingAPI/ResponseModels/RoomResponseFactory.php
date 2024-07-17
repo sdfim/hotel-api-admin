@@ -31,6 +31,7 @@ class RoomResponseFactory
         $roomResponse->setMealPlans('');
         $roomResponse->setBedConfigurations([]);
         $roomResponse->setBreakdown([]);
+        $roomResponse->setPromotions([]);
 
         return $roomResponse;
     }

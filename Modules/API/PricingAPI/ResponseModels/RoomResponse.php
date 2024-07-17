@@ -56,6 +56,8 @@ class RoomResponse extends BaseResponse
 
     private bool $package_deal = false;
 
+    private array $promotions = [];
+
     private ?string $penalty_date = null;
 
     public function setRoomDescription(string $room_description): void
@@ -328,6 +330,22 @@ class RoomResponse extends BaseResponse
         $this->penalty_date = $penalty_date;
     }
 
+    /**
+     * @return array
+     */
+    public function getPromotions(): array
+    {
+        return $this->promotions;
+    }
+
+    /**
+     * @param array $promotions
+     */
+    public function setPromotions(array $promotions): void
+    {
+        $this->promotions = $promotions;
+    }
+
     public function toArray(): array
     {
         return [
@@ -358,6 +376,7 @@ class RoomResponse extends BaseResponse
             'breakdown' => $this->getBreakdown(),
             'package_deal' => $this->isPackageDeal(),
             'penalty_date' => $this->getPenaltyDate(),
+            'promotions' => $this->getPromotions(),
         ];
     }
 }
