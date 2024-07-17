@@ -31,4 +31,13 @@ class ApiBookingsMetadataRepository
             ] :
             [];
     }
+
+    public static function updateBookingItemData(ApiBookingsMetadata $apiBookingsMetadata, array $bookingItemData): ApiBookingsMetadata
+    {
+        $apiBookingsMetadata->booking_item_data = $bookingItemData;
+
+        $apiBookingsMetadata->save();
+
+        return $apiBookingsMetadata;
+    }
 }
