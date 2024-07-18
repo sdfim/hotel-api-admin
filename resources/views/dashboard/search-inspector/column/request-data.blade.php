@@ -19,14 +19,16 @@
 			$destinationIcon = '<i class="fa-solid fa-house" style="color: #4466f0;"></i>';
 			$ratingIcon = '<i class="fa-solid fa-star"></i>';
 			$rating = '';
+            $str0 = '';
 			foreach ($arr as $key => $value) {
 				if ($key === 'rating') {
 					foreach (range(1, $value) as $item) {
 						$rating .= $ratingIcon;
 					}
 				}
-                $str1 = '';
                 $str0 = '';
+                $str1 = '';
+
 				if ($key === 'destination') $str1 =  $destinationIcon . ' ' . $value  . ' <span style="color: #FFD700;"> ' . $rating . '</span>';
                 elseif ($key === 'place') $str1 = $destinationIcon . ' ' . $value;
 				if ($key === 'checkin') $str0 = $value . " - ";
