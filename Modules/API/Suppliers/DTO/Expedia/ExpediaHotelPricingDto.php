@@ -185,11 +185,15 @@ class ExpediaHotelPricingDto
         $rooms = [];
         $priceRoomData = [];
         foreach ($roomGroup['rates'] as $key => $room) {
-            $roomData = $this->setRoomResponse((array) $room, $roomGroup, $propertyGroup, $giataId);
-            $roomResponse = $roomData['roomResponse'];
-            $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
-            $rooms[$key] = $roomResponse;
-            $priceRoomData[$key] = $pricingRulesApplierRoom;
+
+            foreach ($room['bed_groups'] as $bedGroupKey => $bedGroup)
+            {
+                $roomData = $this->setRoomResponse((array) $room, $roomGroup, $propertyGroup, $giataId, $bedGroup);
+                $roomResponse = $roomData['roomResponse'];
+                $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
+                $rooms[$bedGroupKey] = $roomResponse;
+                $priceRoomData[$bedGroupKey] = $pricingRulesApplierRoom;
+            }
         }
         $roomGroupsResponse->setRooms($rooms);
 
@@ -211,14 +215,15 @@ class ExpediaHotelPricingDto
         $roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom]['total_net'] ?? 0.0);
         $roomGroupsResponse->setMarkup($priceRoomData[$keyLowestPricedRoom]['markup'] ?? 0.0);
 
-        $roomGroupsResponse->setNonRefundable(! $roomGroup['rates'][$keyLowestPricedRoom]['refundable']);
-        $roomGroupsResponse->setRateId(intval($roomGroup['rates'][$keyLowestPricedRoom]['id']) ?? null);
-        $roomGroupsResponse->setCancellationPolicies($cancellationPolicies);
+
+        $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom]['non_refundable']);
+        $roomGroupsResponse->setRateId(intval($rooms[$keyLowestPricedRoom]['rate_id']) ?? null);
+        $roomGroupsResponse->setCancellationPolicies($rooms[$keyLowestPricedRoom]['cancellation_policies']);
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
 
-    public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId): array
+    public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId, array $bedGroup): array
     {
         /**  enrichment Pricing Rules / Application of Pricing Rules */
         $pricingRulesApplier['total_price'] = 0.0;
@@ -300,7 +305,7 @@ class ExpediaHotelPricingDto
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
         $roomResponse->setSupplierRoomName($roomGroup['room_name'] ?? '');
         $roomResponse->setSupplierRoomCode(intval($roomGroup['id']) ?? null);
-        $roomResponse->setSupplierBedGroups(array_key_first((array) $rate['bed_groups']) ?? null);
+        $roomResponse->setSupplierBedGroups(Arr::get($bedGroup, 'id'));
         $roomResponse->setRoomType('');
         $roomResponse->setRateDescription($rate['description'] ?? '');
         $roomResponse->setRateId($rate['id'] ?? '');
@@ -312,11 +317,11 @@ class ExpediaHotelPricingDto
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setPackageDeal(Arr::get($rate, 'sale_scenario.package', false));
         $roomResponse->setPromotions($promotions);
+        $roomResponse->setNonRefundable($rate['refundable']);
 
         $roomResponse->setCurrency($this->currency);
-        if (isset($rate['bed_groups'][array_key_first((array) $rate['bed_groups'])]['configuration'])) {
-            $roomResponse->setBedConfigurations($rate['bed_groups'][array_key_first((array) $rate['bed_groups'])]['configuration']);
-        }
+
+        $roomResponse->setBedConfigurations(Arr::get($bedGroup, 'configuration'));
 
         $roomResponse->setBreakdown($this->getBreakdown($occupancy_pricing));
 
@@ -334,7 +339,7 @@ class ExpediaHotelPricingDto
                 'hotel_id' => $propertyGroup['giata_id'],
                 'room_id' => $roomGroup['id'],
                 'rate' => $rate['id'],
-                'bed_groups' => array_key_first((array) $rate['bed_groups']),
+                'bed_groups' => Arr::get($bedGroup, 'id'),
                 'hotel_supplier_id' => $propertyGroup['property_id'],
             ]),
             'booking_pricing_data' => json_encode($roomResponse->toArray()),
