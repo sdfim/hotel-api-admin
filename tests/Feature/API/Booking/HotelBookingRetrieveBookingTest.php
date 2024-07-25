@@ -8,7 +8,6 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_retrieve_booking_method_response_200(): void
     {
@@ -77,9 +76,9 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
                                 'occupancy' => [
                                     '*' => [
                                         'adults',
-//                                        'children_ages' => [
-//                                            '*',
-//                                        ],
+                                        //                                        'children_ages' => [
+                                        //                                            '*',
+                                        //                                        ],
                                     ],
                                 ],
                                 'destination',
@@ -91,13 +90,12 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
             ])
             ->assertJson([
                 'success' => true,
-                'message' => 'success'
+                'message' => 'success',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_retrieve_booking_without_parameters_method_response_400(): void
     {
@@ -109,15 +107,14 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'booking_id' => [
-                        'The booking id field is required.'
-                    ]
-                ]
+                        'The booking id field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_retrieve_booking_with_empty_booking_id_method_response_400(): void
     {
@@ -126,13 +123,12 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
 
         $retrieveBookingResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_retrieve_booking_with_incorrect_booking_id_method_response_400(): void
     {
@@ -143,13 +139,12 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
 
         $retrieveBookingResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_retrieve_booking_with_non_existent_booking_id_method_response_400(): void
     {
@@ -160,7 +155,7 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
 
         $retrieveBookingResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id',
             ]);
     }
 }

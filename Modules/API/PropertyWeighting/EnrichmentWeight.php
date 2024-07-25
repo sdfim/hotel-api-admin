@@ -14,11 +14,6 @@ class EnrichmentWeight
         $this->current_time = microtime(true);
     }
 
-    /**
-     * @param array $clientResponse
-     * @param string $type
-     * @return array
-     */
     public function enrichmentContent(array $clientResponse, string $type = ''): array
     {
         $this->executionTime();
@@ -37,16 +32,11 @@ class EnrichmentWeight
             }
         }
 
-        Log::info('EnrichmentWeight | enrichmentContent  - ' . $this->executionTime() . 's');
+        Log::info('EnrichmentWeight | enrichmentContent  - '.$this->executionTime().'s');
 
         return $clientResponse;
     }
 
-    /**
-     * @param array $clientResponse
-     * @param string $type
-     * @return array
-     */
     public function enrichmentPricing(array $clientResponse, string $type = ''): array
     {
         $this->executionTime();
@@ -74,14 +64,11 @@ class EnrichmentWeight
             }
         }
 
-        Log::info('EnrichmentWeight | Pricing - ' . $this->executionTime() . 's');
+        Log::info('EnrichmentWeight | Pricing - '.$this->executionTime().'s');
 
         return $clientResponse;
     }
 
-    /**
-     * @return float
-     */
     private function executionTime(): float
     {
         $execution_time = round((microtime(true) - $this->current_time), 3);

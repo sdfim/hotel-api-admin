@@ -21,7 +21,7 @@ class DownloadGiataPlaces extends Command
 
     protected const BATCH = 500;
 
-    public function handle()
+    public function handle(): void
     {
         $filename = 'giata/giata_places.json';
 
@@ -30,7 +30,7 @@ class DownloadGiataPlaces extends Command
         } else {
             $response = Http::withBasicAuth(config('giata.poi.username'), config('giata.poi.password'))
                 ->timeout(60)
-                ->get(config('giata.poi.base_uri') . 'places');
+                ->get(config('giata.poi.base_uri').'places');
 
             Storage::put($filename, $response->getBody()->getContents());
             $placesData = json_decode(Storage::get($filename), true);
@@ -40,7 +40,7 @@ class DownloadGiataPlaces extends Command
 
         try {
             $chunks = array_chunk($placesData, self::BATCH);
-            $this->info('Fetched ' . count($placesData) . ' Giata Geography data');
+            $this->info('Fetched '.count($placesData).' Giata Geography data');
 
             foreach ($chunks as $chunk) {
                 $dataToInsert = [];
@@ -70,7 +70,7 @@ class DownloadGiataPlaces extends Command
         } catch (\Exception $e) {
             DB::rollBack();
 
-            $this->error('Failed to fetch Giata Geography data: ' . $e->getMessage());
+            $this->error('Failed to fetch Giata Geography data: '.$e->getMessage());
         }
     }
 }

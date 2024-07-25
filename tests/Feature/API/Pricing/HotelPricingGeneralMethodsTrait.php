@@ -10,8 +10,7 @@ trait HotelPricingGeneralMethodsTrait
     use WithFaker;
 
     /**
-     * @param bool $withChildren if true then children will definitely be generated, otherwise randomly true/false
-     * @return array
+     * @param  bool  $withChildren  if true then children will definitely be generated, otherwise randomly true/false
      */
     protected function generateHotelPricingSearchData(bool $withChildren = false): array
     {

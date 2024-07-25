@@ -18,8 +18,9 @@ class ReservationsController extends Controller
     public function index(): View
     {
         $reservations = Reservation::with(['channel'])->get();
+
         return view('dashboard.reservations.index', [
-            'reservations' => $reservations
+            'reservations' => $reservations,
         ]);
     }
 
@@ -30,6 +31,7 @@ class ReservationsController extends Controller
     {
         $text = $this->message;
         $reservation = Reservation::with(['channel'])->findOrFail($id);
+
         return view('dashboard.reservations.show', compact('reservation', 'text'));
     }
 }

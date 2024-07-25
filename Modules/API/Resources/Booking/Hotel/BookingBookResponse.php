@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *   description="Schema of Booking Book Response",
  *   type="object",
  *   required={"success", "data", "message"},
+ *
  *   @OA\Property(
  *     property="success",
  *     type="boolean",
@@ -195,6 +196,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     example="success"
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="BookingBookResponse",
  *     summary="Example of Booking Book Response",
@@ -240,12 +242,14 @@ namespace Modules\API\Resources\Booking\Hotel;
  *    "message": "success"
  * }
  * ),
+ *
  * @OA\Schema(
  *   schema="BookingBookResponseErrorItem",
  *   title="Booking Book Response Error Item",
  *   description="Schema of Booking Book Response Error Item",
  *   type="object",
  *   required={"message"},
+ *
  *   @OA\Property(
  *     property="message",
  *     type="string",
@@ -253,6 +257,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     example="Invalid booking_id"
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="BookingBookResponseErrorItem",
  *     summary="Example of Booking Book Response Error Item",

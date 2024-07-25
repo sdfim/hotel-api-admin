@@ -37,25 +37,16 @@ class ApiBookingInspector extends Model
         'client_response_path',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function token(): BelongsTo
     {
         return $this->belongsTo(PersonalAccessToken::class);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function search(): BelongsTo
     {
         return $this->belongsTo(ApiSearchInspector::class, 'search_id', 'search_id');
@@ -71,8 +62,6 @@ class ApiBookingInspector extends Model
 
     /**
      * Bootstrap the model and its traits.
-     *
-     * @return void
      */
     protected static function boot(): void
     {

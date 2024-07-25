@@ -10,14 +10,8 @@ use Livewire\Livewire;
 
 class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 {
-    /**
-     * @var Collection|GiataProperty|Model|null
-     */
     private Collection|GiataProperty|Model|null $giata = null;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -27,7 +21,6 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_giata_table_index_is_opening(): void
     {
@@ -38,7 +31,6 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_giata_table_is_rendering_with_its_columns(): void
     {
@@ -58,7 +50,6 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_code(): void
     {
@@ -72,7 +63,6 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_name(): void
     {
@@ -86,7 +76,6 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_city(): void
     {
@@ -100,7 +89,6 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_city_id(): void
     {
@@ -114,7 +102,6 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_locale(): void
     {
@@ -128,7 +115,6 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_latitude(): void
     {
@@ -142,7 +128,6 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_longitude(): void
     {
@@ -156,7 +141,6 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_address(): void
     {
@@ -170,7 +154,6 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_phone(): void
     {

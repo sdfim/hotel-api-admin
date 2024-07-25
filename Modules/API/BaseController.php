@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
  *    title="UJV API Documentation",
  *    version="1.0.0"
  * )
+ *
  * @OA\SecurityScheme(
  *     type="http",
  *     description="authentication token",
@@ -19,6 +20,7 @@ use Illuminate\Http\JsonResponse;
  *     bearerFormat="JWT",
  *     securityScheme="apiAuth",
  * )
+ *
  * @OA\Tag(
  *   name="Content API",
  *   description="API Endpoints of Content"
@@ -40,10 +42,6 @@ class BaseController extends Controller
 {
     /**
      * success response method.
-     *
-     * @param array $result
-     * @param string|null $message
-     * @return JsonResponse
      */
     public function sendResponse(array $result, ?string $message = null): JsonResponse
     {
@@ -52,7 +50,9 @@ class BaseController extends Controller
             'data' => $result,
         ];
 
-        if (empty($response['data'])) unset($response['data']);
+        if (empty($response['data'])) {
+            unset($response['data']);
+        }
 
         if ($message) {
             $response['message'] = $message;
@@ -63,11 +63,6 @@ class BaseController extends Controller
 
     /**
      * return error response.
-     *
-     * @param $error
-     * @param string $errorMessages
-     * @param int $code
-     * @return JsonResponse
      */
     public function sendError($error, string $errorMessages = '', int $code = 400): JsonResponse
     {
@@ -76,7 +71,7 @@ class BaseController extends Controller
             'error' => $error,
         ];
 
-        if (!empty($errorMessages)) {
+        if (! empty($errorMessages)) {
             $response['message'] = $errorMessages;
         }
 

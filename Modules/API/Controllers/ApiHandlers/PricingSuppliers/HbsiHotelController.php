@@ -14,32 +14,20 @@ use Throwable;
 
 class HbsiHotelController
 {
-    /**
-     *
-     */
     private const RESULT_PER_PAGE = 1000;
 
-    /**
-     *
-     */
     private const PAGE = 1;
 
     /**
      * @param HbsiClient $hbsiClient
      * @param Geography $geography
-     * @param GiataPropertyRepository $giataRepo
      */
     public function __construct(
         private readonly HbsiClient $hbsiClient = new HbsiClient(),
-        private readonly Geography  $geography = new Geography(),
-    )
-    {
+        private readonly Geography $geography = new Geography(),
+    ) {
     }
 
-    /**
-     * @param array $filters
-     * @return array|null
-     */
     public function preSearchData(array $filters): ?array
     {
         $timeStart = microtime(true);
@@ -47,7 +35,9 @@ class HbsiHotelController
         $limit = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
         $offset = $filters['page'] ?? self::PAGE;
 
-        if (isset($filters['place'])) {
+        if (isset($filters['giata_ids'])) {
+            $ids = HbsiRepository::getIdsByGiataIds($filters['giata_ids'], $limit, $offset);
+        } elseif (isset($filters['place'])) {
             $ids = HbsiRepository::getIdsByGiataPlace($filters['place'], $limit, $offset);
         } elseif (isset($filters['destination'])) {
             $ids = HbsiRepository::getIdsByDestinationGiata($filters['destination'], $limit, $offset);
@@ -57,15 +47,12 @@ class HbsiHotelController
         }
 
         $endTime = microtime(true) - $timeStart;
-        Log::info('HbsiHotelController | preSearchData | mysql query ' . $endTime . ' seconds');
+        Log::info('HbsiHotelController | preSearchData | mysql query '.$endTime.' seconds');
 
         return $ids;
     }
 
     /**
-     * @param array $filters
-     * @param array $searchInspector
-     * @return array|null
      * @throws Throwable
      */
     public function price(array $filters, array $searchInspector): ?array
@@ -75,14 +62,14 @@ class HbsiHotelController
             $hotelIds = array_keys($hotelData['data']);
 
             if (empty($hotelIds)) {
-                 return [
-                     'original' => [
-                         'request' => [],
-                         'response' => [],
-                     ],
-                     'array' => [],
-                     'total_pages' => 0,
-                 ];
+                return [
+                    'original' => [
+                        'request' => [],
+                        'response' => [],
+                    ],
+                    'array' => [],
+                    'total_pages' => 0,
+                ];
             }
 
             /** get PriceData from HBSI */
@@ -92,7 +79,7 @@ class HbsiHotelController
                 return [
                     'error' => $xmlPriceData['error'],
                     'original' => [
-                        'request' =>  '',
+                        'request' => '',
                         'response' => '',
                     ],
                     'array' => [],
@@ -105,7 +92,7 @@ class HbsiHotelController
             if (isset($arrayResponse['Errors'])) {
                 Log::error('HBSIHotelApiHandler | price ', ['supplier response' => $arrayResponse['Errors']['Error']]);
             }
-            if (!isset($arrayResponse['RoomStays']['RoomStay'])) {
+            if (! isset($arrayResponse['RoomStays']['RoomStay'])) {
                 return [
                     'original' => [
                         'request' => [],
@@ -137,7 +124,7 @@ class HbsiHotelController
                     'giata_id' => $hotelData['data'][$hotelCode]['giata'] ?? 0,
                     'rooms' => $result[$hotelCode]['rooms'] ?? [],
                 ];
-                if (!isset($result[$hotelCode]['rooms'][$roomCode])) {
+                if (! isset($result[$hotelCode]['rooms'][$roomCode])) {
                     $result[$hotelCode]['rooms'][$roomCode] = [
                         'room_code' => $roomCode,
                         'room_name' => $item['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '',
@@ -145,6 +132,7 @@ class HbsiHotelController
                 }
                 $result[$hotelCode]['rooms'][$roomCode]['rates'][] = $item;
                 $i++;
+
                 return $result;
             }, []);
 
@@ -158,8 +146,9 @@ class HbsiHotelController
             ];
 
         } catch (Exception $e) {
-            Log::error('HBSIHotelApiHandler Exception ' . $e);
+            Log::error('HBSIHotelApiHandler Exception '.$e);
             Log::error($e->getTraceAsString());
+
             return [
                 'error' => $e->getMessage(),
                 'original' => [
@@ -170,8 +159,9 @@ class HbsiHotelController
                 'total_pages' => 0,
             ];
         } catch (GuzzleException $e) {
-            Log::error('HBSIHotelApiHandler GuzzleException ' . $e);
+            Log::error('HBSIHotelApiHandler GuzzleException '.$e);
             Log::error($e->getTraceAsString());
+
             return [
                 'error' => $e->getMessage(),
                 'original' => [
@@ -184,10 +174,6 @@ class HbsiHotelController
         }
     }
 
-    /**
-     * @param $object
-     * @return mixed
-     */
     public function object2array($object): mixed
     {
         return json_decode(json_encode($object), 1);

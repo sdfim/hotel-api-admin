@@ -8,10 +8,6 @@ use Illuminate\Support\Facades\Log;
 
 class IcePortalAssetDto
 {
-    /**
-     * @param array $IceAssetResponse
-     * @return array
-     */
     public function IcePortalToAssets(array $IceAssetResponse): array
     {
         $hotelImages = [];
@@ -21,13 +17,13 @@ class IcePortalAssetDto
         $hotelAmenities = [];
         foreach ($IceAssetResponse as $asset) {
             if (isset($asset['links']) && $asset['mediaType'] === 'PH') {
-                if (!isset($asset['category'][0]['expediaCategory'])) {
+                if (! isset($asset['category'][0]['expediaCategory'])) {
                     continue;
                 }
                 // asset hotel
                 if ($asset['category'][0]['expediaCategory']['name'] !== 'Room') {
-                    if (!str_contains($asset['links']['originalFileURL'], '.jpg')) {
-                        $hotelImages[] = $asset['links']['originalFileURL'] . '.jpg';
+                    if (! str_contains($asset['links']['originalFileURL'], '.jpg')) {
+                        $hotelImages[] = $asset['links']['originalFileURL'].'.jpg';
                     } else {
                         $hotelImages[] = $asset['links']['originalFileURL'];
                     }

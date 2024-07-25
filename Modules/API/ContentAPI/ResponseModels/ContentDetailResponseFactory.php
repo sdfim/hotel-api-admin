@@ -2,8 +2,8 @@
 
 namespace Modules\API\ContentAPI\ResponseModels;
 
-class ContentDetailResponseFactory {
-
+class ContentDetailResponseFactory
+{
     public static function create(): ContentDetailResponse
     {
         $contentDetailResponse = new ContentDetailResponse();

@@ -31,7 +31,7 @@ class PropertyPriceCall
 
     private const RATE_PLAN_COUNT = 250;
 
-    # https://developers.expediagroup.com/docs/rapid/lodging/shopping#get-/properties/availability
+    // https://developers.expediagroup.com/docs/rapid/lodging/shopping#get-/properties/availability
 
     // Path
     private const PROPERTY_CONTENT_PATH = 'v3/properties/availability';
@@ -66,34 +66,33 @@ class PropertyPriceCall
 
     private const PARTNER_POINT_SALE = 'partner_point_of_sale';
 
-    private const  BATCH_SIZE = 250;
-
+    private const BATCH_SIZE = 250;
 
     // Call parameters
-    /**
-     * @var RapidClient|null
-     */
-    private RapidClient|null $client;
-    /**
-     * @var array
-     */
+    private ?RapidClient $client;
+
     private array $propertyChunk;
+
     /**
      * @var string|mixed
      */
     private string $checkin;
+
     /**
      * @var string|mixed
      */
     private string $checkout;
+
     /**
      * @var string|mixed
      */
     private string $currency;
+
     /**
      * @var string|mixed
      */
     private string $countryCode;
+
     /**
      * @var string|mixed
      */
@@ -114,10 +113,12 @@ class PropertyPriceCall
      * @var int|mixed
      */
     private int $ratePlanCount;
+
     /**
      * @var string|mixed
      */
     private string $salesChannel;
+
     /**
      * @var string|mixed
      */
@@ -127,23 +128,22 @@ class PropertyPriceCall
      * @var mixed|string
      */
     private mixed $rateOption;
+
     /**
      * @var mixed|string
      */
     private mixed $billingTerms;
+
     /**
      * @var mixed|string
      */
     private mixed $paymentTerms;
+
     /**
      * @var mixed|string
      */
     private mixed $partnerPointSale;
 
-    /**
-     * @param $client
-     * @param $property
-     */
     public function __construct($client, $property)
     {
         $this->client = $client;
@@ -170,9 +170,6 @@ class PropertyPriceCall
     }
 
     /**
-     * @param array $propertyIds
-     * @param array $searchInspector
-     * @return array
      * @throws Throwable
      */
     public function getPriceData(array $propertyIds, array $searchInspector): array
@@ -190,7 +187,7 @@ class PropertyPriceCall
             try {
                 $promises[$keyChunk] = $this->client->getAsync(self::PROPERTY_CONTENT_PATH, $queryParameters);
             } catch (Exception $e) {
-                Log::error('Error while creating promise: ' . $e->getMessage());
+                Log::error('Error while creating promise: '.$e->getMessage());
                 Log::error($e->getTraceAsString());
             }
         }
@@ -207,45 +204,49 @@ class PropertyPriceCall
                     Log::error('Expedia Timeout Exception');
                     $parent_search_id = $searchInspector['search_id'];
                     $searchInspector['search_id'] = Str::uuid();
-                    SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',
+                    SaveSearchInspector::dispatch($searchInspector, [], [], [], 'error',
                         ['side' => 'supplier', 'message' => 'Expedia Timeout Exception  ', 'parent_search_id' => $parent_search_id]);
+
                     return ['error' => 'Timeout Exception '];
-                }
-                else {
+                } else {
                     Log::error('PropertyPriceCall | getPriceData ', [
                         'propertyChunk' => $this->propertyChunk,
-                        'reason' => $response['reason']->getMessage()
+                        'reason' => $response['reason']->getMessage(),
                     ]);
                 }
             }
 
         } catch (\GuzzleHttp\Exception\ConnectException $e) {
             // Timeout
-            Log::error('Connection timeout: ' . $e->getMessage());
+            Log::error('Connection timeout: '.$e->getMessage());
             Log::error($e->getTraceAsString());
             $parent_search_id = $searchInspector['search_id'];
             $searchInspector['search_id'] = Str::uuid();
-            SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',
+            SaveSearchInspector::dispatch($searchInspector, [], [], [], 'error',
                 ['side' => 'supplier', 'message' => 'Expedia Connection timeout', 'parent_search_id' => $parent_search_id]);
+
             return ['error' => 'Connection timeout'];
         } catch (\GuzzleHttp\Exception\ServerException $e) {
             // Error 500
-            Log::error('Server error: ' . $e->getMessage());
+            Log::error('Server error: '.$e->getMessage());
             Log::error($e->getTraceAsString());
             $parent_search_id = $searchInspector['search_id'];
             $searchInspector['search_id'] = Str::uuid();
-            SaveSearchInspector::dispatch($searchInspector, [], [], [],'error',
+            SaveSearchInspector::dispatch($searchInspector, [], [], [], 'error',
                 ['side' => 'supplier', 'message' => 'Expedia Server error', 'parent_search_id' => $parent_search_id]);
+
             return ['error' => 'Server error'];
         } catch (Exception $e) {
-            Log::error('Error while processing promises: ' . $e->getMessage());
+            Log::error('Error while processing promises: '.$e->getMessage());
             Log::error($e->getTraceAsString());
         }
 
         $res = [];
-        if (!empty($responses)) {
+        if (! empty($responses)) {
             foreach ($responses as $response) {
-                if (isset($response['property_id'])) $res[$response['property_id']] = $response;
+                if (isset($response['property_id'])) {
+                    $res[$response['property_id']] = $response;
+                }
             }
         }
 
@@ -255,9 +256,6 @@ class PropertyPriceCall
         ];
     }
 
-    /**
-     * @return array
-     */
     private function queryParameters(): array
     {
         $queryParams = [];
@@ -274,7 +272,7 @@ class PropertyPriceCall
 
         foreach ($this->occupancy as $room) {
             if (isset($room['children_ages'])) {
-                $queryParams[self::OCCUPANCY][] = $room['adults'] . '-' . implode(',', $room['children_ages']);
+                $queryParams[self::OCCUPANCY][] = $room['adults'].'-'.implode(',', $room['children_ages']);
             } else {
                 $queryParams[self::OCCUPANCY][] = $room['adults'];
             }
@@ -284,16 +282,16 @@ class PropertyPriceCall
         $queryParams[self::SALES_ENVIRONMENT] = $this->salesEnvironment;
 
         // Add optional parameters
-        if (!empty($this->rateOption)) {
+        if (! empty($this->rateOption)) {
             $queryParams[self::RATE_OPTION] = $this->rateOption;
         }
-        if (!empty($this->billingTerms)) {
+        if (! empty($this->billingTerms)) {
             $queryParams[self::BILLING_TERMS] = $this->billingTerms;
         }
-        if (!empty($this->paymentTerms)) {
+        if (! empty($this->paymentTerms)) {
             $queryParams[self::PAYMENT_TERMS] = $this->paymentTerms;
         }
-        if (!empty($this->partnerPointSale)) {
+        if (! empty($this->partnerPointSale)) {
             $queryParams[self::PARTNER_POINT_SALE] = $this->partnerPointSale;
         }
 

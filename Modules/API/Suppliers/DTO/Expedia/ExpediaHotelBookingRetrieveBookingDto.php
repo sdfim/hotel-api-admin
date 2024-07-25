@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Modules\API\Suppliers\DTO\Expedia;
@@ -51,8 +52,8 @@ class ExpediaHotelBookingRetrieveBookingDto
         $responseModel->setCurrency($saveResponse['currency']);
         $responseModel->setPerNightBreakdown($saveResponse['per_night_breakdown']);
         $responseModel->setBoardBasis('');
-//        $responseModel->setRoomName('');
-//        $responseModel->setRoomType('');
+        //        $responseModel->setRoomName('');
+        //        $responseModel->setRoomType('');
         $responseModel->setQuery($query);
         $responseModel->setSupplierBookId($dataResponse['itinerary_id'] ?? '');
         $responseModel->setConfirmationNumbers([
@@ -62,7 +63,6 @@ class ExpediaHotelBookingRetrieveBookingDto
         $responseModel->setBillingContact($dataResponse['billing_contact'] ?? '');
         $responseModel->setBillingEmail($dataResponse['email'] ?? '');
         $responseModel->setBillingPhone($dataResponse['phone'] ?? '');
-
 
         return $responseModel->toRetrieveArray();
     }

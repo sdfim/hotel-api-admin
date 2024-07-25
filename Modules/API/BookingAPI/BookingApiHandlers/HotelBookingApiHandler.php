@@ -5,7 +5,6 @@ namespace Modules\API\BookingAPI\BookingApiHandlers;
 use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
-use App\Repositories\ApiSearchInspectorRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,24 +26,14 @@ use Psr\Container\NotFoundExceptionInterface;
  */
 class HotelBookingApiHandler extends BaseController implements BookingApiHandlerInterface
 {
-    /**
-     * @param ExpediaHotelBookingApiController $expedia
-     * @param HbsiHotelBookingApiController $hbsi
-     */
     public function __construct(
         private readonly ExpediaHotelBookingApiController $expedia = new ExpediaHotelBookingApiController(),
-        private readonly HbsiHotelBookingApiController    $hbsi = new HbsiHotelBookingApiController(),
-        private readonly HbsiService                      $hbsiService = new HbsiService(),
+        private readonly HbsiHotelBookingApiController $hbsi = new HbsiHotelBookingApiController(),
+        private readonly HbsiService $hbsiService = new HbsiService(),
 
-    )
-    {
+    ) {
     }
 
-    /**
-     * @param Request $request
-     * @param string $supplier
-     * @return JsonResponse
-     */
     public function addItem(Request $request, string $supplier): JsonResponse
     {
         $filters = $request->all();
@@ -66,11 +55,11 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
             }
 
             if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI
-                && Cache::get('room_combinations:' . $request->booking_item)) {
+                && Cache::get('room_combinations:'.$request->booking_item)) {
                 $this->hbsiService->updateBookingItemsData($request->booking_item);
             }
 
-            if (!ApiBookingItemRepository::isComlete($request->booking_item)) {
+            if (! ApiBookingItemRepository::isComlete($request->booking_item)) {
                 return $this->sendError('booking_item - this item is single');
             }
 
@@ -101,27 +90,26 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
             }
 
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
-            Log::error('HotelBookingApiHandler | addItem ' . $e->getMessage());
+            Log::error('HotelBookingApiHandler | addItem '.$e->getMessage());
             Log::error($e->getTraceAsString());
+
             return $this->sendError($e->getMessage(), 'failed');
         }
 
-        if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
+        if (isset($data['errors'])) {
+            return $this->sendError($data['errors'], $data['message']);
+        }
 
         return $this->sendResponse($data, 'success');
     }
 
-    /**
-     * @param Request $request
-     * @param string $supplier
-     * @return JsonResponse
-     */
     /**
      * @OA\Delete(
      *   tags={"Booking API | Cart Endpoints"},
      *   path="/api/booking/remove-item",
      *   summary="Remove a specific item from your shopping cart",
      *   description="Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",
+     *
      *    @OA\Parameter(
      *      name="booking_id",
      *      in="query",
@@ -137,9 +125,11 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
      *      In the response object for each rate is a **booking_item** property.",
      *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
      *    ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BookingRemoveItemResponse",
      *           examples={
@@ -147,9 +137,11 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
      *         },
      *      )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse",
      *       examples={
@@ -157,9 +149,11 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
      *       }
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -181,12 +175,15 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
             };
 
         } catch (Exception $e) {
-            Log::error('HotelBookingApiHandler | removeItem ' . $e->getMessage());
+            Log::error('HotelBookingApiHandler | removeItem '.$e->getMessage());
             Log::error($e->getTraceAsString());
+
             return $this->sendError($e->getMessage(), 'failed');
         }
 
-        if (isset($data['error'])) return $this->sendError($data['error']);
+        if (isset($data['error'])) {
+            return $this->sendError($data['error']);
+        }
 
         return $this->sendResponse(['result' => $data['success']], 'success');
     }

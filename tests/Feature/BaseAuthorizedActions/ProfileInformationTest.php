@@ -11,7 +11,6 @@ class ProfileInformationTest extends TestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_current_profile_information_is_available(): void
     {
@@ -26,7 +25,6 @@ class ProfileInformationTest extends TestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_profile_information_can_be_updated(): void
     {

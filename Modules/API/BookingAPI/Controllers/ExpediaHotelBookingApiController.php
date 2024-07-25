@@ -14,33 +14,25 @@ use Modules\Enums\SupplierNameEnum;
 
 class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
 {
-    /**
-     * @param RapidClient $rapidClient
-     */
     public function __construct(
         private readonly RapidClient $rapidClient = new RapidClient(),
-    )
-    {
+    ) {
     }
 
-    /**
-     * @param array $filters
-     * @return array|null
-     */
-    public function addItem(array $filters): array|null
+    public function addItem(array $filters): ?array
     {
-        # step 1 Read Inspector, Get link 'price_check'
+        // step 1 Read Inspector, Get link 'price_check'
         $linkPriceCheck = SearchRepository::getLinkPriceCheck($filters);
 
-        # step 2 Get POST link for booking
+        // step 2 Get POST link for booking
         // TODO: need check if price changed
         $props = $this->getPathParamsFromLink($linkPriceCheck);
 
-        $booking_id = $filters['booking_id'] ?? (string)Str::uuid();
+        $booking_id = $filters['booking_id'] ?? (string) Str::uuid();
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'add_item', 'price_check', 'hotel'
+            $booking_id, $filters, $supplierId, 'add_item', 'price_check', 'hotel',
         ]);
 
         try {
@@ -52,25 +44,22 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
 
             SaveBookingInspector::dispatch($bookingInspector, $content, []);
         } catch (RequestException $e) {
-            Log::error('ExpediaHotelBookingApiHandler | addItem | price_check ' . $e->getResponse()->getBody());
+            Log::error('ExpediaHotelBookingApiHandler | addItem | price_check '.$e->getResponse()->getBody());
             Log::error($e->getTraceAsString());
-            $content = json_decode('' . $e->getResponse()->getBody());
+            $content = json_decode(''.$e->getResponse()->getBody());
 
             SaveBookingInspector::dispatch($bookingInspector, $content, [], 'error', ['error' => $e->getMessage()]);
-            return (array)$content;
+
+            return (array) $content;
         }
 
-        if (!$content) {
+        if (! $content) {
             return [];
         }
 
         return ['booking_id' => $booking_id];
     }
 
-    /**
-     * @param string $link
-     * @return array
-     */
     private function getPathParamsFromLink(string $link): array
     {
         $arr_link = explode('?', $link);

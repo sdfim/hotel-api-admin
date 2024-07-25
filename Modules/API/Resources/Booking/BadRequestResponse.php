@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Booking;
  *   description="Schema of BadRequest 400 error",
  *   type="object",
  *   required={"message"},
+ *
  *   @OA\Property(
  *     property="message",
  *     type="string",
@@ -16,6 +17,7 @@ namespace Modules\API\Resources\Booking;
  *     example="Invalid type"
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="BadRequestResponse",
  *     summary="Example of BadRequest",

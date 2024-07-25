@@ -13,7 +13,7 @@ class ChannelSeeder extends Seeder
      */
     public function run(): void
     {
-        if (!Channel::first()) {
+        if (! Channel::first()) {
             if (Auth::attempt(['email' => 'admin@ujv.com', 'password' => 'C5EV0gEU9OnlS5r'])) {
                 $user = Auth::user();
                 $data = [];

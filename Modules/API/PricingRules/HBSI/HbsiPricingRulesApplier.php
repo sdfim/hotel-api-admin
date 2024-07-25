@@ -33,7 +33,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         'resort fee',
         'rollaway fee',
         'room service fee',
-        'service charge'
+        'service charge',
     ];
 
     /**
@@ -63,16 +63,14 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         'total tax',
         'tourism tax',
         'vat/gst tax',
-        'value added tax (vat)'
+        'value added tax (vat)',
     ];
 
     /**
-     * @param int $giataId
      * @param array{
      *     Rates: array,
      *     rateOccupancy: string
      *  } $roomsPricingArray
-     * @param bool $b2b
      * @return array{
      *      total_price: float|int,
      *      total_tax: float|int,
@@ -106,7 +104,6 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
     /**
      * Calculates total_price(net_price, fees, taxes)
      *
-     * @param array $roomPricing
      * @return array{total_price: float|int,total_tax: float|int,total_fees: float|int,total_net: float|int}
      */
     private function calculateRoomTotals(array $roomPricing): array
@@ -118,7 +115,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
             'total_price' => 0,
             'total_tax' => 0,
             'total_fees' => 0,
-            'total_net' => 0
+            'total_net' => 0,
         ];
 
         if (array_key_first($roomPricing['Rate']) !== 0) {
@@ -129,15 +126,17 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
 
         foreach ($roomPricingLoop as $rate) {
             // check if AmountBeforeTax is equal to AmountAfterTax
-            $current_total_net = (float)$rate['Total']['@attributes']['AmountBeforeTax'];
-            $current_total_price = (float)$rate['Total']['@attributes']['AmountAfterTax'];
+            $current_total_net = (float) $rate['Total']['@attributes']['AmountBeforeTax'];
+            $current_total_price = (float) $rate['Total']['@attributes']['AmountAfterTax'];
 
             $totals['total_net'] += $current_total_net;
 
-            if ($current_total_net ==  $current_total_price) continue;
+            if ($current_total_net == $current_total_price) {
+                continue;
+            }
 
             if (isset($rate['Base']['Taxes']['Tax'])) {
-                $unitMultiplier = (int)$rate['@attributes']['UnitMultiplier'];
+                $unitMultiplier = (int) $rate['@attributes']['UnitMultiplier'];
                 if (array_key_first($rate['Base']['Taxes']['Tax']) === 0) {
                     foreach ($rate['Base']['Taxes']['Tax'] as $tax) {
                         $totals = $this->calculateTaxAndFees($tax, $totals, $unitMultiplier);
@@ -156,9 +155,6 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
     }
 
     /**
-     * @param $tax
-     * @param $totals
-     * @param $unitMultiplier
      * @return int[]
      */
     private function calculateTaxAndFees($tax, $totals, $unitMultiplier): array
@@ -176,7 +172,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         */
 
         // TODO: check that logic when there are actual lists of taxes and fees.
-        $totals['total_tax'] += (float)$tax['@attributes']['Amount'] * $unitMultiplier;
+        $totals['total_tax'] += (float) $tax['@attributes']['Amount'] * $unitMultiplier;
 
         return $totals;
     }

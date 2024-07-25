@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\PropertyWeighting;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -12,13 +11,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 class PropertyWeightingFactory extends Factory
 {
     /**
-     * The name of the factory's corresponding model.
-     *
-     * @var string
-     */
-    protected $model = PropertyWeighting::class;
-
-    /**
      * Define the model's default state.
      *
      * @return array<string, mixed>
@@ -26,6 +18,7 @@ class PropertyWeightingFactory extends Factory
     public function definition(): array
     {
         $supplier = Supplier::factory()->create();
+
         return [
             'property' => $this->faker->numberBetween(1, 10000),
             'weight' => 1,

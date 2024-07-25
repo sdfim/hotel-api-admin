@@ -30,8 +30,6 @@ class ApiSearchInspector extends Model
 
     /**
      * Get the auto-incrementing key type.
-     *
-     * @return string
      */
     public function getKeyType(): string
     {
@@ -52,12 +50,9 @@ class ApiSearchInspector extends Model
         'request',
         'response_path',
         'original_path',
-        'client_response_path'
+        'client_response_path',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function token(): BelongsTo
     {
         return $this->belongsTo(PersonalAccessToken::class);
@@ -81,8 +76,6 @@ class ApiSearchInspector extends Model
 
     /**
      * Bootstrap the model and its traits.
-     *
-     * @return void
      */
     protected static function boot(): void
     {

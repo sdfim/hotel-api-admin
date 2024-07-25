@@ -14,6 +14,7 @@ class BookingCancelBooking extends ApiRequest
      *   path="/api/booking/cancel-booking",
      *   summary="Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
      *   description="Cancel Booking",
+     *
      *    @OA\Parameter(
      *      name="booking_id",
      *      in="query",
@@ -29,9 +30,11 @@ class BookingCancelBooking extends ApiRequest
      *      If there is no booking_item, all items will be deleted",
      *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
      *    ),
+     *
      *    @OA\Response(
      *      response=200,
      *      description="OK",
+     *
      *      @OA\JsonContent(
      *        ref="#/components/schemas/BookingCancelBookingResponse",
      *        examples={
@@ -39,9 +42,11 @@ class BookingCancelBooking extends ApiRequest
      *        }
      *      )
      *    ),
+     *
      *    @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse",
      *       examples={
@@ -49,9 +54,11 @@ class BookingCancelBooking extends ApiRequest
      *       }
      *      )
      *    ),
+     *
      *    @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -76,13 +83,10 @@ class BookingCancelBooking extends ApiRequest
     {
         return [
             'booking_id' => 'required|size:36',
-            'booking_item' => 'nullable|size:36'
+            'booking_item' => 'nullable|size:36',
         ];
     }
 
-    /**
-     * @return array
-     */
     public function validatedDate(): array
     {
         return parent::validated();

@@ -21,7 +21,6 @@ return new class extends Migration
             $table->integer('step');
         });
 
-
         Schema::create('mapper_hbsi_giatas', function (Blueprint $table) {
             $table->string('hbsi_id')->index();
             $table->integer('giata_id')->index();
@@ -78,7 +77,6 @@ return new class extends Migration
             $table->string('country_code');
             $table->string('country_name');
         });
-
 
         $connection = config('database.active_connections.mysql_cache');
         $schema = Schema::connection($connection);

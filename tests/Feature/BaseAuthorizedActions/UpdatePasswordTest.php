@@ -12,7 +12,6 @@ class UpdatePasswordTest extends TestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_password_can_be_updated(): void
     {
@@ -31,7 +30,6 @@ class UpdatePasswordTest extends TestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_current_password_must_be_correct(): void
     {
@@ -51,7 +49,6 @@ class UpdatePasswordTest extends TestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_new_passwords_must_match(): void
     {

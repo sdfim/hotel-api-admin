@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Storage;
 class BaseHotelBookingApiController
 {
     /**
-     * @param array $filters
      * @return array[]
      */
     public function removeItem(array $filters): array
@@ -31,20 +30,19 @@ class BaseHotelBookingApiController
             $bookItems = ApiBookingInspector::where('booking_id', $booking_id)
                 ->where('type', 'book')
                 ->where('sub_type', '!=', 'error')
-                ->get()->pluck('booking_id')->toArray();
+                ->get()->pluck('booking_item')->toArray();
 
             $bookingItems = ApiBookingInspector::where('booking_item', $booking_item)
                 ->where('type', 'add_item')
-                ->whereNotIn('booking_id', $bookItems);
+                ->whereNotIn('booking_item', $bookItems);
 
             if ($bookingItems->get()->count() === 0) {
                 $res = [
-                    'success' =>
-                        [
-                            'booking_id' => $booking_id,
-                            'booking_item' => $booking_item,
-                            'status' => 'This item is not in the cart',
-                        ]
+                    'success' => [
+                        'booking_id' => $booking_id,
+                        'booking_item' => $booking_item,
+                        'status' => 'This item is not in the cart',
+                    ],
                 ];
             } else {
                 foreach ($bookingItems->get() as $item) {
@@ -59,12 +57,11 @@ class BaseHotelBookingApiController
                 $bookingItems->delete();
 
                 $res = [
-                    'success' =>
-                        [
-                            'booking_id' => $booking_id,
-                            'booking_item' => $booking_item,
-                            'status' => 'Item removed from cart.',
-                        ]
+                    'success' => [
+                        'booking_id' => $booking_id,
+                        'booking_item' => $booking_item,
+                        'status' => 'Item removed from cart.',
+                    ],
                 ];
             }
 
@@ -75,9 +72,9 @@ class BaseHotelBookingApiController
                     'booking_id' => $booking_id,
                     'booking_item' => $booking_item,
                     'status' => 'Item not removed from cart.',
-                ]
+                ],
             ];
-            Log::error('ExpediaHotelBookingApiHandler | removeItem | ' . $e->getMessage());
+            Log::error('ExpediaHotelBookingApiHandler | removeItem | '.$e->getMessage());
             Log::error($e->getTraceAsString());
 
             SaveBookingInspector::dispatch($bookingInspector, [], $res, 'error', ['error' => $e->getMessage()]);

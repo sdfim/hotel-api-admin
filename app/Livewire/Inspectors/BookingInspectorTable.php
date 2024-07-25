@@ -24,8 +24,6 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     /**
-     * @param Table $table
-     * @return Table
      * @throws Exception
      */
     public function table(Table $table): Table
@@ -58,7 +56,7 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 TextColumn::make('status')
                     ->searchable(isIndividual: true)
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'error' => 'danger',
                         'success' => 'success',
                         default => 'gray',
@@ -97,18 +95,18 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     }),
             ])
             ->actions([
-//                ActionGroup::make([
-//                    ViewAction::make()
-//                        ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
-//                        ->label('View response')
-//                        ->color('info')
-//                ])
+                //                ActionGroup::make([
+                //                    ViewAction::make()
+                //                        ->url(fn(ApiBookingInspector $record): string => route('booking-inspector.show', $record))
+                //                        ->label('View response')
+                //                        ->color('info')
+                //                ])
             ])
             ->filters([
                 Filter::make('is_book')
                     ->form([
                         Checkbox::make('is_book')
-                            ->label('Is Book Status')
+                            ->label('Is Book Status'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if ($data['is_book']) {
@@ -122,15 +120,16 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                             return $query;
                         }
                     })->indicateUsing(function (array $data): ?string {
-                        if (!$data['is_book']) {
+                        if (! $data['is_book']) {
                             return null;
                         }
+
                         return 'Book Status';
                     }),
                 Filter::make('is_not_book')
                     ->form([
                         Checkbox::make('is_not_book')
-                            ->label('Is NOT Book Status')
+                            ->label('Is NOT Book Status'),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         if ($data['is_not_book']) {
@@ -144,17 +143,15 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                             return $query;
                         }
                     })->indicateUsing(function (array $data): ?string {
-                        if (!$data['is_not_book']) {
+                        if (! $data['is_not_book']) {
                             return null;
                         }
+
                         return 'NOT Book Status';
-                    })
+                    }),
             ]);
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.inspectors.booking-inspector-table');

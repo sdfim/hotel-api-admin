@@ -3,7 +3,6 @@
 namespace Tests\Unit\Hotel\Content;
 
 use App\Repositories\PropertyWeightingRepository;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
 use Mockery;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
@@ -13,14 +12,13 @@ class EnrichmentWeightContentSearchTest extends TestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_enrichment_content_assert_equals_true(): void
     {
         $mockClientResponse = $this->createMockClientResponse();
         $mockWeights = $this->createMockWeights();
 
-        $mockPropertyWeightingRepository = Mockery::mock('overload:' . PropertyWeightingRepository::class);
+        $mockPropertyWeightingRepository = Mockery::mock('overload:'.PropertyWeightingRepository::class);
         $mockPropertyWeightingRepository->shouldReceive('getWeights')->andReturn($mockWeights);
 
         $enrichmentWeight = new EnrichmentWeight();
@@ -33,14 +31,13 @@ class EnrichmentWeightContentSearchTest extends TestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_enrichment_content_assert_equals_false(): void
     {
         $mockClientResponse = $this->createMockClientResponse();
         $mockWeights = $this->createMockWeights();
 
-        $mockPropertyWeightingRepository = Mockery::mock('overload:' . PropertyWeightingRepository::class);
+        $mockPropertyWeightingRepository = Mockery::mock('overload:'.PropertyWeightingRepository::class);
         $mockPropertyWeightingRepository->shouldReceive('getWeights')->andReturn($mockWeights);
 
         $enrichmentWeight = new EnrichmentWeight();
@@ -51,10 +48,6 @@ class EnrichmentWeightContentSearchTest extends TestCase
         $this->assertNotEquals($expectedResult, $result);
     }
 
-    /**
-     * @param bool $type
-     * @return array
-     */
     private function getExpectedResult(bool $type = true): array
     {
         if ($type) {
@@ -99,14 +92,11 @@ class EnrichmentWeightContentSearchTest extends TestCase
         ];
     }
 
-    /**
-     * @return Collection
-     */
     protected function createMockWeights(): Collection
     {
         return collect([
-            (object)['property' => 1, 'weight' => 1],
-            (object)['property' => 2, 'weight' => 2],
+            (object) ['property' => 1, 'weight' => 1],
+            (object) ['property' => 2, 'weight' => 2],
         ]);
     }
 }

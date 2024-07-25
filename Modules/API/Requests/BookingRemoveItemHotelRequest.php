@@ -6,7 +6,6 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
-
 class BookingRemoveItemHotelRequest extends ApiRequest
 {
     /**
@@ -15,6 +14,7 @@ class BookingRemoveItemHotelRequest extends ApiRequest
      *   path="/api/booking/add-item",
      *   summary="Add an item to your shopping cart.",
      *   description="Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
+     *
      *    @OA\Parameter(
      *      name="booking_item",
      *      in="query",
@@ -29,9 +29,11 @@ class BookingRemoveItemHotelRequest extends ApiRequest
      *      description="**booking_id**, if it exists",
      *      example="c698abfe-9bfa-45ee-a201-dc7322e008ab"
      *    ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BookingAddItemResponse",
      *           examples={
@@ -39,9 +41,11 @@ class BookingRemoveItemHotelRequest extends ApiRequest
      *         },
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse",
      *       examples={
@@ -49,9 +53,11 @@ class BookingRemoveItemHotelRequest extends ApiRequest
      *       }
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -80,9 +86,6 @@ class BookingRemoveItemHotelRequest extends ApiRequest
         ];
     }
 
-    /**
-     * @return array
-     */
     public function validatedDate(): array
     {
         return parent::validated();

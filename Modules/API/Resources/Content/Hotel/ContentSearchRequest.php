@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *     description="Schema Content Search Request GIATA Place",
  *     type="object",
  *     required={"query"},
+ *
  *     @OA\Property(
  *       property="type",
  *       type="string",
@@ -40,6 +41,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *       example=250
  *     )
  *   ),
+ *
  * @OA\Examples(
  *       example="ContentSearchRequestPlace",
  *       summary="Content Search by Place Eiffel Tower (Paris)",
@@ -52,12 +54,14 @@ namespace Modules\API\Resources\Content\Hotel;
  *              "results_per_page": 20
  *          }
  *   ),
+ *
  * @OA\Schema(
  *   schema="ContentSearchRequestDestination",
  *   title="Content Search Request Destination",
  *   description="Schema Content Search Request Destination",
  *   type="object",
  *   required={"query"},
+ *
  *   @OA\Property(
  *     property="type",
  *     type="string",
@@ -89,6 +93,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *     example=250
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="ContentSearchRequestDestination",
  *     summary="Content Search by Destination",
@@ -108,6 +113,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *   description="Schema Content Search Request Supplier and Hotel Name",
  *   type="object",
  *   required={"query"},
+ *
  *   @OA\Property(
  *     property="type",
  *     type="string",
@@ -151,6 +157,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *     example=250
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="ContentSearchRequestSupplierHotelName",
  *     summary="Content Search by Supplier and Hotel Name",
@@ -165,12 +172,14 @@ namespace Modules\API\Resources\Content\Hotel;
  *            "results_per_page": 20
  * }
  * ),
+ *
  * @OA\Schema(
  *   schema="ContentSearchRequestCoordinates",
  *   title="Content Search Request Coordinates",
  *   description="Schema Content Search Request Coordinates",
  *   type="object",
  *   required={"type", "latitude", "longitude", "radius"},
+ *
  *   @OA\Property(
  *     property="type",
  *     type="string",
@@ -217,6 +226,7 @@ namespace Modules\API\Resources\Content\Hotel;
  *     )
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="ContentSearchRequestCoordinates",
  *     summary="Content Search by Coordinates",

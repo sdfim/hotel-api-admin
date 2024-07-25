@@ -9,7 +9,7 @@ return [
             'search_book_url' => env('BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL', ''),
             'target' => env('BOOKING_SUPPLIER_HBSI_TARGET', 'Test'),
             'component_info_id' => env('BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID', ''),
-        ]
+        ],
     ],
 
     'Expedia' => [
@@ -17,7 +17,7 @@ return [
             'api_key' => env('SUPPLIER_EXPEDIA_API_KEY', ''),
             'shared_secret' => env('SUPPLIER_EXPEDIA_SHARED_SECRET', ''),
             'rapid_base_url' => env('SUPPLIER_EXPEDIA_BASE_URL', ''),
-        ]
+        ],
     ],
 
     'IcePortal' => [
@@ -26,6 +26,6 @@ return [
             'client_secret' => env('SUPPLIER_ICE_PORTAL_CLIENT_SECRET', ''),
             'base_url' => env('SUPPLIER_ICE_PORTAL_BASE_URL', ''),
             'token_url' => env('SUPPLIER_ICE_PORTAL_TOKEN_URL', ''),
-        ]
+        ],
     ],
 ];

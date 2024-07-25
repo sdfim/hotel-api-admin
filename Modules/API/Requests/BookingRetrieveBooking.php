@@ -14,19 +14,23 @@ class BookingRetrieveBooking extends ApiRequest
      *   path="/api/booking/retrieve-items",
      *   summary="Retrieve a list of items currently in your shopping cart.",
      *   description="Retrieve a list of items currently in your shopping cart. This endpoint provides details about the items added to your cart.",
+     *
      *    @OA\Parameter(
      *      name="booking_id",
      *      in="query",
      *      required=true,
      *      description="Booking ID",
+     *
      *      @OA\Schema(
      *        type="string",
      *        example="5a67bbbc-0c30-47d9-8b01-ef70c2da196f"
      *      )
      *    ),
+     *
      *    @OA\Response(
      *      response=200,
      *      description="OK",
+     *
      *      @OA\JsonContent(
      *        ref="#/components/schemas/BookingRetrieveItemsResponse",
      *        examples={
@@ -34,9 +38,11 @@ class BookingRetrieveBooking extends ApiRequest
      *        }
      *      )
      *    ),
+     *
      *    @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -44,9 +50,11 @@ class BookingRetrieveBooking extends ApiRequest
      *       }
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse",
      *       examples={
@@ -70,13 +78,10 @@ class BookingRetrieveBooking extends ApiRequest
     public function rules(): array
     {
         return [
-            'booking_id' => 'required|size:36'
+            'booking_id' => 'required|size:36',
         ];
     }
 
-    /**
-     * @return array
-     */
     public function validatedDate(): array
     {
         return parent::validated();

@@ -8,7 +8,6 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_cancel_booking_method_response_200(): void
     {
@@ -27,17 +26,16 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
                     'result' => [
                         [
                             'booking_item' => $bookingItem,
-                            'status' => 'Room canceled.'
-                        ]
-                    ]
+                            'status' => 'Room canceled.',
+                        ],
+                    ],
                 ],
-                'message' => 'success'
+                'message' => 'success',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_cancel_booking_item_method_response_200(): void
     {
@@ -57,17 +55,16 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
                     'result' => [
                         [
                             'booking_item' => $bookingItem,
-                            'status' => 'Room canceled.'
-                        ]
-                    ]
+                            'status' => 'Room canceled.',
+                        ],
+                    ],
                 ],
-                'message' => 'success'
+                'message' => 'success',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_attempting_to_cancel_previously_cancelled_booking_again_method_response_200(): void
     {
@@ -89,17 +86,16 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
                     'result' => [
                         [
                             'booking_item' => $bookingItem,
-                            'status' => 'Room is already cancelled.'
-                        ]
-                    ]
+                            'status' => 'Room is already cancelled.',
+                        ],
+                    ],
                 ],
-                'message' => 'success'
+                'message' => 'success',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_attempting_to_cancel_previously_cancelled_booking_item_again_method_response_200(): void
     {
@@ -122,17 +118,16 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
                     'result' => [
                         [
                             'booking_item' => $bookingItem,
-                            'status' => 'Room is already cancelled.'
-                        ]
-                    ]
+                            'status' => 'Room is already cancelled.',
+                        ],
+                    ],
                 ],
-                'message' => 'success'
+                'message' => 'success',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_cancel_item_with_non_existent_booking_id_and_booking_item_method_response_400(): void
     {
@@ -147,13 +142,12 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
 
         $bookingCancelItemResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid booking_id'
+                'error' => 'Invalid booking_id',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_cancel_item_with_non_existent_booking_item_and_booking_id_method_response_400(): void
     {
@@ -168,13 +162,12 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
 
         $bookingCancelItemResponse->assertStatus(400)
             ->assertJson([
-                'error' => 'Invalid booking_item'
+                'error' => 'Invalid booking_item',
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_cancel_item_with_missed_booking_id_and_correct_booking_item_method_response_400(): void
     {
@@ -190,15 +183,14 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'booking_id' => [
-                        'The booking id field is required.'
-                    ]
-                ]
+                        'The booking id field is required.',
+                    ],
+                ],
             ]);
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_hotel_booking_cancel_item_without_parameters_method_response_400(): void
     {
@@ -210,9 +202,9 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
                 'success' => false,
                 'error' => [
                     'booking_id' => [
-                        'The booking id field is required.'
-                    ]
-                ]
+                        'The booking id field is required.',
+                    ],
+                ],
             ]);
     }
 }
