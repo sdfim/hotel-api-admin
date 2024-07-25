@@ -30,7 +30,7 @@ class IceHBSIClient
         $this->clientSecret = config("$namespace.client_secret");
         $this->baseUrl = config("$namespace.base_url");
         $this->tokenUrl = config("$namespace.token_url");
-        //$this->token = $this->getToken(); TODO: COMMENTED AS THIS IS CAUSING ISSUES WHEN ISSUES ON ICE PORTAL
+        $this->token = $this->getToken();
     }
 
     /**
