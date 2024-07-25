@@ -6,9 +6,16 @@ use App\Models\ApiSearchInspector;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Opcodes\LogViewer\Facades\Cache;
+use Psr\SimpleCache\InvalidArgumentException;
 
 class SearchInspectorController extends BaseInspectorController
 {
+    /**
+     * @param array $data
+     * @return string|bool
+     * @throws InvalidArgumentException
+     */
     public function save(array $data): string|bool
     {
         /**
@@ -22,9 +29,20 @@ class SearchInspectorController extends BaseInspectorController
         try {
             $this->current_time = microtime(true);
 
+            if (isset($original['keyCache'])) {
+                $keys = $original['keyCache'];
+                $original = Cache::get($keys['dataOriginal']);
+                $content = Cache::get($keys['content']);
+                $clientContent = Cache::get($keys['clientContent']);
+
+                foreach ($keys as $key) {
+                    Cache::forget($key);
+                }
+            }
+
             $original = is_array($original) ? json_encode($original) : $original;
             $content = is_array($content) ? json_encode($content) : $content;
-            $clientContent = json_encode($clientContent);
+            $clientContent = is_array($clientContent) ? json_encode($clientContent) : $clientContent;
 
             $generalPath = self::PATH_INSPECTORS.'search_inspector/'.date('Y-m-d').'/'.$inspector['type'].'_'.$inspector['search_id'];
             $path = $generalPath.'.json';

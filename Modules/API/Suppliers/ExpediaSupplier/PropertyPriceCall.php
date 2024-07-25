@@ -159,11 +159,7 @@ class PropertyPriceCall
 
         $this->ratePlanCount = $property['rate_plan_count'] ?? self::RATE_PLAN_COUNT;
 
-        $rateType = env('SUPPLIER_EXPEDIA_RATE_TYPE', 'standalone');
-
-        Log::info('Rate Type: '.$rateType);
-
-        $rates = $rateType === 'package' ? self::PACKAGE_RATES : self::STANDALONE_RATES;
+        $rates = $property['query_package'] === 'package' ? self::PACKAGE_RATES : self::STANDALONE_RATES;
 
         $this->partnerPointSale = $rates['partner_point_of_sale'];
         $this->billingTerms = $rates['billing_terms'];
@@ -203,8 +199,9 @@ class PropertyPriceCall
                 if ($response['state'] === 'fulfilled') {
                     $data = $response['value']->getBody()->getContents();
                     $responses = array_merge($responses, json_decode($data, true));
-                } elseif (! isset($response['value'])) {
-                    Log::error('Expedia Timeout Exception after '.$duration.' seconds');
+                }
+                elseif (!isset($response['value'])) {
+                    Log::error('Expedia Timeout Exception');
                     $parent_search_id = $searchInspector['search_id'];
                     $searchInspector['search_id'] = Str::uuid();
                     SaveSearchInspector::dispatch($searchInspector, [], [], [], 'error',

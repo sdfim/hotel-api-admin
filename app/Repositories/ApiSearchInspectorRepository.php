@@ -24,10 +24,14 @@ class ApiSearchInspectorRepository
         $room_id = $filters['room_id']; // expedia
         $rate_id = $filters['rate'] ?? ''; // expedia
         $bed_groups = $filters['bed_groups'] ?? ''; // expedia
+        $booking_item = $filters['booking_item'];
+
+        $bookingItemData = ApiBookingItemRepository::getItemData($booking_item);
+        $keyExpedia = 'Expedia_' . $bookingItemData['query_package'];
 
         $search_id = ApiSearchInspector::where('search_id', $search_id)->first();
         $json_response = json_decode(Storage::get($search_id->response_path));
-        $rooms = $json_response->results->Expedia->$hotel_id->rooms;
+        $rooms = $json_response->results->$keyExpedia->$hotel_id->rooms;
 
         $linkPriceCheck = '';
         foreach ($rooms as $room) {
