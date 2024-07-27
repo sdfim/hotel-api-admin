@@ -131,7 +131,8 @@ class HbsiClient
         $hotelId = ApiBookingItemRepository::getHotelSupplierId($filters['booking_item']);
 
         $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResRQ', $hotelId);
-
+        \Log::debug($bodyQuery);
+        return ['error' => 'SIIiiiiiiiiiiuuUU'];
         return $this->executeApiRequest(function () use ($bodyQuery) {
             return $this->sendRequest($bodyQuery);
         }, $inspectorBook, $bodyQuery);
@@ -563,13 +564,7 @@ class HbsiClient
                 $diff = $dob->diff(Carbon::now(), true);
                 $age = $diff->y;
 
-                $ageQualifyingCode = 10;
-                if ($age < self::AGE_INFANT) {
-                    $ageQualifyingCode = 7;
-                } elseif ($age < self::AGE_CHILD) {
-                    $ageQualifyingCode = 8;
-                }
-                $resGuestsArr[$index] = $this->createGuestArr($index, $ageQualifyingCode, $guest, $filters);
+                $resGuestsArr[$index] = $this->createGuestArr($index, $age, $guest, $filters);
                 if ($index === 0) {
                     $this->mainGuest = $resGuestsArr[$index]['Profiles']['ProfileInfo']['Profile']['Customer'];
                 }
@@ -602,11 +597,11 @@ class HbsiClient
         return $resGuestsArr;
     }
 
-    private function createGuestArr(int $index, int $ageQualifyingCode, array $guest, array $filters): array
+    private function createGuestArr(int $index, int $age, array $guest, array $filters): array
     {
         $guestArr = [];
         $guestArr['@attributes']['ResGuestRPH'] = $index + 1;
-        $guestArr['@attributes']['AgeQualifyingCode'] = $ageQualifyingCode;
+        $guestArr['@attributes']['Age'] = $age;
         if ($index === 0) {
             $guestArr['Profiles']['ProfileInfo']['Profile']['Customer'] = $this->createCustomerArr($guest, $filters);
         } else {
