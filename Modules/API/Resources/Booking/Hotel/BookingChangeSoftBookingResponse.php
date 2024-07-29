@@ -4,7 +4,7 @@ namespace Modules\API\Resources\Booking\Hotel;
 
 /**
  * @OA\Schema(
- *   schema="BookingChangeBookingResponse",
+ *   schema="BookingChangeSoftBookingResponse",
  *   title="Booking Change Booking Response",
  *   description="Schema Booking Change Booking Response",
  *   type="object",
@@ -25,7 +25,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  * ),
  *
  * @OA\Examples(
- *     example="BookingChangeBookingResponse",
+ *     example="BookingChangeSoftBookingResponse",
  *     summary="Example Booking Change Booking Response",
  *     value=
  * {
@@ -34,7 +34,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  * }
  * ),
  * @OA\Examples(
- *   example="BookingChangeBookingResponseError",
+ *   example="BookingChangeSoftBookingResponseError",
  *   summary="Example Booking Change Booking Response Error",
  *   value=
  * {
@@ -49,6 +49,6 @@ namespace Modules\API\Resources\Booking\Hotel;
  * }
  * )
  */
-class BookingChangeBookingResponse
+class BookingChangeSoftBookingResponse
 {
 }

@@ -19,6 +19,7 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -29,7 +30,7 @@ use Modules\API\BookingAPI\Controllers\HbsiBookApiController;
 use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
 use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingCancelBooking;
-use Modules\API\Requests\BookingChangeBookHotelRequest;
+use Modules\API\Requests\BookingChangeSoftBookHotelRequest;
 use Modules\API\Requests\BookingAvailabilityChangeBookHotelRequest;
 use Modules\API\Requests\BookingChangeHardBookHotelRequest;
 use Modules\API\Requests\BookingRetrieveBooking;
@@ -134,10 +135,10 @@ class BookApiHandler extends BaseController
     }
 
     /**
-     * @param BookingChangeBookHotelRequest $request
+     * @param BookingChangeSoftBookHotelRequest $request
      * @return JsonResponse
      */
-    public function changeSoftBooking(BookingChangeBookHotelRequest $request): JsonResponse
+    public function changeSoftBooking(BookingChangeSoftBookHotelRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);
         if (! empty($determinant)) {

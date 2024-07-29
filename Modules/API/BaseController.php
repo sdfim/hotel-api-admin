@@ -30,11 +30,11 @@ use Illuminate\Http\JsonResponse;
  *   description="API Endpoints of Price"
  * ),
  * @OA\Tag(
- *   name="Booking API | Cart Endpoints",
+ *   name="Booking API | Cart",
  *   description="API Endpoints of Cart (pre-reservation)"
  * ),
  * @OA\Tag(
- *   name="Booking API | Booking Endpoints",
+ *   name="Booking API | Booking",
  *   description="API Endpoints of Booking (reservation)"
  * ),
  */

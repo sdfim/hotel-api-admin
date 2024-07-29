@@ -10,7 +10,7 @@
         "/api/booking/remove-item": {
             "delete": {
                 "tags": [
-                    "Booking API | Cart Endpoints"
+                    "Booking API | Cart"
                 ],
                 "summary": "Remove a specific item from your shopping cart",
                 "description": "Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",
@@ -88,7 +88,7 @@
         "/api/booking/add-passengers": {
             "post": {
                 "tags": [
-                    "Booking API | Cart Endpoints"
+                    "Booking API | Cart"
                 ],
                 "summary": "Add passengers to a booking.",
                 "description": "Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
@@ -177,38 +177,44 @@
         "/api/booking/change/availability": {
             "get": {
                 "tags": [
-                    "Booking API | Booking Endpoints"
+                    "Booking API | Change Booking"
                 ],
                 "summary": "Retrieve available changes for modifying an existing booking.",
                 "description": "This endpoint provides information about available changes for modifying an existing booking.",
                 "operationId": "f60f6a9009ab6f37573fc08dc06a39dc",
-                "parameters": [
-                    {
-                        "name": "booking_id",
-                        "in": "query",
-                        "description": "Booking ID",
-                        "required": true,
-                        "example": "3333cee5-b4a3-4e51-bfb0-02d09370b585"
-                    },
-                    {
-                        "name": "booking_item",
-                        "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property.",
-                        "required": true,
-                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-                    }
-                ],
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/BookingChangeBookingRequest"
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestPlace"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestDestination"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestCoordinates"
+                                    },
+                                    {
+                                        "$ref": "#/components/schemas/ContentSearchRequestSupplierHotelName"
+                                    }
+                                ]
                             },
                             "examples": {
-                                "BookingChangeBookingRequest": {
-                                    "$ref": "#/components/examples/BookingChangeBookingRequest"
+                                "ContentSearchRequestPlace": {
+                                    "$ref": "#/components/examples/ContentSearchRequestPlace"
+                                },
+                                "ContentSearchRequestDestination": {
+                                    "$ref": "#/components/examples/ContentSearchRequestDestination"
+                                },
+                                "ContentSearchRequestCoordinates": {
+                                    "$ref": "#/components/examples/ContentSearchRequestCoordinates"
+                                },
+                                "ContentSearchRequestSupplierHotelName": {
+                                    "$ref": "#/components/examples/ContentSearchRequestSupplierHotelName"
                                 }
                             }
                         }
@@ -220,11 +226,11 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BookingChangeBookingResponse"
+                                    "$ref": "#/components/schemas/ContentSearchResponse"
                                 },
                                 "examples": {
-                                    "BookingChangeBookingResponse": {
-                                        "$ref": "#/components/examples/BookingChangeBookingResponse"
+                                    "ContentSearchResponse": {
+                                        "$ref": "#/components/examples/ContentSearchResponse"
                                     }
                                 }
                             }
@@ -234,10 +240,12 @@
                         "description": "Bad Request",
                         "content": {
                             "application/json": {
-                                "schema": {},
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
                                 "examples": {
-                                    "BookingChangeBookingResponseError": {
-                                        "$ref": "#/components/examples/BookingChangeBookingResponseError"
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
                                     }
                                 }
                             }
@@ -269,7 +277,7 @@
         "/api/booking/book": {
             "post": {
                 "tags": [
-                    "Booking API | Booking Endpoints"
+                    "Booking API | Booking"
                 ],
                 "summary": "Create a new booking for a service or event",
                 "description": "Create a new booking for a service or event. Use this endpoint to make reservations.",
@@ -361,7 +369,7 @@
         "/api/booking/cancel-booking": {
             "delete": {
                 "tags": [
-                    "Booking API | Booking Endpoints"
+                    "Booking API | Booking"
                 ],
                 "summary": "Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
                 "description": "Cancel Booking",
@@ -435,86 +443,143 @@
                 ]
             }
         },
-        "/api/booking/change-booking": {
+        "/api/booking/change/hard-change": {
             "put": {
                 "tags": [
-                    "Booking API | Booking Endpoints"
+                    "Booking API | Change Booking"
                 ],
-                "summary": "Modify an existing booking..",
-                "description": "Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
-                "operationId": "297d97dc1cc9f52514801a143a9f96dd",
-                "parameters": [
-                    {
-                        "name": "booking_id",
-                        "in": "query",
-                        "description": "Booking ID",
-                        "required": true,
-                        "example": "3333cee5-b4a3-4e51-bfb0-02d09370b585"
-                    },
-                    {
-                        "name": "booking_item",
-                        "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property.",
-                        "required": true,
-                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-                    }
-                ],
+                "summary": "Hard Modify an existing booking.",
+                "description": "Hard modify an existing booking. This endpoint allows for significant changes to the booking, such as replacing the booking item.",
+                "operationId": "b23f52c494636b2a0a80fc74df772c31",
                 "requestBody": {
-                    "description": "JSON object containing the details of the reservation.",
+                    "description": "JSON object containing the details of the modification.",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/BookingChangeBookingRequest"
-                            },
-                            "examples": {
-                                "BookingChangeBookingRequest": {
-                                    "$ref": "#/components/examples/BookingChangeBookingRequest"
-                                }
+                                "properties": {
+                                    "search_id": {
+                                        "description": "UUID of the search that initiated the booking.",
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "booking_id": {
+                                        "description": "UUID of the existing booking.",
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "booking_item": {
+                                        "description": "UUID of the existing booking item to be modified.",
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "new_booking_item": {
+                                        "description": "UUID of the new booking item to replace the existing one.",
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "passengers": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "title": {
+                                                    "description": "Title of the passenger.",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "mr",
+                                                        "Mr",
+                                                        "MR",
+                                                        "ms",
+                                                        "Ms",
+                                                        "MS",
+                                                        "Mrs",
+                                                        "MRS",
+                                                        "mrs",
+                                                        "Miss",
+                                                        "MISS",
+                                                        "miss",
+                                                        "Dr",
+                                                        "dr",
+                                                        "DR",
+                                                        "Prof",
+                                                        "prof",
+                                                        "PROF"
+                                                    ]
+                                                },
+                                                "given_name": {
+                                                    "description": "Given name of the passenger.",
+                                                    "type": "string",
+                                                    "maxLength": 255
+                                                },
+                                                "family_name": {
+                                                    "description": "Family name of the passenger.",
+                                                    "type": "string",
+                                                    "maxLength": 255
+                                                },
+                                                "date_of_birth": {
+                                                    "description": "Date of birth of the passenger.",
+                                                    "type": "string",
+                                                    "format": "date"
+                                                },
+                                                "room": {
+                                                    "description": "Room number or identifier for the passenger.",
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
                             }
                         }
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BookingChangeBookingResponse"
-                                },
-                                "examples": {
-                                    "BookingChangeBookingResponse": {
-                                        "$ref": "#/components/examples/BookingChangeBookingResponse"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {},
-                                "examples": {
-                                    "BookingChangeBookingResponseError": {
-                                        "$ref": "#/components/examples/BookingChangeBookingResponseError"
-                                    }
-                                }
-                            }
-                        }
-                    },
                     "401": {
                         "description": "Unauthenticated",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                },
-                                "examples": {
-                                    "UnAuthenticatedResponse": {
-                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
-                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/booking/change/soft-change": {
+            "put": {
+                "tags": [
+                    "Booking API | Change Booking"
+                ],
+                "summary": "Soft Modify an existing booking.",
+                "description": "Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
+                "operationId": "492e5d640f55e289d3c4a71015d95832",
+                "requestBody": {
+                    "description": "JSON object containing the details of the reservation.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/BookingChangeSoftBookingRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
                                 }
                             }
                         }
@@ -530,7 +595,7 @@
         "/api/booking/add-item": {
             "post": {
                 "tags": [
-                    "Booking API | Cart Endpoints"
+                    "Booking API | Cart"
                 ],
                 "summary": "Add an item to your shopping cart.",
                 "description": "Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
@@ -607,7 +672,7 @@
         "/api/booking/retrieve-items": {
             "get": {
                 "tags": [
-                    "Booking API | Cart Endpoints"
+                    "Booking API | Cart"
                 ],
                 "summary": "Retrieve a list of items currently in your shopping cart.",
                 "description": "Retrieve a list of items currently in your shopping cart. This endpoint provides details about the items added to your cart.",
@@ -681,7 +746,7 @@
         "/api/booking/retrieve-booking": {
             "get": {
                 "tags": [
-                    "Booking API | Booking Endpoints"
+                    "Booking API | Booking"
                 ],
                 "summary": "Retrieve detailed information about a specific booking reservation. ",
                 "description": "Retrieve detailed information about a specific booking reservation. This endpoint allows you to access all the information related to a particular reservation.",
@@ -772,20 +837,6 @@
                         }
                     },
                     {
-                        "name": "strategy",
-                        "in": "query",
-                        "description": "Select the strategy to get search suggestions.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "default": "Default",
-                            "enum": [
-                                "Default",
-                                "Google"
-                            ]
-                        }
-                    },
-                    {
                         "name": "showtticodes",
                         "in": "query",
                         "description": "Set to 1 to display additional tticodes.",
@@ -796,6 +847,20 @@
                             "enum": [
                                 0,
                                 1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "strategy",
+                        "in": "query",
+                        "description": "Define strategy for the search suggestions.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "Default",
+                            "enum": [
+                                "Default",
+                                "Google"
                             ]
                         }
                     }
@@ -953,7 +1018,7 @@
         "/api/booking/list-bookings": {
             "get": {
                 "tags": [
-                    "Booking API | Booking Endpoints"
+                    "Booking API | Booking"
                 ],
                 "summary": "Retrieve a list of all your booking reservations. ",
                 "description": "Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
@@ -1956,13 +2021,25 @@
                 },
                 "type": "object"
             },
-            "BookingChangeBookingRequest": {
-                "title": "Booking Change Booking Request",
-                "description": "Schema Booking Add Booking Request",
+            "BookingChangeSoftBookingRequest": {
+                "title": "Booking Change Soft Request",
+                "description": "Soft schema for booking change requests",
                 "required": [
+                    "booking_id",
+                    "booking_item",
                     "query"
                 ],
                 "properties": {
+                    "booking_id": {
+                        "description": "Booking ID",
+                        "type": "string",
+                        "example": "3333cee5-b4a3-4e51-bfb0-02d09370b585"
+                    },
+                    "booking_item": {
+                        "description": "Booking item",
+                        "type": "string",
+                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                    },
                     "query": {
                         "required": [
                             "given_name",
@@ -1985,14 +2062,48 @@
                                 "example": "false"
                             },
                             "special_request": {
-                                "description": "Special Request (e.g., 'Top floor or away frostreet please').",
+                                "description": "Special Request (e.g., 'Top floor or away from street please').",
                                 "type": "string",
-                                "example": "Top floor or away frostreet please"
+                                "example": "Top floor or away from street please"
                             },
                             "loyalty_id": {
                                 "description": "Loyalty ID (e.g., 'ABC123').",
                                 "type": "string",
                                 "example": "ABC123"
+                            },
+                            "passengers": {
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "title",
+                                        "given_name",
+                                        "family_name",
+                                        "date_of_birth"
+                                    ],
+                                    "properties": {
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Mr"
+                                        },
+                                        "given_name": {
+                                            "type": "string",
+                                            "example": "John"
+                                        },
+                                        "family_name": {
+                                            "type": "string",
+                                            "example": "Doe"
+                                        },
+                                        "date_of_birth": {
+                                            "type": "string",
+                                            "example": "1990-01-01"
+                                        },
+                                        "room": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    },
+                                    "type": "object"
+                                }
                             }
                         },
                         "type": "object"
@@ -2000,7 +2111,7 @@
                 },
                 "type": "object"
             },
-            "BookingChangeBookingResponse": {
+            "BookingChangeSoftBookingResponse": {
                 "title": "Booking Change Booking Response",
                 "description": "Schema Booking Change Booking Response",
                 "required": [
@@ -3974,26 +4085,14 @@
                     "message": "success"
                 }
             },
-            "BookingChangeBookingRequest": {
-                "summary": "Example Booking Change Booking Request",
-                "value": {
-                    "query": {
-                        "given_name": "John",
-                        "family_name": "Smit",
-                        "smoking": false,
-                        "special_request": "Top floor or away frostreet please",
-                        "loyalty_id": "ABC123"
-                    }
-                }
-            },
-            "BookingChangeBookingResponse": {
+            "BookingChangeSoftBookingResponse": {
                 "summary": "Example Booking Change Booking Response",
                 "value": {
                     "success": true,
                     "message": "success"
                 }
             },
-            "BookingChangeBookingResponseError": {
+            "BookingChangeSoftBookingResponseError": {
                 "summary": "Example Booking Change Booking Response Error",
                 "value": {
                     "success": false,
@@ -6899,13 +6998,9 @@
                 "summary": "Pricing Search Cancun, country MX, airport CUN using Place",
                 "value": {
                     "type": "hotel",
-                    "checkin": "2025-03-11",
-                    "checkout": "2025-03-20",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
                     "place": "4b2afe6684dd81a6f73527468e05e7a6",
-                    "location": {
-                        "latitude": "21.035333192",
-                        "longitude": "-86.872829842"
-                    },
                     "rating": 4.5,
                     "occupancy": [
                         {
@@ -6915,7 +7010,6 @@
                             ]
                         }
                     ],
-                    "supplier": "HBSI",
                     "page": 1,
                     "results_per_page": 10
                 }
@@ -6924,20 +7018,15 @@
                 "summary": "Pricing Search Eiffel Tower (Paris) using Place",
                 "value": {
                     "type": "hotel",
-                    "checkin": "2025-03-11",
-                    "checkout": "2025-03-20",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
                     "place": "9bb07983384eb956ae88e154b99b51a1",
-                    "location": {
-                        "latitude": "21.035333192",
-                        "longitude": "-86.872829842"
-                    },
                     "rating": 4.5,
                     "occupancy": [
                         {
                             "adults": 2
                         }
                     ],
-                    "supplier": "HBSI",
                     "page": 1,
                     "results_per_page": 20
                 }
@@ -7663,11 +7752,11 @@
             "description": "API Endpoints of Price"
         },
         {
-            "name": "Booking API | Cart Endpoints",
+            "name": "Booking API | Cart",
             "description": "API Endpoints of Cart (pre-reservation)"
         },
         {
-            "name": "Booking API | Booking Endpoints",
+            "name": "Booking API | Booking",
             "description": "API Endpoints of Booking (reservation)"
         }
     ]
