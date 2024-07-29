@@ -343,14 +343,14 @@ class HbsiBookApiController extends BaseBookApiController
         return $data;
     }
 
-    public function changeSoftBooking(array $filters): array|null
+    public function changeSoftBooking(array $filters, string $mode = 'soft'): array|null
     {
         $dataResponse = [];
         $soapError = false;
 
-        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
+        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $filters['booking_id'], $filters, $supplierId, 'book', 'change-soft', 'hotel',
+            $filters['booking_id'], $filters, $supplierId, 'book', 'change-'.$mode, 'hotel',
         ]);
 
         try {
@@ -410,7 +410,7 @@ class HbsiBookApiController extends BaseBookApiController
             return [];
         }
 
-        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
+        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         SaveBookingInspector::dispatch([
             $filters['booking_id'], $filters, $dataResponseToSave, $clientResponse, $supplierId, 'change_booking', '', 'hotel',
         ]);

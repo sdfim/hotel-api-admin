@@ -98,12 +98,19 @@ class BookingChangeBookHotelRequest extends ApiRequest
         return [
             'booking_id' => 'required|size:36',
             'booking_item' => 'required|size:36',
-            'query' => 'required|array',
-            'query.given_name' => 'required|string|between:1,255',
-            'query.family_name' => 'required|string|between:1,255',
-            'query.smoking' => 'required|boolean',
+            'query' => 'required_without:passengers|array',
+            'query.given_name' => 'required_with:query|string|between:1,255',
+            'query.family_name' => 'required_with:query|string|between:1,255',
+            'query.smoking' => 'required_with:query|boolean',
             'query.special_request' => 'string|max:255',
             'query.loyalty_id' => 'string|max:10',
+
+            'passengers' => 'required_without:query|array',
+            'passengers.*.title' => 'required_with:passengers|in:mr,Mr,MR,ms,Ms,MS,Mrs,MRS,mrs,Miss,MISS,miss,Dr,dr,DR,Prof,prof,PROF',
+            'passengers.*.given_name' => 'required_with:passengers|string|between:1,255',
+            'passengers.*.family_name' => 'required_with:passengers|string|between:1,255',
+            'passengers.*.date_of_birth' => 'required_with:passengers|date_format:Y-m-d',
+            'passengers.*.room' => 'numeric',
         ];
     }
 

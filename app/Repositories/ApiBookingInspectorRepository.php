@@ -212,6 +212,15 @@ class ApiBookingInspectorRepository
 
     public static function getPassengers(string $booking_id, string $booking_item): ?object
     {
+        $changeQb = ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('booking_item', $booking_item)
+            ->where('type', 'change_passengers')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value);
+
+        if ($changeQb->exists()) {
+            return $changeQb->first();
+        }
+
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
             ->where('type', 'add_passengers')
