@@ -18,20 +18,14 @@ class PropertyWeighting extends Model
         'supplier_id',
         'weight',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function giataProperties(): BelongsTo
     {
         return $this->belongsTo(GiataProperty::class, 'property', 'code');

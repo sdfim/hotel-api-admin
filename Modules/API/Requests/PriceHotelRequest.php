@@ -88,46 +88,58 @@ class PriceHotelRequest extends ApiRequest
             'AED', 'ARS', 'AUD', 'BRL', 'CAD', 'CHF', 'CNY', 'COP', 'DKK', 'EGP',
             'EUR', 'GBP', 'HKD', 'IDR', 'ILS', 'INR', 'JPY', 'KRW', 'LBP', 'MAD',
             'MXN', 'MYR', 'NOK', 'NZD', 'PHP', 'PLN', 'QAR', 'RUB', 'SAR', 'SEK',
-            'SGD', 'THB', 'TRY', 'TWD', 'USD', 'VND', 'ZAR', '*'
+            'SGD', 'THB', 'TRY', 'TWD', 'USD', 'VND', 'ZAR', '*',
         ];
 
         $supplier = Supplier::get()->pluck('name')->map('ucfirst')->toArray();
 
         $occupancy = request()->occupancy;
-        if (is_null($occupancy)) return [
-            'occupancy' => ['required', function ($attribute, $value, $fail) {
-                $fail('The occupancy must be an array.');
-            }],
-        ];
-        foreach ($occupancy as $key => $value) {
-            if (empty($value['children_ages']) && isset($value['children_ages'])) return [
-                'occupancy.' . $key . '.children_ages' => ['required'],
+        if (is_null($occupancy)) {
+            return [
+                'occupancy' => ['required', function ($attribute, $value, $fail) {
+                    $fail('The occupancy must be an array.');
+                }],
             ];
-            else
-                if (isset($value['children']) && !isset($value['children_ages'])) return [
-                    'occupancy.' . $key . '.children_ages' => 'required|array',
+        }
+        foreach ($occupancy as $key => $value) {
+            if (empty($value['children_ages']) && isset($value['children_ages'])) {
+                return [
+                    'occupancy.'.$key.'.children_ages' => ['required'],
                 ];
-                else if (isset($value['children']) && (count($value['children_ages']) !== $value['children'])) return [
-                    'occupancy.' . $key . '.children_ages' => ['required',
-                        function ($attribute, $value, $fail) {
-                            $fail('The number of children must equal the number of records of their age children_ages.');
-                        }
-                    ],
+            } elseif (isset($value['children']) && ! isset($value['children_ages'])) {
+                return [
+                    'occupancy.'.$key.'.children_ages' => 'required|array',
                 ];
+            } elseif (isset($value['children']) && (count($value['children_ages']) !== $value['children'])) {
+                return [
+                        'occupancy.'.$key.'.children_ages' => ['required',
+                            function ($attribute, $value, $fail) {
+                                $fail('The number of children must equal the number of records of their age children_ages.');
+                            },
+                        ],
+                    ];
+            }
         }
 
         return [
             'type' => 'required|string',
-            'currency' => ['string', 'in:' . implode(',', $validCurrencies)],
+            'currency' => ['string', 'in:'.implode(',', $validCurrencies)],
             'hotel_name' => 'string',
             'supplier' => 'string',
-            'checkin' => 'required|date_format:Y-m-d|after:today',
+            'checkin' => 'required|date_format:Y-m-d|after:yesterday',
             'checkout' => 'required|date_format:Y-m-d|after:checkin',
-            'place' => 'required_without_all:latitude,longitude,destination|string|max:32',
-            'destination' => 'required_without_all:latitude,longitude,place|integer|min:1,max:999999',
-            'latitude' => 'required_without_all:destination,place|decimal:2,8|min:-90|max:90',
-            'longitude' => 'required_without_all:destination,place|decimal:2,8|min:-180|max:180',
-            'radius' => 'required_without_all:destination,place|numeric|between:1,100',
+
+            'giata_ids' => 'required_without_all:latitude,longitude,destination,place|array',
+            'giata_ids.*' => 'integer',
+
+            'place' => 'required_without_all:giata_ids,latitude,longitude,destination|nullable|string|max:32',
+
+            'destination' => 'required_without_all:giata_ids,latitude,longitude,place|integer|min:1,max:999999',
+
+            'latitude' => 'required_without_all:giata_ids,destination,place|decimal:0,8|min:-90|max:90',
+            'longitude' => 'required_without_all:giata_ids,destination,place|decimal:0,8|min:-180|max:180',
+            'radius' => 'required_without_all:giata_ids,destination,place|numeric|between:1,1000',
+
             'rating' => 'numeric|between:1,5.5',
             'occupancy' => 'required|array',
             'occupancy.*.adults' => 'required|numeric|between:1,9',
@@ -137,9 +149,6 @@ class PriceHotelRequest extends ApiRequest
         ];
     }
 
-    /**
-     * @return array
-     */
     public function validatedDate(): array
     {
         return parent::validated();

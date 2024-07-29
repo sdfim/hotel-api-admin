@@ -17,23 +17,13 @@ class CreateChannelsForm extends Component implements HasForms
 {
     use InteractsWithForms;
 
-    /**
-     * @var array|null
-     */
     public ?array $data = [];
 
-    /**
-     * @return void
-     */
     public function mount(): void
     {
         $this->form->fill();
     }
 
-    /**
-     * @param Form $form
-     * @return Form
-     */
     public function form(Form $form): Form
     {
         return $form
@@ -50,9 +40,6 @@ class CreateChannelsForm extends Component implements HasForms
             ->model(Channel::class);
     }
 
-    /**
-     * @return Redirector|RedirectResponse
-     */
     public function create(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
@@ -71,9 +58,6 @@ class CreateChannelsForm extends Component implements HasForms
         return redirect()->route('channels.index');
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.channels.create-channels-form');

@@ -6,7 +6,6 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Illuminate\Http\Request;
 
-
 class Authenticate extends Middleware
 {
     /**
@@ -18,9 +17,8 @@ class Authenticate extends Middleware
     }
 
     /**
-     * @param Request $request
-     * @param array $guards
-     * @return void
+     * @param  Request  $request
+     *
      * @throws AuthenticationException
      */
     protected function unauthenticated($request, array $guards): void

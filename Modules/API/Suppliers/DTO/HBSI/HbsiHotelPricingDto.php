@@ -16,8 +16,9 @@ use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
-use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
 use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
+use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
+use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 
@@ -58,7 +59,7 @@ class HbsiHotelPricingDto
         'resort fee',
         'rollaway fee',
         'room service fee',
-        'service charge'
+        'service charge',
     ];
 
     /**
@@ -88,7 +89,7 @@ class HbsiHotelPricingDto
         'total tax',
         'tourism tax',
         'vat/gst tax',
-        'value added tax (vat)'
+        'value added tax (vat)',
     ];
 
     private const MEAL_PLAN = [
@@ -99,26 +100,14 @@ class HbsiHotelPricingDto
         'NoM' => 'No Meal',
     ];
 
-    /**
-     * @param array $bookingItems
-     * @param GiataGeographyRepository $geographyRepo
-     */
     public function __construct(
-        private array                             $bookingItems = [],
+        private array $bookingItems = [],
         private readonly GiataGeographyRepository $geographyRepo = new GiataGeographyRepository()
-    )
-    {
+    ) {
         $this->current_time = microtime(true);
         $this->supplier_id = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
     }
 
-    /**
-     * @param array $supplierResponse
-     * @param array $query
-     * @param string $search_id
-     * @param array $pricingRules
-     * @return array
-     */
     public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules): array
     {
         $this->search_id = $search_id;
@@ -130,25 +119,30 @@ class HbsiHotelPricingDto
 
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
 
-        $giataIds = array_map(function($item) {
+        $giataIds = array_map(function ($item) {
             return $item['giata_id'];
         }, $supplierResponse);
 
+        $latitude = Arr::get($query, 'latitude', 0);
+        $longitude = Arr::get($query, 'longitude', 0);
+
         $this->giata = GiataProperty::whereIn('code', $giataIds)
-            ->select(['code', 'rating', 'name'])
+            ->selectRaw('code, rating, name, city, 6371 * 2 * ASIN(SQRT(POWER(SIN((latitude - abs(?)) * pi()/180 / 2), 2) + COS(latitude * pi()/180 ) * COS(abs(?) * pi()/180) * POWER(SIN((longitude - ?) *  pi()/180 / 2), 2))) as distance', [$latitude, $latitude, $longitude])
             ->get()
             ->keyBy('code')
-            ->map(function($item) {
+            ->map(function ($item) {
                 return [
                     'rating' => $item->rating,
-                    'hotel_name' => $item->name
+                    'hotel_name' => $item->name,
+                    'city' => $item->city,
+                    'distance' => $item->distance,
                 ];
             })
             ->toArray();
 
         if (isset($query['destination'])) {
             $this->destinationData = $this->geographyRepo->getFullLocation($query['destination'])->full_location;
-        } else if (isset($query['place'])) {
+        } elseif (isset($query['place'])) {
             $this->destinationData = GiataPlace::where('key', $query['place'])
                 ->select([
                     DB::raw("CONCAT(name_primary, ', ', type, ', ', country_code) as full_location"),
@@ -166,22 +160,18 @@ class HbsiHotelPricingDto
         return ['response' => $hotelResponse, 'bookingItems' => $this->bookingItems];
     }
 
-    /**
-     * @param array $propertyGroup
-     * @param int|string $key
-     * @return array
-     */
     public function setHotelResponse(array $propertyGroup, int|string $key): array
     {
         $this->roomCombinations = [];
         $hotelResponse = HotelResponseFactory::create();
         $hotelResponse->setGiataHotelId($propertyGroup['giata_id'] ?? 0);
+        $hotelResponse->setDistanceFromSearchLocation($this->giata[$propertyGroup['giata_id']]['distance'] ?? 0);
         $hotelResponse->setRating($this->giata[$propertyGroup['giata_id']]['rating'] ?? 0);
         $hotelResponse->setHotelName($this->giata[$propertyGroup['giata_id']]['hotel_name'] ?? '');
         $hotelResponse->setBoardBasis(($propertyGroup['board_basis'] ?? ''));
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
-        $hotelResponse->setDestination($this->destinationData);
+        $hotelResponse->setDestination($this->giata[$propertyGroup['giata_id']]['city'] ?? $this->destinationData);
 
         $hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
         $hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
@@ -216,10 +206,6 @@ class HbsiHotelPricingDto
         return $hotelResponse->toArray();
     }
 
-    /**
-     * @param array $propertyGroup
-     * @return array
-     */
     private function fetchCountRefundableRates(array $propertyGroup): array
     {
         $refundableRates = [];
@@ -235,12 +221,6 @@ class HbsiHotelPricingDto
         return ['refundable_rates' => implode(',', $refundableRates), 'non_refundable_rates' => implode(',', $nonRefundableRates)];
     }
 
-    /**
-     * @param array $roomGroup
-     * @param $propertyGroup
-     * @param int|string $supplierHotelId
-     * @return array
-     */
     public function setRoomGroupsResponse(array $roomGroup, $propertyGroup, int|string $supplierHotelId): array
     {
         $giataId = $propertyGroup['giata_id'] ?? 0;
@@ -254,8 +234,7 @@ class HbsiHotelPricingDto
 
         $currency = Arr::get($roomGroup, 'rates.Total.@attributes.CurrencyCode');
 
-        if ($currency === null)
-        {
+        if ($currency === null) {
             $currency = Arr::get($roomGroup, 'rates.0.Total.@attributes.CurrencyCode');
         }
 
@@ -265,7 +244,7 @@ class HbsiHotelPricingDto
         $rooms = [];
         $priceRoomData = [];
         foreach ($roomGroup['rates'] as $key => $room) {
-            $roomData = $this->setRoomResponse((array)$room, $propertyGroup, $giataId, $supplierHotelId);
+            $roomData = $this->setRoomResponse((array) $room, $propertyGroup, $giataId, $supplierHotelId);
             $roomResponse = $roomData['roomResponse'];
             $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
             $rooms[] = $roomResponse;
@@ -297,21 +276,36 @@ class HbsiHotelPricingDto
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
 
-    /**
-     * @param array $rate
-     * @param array $propertyGroup
-     * @param int $giataId
-     * @param int|string $supplierHotelId
-     * @return array
-     */
     public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId): array
     {
         $counts = [];
+        //        foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {
+        //            if (isset($guestCount['AgeQualifyingCode'])) $counts[$guestCount['AgeQualifyingCode']] = $guestCount['Count'];
+        //            else $counts[$guestCount['@attributes']['AgeQualifyingCode']] = $guestCount['@attributes']['Count'];
+        //        }
+        //        $rateOccupancy = $counts['10'] . '-' . ($counts['8'] ?? 0) . '-' . ($counts['7'] ?? 0);
+        //        $rateOrdinal = $rate['rate_ordinal'] ?? 0;
+
         foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {
-            if (isset($guestCount['AgeQualifyingCode'])) $counts[$guestCount['AgeQualifyingCode']] = $guestCount['Count'];
-            else $counts[$guestCount['@attributes']['AgeQualifyingCode']] = $guestCount['@attributes']['Count'];
+            if (isset($guestCount['Age'])) {
+                $counts[$guestCount['Age']] = $guestCount['Count'];
+            } else {
+                $counts[$guestCount['@attributes']['Age']] = $guestCount['@attributes']['Count'];
+            }
         }
-        $rateOccupancy = $counts['10'] . '-' . ($counts['8'] ?? 0) . '-' . ($counts['7'] ?? 0);
+
+        $adults = $children = $infants = 0;
+        foreach ($counts as $age => $count) {
+            if ($age < HbsiClient::AGE_INFANT) {
+                $infants += $count;
+            } elseif ($age < HbsiClient::AGE_CHILD) {
+                $children += $count;
+            } else {
+                $adults += $count;
+            }
+        }
+
+        $rateOccupancy = $adults.'-'.$children.'-'.$infants;
         $rateOrdinal = $rate['rate_ordinal'] ?? 0;
 
         // enrichment Pricing Rules / Application of Pricing Rules
@@ -359,8 +353,7 @@ class HbsiHotelPricingDto
                         $nonRefundable = true;
                     }
 
-                    if ($policy === PolicyCode::CXP && ($penaltyDate === null || $penaltyDate > $data['penalty_start_date']))
-                    {
+                    if ($policy === PolicyCode::CXP && ($penaltyDate === null || $penaltyDate > $data['penalty_start_date'])) {
                         $penaltyDate = $data['penalty_start_date'];
                     }
                 }
@@ -381,15 +374,14 @@ class HbsiHotelPricingDto
             }
         }
 
-        if ($penaltyDate === null)
-        {
+        if ($penaltyDate === null) {
             $penaltyDate = date('Y-m-d');
 
             $cancellationPolicies[] = [
-                'description'        => PolicyCode::CXP->value,
-                'type'               => CancellationPolicyTypesEnum::General->value,
+                'description' => PolicyCode::CXP->value,
+                'type' => CancellationPolicyTypesEnum::General->value,
                 'penalty_start_date' => $penaltyDate,
-                'percentage'         => '100',
+                'percentage' => '100',
             ];
         }
 
@@ -424,7 +416,7 @@ class HbsiHotelPricingDto
         $mealPlanName = self::MEAL_PLAN[$mealPlanCode] ?? '';
         $roomResponse->setMealPlans($mealPlanName);
 
-        if (!in_array($mealPlanName, $this->meal_plans_available)) {
+        if (! in_array($mealPlanName, $this->meal_plans_available)) {
             $this->meal_plans_available[] = $mealPlanName;
         }
 
@@ -476,7 +468,7 @@ class HbsiHotelPricingDto
             $baseFareRate = [
                 'amount' => $rate['Base']['@attributes']['AmountBeforeTax'],
                 'title' => 'Base Rate',
-                'type' => 'base_rate'
+                'type' => 'base_rate',
             ];
 
             $totals = [
@@ -490,42 +482,41 @@ class HbsiHotelPricingDto
                 foreach ($taxes as $tax) {
                     $_taxes = $tax;
 
-                    if (Arr::has($tax, '@attributes'))
-                    {
+                    if (Arr::has($tax, '@attributes')) {
                         $_taxes = [$tax];
                     }
 
-                    foreach($_taxes as $_tax)
-                    {
+                    foreach ($_taxes as $_tax) {
                         $code = strtolower($_tax['@attributes']['Code']);
                         $name = strtolower($_tax['@attributes']['Type']);
-                        if (in_array(strtolower($_tax['@attributes']['Code']), $this->fees)) $type = 'fee';
-                        if (in_array($code, $this->taxes)) $type = 'tax';
+                        if (in_array(strtolower($_tax['@attributes']['Code']), $this->fees)) {
+                            $type = 'fee';
+                        }
+                        if (in_array($code, $this->taxes)) {
+                            $type = 'tax';
+                        }
                         $taxesFeesRate[] = [
-                            'type' => $type ?? 'tax' . ' ' . $name,
+                            'type' => $type ?? 'tax'.' '.$name,
                             'amount' => $_tax['@attributes']['Amount'],
                             'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
-                                ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
+                                ? $_tax['@attributes']['Percent'].' % '.$_tax['@attributes']['Code']
                                 : $_tax['@attributes']['Code']),
                         ];
 
-
                         $taxType = strtolower($_tax['@attributes']['Type']);
 
-                        if (Arr::has($totals, "total_$taxType"))
-                        {
+                        if (Arr::has($totals, "total_$taxType")) {
                             $totals["total_$taxType"] += $_tax['@attributes']['Amount'];
                         }
                     }
                 }
             }
 
-            if ($rate['Base']['@attributes']['AmountBeforeTax'] === $rate['Base']['@attributes']['AmountAfterTax'] && $totals['total_inclusive'] > 0)
-            {
+            if ($rate['Base']['@attributes']['AmountBeforeTax'] === $rate['Base']['@attributes']['AmountAfterTax'] && $totals['total_inclusive'] > 0) {
                 $baseFareRate['amount'] -= $totals['total_inclusive'];
             }
 
-            for ($i = 0; $i < $nightsRate; $i++){
+            for ($i = 0; $i < $nightsRate; $i++) {
                 $breakdown[$night][] = $baseFareRate;
                 $breakdown[$night] = array_merge($breakdown[$night], $taxesFeesRate);
                 $night++;

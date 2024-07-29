@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
-
 class ApiBookingItem extends Model
 {
     use HasFactory;
@@ -34,8 +33,6 @@ class ApiBookingItem extends Model
 
     /**
      * Get the auto-incrementing key type.
-     *
-     * @return string
      */
     public function getKeyType(): string
     {
@@ -60,17 +57,11 @@ class ApiBookingItem extends Model
         'child_items' => 'array',
     ];
 
-    /**
-     * @return BelongsTo
-     */
     public function search(): BelongsTo
     {
         return $this->belongsTo(ApiSearchInspector::class, 'search_id', 'search_id');
     }
 
-    /**
-     * @return BelongsTo
-     */
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
@@ -78,8 +69,6 @@ class ApiBookingItem extends Model
 
     /**
      * Bootstrap the model and its traits.
-     *
-     * @return void
      */
     protected static function boot(): void
     {

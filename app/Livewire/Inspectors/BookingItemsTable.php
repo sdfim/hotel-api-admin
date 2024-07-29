@@ -21,10 +21,6 @@ class BookingItemsTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    /**
-     * @param Table $table
-     * @return Table
-     */
     public function table(Table $table): Table
     {
         return $table
@@ -40,14 +36,14 @@ class BookingItemsTable extends Component implements HasForms, HasTable
                 TextColumn::make('search.search_type')
                     ->label('Type')
                     ->numeric()
-                    ->icon(fn(ApiBookingItem $record): string => match ($record->search->search_type) {
+                    ->icon(fn (ApiBookingItem $record): string => match ($record->search->search_type) {
                         'hotel' => 'heroicon-o-home',
                         'flight' => 'heroicon-o-airplane',
                         default => 'heroicon-o-search',
                     })
                     ->toggleable()
                     ->size(TextColumn\TextColumnSize::Large)
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'hotel' => 'grey',
                         'flight' => 'success',
                         default => 'info',
@@ -88,9 +84,6 @@ class BookingItemsTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.inspectors.booking-items-table');

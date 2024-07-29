@@ -83,8 +83,8 @@ class HbsiHotelBookingRetrieveBookingDto
         $responseModel->setCurrency(Arr::get($saveResponse, 'markup', ''));
         $responseModel->setPerNightBreakdown(Arr::get($saveResponse, 'per_night_breakdown', 0));
         $responseModel->setBoardBasis('');
-//        $responseModel->setRoomName('');
-//        $responseModel->setRoomType('');
+        //        $responseModel->setRoomName('');
+        //        $responseModel->setRoomType('');
         $responseModel->setQuery($bookRequest);
         $responseModel->setSupplierBookId($supplierBookId);
         $responseModel->setConfirmationNumbers($confirmationNumbers);
@@ -92,8 +92,6 @@ class HbsiHotelBookingRetrieveBookingDto
         $responseModel->setBillingEmail(Arr::get($bookRequest, 'booking_contact.email', ''));
         $responseModel->setBillingPhone(Arr::get($bookRequest, 'booking_contact.phone', []));
 
-
         return $responseModel->toRetrieveArray();
     }
-
 }

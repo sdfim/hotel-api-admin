@@ -8,31 +8,19 @@ use Illuminate\Support\Facades\DB;
 
 class SearchInspectorRoomsDoughnutChart extends ChartWidget
 {
-    /**
-     * @var string|null
-     */
     protected static ?string $heading = 'Search Inspector Rooms Total Doughnut Chart';
 
-    /**
-     * @var string|null
-     */
     protected static ?string $pollingInterval = '3600s';
 
-    /**
-     * @var string|null
-     */
     protected static ?string $maxHeight = '500px';
 
-    /**
-     * @return array
-     */
     protected function getData(): array
     {
         $keySearchInspectorRoomsDoughnutChart = 'SearchInspectorRoomsDoughnutChart';
 
-        if (Cache::has($keySearchInspectorRoomsDoughnutChart . ':labels') && Cache::has($keySearchInspectorRoomsDoughnutChart . ':data')) {
-            $labels = Cache::get($keySearchInspectorRoomsDoughnutChart . ':labels');
-            $data = Cache::get($keySearchInspectorRoomsDoughnutChart . ':data');
+        if (Cache::has($keySearchInspectorRoomsDoughnutChart.':labels') && Cache::has($keySearchInspectorRoomsDoughnutChart.':data')) {
+            $labels = Cache::get($keySearchInspectorRoomsDoughnutChart.':labels');
+            $data = Cache::get($keySearchInspectorRoomsDoughnutChart.':data');
         } else {
             $queryResult = DB::select("
                 SELECT
@@ -53,8 +41,8 @@ class SearchInspectorRoomsDoughnutChart extends ChartWidget
             $labels = array_column($queryResult, 'destination');
             $data = array_column($queryResult, 'rooms');
 
-            Cache::put($keySearchInspectorRoomsDoughnutChart . ':labels', $labels, now()->addMinutes(60));
-            Cache::put($keySearchInspectorRoomsDoughnutChart . ':data', $data, now()->addMinutes(60));
+            Cache::put($keySearchInspectorRoomsDoughnutChart.':labels', $labels, now()->addMinutes(60));
+            Cache::put($keySearchInspectorRoomsDoughnutChart.':data', $data, now()->addMinutes(60));
         }
 
         $colors = [
@@ -69,7 +57,7 @@ class SearchInspectorRoomsDoughnutChart extends ChartWidget
             'rgb(124, 252, 0, 0.85)',
             'rgb(255, 69, 0, 0.85)',
             'rgb(255, 165, 0, 0.85)',
-            'rgb(30, 144, 255, 0.85)'
+            'rgb(30, 144, 255, 0.85)',
         ];
 
         return [
@@ -79,13 +67,10 @@ class SearchInspectorRoomsDoughnutChart extends ChartWidget
                     'data' => $data,
                     'backgroundColor' => $colors,
                 ],
-            ]
+            ],
         ];
     }
 
-    /**
-     * @return string
-     */
     protected function getType(): string
     {
         return 'doughnut';

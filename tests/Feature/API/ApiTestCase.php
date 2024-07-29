@@ -13,9 +13,6 @@ class ApiTestCase extends TestCase
      */
     protected array $headers = [];
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -27,9 +24,6 @@ class ApiTestCase extends TestCase
         $this->seederSupplier();
     }
 
-    /**
-     * @return void
-     */
     protected function seederSupplier(): void
     {
         $supplier = Supplier::firstOrNew([
@@ -50,7 +44,7 @@ class ApiTestCase extends TestCase
         $token = $channel->access_token;
 
         return [
-            'Authorization' => 'Bearer ' . $token,
+            'Authorization' => 'Bearer '.$token,
         ];
     }
 }

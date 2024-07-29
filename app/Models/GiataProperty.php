@@ -47,22 +47,8 @@ class GiataProperty extends Model
         'cross_references',
     ];
 
-    /**
-     * @var string[]
-     */
-    protected $casts = [
-        'chain' => 'json',
-        'address' => 'json',
-        'phone' => 'json',
-        'position' => 'json',
-        'cross_references' => 'json',
-    ];
-
     protected $table = 'giata_properties';
 
-    /**
-     * @param array $attributes
-     */
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -70,24 +56,31 @@ class GiataProperty extends Model
     }
 
     /**
-     * @return HasOne
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
      */
+    protected function casts(): array
+    {
+        return [
+            'chain' => 'json',
+            'address' => 'json',
+            'phone' => 'json',
+            'position' => 'json',
+            'cross_references' => 'json',
+        ];
+    }
+
     public function mapperExpediaGiata(): HasOne
     {
         return $this->hasOne(MapperExpediaGiata::class, 'giata_id', 'code');
     }
 
-    /**
-     * @return HasOne
-     */
     public function giataGeography(): HasOne
     {
         return $this->hasOne(GiataGeography::class, 'city_id', 'city_id');
     }
 
-    /**
-     * @return HasOne
-     */
     public function hbsi(): HasOne
     {
         return $this->hasOne(MapperHbsiGiata::class, 'giata_id', 'code')

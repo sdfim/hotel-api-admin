@@ -6,7 +6,6 @@ class ExceptionReportsTest extends CustomAuthorizedActionsTestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_example(): void
     {

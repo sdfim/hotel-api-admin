@@ -4,9 +4,6 @@ namespace Modules\API\PricingAPI\ResponseModels;
 
 class RoomGroupsResponseFactory
 {
-    /**
-     * @return RoomGroupsResponse
-     */
     public static function create(): RoomGroupsResponse
     {
         $roomGroupsResponse = new RoomGroupsResponse();

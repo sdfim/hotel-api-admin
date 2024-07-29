@@ -2,7 +2,6 @@
 
 namespace Modules\API\Suppliers\DTO\Expedia;
 
-use Modules\API\ContentAPI\ResponseModels\ContentDetailResponse;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponse;
 use Psr\Container\ContainerExceptionInterface;
@@ -11,6 +10,7 @@ use Psr\Container\NotFoundExceptionInterface;
 class ExpediaHotelContentDetailDto
 {
     private const TA_CLIENT = 'https://developer.expediapartnersolutions.com/terms/en';
+
     private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
 
     /**
@@ -31,8 +31,8 @@ class ExpediaHotelContentDetailDto
         }
         $viewAmenities = request()->get('category_amenities') === 'true';
 
-        $address = $supplierResponse->address['line_1'] . ', ' .
-            $supplierResponse->address['city'] . ' - ' .
+        $address = $supplierResponse->address['line_1'].', '.
+            $supplierResponse->address['city'].' - '.
             $supplierResponse->address['postal_code'];
 
         $hotelResponse = ContentDetailResponseFactory::create();
@@ -55,7 +55,7 @@ class ExpediaHotelContentDetailDto
         $hotelResponse->setGiataDestination($supplierResponse->city ?? '');
         $hotelResponse->setUserRating($supplierResponse->rating ?? '');
         $hotelResponse->setSpecialInstructions([
-            'checkin'  => $supplierResponse->checkin ?? null,
+            'checkin' => $supplierResponse->checkin ?? null,
             'checkout' => $supplierResponse->checkout ?? null,
         ]);
         $hotelResponse->setCheckInTime($supplierResponse->checkin_time ?? '');

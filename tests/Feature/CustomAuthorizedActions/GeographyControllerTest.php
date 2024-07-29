@@ -6,7 +6,6 @@ class GeographyControllerTest extends CustomAuthorizedActionsTestCase
 {
     /**
      * @test
-     * @return void
      */
     public function test_admin_geography_index_is_opening(): void
     {

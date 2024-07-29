@@ -13,7 +13,7 @@ class HbsiService
 {
     public function updateBookingItemsData(string $completeItem): void
     {
-        $room_combinations = Cache::get('room_combinations:' . $completeItem);
+        $room_combinations = Cache::get('room_combinations:'.$completeItem);
         $completeBookingItem = [];
         foreach ($room_combinations as $key => $value) {
             $bookingItem = ApiBookingItem::where('booking_item', $value)->first();
@@ -29,15 +29,25 @@ class HbsiService
             $completeBookingItem['booking_item_data']['hotel_supplier_id'] = $booking_item_data['hotel_supplier_id'];
             $completeBookingItem['booking_item_data']['hotel_id'] = $booking_item_data['hotel_id'];
 
-            if (!isset($completeBookingItem['booking_pricing_data']['total_price'])) $completeBookingItem['booking_pricing_data']['total_price'] = 0;
+            if (! isset($completeBookingItem['booking_pricing_data']['total_price'])) {
+                $completeBookingItem['booking_pricing_data']['total_price'] = 0;
+            }
             $completeBookingItem['booking_pricing_data']['total_price'] += $booking_pricing_data['total_price'];
-            if (!isset($completeBookingItem['booking_pricing_data']['total_tax'])) $completeBookingItem['booking_pricing_data']['total_tax'] = 0;
+            if (! isset($completeBookingItem['booking_pricing_data']['total_tax'])) {
+                $completeBookingItem['booking_pricing_data']['total_tax'] = 0;
+            }
             $completeBookingItem['booking_pricing_data']['total_tax'] += $booking_pricing_data['total_tax'];
-            if (!isset($completeBookingItem['booking_pricing_data']['total_fees'])) $completeBookingItem['booking_pricing_data']['total_fees'] = 0;
+            if (! isset($completeBookingItem['booking_pricing_data']['total_fees'])) {
+                $completeBookingItem['booking_pricing_data']['total_fees'] = 0;
+            }
             $completeBookingItem['booking_pricing_data']['total_fees'] += $booking_pricing_data['total_fees'];
-            if (!isset($completeBookingItem['booking_pricing_data']['total_net'])) $completeBookingItem['booking_pricing_data']['total_net'] = 0;
+            if (! isset($completeBookingItem['booking_pricing_data']['total_net'])) {
+                $completeBookingItem['booking_pricing_data']['total_net'] = 0;
+            }
             $completeBookingItem['booking_pricing_data']['total_net'] += $booking_pricing_data['total_net'];
-            if (!isset($completeBookingItem['booking_pricing_data']['markup'])) $completeBookingItem['booking_pricing_data']['markup'] = 0;
+            if (! isset($completeBookingItem['booking_pricing_data']['markup'])) {
+                $completeBookingItem['booking_pricing_data']['markup'] = 0;
+            }
             $completeBookingItem['booking_pricing_data']['markup'] += $booking_pricing_data['markup'];
             $completeBookingItem['booking_pricing_data']['rate_id'][] = $booking_pricing_data['rate_id'];
             $completeBookingItem['booking_pricing_data']['currency'] = $booking_pricing_data['currency'];
@@ -51,7 +61,6 @@ class HbsiService
             $completeBookingItem['booking_pricing_data']['supplier_room_id'][] = $booking_pricing_data['supplier_room_id'];
             $completeBookingItem['booking_pricing_data']['supplier_room_name'][] = $booking_pricing_data['supplier_room_name'];
         }
-
 
         $completeBookingItem['booking_item'] = $completeItem;
         $completeBookingItem['supplier_id'] = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
@@ -81,7 +90,6 @@ class HbsiService
         $bookingParentItem->update();
     }
 
-
     public function getArrOccupancy(array $filters): array
     {
         $arrayOccupancy = [];
@@ -89,7 +97,7 @@ class HbsiService
             $adults = $value['adults'];
             $child = 0;
             $infant = 0;
-            if (isset($value['children_ages']) && !empty($value['children_ages'])) {
+            if (isset($value['children_ages']) && ! empty($value['children_ages'])) {
                 foreach ($value['children_ages'] as $kid => $childAge) {
                     if ($childAge <= 2) {
                         $infant++;
@@ -106,8 +114,12 @@ class HbsiService
 
     private function generateCombinations($arrays, $i = 0)
     {
-        if (!isset($arrays[$i])) return [];
-        if ($i == count($arrays) - 1) return $arrays[$i];
+        if (! isset($arrays[$i])) {
+            return [];
+        }
+        if ($i == count($arrays) - 1) {
+            return $arrays[$i];
+        }
         $tmp = $this->generateCombinations($arrays, $i + 1);
         $result = [];
         foreach ($arrays[$i] as $v) {
@@ -129,7 +141,6 @@ class HbsiService
             /** loop room type  (Suite, Double, etc)*/
             foreach ($hotel['room_groups'] as $rgk => $room_groups) {
                 /** loop rate type  (Promo, BAR, etc)*/
-
                 foreach ($room_groups['rooms'] as $rk => $room) {
                     if (in_array($room['supplier_room_id'], $arrayOccupancy)) {
                         $result[$room['supplier_room_id']][] = $room['booking_item'];
@@ -145,12 +156,12 @@ class HbsiService
                 $sets = $this->generateCombinations(array_values($arr2combine));
                 $finalResult = [];
                 foreach ($sets as $set) {
-                    $uuid = (string)Str::uuid();
+                    $uuid = (string) Str::uuid();
                     $finalResult[$uuid] = $set;
                 }
                 $input[$hk]['room_combinations'] = $finalResult;
                 foreach ($finalResult as $key => $value) {
-                    $keyCache = 'room_combinations:' . $key;
+                    $keyCache = 'room_combinations:'.$key;
                     Cache::put($keyCache, $value, now()->addMinutes(120));
                 }
             }
@@ -159,4 +170,162 @@ class HbsiService
         return $input;
     }
 
+    public function mergerItems(array $input, array $singlBookingItems, int $countRooms): array
+    {
+        $result = $input;
+        $booking_items = $dataBooking = $keyBookingIitem = [];
+        foreach ($input as $hk => $hotel) {
+            $minHotelPrice = 100000;
+            /** loop room type  (Suite, Double, etc)*/
+            foreach ($hotel['room_groups'] as $rgk => $room_groups) {
+                /** loop rate type  (Promo, BAR, etc)*/
+                $occupancy = $unionRooms = $rateId = [];
+                $total_price = $total_tax = $total_fees = $total_net = $markup = [];
+                foreach ($room_groups['rooms'] as $rk => $rooms) {
+                    $rate = $rooms['rate_plan_code'];
+                    $occupancy[$rate][] = $rooms['supplier_room_id'];
+                    $rateId[$rate][] = $rooms['rate_id'];
+
+                    $total_price[$rate] = ($total_price[$rate] ?? 0) + round($rooms['total_price'], 2);
+                    $total_tax[$rate] = ($total_tax[$rate] ?? 0) + round($rooms['total_tax'], 2);
+                    $total_fees[$rate] = ($total_fees[$rate] ?? 0) + round($rooms['total_fees'], 2);
+                    $total_net[$rate] = ($total_net[$rate] ?? 0) + round($rooms['total_net'], 2);
+                    $markup[$rate] = ($markup[$rate] ?? 0) + round($rooms['markup'], 2);
+
+                    $item = $hotel['giata_hotel_id'].'_'.$rooms['supplier_room_name'].'_'.$rate;
+                    $search_result = array_search($item, array_column($keyBookingIitem, 'key'));
+                    if ($search_result !== false) {
+                        $booking_item = $keyBookingIitem[$search_result]['booking_item'];
+                    } else {
+                        $booking_item = (string) Str::uuid();
+                        $keyBookingIitem[] = [
+                            'key' => $item,
+                            'booking_item' => $booking_item,
+                        ];
+                    }
+                    $booking_items[$booking_item][] = $rooms['booking_item'];
+
+                    $unionRooms[$rate] = $rooms;
+                    $unionRooms[$rate]['total_price'] = round($total_price[$rate], 2);
+                    $unionRooms[$rate]['total_tax'] = round($total_tax[$rate], 2);
+                    $unionRooms[$rate]['total_fees'] = round($total_fees[$rate], 2);
+                    $unionRooms[$rate]['total_net'] = round($total_net[$rate], 2);
+                    $unionRooms[$rate]['markup'] = round($markup[$rate], 2);
+                    $unionRooms[$rate]['supplier_room_id'] = implode(';', $occupancy[$rate]);
+                    $unionRooms[$rate]['rate_id'] = implode(';', $rateId[$rate]);
+                    $unionRooms[$rate]['booking_item'] = $booking_item;
+
+                    $dataBooking[$booking_item] = $unionRooms[$rate];
+                    $dataBooking[$booking_item]['hotel_id'] = $hotel['giata_hotel_id'];
+                    $dataBooking[$booking_item]['hotel_supplier_id'] = $hotel['supplier_hotel_id'];
+                }
+                foreach ($unionRooms as $rate => $room) {
+                    if (count(explode(';', $room['supplier_room_id'])) < $countRooms) {
+                        unset($unionRooms[$rate]);
+                    }
+                }
+                $result[$hk]['room_groups'][$rgk]['rooms'] = array_values($unionRooms);
+                $total_prices = array_column($result[$hk]['room_groups'][$rgk]['rooms'], 'total_price');
+                $min_price = ! empty($total_prices) ? min($total_prices) : 0;
+                $min_rate_keys = array_keys($total_price, $min_price);
+                if (count($min_rate_keys) == 0) {
+                    unset($result[$hk]['room_groups'][$rgk]);
+
+                    continue;
+                }
+                $minGroupePrice = $unionRooms[$min_rate_keys[0]];
+                $result[$hk]['room_groups'][$rgk]['total_price'] = round($minGroupePrice['total_price'], 2);
+                $result[$hk]['room_groups'][$rgk]['total_tax'] = round($minGroupePrice['total_tax'], 2);
+                $result[$hk]['room_groups'][$rgk]['total_fees'] = round($minGroupePrice['total_fees'], 2);
+                $result[$hk]['room_groups'][$rgk]['total_net'] = round($minGroupePrice['total_net'], 2);
+                $result[$hk]['room_groups'][$rgk]['markup'] = round($minGroupePrice['markup'], 2);
+                if ($minHotelPrice > $minGroupePrice['total_price']) {
+                    $minHotelPrice = round($minGroupePrice['total_price'], 2);
+                }
+            }
+            $result[$hk]['lowest_priced_room_group'] = $minHotelPrice;
+
+            if (empty($result[$hk]['room_groups'])) {
+                unset($result[$hk]);
+            }
+        }
+
+        foreach ($booking_items as $booking_item => $items) {
+            if (count($items) < $countRooms) {
+                unset($booking_items[$booking_item]);
+            }
+        }
+
+        if (! $this->validate($result)) {
+            return ['error' => 'Invalid response'];
+        }
+
+        $booking_items = $this->updateBookingItems($booking_items, $singlBookingItems, $dataBooking);
+
+        return [
+            'response' => $result,
+            'bookingItems' => $booking_items,
+        ];
+    }
+
+    private function validate(array $result): bool
+    {
+        $res = true;
+        foreach ($result as $hk => $hotel) {
+            $hotelResponse = new HotelResponse();
+            if (! $hotelResponse->validateArrayKeys($hotel)) {
+                $res = false;
+            }
+            foreach ($hotel['room_groups'] as $rgk => $room_groups) {
+                $roomGroups = new RoomGroupsResponse();
+                if (! $roomGroups->validateArrayKeys($room_groups)) {
+                    $res = false;
+                }
+                foreach ($room_groups['rooms'] as $rk => $rooms) {
+                    $room = new RoomResponse();
+                    if (! $room->validateArrayKeys($rooms)) {
+                        $res = false;
+                    }
+                }
+            }
+        }
+
+        return $res;
+    }
+
+    private function updateBookingItems(array $bookingItems, array $singlBookingItems, array $dataBooking): array
+    {
+        $result = [];
+        foreach ($bookingItems as $booking_item => $items) {
+            $bookingItem['booking_item'] = $booking_item;
+            $bookingItem['supplier_id'] = $this->supplier_id;
+            $bookingItem['search_id'] = $singlBookingItems[0]['search_id'];
+            $bookingItem['booking_item_data'] = json_encode([
+                'hotel_id' => $dataBooking[$booking_item]['hotel_id'],
+                'hotel_supplier_id' => $dataBooking[$booking_item]['hotel_supplier_id'],
+                'room_id' => $dataBooking[$booking_item]['supplier_room_name'],
+                'rate_ordinal' => $dataBooking[$booking_item]['rate_id'],
+                'rate_type' => $this->rate_type,
+                'rate_occupancy' => $dataBooking[$booking_item]['supplier_room_id'],
+            ]);
+            $bookingItem['rate_type'] = $this->rate_type;
+            $bookingItem['booking_pricing_data'] = json_encode($dataBooking[$booking_item]);
+            $bookingItem['complete_id'] = null;
+            $bookingItem['created_at'] = Carbon::now();
+            $result[] = $bookingItem;
+        }
+        foreach ($singlBookingItems as &$singleBookingItem) {
+            foreach ($bookingItems as $key => $subArray) {
+                if (in_array($singleBookingItem['booking_item'], $subArray)) {
+                    $singleBookingItem['complete_id'] = $key;
+                    break;
+                } else {
+                    $singleBookingItem['complete_id'] = null;
+                }
+            }
+        }
+
+        return array_merge($result, $singlBookingItems);
+
+    }
 }

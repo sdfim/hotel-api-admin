@@ -8,31 +8,19 @@ use Illuminate\Support\Facades\DB;
 
 class SearchInspectorChildrenDoughnutChart extends ChartWidget
 {
-    /**
-     * @var string|null
-     */
     protected static ?string $heading = 'Search Inspector Children Total Doughnut Chart';
 
-    /**
-     * @var string|null
-     */
     protected static ?string $pollingInterval = '3600s';
 
-    /**
-     * @var string|null
-     */
     protected static ?string $maxHeight = '500px';
 
-    /**
-     * @return array
-     */
     protected function getData(): array
     {
         $keySearchInspectorChildrenDoughnutChart = 'SearchInspectorChildrenDoughnutChart';
 
-        if (Cache::has($keySearchInspectorChildrenDoughnutChart . ':labels') && Cache::has($keySearchInspectorChildrenDoughnutChart . ':data')) {
-            $labels = Cache::get($keySearchInspectorChildrenDoughnutChart . ':labels');
-            $data = Cache::get($keySearchInspectorChildrenDoughnutChart . ':data');
+        if (Cache::has($keySearchInspectorChildrenDoughnutChart.':labels') && Cache::has($keySearchInspectorChildrenDoughnutChart.':data')) {
+            $labels = Cache::get($keySearchInspectorChildrenDoughnutChart.':labels');
+            $data = Cache::get($keySearchInspectorChildrenDoughnutChart.':data');
         } else {
             $queryResult = DB::select("
                 SELECT
@@ -55,8 +43,8 @@ class SearchInspectorChildrenDoughnutChart extends ChartWidget
             $labels = array_column($queryResult, 'destination');
             $data = array_column($queryResult, 'children');
 
-            Cache::put($keySearchInspectorChildrenDoughnutChart . ':labels', $labels, now()->addMinutes(60));
-            Cache::put($keySearchInspectorChildrenDoughnutChart . ':data', $data, now()->addMinutes(60));
+            Cache::put($keySearchInspectorChildrenDoughnutChart.':labels', $labels, now()->addMinutes(60));
+            Cache::put($keySearchInspectorChildrenDoughnutChart.':data', $data, now()->addMinutes(60));
         }
 
         $colors = [
@@ -71,7 +59,7 @@ class SearchInspectorChildrenDoughnutChart extends ChartWidget
             'rgb(124, 252, 0, 0.85)',
             'rgb(255, 69, 0, 0.85)',
             'rgb(255, 165, 0, 0.85)',
-            'rgb(30, 144, 255, 0.85)'
+            'rgb(30, 144, 255, 0.85)',
         ];
 
         return [
@@ -81,13 +69,10 @@ class SearchInspectorChildrenDoughnutChart extends ChartWidget
                     'data' => $data,
                     'backgroundColor' => $colors,
                 ],
-            ]
+            ],
         ];
     }
 
-    /**
-     * @return string
-     */
     protected function getType(): string
     {
         return 'doughnut';

@@ -23,10 +23,6 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    /**
-     * @param Table $table
-     * @return Table
-     */
     public function table(Table $table): Table
     {
         return $table
@@ -40,7 +36,7 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                 TextColumn::make('status')
 //                    ->searchable(isIndividual: true)
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'error' => 'danger',
                         'success' => 'success',
                         default => 'gray',
@@ -95,9 +91,6 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
             ]);
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.inspectors.search-inspector-table');

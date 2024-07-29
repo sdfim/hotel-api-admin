@@ -22,7 +22,8 @@ class SaveBookingMetadata implements ShouldQueue
     public function __construct(
         private readonly array $filters,
         private readonly array $reservation
-    ) {}
+    ) {
+    }
 
     /**
      * Execute the job.
@@ -37,14 +38,14 @@ class SaveBookingMetadata implements ShouldQueue
         }
 
         ApiBookingsMetadata::insert([
-            'booking_item'              => $bookingItem,
-            'booking_id'                => Arr::get($this->filters, 'booking_id'),
-            'supplier_id'               => Arr::get($this->filters, 'supplier_id'),
-            'supplier_booking_item_id'  => Arr::get($this->reservation, 'bookingId'),
-            'hotel_supplier_id'         => $hotelId,
-            'booking_item_data'         => json_encode($this->reservation),
-            'created_at'                => Carbon::now(),
-            'updated_at'                => Carbon::now(),
+            'booking_item' => $bookingItem,
+            'booking_id' => Arr::get($this->filters, 'booking_id'),
+            'supplier_id' => Arr::get($this->filters, 'supplier_id'),
+            'supplier_booking_item_id' => Arr::get($this->reservation, 'bookingId'),
+            'hotel_supplier_id' => $hotelId,
+            'booking_item_data' => json_encode($this->reservation),
+            'created_at' => Carbon::now(),
+            'updated_at' => Carbon::now(),
         ]);
     }
 }

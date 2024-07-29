@@ -15,7 +15,6 @@ class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_validation_of_property_weighting_form_during_creation(): void
     {
@@ -33,7 +32,6 @@ class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_property_weighting_form_validation_and_possibility_of_creating_new_property_weighting(): void
     {
@@ -55,7 +53,6 @@ class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_property_weighting_index_is_opening(): void
     {
@@ -66,7 +63,6 @@ class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_property_weighting_creating_is_opening(): void
     {
@@ -77,7 +73,6 @@ class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_property_weighting_showing_is_opening(): void
     {
@@ -90,7 +85,6 @@ class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_updating_an_existing_property_weighting(): void
     {

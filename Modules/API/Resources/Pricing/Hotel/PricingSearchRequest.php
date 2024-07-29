@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *   description="Pricing Search Request",
  *   type="object",
  *   required={"type", "checkin", "checkout", "destination", "occupancy"},
+ *
  *   @OA\Property(
  *     property="type",
  *     type="string",
@@ -66,9 +67,11 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *     property="occupancy",
  *     description="Occupancy of the hotel",
  *     type="array",
+ *
  *     @OA\Items(
  *       type="object",
  *       required={"adults"},
+ *
  *       @OA\Property(
  *         property="adults",
  *         description="Number of adults (e.g., '2').",
@@ -85,6 +88,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *         property="children_ages",
  *         description="Ages of children (e.g., '2, 4').",
  *         type="array",
+ *
  *         @OA\Items(
  *           type="integer",
  *           example="2"
@@ -93,6 +97,7 @@ namespace Modules\API\Resources\Pricing\Hotel;
  *     )
  *   )
  * ),
+ *
  * @OA\Examples(
  *        example="PricingSearchRequestPlaceCancun",
  *        summary="Pricing Search Cancun, country MX, airport CUN using Place",

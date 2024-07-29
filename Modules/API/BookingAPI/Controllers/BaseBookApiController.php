@@ -13,11 +13,7 @@ use Modules\Enums\TypeRequestEnum;
 
 class BaseBookApiController extends BaseController
 {
-    /**
-     * @param ApiBookingInspector $bookingInspector
-     * @return array|null
-     */
-    public function retrieveItem(ApiBookingInspector $bookingInspector): array|null
+    public function retrieveItem(ApiBookingInspector $bookingInspector): ?array
     {
         $apiBookingItem = ApiBookingItem::where('booking_item', $bookingInspector->booking_item)->first();
         $booking_item_data = json_decode($apiBookingItem->booking_item_data, true);
@@ -48,8 +44,6 @@ class BaseBookApiController extends BaseController
     }
 
     /**
-     * @param string $booking_id
-     * @param string $booking_item
      * @return array[]
      */
     public function tailBookResponse(string $booking_id, string $booking_item): array
@@ -58,27 +52,21 @@ class BaseBookApiController extends BaseController
             'links' => [
                 'remove' => [
                     'method' => 'DELETE',
-                    'href' => '/api/booking/cancel-booking?booking_id=' . $booking_id . '&booking_item=' . $booking_item,
+                    'href' => '/api/booking/cancel-booking?booking_id='.$booking_id.'&booking_item='.$booking_item,
                 ],
                 'change' => [
                     'method' => 'PUT',
-                    'href' => '/api/booking/change-booking?booking_id=' . $booking_id . '&booking_item=' . $booking_item,
+                    'href' => '/api/booking/change-booking?booking_id='.$booking_id.'&booking_item='.$booking_item,
                 ],
                 'retrieve' => [
                     'method' => 'GET',
-                    'href' => '/api/booking/retrieve-booking?booking_id=' . $booking_id,
+                    'href' => '/api/booking/retrieve-booking?booking_id='.$booking_id,
                 ],
             ],
         ];
     }
 
-    /**
-     * @param array $filters
-     * @param array $passengersData
-     * @param string $supplierName
-     * @return array|null
-     */
-    public function addPassengers(array $filters, array $passengersData, string $supplierName): array|null
+    public function addPassengers(array $filters, array $passengersData, string $supplierName): ?array
     {
         $booking_id = $filters['booking_id'];
         $filters['search_id'] = ApiBookingInspector::where('booking_item', $filters['booking_item'])->first()->search_id;
@@ -92,12 +80,13 @@ class BaseBookApiController extends BaseController
         $countRooms = count(json_decode($apiSearchInspector, true)['occupancy']);
 
         $type = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->search_type;
-        if (TypeRequestEnum::from($type) === TypeRequestEnum::HOTEL)
+        if (TypeRequestEnum::from($type) === TypeRequestEnum::HOTEL) {
             for ($i = 1; $i <= $countRooms; $i++) {
                 if (array_key_exists($i, $passengersData['rooms'])) {
                     $filters['rooms'][] = $passengersData['rooms'][$i]['passengers'];
                 }
             }
+        }
 
         if ($bookingItem->get()->count() > 0) {
             $bookingItem->delete();

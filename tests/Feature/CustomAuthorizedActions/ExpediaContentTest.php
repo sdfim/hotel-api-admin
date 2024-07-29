@@ -10,14 +10,8 @@ use Livewire\Livewire;
 
 class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 {
-    /**
-     * @var Model|Collection|ExpediaContent|null
-     */
     private Collection|ExpediaContent|Model|null $expedia = null;
 
-    /**
-     * @return void
-     */
     protected function setUp(): void
     {
         parent::setUp();
@@ -27,7 +21,6 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_expedia_table_index_is_opening(): void
     {
@@ -38,7 +31,6 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_expedia_table_is_rendering_with_its_columns(): void
     {
@@ -58,7 +50,6 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_property_id(): void
     {
@@ -72,7 +63,6 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_name(): void
     {
@@ -86,7 +76,6 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_rating(): void
     {
@@ -101,7 +90,6 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_city(): void
     {
@@ -115,7 +103,6 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_latitude(): void
     {
@@ -129,7 +116,6 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_longitude(): void
     {
@@ -143,7 +129,6 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_phone(): void
     {
@@ -157,7 +142,6 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_address(): void
     {
@@ -170,13 +154,11 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
             }))
             ->assertCanNotSeeTableRecords($this->expedia->filter(function ($item) use ($address) {
                 return json_decode($item->address, true)['line_1'] !== $address;
-            }))
-        ;
+            }));
     }
 
     /**
      * @test
-     * @return void
      */
     public function test_possibility_of_searching_by_is_active(): void
     {

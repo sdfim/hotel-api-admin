@@ -23,10 +23,6 @@ class ReservationsTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    /**
-     * @param Table $table
-     * @return Table
-     */
     public function table(Table $table): Table
     {
         return $table
@@ -44,8 +40,13 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->state(function (Reservation $record) {
                         $reservationContains = json_decode($record->reservation_contains, true);
                         $images = [];
-                        if (isset($reservationContains['hotel_images'])) $images = json_decode($reservationContains['hotel_images']);
-                        if (isset($reservationContains['flight_images'])) $images = json_decode($reservationContains['flight_images']);
+                        if (isset($reservationContains['hotel_images'])) {
+                            $images = json_decode($reservationContains['hotel_images']);
+                        }
+                        if (isset($reservationContains['flight_images'])) {
+                            $images = json_decode($reservationContains['flight_images']);
+                        }
+
                         return $images;
                     })
                     ->circular()
@@ -53,13 +54,13 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->limit(4)
                     ->size(45)
                     ->limitedRemainingText(isSeparate: true)
-                    ->url(fn(Reservation $record): string => route('reservations.show', $record))
+                    ->url(fn (Reservation $record): string => route('reservations.show', $record))
                     ->openUrlInNewTab(),
                 TextColumn::make('date_offload')
                     ->default('N\A')
                     ->searchable(isIndividual: true)
                     ->badge()
-                    ->color(fn(string $state): string => match ($state) {
+                    ->color(fn (string $state): string => match ($state) {
                         'N\A' => 'info',
                         default => 'success',
                     })
@@ -77,6 +78,7 @@ class ReservationsTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->money(function (Reservation $reservation) {
                         $price = json_decode($reservation->reservation_contains, true)['price'] ?? [];
+
                         return $price['currency'] ?? 'USD';
                     })
                     ->color(function (Reservation $reservation) {
@@ -110,21 +112,18 @@ class ReservationsTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn(Reservation $record): string => route('reservations.show', $record)),
+                        ->url(fn (Reservation $record): string => route('reservations.show', $record)),
                     Action::make('Cancel')
                         ->requiresConfirmation()
                         ->action(function (Reservation $record) {
                             $record->update(['canceled_at' => date('Y-m-d H:i:s')]);
                         })
                         ->icon('heroicon-s-x-circle')
-                        ->color('danger')
+                        ->color('danger'),
                 ])->color('gray'),
             ]);
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.reservations-table');

@@ -9,6 +9,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *   description="Schema Booking Add Booking Request",
  *   type="object",
  *   required={"query"},
+ *
  *   @OA\Property(
  *     property="query",
  *     type="object",
@@ -45,6 +46,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *     )
  *   )
  * ),
+ *
  * @OA\Examples(
  *     example="BookingChangeBookingRequest",
  *     summary="Example Booking Change Booking Request",

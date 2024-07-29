@@ -9,24 +9,13 @@ use Modules\API\BookingAPI\Controllers\BookingApiHandlerInterface;
 
 class ComboBookingApiHandler extends BaseController implements BookingApiHandlerInterface
 {
-    /**
-     * @param Request $request
-     * @param string $supplier
-     * @return JsonResponse
-     */
     public function addItem(Request $request, string $supplier): JsonResponse
     {
         return response()->json(['message' => 'This page is in development'], 503);
     }
 
-    /**
-     * @param Request $request
-     * @param string $supplier
-     * @return JsonResponse
-     */
     public function removeItem(Request $request, string $supplier): JsonResponse
     {
         return response()->json(['message' => 'This page is in development'], 503);
     }
-
 }

@@ -17,30 +17,16 @@ class UpdateChannelsForm extends Component implements HasForms
 {
     use InteractsWithForms;
 
-    /**
-     * @var array|null
-     */
     public ?array $data = [];
 
-    /**
-     * @var Channel
-     */
     public Channel $record;
 
-    /**
-     * @param Channel $channel
-     * @return void
-     */
     public function mount(Channel $channel): void
     {
         $this->record = $channel;
         $this->form->fill($this->record->attributesToArray());
     }
 
-    /**
-     * @param Form $form
-     * @return Form
-     */
     public function form(Form $form): Form
     {
         return $form
@@ -57,9 +43,6 @@ class UpdateChannelsForm extends Component implements HasForms
             ->model($this->record);
     }
 
-    /**
-     * @return Redirector|RedirectResponse
-     */
     public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
@@ -69,12 +52,10 @@ class UpdateChannelsForm extends Component implements HasForms
             ->title('Updated successfully')
             ->success()
             ->send();
+
         return redirect()->route('channels.index');
     }
 
-    /**
-     * @return View
-     */
     public function render(): View
     {
         return view('livewire.channels.update-channels-form');
