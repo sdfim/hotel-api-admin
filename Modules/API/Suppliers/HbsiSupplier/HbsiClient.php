@@ -131,8 +131,7 @@ class HbsiClient
         $hotelId = ApiBookingItemRepository::getHotelSupplierId($filters['booking_item']);
 
         $bodyQuery = $this->makeRequest($this->hotelResRQ($filters), 'HotelResRQ', $hotelId);
-        \Log::debug($bodyQuery);
-        return ['error' => 'SIIiiiiiiiiiiuuUU'];
+
         return $this->executeApiRequest(function () use ($bodyQuery) {
             return $this->sendRequest($bodyQuery);
         }, $inspectorBook, $bodyQuery);
@@ -562,7 +561,7 @@ class HbsiClient
             foreach ($guestRoom as $guest) {
                 $dob = Carbon::parse($guest['date_of_birth']);
                 $diff = $dob->diff(Carbon::now(), true);
-                $age = $diff->y;
+                $age = Arr::get($guest, 'age', $diff->y);
 
                 $resGuestsArr[$index] = $this->createGuestArr($index, $age, $guest, $filters);
                 if ($index === 0) {
@@ -583,8 +582,8 @@ class HbsiClient
             foreach ($guestRoom as $guest) {
                 $dob = Carbon::parse($guest['date_of_birth']);
                 $diff = $dob->diff(Carbon::now(), true);
-                \Log::info($diff->y);
-                $age = $diff->y < self::AGE_CHILD ? $diff->y : self::AGE_ADULTS;
+
+                $age = Arr::get($guest, 'age', $diff->y < self::AGE_CHILD ? $diff->y : self::AGE_ADULTS);
 
                 $resGuestsArr[$index] = $this->createGuestArrByAge($index, $age, $guest, $filters);
                 if ($index === 0) {

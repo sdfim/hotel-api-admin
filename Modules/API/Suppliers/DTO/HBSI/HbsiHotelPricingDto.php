@@ -298,6 +298,7 @@ class HbsiHotelPricingDto
         foreach ($counts as $age => $count) {
             if ($age < 0)
             {
+                $adults += $count;
                 $unknown += $count;
             } elseif ($age < HbsiClient::AGE_INFANT) {
                 $infants += $count;
