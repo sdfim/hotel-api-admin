@@ -218,7 +218,7 @@ class ApiBookingInspectorRepository
             ->where('status', '!=', InspectorStatusEnum::ERROR->value);
 
         if ($changeQb->exists()) {
-            return $changeQb->first();
+            return $changeQb->orderByDesc('created_at')->first();
         }
 
         return ApiBookingInspector::where('booking_id', $booking_id)

@@ -436,7 +436,7 @@ class HbsiClient
         $guests = json_decode($passengersData->request, true)['rooms'];
 
         $roomStaysArr = $this->processRoomStaysArr($response, $bookingItemData, $filters, $guests);
-        $resGuestsArr = $this->processResGuestsArr($guests, $filters);
+        $resGuestsArr = $this->processResGuestsArrByAge($guests, $filters);
         $resGlobalInfoArr = isset ($filters['credit_cards']) ? $this->processDepositPaymentsArr($filters, $roomStaysArr) : [];
 
         // info about booking
@@ -808,7 +808,7 @@ class HbsiClient
     private function processDepositPaymentsArr(array $filters, array $roomStaysArr): array
     {
         $depositPaymentsArr = [];
-        foreach ($filters['credit_cards'] as $creditCard) {
+        foreach ($filters['credit_cards'] ?? [] as $creditCard) {
             if ($creditCard['booking_item'] === $filters['booking_item']) {
                 $amount = 0;
                 foreach ($roomStaysArr as $roomStay) {

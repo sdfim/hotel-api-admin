@@ -188,9 +188,14 @@ class BookApiHandler extends BaseController
             $passenger['booking_items'] = [['room' => $passenger['room'], 'booking_item' => $filters['booking_item']]];
         }
 
-        $apiBookingInspector = ApiBookingInspector::where('booking_id', $request->booking_id)
-            ->where('booking_item', $request->booking_item)->first();
-        $apiSearchInspector = ApiSearchInspector::where('search_id', $apiBookingInspector->search_id)->first()->request;
+        if (isset($filters['search_id'])) {
+            $searchId = $filters['search_id'];
+        } else {
+            $apiBookingInspector = ApiBookingInspector::where('booking_id', $request->booking_id)
+                ->where('booking_item', $request->booking_item)->first();
+            $searchId = $apiBookingInspector->search_id;
+        }
+        $apiSearchInspector = ApiSearchInspector::where('search_id', $searchId)->first()->request;
         $countRooms = count(json_decode($apiSearchInspector, true)['occupancy']);
 
         $passengersData = $this->dtoAddPassengers(['passengers' => $passengers])[$request->booking_item];
