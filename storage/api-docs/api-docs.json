@@ -561,7 +561,65 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "$ref": "#/components/schemas/BookingChangeSoftBookingRequest"
+                                "properties": {
+                                    "booking_id": {
+                                        "description": "ID of the booking",
+                                        "type": "string",
+                                        "example": "a7b8c9d0-e1f2-3456-7890-abcd1234efgh"
+                                    },
+                                    "booking_item": {
+                                        "description": "ID of the booking item",
+                                        "type": "string",
+                                        "example": "f1e2d3c4-b5a6-7890-cd12-ef34gh56ij78"
+                                    },
+                                    "passengers": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "title": {
+                                                    "description": "Title of the passenger",
+                                                    "type": "string",
+                                                    "example": "Mr"
+                                                },
+                                                "given_name": {
+                                                    "description": "Given name of the passenger",
+                                                    "type": "string",
+                                                    "example": "John"
+                                                },
+                                                "family_name": {
+                                                    "description": "Family name of the passenger",
+                                                    "type": "string",
+                                                    "example": "Doe"
+                                                },
+                                                "room": {
+                                                    "description": "Room number",
+                                                    "type": "integer",
+                                                    "example": 101
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "special_requests": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "special_request": {
+                                                    "description": "Special request",
+                                                    "type": "string",
+                                                    "example": "Late check-in"
+                                                },
+                                                "room": {
+                                                    "description": "Room number for the special request",
+                                                    "type": "integer",
+                                                    "example": 101
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
                             }
                         }
                     }

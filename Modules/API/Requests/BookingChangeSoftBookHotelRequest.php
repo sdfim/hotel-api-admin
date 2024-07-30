@@ -14,17 +14,75 @@ class BookingChangeSoftBookHotelRequest extends ApiRequest
      *   path="/api/booking/change/soft-change",
      *   summary="Soft Modify an existing booking.",
      *   description="Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
-     *
-     *
      *   @OA\RequestBody(
      *     description="JSON object containing the details of the reservation.",
      *     required=true,
      *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingChangeSoftBookingRequest"
+     *       type="object",
+     *       @OA\Property(
+     *         property="booking_id",
+     *         type="string",
+     *         description="ID of the booking",
+     *         example="a7b8c9d0-e1f2-3456-7890-abcd1234efgh"
+     *       ),
+     *       @OA\Property(
+     *         property="booking_item",
+     *         type="string",
+     *         description="ID of the booking item",
+     *         example="f1e2d3c4-b5a6-7890-cd12-ef34gh56ij78"
+     *       ),
+     *       @OA\Property(
+     *         property="passengers",
+     *         type="array",
+     *         @OA\Items(
+     *           type="object",
+     *           @OA\Property(
+     *             property="title",
+     *             type="string",
+     *             description="Title of the passenger",
+     *             example="Mr"
+     *           ),
+     *           @OA\Property(
+     *             property="given_name",
+     *             type="string",
+     *             description="Given name of the passenger",
+     *             example="John"
+     *           ),
+     *           @OA\Property(
+     *             property="family_name",
+     *             type="string",
+     *             description="Family name of the passenger",
+     *             example="Doe"
+     *           ),
+     *           @OA\Property(
+     *             property="room",
+     *             type="integer",
+     *             description="Room number",
+     *             example=101
+     *           )
+     *         )
+     *       ),
+     *       @OA\Property(
+     *         property="special_requests",
+     *         type="array",
+     *         @OA\Items(
+     *           type="object",
+     *           @OA\Property(
+     *             property="special_request",
+     *             type="string",
+     *             description="Special request",
+     *             example="Late check-in"
+     *           ),
+     *           @OA\Property(
+     *             property="room",
+     *             type="integer",
+     *             description="Room number for the special request",
+     *             example=101
+     *           )
+     *         )
+     *       )
      *     )
      *   ),
-     *
-     *
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
@@ -50,19 +108,16 @@ class BookingChangeSoftBookHotelRequest extends ApiRequest
         return [
             'booking_id' => 'required|size:36',
             'booking_item' => 'required|size:36',
-            'query' => 'required_without:passengers|array',
-            'query.given_name' => 'required_with:query|string|between:1,255',
-            'query.family_name' => 'required_with:query|string|between:1,255',
-            'query.smoking' => 'required_with:query|boolean',
-            'query.special_request' => 'string|max:255',
-            'query.loyalty_id' => 'string|max:10',
 
             'passengers' => 'required_without:query|array',
             'passengers.*.title' => 'required_with:passengers|in:mr,Mr,MR,ms,Ms,MS,Mrs,MRS,mrs,Miss,MISS,miss,Dr,dr,DR,Prof,prof,PROF',
             'passengers.*.given_name' => 'required_with:passengers|string|between:1,255',
             'passengers.*.family_name' => 'required_with:passengers|string|between:1,255',
-            'passengers.*.date_of_birth' => 'required_with:passengers|date_format:Y-m-d',
             'passengers.*.room' => 'numeric',
+
+            'special_requests' => 'array',
+            'special_requests.*.special_request' => 'string|max:255',
+            'special_requests.*.room' => 'numeric',
         ];
     }
 
