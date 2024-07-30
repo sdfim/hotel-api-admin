@@ -200,9 +200,18 @@ class ExpediaBookApiController extends BaseBookApiController
             $booking_id, $filters, $supplierId, 'book', 'change-soft', 'hotel',
         ]);
 
+        $given_name = Arr::get($filters, 'passengers.0.given_name', null);
+        $family_name = Arr::get($filters, 'passengers.0.family_name', null);
+        $special_request = Arr::get($filters, 'special_requests.0.special_request', null);
+        if ($given_name) $bodyArr['given_name'] = $given_name;
+        if ($family_name) $bodyArr['family_name'] = $family_name;
+        if ($special_request) $bodyArr['special_request'] = $special_request;
+
+        if (empty($bodyArr)) return ['error' => 'No data to change.'];
+
         // Booking PUT query
         $props = $this->getPathParamsFromLink($linkPutMethod);
-        $bodyArr = $filters['query'];
+//        $bodyArr = $filters['query'];
         $body = json_encode($bodyArr);
 
         $originalRQ = [
@@ -238,7 +247,7 @@ class ExpediaBookApiController extends BaseBookApiController
 
         SaveBookingInspector::dispatch($bookingInspector, $dataResponse, $dataResponse);
 
-        return (array) $dataResponse;
+//        return (array) $dataResponse;
         // run retrieveBooking to get the updated booking
         $item = ApiBookingsMetadataRepository::bookedItem($filters['booking_id'], $filters['booking_item'])->first();
         $this->retrieveBooking($filters, $item);

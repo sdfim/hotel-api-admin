@@ -11,18 +11,19 @@ class BookingApiRoutes
     public static function routes(): void
     {
         Route::middleware('auth:sanctum')->prefix('booking')->group(function () {
+            // Section Basket
             Route::post('/add-item', [RouteBookingApiController::class, 'handle'])->name('addItem');
             Route::delete('/remove-item', [RouteBookingApiController::class, 'handle'])->name('removeItem');
             Route::get('/retrieve-items', [BookApiHandler::class, 'retrieveItems'])->name('retrieveItems');
             Route::post('/add-passengers', [BookApiHandler::class, 'addPassengers'])->name('addPassengers');
-
+            // Section Booking
             Route::post('/book', [BookApiHandler::class, 'book'])->name('book');
             Route::get('/list-bookings', [BookApiHandler::class, 'listBookings'])->name('listBookings');
             Route::get('/retrieve-booking', [BookApiHandler::class, 'retrieveBooking'])->name('retrieveBooking');
             Route::delete('/cancel-booking', [BookApiHandler::class, 'cancelBooking'])->name('cancelBooking');
-
-            Route::post('/change/availability', [BookApiHandler::class, 'availabilityChange'])->name('availabilityChange');
+            // Section Change Booking
             Route::put('/change/soft-change', [BookApiHandler::class, 'changeSoftBooking'])->name('changeSoftBooking');
+            Route::post('/change/availability', [BookApiHandler::class, 'availabilityChange'])->name('availabilityChange');
             Route::put('/change/hard-change', [BookApiHandler::class, 'changeHardBooking'])->name('changeHardBooking');
         });
     }

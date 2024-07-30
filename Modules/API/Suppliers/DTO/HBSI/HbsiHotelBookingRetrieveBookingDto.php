@@ -50,17 +50,31 @@ class HbsiHotelBookingRetrieveBookingDto
         }, $inputConfirmationNumbers);
         //endregion
 
-        $rooms[] = [
-            'checkin' => Arr::get($dataResponse, 'ReservationsList.HotelReservation.RoomStays.RoomStay.TimeSpan.@attributes.Start'),
-            'checkout' => Arr::get($dataResponse, 'ReservationsList.HotelReservation.RoomStays.RoomStay.TimeSpan.@attributes.End'),
-            'number_of_adults' => Arr::get($bookingItemData, 'rate_occupancy')
-                ? explode('-', Arr::get($bookingItemData, 'rate_occupancy.0'))
-                : 0,
-            'given_name' => Arr::get($mainGuest, 'PersonName.GivenName'),
-            'family_name' => Arr::get($mainGuest, 'PersonName.Surname'),
-            'room_name' => $saveResponse['rooms']['room_name'] ?? '',
-            'room_type' => $saveResponse['room_type'] ?? '',
-        ];
+        $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+        $guests = json_decode($passengersData->request, true)['rooms'];
+
+        $dataStays = [];
+        if (array_key_first($dataResponse['ReservationsList']['HotelReservation']['RoomStays']['RoomStay']) == '@attributes') {
+            $dataStays[] = $dataResponse['ReservationsList']['HotelReservation']['RoomStays']['RoomStay'];
+        } else {
+            $dataStays = $dataResponse['ReservationsList']['HotelReservation']['RoomStays']['RoomStay'];
+        }
+
+        $rooms = [];
+        $k = 0;
+        foreach ($dataStays as $room) {
+            $rooms[] = [
+                'checkin' => Arr::get($room, 'TimeSpan.@attributes.Start'),
+                'checkout' => Arr::get($room, 'TimeSpan.@attributes.End'),
+                'number_of_adults' => count($guests[$k] ?? []),
+                'given_name' => Arr::get($mainGuest, 'PersonName.GivenName'),
+                'family_name' => Arr::get($mainGuest, 'PersonName.Surname'),
+                'room_name' => $saveResponse['rooms']['room_name'] ?? '',
+                'room_type' => $saveResponse['room_type'] ?? '',
+                'passengers' => $guests[$k] ?? [],
+            ];
+            $k++;
+        }
 
         $responseModel = new ResponseModel();
         $responseModel->setStatus($status);

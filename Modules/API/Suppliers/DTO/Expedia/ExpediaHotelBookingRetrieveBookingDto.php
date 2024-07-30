@@ -20,8 +20,11 @@ class ExpediaHotelBookingRetrieveBookingDto
         $saveResponse = json_decode(Storage::get($bookData->client_response_path), true);
         $query = ApiSearchInspectorRepository::getRequest($filters['search_id']);
 
+        $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+        $guests = json_decode($passengersData->request, true)['rooms'];
+
         $rooms = [];
-        foreach ($dataResponse['rooms'] as $room) {
+        foreach ($dataResponse['rooms'] as $k => $room) {
             $rooms[] = [
                 'checkin' => $room['checkin'],
                 'checkout' => $room['checkout'],
@@ -30,6 +33,7 @@ class ExpediaHotelBookingRetrieveBookingDto
                 'family_name' => $room['family_name'],
                 'room_name' => $room['room_name'] ?? $saveResponse['rooms']['room_name'] ?? '',
                 'room_type' => $room['room_type'] ?? '',
+                'passengers' => $guests[$k] ?? [],
             ];
         }
 
