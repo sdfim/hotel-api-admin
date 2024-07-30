@@ -16,6 +16,7 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -444,6 +445,7 @@ class BookApiHandler extends BaseController
                             'given_name' => $passenger['given_name'],
                             'family_name' => $passenger['family_name'],
                             'date_of_birth' => $passenger['date_of_birth'],
+                            'age' => Arr::get($passenger, 'age'),
                         ];
                     } else {
                         $output[$bookingItem] = [
@@ -456,6 +458,7 @@ class BookApiHandler extends BaseController
                                             'given_name' => $passenger['given_name'],
                                             'family_name' => $passenger['family_name'],
                                             'date_of_birth' => $passenger['date_of_birth'],
+                                            'age' => Arr::get($passenger, 'age'),
                                         ],
                                     ],
                                 ],
@@ -471,6 +474,7 @@ class BookApiHandler extends BaseController
                             'given_name' => $passenger['given_name'],
                             'family_name' => $passenger['family_name'],
                             'date_of_birth' => $passenger['date_of_birth'],
+                            'age' => Arr::get($passenger, 'age'),
                         ];
                     } else {
                         $output[$bookingItem] = [
@@ -481,6 +485,7 @@ class BookApiHandler extends BaseController
                                     'given_name' => $passenger['given_name'],
                                     'family_name' => $passenger['family_name'],
                                     'date_of_birth' => $passenger['date_of_birth'],
+                                    'age' => Arr::get($passenger, 'age'),
                                 ],
                             ],
                         ];

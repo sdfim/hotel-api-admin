@@ -294,9 +294,13 @@ class HbsiHotelPricingDto
             }
         }
 
-        $adults = $children = $infants = 0;
+        $adults = $children = $infants = $unknown = 0;
         foreach ($counts as $age => $count) {
-            if ($age < HbsiClient::AGE_INFANT) {
+            if ($age < 0)
+            {
+                $adults += $count;
+                $unknown += $count;
+            } elseif ($age < HbsiClient::AGE_INFANT) {
                 $infants += $count;
             } elseif ($age < HbsiClient::AGE_CHILD) {
                 $children += $count;
@@ -305,7 +309,7 @@ class HbsiHotelPricingDto
             }
         }
 
-        $rateOccupancy = $adults.'-'.$children.'-'.$infants;
+        $rateOccupancy = $adults.'-'.$children.'-'.$infants.'-'.$unknown;
         $rateOrdinal = $rate['rate_ordinal'] ?? 0;
 
         // enrichment Pricing Rules / Application of Pricing Rules
