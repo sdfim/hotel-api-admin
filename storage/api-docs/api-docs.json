@@ -188,33 +188,23 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "oneOf": [
-                                    {
-                                        "$ref": "#/components/schemas/ContentSearchRequestPlace"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/ContentSearchRequestDestination"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/ContentSearchRequestCoordinates"
-                                    },
-                                    {
-                                        "$ref": "#/components/schemas/ContentSearchRequestSupplierHotelName"
-                                    }
-                                ]
+                                "$ref": "#/components/schemas/AvailabilitySearchRequest"
                             },
                             "examples": {
-                                "ContentSearchRequestPlace": {
-                                    "$ref": "#/components/examples/ContentSearchRequestPlace"
+                                "AvailabilitySearchRequestPlace": {
+                                    "$ref": "#/components/examples/AvailabilitySearchRequestPlace"
                                 },
-                                "ContentSearchRequestDestination": {
-                                    "$ref": "#/components/examples/ContentSearchRequestDestination"
+                                "AvailabilitySearchRequestPlaceCancun": {
+                                    "$ref": "#/components/examples/AvailabilitySearchRequestPlaceCancun"
                                 },
-                                "ContentSearchRequestCoordinates": {
-                                    "$ref": "#/components/examples/ContentSearchRequestCoordinates"
+                                "AvailabilitySearchRequestNewYork": {
+                                    "$ref": "#/components/examples/AvailabilitySearchRequestNewYork"
                                 },
-                                "ContentSearchRequestSupplierHotelName": {
-                                    "$ref": "#/components/examples/ContentSearchRequestSupplierHotelName"
+                                "AvailabilitySearchRequestCancun": {
+                                    "$ref": "#/components/examples/AvailabilitySearchRequestCancun"
+                                },
+                                "AvailabilitySearchRequestCurrencySupplier": {
+                                    "$ref": "#/components/examples/AvailabilitySearchRequestCurrencySupplier"
                                 }
                             }
                         }
@@ -226,11 +216,14 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ContentSearchResponse"
+                                    "$ref": "#/components/schemas/PricingSearchResponse"
                                 },
                                 "examples": {
-                                    "ContentSearchResponse": {
-                                        "$ref": "#/components/examples/ContentSearchResponse"
+                                    "PricingSearchResponseNewYork": {
+                                        "$ref": "#/components/examples/PricingSearchResponseNewYork"
+                                    },
+                                    "PricingSearchResponseLondon": {
+                                        "$ref": "#/components/examples/PricingSearchResponseLondon"
                                     }
                                 }
                             }
@@ -1297,6 +1290,161 @@
                         "description": "Error message",
                         "type": "string",
                         "example": "Invalid type"
+                    }
+                },
+                "type": "object"
+            },
+            "AvailabilitySearchRequest": {
+                "title": "Availability Search Request",
+                "description": "Availability Search Request",
+                "required": [
+                    "type",
+                    "checkin",
+                    "checkout",
+                    "destination",
+                    "occupancy"
+                ],
+                "properties": {
+                    "booking_id": {
+                        "description": "Booking ID",
+                        "type": "string",
+                        "example": "81a25d1e-d06d-4772-89be-b0132bdbbe48"
+                    },
+                    "booking_item": {
+                        "description": "Booking Item",
+                        "type": "string",
+                        "example": "08d528c6-f078-465b-bd29-a0ce210ee376"
+                    },
+                    "type": {
+                        "description": "Type of content to search (e.g., 'hotel', 'flight', 'combo').",
+                        "type": "string",
+                        "enum": [
+                            "hotel",
+                            "flight",
+                            "combo"
+                        ],
+                        "example": "hotel"
+                    },
+                    "currency": {
+                        "description": "Currency of the hotel/flight/combo (e.g., 'EUR').",
+                        "type": "string",
+                        "enum": [
+                            "AED",
+                            "ARS",
+                            "AUD",
+                            "BRL",
+                            "CAD",
+                            "CHF",
+                            "CNY",
+                            "COP",
+                            "DKK",
+                            "EGP",
+                            "EUR",
+                            "GBP",
+                            "HKD",
+                            "IDR",
+                            "ILS",
+                            "INR",
+                            "JPY",
+                            "KRW",
+                            "LBP",
+                            "MAD",
+                            "MXN",
+                            "MYR",
+                            "NOK",
+                            "NZD",
+                            "PHP",
+                            "PLN",
+                            "QAR",
+                            "RUB",
+                            "SAR",
+                            "SEK",
+                            "SGD",
+                            "THB",
+                            "TRY",
+                            "TWD",
+                            "USD",
+                            "VND",
+                            "ZAR"
+                        ],
+                        "example": "EUR"
+                    },
+                    "supplier": {
+                        "description": "Supplier of the hotel/flight/comb (e.g., 'Expedia').",
+                        "type": "string",
+                        "enum": [
+                            "Expedia",
+                            "Example"
+                        ],
+                        "example": "Expedia"
+                    },
+                    "hotel_name": {
+                        "description": "Name of the hotel (e.g., 'Sheraton').",
+                        "type": "string",
+                        "example": "Sheraton"
+                    },
+                    "checkin": {
+                        "description": "Checkin date in ISO 8601 format (e.g., '2024-11-11').",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-11-11"
+                    },
+                    "checkout": {
+                        "description": "Checkout date in ISO 8601 format (e.g., '2024-11-20').",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-11-20"
+                    },
+                    "destination": {
+                        "description": "Destination ID (e.g., '961' is New York, referral code can be viewed '/api/content/destinations?city={name city}' ).",
+                        "type": "integer",
+                        "example": "961"
+                    },
+                    "rating": {
+                        "description": "Rating of the hotel (e.g., '4.5').",
+                        "type": "number",
+                        "enum": [
+                            1,
+                            1.5,
+                            2,
+                            2.5,
+                            3,
+                            3.5,
+                            4,
+                            4.5,
+                            5,
+                            5.5
+                        ]
+                    },
+                    "occupancy": {
+                        "description": "Occupancy of the hotel",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "adults"
+                            ],
+                            "properties": {
+                                "adults": {
+                                    "description": "Number of adults (e.g., '2').",
+                                    "type": "integer",
+                                    "example": "2"
+                                },
+                                "children": {
+                                    "description": "Number of children (e.g., '2').",
+                                    "type": "integer",
+                                    "example": "2"
+                                },
+                                "children_ages": {
+                                    "description": "Ages of children (e.g., '2, 4').",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "example": "2"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
                     }
                 },
                 "type": "object"
@@ -3755,6 +3903,135 @@
                 "summary": "Example of BadRequest",
                 "value": {
                     "message": "Invalid type"
+                }
+            },
+            "AvailabilitySearchRequestPlaceCancun": {
+                "summary": "Availability Search Cancun, country MX, airport CUN using Place",
+                "value": {
+                    "booking_id": "81a25d1e-d06d-4772-89be-b0132bdbbe48",
+                    "booking_item": "08d528c6-f078-465b-bd29-a0ce210ee376",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "place": "4b2afe6684dd81a6f73527468e05e7a6",
+                    "occupancy": [
+                        {
+                            "adults": 2,
+                            "children_ages": [
+                                3
+                            ]
+                        }
+                    ],
+                    "page": 1,
+                    "results_per_page": 10
+                }
+            },
+            "AvailabilitySearchRequestPlace": {
+                "summary": "Availability Search Eiffel Tower (Paris) using Place",
+                "value": {
+                    "booking_id": "81a25d1e-d06d-4772-89be-b0132bdbbe48",
+                    "booking_item": "08d528c6-f078-465b-bd29-a0ce210ee376",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "place": "9bb07983384eb956ae88e154b99b51a1",
+                    "occupancy": [
+                        {
+                            "adults": 2
+                        }
+                    ],
+                    "page": 1,
+                    "results_per_page": 20
+                }
+            },
+            "AvailabilitySearchRequestLondon": {
+                "summary": "Availability Search London using Destination",
+                "value": {
+                    "booking_id": "81a25d1e-d06d-4772-89be-b0132bdbbe48",
+                    "booking_item": "08d528c6-f078-465b-bd29-a0ce210ee376",
+                    "checkin": "2024-05-01",
+                    "checkout": "2024-05-05",
+                    "destination": 302,
+                    "rating": 4,
+                    "occupancy": [
+                        {
+                            "adults": 2,
+                            "children_ages": [
+                                2,
+                                4
+                            ]
+                        },
+                        {
+                            "adults": 1
+                        }
+                    ],
+                    "page": 1,
+                    "results_per_page": 20
+                }
+            },
+            "AvailabilitySearchRequestNewYork": {
+                "summary": "Availability Search New York using Destination",
+                "value": {
+                    "booking_id": "81a25d1e-d06d-4772-89be-b0132bdbbe48",
+                    "booking_item": "08d528c6-f078-465b-bd29-a0ce210ee376",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "destination": 961,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2,
+                            "children_ages": [
+                                2
+                            ]
+                        },
+                        {
+                            "adults": 2
+                        }
+                    ],
+                    "page": 1,
+                    "results_per_page": 20
+                }
+            },
+            "AvailabilitySearchRequestCancun": {
+                "summary": "Availability Search Cancun using Destination",
+                "value": {
+                    "booking_id": "81a25d1e-d06d-4772-89be-b0132bdbbe48",
+                    "booking_item": "08d528c6-f078-465b-bd29-a0ce210ee376",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "destination": 508,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2
+                        }
+                    ],
+                    "page": 1,
+                    "results_per_page": 10
+                }
+            },
+            "AvailabilitySearchRequestCurrencySupplier": {
+                "summary": "Availability Search set Supplier",
+                "value": {
+                    "booking_id": "81a25d1e-d06d-4772-89be-b0132bdbbe48",
+                    "booking_item": "08d528c6-f078-465b-bd29-a0ce210ee376",
+                    "currency": "USD",
+                    "checkin": "2024-06-19",
+                    "checkout": "2024-06-21",
+                    "destination": 951,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2,
+                            "children_ages": [
+                                2
+                            ]
+                        },
+                        {
+                            "adults": 1
+                        }
+                    ],
+                    "page": 1,
+                    "results_per_page": 20
                 }
             },
             "BookingAddItemResponse": {

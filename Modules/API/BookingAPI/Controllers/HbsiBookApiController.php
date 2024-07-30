@@ -8,6 +8,7 @@ use App\Jobs\SaveBookingInspector;
 use App\Jobs\SaveReservations;
 use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingInspector;
+use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;

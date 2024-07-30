@@ -437,7 +437,7 @@ class HbsiClient
 
         $roomStaysArr = $this->processRoomStaysArr($response, $bookingItemData, $filters, $guests);
         $resGuestsArr = $this->processResGuestsArr($guests, $filters);
-        $resGlobalInfoArr = $this->processDepositPaymentsArr($filters, $roomStaysArr) ?? [];
+        $resGlobalInfoArr = isset ($filters['credit_cards']) ? $this->processDepositPaymentsArr($filters, $roomStaysArr) : [];
 
         // info about booking
         $resID = ApiBookingsMetadataRepository::bookedItem($filters['booking_id'], $filters['booking_item'])->first();

@@ -24,18 +24,13 @@ class BookingAvailabilityChangeBookHotelRequest extends ApiRequest
      *     required=true,
      *
      *     @OA\JsonContent(
-     *       oneOf={
-     *
-     *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestPlace"),
-     *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestDestination"),
-     *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestCoordinates"),
-     *            @OA\Schema(ref="#/components/schemas/ContentSearchRequestSupplierHotelName"),
-     *         },
+     *       ref="#/components/schemas/AvailabilitySearchRequest",
      *       examples={
-     *           "searchByPlace": @OA\Schema(ref="#/components/examples/ContentSearchRequestPlace", example="ContentSearchRequestPlace"),
-     *           "searchByDestination": @OA\Schema(ref="#/components/examples/ContentSearchRequestDestination", example="ContentSearchRequestDestination"),
-     *           "searchByCoordinates": @OA\Schema(ref="#/components/examples/ContentSearchRequestCoordinates", example="ContentSearchRequestCoordinates"),
-     *           "searchBySupplierHotelName": @OA\Schema(ref="#/components/examples/ContentSearchRequestSupplierHotelName", example="ContentSearchRequestSupplierHotelName"),
+     *           "GIATA Place Eiffel Tower": @OA\Schema(ref="#/components/examples/AvailabilitySearchRequestPlace", example="AvailabilitySearchRequestPlace"),
+     *           "GIATA Place Cancun": @OA\Schema(ref="#/components/examples/AvailabilitySearchRequestPlaceCancun", example="AvailabilitySearchRequestPlaceCancun"),
+     *           "NewYork": @OA\Schema(ref="#/components/examples/AvailabilitySearchRequestNewYork", example="AvailabilitySearchRequestNewYork"),
+     *           "Cancun": @OA\Schema(ref="#/components/examples/AvailabilitySearchRequestCancun", example="AvailabilitySearchRequestCancun"),
+     *           "SupplierCurrency": @OA\Schema(ref="#/components/examples/AvailabilitySearchRequestCurrencySupplier", example="AvailabilitySearchRequestCurrencySupplier"),
      *       },
      *     ),
      *   ),
@@ -45,10 +40,11 @@ class BookingAvailabilityChangeBookHotelRequest extends ApiRequest
      *     description="OK",
      *
      *     @OA\JsonContent(
-     *       ref="#/components/schemas/ContentSearchResponse",
-     *       examples={
-     *       "searchByCoordinates": @OA\Schema(ref="#/components/examples/ContentSearchResponse", example="ContentSearchResponse"),
-     *       }
+     *       ref="#/components/schemas/PricingSearchResponse",
+     *         examples={
+     *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchResponseNewYork", example="PricingSearchResponseNewYork"),
+     *           "London": @OA\Schema(ref="#/components/examples/PricingSearchResponseLondon", example="PricingSearchResponseLondon"),
+     *       },
      *     )
      *   ),
      *
@@ -90,7 +86,12 @@ class BookingAvailabilityChangeBookHotelRequest extends ApiRequest
      */
     public function rules(): array
     {
-        return [
+        $baseSearchRequest = new PriceHotelRequest();
+        $baseSearchRules = $baseSearchRequest->rules();
+
+        unset($baseSearchRules['type']);
+
+        return $baseSearchRules + [
             'booking_id' => 'required|size:36',
             'booking_item' => 'required|size:36',
         ];
