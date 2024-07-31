@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ApiBookingInspector;
 use App\Models\ApiSearchInspector;
 use App\Models\GeneralConfiguration;
 use Illuminate\Console\Command;
@@ -32,7 +33,19 @@ class PurgeInspectors extends Command
         $this->info('PurgeInspectors: delete by day config (time_inspector_retained)');
         $kept_days = GeneralConfiguration::first()->time_inspector_retained;
         $kept_date = date('Y-m-d H:i:s', strtotime('-'.$kept_days.' days'));
-        $inspector = ApiSearchInspector::where('created_at', '<', $kept_date);
+
+        // get search_ids from booking inspectors as booked
+        $search_ids = ApiBookingInspector::where('type', 'book')
+            ->where('sub_type', 'create')
+            ->distinct()
+            ->pluck('search_id');
+
+        // get search inspectors that are not booked
+        $inspector = ApiSearchInspector::where('created_at', '<', $kept_date)
+            ->whereNotIn('search_id', $search_ids)
+            ->get();
+
+        // clear inspectors
         if ($inspector->count() > 0) {
             $this->clear($inspector);
         }
