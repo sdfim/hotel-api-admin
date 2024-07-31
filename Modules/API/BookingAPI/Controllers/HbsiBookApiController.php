@@ -32,6 +32,8 @@ class HbsiBookApiController extends BaseBookApiController
     ];
 
     private const CODE_ALREADY_CANCELLED = '95';
+
+    private const CODE_BOOKING_STILL_CONFIRMED = '394'; // Cancelled after due date
     private const CODE_WRONG_PASSENGER_NAME = '251';
     private const MAX_CANCEL_BOOKING_RETRY_COUNT = 1;
 
@@ -254,7 +256,7 @@ class HbsiBookApiController extends BaseBookApiController
                 $res = $dataResponse['Errors'];
                 $code = $response->children()->attributes()['Code'];
 
-                if (static::CODE_ALREADY_CANCELLED == $code) {
+                if (static::CODE_ALREADY_CANCELLED == $code || static::CODE_BOOKING_STILL_CONFIRMED == $code) {
                     return [
                         'booking_item' => $apiBookingsMetadata->booking_item,
                         'status' => 'Room canceled.',
