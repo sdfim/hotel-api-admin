@@ -288,7 +288,7 @@ class ExpediaHotelPricingDto
 
         $roomResponse->setCurrency($this->currency);
 
-        $roomResponse->setBedConfigurations(Arr::get($bedGroup, 'configuration'));
+        $roomResponse->setBedConfigurations(Arr::get($bedGroup, 'configuration', []));
 
         $roomResponse->setBreakdown($this->getBreakdown($occupancy_pricing));
 
