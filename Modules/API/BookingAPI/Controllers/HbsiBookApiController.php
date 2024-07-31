@@ -21,6 +21,7 @@ use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -344,10 +345,14 @@ class HbsiBookApiController extends BaseBookApiController
         return $data;
     }
 
-    public function changeSoftBooking(array $filters, string $mode = 'soft'): array|null
+    public function changeBooking(array $filters, string $mode = 'soft'): array|null
     {
         $dataResponse = [];
         $soapError = false;
+
+        if (Cache::get('room_combinations:'.$filters['new_booking_item'])) {
+            $this->hbsiService->updateBookingItemsData($filters['new_booking_item']);
+        }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
@@ -393,6 +398,7 @@ class HbsiBookApiController extends BaseBookApiController
 
             return (array) $dataResponse;
         } catch (Exception $e) {
+            $dataResponse['Errors'] = [$e->getMessage()];
             Log::error('HbsiBookApiController | changeBooking '.$e->getMessage());
             Log::error('HbsiBookApiController | changeBooking ' . $e->getMessage(),
                 [

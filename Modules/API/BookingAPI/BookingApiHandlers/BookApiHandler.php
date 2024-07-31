@@ -10,6 +10,7 @@ use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
+use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
@@ -151,14 +152,33 @@ class BookApiHandler extends BaseController
         $filters = $request->all();
 
         $supplierId = ApiBookingItem::where('booking_item', $request->booking_item)->first()->supplier_id;
-        $supplier = Supplier::where('id', $supplierId)->first()->name;
+        $supplier = SupplierNameEnum::from(Supplier::where('id', $supplierId)->first()->name);
 
-        $this->saveChangePassengers($request, $supplierId);
+        if ($supplier === SupplierNameEnum::HBSI) {
+            $passengersReq = &$filters['passengers'];
+            $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+            $passengersData = json_decode($passengersData->request, true);
+            $guests = $passengersData['rooms'];
+            if (count(Arr::collapse($guests)) != count($passengersReq)) {
+                return $this->sendError('Incorrect number of passengers', 'failed');
+            }
+
+            $pIndex = 0;
+            foreach ($passengersData['passengers'] as $passenger) {
+                $bItem = Arr::first($passenger['booking_items'], fn ($value) => $value['booking_item'] == $request->booking_item);
+                if ($bItem) {
+                    $passengersReq[$pIndex]['date_of_birth'] = $passenger['date_of_birth'];
+                    $pIndex++;
+                }
+            }
+        }
+
+        $this->saveChangePassengers($filters, $supplierId);
 
         try {
-            $data = match (SupplierNameEnum::from($supplier)) {
+            $data = match ($supplier) {
                 SupplierNameEnum::EXPEDIA => $this->expedia->changeSoftBooking($filters),
-                SupplierNameEnum::HBSI => $this->hbsi->changeSoftBooking($filters),
+                SupplierNameEnum::HBSI => $this->hbsi->changeBooking($filters),
                 default => [],
             };
         } catch (Exception $e) {
@@ -175,15 +195,11 @@ class BookApiHandler extends BaseController
         return $this->sendResponse($data ?? [], 'success');
     }
 
-    /**
-     * @param Request $request
-     * @param int $supplierId
-     * @return void
-     */
-    private function saveChangePassengers(Request $request, int $supplierId): void
+    private function saveChangePassengers(array $filters, int $supplierId): void
     {
-        $filters = $request->all();
         $passengers = $filters['passengers'];
+        $bookingId = $filters['booking_id'];
+        $bookingItem = $filters['booking_item'];
         foreach ($passengers as &$passenger) {
             $passenger['booking_items'] = [['room' => $passenger['room'], 'booking_item' => $filters['booking_item']]];
         }
@@ -191,14 +207,14 @@ class BookApiHandler extends BaseController
         if (isset($filters['search_id'])) {
             $searchId = $filters['search_id'];
         } else {
-            $apiBookingInspector = ApiBookingInspector::where('booking_id', $request->booking_id)
-                ->where('booking_item', $request->booking_item)->first();
+            $apiBookingInspector = ApiBookingInspector::where('booking_id', $bookingId)
+                ->where('booking_item', $bookingItem)->first();
             $searchId = $apiBookingInspector->search_id;
         }
         $apiSearchInspector = ApiSearchInspector::where('search_id', $searchId)->first()->request;
         $countRooms = count(json_decode($apiSearchInspector, true)['occupancy']);
 
-        $passengersData = $this->dtoAddPassengers(['passengers' => $passengers])[$request->booking_item];
+        $passengersData = $this->dtoAddPassengers(['passengers' => $passengers])[$bookingItem];
         for ($i = 1; $i <= $countRooms; $i++) {
             if (array_key_exists($i, $passengersData['rooms'])) {
                 $filters['rooms'][] = $passengersData['rooms'][$i]['passengers'];
@@ -206,12 +222,12 @@ class BookApiHandler extends BaseController
         }
 
         $bookingInspector = BookingRepository::newBookingInspector([
-            $request->booking_id, $filters, $supplierId, 'change_passengers', 'change', 'hotel',
+            $bookingId, $filters, $supplierId, 'change_passengers', 'change', 'hotel',
         ]);
 
         SaveBookingInspector::dispatch($bookingInspector, [], [
-            'booking_id' => $request->booking_id,
-            'booking_item' => $request->booking_item,
+            'booking_id' => $bookingId,
+            'booking_item' => $bookingItem,
             'status' => 'Change passengers',
         ]);
     }
@@ -228,12 +244,12 @@ class BookApiHandler extends BaseController
         $filters = $request->all();
         $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->first();
 
-        $this->saveChangePassengers($request, $apiBookingItem->supplier_id);
+        $this->saveChangePassengers($filters, $apiBookingItem->supplier_id);
 
         try {
             $data = match (SupplierNameEnum::from($apiBookingItem->supplier->name)) {
                 SupplierNameEnum::EXPEDIA => $this->expedia->changeSoftBooking($filters),
-                SupplierNameEnum::HBSI => $this->hbsi->changeSoftBooking($filters, 'hard'),
+                SupplierNameEnum::HBSI => $this->hbsi->changeBooking($filters, 'hard'),
                 default => [],
             };
         } catch (Exception $e) {

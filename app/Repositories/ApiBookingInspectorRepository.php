@@ -212,8 +212,17 @@ class ApiBookingInspectorRepository
 
     public static function getPassengers(string $booking_id, string $booking_item): ?object
     {
-        $changeQb = ApiBookingInspector::where('booking_id', $booking_id)
+        return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
+            ->where('type', 'add_passengers')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->first();
+    }
+
+    public static function getChangePassengers(string $bookingId, string $bookingItem): ApiBookingInspector
+    {
+        $changeQb = ApiBookingInspector::where('booking_id', $bookingId)
+            ->where('booking_item', $bookingItem)
             ->where('type', 'change_passengers')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value);
 
@@ -221,11 +230,7 @@ class ApiBookingInspectorRepository
             return $changeQb->orderByDesc('created_at')->first();
         }
 
-        return ApiBookingInspector::where('booking_id', $booking_id)
-            ->where('booking_item', $booking_item)
-            ->where('type', 'add_passengers')
-            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
-            ->first();
+        return self::getPassengers($bookingId, $bookingItem);
     }
 
     public static function getItemsInCart(string $booking_id): ?object

@@ -432,7 +432,7 @@ class HbsiClient
             $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
         }
 
-        $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+        $passengersData = ApiBookingInspectorRepository::getChangePassengers($filters['booking_id'], $filters['booking_item']);
         $guests = json_decode($passengersData->request, true)['rooms'];
 
         $roomStaysArr = $this->processRoomStaysArr($response, $bookingItemData, $filters, $guests);
