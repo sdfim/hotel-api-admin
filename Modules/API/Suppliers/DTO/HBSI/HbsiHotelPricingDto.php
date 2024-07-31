@@ -309,7 +309,15 @@ class HbsiHotelPricingDto
             }
         }
 
-        $rateOccupancy = $adults.'-'.$children.'-'.$infants.'-'.$unknown;
+        // TODO: fix room_combinations.
+        /*
+         * Please consider adding $unknown elsewhere.
+         * $rateOccupancy (“rate_occupancy”) is used to combine room_combinations in RS prising_search.
+         * Adding $unknown causes room_combinations generation conflicts for multi-room search
+         */
+//        $rateOccupancy = $adults.'-'.$children.'-'.$infants.'-'.$unknown;
+        $rateOccupancy = $adults.'-'.$children.'-'.$infants;
+
         $rateOrdinal = $rate['rate_ordinal'] ?? 0;
 
         // enrichment Pricing Rules / Application of Pricing Rules
