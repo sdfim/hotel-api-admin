@@ -11,6 +11,7 @@ use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
+use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiBookingItemRepository;
@@ -218,6 +219,9 @@ class HbsiBookApiController extends BaseBookApiController
             $bookingInspector
         );
 
+        if (! $xmlPriceData['response'] instanceof SimpleXMLElement) {
+            return [];
+        }
         $response = $xmlPriceData['response']->children('soap-env', true)->Body->children()->children();
 
         $dataResponse = json_decode(json_encode($response), true);
@@ -326,20 +330,19 @@ class HbsiBookApiController extends BaseBookApiController
 
     public function listBookings(): ?array
     {
-        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
-        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
-        $itemsBooked = ApiBookingInspector::where('token_id', $token_id)
-            ->where('supplier_id', $supplierId)
-            ->where('type', 'book')
-            ->where('sub_type', 'create')
-            ->distinct()
-            ->get();
-
-        $filters['booking_id'] = request()->get('booking_id');
         $filters['supplier_data'] = request()->get('supplier_data') ?? false;
+
+        $bookingIds = ApiBookingInspectorRepository::getBookedBookingIdsByChannel();
+
+        $itemsBooked = ApiBookingsMetadataRepository::bookedItemsByBookingIds($bookingIds);
+
         $data = [];
-        foreach ($itemsBooked as $item) {
+        foreach ($itemsBooked as $k => $item) {
+            $filters['booking_id'] = $item->booking_id;
             $data[] = $this->retrieveBooking($filters, $item);
+            if ($k == 5) {
+                break;
+            }
         }
 
         return $data;
@@ -350,13 +353,13 @@ class HbsiBookApiController extends BaseBookApiController
         $dataResponse = [];
         $soapError = false;
 
-        if (Cache::get('room_combinations:'.$filters['new_booking_item'])) {
+        if (isset($filters['new_booking_item']) && Cache::get('room_combinations:'.$filters['new_booking_item'])) {
             $this->hbsiService->updateBookingItemsData($filters['new_booking_item']);
         }
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $filters['booking_id'], $filters, $supplierId, 'book', 'change-'.$mode, 'hotel',
+            $filters['booking_id'], $filters, $supplierId, 'change_book', 'change-'.$mode, 'hotel',
         ]);
 
         try {

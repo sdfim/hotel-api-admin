@@ -78,10 +78,12 @@ class ApiBookingInspectorRepository
     public static function getSearchId($filters): ?string
     {
         $booking_id = $filters['booking_id'];
+        $booking_item = $filters['booking_item'];
 
         $inspector = ApiBookingInspector::where('type', 'book')
-            ->where('sub_type', 'like', 'retrieve'.'%')
+            ->where('sub_type', 'create')
             ->where('booking_id', $booking_id)
+            ->where('booking_item', $booking_item)
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
@@ -125,6 +127,27 @@ class ApiBookingInspectorRepository
         }
 
         return $list;
+    }
+
+    public static function getBookedBookingIdsByChannel(int $supplier_id = 2): ?array
+    {
+        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+
+        $inspectors = ApiBookingInspector::where('token_id', $token_id)
+            ->where(function ($query) use ($supplier_id) {
+                $query->where(function ($query) use ($supplier_id) {
+                    $query->where('type', 'book')
+                        ->where('sub_type', 'create')
+                        ->where('supplier_id', $supplier_id)
+                        ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+                        ->whereDate('created_at', '>=', now()->subDays(60));
+                });
+            })
+            ->pluck('booking_id')
+            ->unique()
+            ->toArray();
+
+        return $inspectors;
     }
 
     public static function geTypeSupplierByBookingId(string $booking_id): array

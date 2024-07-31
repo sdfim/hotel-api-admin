@@ -197,7 +197,7 @@ class ExpediaBookApiController extends BaseBookApiController
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'book', 'change-soft', 'hotel',
+            $booking_id, $filters, $supplierId, 'change_book', 'change-soft', 'hotel',
         ]);
 
         $given_name = Arr::get($filters, 'passengers.0.given_name', null);
@@ -211,7 +211,6 @@ class ExpediaBookApiController extends BaseBookApiController
 
         // Booking PUT query
         $props = $this->getPathParamsFromLink($linkPutMethod);
-//        $bodyArr = $filters['query'];
         $body = json_encode($bodyArr);
 
         $originalRQ = [
@@ -398,7 +397,9 @@ class ExpediaBookApiController extends BaseBookApiController
         foreach ($resolvedResponses as $response) {
             if ($response['state'] === 'fulfilled') {
                 $data = $response['value']->getBody()->getContents();
-                $responses[] = json_decode($data, true);
+                if (!empty(json_decode($data, true))) {
+                    $responses[] = json_decode($data, true);
+                }
             } else {
                 Log::error('ExpediaBookApiHandler | listBookings  failed: '.$response['reason']->getMessage());
                 Log::error($e->getTraceAsString());
@@ -504,7 +505,7 @@ class ExpediaBookApiController extends BaseBookApiController
         return $res;
     }
 
-    private function handleException(Exception $e, $bookingInspector, $logMessage, $errorMessage): void
+    private function handleException(Exception $e, $bookingInspector, $logMessage, $errorMessage, $originalRQ): void
     {
         Log::error($logMessage.': '.$e->getMessage());
         Log::error($e->getTraceAsString());
@@ -552,12 +553,13 @@ class ExpediaBookApiController extends BaseBookApiController
     {
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $roomId = json_decode($bookingInspector->request)?->room_id;
+        $itinerary_id = Arr::get($content, 'itinerary_id');
 
         $filters['supplier_id'] = $supplierId;
         $linkBookRetrieves = Arr::get($content, 'links.retrieve.href');
 
         $reservation = [
-            'bookingId'           => $roomId,
+            'bookingId'           => $itinerary_id,
             'cancellation_paths'  => BookingRepository::getLinkDeleteItem($filters['booking_id'], $filters['booking_item'], $roomId),
             'retrieve_path'      => $linkBookRetrieves,
         ];
