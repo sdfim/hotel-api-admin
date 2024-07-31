@@ -404,6 +404,10 @@ class HbsiHotelPricingDto
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
         $roomResponse->setSupplierRoomName($rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
         $roomResponse->setSupplierRoomCode($rateOccupancy);
+        $roomResponse->setCapacity([
+            'unknown' => $unknown,
+        ]);
+
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
         $roomResponse->setRoomType($roomType);
         $roomDescription = is_array($rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
