@@ -157,7 +157,7 @@ class BookApiHandler extends BaseController
 
         if ($supplier === SupplierNameEnum::HBSI) {
             $passengersReq = &$filters['passengers'];
-            $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+            $passengersData = ApiBookingInspectorRepository::getChangePassengers($filters['booking_id'], $filters['booking_item']);
             $passengersData = json_decode($passengersData->request, true);
             $guests = $passengersData['rooms'];
             if (count(Arr::collapse($guests)) != count($passengersReq)) {
@@ -166,8 +166,8 @@ class BookApiHandler extends BaseController
 
             $pIndex = 0;
             foreach ($passengersData['passengers'] as $passenger) {
-                $bItem = Arr::first($passenger['booking_items'], fn ($value) => $value['booking_item'] == $request->booking_item);
-                if ($bItem) {
+                $bItem = Arr::first($passenger['booking_items'] ?? [], fn ($value) => $value['booking_item'] == $request->booking_item);
+                if (!isset($passenger['booking_items']) || $bItem) {
                     $passengersReq[$pIndex]['date_of_birth'] = $passenger['date_of_birth'];
                     $pIndex++;
                 }
@@ -201,8 +201,24 @@ class BookApiHandler extends BaseController
         $passengers = $filters['passengers'];
         $bookingId = $filters['booking_id'];
         $bookingItem = $filters['booking_item'];
+        $bookingItemInspector = ApiBookingInspector::where('booking_id', $bookingId)
+            ->where('booking_item', $filters['booking_item'])
+            ->where('type', 'change_passengers');
+
+        if ($bookingItemInspector->exists()) {
+            $status = 'Update change passengers';
+            $subType = 'update_change';
+        } else {
+            $status = 'Change passengers';
+            $subType = 'change';
+        }
+
         foreach ($passengers as &$passenger) {
-            $passenger['booking_items'] = [['room' => $passenger['room'], 'booking_item' => $filters['booking_item']]];
+            $passenger['booking_items'] = [['room' => $passenger['room'], 'booking_item' => $bookingItem]];
+        }
+
+        foreach ($filters['special_requests'] ?? [] as &$specialRequest) {
+            $specialRequest['booking_item'] = $bookingItem;
         }
 
         if (isset($filters['search_id'])) {
@@ -223,13 +239,13 @@ class BookApiHandler extends BaseController
         }
 
         $bookingInspector = BookingRepository::newBookingInspector([
-            $bookingId, $filters, $supplierId, 'change_passengers', 'change', 'hotel',
+            $bookingId, $filters, $supplierId, 'change_passengers', $subType, 'hotel',
         ]);
 
         SaveBookingInspector::dispatch($bookingInspector, [], [
             'booking_id' => $bookingId,
             'booking_item' => $bookingItem,
-            'status' => 'Change passengers',
+            'status' => $status,
         ]);
     }
 

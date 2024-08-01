@@ -422,16 +422,16 @@ class HbsiClient
      */
     private function hotelResModifyRQ(array $filters): string
     {
-        if (!isset($filters['search_id'])) $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['booking_item']);
-        $response = ApiSearchInspectorRepository::getResponse($filters['search_id']);
-        $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
-
         if(isset($filters['new_booking_item'])) {
             $bookingItemData = ApiBookingItemRepository::getItemData($filters['new_booking_item']);
+            $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['new_booking_item']);
         } else {
             $bookingItemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
+            $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['booking_item']);
         }
 
+        $response = ApiSearchInspectorRepository::getResponse($filters['search_id']);
+        $bookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
         $passengersData = ApiBookingInspectorRepository::getChangePassengers($filters['booking_id'], $filters['booking_item']);
         $guests = json_decode($passengersData->request, true)['rooms'];
 
