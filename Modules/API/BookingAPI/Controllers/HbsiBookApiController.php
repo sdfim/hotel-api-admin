@@ -420,11 +420,6 @@ class HbsiBookApiController extends BaseBookApiController
             return [];
         }
 
-        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
-        SaveBookingInspector::dispatch([
-            $filters['booking_id'], $filters, $dataResponseToSave, $clientResponse, $supplierId, 'change_booking', '', 'hotel',
-        ]);
-
         return ['status' => 'Booking changed.'];
     }
 
