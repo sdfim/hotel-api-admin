@@ -6,6 +6,7 @@ use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository;
+use App\Repositories\ApiBookingsMetadataRepository;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -27,21 +28,37 @@ class BaseHotelBookingApiController
         ]);
 
         try {
+            // Check by ApiBookingsMetadata
+            $itemsBooked = ApiBookingsMetadataRepository::bookedItem($booking_id, $booking_item);
+
+            // Check by ApiBookingInspector
             $bookItems = ApiBookingInspector::where('booking_id', $booking_id)
                 ->where('type', 'book')
-                ->where('sub_type', '!=', 'error')
+                ->where('status', '!=', 'error')
                 ->get()->pluck('booking_item')->toArray();
 
             $bookingItems = ApiBookingInspector::where('booking_item', $booking_item)
                 ->where('type', 'add_item')
                 ->whereNotIn('booking_item', $bookItems);
 
-            if ($bookingItems->get()->count() === 0) {
+            $errorMessage = null;
+
+            if ($itemsBooked->first()?->supplier_booking_item_id) {
+                $errorMessage = 'This item is already booked. Supplier booking confirmation code '.$itemsBooked->first()?->supplier_booking_item_id;
                 $res = [
-                    'success' => [
+                    'error' => [
                         'booking_id' => $booking_id,
                         'booking_item' => $booking_item,
-                        'status' => 'This item is not in the cart',
+                        'status' => $errorMessage,
+                    ],
+                ];
+            } elseif ($bookingItems->get()->count() === 0) {
+                $errorMessage = 'This item is not in the cart';
+                $res = [
+                    'error' => [
+                        'booking_id' => $booking_id,
+                        'booking_item' => $booking_item,
+                        'status' => $errorMessage,
                     ],
                 ];
             } else {
@@ -65,7 +82,12 @@ class BaseHotelBookingApiController
                 ];
             }
 
-            SaveBookingInspector::dispatch($bookingInspector, [], $res);
+            if ($errorMessage) {
+                SaveBookingInspector::dispatch($bookingInspector, [], [], 'error', ['side' => 'app', 'message' => $errorMessage]);
+            } else {
+                SaveBookingInspector::dispatch($bookingInspector, [], $res);
+            }
+
         } catch (Exception $e) {
             $res = [
                 'error' => [
@@ -77,7 +99,7 @@ class BaseHotelBookingApiController
             Log::error('ExpediaHotelBookingApiHandler | removeItem | '.$e->getMessage());
             Log::error($e->getTraceAsString());
 
-            SaveBookingInspector::dispatch($bookingInspector, [], $res, 'error', ['error' => $e->getMessage()]);
+            SaveBookingInspector::dispatch($bookingInspector, [], $res, 'error', ['side' => 'app', 'message' => $e->getMessage()]);
         }
 
         return $res;

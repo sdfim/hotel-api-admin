@@ -4,6 +4,8 @@ namespace Modules\API\PricingAPI\ResponseModels;
 
 class RoomResponse extends BaseResponse
 {
+    private array $capacity = [];
+
     private string $giata_room_code;
 
     private string $giata_room_name;
@@ -328,9 +330,26 @@ class RoomResponse extends BaseResponse
         $this->penalty_date = $penalty_date;
     }
 
+    /**
+     * @return array
+     */
+    public function getCapacity(): array
+    {
+        return $this->capacity;
+    }
+
+    /**
+     * @param array $capacity
+     */
+    public function setCapacity(array $capacity): void
+    {
+        $this->capacity = $capacity;
+    }
+
     public function toArray(): array
     {
         return [
+            'capacity' => $this->getCapacity(),
             'giata_room_code' => $this->getGiataRoomCode(),
             'giata_room_name' => $this->getGiataRoomName(),
             'supplier_room_name' => $this->getSupplierRoomName(),

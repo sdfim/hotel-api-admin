@@ -583,7 +583,9 @@ class HbsiClient
                 $dob = Carbon::parse($guest['date_of_birth']);
                 $diff = $dob->diff(Carbon::now(), true);
 
-                $age = Arr::get($guest, 'age', $diff->y < self::AGE_CHILD ? $diff->y : self::AGE_ADULTS);
+                $age = Arr::get($guest, 'age');
+                // additional check. If $guest['age'] is null
+                if (! $age) $age = $diff->y < self::AGE_CHILD ? $diff->y : self::AGE_ADULTS;
 
                 $resGuestsArr[$index] = $this->createGuestArrByAge($index, $age, $guest, $filters);
                 if ($index === 0) {
