@@ -6,39 +6,28 @@ use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
-class BookingRemoveItemHotelRequest extends ApiRequest
+
+class BookingAvailabileEndpointsChangeBookHotelRequest extends ApiRequest
 {
     /**
-     * @OA\Post(
-     *   tags={"Booking API | Basket"},
-     *   path="/api/booking/add-item",
-     *   summary="Add an item to your shopping cart.",
-     *   description="Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
+     * Determine if the user is authorized to make this request.
+     */
+    /**
+     * @OA\Get(
+     *   tags={"Booking API | Change Booking"},
+     *   path="/api/booking/change/availabile-endpoints",
+     *   summary="Retrieve available changes for modifying an existing booking.",
+     *   description="This endpoint provides information about available changes for modifying an existing booking.",
      *
-     *    @OA\Parameter(
-     *      name="booking_item",
-     *      in="query",
-     *      required=true,
-     *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
-     *      In the response object for each rate is a **booking_item** property.",
-     *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-     *    ),
-     *    @OA\Parameter(
-     *      name="booking_id",
-     *      in="query",
-     *      description="**booking_id**, if it exists",
-     *      example="c698abfe-9bfa-45ee-a201-dc7322e008ab"
-     *    ),
-     *
-     *   @OA\Response(
-     *     response=200,
-     *     description="OK",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingAddItemResponse",
-     *           examples={
-     *             "example1": @OA\Schema(ref="#/components/examples/BookingAddItemResponse", example="BookingAddItemResponse"),
-     *         },
+     *   @OA\Parameter(
+     *     name="booking_item",
+     *     in="query",
+     *     description="The booking item identifier",
+     *     required=true,
+     *     @OA\Schema(
+     *       type="string",
+     *       format="uuid",
+     *       example="123e4567-e89b-12d3-a456-426614174000"
      *     )
      *   ),
      *
@@ -67,8 +56,7 @@ class BookingRemoveItemHotelRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-     */
-    public function authorize(): bool
+     */    public function authorize(): bool
     {
         return Auth::check();
     }
@@ -82,10 +70,12 @@ class BookingRemoveItemHotelRequest extends ApiRequest
     {
         return [
             'booking_item' => 'required|size:36',
-            'booking_id' => 'required|size:36',
         ];
     }
 
+    /**
+     * @return array
+     */
     public function validatedDate(): array
     {
         return parent::validated();

@@ -29,6 +29,7 @@ use Modules\API\BaseController;
 use Modules\API\BookingAPI\Controllers\ExpediaBookApiController;
 use Modules\API\BookingAPI\Controllers\HbsiBookApiController;
 use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersRequest;
+use Modules\API\Requests\BookingAvailabileEndpointsChangeBookHotelRequest;
 use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingCancelBooking;
 use Modules\API\Requests\BookingChangeSoftBookHotelRequest;
@@ -136,10 +137,64 @@ class BookApiHandler extends BaseController
         return $this->sendResponse($data, 'success');
     }
 
-    /**
-     * @param BookingChangeSoftBookHotelRequest $request
-     * @return JsonResponse
-     */
+    public function availableEndpoints(BookingAvailabileEndpointsChangeBookHotelRequest $request): JsonResponse
+    {
+        $determinant = $this->determinant($request);
+        if (! empty($determinant)) {
+            return response()->json(['error' => $determinant['error']], 400);
+        }
+
+        $supplierId = ApiBookingItem::where('booking_item', $request->booking_item)->first()->supplier_id;
+        $supplier = SupplierNameEnum::from(Supplier::where('id', $supplierId)->first()->name);
+
+        $item = ApiBookingItemRepository::getItemPricingData($request->booking_item);
+        $isNonRefundable = Arr::get($item, 'non_refundable', false);
+
+        if ($isNonRefundable) $supplier = 'NonRefundable';
+
+        $endpointDetails = [
+            'soft-change' => [
+                'name' => 'Soft Change',
+                'description' => 'Endpoint to handle soft changes in booking.',
+                'url' => 'api/booking/change/soft-change'
+            ],
+            'availability' => [
+                'name' => 'Availability Check',
+                'description' => 'Endpoint to check booking availability.',
+                'url' => 'api/booking/change/availability'
+            ],
+            'price-check' => [
+                'name' => 'Price Check',
+                'description' => 'Endpoint to check the price of bookings.',
+                'url' => 'api/booking/change/price-check'
+            ],
+            'hard-change' => [
+                'name' => 'Hard Change',
+                'description' => 'Endpoint to handle hard changes in booking.',
+                'url' => 'api/booking/change/hard-change'
+            ]
+        ];
+
+        $endpoints = match ($supplier) {
+            SupplierNameEnum::HBSI => ['soft-change', 'availability', 'price-check', 'hard-change'],
+            SupplierNameEnum::EXPEDIA, 'NonRefundable' => ['soft-change'],
+            default => [],
+        };
+
+        $result = [];
+        foreach ($endpoints as $endpoint) {
+            if (isset($endpointDetails[$endpoint])) {
+                $result[] = $endpointDetails[$endpoint];
+            }
+        }
+
+        return $this->sendResponse([
+            'booking_item' => $request->booking_item,
+            'supplier' => $supplier,
+            'endpoints' => $result,
+        ], 'success');
+    }
+
     public function changeSoftBooking(BookingChangeSoftBookHotelRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request);

@@ -22,6 +22,7 @@ class BookingApiRoutes
             Route::get('/retrieve-booking', [BookApiHandler::class, 'retrieveBooking'])->name('retrieveBooking');
             Route::delete('/cancel-booking', [BookApiHandler::class, 'cancelBooking'])->name('cancelBooking');
             // Section Change Booking
+            Route::get('/change/available-endpoints', [BookApiHandler::class, 'availableEndpoints'])->name('availableEndpoints');
             Route::put('/change/soft-change', [BookApiHandler::class, 'changeSoftBooking'])->name('changeSoftBooking');
             Route::post('/change/availability', [BookApiHandler::class, 'availabilityChange'])->name('availabilityChange');
             Route::get('/change/price-check', [BookApiHandler::class, 'priceCheck'])->name('priceCheck');

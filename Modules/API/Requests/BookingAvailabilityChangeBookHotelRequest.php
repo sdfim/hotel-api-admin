@@ -13,7 +13,7 @@ class BookingAvailabilityChangeBookHotelRequest extends ApiRequest
      * Determine if the user is authorized to make this request.
      */
     /**
-     * @OA\Get(
+     * @OA\Post(
      *   tags={"Booking API | Change Booking"},
      *   path="/api/booking/change/availability",
      *   summary="Retrieve available changes for modifying an existing booking.",

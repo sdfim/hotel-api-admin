@@ -50,7 +50,7 @@ class HbsiHotelBookingRetrieveBookingDto
         }, $inputConfirmationNumbers);
         //endregion
 
-        $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+        $passengersData = ApiBookingInspectorRepository::getChangePassengers($filters['booking_id'], $filters['booking_item']);
         $guests = json_decode($passengersData->request, true)['rooms'];
 
         $dataStays = [];

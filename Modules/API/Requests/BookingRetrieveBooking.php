@@ -10,7 +10,7 @@ class BookingRetrieveBooking extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Booking API | Cart"},
+     *   tags={"Booking API | Basket"},
      *   path="/api/booking/retrieve-items",
      *   summary="Retrieve a list of items currently in your shopping cart.",
      *   description="Retrieve a list of items currently in your shopping cart. This endpoint provides details about the items added to your cart.",

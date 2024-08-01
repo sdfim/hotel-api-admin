@@ -105,7 +105,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
 
     /**
      * @OA\Delete(
-     *   tags={"Booking API | Cart"},
+     *   tags={"Booking API | Basket"},
      *   path="/api/booking/remove-item",
      *   summary="Remove a specific item from your shopping cart",
      *   description="Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",

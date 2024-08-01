@@ -10,7 +10,7 @@
         "/api/booking/remove-item": {
             "delete": {
                 "tags": [
-                    "Booking API | Cart"
+                    "Booking API | Basket"
                 ],
                 "summary": "Remove a specific item from your shopping cart",
                 "description": "Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",
@@ -88,7 +88,7 @@
         "/api/booking/add-passengers": {
             "post": {
                 "tags": [
-                    "Booking API | Cart"
+                    "Booking API | Basket"
                 ],
                 "summary": "Add passengers to a booking.",
                 "description": "Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
@@ -174,14 +174,74 @@
                 ]
             }
         },
-        "/api/booking/change/availability": {
+        "/api/booking/change/availabile-endpoints": {
             "get": {
                 "tags": [
                     "Booking API | Change Booking"
                 ],
                 "summary": "Retrieve available changes for modifying an existing booking.",
                 "description": "This endpoint provides information about available changes for modifying an existing booking.",
-                "operationId": "f60f6a9009ab6f37573fc08dc06a39dc",
+                "operationId": "e9b281eaa97fe4257d384b857283a199",
+                "parameters": [
+                    {
+                        "name": "booking_item",
+                        "in": "query",
+                        "description": "The booking item identifier",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/booking/change/availability": {
+            "post": {
+                "tags": [
+                    "Booking API | Change Booking"
+                ],
+                "summary": "Retrieve available changes for modifying an existing booking.",
+                "description": "This endpoint provides information about available changes for modifying an existing booking.",
+                "operationId": "d691c1333b0011a2194875d6b7d24b64",
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
                     "required": true,
@@ -775,7 +835,7 @@
         "/api/booking/add-item": {
             "post": {
                 "tags": [
-                    "Booking API | Cart"
+                    "Booking API | Basket"
                 ],
                 "summary": "Add an item to your shopping cart.",
                 "description": "Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
@@ -852,7 +912,7 @@
         "/api/booking/retrieve-items": {
             "get": {
                 "tags": [
-                    "Booking API | Cart"
+                    "Booking API | Basket"
                 ],
                 "summary": "Retrieve a list of items currently in your shopping cart.",
                 "description": "Retrieve a list of items currently in your shopping cart. This endpoint provides details about the items added to your cart.",
@@ -8216,12 +8276,16 @@
             "description": "API Endpoints of Price"
         },
         {
-            "name": "Booking API | Cart",
+            "name": "Booking API | Basket",
             "description": "API Endpoints of Cart (pre-reservation)"
         },
         {
             "name": "Booking API | Booking",
             "description": "API Endpoints of Booking (reservation)"
+        },
+        {
+            "name": "Booking API | Change Booking",
+            "description": "API Endpoints of Booking Changes (modification)"
         }
     ]
 }
