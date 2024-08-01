@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Inspector') }}
+    {{ __('Search Inspector') }}
 @endsection
 @section('css')
     <link href="{{ URL::asset('build/libs/swiper/swiper-bundle.min.css') }}" rel="stylesheet">
@@ -16,7 +16,7 @@
 @section('content')
 
     <!-- -->
-    <x-page-title title="Inspector" pagetitle="index"/>
+    <x-page-title title="Search Inspector" pagetitle="index"/>
 
     <div class="grid grid-cols-12 gap-5">
         <div class="col-span-12">

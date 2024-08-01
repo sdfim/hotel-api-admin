@@ -254,6 +254,11 @@ class ExpediaBookApiController extends BaseBookApiController
         return ['status' => 'Booking changed.'];
     }
 
+    public function priceCheck(array $filters): array|null
+    {
+        return ['result' => 'Not implemented yet.'];
+    }
+
     /**
      * @throws Exception
      */

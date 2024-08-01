@@ -451,11 +451,6 @@
                         "application/json": {
                             "schema": {
                                 "properties": {
-                                    "search_id": {
-                                        "description": "UUID of the search that initiated the booking.",
-                                        "type": "string",
-                                        "format": "uuid"
-                                    },
                                     "booking_id": {
                                         "description": "UUID of the existing booking.",
                                         "type": "string",
@@ -516,7 +511,8 @@
                                                 },
                                                 "room": {
                                                     "description": "Room number or identifier for the passenger.",
-                                                    "type": "integer"
+                                                    "type": "integer",
+                                                    "example": 1
                                                 }
                                             },
                                             "type": "object"
@@ -631,6 +627,139 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/booking/change/price-check": {
+            "get": {
+                "tags": [
+                    "Booking API | Change Booking"
+                ],
+                "summary": "Retrieve Booking Price Check",
+                "description": "This endpoint provides information about the price check of a booking item.",
+                "operationId": "24441e13b1719ac6a384f9955161f9da",
+                "parameters": [
+                    {
+                        "name": "new_booking_item",
+                        "in": "query",
+                        "description": "The new booking item ID.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "abcd1234-efgh5678-ijkl9012-mnop3456"
+                        }
+                    },
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "The booking ID.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "abcd1234-efgh5678-ijkl9012-mnop3456"
+                        }
+                    },
+                    {
+                        "name": "booking_item",
+                        "in": "query",
+                        "description": "The booking item ID.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "abcd1234-efgh5678-ijkl9012-mnop3456"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "incremental_total_price": {
+                                                    "type": "string",
+                                                    "example": "100.00"
+                                                },
+                                                "cancellation_policies": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "General Cancellation Policy"
+                                                            },
+                                                            "type": {
+                                                                "type": "string",
+                                                                "example": "General"
+                                                            },
+                                                            "penalty_start_date": {
+                                                                "type": "string",
+                                                                "format": "date",
+                                                                "example": "2024-08-01"
+                                                            },
+                                                            "percentage": {
+                                                                "type": "string",
+                                                                "example": "100"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
                                 }
                             }
                         }

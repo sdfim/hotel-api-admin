@@ -32,6 +32,7 @@ use Modules\API\Requests\BookingAddPassengersHotelRequest as AddPassengersReques
 use Modules\API\Requests\BookingBookRequest;
 use Modules\API\Requests\BookingCancelBooking;
 use Modules\API\Requests\BookingChangeSoftBookHotelRequest;
+use Modules\API\Requests\BookingPriceCheckBookHotelRequest;
 use Modules\API\Requests\BookingAvailabilityChangeBookHotelRequest;
 use Modules\API\Requests\BookingChangeHardBookHotelRequest;
 use Modules\API\Requests\BookingRetrieveBooking;
@@ -244,6 +245,8 @@ class BookApiHandler extends BaseController
         $filters = $request->all();
         $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->first();
 
+        $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['new_booking_item']);
+
         $this->saveChangePassengers($filters, $apiBookingItem->supplier_id);
 
         try {
@@ -263,10 +266,7 @@ class BookApiHandler extends BaseController
         return $this->sendResponse($data ?? [], 'success');
     }
 
-    /**
-     * @param BookingAvailabilityChangeBookHotelRequest $request
-     * @return JsonResponse
-     */
+
     public function availabilityChange(BookingAvailabilityChangeBookHotelRequest $request): JsonResponse
     {
         $determinant = $this->determinant($request, false);
@@ -318,9 +318,43 @@ class BookApiHandler extends BaseController
         return $this->sendResponse($result, 'success');
     }
 
+    public function priceCheck(BookingPriceCheckBookHotelRequest $request): JsonResponse
+    {
+        $determinant = $this->determinant($request, false);
+        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
-        public function listBookings(ListBookingsRequest $request): JsonResponse
-        {
+        if (!BookRepository::isBook($request->booking_id, $request->booking_item)) {
+            return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
+        }
+        $filters = $request->all();
+
+        $bookingItem = ApiBookingItem::with('supplier')
+            ->where('booking_item', $request->booking_item)->first();
+
+        try {
+            $data = match (SupplierNameEnum::from($bookingItem->supplier->name)) {
+                SupplierNameEnum::EXPEDIA => $this->expedia->priceCheck($filters),
+                SupplierNameEnum::HBSI => $this->hbsi->priceCheck($filters),
+                default => [],
+            };
+        } catch (Exception $e) {
+            Log::error('BookApiHandler | priceCheck ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            return $this->sendError($e->getMessage(), 'failed');
+        }
+
+        if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
+
+        $result = [
+            'result' => $data ? Arr::get($data, 'result'): [],
+        ];
+
+        return $this->sendResponse($result, 'success');
+    }
+
+
+    public function listBookings(ListBookingsRequest $request): JsonResponse
+    {
         $determinant = $this->determinant($request);
         if (! empty($determinant)) {
             return response()->json(['error' => $determinant['error']], 400);

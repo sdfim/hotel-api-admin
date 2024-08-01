@@ -20,12 +20,7 @@ class BookingChangeHardBookHotelRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       @OA\Property(
-     *         property="search_id",
-     *         description="UUID of the search that initiated the booking.",
-     *         type="string",
-     *         format="uuid"
-     *       ),
+
      *       @OA\Property(
      *         property="booking_id",
      *         description="UUID of the existing booking.",
@@ -76,7 +71,8 @@ class BookingChangeHardBookHotelRequest extends ApiRequest
      *           @OA\Property(
      *             property="room",
      *             description="Room number or identifier for the passenger.",
-     *             type="integer"
+     *             type="integer",
+     *             example=1
      *           )
      *         )
      *       )
@@ -106,7 +102,6 @@ class BookingChangeHardBookHotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'search_id' => 'required|uuid',
             'booking_id' => 'required|uuid',
             'booking_item' => 'required|uuid',
             'new_booking_item' => 'required|uuid',

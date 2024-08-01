@@ -24,6 +24,7 @@ class BookingApiRoutes
             // Section Change Booking
             Route::put('/change/soft-change', [BookApiHandler::class, 'changeSoftBooking'])->name('changeSoftBooking');
             Route::post('/change/availability', [BookApiHandler::class, 'availabilityChange'])->name('availabilityChange');
+            Route::get('/change/price-check', [BookApiHandler::class, 'priceCheck'])->name('priceCheck');
             Route::put('/change/hard-change', [BookApiHandler::class, 'changeHardBooking'])->name('changeHardBooking');
         });
     }
