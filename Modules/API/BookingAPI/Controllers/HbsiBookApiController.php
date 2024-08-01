@@ -194,8 +194,26 @@ class HbsiBookApiController extends BaseBookApiController
             $booking_id, $filters, $supplierId, 'book', 'retrieve', $apiBookingsMetadata->search_type,
         ]);
 
+        $changePassengersInspector = ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('booking_item', $apiBookingsMetadata->booking_item)
+            ->where('type', 'change_passengers')->first();
+        if ($changePassengersInspector) {
+            $rooms = json_decode($changePassengersInspector->request, true)['rooms'];
+            $reservation = [
+                'booking_id' => $apiBookingsMetadata->supplier_booking_item_id,
+                'name' => $rooms[0][0]['given_name'],
+                'surname' => $rooms[0][0]['family_name'],
+            ];
+        } else {
+            $reservation = [
+                'booking_id' => $apiBookingsMetadata->supplier_booking_item_id,
+                'name' => $apiBookingsMetadata->booking_item_data['main_guest']['GivenName'],
+                'surname' => $apiBookingsMetadata->booking_item_data['main_guest']['Surname'],
+            ];
+        }
+
         $xmlPriceData = $this->hbsiClient->retrieveBooking(
-            $apiBookingsMetadata->booking_item_data,
+            $reservation,
             $apiBookingsMetadata->hotel_supplier_id ?? null,
             $bookingInspector
         );

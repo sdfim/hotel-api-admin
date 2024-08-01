@@ -501,11 +501,11 @@ class HbsiClient
                 xmlns="http://www.opentravel.org/OTA/2003/05">
                     <ReadRequests>
                     <ReadRequest>
-                        <UniqueID Type="'.$type.'" ID="'.$reservation['bookingId'].'"/>
+                        <UniqueID Type="'.$type.'" ID="'.$reservation['booking_id'].'"/>
                         <Verification>
                             <PersonName>
-                                <GivenName>'.$reservation['main_guest']['GivenName'].'</GivenName>
-                                <Surname>'.$reservation['main_guest']['Surname'].'</Surname>
+                                <GivenName>'.$reservation['name'].'</GivenName>
+                                <Surname>'.$reservation['surname'].'</Surname>
                             </PersonName>
                         </Verification>
                     </ReadRequest>
