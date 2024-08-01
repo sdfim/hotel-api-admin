@@ -350,7 +350,7 @@ class HbsiBookApiController extends BaseBookApiController
         $dataResponse = [];
         $soapError = false;
 
-        if (Cache::get('room_combinations:'.$filters['new_booking_item'])) {
+        if (isset($filters['new_booking_item']) && Cache::get('room_combinations:'.$filters['new_booking_item'])) {
             $this->hbsiService->updateBookingItemsData($filters['new_booking_item']);
         }
 
@@ -422,7 +422,7 @@ class HbsiBookApiController extends BaseBookApiController
             $filters['booking_id'], $filters, $dataResponseToSave, $clientResponse, $supplierId, 'change_booking', '', 'hotel',
         ]);
 
-        return (array) $dataResponse;
+        return ['status' => 'Booking changed.'];
     }
 
     public function availabilityChange(array $filters): array|null
