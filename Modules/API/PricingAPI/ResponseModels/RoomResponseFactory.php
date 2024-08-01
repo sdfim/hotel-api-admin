@@ -10,6 +10,7 @@ class RoomResponseFactory
 
         $roomResponse->setGiataRoomCode('');
         $roomResponse->setGiataRoomName('');
+        $roomResponse->setQueryPackage('');
         $roomResponse->setSupplierRoomName('');
         $roomResponse->setPerDayRateBreakdown('');
         $roomResponse->setSupplierRoomCode('');
@@ -31,6 +32,7 @@ class RoomResponseFactory
         $roomResponse->setMealPlans('');
         $roomResponse->setBedConfigurations([]);
         $roomResponse->setBreakdown([]);
+        $roomResponse->setPromotions([]);
 
         return $roomResponse;
     }

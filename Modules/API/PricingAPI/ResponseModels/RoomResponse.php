@@ -58,8 +58,32 @@ class RoomResponse extends BaseResponse
 
     private bool $package_deal = false;
 
+    private array $promotions = [];
+
     private ?string $penalty_date = null;
 
+    private string $query_package;
+
+    /**
+     * @param string $query_package
+     * @return void
+     */
+    public function setQueryPackage(string $query_package): void
+    {
+        $this->query_package = $query_package;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQueryPackage(): string
+    {
+        return $this->query_package;
+    }
+
+    /**
+     * @param string $room_description
+     */
     public function setRoomDescription(string $room_description): void
     {
         $this->room_description = $room_description;
@@ -333,6 +357,19 @@ class RoomResponse extends BaseResponse
     /**
      * @return array
      */
+    public function getPromotions(): array
+    {
+        return $this->promotions;
+    }
+
+    /**
+     * @param array $promotions
+     */
+    public function setPromotions(array $promotions): void
+    {
+        $this->promotions = $promotions;
+    }
+
     public function getCapacity(): array
     {
         return $this->capacity;
@@ -355,6 +392,7 @@ class RoomResponse extends BaseResponse
             'supplier_room_name' => $this->getSupplierRoomName(),
             'per_day_rate_breakdown' => $this->getPerDayRateBreakdown(),
             'supplier_room_id' => $this->getSupplierRoomCode(),
+            'query_package' => $this->getQueryPackage(),
             // 'supplier_bed_groups' => $this->getSupplierBedGroups(),
             'room_type' => $this->getRoomType(),
             'room_description' => $this->getRoomDescription(),
@@ -377,6 +415,7 @@ class RoomResponse extends BaseResponse
             'breakdown' => $this->getBreakdown(),
             'package_deal' => $this->isPackageDeal(),
             'penalty_date' => $this->getPenaltyDate(),
+            'promotions' => $this->getPromotions(),
         ];
     }
 }

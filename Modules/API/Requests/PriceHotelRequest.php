@@ -140,6 +140,8 @@ class PriceHotelRequest extends ApiRequest
             'longitude' => 'required_without_all:giata_ids,destination,place|decimal:0,8|min:-180|max:180',
             'radius' => 'required_without_all:giata_ids,destination,place|numeric|between:1,1000',
 
+            'query_package' => 'string|in:both,standalone,package',
+
             'rating' => 'numeric|between:1,5.5',
             'occupancy' => 'required|array',
             'occupancy.*.adults' => 'required|numeric|between:1,9',

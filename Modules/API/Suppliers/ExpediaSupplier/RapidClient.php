@@ -30,10 +30,18 @@ class RapidClient
     public function get(string $path, array $queryParameters, array $addHeaders = []): mixed
     {
         $queryParams = [];
+        $queryParamsEncoded = '';
+
         foreach ($queryParameters as $key => $value) {
             $queryParams[$key] = $value;
         }
-        $url = $this->credentials->rapidBaseUrl.'/'.$path.'?'.http_build_query($queryParams);
+
+        if (! empty($queryParams))
+        {
+            $queryParamsEncoded = '?'.http_build_query($queryParams);
+        }
+
+        $url = $this->credentials->rapidBaseUrl.'/'.$path . $queryParamsEncoded;
 
         $headers = [
             'Authorization' => $this->generateAuthHeader(),
@@ -117,6 +125,7 @@ class RapidClient
             'Accept-Encoding' => self::GZIP,
             'Authorization' => $this->generateAuthHeader(),
         ];
+
         $request = new Request('GET', $url, $headers + $addHeaders);
         try {
             $res = $this->client->sendAsync($request, ['timeout' => ConfigRepository::getTimeout()]);

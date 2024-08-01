@@ -7,6 +7,7 @@ use Exception;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Support\Enums\FontFamily;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -66,6 +67,16 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 ViewColumn::make('request')
                     ->toggleable()
                     ->view('dashboard.booking-inspector.column.request'),
+                TextColumn::make('metadata.supplier_booking_item_id')
+                    ->fontFamily(FontFamily::Mono)
+                    ->searchable(isIndividual: true)
+                    ->toggleable()
+                    ->label('code booking'),
+                TextColumn::make('metadata.hotel_supplier_id')
+                    ->fontFamily(FontFamily::Mono)
+                    ->searchable(isIndividual: true)
+                    ->toggleable()
+                    ->label('hotel id'),
                 TextColumn::make('token.id')
                     ->numeric()
                     ->searchable(isIndividual: true)

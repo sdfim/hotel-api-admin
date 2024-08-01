@@ -151,6 +151,7 @@ class ExpediaBookApiController extends BaseBookApiController
             $response = $this->rapidClient->post($props['path'], $props['paramToken'], $body, $this->headers());
 
             $content = json_decode($response->getBody()->getContents(), true);
+
             $content['original']['response'] = $content;
             $content['original']['request']['params'] = $props['paramToken'];
             $content['original']['request']['body'] = json_decode($body, true);
@@ -331,6 +332,8 @@ class ExpediaBookApiController extends BaseBookApiController
 
             try {
                 $response = $this->rapidClient->delete($path, $props['paramToken'], $body, $this->headers());
+
+
                 $dataResponse = json_decode($response->getBody()->getContents());
                 $res[] = [
                     'booking_item' => $apiBookingsMetadata->booking_item,
@@ -350,6 +353,7 @@ class ExpediaBookApiController extends BaseBookApiController
             }
 
             $filters['booking_item'] = $apiBookingsMetadata->booking_item;
+            $filters['type'] = 'hotel';
 
             $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
             SaveBookingInspector::dispatch([

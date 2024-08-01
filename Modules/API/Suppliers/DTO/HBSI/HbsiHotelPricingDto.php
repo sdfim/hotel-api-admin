@@ -9,7 +9,6 @@ use App\Repositories\GiataGeographyRepository;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
@@ -17,6 +16,7 @@ use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
 use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
+use Modules\API\Tools\PricingDtoTools;
 use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\Enums\ItemTypeEnum;
@@ -24,23 +24,7 @@ use Modules\Enums\SupplierNameEnum;
 
 class HbsiHotelPricingDto
 {
-    private string $rate_type;
-
-    private string $destinationData;
-
     private HbsiPricingRulesApplier $pricingRulesApplier;
-
-    private string $search_id;
-
-    private string $currency;
-
-    private float $current_time;
-
-    private array $meal_plans_available;
-
-    private array $roomCombinations;
-
-    private array $giata;
 
     /**
      * @var string[]
@@ -101,56 +85,34 @@ class HbsiHotelPricingDto
     ];
 
     public function __construct(
-        private array $bookingItems = [],
-        private readonly GiataGeographyRepository $geographyRepo = new GiataGeographyRepository()
-    ) {
-        $this->current_time = microtime(true);
-        $this->supplier_id = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
-    }
+        private readonly PricingDtoTools $pricingDtoTools = new PricingDtoTools(),
+        private array                    $bookingItems = [],
+        private array                    $meal_plans_available = [],
+        private array                    $roomCombinations = [],
+        private array                    $giata = [],
+        private string                   $rate_type = '',
+        private string                   $destinationData = '',
+        private string                   $search_id = '',
+        private string                   $currency = '',
+        private int                      $supplier_id = 0,
+    ) {}
 
     public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules): array
     {
         $this->search_id = $search_id;
-        $this->bookingItems = [];
         $this->rate_type = count($query['occupancy']) > 1 ? ItemTypeEnum::SINGLE->value : ItemTypeEnum::COMPLETE->value;
-        $this->meal_plans_available = [];
+        $this->supplier_id = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
+        $this->bookingItems = [];
 
         $pricingRules = array_column($pricingRules, null, 'property');
-
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
 
         $giataIds = array_map(function ($item) {
             return $item['giata_id'];
         }, $supplierResponse);
 
-        $latitude = Arr::get($query, 'latitude', 0);
-        $longitude = Arr::get($query, 'longitude', 0);
-
-        $this->giata = GiataProperty::whereIn('code', $giataIds)
-            ->selectRaw('code, rating, name, city, 6371 * 2 * ASIN(SQRT(POWER(SIN((latitude - abs(?)) * pi()/180 / 2), 2) + COS(latitude * pi()/180 ) * COS(abs(?) * pi()/180) * POWER(SIN((longitude - ?) *  pi()/180 / 2), 2))) as distance', [$latitude, $latitude, $longitude])
-            ->get()
-            ->keyBy('code')
-            ->map(function ($item) {
-                return [
-                    'rating' => $item->rating,
-                    'hotel_name' => $item->name,
-                    'city' => $item->city,
-                    'distance' => $item->distance,
-                ];
-            })
-            ->toArray();
-
-        if (isset($query['destination'])) {
-            $this->destinationData = $this->geographyRepo->getFullLocation($query['destination'])->full_location;
-        } elseif (isset($query['place'])) {
-            $this->destinationData = GiataPlace::where('key', $query['place'])
-                ->select([
-                    DB::raw("CONCAT(name_primary, ', ', type, ', ', country_code) as full_location"),
-                ])
-                ->first()->full_location ?? '';
-        } else {
-            $this->destinationData = '';
-        }
+        $this->giata = $this->pricingDtoTools->getGiataProperties($query, $giataIds);
+        $this->destinationData = $this->pricingDtoTools->getDestinationData($query);
 
         $hotelResponse = [];
         foreach ($supplierResponse as $key => $propertyGroup) {
@@ -279,13 +241,6 @@ class HbsiHotelPricingDto
     public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId): array
     {
         $counts = [];
-        //        foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {
-        //            if (isset($guestCount['AgeQualifyingCode'])) $counts[$guestCount['AgeQualifyingCode']] = $guestCount['Count'];
-        //            else $counts[$guestCount['@attributes']['AgeQualifyingCode']] = $guestCount['@attributes']['Count'];
-        //        }
-        //        $rateOccupancy = $counts['10'] . '-' . ($counts['8'] ?? 0) . '-' . ($counts['7'] ?? 0);
-        //        $rateOrdinal = $rate['rate_ordinal'] ?? 0;
-
         foreach ($rate['GuestCounts']['GuestCount'] as $guestCount) {
             if (isset($guestCount['Age'])) {
                 $counts[$guestCount['Age']] = $guestCount['Count'];
@@ -390,10 +345,10 @@ class HbsiHotelPricingDto
             $penaltyDate = date('Y-m-d');
 
             $cancellationPolicies[] = [
-                'description' => PolicyCode::CXP->value,
-                'type' => CancellationPolicyTypesEnum::General->value,
+                'description'        => PolicyCode::CXP->value,
+                'type'               => CancellationPolicyTypesEnum::General->value,
                 'penalty_start_date' => $penaltyDate,
-                'percentage' => '100',
+                'percentage'         => '100',
             ];
         }
 
@@ -545,6 +500,11 @@ class HbsiHotelPricingDto
             $breakdownWithoutKeys[] = array_values($item);
         }
 
-        return $breakdownWithoutKeys;
+        return [
+            'nightly' => $breakdownWithoutKeys,
+            'stay' => [],
+            'fees' => [],
+
+        ];
     }
 }
