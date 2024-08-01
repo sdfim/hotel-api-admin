@@ -90,6 +90,12 @@ class BookingAvailabilityChangeBookHotelRequest extends ApiRequest
         $baseSearchRules = $baseSearchRequest->rules();
 
         unset($baseSearchRules['type']);
+        unset($baseSearchRules['giata_ids']);
+        unset($baseSearchRules['place']);
+        unset($baseSearchRules['destination']);
+        unset($baseSearchRules['latitude']);
+        unset($baseSearchRules['longitude']);
+        unset($baseSearchRules['radius']);
 
         return $baseSearchRules + [
             'booking_id' => 'required|size:36',

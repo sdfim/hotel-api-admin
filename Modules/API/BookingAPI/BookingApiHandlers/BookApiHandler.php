@@ -152,6 +152,12 @@ class BookApiHandler extends BaseController
         }
         $filters = $request->all();
 
+        if (isset($filters['special_requests'])) {
+            foreach ($filters['special_requests'] as $k =>$item) {
+                $filters['special_requests'][$k]['booking_item'] = $request->booking_item;
+            }
+        }
+
         $supplierId = ApiBookingItem::where('booking_item', $request->booking_item)->first()->supplier_id;
         $supplier = SupplierNameEnum::from(Supplier::where('id', $supplierId)->first()->name);
 
@@ -260,6 +266,12 @@ class BookApiHandler extends BaseController
 
         $filters = $request->all();
         $apiBookingItem = ApiBookingItem::where('booking_item', $request->booking_item)->first();
+
+        if (isset($filters['special_requests'])) {
+            foreach ($filters['special_requests'] as $k =>$item) {
+                $filters['special_requests'][$k]['booking_item'] = $request->booking_item;
+            }
+        }
 
         $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['new_booking_item']);
 
