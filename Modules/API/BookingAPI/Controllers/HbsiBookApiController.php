@@ -334,10 +334,6 @@ class HbsiBookApiController extends BaseBookApiController
         $dataResponse = [];
         $soapError = false;
 
-//        if (isset($filters['new_booking_item']) && Cache::get('room_combinations:'.$filters['new_booking_item'])) {
-//            $this->hbsiService->updateBookingItemsData($filters['new_booking_item']);
-//        }
-
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
             $filters['booking_id'], $filters, $supplierId, 'change_book', 'change-'.$mode, 'hotel',

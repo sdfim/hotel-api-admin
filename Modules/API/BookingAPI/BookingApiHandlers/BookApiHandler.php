@@ -223,10 +223,6 @@ class BookApiHandler extends BaseController
             $passenger['booking_items'] = [['room' => $passenger['room'], 'booking_item' => $bookingItem]];
         }
 
-        foreach ($filters['special_requests'] ?? [] as &$specialRequest) {
-            $specialRequest['booking_item'] = $bookingItem;
-        }
-
         if (isset($filters['search_id'])) {
             $searchId = $filters['search_id'];
         } else {
@@ -262,6 +258,13 @@ class BookApiHandler extends BaseController
 
         if (!BookRepository::isBook($request->booking_id, $request->booking_item)) {
             return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
+        }
+
+        if (!ApiBookingInspector::where('booking_id', $request->booking_id)
+            ->where('booking_item', $request->booking_item)
+            ->where('type', 'price-check')
+            ->where('status', 'success')->exists()) {
+            return $this->sendError('First you need to do change/price-check', 'failed');
         }
 
         $filters = $request->all();
