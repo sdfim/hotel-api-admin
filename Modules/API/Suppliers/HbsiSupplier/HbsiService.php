@@ -11,6 +11,8 @@ use Modules\Enums\SupplierNameEnum;
 
 class HbsiService
 {
+    const TTL_CACHE_COMBINATION_ITEMS = 60*24;
+
     public function updateBookingItemsData(string $completeItem): void
     {
         $room_combinations = Cache::get('room_combinations:'.$completeItem);
@@ -162,7 +164,7 @@ class HbsiService
                 $input[$hk]['room_combinations'] = $finalResult;
                 foreach ($finalResult as $key => $value) {
                     $keyCache = 'room_combinations:'.$key;
-                    Cache::put($keyCache, $value, now()->addMinutes(120));
+                    Cache::put($keyCache, $value, now()->addMinutes(self::TTL_CACHE_COMBINATION_ITEMS));
                 }
             }
         }
