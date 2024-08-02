@@ -5,10 +5,10 @@ namespace Modules\API\BookingAPI\Controllers;
 use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveBookingInspector;
-use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveReservations;
 use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingInspector;
+use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
@@ -17,15 +17,12 @@ use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\HbsiRepository;
-use App\Repositories\ApiBookingsMetadataRepository;
-use App\Repositories\ChannelRenository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookDto;
 use Modules\API\Suppliers\DTO\HBSI\HbsiHotelBookingRetrieveBookingDto;
@@ -431,6 +428,7 @@ class HbsiBookApiController extends BaseBookApiController
         $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$searchId, $filters, [$supplierId], 'change', 'hotel']);
 
         $response = $this->priceByHotel($hotelId, $filters, $searchInspector);
+
         $handleResponse = $this->handlePriceHbsi(
             $response,
             $filters,
@@ -604,7 +602,8 @@ class HbsiBookApiController extends BaseBookApiController
                 'total_pages' => 1,
             ];
 
-        } catch (GuzzleException $e) {
+        }
+        catch (GuzzleException $e) {
             Log::error('HBSIHotelApiHandler GuzzleException ' . $e);
             Log::error($e->getTraceAsString());
             return [

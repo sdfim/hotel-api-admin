@@ -2,10 +2,7 @@
 
 namespace Modules\API\Suppliers\DTO\HBSI;
 
-use App\Models\GiataPlace;
-use App\Models\GiataProperty;
 use App\Models\Supplier;
-use App\Repositories\GiataGeographyRepository;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
@@ -17,8 +14,6 @@ use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
 use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
 use Modules\API\Tools\PricingDtoTools;
-use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
-use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\Enums\ItemTypeEnum;

@@ -41,9 +41,18 @@ class ApiBookingItemRepository
 
     public static function isNonRefundable(string $booking_item): bool
     {
-        $item = self::getItemPricingData($booking_item);
-
-        return Arr::get($item, 'non_refundable', false);
+        $res = false;
+        $childList = self::getChildrenBookingItems($booking_item);
+        if (!$childList) $childList = [$booking_item];
+        foreach ($childList as $child)  {
+            $item = self::getItemPricingData($child);
+            $currentRes = Arr::get($item, 'non_refundable', false);
+            if ($currentRes) {
+                $res = true;
+                break;
+            }
+        }
+        return $res;
     }
 
     public static function getRateOccupancy(string $booking_item): ?string
@@ -81,14 +90,9 @@ class ApiBookingItemRepository
         return Arr::get(self::getItemData($booking_item), 'hotel_supplier_id');
     }
 
-    public static function getParentBookingItem(string $bookingItem): string
-    {
-        if (self::isComlete($bookingItem)) {
-            $parentBookingItem = $bookingItem;
-        } else {
-            $parentBookingItem = ApiBookingItem::where('booking_item', $bookingItem)->first()->complete_id;
-        }
+    public static function getChildrenBookingItems(string $bookingItem): ?array
 
-        return $parentBookingItem;
+    {
+        return ApiBookingItem::where('booking_item', $bookingItem)->first()?->child_items;
     }
 }

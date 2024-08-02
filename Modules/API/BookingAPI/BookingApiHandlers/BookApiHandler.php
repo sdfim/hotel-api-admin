@@ -270,6 +270,7 @@ class BookApiHandler extends BaseController
             ->where('type', 'change_passengers');
 
         if ($bookingItemInspector->exists()) {
+            $bookingItemInspector->delete();
             $status = 'Update change passengers';
             $subType = 'update_change';
         } else {

@@ -501,11 +501,11 @@ class HbsiClient
                 xmlns="http://www.opentravel.org/OTA/2003/05">
                     <ReadRequests>
                     <ReadRequest>
-                        <UniqueID Type="'.$type.'" ID="'.$reservation['bookingId'].'"/>
+                        <UniqueID Type="'.$type.'" ID="'.$reservation['booking_id'].'"/>
                         <Verification>
                             <PersonName>
-                                <GivenName>'.$reservation['main_guest']['GivenName'].'</GivenName>
-                                <Surname>'.$reservation['main_guest']['Surname'].'</Surname>
+                                <GivenName>'.$reservation['name'].'</GivenName>
+                                <Surname>'.$reservation['surname'].'</Surname>
                             </PersonName>
                         </Verification>
                     </ReadRequest>
@@ -733,21 +733,6 @@ class HbsiClient
     }
 
     private function createGuestArr(int $index, int $age, array $guest, array $filters): array
-    {
-        $guestArr = [];
-        $guestArr['@attributes']['ResGuestRPH'] = $index + 1;
-        $guestArr['@attributes']['Age'] = $age;
-        if ($index === 0) {
-            $guestArr['Profiles']['ProfileInfo']['Profile']['Customer'] = $this->createCustomerArr($guest, $filters);
-        } else {
-            $guestArr['Profiles']['ProfileInfo']['Profile']['Customer']['PersonName']['GivenName'] = $guest['given_name'];
-            $guestArr['Profiles']['ProfileInfo']['Profile']['Customer']['PersonName']['Surname'] = $guest['family_name'];
-        }
-
-        return $guestArr;
-    }
-
-    private function createGuestArrByAge(int $index, int $age, array $guest, array $filters): array
     {
         $guestArr = [];
         $guestArr['@attributes']['ResGuestRPH'] = $index + 1;

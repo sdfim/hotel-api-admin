@@ -153,8 +153,8 @@ class FlowHbsiBookTest extends Command
             $checkin = Carbon::now()->addDays(240)->toDateString();
             $checkout = Carbon::now()->addDays(241 + rand(2, 5))->toDateString();
         } else {
-            $checkin = Carbon::now()->addDays(10)->toDateString();
-            $checkout = Carbon::now()->addDays(12 + rand(2, 5))->toDateString();
+            $checkin = Carbon::now()->addDays(100)->toDateString();
+            $checkout = Carbon::now()->addDays(100 + rand(2, 5))->toDateString();
         }
 
         $occupancy = [];
