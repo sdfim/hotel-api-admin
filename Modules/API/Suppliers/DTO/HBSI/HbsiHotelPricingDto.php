@@ -383,6 +383,8 @@ class HbsiHotelPricingDto
                 'penalty_start_date' => $penaltyDate,
                 'percentage' => '100',
             ];
+
+            $nonRefundable = true;
         }
 
         $roomResponse = RoomResponseFactory::create();
