@@ -311,6 +311,10 @@ class BookApiHandler extends BaseController
             return $this->sendError('This booking_item is non-refundable', 'failed');
         }
 
+        if (!BookRepository::exists($request->booking_id, $request->booking_item)) {
+            return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
+        }
+
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
@@ -362,12 +366,17 @@ class BookApiHandler extends BaseController
             return $this->sendError('This booking_item is non-refundable', 'failed');
         }
 
+        if (!BookRepository::exists($request->booking_id, $request->booking_item)) {
+            return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
+        }
+
         $determinant = $this->determinant($request, false);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         if (!BookRepository::isBook($request->booking_id, $request->booking_item)) {
             return $this->sendError('booking_id and/or booking_item not yet booked', 'failed');
         }
+
         $filters = $request->all();
 
         $bookingItem = ApiBookingItem::with('supplier')
@@ -415,6 +424,10 @@ class BookApiHandler extends BaseController
     {
         if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
             return $this->sendError('This booking_item is non-refundable', 'failed');
+        }
+
+        if (!BookRepository::exists($request->booking_id, $request->booking_item)) {
+            return $this->sendError('the pair booking_id and booking_item is not correct ', 'failed');
         }
 
         $determinant = $this->determinant($request, false);

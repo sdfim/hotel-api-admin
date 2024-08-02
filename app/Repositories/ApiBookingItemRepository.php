@@ -29,14 +29,14 @@ class ApiBookingItemRepository
     {
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
 
-        return json_decode($bookingItem->booking_item_data, true);
+        return json_decode($bookingItem?->booking_item_data, true);
     }
 
     public static function getItemPricingData(string $booking_item): ?array
     {
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
 
-        return json_decode($bookingItem->booking_pricing_data, true);
+        return json_decode($bookingItem?->booking_pricing_data, true);
     }
 
     public static function isNonRefundable(string $booking_item): bool

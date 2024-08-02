@@ -173,6 +173,13 @@ class ApiBookingInspectorRepository
             ->exists();
     }
 
+    public static function exists(string $booking_id, string $booking_item): bool
+    {
+        return ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('booking_item', $booking_item)
+            ->exists();
+    }
+
     public static function isDuplicate(string $booking_id, string $booking_item): bool
     {
         return ApiBookingInspector::where('booking_item', $booking_item)
