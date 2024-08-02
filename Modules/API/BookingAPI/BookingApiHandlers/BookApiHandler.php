@@ -148,7 +148,6 @@ class BookApiHandler extends BaseController
         $supplierMach = $supplier = SupplierNameEnum::from(Supplier::where('id', $supplierId)->first()->name);
 
         $isNonRefundable = ApiBookingItemRepository::isNonRefundable($request->booking_item);
-
         if ($isNonRefundable) $supplierMach = 'NonRefundable';
 
         $endpointDetails = [
@@ -308,6 +307,10 @@ class BookApiHandler extends BaseController
 
     public function changeHardBooking(BookingChangeHardBookHotelRequest $request): JsonResponse
     {
+        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
+            return $this->sendError('This booking_item is non-refundable', 'failed');
+        }
+
         $determinant = $this->determinant($request);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
@@ -355,6 +358,10 @@ class BookApiHandler extends BaseController
 
     public function availabilityChange(BookingAvailabilityChangeBookHotelRequest $request): JsonResponse
     {
+        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
+            return $this->sendError('This booking_item is non-refundable', 'failed');
+        }
+
         $determinant = $this->determinant($request, false);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
@@ -406,6 +413,10 @@ class BookApiHandler extends BaseController
 
     public function priceCheck(BookingPriceCheckBookHotelRequest $request): JsonResponse
     {
+        if (ApiBookingItemRepository::isNonRefundable($request->booking_item)) {
+            return $this->sendError('This booking_item is non-refundable', 'failed');
+        }
+
         $determinant = $this->determinant($request, false);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
