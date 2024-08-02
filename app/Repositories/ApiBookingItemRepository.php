@@ -39,6 +39,13 @@ class ApiBookingItemRepository
         return json_decode($bookingItem->booking_pricing_data, true);
     }
 
+    public static function isNonRefundable(string $booking_item): bool
+    {
+        $item = self::getItemPricingData($booking_item);
+
+        return Arr::get($item, 'non_refundable', false);
+    }
+
     public static function getRateOccupancy(string $booking_item): ?string
     {
         return self::getItemData($booking_item)['rate_occupancy'];

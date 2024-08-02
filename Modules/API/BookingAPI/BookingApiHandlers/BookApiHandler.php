@@ -145,12 +145,11 @@ class BookApiHandler extends BaseController
         }
 
         $supplierId = ApiBookingItem::where('booking_item', $request->booking_item)->first()->supplier_id;
-        $supplier = SupplierNameEnum::from(Supplier::where('id', $supplierId)->first()->name);
+        $supplierMach = $supplier = SupplierNameEnum::from(Supplier::where('id', $supplierId)->first()->name);
 
-        $item = ApiBookingItemRepository::getItemPricingData($request->booking_item);
-        $isNonRefundable = Arr::get($item, 'non_refundable', false);
+        $isNonRefundable = ApiBookingItemRepository::isNonRefundable($request->booking_item);
 
-        if ($isNonRefundable) $supplier = 'NonRefundable';
+        if ($isNonRefundable) $supplierMach = 'NonRefundable';
 
         $endpointDetails = [
             'soft-change' => [
@@ -175,7 +174,7 @@ class BookApiHandler extends BaseController
             ]
         ];
 
-        $endpoints = match ($supplier) {
+        $endpoints = match ($supplierMach) {
             SupplierNameEnum::HBSI => ['soft-change', 'availability', 'price-check', 'hard-change'],
             SupplierNameEnum::EXPEDIA, 'NonRefundable' => ['soft-change'],
             default => [],
@@ -190,6 +189,7 @@ class BookApiHandler extends BaseController
 
         return $this->sendResponse([
             'booking_item' => $request->booking_item,
+            'non_refundable' => $isNonRefundable,
             'supplier' => $supplier,
             'endpoints' => $result,
         ], 'success');
