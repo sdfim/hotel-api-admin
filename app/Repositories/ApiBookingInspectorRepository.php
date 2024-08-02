@@ -81,6 +81,7 @@ class ApiBookingInspectorRepository
         $booking_item = $filters['booking_item'];
 
         $inspector = ApiBookingInspector::where('type', 'book')
+            ->where('sub_type', 'like', 'retrieve'.'%')
             ->where('sub_type', 'create')
             ->where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
@@ -322,5 +323,4 @@ class ApiBookingInspectorRepository
 
         return $inspector->toArray();
     }
-
 }

@@ -5,10 +5,10 @@ namespace Modules\API\BookingAPI\Controllers;
 use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveBookingInspector;
+use App\Jobs\SaveBookingMetadata;
 use App\Jobs\SaveReservations;
 use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingInspector;
-use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
@@ -17,6 +17,8 @@ use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\HbsiRepository;
+use App\Repositories\ApiBookingsMetadataRepository;
+use App\Repositories\ChannelRenository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -44,6 +46,7 @@ class HbsiBookApiController extends BaseBookApiController
     ];
 
     private const CODE_ALREADY_CANCELLED = '95';
+    private const CODE_BOOKING_STILL_CONFIRMED = '394'; // Cancelled after due date
     private const CODE_WRONG_PASSENGER_NAME = '251';
     private const MAX_CANCEL_BOOKING_RETRY_COUNT = 1;
 
@@ -86,7 +89,7 @@ class HbsiBookApiController extends BaseBookApiController
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $inspectorBook = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'book', 'create', $bookingInspector->search_type
+            $booking_id, $filters, $supplierId, 'book', 'create', $bookingInspector->search_type,
         ]);
 
         $error = true;
@@ -273,7 +276,7 @@ class HbsiBookApiController extends BaseBookApiController
                 $res = $dataResponse['Errors'];
                 $code = $response->children()->attributes()['Code'];
 
-                if (static::CODE_ALREADY_CANCELLED == $code) {
+                if (static::CODE_ALREADY_CANCELLED == $code || static::CODE_BOOKING_STILL_CONFIRMED == $code) {
                     return [
                         'booking_item' => $apiBookingsMetadata->booking_item,
                         'status' => 'Room canceled.',
@@ -347,7 +350,7 @@ class HbsiBookApiController extends BaseBookApiController
         return $data;
     }
 
-    public function changeBooking(array $filters, string $mode = 'soft'): array|null
+    public function changeBooking(array $filters, string $mode = 'soft'): ?array
     {
         $dataResponse = [];
         $soapError = false;
@@ -376,7 +379,7 @@ class HbsiBookApiController extends BaseBookApiController
                     'error', ['side' => 'app', 'message' => $xmlPriceData['response']]);
                 return [$xmlPriceData['response']];
             }
-            elseif (!isset($dataResponse['Errors'])) {
+            elseif (! isset($dataResponse['Errors'])) {
                 $clientResponse = $this->hbsiHotelBookDto->toHotelBookResponseModel($filters);
             } else {
                 $clientResponse = $dataResponse['Errors'];

@@ -53,11 +53,7 @@ class ExpediaBookApiController extends BaseBookApiController
             ? PropertyPriceCall::PACKAGE_RATES : PropertyPriceCall::STANDALONE_RATES;
     }
 
-    /**
-     * @param array $filters
-     * @return array|null
-     */
-    public function availabilityChange(array $filters): array|null
+    public function availabilityChange(array $filters): ?array
     {
         $booking_item = $filters['booking_item'];
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
@@ -336,6 +332,7 @@ class ExpediaBookApiController extends BaseBookApiController
             $response = $this->rapidClient->post($props['path'], $props['paramToken'], $body, $this->headers());
 
             $content = json_decode($response->getBody()->getContents(), true);
+
             $content['original']['response'] = $content;
             $content['original']['request'] = $originalRQ;
 
@@ -353,6 +350,11 @@ class ExpediaBookApiController extends BaseBookApiController
             $this->handleException($e, $inspectorBook, 'Server error', 'Server error', $originalRQ);
         } catch (RequestException $e) {
             $this->handleException($e, $inspectorBook, 'Request Exception occurred', $e->getMessage(), $originalRQ);
+
+            $error = [
+                'error'          => [...$error['error'], $e->getMessage()],
+                'supplier_error' => true,
+            ];
         } catch (Exception $e) {
             $this->handleException($e, $inspectorBook, 'Unexpected error', $e->getMessage(), $originalRQ);
         }
@@ -377,7 +379,12 @@ class ExpediaBookApiController extends BaseBookApiController
         $item = ApiBookingsMetadataRepository::bookedItem($booking_id, $filters['booking_item'])->first();
         $this->retrieveBooking($filters, $item);
 
-        return $res;
+        $error = empty($error['error']) ? [] : $error;
+
+        return [
+            ...$res,
+            ...$error
+        ];
     }
 
     public function listBookings(): ?array
@@ -499,6 +506,7 @@ class ExpediaBookApiController extends BaseBookApiController
             }
 
             $filters['booking_item'] = $apiBookingsMetadata->booking_item;
+            $filters['type'] = 'hotel';
 
             $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
             SaveBookingInspector::dispatch([

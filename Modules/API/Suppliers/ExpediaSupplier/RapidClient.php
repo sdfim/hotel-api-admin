@@ -118,6 +118,7 @@ class RapidClient
             'Accept-Encoding' => self::GZIP,
             'Authorization' => $this->generateAuthHeader(),
         ];
+
         $request = new Request('GET', $url, $headers + $addHeaders);
         try {
             $res = $this->client->sendAsync($request, ['timeout' => ConfigRepository::getTimeout()]);

@@ -52,6 +52,14 @@ class ApiBookingInspector extends Model
         return $this->belongsTo(ApiSearchInspector::class, 'search_id', 'search_id');
     }
 
+    /**
+     * @return BelongsTo
+     */
+    public function metadata(): BelongsTo
+    {
+        return $this->belongsTo(ApiBookingsMetadata::class, 'booking_item' , 'booking_item');
+    }
+
     public function metadata()
     {
         return $this->belongsTo(ApiBookingsMetadata::class, 'booking_item' , 'booking_item');

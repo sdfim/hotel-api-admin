@@ -4,14 +4,28 @@ namespace Modules\API\Suppliers\HbsiSupplier;
 
 use App\Models\ApiBookingItem;
 use App\Models\Supplier;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
+use Modules\API\PricingAPI\ResponseModels\HotelResponse;
+use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponse;
+use Modules\API\PricingAPI\ResponseModels\RoomResponse;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 
 class HbsiService
 {
     const TTL_CACHE_COMBINATION_ITEMS = 60*24;
+
+    private int $supplier_id;
+
+    private string $rate_type;
+
+    public function __construct()
+    {
+        $this->supplier_id = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
+        $this->rate_type = ItemTypeEnum::SINGLE->value;
+    }
 
     public function updateBookingItemsData(string $completeItem): void
     {

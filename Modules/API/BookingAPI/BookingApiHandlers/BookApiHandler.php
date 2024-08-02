@@ -13,8 +13,8 @@ use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
-use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiBookingItemRepository;
+use App\Repositories\ApiBookingsMetadataRepository;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -143,6 +143,9 @@ class BookApiHandler extends BaseController
         if (! empty($determinant)) {
             return response()->json(['error' => $determinant['error']], 400);
         }
+        if (! empty($determinant)) {
+            return response()->json(['error' => $determinant['error']], 400);
+        }
 
         $supplierId = ApiBookingItem::where('booking_item', $request->booking_item)->first()->supplier_id;
         $supplierMach = $supplier = SupplierNameEnum::from(Supplier::where('id', $supplierId)->first()->name);
@@ -245,6 +248,7 @@ class BookApiHandler extends BaseController
         } catch (Exception $e) {
             Log::error('BookApiHandler | changeItems '.$e->getMessage());
             Log::error($e->getTraceAsString());
+
 
             return $this->sendError($e->getMessage(), 'failed');
         }
@@ -354,11 +358,12 @@ class BookApiHandler extends BaseController
             return $this->sendError($e->getMessage(), 'failed');
         }
 
-        if (isset($data['errors'])) return $this->sendError($data['errors'], $data['message']);
+        if (isset($data['errors'])) {
+            return $this->sendError($data['errors'], $data['message']);
+        }
 
         return $this->sendResponse($data ?? [], 'success');
     }
-
 
     public function availabilityChange(BookingAvailabilityChangeBookHotelRequest $request): JsonResponse
     {
@@ -487,8 +492,6 @@ class BookApiHandler extends BaseController
     }
 
     /**
-     * @param BookingRetrieveItemsRequest $request
-     * @return JsonResponse
      * @throws GuzzleException
      */
     public function retrieveBooking(BookingRetrieveItemsRequest $request): JsonResponse
@@ -525,8 +528,6 @@ class BookApiHandler extends BaseController
     }
 
     /**
-     * @param BookingCancelBooking $request
-     * @return JsonResponse
      * @throws GuzzleException
      */
     public function cancelBooking(BookingCancelBooking $request): JsonResponse
@@ -748,6 +749,7 @@ class BookApiHandler extends BaseController
                             'given_name' => $passenger['given_name'],
                             'family_name' => $passenger['family_name'],
                             'date_of_birth' => $passenger['date_of_birth'],
+                            'age' => Arr::get($passenger, 'age'),
                         ];
                     } else {
                         $output[$bookingItem] = [
@@ -760,6 +762,7 @@ class BookApiHandler extends BaseController
                                             'given_name' => $passenger['given_name'],
                                             'family_name' => $passenger['family_name'],
                                             'date_of_birth' => $passenger['date_of_birth'],
+                                            'age' => Arr::get($passenger, 'age'),
                                         ],
                                     ],
                                 ],
@@ -775,6 +778,7 @@ class BookApiHandler extends BaseController
                             'given_name' => $passenger['given_name'],
                             'family_name' => $passenger['family_name'],
                             'date_of_birth' => $passenger['date_of_birth'],
+                            'age' => Arr::get($passenger, 'age'),
                         ];
                     } else {
                         $output[$bookingItem] = [
@@ -785,6 +789,7 @@ class BookApiHandler extends BaseController
                                     'given_name' => $passenger['given_name'],
                                     'family_name' => $passenger['family_name'],
                                     'date_of_birth' => $passenger['date_of_birth'],
+                                    'age' => Arr::get($passenger, 'age'),
                                 ],
                             ],
                         ];
@@ -798,7 +803,6 @@ class BookApiHandler extends BaseController
     }
 
     /**
-     * @param array $filtersOutput
      * @return array|string[]
      */
     private function checkCountGuestsChildrenAges(array $filtersOutput): array

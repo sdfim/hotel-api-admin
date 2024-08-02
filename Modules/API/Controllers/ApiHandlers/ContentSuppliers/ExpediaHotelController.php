@@ -3,12 +3,14 @@
 namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
 
 use App\Models\ExpediaContent;
+use App\Models\MapperExpediaGiata;
 use App\Repositories\ExpediaContentRepository as ExpediaRepository;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
+use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Modules\API\Tools\Geography;
 
 class ExpediaHotelController
@@ -186,6 +188,26 @@ class ExpediaHotelController
 
     public function detail(Request $request): object
     {
+        /*
+        $expedia_id = MapperExpediaGiata::where('giata_id', $request->get('property_id'))
+            ->select('expedia_id')
+            ->first()?->expedia_id;
+
+        // Detail request example
+        if ($expedia_id !== null)
+        {
+            $response = (new RapidClient())->get("v3/properties/content", [
+                'property_id' => $expedia_id,
+                'language' => 'en-US',
+                'supply_source' => 'expedia',
+            ]);
+
+            \Log::debug('### DETAIL RESPONSE ### ');
+            $content = json_decode($response->getBody()->getContents(), true);
+
+            \Log::debug(json_encode($content));
+        }
+        */
         $results = ExpediaRepository::getDetailByGiataId($request->get('property_id'));
 
         return ExpediaRepository::dtoDbToResponse($results, ExpediaContent::getFullListFields());

@@ -18,6 +18,7 @@ use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
+use Modules\API\Tools\PricingDtoTools;
 use Modules\API\Suppliers\Enums\Expedia\PolicyCode;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
@@ -26,34 +27,27 @@ class ExpediaHotelPricingDto
 {
     private ExpediaPricingRulesApplier $pricingRulesApplier;
 
-    private string $search_id;
-
-    private string $currency;
-
-    private float $current_time;
-
-    private ?string $destinationData;
-
-    private array $bookingItems;
-
-    private array $roomCombinations;
-
-    private array $occupancy;
-
-    private array $ratings;
-
-    private array $giata;
-
-    public function __construct()
-    {
-        $this->current_time = microtime(true);
-    }
+    public function __construct(
+        private readonly PricingDtoTools $pricingDtoTools = new PricingDtoTools(),
+        private array                    $bookingItems = [],
+        private array                    $roomCombinations = [],
+        private array                    $occupancy = [],
+        private array                    $ratings = [],
+        private array                    $giata = [],
+        private string                   $search_id = '',
+        private string                   $currency = 'USD',
+        private string                   $destinationData = '',
+        private string                   $query_package = '',
+        private string                   $supplier_id = '',
+    ) {}
 
     public function ExpediaToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules): array
     {
         $this->search_id = $search_id;
-        $this->bookingItems = [];
         $this->occupancy = $query['occupancy'];
+        $this->query_package = $query['query_package'];
+        $this->bookingItems = [];
+        $this->supplier_id = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()?->id;
 
         $this->pricingRulesApplier = new ExpediaPricingRulesApplier($query, $pricingRules);
 
@@ -71,36 +65,8 @@ class ExpediaHotelPricingDto
             ->keyBy('property_id')
             ->toArray();
 
-        $latitude = Arr::get($query, 'latitude', 0);
-        $longitude = Arr::get($query, 'longitude', 0);
-
-        $this->giata = GiataProperty::whereIn('code', $giataIds)
-            ->selectRaw('code, rating, name, city, 6371 * 2 * ASIN(SQRT(POWER(SIN((latitude - abs(?)) * pi()/180 / 2), 2) + COS(latitude * pi()/180 ) * COS(abs(?) * pi()/180) * POWER(SIN((longitude - ?) *  pi()/180 / 2), 2))) as distance', [$latitude, $latitude, $longitude])
-            ->get()
-            ->keyBy('code')
-            ->map(function ($item) {
-                return [
-                    'city' => $item->city,
-                    'distance' => $item->distance,
-                ];
-            })
-            ->toArray();
-
-        if (isset($query['destination'])) {
-            $this->destinationData = GiataGeography::where('city_id', $query['destination'])
-                ->select([
-                    DB::raw("CONCAT(city_name, ', ', locale_name, ', ', country_name) as full_location"),
-                ])
-                ->first()->full_location ?? '';
-        } elseif (isset($query['place'])) {
-            $this->destinationData = GiataPlace::where('key', $query['place'])
-                ->select([
-                    DB::raw("CONCAT(name_primary, ', ', type, ', ', country_code) as full_location"),
-                ])
-                ->first()->full_location ?? '';
-        } else {
-            $this->destinationData = null;
-        }
+        $this->giata = $this->pricingDtoTools->getGiataProperties($query, $giataIds);
+        $this->destinationData = $this->pricingDtoTools->getDestinationData($query) ?? '';
 
         $hotelResponse = [];
         foreach ($supplierResponse as $propertyGroup) {
@@ -185,11 +151,15 @@ class ExpediaHotelPricingDto
         $rooms = [];
         $priceRoomData = [];
         foreach ($roomGroup['rates'] as $key => $room) {
-            $roomData = $this->setRoomResponse((array) $room, $roomGroup, $propertyGroup, $giataId);
-            $roomResponse = $roomData['roomResponse'];
-            $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
-            $rooms[$key] = $roomResponse;
-            $priceRoomData[$key] = $pricingRulesApplierRoom;
+
+            foreach ($room['bed_groups'] as $bedGroupKey => $bedGroup)
+            {
+                $roomData = $this->setRoomResponse((array) $room, $roomGroup, $propertyGroup, $giataId, $bedGroup);
+                $roomResponse = $roomData['roomResponse'];
+                $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
+                $rooms[$bedGroupKey] = $roomResponse;
+                $priceRoomData[$bedGroupKey] = $pricingRulesApplierRoom;
+            }
         }
         $roomGroupsResponse->setRooms($rooms);
 
@@ -211,14 +181,15 @@ class ExpediaHotelPricingDto
         $roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom]['total_net'] ?? 0.0);
         $roomGroupsResponse->setMarkup($priceRoomData[$keyLowestPricedRoom]['markup'] ?? 0.0);
 
-        $roomGroupsResponse->setNonRefundable(! $roomGroup['rates'][$keyLowestPricedRoom]['refundable']);
-        $roomGroupsResponse->setRateId(intval($roomGroup['rates'][$keyLowestPricedRoom]['id']) ?? null);
-        $roomGroupsResponse->setCancellationPolicies($cancellationPolicies);
+
+        $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom]['non_refundable']);
+        $roomGroupsResponse->setRateId(intval($rooms[$keyLowestPricedRoom]['rate_id']) ?? null);
+        $roomGroupsResponse->setCancellationPolicies($rooms[$keyLowestPricedRoom]['cancellation_policies']);
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
 
-    public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId): array
+    public function setRoomResponse(array $rate, array $roomGroup, array $propertyGroup, int $giataId, array $bedGroup): array
     {
         /**  enrichment Pricing Rules / Application of Pricing Rules */
         $pricingRulesApplier['total_price'] = 0.0;
@@ -279,21 +250,29 @@ class ExpediaHotelPricingDto
             $penaltyDate = date('Y-m-d');
 
             $cancellationPolicies[] = [
-                'description' => PolicyCode::General->value,
-                'type' => CancellationPolicyTypesEnum::General->value,
+                'description'        => PolicyCode::General->value,
+                'type'               => CancellationPolicyTypesEnum::General->value,
                 'penalty_start_date' => $penaltyDate,
-                'percentage' => '100',
+                'percentage'         => '100',
             ];
+        }
+
+        $promotions = [];
+
+        if ($_promotions = Arr::get($rate, 'promotions'))
+        {
+            $promotions = $this->getPromotions($_promotions);
         }
 
         $roomResponse = RoomResponseFactory::create();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
+        $roomResponse->setQueryPackage($this->query_package);
         $roomResponse->setPenaltyDate($penaltyDate);
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
         $roomResponse->setSupplierRoomName($roomGroup['room_name'] ?? '');
         $roomResponse->setSupplierRoomCode(intval($roomGroup['id']) ?? null);
-        $roomResponse->setSupplierBedGroups(array_key_first((array) $rate['bed_groups']) ?? null);
+        $roomResponse->setSupplierBedGroups(Arr::get($bedGroup, 'id'));
         $roomResponse->setRoomType('');
         $roomResponse->setRateDescription($rate['description'] ?? '');
         $roomResponse->setRateId($rate['id'] ?? '');
@@ -304,11 +283,12 @@ class ExpediaHotelPricingDto
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setPackageDeal(Arr::get($rate, 'sale_scenario.package', false));
+        $roomResponse->setPromotions($promotions);
+        $roomResponse->setNonRefundable($rate['refundable']);
 
         $roomResponse->setCurrency($this->currency);
-        if (isset($rate['bed_groups'][array_key_first((array) $rate['bed_groups'])]['configuration'])) {
-            $roomResponse->setBedConfigurations($rate['bed_groups'][array_key_first((array) $rate['bed_groups'])]['configuration']);
-        }
+
+        $roomResponse->setBedConfigurations(Arr::get($bedGroup, 'configuration', []));
 
         $roomResponse->setBreakdown($this->getBreakdown($occupancy_pricing));
 
@@ -319,15 +299,16 @@ class ExpediaHotelPricingDto
 
         $this->bookingItems[] = [
             'booking_item' => $bookingItem,
-            'supplier_id' => Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id,
+            'supplier_id' => $this->supplier_id,
             'search_id' => $this->search_id,
             'rate_type' => ItemTypeEnum::COMPLETE->value,
             'booking_item_data' => json_encode([
                 'hotel_id' => $propertyGroup['giata_id'],
                 'room_id' => $roomGroup['id'],
                 'rate' => $rate['id'],
-                'bed_groups' => array_key_first((array) $rate['bed_groups']),
+                'bed_groups' => Arr::get($bedGroup, 'id'),
                 'hotel_supplier_id' => $propertyGroup['property_id'],
+                'query_package' => $this->query_package,
             ]),
             'booking_pricing_data' => json_encode($roomResponse->toArray()),
             'created_at' => Carbon::now(),
@@ -339,7 +320,11 @@ class ExpediaHotelPricingDto
     private function getBreakdown(array $roomsPricingArray): array
     {
         $breakdown = [];
+        $breakdownStay = [];
+        $breakdownFees = [];
+
         foreach ($this->occupancy as $room) {
+
             $roomsKey = isset($room['children_ages']) ? $room['adults'].'-'.implode(',', $room['children_ages']) : $room['adults'];
 
             foreach ($roomsPricingArray[$roomsKey]['nightly'] as $night => $expenseItems) {
@@ -364,6 +349,42 @@ class ExpediaHotelPricingDto
                     $breakdown[$night][$key]['amount'] += $expenseItem['value'];
                 }
             }
+
+            if (isset($roomsPricingArray[$roomsKey]['stay'])) {
+                foreach ($roomsPricingArray[$roomsKey]['stay'] as $stay => $expenseItem) {
+                    $key = '';
+                    if (str_contains($expenseItem['type'], 'tax')) {
+                        $key = 'tax';
+                        $breakdownStay[$stay][$key]['type'] = 'tax inclusive';
+                        $breakdownStay[$stay][$key]['title'] = $expenseItem['type'];
+                    } elseif (str_contains($expenseItem['type'], 'fee')) {
+                        $key = 'fee';
+                        $breakdownStay[$stay][$key]['type'] = 'fee inclusive';
+                        $breakdownStay[$stay][$key]['title'] = $expenseItem['type'];
+                    }
+                    if (!isset($breakdownStay[$stay][$key]['amount'])) $breakdownStay[$stay][$key]['amount'] = 0;
+                    $breakdownStay[$stay][$key]['amount'] += $expenseItem['value'];
+                }
+            }
+
+            if (isset($roomsPricingArray[$roomsKey]['fees'])) {
+                foreach ($roomsPricingArray[$roomsKey]['fees'] as $fee => $expenseItem) {
+                    $breakdownFees[$fee]['type'] = 'fee exclusive';
+                    $breakdownFees[$fee]['title'] = $fee;
+
+                    if (! isset($breakdownFees[$fee]['amount'])) {
+                        $breakdownFees[$fee]['amount'] = 0;
+                    }
+
+                    if (! isset($breakdownFees[$fee]['local_amount'])) {
+                        $breakdownFees[$fee]['local_amount'] = 0;
+                    }
+
+                    $breakdownFees[$fee]['amount'] += floatval($expenseItem['request_currency']['value']);
+                    $breakdownFees[$fee]['local_amount'] += floatval($expenseItem['billable_currency']['value']);
+                    $breakdownFees[$fee]['local_currency'] = $expenseItem['billable_currency']['currency'];
+                }
+            }
         }
 
         $breakdownWithoutKeys = [];
@@ -371,6 +392,39 @@ class ExpediaHotelPricingDto
             $breakdownWithoutKeys[] = array_values($item);
         }
 
-        return $breakdownWithoutKeys;
+        $breakdownStayWithoutKeys = [];
+        foreach ($breakdownStay as $items) {
+            foreach ($items as $item) {
+                $breakdownStayWithoutKeys[] = json_decode(json_encode($item), false);
+            }
+        }
+
+        return [
+            'nightly' => $breakdownWithoutKeys,
+            'stay' => $breakdownStayWithoutKeys,
+            'fees' => array_values($breakdownFees),
+        ];
+    }
+
+    private function getPromotions(mixed $_promotions): array
+    {
+        $promotions = [];
+
+        foreach ($_promotions as $type => $promotion)
+        {
+            if (! Arr::has($promotion, 'description') && is_array($promotion))
+            {
+                $promotions = array_merge($promotions, $this->getPromotions($promotion));
+            }
+            else
+            {
+                $promotions[] = [
+                    'type' => $type,
+                    'description' => Arr::get($promotion, 'description', '-'),
+                ];
+            }
+        }
+
+        return $promotions;
     }
 }

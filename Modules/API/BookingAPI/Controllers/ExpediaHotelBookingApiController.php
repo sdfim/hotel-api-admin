@@ -19,7 +19,7 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
     ) {
     }
 
-    public function addItem(array $filters, string $type = 'add_item', array $headers = []): array|null
+    public function addItem(array $filters, string $type = 'add_item', array $headers = []): ?array
     {
         // step 1 Read Inspector, Get link 'price_check'
         $linkPriceCheck = SearchRepository::getLinkPriceCheck($filters);
