@@ -106,12 +106,16 @@ class BookingChangeHardBookHotelRequest extends ApiRequest
             'booking_item' => 'required|uuid',
             'new_booking_item' => 'required|uuid',
 
-            'passengers' => 'array',
+            'passengers' => 'required|array',
             'passengers.*.title' => 'required_with:passengers|in:mr,Mr,MR,ms,Ms,MS,Mrs,MRS,mrs,Miss,MISS,miss,Dr,dr,DR,Prof,prof,PROF',
             'passengers.*.given_name' => 'required_with:passengers|string|between:1,255',
             'passengers.*.family_name' => 'required_with:passengers|string|between:1,255',
             'passengers.*.date_of_birth' => 'required_with:passengers|date_format:Y-m-d',
             'passengers.*.room' => 'numeric',
+
+            'special_requests' => 'array',
+            'special_requests.*.special_request' => 'required_with:special_requests|string|max:255',
+            'special_requests.*.room' => 'required_with:special_requests|numeric',
         ];
     }
 }
