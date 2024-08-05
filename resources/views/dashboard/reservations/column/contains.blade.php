@@ -31,16 +31,20 @@
 	$tooltipCol1 = '<div class="grid grid-cols-2"><div>';
 	$tooltipCol2 = '</div><div>';
 	$addDiv = true;
-//	foreach ($orderedArray as $key => $value) {
-//        if (is_array($value)) {
-//            $value = implode(', ', Illuminate\Support\Arr::dot($value));
-//        }
-//		if (in_array($key, $orderTooltip)) {
-//			$tooltipCol1 .= '<span style="word-wrap: break-word">' . $key . ': <b>' . $value . '</b></span><br>';
-//		} else {
-//			$tooltipCol2 .= '<span style="word-wrap: break-word">' . $key . ': <b>' . $value . '</b></span><br>';
-//		}
-//	}
+	foreach ($orderedArray as $key => $value) {
+        if (is_array($value)) {
+            try {
+                $value = implode(', ', Illuminate\Support\Arr::dot($value));
+            } catch (Exception $e) {
+                $value = json_encode($value, JSON_PRETTY_PRINT);
+            }
+        }
+		if (in_array($key, $orderTooltip)) {
+			$tooltipCol1 .= '<span style="word-wrap: break-word">' . $key . ': <b>' . $value . '</b></span><br>';
+		} else {
+			$tooltipCol2 .= '<span style="word-wrap: break-word">' . $key . ': <b>' . $value . '</b></span><br>';
+		}
+	}
 	$tooltip = $tooltipCol1 . $tooltipCol2 . '</div></div>';
 
 @endphp
