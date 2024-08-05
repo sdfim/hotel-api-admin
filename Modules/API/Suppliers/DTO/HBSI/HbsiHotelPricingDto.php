@@ -250,6 +250,8 @@ class HbsiHotelPricingDto
         }
 
         $adults = $children = $infants = $unknown = 0;
+        $childrenAges = [];
+
         foreach ($counts as $age => $count) {
             if ($age < 0)
             {
@@ -257,8 +259,10 @@ class HbsiHotelPricingDto
                 $unknown += $count;
             } elseif ($age < HbsiClient::AGE_INFANT) {
                 $infants += $count;
+                $childrenAges[] = $age;
             } elseif ($age < HbsiClient::AGE_CHILD) {
                 $children += $count;
+                $childrenAges[] = $age;
             } else {
                 $adults += $count;
             }
@@ -360,7 +364,9 @@ class HbsiHotelPricingDto
         $roomResponse->setSupplierRoomName($rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
         $roomResponse->setSupplierRoomCode($rateOccupancy);
         $roomResponse->setCapacity([
-            'unknown' => $unknown,
+            'adults'    => $adults - $unknown,
+            'children'  => $childrenAges,
+            'unknown'   => $unknown,
         ]);
 
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
