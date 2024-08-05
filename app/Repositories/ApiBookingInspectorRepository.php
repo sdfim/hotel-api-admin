@@ -11,6 +11,15 @@ use Modules\Enums\SupplierNameEnum;
 
 class ApiBookingInspectorRepository
 {
+    public static function getLastBooked()
+    {
+        return ApiBookingInspector::where('type', 'book')
+            ->where('sub_type', 'create')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->latest()
+            ->first();
+    }
+
     public static function getLinkDeleteItem(string $booking_id, string $booking_item, int $room_id): array
     {
         $inspector = ApiBookingInspector::where('type', 'book')

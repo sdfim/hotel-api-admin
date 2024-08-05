@@ -57,7 +57,7 @@ class ApiBookingItemRepository
 
     public static function getRateOccupancy(string $booking_item): ?string
     {
-        return self::getItemData($booking_item)['rate_occupancy'];
+        return self::getItemData($booking_item)['rate_occupancy'] ?? null;
     }
 
     public static function getRateType(string $booking_item): ?string
