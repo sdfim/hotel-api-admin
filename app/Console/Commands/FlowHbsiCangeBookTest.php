@@ -140,7 +140,7 @@ class FlowHbsiCangeBookTest extends Command
             'special_requests' => $special_requests,
         ];
 
-        $this->info('softChange params : '.json_encode($params));
+        $this->warn('softChange params : '.json_encode($params));
 
         $response = $this->client->put($this->url.'/api/booking/change/soft-change', $params);
 
@@ -165,7 +165,7 @@ class FlowHbsiCangeBookTest extends Command
             'occupancy' => $occupancy,
         ];
 
-        $this->info('availability params : '.json_encode($params));
+        $this->warn('availability params : '.json_encode($params));
 
         $response = $this->client->post($this->url.'/api/booking/change/availability', $params);
 
@@ -180,7 +180,7 @@ class FlowHbsiCangeBookTest extends Command
             'booking_id' => $this->booking_id,
         ];
 
-        $this->info('priceCheck params : '.json_encode($params));
+        $this->warn('priceCheck params : '.json_encode($params));
 
         $response = $this->client->get($this->url.'/api/booking/change/price-check', $params);
 
@@ -233,7 +233,7 @@ class FlowHbsiCangeBookTest extends Command
             'special_requests' => $special_requests,
         ];
 
-        $this->info('hardChange params : '.json_encode($params));
+        $this->warn('hardChange params : '.json_encode($params));
 
         $response = $this->client->put($this->url.'/api/booking/change/hard-change', $params);
 
