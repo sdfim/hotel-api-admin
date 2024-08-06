@@ -215,6 +215,16 @@ class FlowHbsiCangeBookTest extends Command
             }
         }
 
+        if (empty($passengers)) {
+            $passengers[] = [
+                'title' => 'mr',
+                'given_name' => $faker->firstName,
+                'family_name' => $faker->lastName,
+                'date_of_birth' => $faker->date,
+                'room' => 1,
+            ];
+        }
+
         $params = [
             'new_booking_item' => $new_booking_item,
             'booking_id' => $this->booking_id,
