@@ -42,7 +42,7 @@ class FlowHbsiBookTest extends Command
         $this->destination = !$this->destination ? '508' : $this->destination;
         $this->supplier = !$this->supplier ? 'HBSI' : $this->supplier;
         $step = !$step ? 1 : $step;
-        $this->type = !$this->type ? 'test' : 'live';
+        $this->type = $this->type ?? 'test';
 
         foreach (range(1, $step) as $index) {
             $this->warn('STEP '.$index.' of '.$step);
