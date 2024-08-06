@@ -11,6 +11,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
+use Ramsey\Uuid\Uuid;
 
 class FlowHbsiCangeBookTest extends Command
 {
@@ -79,7 +80,7 @@ class FlowHbsiCangeBookTest extends Command
         $this->info('------------------------------------');
         $new_booking_item = Arr::get($responseAvailability,'data.change_search_id', false)
             ? $this->getBookingItem($responseAvailability)
-            : '00booking-item-test-bca3-c13b6118ffd9';
+            : Uuid::uuid4()->toString();
         $this->info('$new_booking_item: '.$new_booking_item);
 
         $this->info('------------------------------------');
