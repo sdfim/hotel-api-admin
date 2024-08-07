@@ -64,11 +64,12 @@ class BaseController extends Controller
     /**
      * return error response.
      */
-    public function sendError($error, string $errorMessages = '', int $code = 400): JsonResponse
+    public function sendError($error, string $errorMessages = '', int $code = 400, array $data = []): JsonResponse
     {
         $response = [
+            'data'    => $data,
             'success' => false,
-            'error' => $error,
+            'error'   => $error,
         ];
 
         if (! empty($errorMessages)) {

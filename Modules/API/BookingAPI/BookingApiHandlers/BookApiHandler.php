@@ -283,7 +283,7 @@ class BookApiHandler extends BaseController
         }
 
         if (! empty($errors)) {
-            return $this->sendError($errors);
+            return $this->sendError($errors, '', 400, $data);
         }
 
         return $this->sendResponse(['result' => $data], 'success');
