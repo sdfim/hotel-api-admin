@@ -58,6 +58,7 @@ class FlowHbsiBookTest extends Command
         while ($retryCount < 7 && $bookingItem === null) {
             $responseData = $this->makeSearchRequest($s);
             if (! isset($responseData['data']['query']['occupancy'])) {
+                $retryCount++;
                 continue;
             }
 
