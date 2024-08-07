@@ -32,6 +32,64 @@ class BookingAvailabileEndpointsChangeBookHotelRequest extends ApiRequest
      *   ),
      *
      *   @OA\Response(
+     *     response=200,
+     *     description="Successful response with available endpoints for modifying the booking.",
+     *     @OA\JsonContent(
+     *       @OA\Property(
+     *         property="success",
+     *         type="boolean",
+     *         example=true
+     *       ),
+     *       @OA\Property(
+     *         property="data",
+     *         type="object",
+     *         @OA\Property(
+     *           property="booking_item",
+     *           type="string",
+     *           example="290d6b20-aeb1-4e3b-85e5-b2d2816ecd30"
+     *         ),
+     *         @OA\Property(
+     *           property="non_refundable",
+     *           type="boolean",
+     *           example=false
+     *         ),
+     *         @OA\Property(
+     *           property="supplier",
+     *           type="string",
+     *           example="HBSI"
+     *         ),
+     *         @OA\Property(
+     *           property="endpoints",
+     *           type="array",
+     *           @OA\Items(
+     *             type="object",
+     *             @OA\Property(
+     *               property="name",
+     *               type="string",
+     *               example="Soft Change"
+     *             ),
+     *             @OA\Property(
+     *               property="description",
+     *               type="string",
+     *               example="Endpoint to handle soft changes in booking."
+     *             ),
+     *             @OA\Property(
+     *               property="url",
+     *               type="string",
+     *               example="api/booking/change/soft-change"
+     *             )
+     *           )
+     *         )
+     *       ),
+     *       @OA\Property(
+     *         property="message",
+     *         type="string",
+     *         example="success"
+     *       )
+     *     )
+     *   ),
+     *
+     *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
      *
@@ -57,9 +115,9 @@ class BookingAvailabileEndpointsChangeBookHotelRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */    public function authorize(): bool
-    {
-        return Auth::check();
-    }
+{
+    return Auth::check();
+}
 
     /**
      * Get the validation rules that apply to the request.

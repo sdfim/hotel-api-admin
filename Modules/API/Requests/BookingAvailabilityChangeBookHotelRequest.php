@@ -40,10 +40,9 @@ class BookingAvailabilityChangeBookHotelRequest extends ApiRequest
      *     description="OK",
      *
      *     @OA\JsonContent(
-     *       ref="#/components/schemas/PricingSearchResponse",
+     *       ref="#/components/schemas/AvailabilityChangeBookingResponse",
      *         examples={
-     *           "NewYork": @OA\Schema(ref="#/components/examples/PricingSearchResponseNewYork", example="PricingSearchResponseNewYork"),
-     *           "London": @OA\Schema(ref="#/components/examples/PricingSearchResponseLondon", example="PricingSearchResponseLondon"),
+     *           "example1": @OA\Schema(ref="#/components/examples/AvailabilityChangeBookingResponse", example="AvailabilityChangeBookingResponse"),
      *       },
      *     )
      *   ),

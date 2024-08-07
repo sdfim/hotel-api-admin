@@ -65,38 +65,243 @@ class BookingPriceCheckBookHotelRequest extends ApiRequest
      *         property="data",
      *         type="object",
      *         @OA\Property(
-     *           property="incremental_total_price",
-     *           type="string",
-     *           example="100.00"
-     *         ),
-     *         @OA\Property(
-     *           property="cancellation_policies",
-     *           type="array",
-     *           @OA\Items(
+     *           property="result",
+     *           type="object",
+     *           @OA\Property(
+     *             property="incremental_total_price",
+     *             type="integer",
+     *             example=200
+     *           ),
+     *           @OA\Property(
+     *             property="current_booking_item",
      *             type="object",
      *             @OA\Property(
-     *               property="description",
-     *               type="string",
-     *               example="General Cancellation Policy"
+     *               property="total_net",
+     *               type="integer",
+     *               example=400
      *             ),
      *             @OA\Property(
-     *               property="type",
-     *               type="string",
-     *               example="General"
+     *               property="total_tax",
+     *               type="integer",
+     *               example=0
      *             ),
      *             @OA\Property(
-     *               property="penalty_start_date",
-     *               type="string",
-     *               format="date",
-     *               example="2024-08-01"
+     *               property="total_fees",
+     *               type="integer",
+     *               example=0
      *             ),
      *             @OA\Property(
-     *               property="percentage",
-     *               type="string",
-     *               example="100"
+     *               property="total_price",
+     *               type="integer",
+     *               example=400
      *             ),
+     *             @OA\Property(
+     *               property="cancellation_policies",
+     *               type="array",
+     *               @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(
+     *                   property="type",
+     *                   type="string",
+     *                   example="General"
+     *                 ),
+     *                 @OA\Property(
+     *                   property="percentage",
+     *                   type="string",
+     *                   example="20"
+     *                 ),
+     *                 @OA\Property(
+     *                   property="description",
+     *                   type="string",
+     *                   example="General Cancellation Policy"
+     *                 ),
+     *                 @OA\Property(
+     *                   property="penalty_start_date",
+     *                   type="string",
+     *                   format="date",
+     *                   example="2024-12-24"
+     *                 )
+     *               )
+     *             ),
+     *             @OA\Property(
+     *               property="breakdown",
+     *               type="object",
+     *               @OA\Property(
+     *                 property="fees",
+     *                 type="array",
+     *                 @OA\Items(type="object")
+     *               ),
+     *               @OA\Property(
+     *                 property="stay",
+     *                 type="array",
+     *                 @OA\Items(type="object")
+     *               ),
+     *               @OA\Property(
+     *                 property="nightly",
+     *                 type="array",
+     *                 @OA\Items(
+     *                   type="array",
+     *                   @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(
+     *                       property="type",
+     *                       type="string",
+     *                       example="base_rate"
+     *                     ),
+     *                     @OA\Property(
+     *                       property="title",
+     *                       type="string",
+     *                       example="Base Rate"
+     *                     ),
+     *                     @OA\Property(
+     *                       property="amount",
+     *                       type="number",
+     *                       format="float",
+     *                       example=181.82
+     *                     )
+     *                   )
+     *                 )
+     *               )
+     *             ),
+     *             @OA\Property(
+     *               property="rate_name",
+     *               type="string",
+     *               example="Best"
+     *             ),
+     *             @OA\Property(
+     *               property="room_name",
+     *               type="string",
+     *               example="Single"
+     *             ),
+     *             @OA\Property(
+     *               property="currency",
+     *               type="string",
+     *               example="USD"
+     *             ),
+     *             @OA\Property(
+     *               property="booking_item",
+     *               type="string",
+     *               example="290d6b20-aeb1-4e3b-85e5-b2d2816ecd30"
+     *             ),
+     *             @OA\Property(
+     *               property="hotelier_booking_reference",
+     *               type="string",
+     *               example="721FlQnbUW"
+     *             )
+     *           ),
+     *           @OA\Property(
+     *             property="new_booking_item",
+     *             type="object",
+     *             @OA\Property(
+     *               property="total_net",
+     *               type="integer",
+     *               example=600
+     *             ),
+     *             @OA\Property(
+     *               property="total_tax",
+     *               type="integer",
+     *               example=0
+     *             ),
+     *             @OA\Property(
+     *               property="total_fees",
+     *               type="integer",
+     *               example=0
+     *             ),
+     *             @OA\Property(
+     *               property="total_price",
+     *               type="integer",
+     *               example=600
+     *             ),
+     *             @OA\Property(
+     *               property="cancellation_policies",
+     *               type="array",
+     *               @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(
+     *                   property="type",
+     *                   type="string",
+     *                   example="General"
+     *                 ),
+     *                 @OA\Property(
+     *                   property="percentage",
+     *                   type="string",
+     *                   example="100"
+     *                 ),
+     *                 @OA\Property(
+     *                   property="description",
+     *                   type="string",
+     *                   example="General Cancellation Policy"
+     *                 ),
+     *                 @OA\Property(
+     *                   property="penalty_start_date",
+     *                   type="string",
+     *                   format="date",
+     *                   example="2024-08-07"
+     *                 )
+     *               )
+     *             ),
+     *             @OA\Property(
+     *               property="breakdown",
+     *               type="object",
+     *               @OA\Property(
+     *                 property="fees",
+     *                 type="array",
+     *                 @OA\Items(type="object")
+     *               ),
+     *               @OA\Property(
+     *                 property="stay",
+     *                 type="array",
+     *                 @OA\Items(type="object")
+     *               ),
+     *               @OA\Property(
+     *                 property="nightly",
+     *                 type="array",
+     *                 @OA\Items(
+     *                   type="array",
+     *                   @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(
+     *                       property="type",
+     *                       type="string",
+     *                       example="base_rate"
+     *                     ),
+     *                     @OA\Property(
+     *                       property="title",
+     *                       type="string",
+     *                       example="Base Rate"
+     *                     ),
+     *                     @OA\Property(
+     *                       property="amount",
+     *                       type="number",
+     *                       format="float",
+     *                       example=272.73
+     *                     )
+     *                   )
+     *                 )
+     *               )
+     *             ),
+     *             @OA\Property(
+     *               property="rate_name",
+     *               type="string",
+     *               example="Promo"
+     *             ),
+     *             @OA\Property(
+     *               property="room_name",
+     *               type="string",
+     *               example="Suite"
+     *             ),
+     *             @OA\Property(
+     *               property="currency",
+     *               type="string",
+     *               example="USD"
+     *             ),
+     *             @OA\Property(
+     *               property="booking_item",
+     *               type="string",
+     *               example="290d6b20-aeb1-4e3b-85e5-b2d2816ecd30"
+     *             )
      *           )
-     *         )
+     *         ),
      *       ),
      *       @OA\Property(
      *         property="message",
@@ -145,10 +350,10 @@ class BookingPriceCheckBookHotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
-                'new_booking_item' => 'required|string|size:36',
-                'booking_id' => 'required|string|size:36',
-                'booking_item' => 'required|string|size:36',
-            ];
+            'new_booking_item' => 'required|string|size:36',
+            'booking_id' => 'required|string|size:36',
+            'booking_item' => 'required|string|size:36',
+        ];
     }
 
     /**

@@ -78,7 +78,31 @@ class BookingChangeHardBookHotelRequest extends ApiRequest
      *       )
      *     )
      *   ),
-     *
+     *   @OA\Response(
+     *      response=200,
+     *      description="Booking successfully changed.",
+     *      @OA\JsonContent(
+     *        @OA\Property(
+     *          property="success",
+     *          type="boolean",
+     *          example=true
+     *        ),
+     *        @OA\Property(
+     *          property="data",
+     *          type="object",
+     *          @OA\Property(
+     *            property="status",
+     *            type="string",
+     *            example="Booking changed."
+     *          )
+     *        ),
+     *        @OA\Property(
+     *          property="message",
+     *          type="string",
+     *          example="success"
+     *        )
+     *      )
+     *    ),
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
