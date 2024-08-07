@@ -307,8 +307,6 @@ class HbsiBookApiController extends BaseBookApiController
                 SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res);
             }
         } catch (Exception $e) {
-            \Log::debug("#### EXCEPTION CANCEL");
-            \Log::debug($e->getMessage());
             $responseError = explode('response:', $e->getMessage());
             $message = isset($responseError[1])
                 ? json_decode($responseError[1], true)['message']
