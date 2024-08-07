@@ -42,7 +42,7 @@ class ContentDetailResponse
 
     private string $address;
 
-    private array $supplier_information;
+    private array $supplier_information = [];
 
     public function setSupplierInformation(array $supplier_information): void
     {
