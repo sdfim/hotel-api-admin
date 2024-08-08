@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\API\Pricing;
+namespace Tests\Feature\API\Local\Pricing;
 
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Carbon;

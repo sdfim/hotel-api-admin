@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\API\Booking;
+namespace Tests\Feature\API\Local\Booking;
 
 use Illuminate\Support\Str;
 use PHPUnit\Framework\Attributes\Test;

@@ -1,50 +1,16 @@
 <?php
 
-namespace Tests\Feature\API\Booking;
+namespace Tests\Feature\API\BookingFlow;
 
-use App\Models\Channel;
-use App\Models\User;
-use Database\Seeders\GeneralConfigurationSeeder;
-use Database\Seeders\SuppliersSeeder;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Carbon;
-use Illuminate\Testing\Fluent\AssertableJson;
 use Mockery;
 use Modules\API\Controllers\ApiHandlers\PricingSuppliers\HbsiHotelController;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\API\Tools\Geography;
 use Modules\API\Tools\PricingDtoTools;
-use Tests\TestCase;
 
-class BookingTest extends TestCase
+trait SearchMockTrait
 {
-    use WithFaker;
-
-    private User $user;
-    private string $accessToken;
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->user = User::factory()->create();
-
-        (new SuppliersSeeder())->run();
-        (new GeneralConfigurationSeeder())->run();
-
-        $token = $this->user->createToken('Test');
-        $this->accessToken = $token->plainTextToken;
-        Channel::create([
-            'token_id' => $token->accessToken->id,
-            'access_token' => $token->plainTextToken,
-            'name' => $this->faker->name(),
-            'description' => $this->faker->name(),
-        ]);
-    }
-
-    /**
-     * A basic feature test example.
-     */
-    public function test_search(): void
+    public function searchMock(): void
     {
         $mock = Mockery::mock(HbsiHotelController::class, [new HbsiClient(), new Geography()])->makePartial();
         $mock->shouldReceive('preSearchData')
@@ -60,27 +26,6 @@ class BookingTest extends TestCase
                 42851280 => ['city' => 'Cancun'],
             ]);
         $this->app->instance(PricingDtoTools::class, $mock);
-
-        $checkin = Carbon::now()->addDays(150)->toDateString();
-        $checkout = Carbon::now()->addDays(150 + rand(2, 5))->toDateString();
-
-        $response = $this->actingAs($this->user)
-            ->withHeader('Authorization', 'Bearer '.$this->accessToken)
-            ->json('POST', route('price'), [
-                'type' => 'hotel',
-                'destination' => 508,
-                'supplier' => 'HBSI',
-                'checkin' => $checkin,
-                'checkout' => $checkout,
-                'occupancy' => [['adults' => 1]],
-            ]);
-
-        $response->assertStatus(200);
-
-        $response->assertJson(
-            fn(AssertableJson $json) =>
-            $json->has('data')->has('success')->has('message')
-        );
     }
 
     private function preSearchData(): array
@@ -130,11 +75,5 @@ class BookingTest extends TestCase
             ],
             "total_pages" => 1.0
         ];
-    }
-
-    protected function tearDown(): void
-    {
-        Mockery::close();
-        parent::tearDown();
     }
 }

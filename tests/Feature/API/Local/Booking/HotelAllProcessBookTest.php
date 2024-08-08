@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\API\Booking;
+namespace Tests\Feature\API\Local\Booking;
 
 use Faker\Factory as Faker;
 use Illuminate\Support\Carbon;

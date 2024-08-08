@@ -2,25 +2,38 @@
 
 namespace Tests\Unit\Hotel\Pricing;
 
+use App\Models\PropertyWeighting;
 use App\Repositories\PropertyWeightingRepository;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection;
 use Mockery;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class EnrichmentWeightPricingTest extends TestCase
 {
+    protected $mockClientResponse;
+    protected $mockWeights;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->mockClientResponse = $this->createMockClientResponse();
+        $this->mockWeights = $this->createMockWeights();
+    }
+
     #[Test]
     public function test_enrichment_pricing_assert_equals_true(): void
     {
         $mockClientResponse = $this->createMockClientResponse();
         $mockWeights = $this->createMockWeights();
 
-        $mockPropertyWeightingRepository = Mockery::mock('overload:'.PropertyWeightingRepository::class);
+        $mockPropertyWeightingRepository = Mockery::mock(PropertyWeightingRepository::class);
         $mockPropertyWeightingRepository->shouldReceive('getWeights')->andReturn($mockWeights);
         $mockPropertyWeightingRepository->shouldReceive('getWeightsNot')->andReturn($mockWeights);
 
-        $enrichmentWeight = new EnrichmentWeight();
+        $enrichmentWeight = new EnrichmentWeight($mockPropertyWeightingRepository);
         $result = $enrichmentWeight->enrichmentPricing($mockClientResponse, 'type');
 
         $expectedResult = $this->getExpectedResult();
@@ -34,11 +47,11 @@ class EnrichmentWeightPricingTest extends TestCase
         $mockClientResponse = $this->createMockClientResponse();
         $mockWeights = $this->createMockWeights();
 
-        $mockPropertyWeightingRepository = Mockery::mock('overload:'.PropertyWeightingRepository::class);
+        $mockPropertyWeightingRepository = Mockery::mock(PropertyWeightingRepository::class);
         $mockPropertyWeightingRepository->shouldReceive('getWeights')->andReturn($mockWeights);
         $mockPropertyWeightingRepository->shouldReceive('getWeightsNot')->andReturn($mockWeights);
 
-        $enrichmentWeight = new EnrichmentWeight();
+        $enrichmentWeight = new EnrichmentWeight($mockPropertyWeightingRepository);
         $result = $enrichmentWeight->enrichmentPricing($mockClientResponse, 'type');
 
         $expectedResult = $this->getExpectedResult(false);
@@ -73,9 +86,6 @@ class EnrichmentWeightPricingTest extends TestCase
         }
     }
 
-    /**
-     * @return array[]
-     */
     protected function createMockClientResponse(): array
     {
         return [
@@ -92,9 +102,9 @@ class EnrichmentWeightPricingTest extends TestCase
 
     protected function createMockWeights(): Collection
     {
-        return collect([
-            (object) ['property' => 1, 'weight' => 1],
-            (object) ['property' => 2, 'weight' => 2],
+        return new Collection([
+            new PropertyWeighting(['property' => 1, 'weight' => 1]),
+            new PropertyWeighting(['property' => 2, 'weight' => 2]),
         ]);
     }
 }

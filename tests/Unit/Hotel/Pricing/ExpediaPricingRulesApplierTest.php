@@ -5,6 +5,7 @@ namespace Tests\Unit\Hotel\Pricing;
 use Illuminate\Foundation\Testing\WithFaker;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ExpediaPricingRulesApplierTest extends TestCase
 {

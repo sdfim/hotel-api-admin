@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Feature\API\Booking;
+namespace Tests\Feature\API\Local\Booking;
 
 use Faker\Provider\en_UG\Address;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Tests\Feature\API\ApiTestCase;
-use Tests\Feature\API\Pricing\HotelPricingGeneralMethodsTrait;
+use Tests\Feature\API\Local\Pricing\HotelPricingGeneralMethodsTrait;
 
 class HotelBookingApiTestCase extends ApiTestCase
 {

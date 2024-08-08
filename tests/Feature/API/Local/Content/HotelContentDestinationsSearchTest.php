@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\API\Content;
+namespace Tests\Feature\API\Local\Content;
 
 use Tests\Feature\API\ApiTestCase;
 use PHPUnit\Framework\Attributes\Test;
