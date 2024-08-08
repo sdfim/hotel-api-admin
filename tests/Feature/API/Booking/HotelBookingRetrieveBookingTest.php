@@ -3,12 +3,11 @@
 namespace Tests\Feature\API\Booking;
 
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_retrieve_booking_method_response_200(): void
     {
         $hotelBook = $this->createHotelBookingAndAddPassengersToBookingItemAndHotelBook();
@@ -94,9 +93,7 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_retrieve_booking_without_parameters_method_response_400(): void
     {
         $retrieveBookingResponse = $this->withHeaders($this->headers)
@@ -113,9 +110,7 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_retrieve_booking_with_empty_booking_id_method_response_400(): void
     {
         $retrieveBookingResponse = $this->withHeaders($this->headers)
@@ -127,9 +122,7 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_retrieve_booking_with_incorrect_booking_id_method_response_400(): void
     {
         $incorrectBookingId = Str::random(40);
@@ -143,9 +136,7 @@ class HotelBookingRetrieveBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_retrieve_booking_with_non_existent_booking_id_method_response_400(): void
     {
         $nonExistentBookingId = Str::uuid();

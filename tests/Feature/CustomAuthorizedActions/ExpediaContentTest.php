@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Livewire\ExpediaTable;
 use App\Models\ExpediaContent;
 use Illuminate\Database\Eloquent\Collection;
@@ -19,9 +20,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
         $this->expedia = ExpediaContent::factory()->count(10)->create()->sortByDesc('rating');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_expedia_table_index_is_opening(): void
     {
         $response = $this->get('/admin/expedia');
@@ -29,9 +28,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_expedia_table_is_rendering_with_its_columns(): void
     {
         livewire::test(ExpediaTable::class)->assertSuccessful();
@@ -48,9 +45,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
             ->assertCanRenderTableColumn('is_active');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_property_id(): void
     {
         $propertyId = $this->expedia->first()->property_id;
@@ -61,9 +56,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->expedia->where('property_id', '!=', $propertyId));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_name(): void
     {
         $name = $this->expedia[9]->name;
@@ -74,9 +67,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->expedia->where('name', '!=', $name));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_rating(): void
     {
         $rating = $this->expedia[rand(0, 9)]->rating;
@@ -88,9 +79,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->expedia->where('rating', '!=', $rating));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_city(): void
     {
         $city = $this->expedia[9]->city;
@@ -101,9 +90,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->expedia->where('city', '!=', $city));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_latitude(): void
     {
         $latitude = $this->expedia[rand(0, 9)]->latitude;
@@ -114,9 +101,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->expedia->where('latitude', '!=', $latitude));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_longitude(): void
     {
         $longitude = $this->expedia[rand(0, 9)]->longitude;
@@ -127,9 +112,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->expedia->where('longitude', '!=', $longitude));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_phone(): void
     {
         $phone = $this->expedia->first()->phone;
@@ -140,9 +123,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->expedia->where('phone', '!=', $phone));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_address(): void
     {
         $address = json_decode($this->expedia->random()->address, true)['line_1'];
@@ -157,9 +138,7 @@ class ExpediaContentTest extends CustomAuthorizedActionsTestCase
             }));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_is_active(): void
     {
         $isActive = $this->expedia->random()->is_active;

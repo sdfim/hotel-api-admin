@@ -10,9 +10,7 @@ use Tests\TestCase;
 
 class EnrichmentWeightContentSearchTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_enrichment_content_assert_equals_true(): void
     {
         $mockClientResponse = $this->createMockClientResponse();
@@ -29,9 +27,7 @@ class EnrichmentWeightContentSearchTest extends TestCase
         $this->assertEquals($expectedResult, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_enrichment_content_assert_equals_false(): void
     {
         $mockClientResponse = $this->createMockClientResponse();

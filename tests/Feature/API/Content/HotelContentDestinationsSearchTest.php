@@ -3,12 +3,11 @@
 namespace Tests\Feature\API\Content;
 
 use Tests\Feature\API\ApiTestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelContentDestinationsSearchTest extends ApiTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_destination_method_response_200(): void
     {
         $hotelDestinationSearchResponse = $this->withHeaders($this->headers)->get('/api/content/destinations?city=London');
@@ -26,9 +25,7 @@ class HotelContentDestinationsSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_destination_with_empty_city_method_response_400(): void
     {
         $hotelDestinationSearchResponse = $this->withHeaders($this->headers)->get('/api/content/destinations?city=');
@@ -40,9 +37,7 @@ class HotelContentDestinationsSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_destination_without_city_method_response_400(): void
     {
         $hotelDestinationSearchResponse = $this->withHeaders($this->headers)->get('/api/content/destinations');

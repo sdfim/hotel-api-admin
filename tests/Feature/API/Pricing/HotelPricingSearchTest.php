@@ -4,14 +4,13 @@ namespace Tests\Feature\API\Pricing;
 
 use Illuminate\Support\Carbon;
 use Tests\Feature\API\ApiTestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelPricingSearchTest extends ApiTestCase
 {
     use HotelPricingGeneralMethodsTrait;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_method_response_200(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData();
@@ -24,9 +23,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_without_type_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['type_missed']);
@@ -41,9 +38,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_with_incorrect_type_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_type']);
@@ -58,9 +53,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_with_incorrect_currency_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_currency']);
@@ -79,9 +72,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_with_incorrect_supplier_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_supplier']);
@@ -100,9 +91,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_with_incorrect_check_in_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_check_in']);
@@ -121,9 +110,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_with_incorrect_check_out_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_check_out']);
@@ -142,9 +129,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_without_check_in_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['check_in_missed']);
@@ -163,9 +148,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_without_check_out_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['check_out_missed']);
@@ -184,9 +167,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_with_incorrect_destination_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_destination']);
@@ -205,9 +186,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_without_destination_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['missed_destination']);
@@ -226,9 +205,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_with_incorrect_rating_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_rating']);
@@ -247,9 +224,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_with_incorrect_occupancy_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_occupancy']);
@@ -268,9 +243,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_without_occupancy_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['missed_occupancy']);
@@ -287,9 +260,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_without_occupancy_adults_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['missed_occupancy_adults']);
@@ -311,9 +282,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_with_incorrect_occupancy_adults_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_occupancy_adults']);
@@ -335,9 +304,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_without_children_ages_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['missed_children_ages']);
@@ -362,9 +329,7 @@ class HotelPricingSearchTest extends ApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_pricing_search_with_incorrect_children_ages_method_response_400(): void
     {
         $hotelPricingSearchData = $this->hotelPricingSearchData(['incorrect_children_ages']);

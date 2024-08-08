@@ -7,6 +7,7 @@ use App\Models\GiataProperty;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\Test;
 
 class GiataPropertyTest extends CustomAuthorizedActionsTestCase
 {
@@ -19,9 +20,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
         $this->giata = GiataProperty::factory()->count(10)->create();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_giata_table_index_is_opening(): void
     {
         $response = $this->get('/admin/giata');
@@ -29,9 +28,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_giata_table_is_rendering_with_its_columns(): void
     {
         livewire::test(GiataTable::class)->assertSuccessful();
@@ -48,9 +45,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanRenderTableColumn('mapper_phone_number');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_code(): void
     {
         $code = $this->giata->first()->code;
@@ -61,9 +56,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('code', '!=', $code));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_name(): void
     {
         $name = $this->giata->first()->name;
@@ -74,9 +67,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('name', '!=', $name));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_city(): void
     {
         $city = $this->giata->first()->city;
@@ -87,9 +78,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('city', '!=', $city));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_city_id(): void
     {
         $city_id = $this->giata->first()->city_id;
@@ -100,9 +89,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('city_id', '!=', $city_id));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_locale(): void
     {
         $locale = $this->giata->first()->locale;
@@ -113,9 +100,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('locale', '!=', $locale));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_latitude(): void
     {
         $latitude = $this->giata->first()->latitude;
@@ -126,9 +111,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('latitude', '!=', $latitude));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_longitude(): void
     {
         $longitude = $this->giata->first()->longitude;
@@ -139,9 +122,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('longitude', '!=', $longitude));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_address(): void
     {
         $mapperAddress = $this->giata->first()->mapper_address;
@@ -152,9 +133,7 @@ class GiataPropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('mapper_address', '!=', $mapperAddress));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_phone(): void
     {
         $mapperPhoneNumber = $this->giata->first()->mapper_phone_number;

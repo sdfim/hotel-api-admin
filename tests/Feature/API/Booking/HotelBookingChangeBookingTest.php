@@ -4,12 +4,11 @@ namespace Tests\Feature\API\Booking;
 
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_method_response_200(): void
     {
         $hotelBook = $this->createHotelBookingAndAddPassengersToBookingItemAndHotelBook();
@@ -30,9 +29,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_without_parameters_method_response_400(): void
     {
         $changeBookingResponse = $this->withHeaders($this->headers)
@@ -52,9 +49,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_booking_id_and_missed_booking_item_method_response_400(): void
     {
         $hotelBook = $this->createHotelBookingAndAddPassengersToBookingItemAndHotelBook();
@@ -75,9 +70,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_booking_item_and_missed_booking_id_method_response_400(): void
     {
         $hotelBook = $this->createHotelBookingAndAddPassengersToBookingItemAndHotelBook();
@@ -98,9 +91,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_non_existent_booking_id_and_missed_booking_item_method_response_400(): void
     {
         $nonExistentBookingId = Str::uuid();
@@ -114,9 +105,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_non_existent_booking_item_and_missed_booking_id_method_response_400(): void
     {
         $nonExistentBookingItem = Str::uuid();
@@ -130,9 +119,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_missed_query_method_response_400(): void
     {
         $changeBookingResponse = $this->sendChangeBookingWithIncorrectData(['missed_query']);
@@ -157,9 +144,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_missed_query_given_name_method_response_400(): void
     {
         $changeBookingResponse = $this->sendChangeBookingWithIncorrectData(['missed_query_given_name']);
@@ -175,9 +160,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_empty_query_given_name_method_response_400(): void
     {
         $changeBookingResponse = $this->sendChangeBookingWithIncorrectData(['empty_query_given_name']);
@@ -193,9 +176,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_incorrect_query_given_name_method_response_400(): void
     {
         $changeBookingResponse = $this->sendChangeBookingWithIncorrectData(['incorrect_query_given_name']);
@@ -211,9 +192,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_missed_query_family_name_method_response_400(): void
     {
         $changeBookingResponse = $this->sendChangeBookingWithIncorrectData(['missed_query_family_name']);
@@ -229,9 +208,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_empty_query_family_name_method_response_400(): void
     {
         $changeBookingResponse = $this->sendChangeBookingWithIncorrectData(['empty_query_family_name']);
@@ -247,9 +224,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_incorrect_query_family_name_method_response_400(): void
     {
         $changeBookingResponse = $this->sendChangeBookingWithIncorrectData(['incorrect_query_family_name']);
@@ -265,9 +240,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_missed_query_smoking_method_response_400(): void
     {
         $changeBookingResponse = $this->sendChangeBookingWithIncorrectData(['missed_query_smoking']);
@@ -283,9 +256,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_empty_query_smoking_method_response_400(): void
     {
         $changeBookingResponse = $this->sendChangeBookingWithIncorrectData(['empty_query_smoking']);
@@ -301,9 +272,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_incorrect_query_smoking_method_response_400(): void
     {
         $changeBookingResponse = $this->sendChangeBookingWithIncorrectData(['incorrect_query_smoking']);
@@ -319,9 +288,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_incorrect_query_special_request_method_response_400(): void
     {
         $changeBookingResponse = $this->sendChangeBookingWithIncorrectData(['incorrect_query_special_request']);
@@ -337,9 +304,7 @@ class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_change_booking_with_incorrect_query_loyalty_id_method_response_400(): void
     {
         $changeBookingResponse = $this->sendChangeBookingWithIncorrectData(['incorrect_query_loyalty_id']);

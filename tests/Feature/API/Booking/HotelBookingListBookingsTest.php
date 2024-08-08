@@ -3,12 +3,11 @@
 namespace Tests\Feature\API\Booking;
 
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelBookingListBookingsTest extends HotelBookingApiTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_list_bookings_method_response_200(): void
     {
         $this->createHotelBookingAndAddPassengersToBookingItemAndHotelBook();
@@ -138,9 +137,7 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_list_bookings_with_type_and_missed_supplier_method_response_400(): void
     {
         $listBookingsResponse = $this->withHeaders($this->headers)
@@ -157,9 +154,7 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_list_bookings_with_supplier_and_missed_type_method_response_400(): void
     {
         $listBookingsResponse = $this->withHeaders($this->headers)
@@ -176,9 +171,7 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_list_bookings_with_incorrect_supplier_or_type_method_response_400(): void
     {
         $supplier = Str::random();
@@ -198,9 +191,7 @@ class HotelBookingListBookingsTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_list_bookings_without_parameters_method_response_400(): void
     {
         $listBookingsResponse = $this->withHeaders($this->headers)

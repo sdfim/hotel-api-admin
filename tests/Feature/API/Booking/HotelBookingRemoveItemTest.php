@@ -3,12 +3,11 @@
 namespace Tests\Feature\API\Booking;
 
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_remove_item_method_response_200(): void
     {
         $createBooking = $this->createHotelBooking();
@@ -34,9 +33,7 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_remove_attempting_to_remove_previously_removed_item_again_method_response_200(): void
     {
         $createBooking = $this->createHotelBooking();
@@ -65,9 +62,7 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_remove_item_with_non_existent_booking_id_and_booking_item_method_response_400(): void
     {
         $nonExistentBookingId = Str::uuid()->toString();
@@ -85,9 +80,7 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_remove_item_with_non_existent_booking_item_and_booking_id_method_response_400(): void
     {
         $nonExistentBookingItem = Str::uuid()->toString();
@@ -105,9 +98,7 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_remove_item_with_empty_booking_item_and_correct_booking_id_method_response_400(): void
     {
         $createBooking = $this->createHotelBooking();
@@ -123,9 +114,7 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_remove_item_with_missed_booking_id_and_correct_booking_item_method_response_400(): void
     {
         $createBooking = $this->createHotelBooking();
@@ -146,9 +135,7 @@ class HotelBookingRemoveItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_remove_item_with_missed_booking_item_and_correct_booking_id_method_response_400(): void
     {
         $createBooking = $this->createHotelBooking();

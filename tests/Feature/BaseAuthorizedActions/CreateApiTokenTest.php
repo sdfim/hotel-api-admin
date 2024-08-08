@@ -7,12 +7,11 @@ use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Http\Livewire\ApiTokenManager;
 use Livewire\Livewire;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class CreateApiTokenTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_api_tokens_can_be_created(): void
     {
         if (! Features::hasApiFeatures()) {

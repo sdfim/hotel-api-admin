@@ -3,12 +3,11 @@
 namespace Tests\Feature\API\Booking;
 
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_cancel_booking_method_response_200(): void
     {
         $hotelBook = $this->createHotelBookingAndAddPassengersToBookingItemAndHotelBook();
@@ -34,9 +33,7 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_cancel_booking_item_method_response_200(): void
     {
         $hotelBook = $this->createHotelBookingAndAddPassengersToBookingItemAndHotelBook();
@@ -63,9 +60,7 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_attempting_to_cancel_previously_cancelled_booking_again_method_response_200(): void
     {
         $hotelBook = $this->createHotelBookingAndAddPassengersToBookingItemAndHotelBook();
@@ -94,9 +89,7 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_attempting_to_cancel_previously_cancelled_booking_item_again_method_response_200(): void
     {
         $hotelBook = $this->createHotelBookingAndAddPassengersToBookingItemAndHotelBook();
@@ -126,9 +119,7 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_cancel_item_with_non_existent_booking_id_and_booking_item_method_response_400(): void
     {
         $nonExistentBookingId = Str::uuid()->toString();
@@ -146,9 +137,7 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_cancel_item_with_non_existent_booking_item_and_booking_id_method_response_400(): void
     {
         $nonExistentBookingItem = Str::uuid()->toString();
@@ -166,9 +155,7 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_cancel_item_with_missed_booking_id_and_correct_booking_item_method_response_400(): void
     {
         $hotelBook = $this->createHotelBookingAndAddPassengersToBookingItemAndHotelBook();
@@ -189,9 +176,7 @@ class HotelBookingCancelBookingTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_cancel_item_without_parameters_method_response_400(): void
     {
         $bookingCancelItemResponse = $this->withHeaders($this->headers)

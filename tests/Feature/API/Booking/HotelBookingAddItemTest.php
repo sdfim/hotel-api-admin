@@ -3,12 +3,11 @@
 namespace Tests\Feature\API\Booking;
 
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelBookingAddItemTest extends HotelBookingApiTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_first_item_method_response_200(): void
     {
         $pricingSearchRequestResponse = $this->getHotelPricingSearchData();
@@ -30,9 +29,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_item_to_an_existing_booking_method_response_200(): void
     {
         $createBooking = $this->createHotelBooking();
@@ -54,9 +51,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_previously_deleted_item_again_method_response_200(): void
     {
         $createBooking = $this->createHotelBooking();
@@ -81,9 +76,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_item_with_non_existent_booking_item_and_missed_booking_id_method_response_400(): void
     {
         $nonExistentBookingItem = Str::uuid()->toString();
@@ -97,9 +90,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_item_to_non_existent_booking_id_and_correct_booking_item_method_response_400(): void
     {
         $nonExistentBookingId = Str::uuid()->toString();
@@ -117,9 +108,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_item_with_empty_booking_item_and_missed_booking_id_method_response_400(): void
     {
         $bookingAddItemResponse = $this->withHeaders($this->headers)
@@ -131,9 +120,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_item_with_empty_booking_id_and_missed_booking_item_method_response_400(): void
     {
         $bookingAddItemResponse = $this->withHeaders($this->headers)
@@ -146,9 +133,7 @@ class HotelBookingAddItemTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_item_without_parameters_method_response_400(): void
     {
         $bookingAddItemResponse = $this->withHeaders($this->headers)

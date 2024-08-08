@@ -5,12 +5,11 @@ namespace Tests\Feature\API\Booking;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_method_response_200(): void
     {
         $createBooking = $this->createHotelBooking();
@@ -44,9 +43,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_again_method_response_200(): void
     {
         $createBooking = $this->createHotelBooking();
@@ -85,9 +82,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_empty_booking_id_method_response_400(): void
     {
         $addPassengersResponse = $this->withHeaders($this->headers)
@@ -99,9 +94,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_non_existent_booking_id_method_response_400(): void
     {
         $nonExistentBookingId = Str::uuid()->toString();
@@ -115,9 +108,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_without_parameters_method_response_400(): void
     {
         $addPassengersResponse = $this->withHeaders($this->headers)
@@ -134,9 +125,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_children_ages_mismatch_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['children_ages_mismatch']);
@@ -160,9 +149,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_number_of_children_mismatch_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['number_of_children_mismatch'], true);
@@ -186,9 +173,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_number_of_adults_mismatch_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['number_of_adults_mismatch']);
@@ -212,9 +197,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_missed_passenger_title_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['missed_passenger_title']);
@@ -230,9 +213,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_empty_passenger_title_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['empty_passenger_title']);
@@ -248,9 +229,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_missed_passenger_given_name_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['missed_passenger_given_name']);
@@ -266,9 +245,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_empty_passenger_given_name_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['empty_passenger_given_name']);
@@ -284,9 +261,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_missed_passenger_family_name_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['missed_passenger_family_name']);
@@ -302,9 +277,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_empty_passenger_family_name_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['empty_passenger_family_name']);
@@ -320,9 +293,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_missed_passenger_date_of_birth_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['missed_passenger_date_of_birth']);
@@ -338,9 +309,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_empty_passenger_date_of_birth_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['empty_passenger_date_of_birth']);
@@ -356,9 +325,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_incorrect_passenger_date_of_birth_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['incorrect_passenger_date_of_birth']);
@@ -374,9 +341,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_missed_passenger_booking_items_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['missed_passenger_booking_items']);
@@ -392,9 +357,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_empty_passenger_booking_items_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['empty_passenger_booking_items']);
@@ -410,9 +373,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_missed_passenger_booking_item_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['missed_passenger_booking_item']);
@@ -428,9 +389,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_empty_passenger_booking_item_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['empty_passenger_booking_item']);
@@ -446,9 +405,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_non_existent_passenger_booking_item_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['non_existent_passenger_booking_item']);
@@ -463,9 +420,7 @@ class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_hotel_booking_add_passengers_with_invalid_uuid_passenger_booking_item_method_response_400(): void
     {
         $addPassengersResponse = $this->sendAddPassengersRequestWithIncorrectData(['invalid_uuid_passenger_booking_item']);

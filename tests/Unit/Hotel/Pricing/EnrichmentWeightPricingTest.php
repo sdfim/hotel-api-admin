@@ -10,9 +10,7 @@ use Tests\TestCase;
 
 class EnrichmentWeightPricingTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_enrichment_pricing_assert_equals_true(): void
     {
         $mockClientResponse = $this->createMockClientResponse();
@@ -30,9 +28,7 @@ class EnrichmentWeightPricingTest extends TestCase
         $this->assertEquals($expectedResult, $result);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_enrichment_pricing_assert_equals_false(): void
     {
         $mockClientResponse = $this->createMockClientResponse();
