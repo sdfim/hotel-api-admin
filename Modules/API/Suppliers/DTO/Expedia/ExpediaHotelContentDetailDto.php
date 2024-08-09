@@ -3,7 +3,7 @@
 namespace Modules\API\Suppliers\DTO\Expedia;
 
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
-use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponse;
+use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponseFactory;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -79,7 +79,7 @@ class ExpediaHotelContentDetailDto
                         $images[] = $image->links->{'350px'}->href;
                     }
                 }
-                $roomResponse = new ContentDetailRoomsResponse();
+                $roomResponse = ContentDetailRoomsResponseFactory::create();
                 $roomResponse->setSupplierRoomId($room->id);
                 $roomResponse->setSupplierRoomName($room->name);
                 if ($viewAmenities) {
