@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Modules\API\Suppliers\DTO\IcePortal;
 
-use Modules\API\ContentAPI\ResponseModels\ContentDetailResponse;
-use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponse;
+use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
+use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponseFactory;
 use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
 
 class IcePortalHotelContentDetailDto
@@ -47,7 +47,7 @@ class IcePortalHotelContentDetailDto
             $supplierResponse->address['city'].' - '.
             $supplierResponse->address['postalCode'];
 
-        $hotelResponse = new ContentDetailResponse();
+        $hotelResponse = ContentDetailResponseFactory::create();
         $hotelResponse->setGiataHotelCode($giata_id);
         $hotelResponse->setImages($hotelImages);
         $hotelResponse->setDescription($supplierResponse->description ?? '');
@@ -73,9 +73,9 @@ class IcePortalHotelContentDetailDto
         $rooms = [];
         foreach ($supplierResponse->roomTypes as $room) {
             $images = array_merge($roomImages[$room['roomID']] ?? [], $roomAmenitiesGeneral);
-            $roomResponse = new ContentDetailRoomsResponse();
+            $roomResponse = ContentDetailRoomsResponseFactory::create();
             $roomResponse->setSupplierRoomId($room['roomID']);
-            $roomResponse->setSupplierRoomName($room['roomCode']);
+            $roomResponse->setSupplierRoomCode($room['roomCode']);
             $roomResponse->setAmenities(array_unique($roomAmenities));
             $roomResponse->setImages($images);
             $roomResponse->setDescriptions($room['description'] ?? '');

@@ -8,6 +8,8 @@ class ContentDetailRoomsResponse
 
     private string $supplier_room_name;
 
+    private string $supplier_room_code;
+
     private array $amenities;
 
     private array $images;
@@ -44,6 +46,16 @@ class ContentDetailRoomsResponse
         return $this->amenities;
     }
 
+    public function setSupplierRoomCode(string $supplier_room_code): void
+    {
+        $this->supplier_room_code = $supplier_room_code;
+    }
+
+    public function getSupplierRoomCode(): string
+    {
+        return $this->supplier_room_code;
+    }
+
     public function setSupplierRoomName(string $supplier_room_name): void
     {
         $this->supplier_room_name = $supplier_room_name;
@@ -69,6 +81,7 @@ class ContentDetailRoomsResponse
         return [
             'supplier_room_id' => $this->getSupplierRoomId(),
             'supplier_room_name' => $this->getSupplierRoomName(),
+            'supplier_room_code' => $this->getSupplierRoomCode(),
             'amenities' => $this->getAmenities(),
             'images' => $this->getImages(),
             'descriptions' => $this->getDescriptions(),
