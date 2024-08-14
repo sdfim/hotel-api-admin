@@ -228,7 +228,11 @@ class HbsiClient
             $content['original']['response'] = $body;
 
             if (str_contains($body, 'Errors')) {
-                SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'app', 'message' => 'RQ Error']);
+                $return = $this->processXmlBody($body, $bodyQuery, true);
+                $response = $return['response']->children('soap-env', true)->Body->children()->children();
+                $code = $response->children()->attributes()['Code'];
+                $message = (string) $code === '95' ? 'Room is already cancelled.' : 'RQ Error';
+                SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'app', 'message' => $message]);
             }
 
             return $this->processXmlBody($body, $bodyQuery, true);

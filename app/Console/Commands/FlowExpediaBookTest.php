@@ -14,17 +14,14 @@ class FlowExpediaBookTest extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'expedia-book-test {step} {destination} {supplier}';
-
+    protected $signature = 'flow:expedia-book-test {step?} {destination?} {supplier?}';
     protected $description = 'Command description';
 
     protected PendingRequest $client;
-
     protected string $url;
 
-    protected string $destination;
-
-    protected string $supplier;
+    protected ?string $destination;
+    protected ?string $supplier;
 
     public function __construct()
     {
@@ -38,6 +35,10 @@ class FlowExpediaBookTest extends Command
         $step = $this->argument('step');
         $this->destination = $this->argument('destination');
         $this->supplier = $this->argument('supplier');
+
+        $this->destination = !$this->destination ? '508' : $this->destination;
+        $this->supplier = !$this->supplier ? 'Expedia' : $this->supplier;
+        $step = !$step ? 1 : $step;
 
         foreach (range(1, $step) as $index) {
             $this->warn('STEP '.$index.' of '.$step);

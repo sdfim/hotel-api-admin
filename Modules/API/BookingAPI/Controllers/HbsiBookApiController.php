@@ -42,7 +42,7 @@ class HbsiBookApiController extends BaseBookApiController
         '3' => 'UltimateJet',
     ];
 
-    private const CODE_ALREADY_CANCELLED = '95';
+    private const CODE_ALREADY_CANCELLED = '95'; // Reservation with ID is already cancelled
     private const CODE_BOOKING_STILL_CONFIRMED = '394'; // Cancelled after due date
     private const CODE_WRONG_PASSENGER_NAME = '251';
     private const MAX_CANCEL_BOOKING_RETRY_COUNT = 1;
@@ -273,10 +273,17 @@ class HbsiBookApiController extends BaseBookApiController
                 $res = $dataResponse['Errors'];
                 $code = $response->children()->attributes()['Code'];
 
-                if (static::CODE_ALREADY_CANCELLED == $code || static::CODE_BOOKING_STILL_CONFIRMED == $code) {
+                if (static::CODE_BOOKING_STILL_CONFIRMED == $code) {
                     return [
                         'booking_item' => $apiBookingsMetadata->booking_item,
                         'status' => 'Room canceled.',
+                    ];
+                }
+
+                if (static::CODE_ALREADY_CANCELLED == $code) {
+                    return [
+                        'booking_item' => $apiBookingsMetadata->booking_item,
+                        'status' => 'Room is already cancelled.',
                     ];
                 }
 

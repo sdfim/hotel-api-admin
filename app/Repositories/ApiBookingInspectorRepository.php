@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
+use App\Models\Supplier;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 use Modules\Enums\InspectorStatusEnum;
 use Modules\Enums\ItemTypeEnum;
@@ -18,6 +20,50 @@ class ApiBookingInspectorRepository
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->latest()
             ->first();
+    }
+
+    public static function getAllBookTestForCancel(string $supplierName): ?Collection
+    {
+        $supplierId = Supplier::where('name', $supplierName)->first()->id;
+
+        $cancelledBookings = ApiBookingInspector::select('booking_id', 'booking_item')
+            ->where('type', 'cancel_booking')
+            ->where('sub_type', 'true')
+            ->where(function ($query) {
+                $query->where('status', '!=', 'error')
+                    ->orWhere('status_describe', 'like', '%was not found%')
+                    ->orWhere('status_describe', 'like', '%already cancelled%');
+            })
+            ->where('supplier_id', $supplierId)
+            ->get();
+
+        $pairs = [];
+        foreach ($cancelledBookings as $cancelledBooking) {
+            $pairs[] = ['booking_id' => $cancelledBooking->booking_id, 'booking_item' => $cancelledBooking->booking_item];
+        }
+
+        $bookedBookings = ApiBookingInspector::where('type', 'book')
+            ->where('sub_type', 'create')
+            ->where('status', '!=', 'error')
+            ->where('supplier_id', $supplierId)
+            ->where(function($query) use ($pairs) {
+                foreach ($pairs as $pair) {
+                    $query->where(function($subQuery) use ($pair) {
+                        $subQuery->where('booking_id', '!=', $pair['booking_id'])
+                            ->orWhere('booking_item', '!=', $pair['booking_item']);
+                    });
+                }
+            })
+            ->get();
+
+        $bookedItems = ApiBookingsMetadataRepository::bookedItemsByBookingIds($bookedBookings->pluck('booking_id')->toArray())
+            ->pluck('booking_id')->toArray();
+
+        $bookedBookings = $bookedBookings->filter(function ($bookedBooking) use ($bookedItems) {
+            return in_array($bookedBooking->booking_id, $bookedItems);
+        });
+
+        return $bookedBookings;
     }
 
     public static function getLinkDeleteItem(string $booking_id, string $booking_item, int $room_id): array

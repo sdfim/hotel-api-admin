@@ -242,7 +242,6 @@ class ExpediaBookApiController extends BaseBookApiController
 
         SaveBookingInspector::dispatch($bookingInspector, $dataResponse, $dataResponse);
 
-//        return (array) $dataResponse;
         // run retrieveBooking to get the updated booking
         $item = ApiBookingsMetadataRepository::bookedItem($filters['booking_id'], $filters['booking_item'])->first();
         $this->retrieveBooking($filters, $item);
@@ -379,6 +378,9 @@ class ExpediaBookApiController extends BaseBookApiController
         $item = ApiBookingsMetadataRepository::bookedItem($booking_id, $filters['booking_item'])->first();
         $this->retrieveBooking($filters, $item);
 
+        // after retrieveBooking, we need to update the ApiBookingsMetadata with the cancellation_paths
+        $this->saveBookingInfo($filters, $content, $bookingInspector);
+
         $error = empty($error['error']) ? [] : $error;
 
         return [
@@ -449,7 +451,11 @@ class ExpediaBookApiController extends BaseBookApiController
         } catch (ServerException $e) {
             $this->handleException($e, $bookingInspector, 'Server error', 'Server error', $originalRQ);
         } catch (RequestException $e) {
-            $this->handleException($e, $bookingInspector, 'Request Exception occurred', $e->getMessage(), $originalRQ);
+            $responseBody = $e->getResponse()->getBody()->getContents();
+            $errorData = json_decode($responseBody, true);
+            $errorMessage = $errorData['message'] ?? $e->getMessage();
+            $this->handleException($e, $bookingInspector, 'Request Exception occurred', $errorMessage, $originalRQ);
+            return ['error' => $errorMessage];
         } catch (Exception $e) {
             $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage(), $originalRQ);
         }
@@ -470,49 +476,54 @@ class ExpediaBookApiController extends BaseBookApiController
      */
     public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): ?array
     {
+        $booking_id = $filters['booking_id'];
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
+        $inspectorCansel = BookingRepository::newBookingInspector([
+            $booking_id, $filters, $supplierId, 'cancel_booking', 'true', 'hotel',
+        ]);
+
         $room = $apiBookingsMetadata->supplier_booking_item_id;
-        $cancellationPaths = $apiBookingsMetadata->booking_item_data['cancellation_paths'];
 
-        foreach ($cancellationPaths as $cancellationPath) {
-            // Delete item DELETE method query
-            $props = $this->getPathParamsFromLink($cancellationPath);
-            $path = $props['path'];
-            $itineraryId = Arr::get(explode('/', $path), '3', BookingRepository::getItineraryId($filters));
+        $linkDeleteItem = Arr::get($apiBookingsMetadata->booking_item_data, 'cancellation_paths.0', null);
 
-            $bodyArr = [
-                'itinerary_id' => $itineraryId,
-                'room_id' => $room,
+        if (!$linkDeleteItem) {
+            $apiBookingItem = ApiBookingItem::where('booking_item', $apiBookingsMetadata->booking_item)->first();
+            $room_id = json_decode($apiBookingItem->booking_item_data, true)['room_id'];
+            $linkDeleteItem = BookingRepository::getLinkDeleteItem($filters['booking_id'], $apiBookingsMetadata->booking_item, $room_id)[0];
+        }
+
+        // Delete item DELETE method query
+        $props = $this->getPathParamsFromLink($linkDeleteItem);
+        $path = $props['path'];
+        $itineraryId = Arr::get(explode('/', $path), '3', BookingRepository::getItineraryId($filters));
+
+        $bodyArr = [
+            'itinerary_id' => $itineraryId,
+            'room_id' => $room,
+        ];
+        $body = json_encode($bodyArr);
+
+        try {
+            $response = $this->rapidClient->delete($path, $props['paramToken'], $body, $this->headers());
+            $res = [
+                'booking_item' => $apiBookingsMetadata->booking_item,
+                'room' => $room,
+                'status' => 'Room canceled.',
             ];
-            $body = json_encode($bodyArr);
+            $dataResponse = json_decode($response->getBody()->getContents(), true) ?? $res;
 
-            try {
-                $response = $this->rapidClient->delete($path, $props['paramToken'], $body, $this->headers());
-                $dataResponse = json_decode($response->getBody()->getContents());
-                $res[] = [
-                    'booking_item' => $apiBookingsMetadata->booking_item,
-                    'room' => $room,
-                    'status' => 'Room canceled.',
-                ];
-
-            } catch (Exception $e) {
-                $responseError = explode('response:', $e->getMessage());
-                $responseErrorArr = json_decode($responseError[1], true);
-                $res[] = [
-                    'booking_item' => $apiBookingsMetadata->booking_item,
-                    'room' => $room,
-                    'status' => $responseErrorArr['message'],
-                ];
-                $dataResponse = $responseErrorArr['message'];
-            }
-
-            $filters['booking_item'] = $apiBookingsMetadata->booking_item;
-            $filters['type'] = 'hotel';
-
-            $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
-            SaveBookingInspector::dispatch([
-                $apiBookingsMetadata->booking_id, $filters, $dataResponse, $res, $supplierId, 'cancel_booking',
-                'true', 'hotel',
-            ]);
+            SaveBookingInspector::dispatch($inspectorCansel, $dataResponse, $res);
+        } catch (Exception $e) {
+            $responseError = explode('response:', $e->getMessage());
+            $responseErrorArr = json_decode($responseError[1], true);
+            $message = $responseErrorArr['message'];
+            $res = [
+                'booking_item' => $apiBookingsMetadata->booking_item,
+                'room' => $room,
+                'status' => $message,
+            ];
+            SaveBookingInspector::dispatch($inspectorCansel, $responseError, $res, 'error',
+                ['side' => 'app', 'message' => $message]);
         }
 
         return $res;

@@ -14,7 +14,7 @@ class FlowHbsiBookTest extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'hbsi-book-flow-test {step?} {destination?} {supplier?} {type?}';
+    protected $signature = 'flow:hbsi-book-test {step?} {destination?} {supplier?} {type?}';
 
     protected PendingRequest $client;
 
@@ -120,6 +120,7 @@ class FlowHbsiBookTest extends Command
         $flattened = Arr::dot($responseData);
 
         $countRooms = count($responseData['data']['query']['occupancy']);
+
         $bookingItems = [];
         if ($countRooms === 1) {
 //            foreach ($flattened as $key => $value) {
@@ -175,8 +176,8 @@ class FlowHbsiBookTest extends Command
             $checkin = Carbon::now()->addDays(240)->toDateString();
             $checkout = Carbon::now()->addDays(241 + rand(2, 5))->toDateString();
         } else {
-            $checkin = Carbon::now()->addDays(150)->toDateString();
-            $checkout = Carbon::now()->addDays(150 + rand(2, 5))->toDateString();
+            $checkin = Carbon::now()->addDays(60)->toDateString();
+            $checkout = Carbon::now()->addDays(60 + rand(2, 5))->toDateString();
         }
 
         $occupancy = [];
@@ -204,6 +205,7 @@ class FlowHbsiBookTest extends Command
             'checkin' => $checkin,
             'checkout' => $checkout,
             'occupancy' => $occupancy,
+            'results_per_page' => 100,
         ];
 
         $response = $this->client->post($this->url.'/api/pricing/search', $requestData);

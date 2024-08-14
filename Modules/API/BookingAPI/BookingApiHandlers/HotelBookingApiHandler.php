@@ -27,12 +27,11 @@ use Psr\Container\NotFoundExceptionInterface;
 class HotelBookingApiHandler extends BaseController implements BookingApiHandlerInterface
 {
     public function __construct(
-        private readonly ExpediaHotelBookingApiController $expedia = new ExpediaHotelBookingApiController(),
-        private readonly HbsiHotelBookingApiController $hbsi = new HbsiHotelBookingApiController(),
-        private readonly HbsiService $hbsiService = new HbsiService(),
+        private readonly ExpediaHotelBookingApiController $expedia,
+        private readonly HbsiHotelBookingApiController $hbsi,
+        private readonly HbsiService $hbsiService,
 
-    ) {
-    }
+    ) { }
 
     public function addItem(Request $request, string $supplier): JsonResponse
     {

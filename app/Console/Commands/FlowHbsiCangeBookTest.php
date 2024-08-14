@@ -18,7 +18,7 @@ class FlowHbsiCangeBookTest extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'hbsi-change-book-flow-test {run_firt_endpoints?} {booking_id?} {booking_item?}';
+    protected $signature = 'flow:hbsi-change-book-test {run_firt_endpoints?} {booking_id?} {booking_item?}';
 
     protected PendingRequest $client;
 

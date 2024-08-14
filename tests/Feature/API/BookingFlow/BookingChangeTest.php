@@ -7,6 +7,7 @@ use App\Models\MapperHbsiGiata;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\Fluent\AssertableJson;
 use PHPUnit\Framework\Attributes\Depends;
@@ -113,7 +114,13 @@ class BookingChangeTest extends TestCase
             $json->has('data')->has('success')->has('message')
         );
 
-        self::$newBookingItem = $response->json('data.result.0.room_groups.0.rooms.0.booking_item');
+        $room_combinations = Arr::get($response->json(), 'data.result.0.room_combinations');
+        foreach ($room_combinations as $booking_item => $room_combination) {
+            self::$newBookingItem = $booking_item;
+            break;
+        }
+
+        $this->assertNotEmpty($room_combinations);
         $this->assertNotNull(self::$newBookingItem);
     }
 
@@ -167,6 +174,22 @@ class BookingChangeTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson(fn(AssertableJson $json) => $json
             ->where('data.result.0.status', 'booked')
+            ->etc());
+    }
+
+    #[Test]
+    public function test_cancel_booking(): void
+    {
+        $response = $this->request()->json(
+            'DELETE',
+            route('cancelBooking'), [
+                'booking_id' => self::$bookingId,
+                'booking_item' => self::$bookingItem,
+                ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(fn(AssertableJson $json) => $json
+            ->where('data.result.0.status', 'Room canceled.')
             ->etc());
     }
 

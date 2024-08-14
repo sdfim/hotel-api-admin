@@ -17,6 +17,12 @@ use Modules\Enums\TypeRequestEnum as TypeEnum;
 
 class RouteApiController extends Controller
 {
+    public function __construct(
+        private HotelApiHandler $hotelApiHandler,
+        private FlightApiHandler $flightApiHandler,
+        private ComboApiHandler $comboApiHandler
+    ) { }
+
     /**
      * @throws \Throwable
      */
@@ -41,9 +47,9 @@ class RouteApiController extends Controller
         $suppliersIds = GeneralConfiguration::pluck('currently_suppliers')->first() ?? [1];
 
         $handler = match (TypeEnum::from($type)) {
-            TypeEnum::HOTEL => resolve(HotelApiHandler::class),
-            TypeEnum::FLIGHT => new FlightApiHandler(),
-            TypeEnum::COMBO => new ComboApiHandler(),
+            TypeEnum::HOTEL => $this->hotelApiHandler,
+            TypeEnum::FLIGHT => $this->flightApiHandler,
+            TypeEnum::COMBO => $this->comboApiHandler,
         };
 
         return match (RouteEnum::from($route)) {
