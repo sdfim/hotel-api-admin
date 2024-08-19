@@ -5,6 +5,7 @@ namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
 use App\Models\ExpediaContent;
 use App\Models\MapperExpediaGiata;
 use App\Repositories\ExpediaContentRepository as ExpediaRepository;
+use App\Repositories\HbsiRepository;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -28,7 +29,7 @@ class ExpediaHotelController
         $this->expediaService = new ExpediaService();
     }
 
-    public function preSearchData(array $filters, string $initiator): ?array
+    public function preSearchData(array &$filters, string $initiator): ?array
     {
         $timeStart = microtime(true);
 
@@ -38,14 +39,22 @@ class ExpediaHotelController
         try {
             $expedia = new ExpediaContent();
 
+            $geography = new Geography();
+
             if (isset($filters['giata_ids'])) {
                 $filters['ids'] = ExpediaRepository::getIdsByGiataIds($filters['giata_ids']);
-            } elseif (isset($filters['place'])) {
+            } elseif (isset($filters['place']) && ! isset($filters['session'])) {
                 $filters['ids'] = ExpediaRepository::getIdsByGiataPlace($filters['place']);
             } elseif (isset($filters['destination'])) {
                 $filters['ids'] = ExpediaRepository::getIdsByDestinationGiata($filters['destination']);
-            } else {
-                $geography = new Geography();
+            } elseif (isset($filters['session'])) {
+                $geoLocation = $geography->getPlaceDetailById($filters['place'], $filters['session']);
+                $minMaxCoordinate = $geography->calculateBoundingBox($geoLocation['latitude'], $geoLocation['longitude'], $filters['radius']);
+                $filters['latitude'] = $geoLocation['latitude'];
+                $filters['longitude'] = $geoLocation['longitude'];
+
+                $filters['ids'] = ExpediaRepository::getIdsByCoordinate($minMaxCoordinate);
+            }else {
                 $minMaxCoordinate = $geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
                 $filters['ids'] = ExpediaRepository::getIdsByCoordinate($minMaxCoordinate);
             }

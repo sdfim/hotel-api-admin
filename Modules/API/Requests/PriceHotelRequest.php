@@ -133,11 +133,12 @@ class PriceHotelRequest extends ApiRequest
             'giata_ids.*' => 'integer',
 
             'place' => 'required_without_all:giata_ids,latitude,longitude,destination|nullable|string|max:32',
+            'session' => 'string|max:36',
 
             'destination' => 'required_without_all:giata_ids,latitude,longitude,place|integer|min:1,max:999999',
 
-            'latitude' => 'required_without_all:giata_ids,destination,place|decimal:0,8|min:-90|max:90',
-            'longitude' => 'required_without_all:giata_ids,destination,place|decimal:0,8|min:-180|max:180',
+            'latitude' => 'required_without_all:giata_ids,destination,place,session|nullable|decimal:0,8|min:-90|max:90',
+            'longitude' => 'required_without_all:giata_ids,destination,place,session|nullable|decimal:0,8|min:-180|max:180',
             'radius' => 'required_without_all:giata_ids,destination,place|numeric|between:1,1000',
 
             'query_package' => 'string|in:both,standalone,package',

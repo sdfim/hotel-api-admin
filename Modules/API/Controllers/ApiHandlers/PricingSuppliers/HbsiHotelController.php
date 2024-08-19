@@ -28,7 +28,7 @@ class HbsiHotelController
     ) {
     }
 
-    public function preSearchData(array $filters): ?array
+    public function preSearchData(array &$filters): ?array
     {
         $timeStart = microtime(true);
 
@@ -37,10 +37,17 @@ class HbsiHotelController
 
         if (isset($filters['giata_ids'])) {
             $ids = HbsiRepository::getIdsByGiataIds($filters['giata_ids'], $limit, $offset);
-        } elseif (isset($filters['place'])) {
+        } elseif (isset($filters['place']) && ! isset($filters['session'])) {
             $ids = HbsiRepository::getIdsByGiataPlace($filters['place'], $limit, $offset);
         } elseif (isset($filters['destination'])) {
             $ids = HbsiRepository::getIdsByDestinationGiata($filters['destination'], $limit, $offset);
+        } elseif (isset($filters['session'])) {
+            $geoLocation = $this->geography->getPlaceDetailById($filters['place'], $filters['session']);
+            $minMaxCoordinate = $this->geography->calculateBoundingBox($geoLocation['latitude'], $geoLocation['longitude'], $filters['radius']);
+            $filters['latitude'] = $geoLocation['latitude'];
+            $filters['longitude'] = $geoLocation['longitude'];
+
+            $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset);
         } else {
             $minMaxCoordinate = $this->geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
             $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset);
@@ -55,7 +62,7 @@ class HbsiHotelController
     /**
      * @throws Throwable
      */
-    public function price(array $filters, array $searchInspector): ?array
+    public function price(array &$filters, array $searchInspector): ?array
     {
         try {
             $hotelData = $this->preSearchData($filters);
