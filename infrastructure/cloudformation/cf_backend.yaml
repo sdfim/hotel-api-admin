@@ -179,6 +179,9 @@ Parameters:
   GiataMainPassword:
     Description: GIATA Main Password
     Type: String
+  GoogleApiDeveloperKey:
+    Description: Google API Developer Key
+    Type: String
   GitHubBackendBranch:
     Default: 'master'
     Description: Backend (api) branch name that will trigger the pipeline (e.g. main, dev)
