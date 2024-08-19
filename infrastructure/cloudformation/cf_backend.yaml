@@ -355,6 +355,8 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: GOOGLE_API_DEVELOPER_KEY
+                Value: !Ref 'GoogleApiDeveloperKey'
               - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
                 Value: !Ref 'LogAwsCloudwatchAccessKeyId'
               - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
@@ -513,6 +515,8 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: GOOGLE_API_DEVELOPER_KEY
+                Value: !Ref 'GoogleApiDeveloperKey'
               - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
                 Value: !Ref 'LogAwsCloudwatchAccessKeyId'
               - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
@@ -728,6 +732,8 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: GOOGLE_API_DEVELOPER_KEY
+                Value: !Ref 'GoogleApiDeveloperKey'
               - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
                 Value: !Ref 'LogAwsCloudwatchAccessKeyId'
               - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
@@ -1740,6 +1746,9 @@ Resources:
           - '",'
           - '"GIATA_MAIN_PASSWORD":"'
           - !Ref 'GiataMainPassword'
+          - '",'
+          - '"GOOGLE_API_DEVELOPER_KEY":"'
+          - !Ref 'GoogleApiDeveloperKey'
           - '",'
           - '"LOG_AWSCLOUDWATCH_ACCESSKEYID":"'
           - !Ref 'LogAwsCloudwatchAccessKeyId'
