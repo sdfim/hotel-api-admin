@@ -285,6 +285,8 @@ class DestinationsController
         $service = new MapsPlaces($client);
         $searchCriteria = $request->q;
 
+        $primaryTypes = ['airport', 'hotel', 'resort_hotel', 'country', 'continent'];
+
         if ($searchCriteria === null) {
             return collect();
         }
@@ -292,6 +294,7 @@ class DestinationsController
         // It's probably an airport
         if (strlen($searchCriteria) === 3) {
             $searchCriteria .= ' airport';
+            $primaryTypes = ['airport'];
         }
 
         $sessionToken = Str::uuid();
@@ -299,6 +302,7 @@ class DestinationsController
         $params = new GoogleMapsPlacesV1AutocompletePlacesRequest();
         $params->input = $searchCriteria;
         $params->sessionToken = $sessionToken;
+        $params->includedPrimaryTypes = $primaryTypes;
         $results = $service->places->autocomplete($params);
 
         return collect($results->getSuggestions())->map(function (GoogleMapsPlacesV1AutocompletePlacesResponseSuggestion $place) use ($sessionToken)
