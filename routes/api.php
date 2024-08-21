@@ -3,6 +3,7 @@
 use Modules\API\BookingAPI\routes\BookingApiRoutes;
 use Modules\API\ContentAPI\routes\ContentApiRoutes;
 use Modules\API\PricingAPI\routes\PricingApiRoutes;
+use Modules\API\Report\routes\ReportApiRoutes;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,3 +21,5 @@ ContentApiRoutes::routes();
 PricingApiRoutes::routes();
 
 BookingApiRoutes::routes();
+
+ReportApiRoutes::routes();

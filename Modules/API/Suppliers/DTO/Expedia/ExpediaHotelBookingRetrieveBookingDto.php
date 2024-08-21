@@ -6,6 +6,7 @@ namespace Modules\API\Suppliers\DTO\Expedia;
 
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiSearchInspectorRepository;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\BookingAPI\ResponseModels\HotelRetrieveBookingResponseModel as ResponseModel;
 
@@ -23,6 +24,7 @@ class ExpediaHotelBookingRetrieveBookingDto
         $rooms = [];
         foreach ($dataResponse['rooms'] as $room) {
             $rooms[] = [
+                'status' => $room['status'],
                 'checkin' => $room['checkin'],
                 'checkout' => $room['checkout'],
                 'number_of_adults' => $room['number_of_adults'],
@@ -34,27 +36,28 @@ class ExpediaHotelBookingRetrieveBookingDto
         }
 
         $responseModel = new ResponseModel();
-        $responseModel->setStatus($saveResponse['status']);
-        $responseModel->setBookingId($saveResponse['booking_id']);
-        $responseModel->setBookringItem($saveResponse['booking_item']);
-        $responseModel->setSupplier($saveResponse['supplier']);
-        $responseModel->setHotelName($saveResponse['hotel_name']);
+        $responseModel->setStatus('unknown');
+        $responseModel->setBookingId($filters['booking_id']);
+        $responseModel->setBookringItem($filters['booking_item']);
+        $responseModel->setSupplier('Expedia');
+        $responseModel->setHotelName(Arr::get($saveResponse, 'hotel_name', ''));
 
         $responseModel->setRooms($rooms);
 
-        $responseModel->setCancellationTerms($saveResponse['cancellation_terms']);
-        $responseModel->setRate($saveResponse['rate']);
-        $responseModel->setTotalPrice($saveResponse['total_price']);
-        $responseModel->setTotalTax($saveResponse['total_tax']);
-        $responseModel->setTotalFees($saveResponse['total_fees']);
-        $responseModel->setTotalNet($saveResponse['total_net']);
-        $responseModel->setMarkup($saveResponse['markup']);
-        $responseModel->setCurrency($saveResponse['currency']);
-        $responseModel->setPerNightBreakdown($saveResponse['per_night_breakdown']);
+        $responseModel->setCancellationTerms(Arr::get($saveResponse, 'cancellation_terms', []));
+        $responseModel->setRate(Arr::get($saveResponse, 'rate', ''));
+        $responseModel->setTotalPrice(Arr::get($saveResponse, 'total_price', 0));
+        $responseModel->setTotalTax(Arr::get($saveResponse, 'total_tax', 0));
+        $responseModel->setTotalFees(Arr::get($saveResponse, 'total_fees', 0));
+        $responseModel->setTotalNet(Arr::get($saveResponse, 'total_net', 0));
+        $responseModel->setMarkup(Arr::get($saveResponse, 'markup', 0));
+        $responseModel->setCurrency(Arr::get($saveResponse, 'currency', ''));
+        $responseModel->setPerNightBreakdown(Arr::get($saveResponse, 'per_night_breakdown', 0));
         $responseModel->setBoardBasis('');
         //        $responseModel->setRoomName('');
         //        $responseModel->setRoomType('');
         $responseModel->setQuery($query);
+
         $responseModel->setSupplierBookId($dataResponse['itinerary_id'] ?? '');
         $responseModel->setConfirmationNumbers([
             'confirmation_number' => $responseModel->getSupplierBookId(),
