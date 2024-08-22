@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use Carbon\Carbon;
 
 class MigrateMappings extends Command

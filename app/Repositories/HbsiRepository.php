@@ -62,7 +62,7 @@ class HbsiRepository
             ->get()
             ->mapWithKeys(function ($value) {
                 return [
-                    $value['hbsi_id'] => [
+                    $value['supplier_id'] => [
                         'giata' => $value['giata_id'],
                         'hbsi' => $value['supplier_id'],
                     ],
@@ -97,6 +97,7 @@ class HbsiRepository
             ->where($cacheDB.'.giata_properties.longitude', '>', $minMaxCoordinate['min_longitude'])
             ->where($cacheDB.'.giata_properties.longitude', '<', $minMaxCoordinate['max_longitude'])
             ->join($mainDB.'.mappings', $cacheDB.'.giata_properties.code', '=', $mainDB.'.mappings.giata_id')
+            ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::HBSI->value)
             ->select($cacheDB.'.giata_properties.code as giata', $cacheDB.'.giata_properties.name', $mainDB.'.mappings.supplier_id as hbsi')
             ->get()
             ->mapWithKeys(function ($value) {
@@ -129,7 +130,7 @@ class HbsiRepository
             ->get()
             ->mapWithKeys(function ($value) {
                 return [
-                    $value['hbsi_id'] => [
+                    $value['supplier_id'] => [
                         'giata' => $value['giata_id'],
                         'hbsi' => $value['supplier_id'],
                     ],

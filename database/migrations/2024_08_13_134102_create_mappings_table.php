@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
 return new class extends Migration
 {
@@ -11,7 +12,7 @@ return new class extends Migration
         Schema::create('mappings', function (Blueprint $table) {
             $table->id();
             $table->string('giata_id', 255);
-            $table->enum('supplier', ['Expedia', 'HBSI', 'IcePortal']);
+            $table->enum('supplier', [MappingSuppliersEnum::Expedia->value, MappingSuppliersEnum::HBSI->value, MappingSuppliersEnum::IcePortal->value]);
             $table->string('supplier_id', 255);
             $table->integer('match_percentage')->default(100); // Nuevo campo agregado
             $table->timestamps();
