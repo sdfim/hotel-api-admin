@@ -3,13 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Models\GiataProperty;
-use App\Models\MapperHbsiGiata;
+use App\Models\Mapping;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
 class DownloadGiataData extends Command
 {
@@ -137,9 +138,10 @@ class DownloadGiataData extends Command
             foreach ($property->CrossReferences->CrossReference as $crossReference) {
                 if ((string) $crossReference['Code'] == 'ULTIMATE_JET_VACATIONS' && (string) $crossReference['Status'] !== 'Inactive') {
                     $batchDataMapperHbsi[] = [
-                        'hbsi_id' => $crossReference->Code['HotelCode'],
+                        'supplier_id' => $crossReference->Code['HotelCode'],
                         'giata_id' => (int) $property['Code'],
-                        'perc' => 100,
+                        'supplier' => MappingSuppliersEnum::HBSI->value,
+                        'match_percentage' => 100,
                     ];
                 }
             }
@@ -170,8 +172,8 @@ class DownloadGiataData extends Command
 
         try {
             DB::beginTransaction();
-            MapperHbsiGiata::whereIn('giata_id', $propertyIds)->delete();
-            MapperHbsiGiata::insert($batchDataMapperHbsi);
+            Mapping::hBSI()->whereIn('giata_id', $propertyIds)->delete();
+            Mapping::insert($batchDataMapperHbsi);
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();

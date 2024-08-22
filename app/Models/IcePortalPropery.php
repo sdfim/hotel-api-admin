@@ -67,6 +67,6 @@ class IcePortalPropery extends Model
 
     public function mapperHbsiGiata(): HasMany
     {
-        return $this->hasMany(MapperIcePortalGiata::class, 'ice_portal_id', 'code');
+        return $this->hasMany(Mapping::class, 'supplier_id', 'code')->icePortal();
     }
 }

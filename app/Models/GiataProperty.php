@@ -73,7 +73,8 @@ class GiataProperty extends Model
 
     public function mapperExpediaGiata(): HasOne
     {
-        return $this->hasOne(MapperExpediaGiata::class, 'giata_id', 'code');
+        return $this->hasOne(Mapping::class, 'giata_id', 'code')
+            ->expedia();
     }
 
     public function giataGeography(): HasOne
@@ -83,7 +84,8 @@ class GiataProperty extends Model
 
     public function hbsi(): HasOne
     {
-        return $this->hasOne(MapperHbsiGiata::class, 'giata_id', 'code')
+        return $this->hasOne(Mapping::class, 'giata_id', 'code')
+            ->hBSI()
             ->connection(config('database.connections.mysql_cache'));
     }
 }

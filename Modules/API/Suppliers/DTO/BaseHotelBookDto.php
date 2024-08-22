@@ -4,7 +4,7 @@ namespace Modules\API\Suppliers\DTO;
 
 use App\Models\ApiBookingItem;
 use App\Models\GiataProperty;
-use App\Models\MapperHbsiGiata;
+use App\Models\Mapping;
 use DateTime;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -37,7 +37,7 @@ class BaseHotelBookDto
         $hotelName = '';
         if (! isset($booking_item_data['hotel_id']) || $booking_item_data['hotel_id'] == 0 || $booking_item_data['hotel_id'] == '') {
             if (isset($booking_item_data['hotel_supplier_id'])) {
-                $mapper = MapperHbsiGiata::where('hbsi_id', $booking_item_data['hotel_supplier_id'])->first();
+                $mapper = Mapping::hBSI()->where('supplier_id', $booking_item_data['hotel_supplier_id'])->first();
                 if ($mapper) {
                     $booking_item_data['hotel_id'] = $mapper->giata_id;
                 } else {

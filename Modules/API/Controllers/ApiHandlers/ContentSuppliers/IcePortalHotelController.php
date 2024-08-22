@@ -6,7 +6,7 @@ use App\Models\GiataGeography;
 use App\Models\GiataPlace;
 use App\Models\GiataProperty;
 use App\Models\IcePortalPropery;
-use App\Models\MapperIcePortalGiata;
+use App\Models\Mapping;
 use App\Repositories\GiataPropertyRepository;
 use App\Repositories\IcePortalRepository;
 use Exception;
@@ -198,13 +198,13 @@ class IcePortalHotelController
 
     public function detail(Request $request): array
     {
-        $id = MapperIcePortalGiata::where('giata_id', $request->get('property_id'))->first();
+        $id = Mapping::icePortal()->where('giata_id', $request->get('property_id'))->first();
 
         if (! $id) {
             return [];
         }
 
-        $response = $this->client->get('/v1/listings/'.$id->ice_portal_id.'/', [
+        $response = $this->client->get('/v1/listings/'.$id->supplier_id.'/', [
             'mType' => self::ICE_MTYPE,
         ]);
 

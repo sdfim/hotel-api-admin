@@ -93,7 +93,7 @@ class ExpediaContent extends Model
 
     public function mapperGiataExpedia(): HasMany
     {
-        return $this->hasMany(MapperExpediaGiata::class, 'expedia_id', 'property_id');
+        return $this->hasMany(Mapping::class, 'supplier_id', 'property_id')->expedia();
     }
 
     public function expediaSlave(): HasOne

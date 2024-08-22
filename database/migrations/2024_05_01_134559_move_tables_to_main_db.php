@@ -11,36 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mapper_expedia_giatas', function (Blueprint $table) {
-            $table->integer('expedia_id')->index();
-            $table->integer('giata_id')->index();
-
-            $table->index(['expedia_id', 'giata_id'], 'idx_expedia_giatas');
-            $table->primary(['expedia_id', 'giata_id']);
-
-            $table->integer('step');
-        });
-
-        Schema::create('mapper_hbsi_giatas', function (Blueprint $table) {
-            $table->string('hbsi_id')->index();
-            $table->integer('giata_id')->index();
-
-            $table->index(['hbsi_id', 'giata_id'], 'idx_hbsi_giatas');
-            $table->primary(['hbsi_id', 'giata_id']);
-
-            $table->integer('perc');
-        });
-
-        Schema::create('mapper_ice_portal_giatas', function (Blueprint $table) {
-            $table->integer('ice_portal_id')->index();
-            $table->integer('giata_id')->index();
-
-            $table->index(['ice_portal_id', 'giata_id'], 'idx_ice_portal_giatas');
-            $table->primary(['ice_portal_id', 'giata_id']);
-
-            $table->integer('perc');
-        });
-
         Schema::create('giata_pois', function (Blueprint $table) {
             $table->id();
             $table->string('poi_id')->unique();
@@ -81,9 +51,6 @@ return new class extends Migration
         $connection = config('database.active_connections.mysql_cache');
         $schema = Schema::connection($connection);
 
-        $schema->dropIfExists('mapper_expedia_giatas');
-        $schema->dropIfExists('mapper_hbsi_giatas');
-        $schema->dropIfExists('mapper_ice_portal_giatas');
         $schema->dropIfExists('giata_pois');
         $schema->dropIfExists('giata_places');
         $schema->dropIfExists('giata_geographies');
@@ -96,36 +63,6 @@ return new class extends Migration
     {
         $connection = config('database.active_connections.mysql_cache');
         $schema = Schema::connection($connection);
-
-        $schema->create('mapper_expedia_giatas', function (Blueprint $table) {
-            $table->integer('expedia_id')->index();
-            $table->integer('giata_id')->index();
-
-            $table->index(['expedia_id', 'giata_id'], 'idx_expedia_giatas');
-            $table->primary(['expedia_id', 'giata_id']);
-
-            $table->integer('step');
-        });
-
-        $schema->create('mapper_hbsi_giatas', function (Blueprint $table) {
-            $table->string('hbsi_id')->index();
-            $table->integer('giata_id')->index();
-
-            $table->index(['hbsi_id', 'giata_id'], 'idx_hbsi_giatas');
-            $table->primary(['hbsi_id', 'giata_id']);
-
-            $table->integer('perc');
-        });
-
-        $schema->create('mapper_ice_portal_giatas', function (Blueprint $table) {
-            $table->integer('ice_portal_id')->index();
-            $table->integer('giata_id')->index();
-
-            $table->index(['ice_portal_id', 'giata_id'], 'idx_ice_portal_giatas');
-            $table->primary(['ice_portal_id', 'giata_id']);
-
-            $table->integer('perc');
-        });
 
         $schema->create('giata_pois', function (Blueprint $table) {
             $table->id();
@@ -164,9 +101,6 @@ return new class extends Migration
             $table->string('country_name');
         });
 
-        Schema::dropIfExists('mapper_expedia_giatas');
-        Schema::dropIfExists('mapper_hbsi_giatas');
-        Schema::dropIfExists('mapper_ice_portal_giatas');
         Schema::dropIfExists('giata_pois');
         Schema::dropIfExists('giata_places');
         Schema::dropIfExists('giata_geographies');
