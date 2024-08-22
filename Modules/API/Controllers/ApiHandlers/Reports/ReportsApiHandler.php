@@ -31,6 +31,7 @@ class ReportsApiHandler extends BaseController
             'supplier'                  => $booking->supplier->name,
             'supplier_booking_item_id'  => $booking->supplier_booking_item_id,
             'hotel_supplier_id'         => $booking->hotel_supplier_id,
+            'hotel'                     => $booking->hotel?->name,
             'main_guest'                => Arr::has($booking->booking_item_data, 'main_guest') ? Arr::get($booking->booking_item_data, 'main_guest.Surname').' '.Arr::get($booking->booking_item_data, 'main_guest.GivenName') : null,
             'created_at'                => $booking->created_at,
         ])->toArray();
