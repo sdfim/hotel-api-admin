@@ -70,9 +70,18 @@ class GiataTable extends Component implements HasForms, HasTable
                       TextInput::make('mapper_phone_number')
                           ->label('Phone')
                           ->disabled(!$isEditable),
+                      
+                      TextInput::make('property_auto_updates')
+                          ->hidden()
+                          ->disabled(!$isEditable),
 
                 ]),
         ];
+    }
+
+    private static function updateProperty (Property $property, array $data) {
+        $data['property_auto_updates'] = 0;
+        $property->update($data);
     }
 
     /**
@@ -136,7 +145,7 @@ class GiataTable extends Component implements HasForms, HasTable
                         ->color('info')
                         ->modalHeading('Property Details - Edit')
                         ->form(fn() => GiataTable::getFormSchema(true))
-                        ->action(fn ($record, array $data) => $record->update($data)),
+                        ->action(fn($record, $data) => GiataTable::updateProperty($record, $data)),
                     ViewAction::make()
                         ->color('info')
                         ->form(fn() => GiataTable::getFormSchema(false))

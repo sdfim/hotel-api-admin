@@ -45,6 +45,9 @@ class Property extends Model
         'longitude',
         'url',
         'cross_references',
+        'source',
+        'property_auto_updates',
+        'content_auto_updates',
     ];
 
     protected $table = 'properties';
