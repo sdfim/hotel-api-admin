@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\API\Suppliers\Enums\PropertiesSourceEnum;
 
 return new class extends Migration
 {
@@ -33,7 +34,7 @@ return new class extends Migration
             $table->json('url')->nullable();
             $table->json('cross_references');
             $table->float('rating')->nullable();
-            $table->enum('source', ['giata', 'custom'])->default('giata');
+            $table->enum('source', [PropertiesSourceEnum::Giata->value, PropertiesSourceEnum::Custom->value])->default(PropertiesSourceEnum::Giata->value);
             $table->unsignedTinyInteger('property_auto_updates')->default(1);
             $table->unsignedTinyInteger('content_auto_updates')->default(1);
             $table->timestamps();
