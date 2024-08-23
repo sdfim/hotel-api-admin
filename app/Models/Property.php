@@ -15,10 +15,10 @@ class Property extends Model
      */
     protected $connection;
 
-    /**
-     * @var string
-     */
-    protected $primaryKey = 'code';
+    // /**
+    //  * @var string
+    //  */
+    // protected $primaryKey = 'id'; //
 
     /**
      * @var bool
