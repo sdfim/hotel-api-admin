@@ -14,7 +14,7 @@ return new class extends Migration
       if (! Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->hasTable('properties')) {
         Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->create('properties', function (Blueprint $table) {
             $table->id(); // Auto-increment primary key
-            $table->string('code', 255)->index();
+            $table->string('code', 255)->unique()->index();
             $table->timestamp('last_updated');
             $table->string('name', 191)->default('')->index();
             $table->json('chain')->nullable();
