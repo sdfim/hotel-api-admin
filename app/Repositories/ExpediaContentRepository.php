@@ -64,7 +64,7 @@ class ExpediaContentRepository
 
         $mainDB = config('database.connections.mysql.database');
 
-        return $query->leftJoin($mainDB . '.mappings', $mainDB . '.mappings.giata_id', '=', 'giata_properties.code')
+        return $query->leftJoin($mainDB . '.mappings', $mainDB . '.mappings.giata_id', '=', 'properties.code')
             ->select($mainDB . '.mappings.supplier_id')
             ->whereNotNull($mainDB . '.mappings.supplier_id')
             ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::Expedia->value)
@@ -83,7 +83,7 @@ class ExpediaContentRepository
         return ExpediaContent::leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
             ->where('property_id', function ($query) use ($giata_id, $mainDB) {
                 $query->from($mainDB . '.mappings')
-                    ->leftJoin('giata_properties', $mainDB . '.mappings.giata_id', '=', 'giata_properties.code')
+                    ->leftJoin('properties', $mainDB . '.mappings.giata_id', '=', 'properties.code')
                     ->select($mainDB . '.mappings.supplier_id')
                     ->where($mainDB . '.mappings.giata_id', $giata_id)
                     ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::Expedia->value)
@@ -127,11 +127,11 @@ class ExpediaContentRepository
         $mainDB = config('database.connections.mysql.database');
         $cacheDB = config('database.connections.mysql_cache.database');
 
-        return GiataProperty::where($cacheDB . '.giata_properties.latitude', '>', $minMaxCoordinate['min_latitude'])
-            ->where($cacheDB . '.giata_properties.latitude', '<', $minMaxCoordinate['max_latitude'])
-            ->where($cacheDB . '.giata_properties.longitude', '>', $minMaxCoordinate['min_longitude'])
-            ->where($cacheDB . '.giata_properties.longitude', '<', $minMaxCoordinate['max_longitude'])
-            ->leftJoin($mainDB . '.mappings', $mainDB . '.mappings.giata_id', '=', $cacheDB . '.giata_properties.code')
+        return GiataProperty::where($cacheDB . '.properties.latitude', '>', $minMaxCoordinate['min_latitude'])
+            ->where($cacheDB . '.properties.latitude', '<', $minMaxCoordinate['max_latitude'])
+            ->where($cacheDB . '.properties.longitude', '>', $minMaxCoordinate['min_longitude'])
+            ->where($cacheDB . '.properties.longitude', '<', $minMaxCoordinate['max_longitude'])
+            ->leftJoin($mainDB . '.mappings', $mainDB . '.mappings.giata_id', '=', $cacheDB . '.properties.code')
             ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::Expedia->value)
             ->select($mainDB . '.mappings.supplier_id')
             ->whereNotNull($mainDB . '.mappings.supplier_id')

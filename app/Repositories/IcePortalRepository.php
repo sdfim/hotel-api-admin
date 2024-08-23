@@ -49,7 +49,7 @@ class IcePortalRepository
 
         $mainDB = config('database.connections.mysql.database');
 
-        return $query->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.giata_id', '=', 'giata_properties.code')
+        return $query->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.giata_id', '=', 'properties.code')
             ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::IcePortal->value)
             ->select($mainDB.'.mappings.supplier_id')
             ->whereNotNull($mainDB.'.mappings.supplier_id')
@@ -62,11 +62,11 @@ class IcePortalRepository
     {
         $mainDB = config('database.connections.mysql.database');
 
-        return GiataProperty::where('giata_properties.latitude', '>', $minMaxCoordinate['min_latitude'])
-            ->where('giata_properties.latitude', '<', $minMaxCoordinate['max_latitude'])
-            ->where('giata_properties.longitude', '>', $minMaxCoordinate['min_longitude'])
-            ->where('giata_properties.longitude', '<', $minMaxCoordinate['max_longitude'])
-            ->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.giata_id', '=', 'giata_properties.code')
+        return GiataProperty::where('properties.latitude', '>', $minMaxCoordinate['min_latitude'])
+            ->where('properties.latitude', '<', $minMaxCoordinate['max_latitude'])
+            ->where('properties.longitude', '>', $minMaxCoordinate['min_longitude'])
+            ->where('properties.longitude', '<', $minMaxCoordinate['max_longitude'])
+            ->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.giata_id', '=', 'properties.code')
             ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::IcePortal->value)
             ->select($mainDB.'.mappings.supplier_id')
             ->whereNotNull($mainDB.'.mappings.supplier_id')

@@ -34,7 +34,7 @@ class SeederIcePortalPropertiesTableAssets extends Command
         $p = $this->argument('p');
         $this->info('seeder-ice-portal-assets started '.$p);
         if ($p === 'all') {
-            $ct = DB::connection(config('database.active_connections.mysql_cache'))->table('giata_properties')
+            $ct = DB::connection(config('database.active_connections.mysql_cache'))->table('properties')
                 ->distinct()
                 ->whereNotIn('city', function ($query) {
                     $query->select('city')->from('ice_hbsi_properties');

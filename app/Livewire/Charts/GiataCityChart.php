@@ -31,7 +31,7 @@ class GiataCityChart extends ChartWidget
                 FROM
                     (
                         SELECT city_id, COUNT(*) AS count
-                        FROM giata_properties
+                        FROM properties
                         GROUP BY city_id
                         ORDER BY count DESC
                         LIMIT 10

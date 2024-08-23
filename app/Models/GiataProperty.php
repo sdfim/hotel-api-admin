@@ -47,7 +47,7 @@ class GiataProperty extends Model
         'cross_references',
     ];
 
-    protected $table = 'giata_properties';
+    protected $table = 'properties';
 
     public function __construct(array $attributes = [])
     {
