@@ -6,7 +6,7 @@ use App\Models\Property;
 use App\Models\Mapping;
 use App\Traits\Timer;
 use Illuminate\Support\Facades\Log;
-use Modules\API\Tools\GiataPropertySearch;
+use Modules\API\Tools\PropertySearch;
 use Modules\Enums\SupplierNameEnum;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
@@ -20,7 +20,7 @@ class PropertyRepository
 
     private bool $availableElasticSearch;
 
-    private GiataPropertySearch $giataPropertySearch;
+    private PropertySearch $propertySearch;
 
     private array $batchIcePortal = [];
 
@@ -38,7 +38,7 @@ class PropertyRepository
         $latitude = bcdiv(strval($latitude), '1', 1);
 
         if ($this->availableElasticSearch) {
-            return $this->giataPropertySearch->search($hotelName, $latitude, $city);
+            return $this->propertySearch->search($hotelName, $latitude, $city);
         }
 
         return Property::where('latitude', 'like', $latitude.'%')
@@ -49,8 +49,8 @@ class PropertyRepository
 
     public function associateByGiata(array $supplierData, string $supplier): array
     {
-        $this->giataPropertySearch = new GiataPropertySearch();
-        $this->availableElasticSearch = $this->giataPropertySearch->available();
+        $this->propertySearch = new PropertySearch();
+        $this->availableElasticSearch = $this->propertySearch->available();
 
         if ($supplier == SupplierNameEnum::ICE_PORTAL->value) {
 
