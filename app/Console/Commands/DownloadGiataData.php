@@ -96,7 +96,19 @@ class DownloadGiataData extends Command
         $batchDataMapperHbsi = [];
         $batchData = [];
         $propertyIds = [];
+        $propertiesToNotUpdate = Property::where('property_auto_updates', 0)
+          ->get()
+          ->mapWithKeys(function ($value) {
+            return [
+                $value->code => true,
+            ];
+          })
+          ->toArray();
+
         foreach ($proterties as $property) {
+            if (blank($propertiesToNotUpdate[$property['code']])) {
+              continue;
+            }
 
             $phones = [];
             if (isset($property->Phone)) {
@@ -113,7 +125,7 @@ class DownloadGiataData extends Command
             $url = $this->processProperty($property, 'URL');
 
             $data = [
-                'code' => (int) $property['Code'],
+                'code' => (string) $property['Code'],
                 'last_updated' => (string) $property['LastUpdated'],
                 'name' => (string) $property->Name,
                 'chain' => $chain,
@@ -139,7 +151,7 @@ class DownloadGiataData extends Command
                 if ((string) $crossReference['Code'] == 'ULTIMATE_JET_VACATIONS' && (string) $crossReference['Status'] !== 'Inactive') {
                     $batchDataMapperHbsi[] = [
                         'supplier_id' => $crossReference->Code['HotelCode'],
-                        'giata_id' => (int) $property['Code'],
+                        'giata_id' => (string) $property['Code'],
                         'supplier' => MappingSuppliersEnum::HBSI->value,
                         'match_percentage' => 100,
                     ];
