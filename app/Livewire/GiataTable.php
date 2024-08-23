@@ -2,7 +2,7 @@
 
 namespace App\Livewire;
 
-use App\Models\GiataProperty;
+use App\Models\Property;
 use Exception;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -29,7 +29,7 @@ class GiataTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(GiataProperty::query())
+            ->query(Property::query())
             ->columns([
                 TextColumn::make('code')
                     ->sortable()
@@ -80,7 +80,7 @@ class GiataTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     ViewAction::make()
-                        ->url(fn (GiataProperty $record): string => route('giata.show', $record->code))
+                        ->url(fn (Property $record): string => route('giata.show', $record->code))
                         ->color('info'),
                 ]),
             ]);

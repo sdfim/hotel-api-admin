@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Models\ExpediaContent;
 use App\Models\GiataPlace;
-use App\Models\GiataProperty;
+use App\Models\Property;
 use App\Models\Mapping;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
@@ -57,9 +57,9 @@ class ExpediaContentRepository
     public static function getIdsByDestinationGiata(string $input): array
     {
         if (is_numeric($input)) {
-            $query = GiataProperty::where('city_id', $input);
+            $query = Property::where('city_id', $input);
         } else {
-            $query = GiataProperty::where('city', $input);
+            $query = Property::where('city', $input);
         }
 
         $mainDB = config('database.connections.mysql.database');
@@ -127,7 +127,7 @@ class ExpediaContentRepository
         $mainDB = config('database.connections.mysql.database');
         $cacheDB = config('database.connections.mysql_cache.database');
 
-        return GiataProperty::where($cacheDB . '.properties.latitude', '>', $minMaxCoordinate['min_latitude'])
+        return Property::where($cacheDB . '.properties.latitude', '>', $minMaxCoordinate['min_latitude'])
             ->where($cacheDB . '.properties.latitude', '<', $minMaxCoordinate['max_latitude'])
             ->where($cacheDB . '.properties.longitude', '>', $minMaxCoordinate['min_longitude'])
             ->where($cacheDB . '.properties.longitude', '<', $minMaxCoordinate['max_longitude'])

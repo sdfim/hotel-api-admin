@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\GiataProperty;
+use App\Models\Property;
 use Illuminate\Support\Facades\DB;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
@@ -42,9 +42,9 @@ class IcePortalRepository
     public static function getIdsByDestinationGiata(string $input): array
     {
         if (is_numeric($input)) {
-            $query = GiataProperty::where('city_id', $input);
+            $query = Property::where('city_id', $input);
         } else {
-            $query = GiataProperty::where('city', $input);
+            $query = Property::where('city', $input);
         }
 
         $mainDB = config('database.connections.mysql.database');
@@ -62,7 +62,7 @@ class IcePortalRepository
     {
         $mainDB = config('database.connections.mysql.database');
 
-        return GiataProperty::where('properties.latitude', '>', $minMaxCoordinate['min_latitude'])
+        return Property::where('properties.latitude', '>', $minMaxCoordinate['min_latitude'])
             ->where('properties.latitude', '<', $minMaxCoordinate['max_latitude'])
             ->where('properties.longitude', '>', $minMaxCoordinate['min_longitude'])
             ->where('properties.longitude', '<', $minMaxCoordinate['max_longitude'])

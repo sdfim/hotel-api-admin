@@ -2,7 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Models\GiataProperty;
+use App\Models\Property;
 use App\Models\Mapping;
 use App\Traits\Timer;
 use Illuminate\Support\Facades\Log;
@@ -41,7 +41,7 @@ class GiataPropertyRepository
             return $this->giataPropertySearch->search($hotelName, $latitude, $city);
         }
 
-        return GiataProperty::where('latitude', 'like', $latitude.'%')
+        return Property::where('latitude', 'like', $latitude.'%')
             ->whereRaw('MATCH(name) AGAINST(? IN BOOLEAN MODE)', $hotelNameSearch)
             ->get()
             ->toArray();
@@ -147,7 +147,7 @@ class GiataPropertyRepository
 
     public function getCityIdByCoordinate(array $minMaxCoordinate): ?int
     {
-        return GiataProperty::where('latitude', '>', $minMaxCoordinate['min_latitude'])
+        return Property::where('latitude', '>', $minMaxCoordinate['min_latitude'])
             ->where('latitude', '<', $minMaxCoordinate['max_latitude'])
             ->where('longitude', '>', $minMaxCoordinate['min_longitude'])
             ->where('longitude', '<', $minMaxCoordinate['max_longitude'])

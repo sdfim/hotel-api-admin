@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\GiataProperty;
+use App\Models\Property;
 use App\Models\Mapping;
 use Exception;
 use GuzzleHttp\Client;
@@ -22,7 +22,7 @@ class DownloadGiataData extends Command
 
     public function handle(): void
     {
-        // GiataProperty::truncate();
+        // Property::truncate();
 
         $this->current_time = microtime(true);
 
@@ -152,19 +152,19 @@ class DownloadGiataData extends Command
 
         try {
             DB::beginTransaction();
-            GiataProperty::whereIn('code', $propertyIds)->delete();
+            Property::whereIn('code', $propertyIds)->delete();
 
             // can overflow memory. if there is a memory overflow, the following block must be used
-            GiataProperty::insert($batchData);
+            Property::insert($batchData);
             // this block will not overflow memory, but it is slower because it inserts records one by one.
             // foreach ($batchData as $data) {
-            //     GiataProperty::create($data);
+            //     Property::create($data);
             // }
 
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('ImportJsonlData insert GiataProperty ', ['error' => $e->getMessage()]);
+            Log::error('ImportJsonlData insert Property ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
             return false;

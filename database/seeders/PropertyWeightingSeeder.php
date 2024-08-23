@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\GiataProperty;
+use App\Models\Property;
 use App\Models\PropertyWeighting;
 use Illuminate\Database\Seeder;
 
@@ -13,7 +13,7 @@ class PropertyWeightingSeeder extends Seeder
      */
     public function run(): void
     {
-        $giataIds = GiataProperty::where('city', 'New York')->pluck('code')->all();
+        $giataIds = Property::where('city', 'New York')->pluck('code')->all();
         $issetIds = PropertyWeighting::whereIn('property', $giataIds)->pluck('property')->all();
         $today = now();
         $data = [];
