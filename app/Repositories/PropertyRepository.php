@@ -10,7 +10,7 @@ use Modules\API\Tools\GiataPropertySearch;
 use Modules\Enums\SupplierNameEnum;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
-class GiataPropertyRepository
+class PropertyRepository
 {
     use Timer;
 
@@ -120,7 +120,7 @@ class GiataPropertyRepository
             $this->listBatchHotels[] = $id.'_'.$code;
         }
 
-        Log::debug('GiataPropertyRepository | getGiataCode | runtime '.$this->duration(), [
+        Log::debug('PropertyRepository | getGiataCode | runtime '.$this->duration(), [
             'supplier' => $supplier,
             'count' => count($giata),
             'id' => $id,
