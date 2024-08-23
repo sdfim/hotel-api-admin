@@ -4,9 +4,12 @@ namespace App\Livewire;
 
 use App\Models\Property;
 use Exception;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
@@ -21,6 +24,56 @@ class GiataTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
+
+    private static function getFormSchema(bool $isEditable = true): array
+    {
+        return [
+            Grid::make(2)
+                ->schema([
+
+                      TextInput::make('code')
+                          ->label('Code')
+                          ->disabled(!$isEditable),
+                          
+                      TextInput::make('name')
+                          ->label('Name')
+                          ->disabled(!$isEditable),
+
+                      TextInput::make('city')
+                          ->label('City')
+                          ->disabled(!$isEditable),
+                          
+                      TextInput::make('rating')
+                          ->label('Rating')
+                          ->disabled(!$isEditable),
+
+                      TextInput::make('city_id')
+                          ->label('City id')
+                          ->disabled(!$isEditable),
+                      
+                      TextInput::make('locale')
+                          ->label('Locale')
+                          ->disabled(!$isEditable),
+
+                      TextInput::make('latitude')
+                          ->label('Latitude')
+                          ->disabled(!$isEditable),
+
+                      TextInput::make('longitude')
+                          ->label('Longitude')
+                          ->disabled(!$isEditable),
+
+                      TextInput::make('mapper_address')
+                          ->label('Address')
+                          ->disabled(!$isEditable),
+
+                      TextInput::make('mapper_phone_number')
+                          ->label('Phone')
+                          ->disabled(!$isEditable),
+
+                ]),
+        ];
+    }
 
     /**
      * @throws Exception
@@ -79,9 +132,15 @@ class GiataTable extends Component implements HasForms, HasTable
             ])
             ->actions([
                 ActionGroup::make([
+                    EditAction::make()
+                        ->color('info')
+                        ->modalHeading('Property Details - Edit')
+                        ->form(fn() => GiataTable::getFormSchema(true))
+                        ->action(fn ($record, array $data) => $record->update($data)),
                     ViewAction::make()
-                        ->url(fn (Property $record): string => route('giata.show', $record->code))
-                        ->color('info'),
+                        ->color('info')
+                        ->form(fn() => GiataTable::getFormSchema(false))
+                        ->modalHeading('Property Details - View'),
                 ]),
             ]);
     }
