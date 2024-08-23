@@ -11,6 +11,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
+use Modules\API\Suppliers\Enums\PropertiesSourceEnum;
 
 class DownloadGiataData extends Command
 {
@@ -97,6 +98,7 @@ class DownloadGiataData extends Command
         $batchData = [];
         $propertyIds = [];
         $propertiesToNotUpdate = Property::where('property_auto_updates', 0)
+          ->orWhereNot('source', PropertiesSourceEnum::Giata->value)
           ->get()
           ->mapWithKeys(function ($value) {
             return [
@@ -106,7 +108,7 @@ class DownloadGiataData extends Command
           ->toArray();
 
         foreach ($proterties as $property) {
-            if (blank($propertiesToNotUpdate[$property['code']])) {
+            if (!blank($propertiesToNotUpdate[$property['code']])) {
               continue;
             }
 
