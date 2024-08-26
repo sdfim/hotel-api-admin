@@ -71,10 +71,16 @@ class GiataTable extends Component implements HasForms, HasTable
 
                       TextInput::make('latitude')
                           ->label('Latitude')
+                          ->numeric()
+                          ->minValue(-90)
+                          ->maxValue(90)
                           ->disabled(!$isEditable),
 
                       TextInput::make('longitude')
                           ->label('Longitude')
+                          ->numeric()
+                          ->minValue(-90)
+                          ->maxValue(90)
                           ->disabled(!$isEditable),
 
                       TextInput::make('mapper_address')
