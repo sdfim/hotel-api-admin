@@ -27,6 +27,10 @@ class GiataTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    private static function getCityById($city_id) {
+      return GiataGeography::query()->where('city_id', '=', (int) $city_id)->first();
+    }
+
     private static function getFormSchema(bool $isEditable = true): array
     {
         return [
@@ -49,7 +53,7 @@ class GiataTable extends Component implements HasForms, HasTable
                               ->orderBy('city_name')
                               ->pluck('city_name', 'city_id')
                               ->toArray())
-                          ->getOptionLabelUsing(fn ($value) => GiataGeography::query()->where('city_id', '=', (int) $value)->first()->city_name)
+                          ->getOptionLabelUsing(fn ($value) => GiataTable::getCityById($value)->city_name)
                           ->disabled(!$isEditable),
                           
                       TextInput::make('rating')
@@ -88,7 +92,7 @@ class GiataTable extends Component implements HasForms, HasTable
         $data['property_auto_updates'] = 0;
         $data['city_id'] = (int) $data['city_id'];
         // TODO: Should we remove city_name from properties table? Or is the refactor too big?
-        $data['city'] = GiataGeography::query()->find($data['city_id'])->pluck('city_name');
+        $data['city'] = GiataTable::getCityById($data['city_id'])->city_name;
         return $data;
     }
 
