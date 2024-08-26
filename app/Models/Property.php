@@ -39,6 +39,8 @@ class Property extends Model
         'locale_id',
         'address',
         'mapper_address',
+        'mapper_postal_code',
+        'mapper_phone_number',
         'phone',
         'position',
         'latitude',
