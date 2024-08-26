@@ -56,6 +56,26 @@ class GiataTable extends Component implements HasForms, HasTable
                               ->pluck('city_name', 'city_id')
                               ->toArray())
                           ->getOptionLabelUsing(fn ($value) => GiataTable::getCityById($value)->city_name)
+                          ->reactive()
+                          ->afterStateUpdated(function (callable $set, $state) {
+                              $city = GiataTable::getCityById($state);
+
+                              $set('locale_id', $city->locale_id);
+                              $set('locale', $city->locale_name);
+                          })
+                          ->disabled(!$isEditable)
+                          ->required(),
+                          
+                      Hidden::make('locale_id')
+                          ->required(),
+
+                      TextInput::make('locale')
+                          ->label('Locale')
+                          ->readOnly()
+                          ->required(),
+
+                      TextInput::make('mapper_address')
+                          ->label('Address')
                           ->disabled(!$isEditable)
                           ->required(),
                           
