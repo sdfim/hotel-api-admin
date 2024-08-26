@@ -46,10 +46,6 @@ class GiataTable extends Component implements HasForms, HasTable
                       TextInput::make('rating')
                           ->label('Rating')
                           ->disabled(!$isEditable),
-
-                      TextInput::make('city_id')
-                          ->label('City id')
-                          ->disabled(!$isEditable),
                       
                       TextInput::make('locale')
                           ->label('Locale')
@@ -110,10 +106,6 @@ class GiataTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->searchable(isIndividual: true),
                 TextColumn::make('rating')
-                    ->sortable()
-                    ->toggleable()
-                    ->searchable(isIndividual: true),
-                TextColumn::make('city_id')
                     ->sortable()
                     ->toggleable()
                     ->searchable(isIndividual: true),
