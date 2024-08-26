@@ -39,4 +39,14 @@ class MapperHbsiGiata extends Model
     public $incrementing = false;
 
     protected $table = 'mapper_hbsi_giatas';
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $mainDB = config('database.connections.mysql.database');
+
+        $this->table = "$mainDB.mapper_hbsi_giatas";
+        $this->connection = config('database.active_connections.mysql');
+    }
 }
