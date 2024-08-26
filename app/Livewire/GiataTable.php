@@ -88,7 +88,7 @@ class GiataTable extends Component implements HasForms, HasTable
         $data['property_auto_updates'] = 0;
         $data['city_id'] = (int) $data['city_id'];
         // TODO: Should we remove city_name from properties table? Or is the refactor too big?
-        $data['city_name'] = GiataGeography::query()->find($data['city_id'])->pluck('city_name');
+        $data['city'] = GiataGeography::query()->find($data['city_id'])->pluck('city_name');
         return $data;
     }
 
