@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -123,6 +124,37 @@ class GiataTable extends Component implements HasForms, HasTable
         return $data;
     }
 
+    private static function createProperty (array $data) {
+        $data = GiataTable::preparePropertyData($data);
+        // $data['source'] = PropertiesSourceEnum::Custom->value;
+        $city = GiataTable::getCityById($data['city_id']);
+        $empty = json_decode ("{}");
+        $data['cross_references'] = json_encode($empty);
+        $data['address'] = [
+            "UseType"       => "7",
+            "CityName"      => $city->city_name,
+            "PostalCode"    => $data['mapper_postal_code'],
+            // "StreetNmbr": "1", // TODO
+            // "AddressLine": "Vicinale Santa Chiara", // TODO
+            "CountryName"   => $city->country_code,
+            "FormattedInd"  => "true"
+        ];
+        $data['created_at'] = date('Y-m-d H:i:s');
+        $data['last_updated'] = date('Y-m-d H:i:s');
+        $data['phone'] = [
+          "PhoneNumber"   => $data['mapper_phone_number'],
+          "PhoneTechType" => "1"
+        ];
+        $data['position'] = [
+          'Latitude' => $data['latitude'],
+          'Longitude' => $data['longitude'],
+          'PositionAccuracy' => 1
+        ];
+        $data['source'] = 'Custom';
+        $data['url'] = json_encode([$data['url']]);
+        return $data;
+    }
+
     private static function updateProperty (Property $property, array $data) {
         $data = GiataTable::preparePropertyData($data);
         $property->update($data);
@@ -135,6 +167,13 @@ class GiataTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
+            ->headerActions([
+              CreateAction::make()
+                ->label('Create')
+                ->modalHeading('Create new property')
+                ->form(fn() => GiataTable::getFormSchema(true))
+                ->mutateFormDataUsing(fn (array $data) => GiataTable::createProperty($data))
+            ])
             ->query(Property::query())
             ->columns([
                 TextColumn::make('code')
