@@ -79,16 +79,16 @@ class GiataTable extends Component implements HasForms, HasTable
                           ->label('Address')
                           ->disabled(!$isEditable)
                           ->required(),
-                          
+                        
+                      TextInput::make('mapper_postal_code')
+                          ->label('Postal Code')
+                          ->numeric()
+                          ->disabled(!$isEditable),
+
                       TextInput::make('rating')
                           ->label('Rating')
                           ->numeric()
                           ->disabled(!$isEditable),
-                      
-                      TextInput::make('locale')
-                          ->label('Locale')
-                          ->disabled(!$isEditable)
-                          ->required(),
 
                       TextInput::make('latitude')
                           ->label('Latitude')
@@ -103,11 +103,6 @@ class GiataTable extends Component implements HasForms, HasTable
                           ->minValue(-90)
                           ->maxValue(90)
                           ->disabled(!$isEditable),
-
-                      TextInput::make('mapper_address')
-                          ->label('Address')
-                          ->disabled(!$isEditable)
-                          ->required(),
 
                       TextInput::make('mapper_phone_number')
                           ->label('Phone')
