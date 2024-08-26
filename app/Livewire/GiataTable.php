@@ -85,11 +85,10 @@ class GiataTable extends Component implements HasForms, HasTable
                       TextInput::make('mapper_phone_number')
                           ->label('Phone')
                           ->disabled(!$isEditable),
-                      
-                      TextInput::make('property_auto_updates')
-                          ->hidden()
-                          ->disabled(!$isEditable),
 
+                      TextInput::make('url')
+                          ->label('URL')
+                          ->disabled(!$isEditable),
                 ]),
         ];
     }
