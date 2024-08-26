@@ -39,11 +39,13 @@ class GiataTable extends Component implements HasForms, HasTable
 
                       TextInput::make('code')
                           ->label('Code')
-                          ->disabled(!$isEditable),
+                          ->disabled(!$isEditable)
+                          ->required(),
                           
                       TextInput::make('name')
                           ->label('Name')
-                          ->disabled(!$isEditable),
+                          ->disabled(!$isEditable)
+                          ->required(),
 
                       Select::make('city_id')
                           ->label('City')
@@ -54,7 +56,8 @@ class GiataTable extends Component implements HasForms, HasTable
                               ->pluck('city_name', 'city_id')
                               ->toArray())
                           ->getOptionLabelUsing(fn ($value) => GiataTable::getCityById($value)->city_name)
-                          ->disabled(!$isEditable),
+                          ->disabled(!$isEditable)
+                          ->required(),
                           
                       TextInput::make('rating')
                           ->label('Rating')
@@ -62,7 +65,8 @@ class GiataTable extends Component implements HasForms, HasTable
                       
                       TextInput::make('locale')
                           ->label('Locale')
-                          ->disabled(!$isEditable),
+                          ->disabled(!$isEditable)
+                          ->required(),
 
                       TextInput::make('latitude')
                           ->label('Latitude')
@@ -74,7 +78,8 @@ class GiataTable extends Component implements HasForms, HasTable
 
                       TextInput::make('mapper_address')
                           ->label('Address')
-                          ->disabled(!$isEditable),
+                          ->disabled(!$isEditable)
+                          ->required(),
 
                       TextInput::make('mapper_phone_number')
                           ->label('Phone')
