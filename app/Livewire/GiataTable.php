@@ -2,9 +2,11 @@
 
 namespace App\Livewire;
 
+use App\Models\GiataGeography;
 use App\Models\Property;
 use Exception;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -39,8 +41,15 @@ class GiataTable extends Component implements HasForms, HasTable
                           ->label('Name')
                           ->disabled(!$isEditable),
 
-                      TextInput::make('city')
+                      Select::make('city_id')
                           ->label('City')
+                          ->searchable()
+                          ->getSearchResultsUsing(fn (string $search) => GiataGeography::query()
+                              ->where('city_name', 'like', "%{$search}%")
+                              ->orderBy('city_name')
+                              ->pluck('city_name', 'city_id')
+                              ->toArray())
+                          ->getOptionLabelUsing(fn ($value) => GiataGeography::query()->where('city_id', '=', (int) $value)->first()->city_name)
                           ->disabled(!$isEditable),
                           
                       TextInput::make('rating')
@@ -75,8 +84,16 @@ class GiataTable extends Component implements HasForms, HasTable
         ];
     }
 
-    private static function updateProperty (Property $property, array $data) {
+    private static function preparePropertyData (array $data) {
         $data['property_auto_updates'] = 0;
+        $data['city_id'] = (int) $data['city_id'];
+        // TODO: Should we remove city_name from properties table? Or is the refactor too big?
+        $data['city_name'] = GiataGeography::query()->find($data['city_id'])->pluck('city_name');
+        return $data;
+    }
+
+    private static function updateProperty (Property $property, array $data) {
+        $data = GiataTable::preparePropertyData($data);
         $property->update($data);
     }
 
