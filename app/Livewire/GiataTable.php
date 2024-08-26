@@ -61,6 +61,7 @@ class GiataTable extends Component implements HasForms, HasTable
                           
                       TextInput::make('rating')
                           ->label('Rating')
+                          ->numeric()
                           ->disabled(!$isEditable),
                       
                       TextInput::make('locale')

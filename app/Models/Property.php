@@ -71,6 +71,7 @@ class Property extends Model
             'phone' => 'json',
             'position' => 'json',
             'cross_references' => 'json',
+            'rating' => 'double',
         ];
     }
 
