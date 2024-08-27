@@ -23,6 +23,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\Component;
+use stdClass;
 
 class GiataTable extends Component implements HasForms, HasTable
 {
@@ -135,8 +136,7 @@ class GiataTable extends Component implements HasForms, HasTable
         $data = GiataTable::preparePropertyData($data);
         // $data['source'] = PropertiesSourceEnum::Custom->value;
         $city = GiataTable::getCityById($data['city_id']);
-        $empty = json_decode ("{}");
-        $data['cross_references'] = json_encode($empty);
+        $data['cross_references'] = new stdClass(); // Empty Object
         $data['address'] = [
             "UseType"       => "7",
             "CityName"      => $city->city_name,
