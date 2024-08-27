@@ -74,6 +74,7 @@ class Property extends Model
             'position' => 'json',
             'cross_references' => 'json',
             'rating' => 'double',
+            'url' => 'array'
         ];
     }
 

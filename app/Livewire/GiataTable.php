@@ -111,6 +111,13 @@ class GiataTable extends Component implements HasForms, HasTable
 
                       TextInput::make('url')
                           ->label('URL')
+                          ->default(fn ($record) => $record->url[0] ?? '')
+                          ->afterStateHydrated(function (TextInput $component, $state) {
+                            $component->state($state[0] ?? '');
+                          })
+                          ->afterStateUpdated(function ($state, $set) {
+                            $set('url', [$state]);
+                          })
                           ->disabled(!$isEditable),
                 ]),
         ];
@@ -151,7 +158,6 @@ class GiataTable extends Component implements HasForms, HasTable
           'PositionAccuracy' => 1
         ];
         $data['source'] = 'Custom';
-        $data['url'] = json_encode([$data['url']]);
         return $data;
     }
 
