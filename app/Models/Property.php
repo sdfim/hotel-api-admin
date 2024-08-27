@@ -79,6 +79,11 @@ class Property extends Model
         ];
     }
 
+    public function mapping()
+    {
+        return $this->hasOne(Mapping::class, 'giata_id', 'code');
+    }
+
     public function mapperExpediaGiata(): HasOne
     {
         return $this->hasOne(Mapping::class, 'giata_id', 'code')

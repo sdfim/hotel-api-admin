@@ -10,6 +10,15 @@ class Mapping extends Model
 {
     use HasFactory;
 
+    protected $connection = 'mysql';
+    protected $table = 'mappings';
+
+    protected $fillable = [
+      'giata_id',
+      'supplier',
+      'supplier_id',
+      'match_percentage'
+    ];
 
     public function scopeExpedia($query)
     {
