@@ -43,6 +43,7 @@ class Property extends Model
         'mapper_phone_number',
         'phone',
         'position',
+        'rating',
         'latitude',
         'longitude',
         'url',
