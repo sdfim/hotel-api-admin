@@ -59,7 +59,7 @@ class GiataTable extends Component implements HasForms, HasTable
                               ->toArray())
                           ->getOptionLabelUsing(fn ($value) => GiataTable::getCityById($value)->city_name)
                           ->reactive()
-                          ->afterStateUpdated(function (callable $set, $state) {
+                          ->afterStateUpdated(function ($set, $state) {
                               $city = GiataTable::getCityById($state);
 
                               $set('locale_id', $city->locale_id);
