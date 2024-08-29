@@ -284,7 +284,7 @@ class ExpediaHotelPricingDto
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setPackageDeal(Arr::get($rate, 'sale_scenario.package', false));
         $roomResponse->setPromotions($promotions);
-        $roomResponse->setNonRefundable($rate['refundable']);
+        $roomResponse->setNonRefundable(!$rate['refundable']);
 
         $roomResponse->setCurrency($this->currency);
 
