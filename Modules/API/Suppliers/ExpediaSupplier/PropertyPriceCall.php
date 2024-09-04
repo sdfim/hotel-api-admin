@@ -12,9 +12,9 @@ use Throwable;
 class PropertyPriceCall
 {
     public const STANDALONE_RATES = [
-        'partner_point_of_sale' => 'B2B_EAC_BASE_DIR',
+        'partner_point_of_sale' => 'B2B_EAC_SA_MOD_DIR',
         'billing_terms' => '',
-        'payment_terms' => 'BASE_DIR',
+        'payment_terms' => 'SA',
         'sales_channel' => 'agent_tool',
         'rate_option' => 'member',
         'sales_environment' => 'hotel_only',
