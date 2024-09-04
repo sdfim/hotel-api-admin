@@ -12,9 +12,9 @@ use Throwable;
 class PropertyPriceCall
 {
     public const STANDALONE_RATES = [
-        'partner_point_of_sale' => 'B2B_EAC_SA_MOD_DIR',
+        'partner_point_of_sale' => 'B2B_EAC_BASE_DIR',
         'billing_terms' => '',
-        'payment_terms' => 'SA',
+        'payment_terms' => 'BASE_DIR',
         'sales_channel' => 'agent_tool',
         'rate_option' => 'member',
         'sales_environment' => 'hotel_only',
@@ -196,10 +196,8 @@ class PropertyPriceCall
 
         try {
             foreach ($responses as $response) {
-                Log::info('EXPEDIA STATUS RESPONSE: ', ['state' => $response['state']]);
                 if ($response['state'] === 'fulfilled') {
                     $data = $response['value']->getBody()->getContents();
-                    Log::info('EXPEDIA STATUS RESPONSE: ', ['data' => $data]);
                     $responses = array_merge($responses, json_decode($data, true));
                 }
                 elseif (!isset($response['value'])) {

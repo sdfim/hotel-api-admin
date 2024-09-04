@@ -25,11 +25,6 @@ class RapidClient
     {
 
         $this->credentials = CredentialsFactory::fromConfig();
-        Log::error('Expedia INIT', [
-            'a' => $this->credentials->rapidBaseUrl,
-            'b' => $this->credentials->sharedSecret,
-            'c' => $this->credentials->apiKey,
-        ]);
         $this->client = new Client();
     }
 
@@ -131,10 +126,6 @@ class RapidClient
             'Accept-Encoding' => self::GZIP,
             'Authorization' => $this->generateAuthHeader(),
         ];
-
-
-        Log::info('EXPEDIA URL: ', ['url' => $url]);
-        Log::info('EXPEDIA HEADERS: ', $headers + $addHeaders);
 
 
         $request = new Request('GET', $url, $headers + $addHeaders);
