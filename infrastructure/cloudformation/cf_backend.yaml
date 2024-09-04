@@ -158,15 +158,6 @@ Parameters:
     Default: t3.small
     Description: Instance type for Tasks ec2 instance
     Type: String
-  ExpediaRapidBaseUrl:
-    Description: Expedia Rapid API Base URL
-    Type: String
-  ExpediaRapidApiKey:
-    Description: Expedia Rapid API Key
-    Type: String
-  ExpediaRapidSharedSecret:
-    Description: Expedia Rapid API Shared Secret Key
-    Type: String
   GhConnectionArn:
     Description: ARN of the connection to GitHub (https://docs.aws.amazon.com/dtconsole/latest/userguide/connections-create-github.html)
     Type: String
@@ -341,12 +332,6 @@ Resources:
                 Value: !Ref 'CacheDriver'
               - Name: CACHE_STORE
                 Value: !Ref 'CacheStore'
-              - Name: EXPEDIA_RAPID_BASE_URL
-                Value: !Ref 'ExpediaRapidBaseUrl'
-              - Name: EXPEDIA_RAPID_API_KEY
-                Value: !Ref 'ExpediaRapidApiKey'
-              - Name: EXPEDIA_RAPID_SHARED_SECRET
-                Value: !Ref 'ExpediaRapidSharedSecret'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -507,12 +492,6 @@ Resources:
                 Value: !Ref 'CacheDriver'
               - Name: CACHE_STORE
                 Value: !Ref 'CacheStore'
-              - Name: EXPEDIA_RAPID_BASE_URL
-                Value: !Ref 'ExpediaRapidBaseUrl'
-              - Name: EXPEDIA_RAPID_API_KEY
-                Value: !Ref 'ExpediaRapidApiKey'
-              - Name: EXPEDIA_RAPID_SHARED_SECRET
-                Value: !Ref 'ExpediaRapidSharedSecret'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -730,12 +709,6 @@ Resources:
                 Value: !Ref 'CacheDriver'
               - Name: CACHE_STORE
                 Value: !Ref 'CacheStore'
-              - Name: EXPEDIA_RAPID_BASE_URL
-                Value: !Ref 'ExpediaRapidBaseUrl'
-              - Name: EXPEDIA_RAPID_API_KEY
-                Value: !Ref 'ExpediaRapidApiKey'
-              - Name: EXPEDIA_RAPID_SHARED_SECRET
-                Value: !Ref 'ExpediaRapidSharedSecret'
               - Name: SUPPLIER_EXPEDIA_API_KEY
                 Value: !Ref 'BookingSupplierExpediaApiKey'
               - Name: SUPPLIER_EXPEDIA_SHARED_SECRET
@@ -1758,15 +1731,6 @@ Resources:
           - '",'
           - '"SUPPLIER_ICE_PORTAL_TOKEN_URL":"'
           - !Ref 'BookingSupplierIcePortalTokenUrl'
-          - '",'
-          - '"EXPEDIA_RAPID_BASE_URL":"'
-          - !Ref 'ExpediaRapidBaseUrl'
-          - '",'
-          - '"EXPEDIA_RAPID_API_KEY":"'
-          - !Ref 'ExpediaRapidApiKey'
-          - '",'
-          - '"EXPEDIA_RAPID_SHARED_SECRET":"'
-          - !Ref 'ExpediaRapidSharedSecret'
           - '",'
           - '"GIATA_POI_BASE_URI":"'
           - !Ref 'GiataPoiBaseUri'
