@@ -391,7 +391,6 @@ class ExpediaBookApiController extends BaseBookApiController
             'Customer-Ip' => '5.5.5.5',
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
-            'Test' => 'standard',
         ];
     }
 
