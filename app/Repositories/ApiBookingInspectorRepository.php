@@ -227,6 +227,15 @@ class ApiBookingInspectorRepository
             ->get();
     }
 
+    public static function isCancel(string $booking_item): bool
+    {
+        return ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'cancel_booking')
+            ->where('sub_type', 'true')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->exists();
+    }
+
     public static function getBookItemsByBookingItem(string $booking_item): ?object
     {
         $bookingInspector = ApiBookingInspector::where('booking_item', $booking_item)
