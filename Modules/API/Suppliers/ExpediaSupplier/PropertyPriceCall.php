@@ -196,10 +196,8 @@ class PropertyPriceCall
 
         try {
             foreach ($responses as $response) {
-                Log::info('EXPEDIA STATUS RESPONSE: ', ['state' => $response['state']]);
                 if ($response['state'] === 'fulfilled') {
                     $data = $response['value']->getBody()->getContents();
-                    Log::info('EXPEDIA STATUS RESPONSE: ', ['data' => $data]);
                     $responses = array_merge($responses, json_decode($data, true));
                 }
                 elseif (!isset($response['value'])) {
