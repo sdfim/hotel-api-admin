@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\DTO\Expedia;
 
+use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponseFactory;
 use Psr\Container\ContainerExceptionInterface;
@@ -60,7 +61,13 @@ class ExpediaHotelContentDetailDto
         ]);
         $hotelResponse->setCheckInTime($supplierResponse->checkin_time ?? '');
         $hotelResponse->setCheckOutTime($supplierResponse->checkout_time ?? '');
-        $hotelResponse->setHotelFees($supplierResponse->fees ? json_decode(json_encode($supplierResponse->fees), true) : []);
+
+        $fees = $supplierResponse->fees ? json_decode(json_encode($supplierResponse->fees), true) : [];
+
+        // This validation is required because for some properties we are receiving [""]
+        $fees = empty(Arr::get($fees, '0')) ? [] : $fees;
+
+        $hotelResponse->setHotelFees($fees);
         $hotelResponse->setPolicies($supplierResponse->policies ? json_decode(json_encode($supplierResponse->policies), true) : []);
         $hotelResponse->setDescriptions($supplierResponse->descriptions ? json_decode(json_encode($supplierResponse->descriptions), true) : []);
         $hotelResponse->setAddress($supplierResponse->address ? $address : '');
