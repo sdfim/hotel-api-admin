@@ -228,8 +228,8 @@ class BookApiHandler extends BaseController
      */
     public function cancelBooking(BookingCancelBooking $request): JsonResponse
     {
-        //$determinant = $this->determinant($request);
-        //if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
+        $determinant = $this->determinant($request);
+        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         if (isset($request->booking_item)) {
             $itemsBooked = ApiBookingsMetadataRepository::bookedItem($request->booking_id, $request->booking_item);
@@ -239,13 +239,18 @@ class BookApiHandler extends BaseController
 
         $filters = $request->all();
         $data = [];
+        $canceled = [];
         foreach ($itemsBooked as $item) {
-            /*
             if (!BookRepository::isBook($request->booking_id, $item->booking_item)) {
                 $data[] = ['error' => 'booking_id and/or booking_item not yet booked'];
                 continue;
             }
-            */
+
+            if (in_array($item->booking_item, $canceled)) {
+                continue;
+            } else {
+                $canceled[] = $item->booking_item;
+            }
 
             try {
                 $filters['search_id'] = ApiBookingItem::where('booking_item', $item->booking_item)->first()?->search_id;
@@ -283,7 +288,7 @@ class BookApiHandler extends BaseController
         }
 
         if (! empty($errors)) {
-            return $this->sendError($errors, '', 400, $data);
+            return $this->sendError($errors);
         }
 
         return $this->sendResponse(['result' => $data], 'success');
