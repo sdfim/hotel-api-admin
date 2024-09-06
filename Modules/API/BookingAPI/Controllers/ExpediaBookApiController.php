@@ -10,6 +10,7 @@ use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
+use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ChannelRenository;
 use Exception;
 use GuzzleHttp\Exception\ConnectException;
@@ -272,34 +273,41 @@ class ExpediaBookApiController extends BaseBookApiController
     public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): ?array
     {
         $booking_id = $filters['booking_id'];
-        $filters['search_id'] = '';
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
+        $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['booking_item']);
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'retrieve_booking', '', $apiBookingsMetadata->search_type,
+            $booking_id, $filters, $supplierId, 'book', 'retrieve', $apiBookingsMetadata->search_type,
         ]);
 
         $props = $this->getPathParamsFromLink($apiBookingsMetadata->booking_item_data['retrieve_path']);
+        $originalRQ = [
+            'params' => $props['paramToken'],
+            'path' => $props['path'],
+            'headers' => $this->headers(),
+        ];
 
         try {
             $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
             $dataResponse = json_decode($response->getBody()->getContents(), true);
             $dataResponse['original']['response'] = $dataResponse;
-            $dataResponse['original']['request']['params'] = $props['paramToken'];
-            $dataResponse['original']['request']['path'] = $props['path'];
-            $dataResponse['original']['request']['headers'] = $this->headers();
+            $dataResponse['original']['request'] = $originalRQ;
         } catch (ConnectException $e) {
-            $this->handleException($e, $bookingInspector, 'Connection timeout', 'Connection timeout');
+            $this->handleException($e, $bookingInspector, 'Connection timeout', 'Connection timeout', $originalRQ);
         } catch (ServerException $e) {
-            $this->handleException($e, $bookingInspector, 'Server error', 'Server error');
+            $this->handleException($e, $bookingInspector, 'Server error', 'Server error', $originalRQ);
         } catch (RequestException $e) {
-            $this->handleException($e, $bookingInspector, 'Request Exception occurred', $e->getMessage());
+            $responseBody = $e->getResponse()->getBody()->getContents();
+            $errorData = json_decode($responseBody, true);
+            $errorMessage = $errorData['message'] ?? $e->getMessage();
+            $this->handleException($e, $bookingInspector, 'Request Exception occurred', $errorMessage, $originalRQ);
+            return ['error' => $errorMessage];
         } catch (Exception $e) {
-            $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage());
+            $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage(), $originalRQ);
         }
 
-        $clientDataResponse = ExpediaHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse);
+        $clientDataResponse = ExpediaHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse['original']['response']);
 
         SaveBookingInspector::dispatch($bookingInspector, $dataResponse, $clientDataResponse);
 
