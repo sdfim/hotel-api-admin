@@ -2,9 +2,12 @@
 
 namespace App\Livewire\Inspectors;
 
+use App\Helpers\TimezoneConverter;
 use App\Models\ApiBookingInspector;
+use Carbon\Carbon;
 use Exception;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\FontFamily;
@@ -71,13 +74,17 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     ->fontFamily(FontFamily::Mono)
                     ->searchable(isIndividual: true)
                     ->toggleable()
-                    ->label('code booking'),
+                    ->label('Confirmation Number'),
                 TextColumn::make('metadata.hotel_supplier_id')
                     ->fontFamily(FontFamily::Mono)
                     ->searchable(isIndividual: true)
                     ->toggleable()
-                    ->label('hotel id'),
-                TextColumn::make('token.id')
+                    ->label('Hotel Id'),
+                ViewColumn::make('metadata')
+                    ->label('Hotel/Vendor')
+                    ->toggleable()
+                    ->view('dashboard.booking-inspector.column.hotel-name'),
+                TextColumn::make('token.name')
                     ->numeric()
                     ->searchable(isIndividual: true)
                     ->toggleable()
@@ -91,7 +98,7 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->sortable()
                     ->formatStateUsing(function (ApiBookingInspector $record) {
-                        return \App\Helpers\TimezoneConverter::convertUtcToEst($record->created_at);
+                        return Carbon::parse(TimezoneConverter::convertUtcToEst($record->created_at))->format('m/d/Y H:i:s');
                     }),
             ])
             ->actions([
@@ -103,6 +110,22 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 //                ])
             ])
             ->filters([
+                Filter::make('created_at')
+                    ->form([
+                        DateTimePicker::make('created_from'),
+                        DateTimePicker::make('created_until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    }),
                 Filter::make('is_book')
                     ->form([
                         Checkbox::make('is_book')
