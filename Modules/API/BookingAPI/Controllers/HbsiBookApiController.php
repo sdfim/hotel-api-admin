@@ -36,6 +36,7 @@ class HbsiBookApiController extends BaseBookApiController
     private const NON_CANCELLABLE_BOOKING_CODE_ERRORS = [
         '394', // Cancelled after due date
         '450', // Reservation Expired
+        '97', // Not Found
     ];
 
     private const CODE_WRONG_PASSENGER_NAME = '251';
@@ -315,7 +316,8 @@ class HbsiBookApiController extends BaseBookApiController
                 'booking_item' => $apiBookingsMetadata->booking_item,
                 'status' => $message,
             ];
-            $dataResponseToSave = $message;
+
+            $dataResponseToSave = is_array($message) ? $message : [];
 
             SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res, 'error',
                 ['side' => 'app', 'message' => $message]);
