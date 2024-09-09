@@ -145,10 +145,10 @@ class PriceHotelRequest extends ApiRequest
 
             'rating' => 'numeric|between:1,5.5',
             'occupancy' => 'required|array',
-            'occupancy.*.adults' => 'required|numeric|between:1,20',
+            'occupancy.*.adults' => 'required|integer|between:1,20',
             'occupancy.*.children' => 'numeric',
             'occupancy.*.children_ages' => 'array',
-            'occupancy.*.children_ages.*' => 'numeric|between:0,17',
+            'occupancy.*.children_ages.*' => 'integer|between:0,17',
         ];
     }
 
