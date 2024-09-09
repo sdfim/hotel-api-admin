@@ -164,15 +164,14 @@ class ExpediaHotelPricingDto
         $roomGroupsResponse->setRooms($rooms);
 
         $lowestPricedRoom = 100000;
-        $keyLowestPricedRoom = 0;
+        $keyLowestPricedRoom = array_key_first($rooms);
+
         foreach ($priceRoomData as $key => $priceRoom) {
             if ($priceRoom['total_price'] > 0 && $priceRoom['total_price'] < $lowestPricedRoom) {
                 $lowestPricedRoom = $priceRoom['total_price'];
                 $keyLowestPricedRoom = $key;
             }
         }
-
-        $cancellationPolicies = $rooms[$keyLowestPricedRoom]['cancellation_policies'];
 
         /** return lowest priced room data */
         $roomGroupsResponse->setTotalPrice($priceRoomData[$keyLowestPricedRoom]['total_price'] ?? 0.0);
