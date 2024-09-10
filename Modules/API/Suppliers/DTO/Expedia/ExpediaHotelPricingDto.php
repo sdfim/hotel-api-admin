@@ -165,7 +165,7 @@ class ExpediaHotelPricingDto
         $roomGroupsResponse->setRooms($roomsResponse);
 
         $lowestPricedRoom = 1000000;
-        $keyLowestPricedRoom = array_key_first($rooms);
+        $keyLowestPricedRoom = array_key_first($priceRoomData);
         $keyLowestPricedBedGroup = 0;
 
         foreach ($priceRoomData as $key => $priceRoom) {
