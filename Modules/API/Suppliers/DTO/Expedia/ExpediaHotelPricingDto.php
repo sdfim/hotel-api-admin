@@ -149,6 +149,7 @@ class ExpediaHotelPricingDto
         $roomGroupsResponse->setCurrency($this->currency ?? 'USD');
 
         $rooms = [];
+        $roomsResponse = [];
         $priceRoomData = [];
         foreach ($roomGroup['rates'] as $key => $room) {
             foreach ($room['bed_groups'] as $bedGroupKey => $bedGroup)
@@ -157,10 +158,11 @@ class ExpediaHotelPricingDto
                 $roomResponse = $roomData['roomResponse'];
                 $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
                 $rooms[$key][$bedGroupKey] = $roomResponse;
+                $roomsResponse[] = $roomResponse;
                 $priceRoomData[$key][$bedGroupKey] = $pricingRulesApplierRoom;
             }
         }
-        $roomGroupsResponse->setRooms($rooms);
+        $roomGroupsResponse->setRooms($roomsResponse);
 
         $lowestPricedRoom = 1000000;
         $keyLowestPricedRoom = 0;
