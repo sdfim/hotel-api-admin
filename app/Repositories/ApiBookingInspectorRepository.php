@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingsMetadata;
 use Illuminate\Support\Facades\Storage;
 use Modules\Enums\InspectorStatusEnum;
 use Modules\Enums\ItemTypeEnum;
@@ -139,8 +140,15 @@ class ApiBookingInspectorRepository
             [];
     }
 
-    public static function isBook(string $booking_id, string $booking_item): bool
+    public static function isBook(string $booking_id, string $booking_item, bool $validateWithBookingInspector = true): bool
     {
+        if (! $validateWithBookingInspector)
+        {
+            return ApiBookingsMetadata::where('booking_id', $booking_id)
+                ->where('booking_item', $booking_item)
+                ->exists();
+        }
+
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
             ->where('type', 'book')

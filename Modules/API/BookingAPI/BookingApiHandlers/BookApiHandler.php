@@ -6,6 +6,7 @@ namespace Modules\API\BookingAPI\BookingApiHandlers;
 
 use App\Jobs\ClearSearchCacheByBookingItemsJob;
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingsMetadata;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
@@ -231,7 +232,7 @@ class BookApiHandler extends BaseController
      */
     public function cancelBooking(BookingCancelBooking $request): JsonResponse
     {
-        $determinant = $this->determinant($request);
+        $determinant = $this->determinant($request, false);
         if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         if (isset($request->booking_item)) {
@@ -244,7 +245,7 @@ class BookApiHandler extends BaseController
         $data = [];
         $canceled = [];
         foreach ($itemsBooked as $item) {
-            if (!BookRepository::isBook($request->booking_id, $item->booking_item)) {
+            if (!BookRepository::isBook($request->booking_id, $item->booking_item, false)) {
                 $data[] = ['error' => 'booking_id and/or booking_item not yet booked'];
                 continue;
             }
@@ -387,8 +388,26 @@ class BookApiHandler extends BaseController
         return $this->sendResponse(['result' => $response], 'success');
     }
 
-    private function determinant(Request $request): array
+    private function determinant(Request $request, bool $validateWithApiBookings = true): array
     {
+        // This validation must remains here for the previous bookings with TravelTek (imported HBSI bookings)
+        if (! $validateWithApiBookings)
+        {
+            $apiBooking = ApiBookingsMetadata::where('booking_id', $request->get('booking_id'));
+
+            if ($request->has('booking_item'))
+            {
+                $apiBooking = $apiBooking->where('booking_item', $request->get('booking_item'));
+            }
+
+            if ($apiBooking->first() === null)
+            {
+                return ['error' => 'Invalid Booking'];
+            }
+
+            return [];
+        }
+
         $requestTokenId = PersonalAccessToken::findToken($request->bearerToken())->id;
 
         // check Owner token
