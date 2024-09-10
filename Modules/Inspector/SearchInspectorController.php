@@ -40,8 +40,25 @@ class SearchInspectorController extends BaseInspectorController
                 }
             }
 
-            $original = is_array($original) ? json_encode($original) : $original;
-            $content = is_array($content) ? json_encode($content) : $content;
+            if (is_string($content)) {
+                $content = str_replace('\"', '"', $content);
+                $content = str_replace('"{', '{', $content);
+                $content = str_replace('}"', '}', $content);
+            }
+
+            if (is_string($original)) {
+                // Split the original string into two parts (HBSI and Expedia)
+                $parts = explode('"Expedia_', $original, 2);
+                // Perform replacements only on the second part  (Expedia) if it exists
+                if (isset($parts[1])) {
+                    $parts[1] = str_replace('\"', '"', $parts[1]);
+                    $parts[1] = str_replace('"{', '{', $parts[1]);
+                    $parts[1] = str_replace('}"', '}', $parts[1]);
+                }
+                // Concatenate the parts back together
+                $original = $parts[0] . '"Expedia_' . ($parts[1] ?? '');
+            }
+
             $clientContent = is_array($clientContent) ? json_encode($clientContent) : $clientContent;
 
             $generalPath = self::PATH_INSPECTORS.'search_inspector/'.date('Y-m-d').'/'.$inspector['type'].'_'.$inspector['search_id'];
