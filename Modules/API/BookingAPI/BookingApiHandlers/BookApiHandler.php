@@ -197,8 +197,11 @@ class BookApiHandler extends BaseController
         $itemsBooked = ApiBookingsMetadataRepository::bookedItems($request->booking_id);
 
         $data = [];
+        $retrieved = [];
 
         foreach ($itemsBooked as $item) {
+            if (in_array($item->booking_item, $retrieved)) continue;
+            else $retrieved[] = $item->booking_item;
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
                 $data[] = match (SupplierNameEnum::from($supplier)) {
