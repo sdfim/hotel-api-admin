@@ -12,6 +12,8 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
 
     private array $confirmation_numbers = [];
 
+    private ?string $cancellation_number = null;
+
     private array $query;
 
     private string $supplier_book_id;
@@ -112,12 +114,23 @@ class HotelRetrieveBookingResponseModel extends HotelBookResponseModel
         $this->confirmation_numbers = $confirmation_numbers;
     }
 
+    public function getCancellationNumber(): ?string
+    {
+        return $this->cancellation_number;
+    }
+
+    public function setCancellationNumber(?string $cancellation_number): void
+    {
+        $this->cancellation_number = $cancellation_number;
+    }
+
     public function toRetrieveArray(): array
     {
         return array_merge(
             $this->toArray(),
             [
                 'confirmation_numbers_list' => $this->getConfirmationNumbers(),
+                'cancellation_number' => $this->getCancellationNumber(),
                 'hotel_name' => $this->getHotelName(),
                 //                'room_name' => $this->getRoomName(),
                 //                'room_type' => $this->getRoomType(),
