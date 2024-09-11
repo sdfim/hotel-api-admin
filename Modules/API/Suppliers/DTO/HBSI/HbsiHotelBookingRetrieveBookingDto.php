@@ -42,7 +42,11 @@ class HbsiHotelBookingRetrieveBookingDto
         $bookingDataFromFile = $bookData ? json_decode(Storage::get($bookData->response_path), true) : [];
 
         $confirmationNumbers = self::processConfirmationNumbersAndSupplier($dataResponse['ReservationsList'], $bookingDataFromFile);
-        $cancellationNumber = self::processCancellationNumber($confirmationNumbers);
+
+        $cancellationNumber = null;
+        if ($status === 'cancelled') {
+            $cancellationNumber = self::processCancellationNumber($confirmationNumbers);
+        }
 
         $supplierBookId = Arr::get($confirmationNumbers, '0.@attributes.ResID_Value', '');
         //endregion
