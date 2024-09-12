@@ -51,5 +51,6 @@
 @filamentScripts
 @vite(['resources/js/app.js'])
 @yield('js')
+@stack('livewire-scripts')
 </body>
 </html>
