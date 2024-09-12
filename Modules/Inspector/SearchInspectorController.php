@@ -46,6 +46,7 @@ class SearchInspectorController extends BaseInspectorController
                 // Perform replacements only on the second part  (Expedia) if it exists
                 if (isset($parts[1])) {
                     $parts[1] = str_replace('\"', '"', $parts[1]);
+                    $parts[1] = str_replace('\\\\"', '\"', $parts[1]);
                     $parts[1] = str_replace('"{', '{', $parts[1]);
                     $parts[1] = str_replace('}"', '}', $parts[1]);
                 }
@@ -60,6 +61,7 @@ class SearchInspectorController extends BaseInspectorController
                 // Perform replacements only on the second part  (Expedia) if it exists
                 if (isset($parts[1])) {
                     $parts[1] = str_replace('\"', '"', $parts[1]);
+                    $parts[1] = str_replace('\\\\"', '\"', $parts[1]);
                     $parts[1] = str_replace('"{', '{', $parts[1]);
                     $parts[1] = str_replace('}"', '}', $parts[1]);
                 }
