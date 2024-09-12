@@ -357,15 +357,29 @@
 
         document.getElementById('downLoadRawRequest').addEventListener('click', function() {
             if (fileOriginal.request) {
-                var blob = new Blob([fileOriginal.request], {type: "application/plain;charset=utf-8"});
-                saveAs(blob, `request_{{$inspector->Supplier->name}}_${formattedDate}_{{$inspector->booking_item}}.txt`);
+                if ( '{{ $inspector->Supplier->name }}' === 'HBSI') {
+                    var blob = new Blob([fileOriginal.request], {type: "application/plain;charset=utf-8"});
+                    saveAs(blob, `request_{{$inspector->Supplier->name}}_${formattedDate}_{{$inspector->booking_item}}.txt`);
+                }
+                if ('{{ $inspector->Supplier->name }}' === 'Expedia') {
+                    var jsonString = JSON.stringify(fileOriginal.request);
+                    var blob = new Blob([jsonString], {type: "application/json;charset=utf-8"});
+                    saveAs(blob, `request_{{$inspector->Supplier->name}}_${formattedDate}_{{$inspector->booking_item}}.json`);
+                }
             }
         });
 
         document.getElementById('downloadRawResponse').addEventListener('click', function() {
             if (fileOriginal.response) {
-                var blob = new Blob([fileOriginal.response], {type: "application/plain;charset=utf-8"});
-                saveAs(blob, `response_{{$inspector->supplier->name}}_${formattedDate}_{{$inspector->booking_item}}.txt`);
+                if ( '{{ $inspector->Supplier->name }}' === 'HBSI') {
+                    var blob = new Blob([fileOriginal.response], {type: "application/plain;charset=utf-8"});
+                    saveAs(blob, `response_{{$inspector->supplier->name}}_${formattedDate}_{{$inspector->booking_item}}.txt`);
+                }
+                if ('{{ $inspector->Supplier->name }}' === 'Expedia') {
+                    var jsonString = JSON.stringify(fileOriginal.response);
+                    var blob = new Blob([jsonString], {type: "application/json;charset=utf-8"});
+                    saveAs(blob, `response_{{$inspector->supplier->name}}_${formattedDate}_{{$inspector->booking_item}}.json`);
+                }
             }
         });
 

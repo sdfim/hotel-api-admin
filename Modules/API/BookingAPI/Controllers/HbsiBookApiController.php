@@ -9,6 +9,7 @@ use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
+use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ChannelRenository;
 use Exception;
@@ -36,6 +37,7 @@ class HbsiBookApiController extends BaseBookApiController
     private const NON_CANCELLABLE_BOOKING_CODE_ERRORS = [
         '394', // Cancelled after due date
         '450', // Reservation Expired
+        '97', // Not Found
     ];
 
     private const CODE_WRONG_PASSENGER_NAME = '251';
@@ -195,11 +197,11 @@ class HbsiBookApiController extends BaseBookApiController
     {
         $booking_id = $filters['booking_id'];
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
-        $filters['search_id'] = '';
+        $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['booking_item']);
 
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'retrieve_booking', '', $apiBookingsMetadata->search_type,
+            $booking_id, $filters, $supplierId, 'book', 'retrieve', $apiBookingsMetadata->search_type,
         ]);
 
         $xmlPriceData = $this->hbsiClient->retrieveBooking(
@@ -315,7 +317,8 @@ class HbsiBookApiController extends BaseBookApiController
                 'booking_item' => $apiBookingsMetadata->booking_item,
                 'status' => $message,
             ];
-            $dataResponseToSave = $message;
+
+            $dataResponseToSave = is_array($message) ? $message : [];
 
             SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res, 'error',
                 ['side' => 'app', 'message' => $message]);

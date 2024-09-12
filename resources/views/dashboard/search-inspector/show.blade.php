@@ -45,8 +45,13 @@
                                         class="text-white px-4 py-3 bg-green-500 border-green-500 btn hover:bg-green-600 focus:ring ring-green-200 focus:bg-green-600"
                                         data-tw-toggle="modal" data-tw-target="#modal-idmediummodal">View Request
                                 </button>
+
                                 <button type="button"
-                                        class="text-white px-4 py-3 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
+                                        class="text-white px-4 py-3 bg-sky-500 border-sky-500 btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
+                                        id="loadRQ">Download Original Request and Response as JSON
+                                </button>
+                                <button type="button"
+                                        class="text-white px-4 py-3 bg-sky-500 border-sky-500 btn hover:bg-sky-600 focus:ring ring-sky-200 focus:bg-sky-600"
                                         id="loadResponse">Download Response as JSON
                                 </button>
 
@@ -130,6 +135,26 @@
                                 if($file_original == ''){
                                     $file_original = json_encode([]);
                                 }
+                                $file_size_bytes = Storage::size($path);
+
+                                echo "File name: " . basename($path) . "<br>";
+                                echo "File size: " . round(strlen($file_original) / (1024 * 1024), 2) . " MB<br>";
+//                                    echo "Memory limit: " . ini_get('memory_limit') . "<br>";
+//                                    echo "Max execution time: " . ini_get('max_execution_time') . " seconds<br>";
+//                                    echo "Upload max filesize: " . ini_get('upload_max_filesize') . "<br>";
+//                                    echo "Post max size: " . ini_get('post_max_size') . "<br>";
+
+                                $count_request = 0;
+                                $data = json_decode($file_original, true);
+                                if (is_array($data)) {
+                                    foreach (json_decode($file_original, true) as $key => $suppliers_package) {
+                                        if (isset($suppliers_package['request'])) {
+                                            if (!is_array($suppliers_package['request'])) $count_request += 1;
+                                            else $count_request += count($suppliers_package['request']);
+                                        }
+                                    }
+                                }
+                                echo "Total requests to Suppliers: " . $count_request;
                             @endphp
                             <div id="actions-toolbar">
                                 <button
@@ -154,6 +179,11 @@
                                 if($file_response == ''){
                                     $file_response = json_encode([]);
                                 }
+
+                                $file_size_bytes = Storage::size($inspector->response_path);
+                                $file_size_mb = $file_size_bytes / (1024 * 1024);
+                                echo "File name: " . basename($inspector->response_path) . "<br>";
+                                echo "File size: " . round($file_size_mb, 2) . " MB<br>";
                             @endphp
                             <div id="actions-toolbar">
                                 <button
@@ -178,6 +208,10 @@
                                 if($file_client_response == ''){
                                     $file_client_response = json_encode([]);
                                 }
+                                $file_size_bytes = Storage::size($inspector->client_response_path);
+                                $file_size_mb = $file_size_bytes / (1024 * 1024);
+                                echo "File name: " . basename($inspector->client_response_path) . "<br>";
+                                echo "File size: " . round($file_size_mb, 2) . " MB";
                             @endphp
                             <div id="actions-toolbar">
                                 <button
@@ -290,7 +324,11 @@
 
         document.getElementById('loadResponse').addEventListener('click', function() {
             var blob = new Blob([<?= json_encode($file_client_response) ?>], {type: "application/json;charset=utf-8"});
-            saveAs(blob, "file.json");
+            saveAs(blob, "rs.json");
+        });
+        document.getElementById('loadRQ').addEventListener('click', function() {
+            var blob = new Blob([<?= json_encode($file_original) ?>], {type: "application/json;charset=utf-8"});
+            saveAs(blob, "rq.json");
         });
 
         document.getElementById('downLoadRawRequest').addEventListener('click', function() {

@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\DTO\Expedia;
 
+use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponseFactory;
 use Psr\Container\ContainerExceptionInterface;
@@ -60,8 +61,16 @@ class ExpediaHotelContentDetailDto
         ]);
         $hotelResponse->setCheckInTime($supplierResponse->checkin_time ?? '');
         $hotelResponse->setCheckOutTime($supplierResponse->checkout_time ?? '');
-        $hotelResponse->setHotelFees($supplierResponse->fees ? json_decode(json_encode($supplierResponse->fees), true) : []);
-        $hotelResponse->setPolicies($supplierResponse->policies ? json_decode(json_encode($supplierResponse->policies), true) : []);
+
+        $fees = $supplierResponse->fees ? json_decode(json_encode($supplierResponse->fees), true) : [];
+        $policies = $supplierResponse->policies ? json_decode(json_encode($supplierResponse->policies), true) : [];
+
+        // These validations are required because for some properties we are receiving [""] for fees/policies
+        $fees = is_string($fees)  ? [] : $fees;
+        $policies = is_string($policies) ? [] : $policies;
+
+        $hotelResponse->setHotelFees($fees);
+        $hotelResponse->setPolicies($policies);
         $hotelResponse->setDescriptions($supplierResponse->descriptions ? json_decode(json_encode($supplierResponse->descriptions), true) : []);
         $hotelResponse->setAddress($supplierResponse->address ? $address : '');
         $hotelResponse->setSupplierInformation([

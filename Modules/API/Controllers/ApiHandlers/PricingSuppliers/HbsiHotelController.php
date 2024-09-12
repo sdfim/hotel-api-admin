@@ -62,10 +62,9 @@ class HbsiHotelController
     /**
      * @throws Throwable
      */
-    public function price(array &$filters, array $searchInspector): ?array
+    public function price(array &$filters, array $searchInspector, array $hotelData): ?array
     {
         try {
-            $hotelData = $this->preSearchData($filters);
             $hotelIds = array_keys($hotelData['data']);
 
             if (empty($hotelIds)) {
