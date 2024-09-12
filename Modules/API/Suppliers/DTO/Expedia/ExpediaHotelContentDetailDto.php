@@ -63,12 +63,14 @@ class ExpediaHotelContentDetailDto
         $hotelResponse->setCheckOutTime($supplierResponse->checkout_time ?? '');
 
         $fees = $supplierResponse->fees ? json_decode(json_encode($supplierResponse->fees), true) : [];
+        $policies = $supplierResponse->policies ? json_decode(json_encode($supplierResponse->policies), true) : [];
 
-        // This validation is required because for some properties we are receiving [""]
-        $fees = empty(Arr::get($fees, '0')) ? [] : $fees;
+        // These validations are required because for some properties we are receiving [""] for fees/policies
+        $fees = is_string($fees)  ? [] : $fees;
+        $policies = is_string($policies) ? [] : $policies;
 
         $hotelResponse->setHotelFees($fees);
-        $hotelResponse->setPolicies($supplierResponse->policies ? json_decode(json_encode($supplierResponse->policies), true) : []);
+        $hotelResponse->setPolicies($policies);
         $hotelResponse->setDescriptions($supplierResponse->descriptions ? json_decode(json_encode($supplierResponse->descriptions), true) : []);
         $hotelResponse->setAddress($supplierResponse->address ? $address : '');
         $hotelResponse->setSupplierInformation([
