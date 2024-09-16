@@ -157,7 +157,6 @@ class GiataTable extends Component implements HasForms, HasTable
     private static function preparePropertyData (array $data) {
         $data['property_auto_updates'] = 0;
         $data['city_id'] = (int) $data['city_id'];
-        // TODO: Should we remove city_name from properties table? Or is the refactor too big?
         $data['city'] = GiataTable::getCityById($data['city_id'])->city_name;
         return $data;
     }
