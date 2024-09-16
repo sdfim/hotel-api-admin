@@ -153,7 +153,7 @@ class DownloadGiataData extends Command
                 if ((string) $crossReference['Code'] == 'ULTIMATE_JET_VACATIONS' && (string) $crossReference['Status'] !== 'Inactive') {
                     $batchDataMapperHbsi[] = [
                         'supplier_id' => $crossReference->Code['HotelCode'],
-                        'giata_id' => (string) $property['Code'],
+                        'giata_id' => (int) $property['Code'],
                         'supplier' => MappingSuppliersEnum::HBSI->value,
                         'match_percentage' => 100,
                     ];
