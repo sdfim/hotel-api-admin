@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('mappings', function (Blueprint $table) {
             $table->id();
-            $table->string('giata_id', 255);
+            $table->integer('giata_id');
             $table->enum('supplier', [MappingSuppliersEnum::Expedia->value, MappingSuppliersEnum::HBSI->value, MappingSuppliersEnum::IcePortal->value]);
             $table->string('supplier_id', 255);
             $table->integer('match_percentage')->default(100); // Nuevo campo agregado

@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingsMetadata;
 use Illuminate\Support\Facades\Storage;
 use Modules\Enums\InspectorStatusEnum;
 use Modules\Enums\ItemTypeEnum;
@@ -139,8 +140,15 @@ class ApiBookingInspectorRepository
             [];
     }
 
-    public static function isBook(string $booking_id, string $booking_item): bool
+    public static function isBook(string $booking_id, string $booking_item, bool $validateWithBookingInspector = true): bool
     {
+        if (! $validateWithBookingInspector)
+        {
+            return ApiBookingsMetadata::where('booking_id', $booking_id)
+                ->where('booking_item', $booking_item)
+                ->exists();
+        }
+
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
             ->where('type', 'book')
@@ -227,6 +235,15 @@ class ApiBookingInspectorRepository
             ->get();
     }
 
+    public static function isCancel(string $booking_item): bool
+    {
+        return ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'cancel_booking')
+            ->where('sub_type', 'true')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->exists();
+    }
+
     public static function getBookItemsByBookingItem(string $booking_item): ?object
     {
         $bookingInspector = ApiBookingInspector::where('booking_item', $booking_item)
@@ -234,17 +251,12 @@ class ApiBookingInspectorRepository
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
-        if ($bookingInspector && $bookingInspector->supplier->name === SupplierNameEnum::EXPEDIA->value) {
-            return ApiBookingInspector::where('booking_item', $booking_item)
-                ->where('type', 'book')
-                ->where('sub_type', 'retrieve')
-                ->first();
-        } else {
-            return ApiBookingInspector::where('booking_item', $booking_item)
-                ->where('type', 'book')
-                ->where('sub_type', 'create')
-                ->first();
-        }
+        if (!$bookingInspector) return null;
+
+        return ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->first();
     }
 
     public static function newBookingInspector(array $input): array

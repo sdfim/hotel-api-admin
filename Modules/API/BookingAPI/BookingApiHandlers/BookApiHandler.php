@@ -6,6 +6,7 @@ namespace Modules\API\BookingAPI\BookingApiHandlers;
 
 use App\Jobs\ClearSearchCacheByBookingItemsJob;
 use App\Models\ApiBookingItem;
+use App\Models\ApiBookingsMetadata;
 use App\Models\ApiSearchInspector;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookRepository;
@@ -197,8 +198,11 @@ class BookApiHandler extends BaseController
         $itemsBooked = ApiBookingsMetadataRepository::bookedItems($request->booking_id);
 
         $data = [];
+        $retrieved = [];
 
         foreach ($itemsBooked as $item) {
+            if (in_array($item->booking_item, $retrieved)) continue;
+            else $retrieved[] = $item->booking_item;
             try {
                 $supplier = Supplier::where('id', $item->supplier_id)->first()->name;
                 $data[] = match (SupplierNameEnum::from($supplier)) {
@@ -228,8 +232,8 @@ class BookApiHandler extends BaseController
      */
     public function cancelBooking(BookingCancelBooking $request): JsonResponse
     {
-        //$determinant = $this->determinant($request);
-        //if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
+        $determinant = $this->determinant($request, false);
+        if (!empty($determinant)) return response()->json(['error' => $determinant['error']], 400);
 
         if (isset($request->booking_item)) {
             $itemsBooked = ApiBookingsMetadataRepository::bookedItem($request->booking_id, $request->booking_item);
@@ -239,13 +243,18 @@ class BookApiHandler extends BaseController
 
         $filters = $request->all();
         $data = [];
+        $canceled = [];
         foreach ($itemsBooked as $item) {
-            /*
-            if (!BookRepository::isBook($request->booking_id, $item->booking_item)) {
+            if (!BookRepository::isBook($request->booking_id, $item->booking_item, false)) {
                 $data[] = ['error' => 'booking_id and/or booking_item not yet booked'];
                 continue;
             }
-            */
+
+            if (in_array($item->booking_item, $canceled)) {
+                continue;
+            } else {
+                $canceled[] = $item->booking_item;
+            }
 
             try {
                 $filters['search_id'] = ApiBookingItem::where('booking_item', $item->booking_item)->first()?->search_id;
@@ -283,7 +292,7 @@ class BookApiHandler extends BaseController
         }
 
         if (! empty($errors)) {
-            return $this->sendError($errors, '', 400, $data);
+            return $this->sendError($errors);
         }
 
         return $this->sendResponse(['result' => $data], 'success');
@@ -379,8 +388,26 @@ class BookApiHandler extends BaseController
         return $this->sendResponse(['result' => $response], 'success');
     }
 
-    private function determinant(Request $request): array
+    private function determinant(Request $request, bool $validateWithApiBookings = true): array
     {
+        // This validation must remains here for the previous bookings with TravelTek (imported HBSI bookings)
+        if (! $validateWithApiBookings)
+        {
+            $apiBooking = ApiBookingsMetadata::where('booking_id', $request->get('booking_id'));
+
+            if ($request->has('booking_item'))
+            {
+                $apiBooking = $apiBooking->where('booking_item', $request->get('booking_item'));
+            }
+
+            if ($apiBooking->first() === null)
+            {
+                return ['error' => 'Invalid Booking'];
+            }
+
+            return [];
+        }
+
         $requestTokenId = PersonalAccessToken::findToken($request->bearerToken())->id;
 
         // check Owner token
