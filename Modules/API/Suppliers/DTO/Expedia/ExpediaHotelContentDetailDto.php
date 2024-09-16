@@ -33,8 +33,12 @@ class ExpediaHotelContentDetailDto
         $viewAmenities = request()->get('category_amenities') === 'true';
 
         $address = $supplierResponse->address['line_1'].', '.
-            $supplierResponse->address['city'].' - '.
-            $supplierResponse->address['postal_code'];
+            $supplierResponse->address['city'];
+
+        if ($postalCode = Arr::get($supplierResponse->address, 'postal_code'))
+        {
+            $address .= " - $postalCode";
+        }
 
         $hotelResponse = ContentDetailResponseFactory::create();
         $hotelResponse->setGiataHotelCode($giata_id);

@@ -38,6 +38,8 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                         'success' => 'success',
                         default => 'gray',
                     }),
+                TextColumn::make('search_type')
+                    ->label('Search Type'),
                 ViewColumn::make('view error data')
                     ->label('')
                     ->view('dashboard.search-inspector.column.error-data'),

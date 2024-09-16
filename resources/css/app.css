@@ -3,3 +3,33 @@
 [x-cloak] {
     display: none !important;
 }
+
+.copy-clipboard-btn {
+    padding-left: 10px;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    color: #6563ff;
+}
+
+:is([data-mode=dark] .copy-clipboard-btn) {
+    color: #c1c0ff;
+}
+
+.copy-tooltip {
+    position: absolute;
+    background-color: #333;
+    color: #FFFFFF;
+    padding: 5px;
+    border-radius: 3px;
+    font-size: 12px;
+    z-index: 1000;
+}
+
+#inspector-table td > div > div {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 .3rem;
+}
