@@ -198,7 +198,7 @@ class GiataTable extends Component implements HasForms, HasTable
 
     private static function mapProperty (Property $property, array $data) {
         Mapping::updateOrCreate(
-          ['giata_id' => $property->code], // TODO: Should be id? Add supplier?
+          ['giata_id' => $property->code],
           [
             'giata_id' => $property->code,
             'supplier_id' => $data['supplier_id'],
