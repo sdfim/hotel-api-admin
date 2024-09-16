@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Livewire;
 
-class GiataPropertyTest extends CustomAuthorizedActionsTestCase
+class PropertyTest extends CustomAuthorizedActionsTestCase
 {
     private Collection|Property|Model|null $giata = null;
 

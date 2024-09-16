@@ -191,7 +191,7 @@ class DownloadGiataData extends Command
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('ImportJsonlData insert MapperHbsiGiata ', ['error' => $e->getMessage()]);
+            Log::error('ImportJsonlData insert Mapping ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
             return false;
