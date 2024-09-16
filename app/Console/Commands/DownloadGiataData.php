@@ -127,7 +127,7 @@ class DownloadGiataData extends Command
             $url = $this->processProperty($property, 'URL');
 
             $data = [
-                'code' => (string) $property['Code'],
+                'code' => (int) $property['Code'],
                 'last_updated' => (string) $property['LastUpdated'],
                 'name' => (string) $property->Name,
                 'chain' => $chain,

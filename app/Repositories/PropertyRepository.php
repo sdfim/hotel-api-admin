@@ -99,7 +99,7 @@ class PropertyRepository
         }
 
         $perc = 0;
-        $code = '';
+        $code = 0;
         $resName = '';
         foreach ($giata as $item) {
             similar_text(strtolower($item['name']), strtolower($hotelName), $perc1);
