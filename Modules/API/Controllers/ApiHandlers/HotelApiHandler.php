@@ -454,10 +454,11 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $arr_pricing_search[] = $search_id;
                 $taggedCache->put('arr_pricing_search', $arr_pricing_search, now()->addMinutes(self::TTL));
             }
+           $res = $this->applyFilters($res);
 
             if (self::PAGINATION_TO_RESULT) {
                 //                $res = $this->paginate($res, $request->input('page', 1), $request->input('results_per_page', 10));
-                $res = $this->combinedAndPaginate($res, $request->input('page', 1), $request->input('results_per_page', 10));
+                $res = $this->combinedAndPaginate($res, $request->input('page', 1), $request->input('results_per_page', 10), $res['query'] );
             }
 
             return $this->sendResponse($res, 'success');
@@ -467,6 +468,22 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             return $this->sendError($e->getMessage(), 'failed');
         }
+    }
+
+    private function applyFilters(array $result): array
+    {
+        $filters = $result['query'];
+        $output = Arr::get($result, 'results.Expedia_both', []);
+
+        $value = collect($output ?? [])->filter(function($hotel) use($filters){
+            $hotelMinPrice = $hotel['lowest_priced_room_group'];
+            $maxPriceFilter = Arr::get($filters, 'max_price', null);
+            $minPriceFilter = Arr::get($filters, 'min_price', null);
+            return ($maxPriceFilter >= $hotelMinPrice || $maxPriceFilter === null) &&
+                ($minPriceFilter <= $hotelMinPrice || $minPriceFilter === null);
+        })->toArray();
+        $result['results']['Expedia_both'] = $value;
+        return $result;
     }
 
     /**
@@ -504,7 +521,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         return $results;
     }
 
-    public function combinedAndPaginate(array $results, int $page, int $resultsPerPage): array
+    public function combinedAndPaginate(array $results, int $page, int $resultsPerPage, array $filters): array
     {
         // Merge all supplier results into one array
         $mergedResults = [];
@@ -512,33 +529,36 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $mergedResults = array_merge($mergedResults, $supplierResults);
         }
 
-        // Sort the merged results by 'weight' and 'lowest_priced_room_group'
-        usort($mergedResults, function ($a, $b) use ($results) {
+        if( Arr::get($filters, 'order') === 'cheapest_price') {
+            $mergedResults = collect($mergedResults)->sortBy('lowest_priced_room_group')->values()->toArray();
+        }else{
+            usort($mergedResults, function ($a, $b) use ($results) {
 
-            if (Arr::has($results, 'query.latitude')) {
-                return ($a['distance'] < $b['distance']) ? -1 : 1;
-            }
+                if (Arr::has($results, 'query.latitude')) {
+                    return ($a['distance'] < $b['distance']) ? -1 : 1;
+                }
 
-            // Check if 'weight' key exists and is not zero for both items
-            $aWeightExists = isset($a['weight']) && $a['weight'] != 0;
-            $bWeightExists = isset($b['weight']) && $b['weight'] != 0;
+                // Check if 'weight' key exists and is not zero for both items
+                $aWeightExists = isset($a['weight']) && $a['weight'] != 0;
+                $bWeightExists = isset($b['weight']) && $b['weight'] != 0;
 
-            // If 'weight' key exists and is not zero for both items, compare these
-            if ($aWeightExists && $bWeightExists) {
-                return $b['weight'] <=> $a['weight']; // Changed order for descending sort
-            }
+                // If 'weight' key exists and is not zero for both items, compare these
+                if ($aWeightExists && $bWeightExists) {
+                    return $b['weight'] <=> $a['weight']; // Changed order for descending sort
+                }
 
-            // If 'weight' key exists and is not zero only for one item, that item should come first
-            if ($aWeightExists) {
-                return -1; // $a comes first
-            }
-            if ($bWeightExists) {
-                return 1; // $b comes first
-            }
+                // If 'weight' key exists and is not zero only for one item, that item should come first
+                if ($aWeightExists) {
+                    return -1; // $a comes first
+                }
+                if ($bWeightExists) {
+                    return 1; // $b comes first
+                }
 
-            // If 'weight' key does not exist or is zero for both items, compare 'lowest_priced_room_group'
-            return $a['lowest_priced_room_group'] <=> $b['lowest_priced_room_group'];
-        });
+                // If 'weight' key does not exist or is zero for both items, compare 'lowest_priced_room_group'
+                return $a['lowest_priced_room_group'] <=> $b['lowest_priced_room_group'];
+            });
+        }
 
         // Calculate the offset
         $offset = ($page - 1) * $resultsPerPage;
