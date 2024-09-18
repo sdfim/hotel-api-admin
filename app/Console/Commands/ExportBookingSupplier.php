@@ -3,16 +3,10 @@
 namespace App\Console\Commands;
 
 use App\Models\ApiBookingItem;
-use App\Models\ApiBookingsMetadata;
-use Carbon\Carbon;
+use App\Models\Supplier;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use League\Csv\Exception;
-use League\Csv\Reader;
-use League\Csv\UnavailableStream;
 use League\Csv\Writer;
 
 class ExportBookingSupplier extends Command
@@ -42,15 +36,28 @@ class ExportBookingSupplier extends Command
 
         try {
             $bookings = ApiBookingItem::whereNotNull('booking_item')
-                ->whereNotNull('supplier')
-                ->get();
+                ->whereNotNull('supplier_id')
+                ->select('booking_item', 'supplier_id')
+                ->get()
+                ->toArray();
 
-            foreach ($bookings as $booking) {
-                $csvWriter->insertOne([
-                    $booking['booking_item'],
-                    $booking['booking_supplier'],
-                ]);
+            $suppliers = Supplier::all()->toArray();
+            $supplierMap = [];
+            $this->info('booking_id = '.json_encode($suppliers));
+            foreach ($suppliers as $supplier) {
+              $supplierMap[$supplier['id']] = $supplier['name'];
             }
+
+            $this->info('booking_id = '.json_encode($supplierMap));
+
+            $mappedBooking = array_map(function ($item) use ($supplierMap) {
+              return [
+                  'booking_item' => $item['booking_item'],
+                  'supplier' => $supplierMap[$item['supplier_id']] ?? null,
+              ];
+            }, $bookings);
+
+            $csvWriter->insertAll($mappedBooking);
 
             Storage::put($exportFilename, $csvWriter->toString());
         } catch (\Exception $e) {
