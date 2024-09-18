@@ -18,7 +18,7 @@ class HbsiHotelBookingRetrieveBookingDto
         '3' => 'UltimateJet',
     ];
 
-    const CANCELLATION_ID_TYPES = [10, 18];
+    const CANCELLATION_ID_TYPES = [18, 10, 8];
 
     public static function RetrieveBookingToHotelBookResponseModel(array $filters, array $dataResponse): array
     {
@@ -146,18 +146,17 @@ class HbsiHotelBookingRetrieveBookingDto
      */
     private static function processCancellationNumber($confirmationNumbersList): ?string
     {
-        $cancellationNumber = null;
+        // With this foreach we evaluate each cancellation type in priority order, CANCELLATION_ID_TYPES 18 > 10 > 8
+        foreach (self::CANCELLATION_ID_TYPES as $cancellationType)
+        {
+            $filteredConfirmationNumbers = array_filter($confirmationNumbersList, fn ($confirmationNumber) => intval($confirmationNumber['type_id']) === $cancellationType);
 
-        foreach ($confirmationNumbersList as $confirmationNumber) {
-            $typeId = intval($confirmationNumber['type_id']);
-
-            if (in_array($typeId, self::CANCELLATION_ID_TYPES)) {
-                $cancellationNumber = $confirmationNumber['confirmation_number'];;
-
-                break;
+            if ($cancellationNumber = Arr::get(array_values($filteredConfirmationNumbers), '0.confirmation_number'))
+            {
+                return str_contains($cancellationNumber, '$') ? $cancellationNumber : "CXL_$cancellationNumber";
             }
         }
 
-        return $cancellationNumber;
+        return null;
     }
 }
