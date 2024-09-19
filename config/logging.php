@@ -6,7 +6,7 @@ use Monolog\Formatter\JsonFormatter;
 use Monolog\Handler\StreamHandler;
 
 return [
-    'default' => env('LOG_CHANNEL', 'stack'),
+
     'channels' => [
         'cloudwatch' => [
             'driver' => 'monolog',
