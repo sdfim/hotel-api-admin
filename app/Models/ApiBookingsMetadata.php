@@ -66,23 +66,18 @@ class ApiBookingsMetadata extends Model
 
     public function hotel(): HasOneThrough
     {
-        return match($this->supplier->name){
-            SupplierNameEnum::HBSI->value => $this->hasOneThrough(
-                Property::class,
-                Mapping::class,
-                'supplier_id', // Foreign key on the Mappings table...
-                'code', // Foreign key on the Properties table...
-                'hotel_supplier_id', // Local key on the ApiBookingsMetadata table...
-                'giata_id' // Local key on the Mappings table...
-            ),
-            SupplierNameEnum::EXPEDIA->value => $this->hasOneThrough(
-                Property::class,
-                Mapping::class,
-                'supplier_id', // Foreign key on the Mappings table...
-                'code', // Foreign key on the Properties table...
-                'hotel_supplier_id', // Local key on the ApiBookingsMetadata table...
-                'giata_id' // Local key on the Mappings table...
-            ),
-        };
+        if (!in_array([SupplierNameEnum::HBSI->value, SupplierNameEnum::EXPEDIA->value], $this->supplier->name))
+        {
+            return null;
+        }
+
+        return $this->hasOneThrough(
+            Property::class,
+            Mapping::class,
+            'supplier_id', // Foreign key on the mappings table
+            'code', // Foreign key on the properties table
+            'hotel_supplier_id', // Local key on the current model (e.g., ApiBookingsMetadata)
+            'giata_id' // Local key on the mappings table
+        )->where('mappings.supplier', $this->supplier->name);
     }
 }

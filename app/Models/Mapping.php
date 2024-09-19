@@ -10,7 +10,7 @@ class Mapping extends Model
 {
     use HasFactory;
 
-    protected $connection = 'mysql';
+    protected $connection;
     protected $table = 'mappings';
 
     protected $fillable = [
@@ -19,6 +19,14 @@ class Mapping extends Model
       'supplier_id',
       'match_percentage'
     ];
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+        $mainDB = config('database.connections.mysql.database');
+        $this->table = "$mainDB.mappings";
+        $this->connection = config('database.active_connections.mysql');
+    }
 
     public function scopeExpedia($query)
     {
