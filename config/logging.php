@@ -8,6 +8,11 @@ use Monolog\Handler\StreamHandler;
 return [
 
     'channels' => [
+        'multi' => [
+            'driver'       => 'monolog',
+            'channels'     => ['cloudwatch', 'datadog'],
+            'ignore_exceptions' => false,
+        ],
         'cloudwatch' => [
             'driver' => 'monolog',
             'handler' => AwsCloudwatchLogHandler::class,
