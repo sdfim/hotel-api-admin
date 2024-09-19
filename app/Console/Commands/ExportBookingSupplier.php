@@ -4,9 +4,11 @@ namespace App\Console\Commands;
 
 use App\Models\ApiBookingItem;
 use App\Models\Supplier;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use League\Csv\Exception;
+use League\Csv\Reader;
 use League\Csv\Writer;
 
 class ExportBookingSupplier extends Command
@@ -20,12 +22,13 @@ class ExportBookingSupplier extends Command
 
     protected $description = 'Export booking items supplier field';
 
+    protected const BATCH = 100;
+
     /**
      * @throws Exception
      */
     public function handle(): void
     {
-        // Export vars
         $exportFilename = 'exports/obe_reservation_hotels_booking_supplier.csv';
         $csvWriter = Writer::createFromString();
 
@@ -34,34 +37,36 @@ class ExportBookingSupplier extends Command
             'booking_supplier',
         ]);
 
-        try {
-            $bookings = ApiBookingItem::whereNotNull('booking_item')
-                ->whereNotNull('supplier_id')
-                ->select('booking_item', 'supplier_id')
-                ->get()
-                ->toArray();
+        $suppliers = Supplier::all()->toArray();
+        $supplierMap = [];
+        foreach ($suppliers as $supplier) {
+          $supplierMap[$supplier['id']] = $supplier['name'];
+        }
 
-            $suppliers = Supplier::all()->toArray();
-            $supplierMap = [];
-            $this->info('booking_id = '.json_encode($suppliers));
-            foreach ($suppliers as $supplier) {
-              $supplierMap[$supplier['id']] = $supplier['name'];
-            }
+        $query = ApiBookingItem::query()
+            ->whereNotNull('booking_item')
+            ->whereNotNull('supplier_id')
+            ->select('booking_item', 'supplier_id');
+        $total = $query->count();
 
-            $this->info('booking_id = '.json_encode($supplierMap));
+        $this->info('Starting '.Carbon::now());
+        for ($offset = 0; $offset < $total; $offset += self::BATCH)
+        {
+            $percentage = round(($offset / $total) * 100);
+            $this->info("Offset $offset - $percentage% - ".Carbon::now());
+            $apiBookingItemsBatch= $query->skip($offset)->take(self::BATCH)->get();
 
-            $mappedBooking = array_map(function ($item) use ($supplierMap) {
-              return [
+            $mappedApiBookingItemsBatch = $apiBookingItemsBatch->map(function ($item) use($supplierMap) {
+                return [
                   'booking_item' => $item['booking_item'],
                   'supplier' => $supplierMap[$item['supplier_id']] ?? null,
-              ];
-            }, $bookings);
+                ];
+            })->toArray();
 
-            $csvWriter->insertAll($mappedBooking);
-
-            Storage::put($exportFilename, $csvWriter->toString());
-        } catch (\Exception $e) {
-            $this->error($e->getMessage());
+            // $this->info("Finished batch number $batchNumber ".Carbon::now());
+            $csvWriter->insertAll($mappedApiBookingItemsBatch);
         }
+        Storage::put($exportFilename, $csvWriter->toString());
+        $this->info('Finsihed '.Carbon::now());
     }
 }
