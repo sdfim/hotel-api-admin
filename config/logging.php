@@ -3,9 +3,10 @@
 use App\Support\Services\Logging\Drivers\AwsCloudwatchLogHandler;
 use Aws\CloudWatchLogs\CloudWatchLogsClient;
 use Monolog\Formatter\JsonFormatter;
+use Monolog\Handler\StreamHandler;
 
 return [
-
+    'default' => env('LOG_CHANNEL', 'stack'),
     'channels' => [
         'cloudwatch' => [
             'driver' => 'monolog',
@@ -26,6 +27,18 @@ return [
             ],
             'level' => env('LOG_LEVEL', 'debug'),
             'region' => env('LOG_CLOUDWATCH_DEFAULT_REGION', 'us-east-1'),
+            'formatter' => JsonFormatter::class,
+            'formatter_with' => [
+                'includeStacktraces' => true,
+            ],
+        ],
+        'datadog' => [
+            'driver'       => 'monolog',
+            'handler'      => StreamHandler::class,
+            'handler_with' => [
+                'stream' => storage_path('logs/laravel-datadog.log'),
+                'level'  => 'debug',
+            ],
             'formatter' => JsonFormatter::class,
             'formatter_with' => [
                 'includeStacktraces' => true,
