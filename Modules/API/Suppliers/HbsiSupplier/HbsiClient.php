@@ -282,10 +282,6 @@ class HbsiClient
             $hotelRefs[] = '<HotelRef HotelCode="'.$hotelId.'" />';
         }
 
-        $pricesRange = ' ';
-        $pricesRange = isset($params['min_price']) ? $pricesRange.' MinRate="'.number_format($params['min_price'], 2).'" ' : $pricesRange;
-        $pricesRange = isset($params['max_price']) ? $pricesRange.' MaxRate="'.number_format($params['max_price'], 2).'" ' : $pricesRange;
-
         $start = $params['checkin'] ?? '2024-02-10';
         $end = $params['checkout'] ?? '2024-02-15';
         $currency = $params['currency'] ?? '*';
@@ -307,7 +303,7 @@ class HbsiClient
                         <HotelSearchCriteria>
                             <Criterion>
                                 <StayDateRange Start="'.$start.'" Duration="Day" End="'.$end.'"></StayDateRange>
-                                <RateRange '.$pricesRange.' RateTimeUnit="Day" CurrencyCode="'.$currency.'" ></RateRange>
+                                <RateRange RateTimeUnit="Day" CurrencyCode="'.$currency.'" ></RateRange>
                                 <RatePlanCandidates>
                                     <RatePlanCandidate RatePlanCode="*" RPH="1">
                                         <HotelRefs>

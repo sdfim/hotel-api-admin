@@ -38,7 +38,6 @@ use Modules\Inspector\SearchInspectorController;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
-
 /**
  * @OA\PathItem(
  * path="/api/content",
@@ -258,7 +257,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $tag = 'pricing_search';
             $taggedCache = Cache::tags($tag);
 
-            if ($taggedCache->has($keyPricingSearch.':result')) {
+            if (false && $taggedCache->has($keyPricingSearch.':result')) {
                 $res = $taggedCache->get($keyPricingSearch.':result');
             } else {
 
@@ -454,6 +453,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $arr_pricing_search[] = $search_id;
                 $taggedCache->put('arr_pricing_search', $arr_pricing_search, now()->addMinutes(self::TTL));
             }
+
            $res = $this->applyFilters($res);
 
             if (self::PAGINATION_TO_RESULT) {
@@ -470,19 +470,29 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         }
     }
 
-    private function applyFilters(array $result): array
+    private function filterByPrice(array $target , $maxPriceFilter, $minPriceFilter): array
     {
-        $filters = $result['query'];
-        $output = Arr::get($result, 'results.Expedia_both', []);
-
-        $value = collect($output ?? [])->filter(function($hotel) use($filters){
+        return collect($target)->filter(function($hotel) use($maxPriceFilter, $minPriceFilter){
             $hotelMinPrice = $hotel['lowest_priced_room_group'];
-            $maxPriceFilter = Arr::get($filters, 'max_price', null);
-            $minPriceFilter = Arr::get($filters, 'min_price', null);
             return ($maxPriceFilter >= $hotelMinPrice || $maxPriceFilter === null) &&
                 ($minPriceFilter <= $hotelMinPrice || $minPriceFilter === null);
         })->toArray();
+    }
+
+    private function applyFilters(array $result): array
+    {
+        $filters = $result['query'];
+        $maxPriceFilter = Arr::get($filters, 'max_price', null);
+        $minPriceFilter = Arr::get($filters, 'min_price', null);
+
+        $output = Arr::get($result, 'results.Expedia_both', []);
+        $value = $this->filterByPrice($output  ?? [], $maxPriceFilter,$minPriceFilter);
         $result['results']['Expedia_both'] = $value;
+
+        $output = Arr::get($result, 'results.HBSI', []);
+        $value = $this->filterByPrice($output  ?? [], $maxPriceFilter,$minPriceFilter);
+        $result['results']['HBSI'] = $value;
+
         return $result;
     }
 
