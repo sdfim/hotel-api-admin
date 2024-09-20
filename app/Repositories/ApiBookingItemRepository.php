@@ -22,7 +22,7 @@ class ApiBookingItemRepository
 
     public static function getSearchId(string $booking_item): string
     {
-        return ApiBookingItem::where('booking_item', $booking_item)->first()->search_id;
+        return ApiBookingItem::where('booking_item', $booking_item)->first()?->search_id ?? '';
     }
 
     public static function getItemData(string $booking_item): ?array

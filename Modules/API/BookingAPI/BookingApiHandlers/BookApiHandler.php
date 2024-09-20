@@ -62,8 +62,13 @@ class BookApiHandler extends BaseController
      */
     public function book(BookingBookRequest $request): JsonResponse
     {
+        Log::info("BOOK ACTION - START - $request->booking_id"); //$request->booking_id
+        $sts = microtime(true);
+
         $determinant = $this->determinant($request);
         if (! empty($determinant)) {
+            Log::info("BOOK ACTION - END - $request->booking_id", ['error' => $determinant['error']]); //$request->booking_id
+
             return response()->json(['error' => $determinant['error']], 400);
         }
 
@@ -72,6 +77,8 @@ class BookApiHandler extends BaseController
         $items = BookRepository::notBookedItems($request->booking_id);
 
         if (! $items->count()) {
+            Log::info("BOOK ACTION - END - $request->booking_id", ['error' => 'No items to book OR the order cart (booking_id) is complete/booked']); //$request->booking_id
+
             return $this->sendError('No items to book OR the order cart (booking_id) is complete/booked', 'failed');
         }
 
@@ -79,6 +86,8 @@ class BookApiHandler extends BaseController
             $arrItems = $items->pluck('booking_item')->toArray();
             foreach ($request->special_requests as $item) {
                 if (! in_array($item['booking_item'], $arrItems)) {
+                    Log::info("BOOK ACTION - END - $request->booking_id", ['error' => 'special_requests must be in valid booking_item']); //$request->booking_id
+
                     return $this->sendError('special_requests must be in valid booking_item. '.
                         'Valid booking_items: '.implode(',', $arrItems), 'failed');
                 }
@@ -109,12 +118,18 @@ class BookApiHandler extends BaseController
             }
         }
 
+        $totalTime = (microtime(true) - $sts) . ' seconds';
+
         foreach ($data as $item) {
             if (isset($item['error'])) {
+                Log::info("BOOK ACTION - END - $request->booking_id", ['time' => $totalTime, 'error' => $item['error']]); //$request->booking_id
+
                 return $this->sendError($item);
             }
 
             if (isset($item['Error'])) {
+                Log::info("BOOK ACTION - END - $request->booking_id", ['time' => $totalTime, 'error' => $item['Error']]); //$request->booking_id
+
                 return $this->sendError($item);
             }
         }
@@ -126,6 +141,8 @@ class BookApiHandler extends BaseController
         $itemsToDeleteFromCache = BookRepository::bookedBookingItems($request->booking_id);
 //        ClearSearchCacheByBookingItemsJob::dispatch($itemsToDeleteFromCache); // Dispatch job to clear cache
         $this->searchCache->clear($itemsToDeleteFromCache);
+
+        Log::info("BOOK ACTION - END - $request->booking_id", ['time' => $totalTime]); //$request->booking_id
 
         return $this->sendResponse($data, 'success');
     }
