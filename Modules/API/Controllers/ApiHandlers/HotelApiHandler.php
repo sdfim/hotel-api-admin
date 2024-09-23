@@ -492,7 +492,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             if (self::PAGINATION_TO_RESULT) {
                 //                $res = $this->paginate($res, $request->input('page', 1), $request->input('results_per_page', 10));
-                $res = $this->combinedAndPaginate($res, $request->input('page', 1), $request->input('results_per_page', 10), $res['query'] );
+                $res = $this->combinedAndPaginate($res, $request->input('page', 1), $request->input('results_per_page', 50), $res['query'] );
             }
 
             return $this->sendResponse($res, 'success');
