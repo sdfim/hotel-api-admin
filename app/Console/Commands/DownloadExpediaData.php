@@ -475,7 +475,6 @@ class DownloadExpediaData extends Command
             'Customer-Ip' => '5.5.5.5',
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
-            'Test' => 'standard',
         ];
         $params = [
             'since' => Carbon::now()->format('Y-m-d'),

@@ -10,6 +10,8 @@ use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
+use App\Repositories\ApiBookingItemRepository;
+use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ChannelRenository;
 use Exception;
 use GuzzleHttp\Exception\ConnectException;
@@ -63,13 +65,13 @@ class ExpediaBookApiController extends BaseBookApiController
             $response = $this->rapidClient->put($props['path'], $props['paramToken'], $body, $this->headers());
             $dataResponse = json_decode($response->getBody()->getContents());
         } catch (ConnectException $e) {
-            $this->handleException($e, $bookingInspector, 'Connection timeout', 'Connection timeout');
+            $this->handleException($e, $bookingInspector, 'Connection timeout', 'Connection timeout', []);
         } catch (ServerException $e) {
-            $this->handleException($e, $bookingInspector, 'Server error', 'Server error');
+            $this->handleException($e, $bookingInspector, 'Server error', 'Server error', []);
         } catch (RequestException $e) {
-            $this->handleException($e, $bookingInspector, 'Request Exception occurred', $e->getMessage());
+            $this->handleException($e, $bookingInspector, 'Request Exception occurred', $e->getMessage(), []);
         } catch (Exception $e) {
-            $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage());
+            $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage(), []);
         }
 
         if (empty($dataResponse)) {
@@ -94,9 +96,13 @@ class ExpediaBookApiController extends BaseBookApiController
             'supplier_error' => false,
         ];
 
+        Log::info("BOOK ACTION - EXPEDIA - $booking_id", ['filters' => $filters]); //$booking_id
+
         $passengers = BookingRepository::getPassengers($booking_id, $filters['booking_item']);
 
         if (! $passengers) {
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => 'Passengers not found.', 'filters' => $filters]); //$booking_id
+
             return [
                 'error' => 'Passengers not found.',
                 'booking_item' => $filters['booking_item'],
@@ -112,6 +118,7 @@ class ExpediaBookApiController extends BaseBookApiController
         $linkBookItineraries = $dataResponse->links->book->href;
 
         $props = $this->getPathParamsFromLink($linkBookItineraries);
+
 
         $bodyArr['email'] = $filters['booking_contact']['email'];
         $bodyArr['phone'] = $filters['booking_contact']['phone'];
@@ -141,6 +148,12 @@ class ExpediaBookApiController extends BaseBookApiController
 
         $body = json_encode($bodyArr);
         $content = [];
+        $originalRQ = [
+            'params' => $props['paramToken'],
+            'path' => $props['path'],
+            'headers' => $this->headers(),
+            'body' => json_decode($body,true),
+        ];
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $inspectorBook = BookingRepository::newBookingInspector([
@@ -148,77 +161,55 @@ class ExpediaBookApiController extends BaseBookApiController
         ]);
 
         try {
+            Log::info("BOOK ACTION - REQUEST TO EXPEDIA START - EXPEDIA - $booking_id", ['filters' => $filters]); //$booking_id
+            $sts = microtime(true);
             $response = $this->rapidClient->post($props['path'], $props['paramToken'], $body, $this->headers());
+            Log::info("BOOK ACTION - REQUEST TO EXPEDIA FINISH - EXPEDIA - $booking_id", ['time' => (microtime(true) - $sts) . ' seconds','filters' => $filters]); //$booking_id
 
             $content = json_decode($response->getBody()->getContents(), true);
 
             $content['original']['response'] = $content;
-            $content['original']['request']['params'] = $props['paramToken'];
-            $content['original']['request']['body'] = json_decode($body, true);
-            $content['original']['request']['path'] = $props['path'];
-            $content['original']['request']['headers'] = $this->headers();
+            $content['original']['request'] = $originalRQ;
 
-            SaveBookingInspector::dispatch($inspectorBook, array_merge($filters, $bodyArr), $content);
+            $confirmationNumbers = [
+                'confirmation_number' => $content['itinerary_id'] ?? '',
+                'type' => SupplierNameEnum::EXPEDIA->value,
+            ];
+
+            $clientResponse = $this->expediaBookDto->toHotelBookResponseModel($filters, $confirmationNumbers);
+            SaveBookingInspector::dispatch($inspectorBook, $content, $clientResponse);
+
         } catch (ConnectException $e) {
-            $this->handleException($e, $inspectorBook, 'Connection timeout', 'Connection timeout');
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+
+            $this->handleException($e, $inspectorBook, 'Connection timeout', 'Connection timeout', $originalRQ);
         } catch (ServerException $e) {
-            $this->handleException($e, $inspectorBook, 'Server error', 'Server error');
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+
+            $this->handleException($e, $inspectorBook, 'Server error', 'Server error', $originalRQ);
         } catch (RequestException $e) {
-            $this->handleException($e, $inspectorBook, 'Request Exception occurred', $e->getMessage());
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+
+            $this->handleException($e, $inspectorBook, 'Request Exception occurred', $e->getMessage(), $originalRQ);
 
             $error = [
                 'error'          => [...$error['error'], $e->getMessage()],
                 'supplier_error' => true,
             ];
         } catch (Exception $e) {
-            $this->handleException($e, $inspectorBook, 'Unexpected error', $e->getMessage());
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+
+            $this->handleException($e, $inspectorBook, 'Unexpected error', $e->getMessage(), $originalRQ);
         }
 
         if (empty($content)) {
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => 'Empty content', 'filters' => $filters]); //$booking_id
+
             return [];
         }
 
         // Save Book data to Reservation
         SaveReservations::dispatch($booking_id, $filters, $dataPassengers);
-
-        $linkBookRetrieves = $content['links']['retrieve']['href'];
-
-        $inspectorBook = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'book', 'retrieve'.($queryHold ? ':hold' : ''), $bookingInspector->search_type,
-        ]);
-
-        // Booking GET query - Retrieve Booking
-        $props = $this->getPathParamsFromLink($linkBookRetrieves);
-        $dataResponse = [];
-
-        try {
-            $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
-            $dataResponse = json_decode($response->getBody()->getContents(), true);
-            $confirmationNumbers = [
-                'confirmation_number' => $dataResponse['itinerary_id'] ?? '',
-                'type' => SupplierNameEnum::EXPEDIA->value,
-            ];
-            SaveBookingInspector::dispatch($inspectorBook, $dataResponse, $dataResponse);
-        } catch (ConnectException $e) {
-            $this->handleException($e, $inspectorBook, 'Connection timeout', 'Connection timeout');
-        } catch (ServerException $e) {
-            $this->handleException($e, $inspectorBook, 'Server error', 'Server error');
-        } catch (RequestException $e) {
-            $this->handleException($e, $inspectorBook, 'Request Exception occurred', $e->getMessage());
-
-            $error = [
-                'error'          => [...$error['error'], $e->getMessage()],
-                'supplier_error' => true,
-            ];
-        } catch (Exception $e) {
-            $this->handleException($e, $inspectorBook, 'Unexpected error', $e->getMessage());
-        }
-
-        $clientResponse = $dataResponse ? $this->expediaBookDto->toHotelBookResponseModel($filters, $confirmationNumbers) : [];
-
-        if (empty($dataResponse)) {
-            return [];
-        }
 
         $viewSupplierData = $filters['supplier_data'] ?? false;
         if ($viewSupplierData) {
@@ -227,6 +218,13 @@ class ExpediaBookApiController extends BaseBookApiController
             $res = $clientResponse + $this->tailBookResponse($booking_id, $filters['booking_item']);
         }
 
+        $this->saveBookingInfo($filters, $content, $bookingInspector);
+
+        // run retrieveBooking to get the updated booking
+        $item = ApiBookingsMetadataRepository::bookedItem($booking_id, $filters['booking_item'])->first();
+        $this->retrieveBooking($filters, $item);
+
+        // after retrieveBooking, we need to update the ApiBookingsMetadata with the cancellation_paths
         $this->saveBookingInfo($filters, $content, $bookingInspector);
 
         $error = empty($error['error']) ? [] : $error;
@@ -259,7 +257,9 @@ class ExpediaBookApiController extends BaseBookApiController
         foreach ($resolvedResponses as $response) {
             if ($response['state'] === 'fulfilled') {
                 $data = $response['value']->getBody()->getContents();
-                $responses[] = json_decode($data, true);
+                if (!empty(json_decode($data, true))) {
+                    $responses[] = json_decode($data, true);
+                }
             } else {
                 Log::error('ExpediaBookApiHandler | listBookings  failed: '.$response['reason']->getMessage());
                 Log::error($e->getTraceAsString());
@@ -272,34 +272,41 @@ class ExpediaBookApiController extends BaseBookApiController
     public function retrieveBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): ?array
     {
         $booking_id = $filters['booking_id'];
-        $filters['search_id'] = '';
         $filters['booking_item'] = $apiBookingsMetadata->booking_item;
+        $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['booking_item']);
 
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = BookingRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'retrieve_booking', '', $apiBookingsMetadata->search_type,
+            $booking_id, $filters, $supplierId, 'book', 'retrieve', $apiBookingsMetadata->search_type,
         ]);
 
         $props = $this->getPathParamsFromLink($apiBookingsMetadata->booking_item_data['retrieve_path']);
+        $originalRQ = [
+            'params' => $props['paramToken'],
+            'path' => $props['path'],
+            'headers' => $this->headers(),
+        ];
 
         try {
             $response = $this->rapidClient->get($props['path'], $props['paramToken'], $this->headers());
             $dataResponse = json_decode($response->getBody()->getContents(), true);
             $dataResponse['original']['response'] = $dataResponse;
-            $dataResponse['original']['request']['params'] = $props['paramToken'];
-            $dataResponse['original']['request']['path'] = $props['path'];
-            $dataResponse['original']['request']['headers'] = $this->headers();
+            $dataResponse['original']['request'] = $originalRQ;
         } catch (ConnectException $e) {
-            $this->handleException($e, $bookingInspector, 'Connection timeout', 'Connection timeout');
+            $this->handleException($e, $bookingInspector, 'Connection timeout', 'Connection timeout', $originalRQ);
         } catch (ServerException $e) {
-            $this->handleException($e, $bookingInspector, 'Server error', 'Server error');
+            $this->handleException($e, $bookingInspector, 'Server error', 'Server error', $originalRQ);
         } catch (RequestException $e) {
-            $this->handleException($e, $bookingInspector, 'Request Exception occurred', $e->getMessage());
+            $responseBody = $e->getResponse()->getBody()->getContents();
+            $errorData = json_decode($responseBody, true);
+            $errorMessage = $errorData['message'] ?? $e->getMessage();
+            $this->handleException($e, $bookingInspector, 'Request Exception occurred', $errorMessage, $originalRQ);
+            return ['error' => $errorMessage];
         } catch (Exception $e) {
-            $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage());
+            $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage(), $originalRQ);
         }
 
-        $clientDataResponse = ExpediaHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse);
+        $clientDataResponse = ExpediaHotelBookingRetrieveBookingDto::RetrieveBookingToHotelBookResponseModel($filters, $dataResponse['original']['response']);
 
         SaveBookingInspector::dispatch($bookingInspector, $dataResponse, $clientDataResponse);
 
@@ -315,61 +322,77 @@ class ExpediaBookApiController extends BaseBookApiController
      */
     public function cancelBooking(array $filters, ApiBookingsMetadata $apiBookingsMetadata): ?array
     {
+        $booking_id = $filters['booking_id'];
+        $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
+        $inspectorCancel = BookingRepository::newBookingInspector([
+            $booking_id, $filters, $supplierId, 'cancel_booking', 'true', 'hotel',
+        ]);
+
         $room = $apiBookingsMetadata->supplier_booking_item_id;
-        $cancellationPaths = $apiBookingsMetadata->booking_item_data['cancellation_paths'];
 
-        foreach ($cancellationPaths as $cancellationPath) {
-            // Delete item DELETE method query
-            $props = $this->getPathParamsFromLink($cancellationPath);
-            $path = $props['path'];
-            $itineraryId = Arr::get(explode('/', $path), '3', BookingRepository::getItineraryId($filters));
+        $linkDeleteItem = Arr::get($apiBookingsMetadata->booking_item_data, 'cancellation_paths.0', null);
 
-            $bodyArr = [
-                'itinerary_id' => $itineraryId,
-                'room_id' => $room,
+        if (!$linkDeleteItem) {
+            $apiBookingItem = ApiBookingItem::where('booking_item', $apiBookingsMetadata->booking_item)->first();
+            $room_id = json_decode($apiBookingItem->booking_item_data, true)['room_id'];
+            $linkDeleteItem = BookingRepository::getLinkDeleteItem($filters['booking_id'], $apiBookingsMetadata->booking_item, $room_id)[0];
+        }
+
+        // Delete item DELETE method query
+        $props = $this->getPathParamsFromLink($linkDeleteItem);
+        $path = $props['path'];
+        $itineraryId = Arr::get(explode('/', $path), '3', BookingRepository::getItineraryId($filters));
+
+        $bodyArr = [
+            'itinerary_id' => $itineraryId,
+            'room_id' => $room,
+        ];
+        $body = json_encode($bodyArr);
+        $originalRQ = [
+            'params' => $props['paramToken'],
+            'path' => $props['path'],
+            'headers' => $this->headers(),
+            'body' => json_decode($body,true),
+        ];
+
+        try {
+            $response = $this->rapidClient->delete($path, $props['paramToken'], $body, $this->headers());
+            $res = [
+                'booking_item' => $apiBookingsMetadata->booking_item,
+                'room' => $room,
+                'status' => 'Room canceled.',
             ];
-            $body = json_encode($bodyArr);
+            $dataResponse = json_decode($response->getBody()->getContents(), true) ?? $res;
 
-            try {
-                $response = $this->rapidClient->delete($path, $props['paramToken'], $body, $this->headers());
+            $dataResponse['original']['response'] = $dataResponse;
+            $dataResponse['original']['request'] = $originalRQ;
 
-
-                $dataResponse = json_decode($response->getBody()->getContents());
-                $res[] = [
-                    'booking_item' => $apiBookingsMetadata->booking_item,
-                    'room' => $room,
-                    'status' => 'Room canceled.',
-                ];
-
-            } catch (Exception $e) {
-                $responseError = explode('response:', $e->getMessage());
-                $responseErrorArr = json_decode($responseError[1], true);
-                $res[] = [
-                    'booking_item' => $apiBookingsMetadata->booking_item,
-                    'room' => $room,
-                    'status' => $responseErrorArr['message'],
-                ];
-                $dataResponse = $responseErrorArr['message'];
-            }
-
-            $filters['booking_item'] = $apiBookingsMetadata->booking_item;
-            $filters['type'] = 'hotel';
-
-            $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
-            SaveBookingInspector::dispatch([
-                $apiBookingsMetadata->booking_id, $filters, $dataResponse, $res, $supplierId, 'cancel_booking',
-                'true', 'hotel',
-            ]);
+            SaveBookingInspector::dispatch($inspectorCancel, $dataResponse, $res);
+        } catch (Exception $e) {
+            $responseError = explode('response:', $e->getMessage());
+            $responseErrorArr = json_decode($responseError[1], true);
+            $message = $responseErrorArr['message'];
+            $res = [
+                'booking_item' => $apiBookingsMetadata->booking_item,
+                'room' => $room,
+                'status' => $message,
+            ];
+            SaveBookingInspector::dispatch($inspectorCancel, $responseError, $res, 'error',
+                ['side' => 'app', 'message' => $message]);
         }
 
         return $res;
     }
 
-    private function handleException(Exception $e, $bookingInspector, $logMessage, $errorMessage): void
+    private function handleException(Exception $e, $bookingInspector, $logMessage, $errorMessage, $originalRQ): void
     {
         Log::error($logMessage.': '.$e->getMessage());
         Log::error($e->getTraceAsString());
-        SaveBookingInspector::dispatch($bookingInspector, [], [], 'error', ['side' => 'supplier', 'message' => $errorMessage]);
+        $content = [];
+        if ($originalRQ !== null) {
+            $content['original']['request'] = $originalRQ;
+        }
+        SaveBookingInspector::dispatch($bookingInspector, $content, [], 'error', ['side' => 'supplier', 'message' => $errorMessage]);
     }
 
     private function getPathParamsFromLink(string $link): array
@@ -391,7 +414,6 @@ class ExpediaBookApiController extends BaseBookApiController
             'Customer-Ip' => '5.5.5.5',
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
-            'Test' => 'standard',
         ];
     }
 
@@ -399,14 +421,15 @@ class ExpediaBookApiController extends BaseBookApiController
     {
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $roomId = json_decode($bookingInspector->request)?->room_id;
+        $itinerary_id = Arr::get($content, 'itinerary_id');
 
         $filters['supplier_id'] = $supplierId;
         $linkBookRetrieves = Arr::get($content, 'links.retrieve.href');
 
         $reservation = [
-            'bookingId' => $roomId,
-            'cancellation_paths' => BookingRepository::getLinkDeleteItem($filters['booking_id'], $filters['booking_item'], $roomId),
-            'retrieve_path' => $linkBookRetrieves,
+            'bookingId'           => $itinerary_id,
+            'cancellation_paths'  => BookingRepository::getLinkDeleteItem($filters['booking_id'], $filters['booking_item'], $roomId),
+            'retrieve_path'      => $linkBookRetrieves,
         ];
 
         SaveBookingMetadata::dispatch($filters, $reservation);

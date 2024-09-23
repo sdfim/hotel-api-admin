@@ -3,15 +3,13 @@
 namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
 
 use App\Models\ExpediaContent;
-use App\Models\MapperExpediaGiata;
 use App\Repositories\ExpediaContentRepository as ExpediaRepository;
-use App\Repositories\HbsiRepository;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
-use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Modules\API\Tools\Geography;
 
 class ExpediaHotelController
@@ -20,7 +18,7 @@ class ExpediaHotelController
 
     protected float|string $current_time;
 
-    private const RESULT_PER_PAGE = 1000;
+    private const RESULT_PER_PAGE = 5000;
 
     private const PAGE = 1;
 
@@ -35,6 +33,11 @@ class ExpediaHotelController
 
         $resultsPerPage = $filters['results_per_page'] ?? self::RESULT_PER_PAGE;
         $page = $filters['page'] ?? self::PAGE;
+
+        $cacheKey = 'preSearchData_' . md5(json_encode($filters) . $initiator);
+        if (Cache::has($cacheKey)) {
+            return Cache::get($cacheKey);
+        }
 
         try {
             $expedia = new ExpediaContent();
@@ -63,20 +66,20 @@ class ExpediaHotelController
             $query = $expedia->select();
 
             $searchBuilder = new HotelSearchBuilder($query);
-            $results = $searchBuilder->applyFilters($filters);
+            $queryBuilder = $searchBuilder->applyFilters($filters);
 
             $mainDB = config('database.connections.mysql.database');
 
             $selectFields = [
                 'expedia_content_main.*',
-                'expedia_content_slave.images as images',
-                'expedia_content_slave.amenities as amenities',
                 $mainDB.'.mapper_expedia_giatas.expedia_id',
                 $mainDB.'.mapper_expedia_giatas.giata_id',
             ];
 
             if ($initiator === 'search') {
                 $additionalFields = [
+                    'expedia_content_slave.images as images',
+                    'expedia_content_slave.amenities as amenities',
                     'expedia_content_slave.descriptions as descriptions',
                     'expedia_content_slave.checkin as checkin',
                     'expedia_content_slave.checkout as checkout',
@@ -86,7 +89,7 @@ class ExpediaHotelController
                 $selectFields = array_merge($selectFields, $additionalFields);
             }
 
-            $results->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
+            $queryBuilder->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
                 ->leftJoin($mainDB.'.mapper_expedia_giatas', $mainDB.'.mapper_expedia_giatas.expedia_id', '=', 'expedia_content_main.property_id')
                 ->where('expedia_content_main.is_active', 1)
                 ->whereNotNull($mainDB.'.mapper_expedia_giatas.expedia_id')
@@ -95,14 +98,14 @@ class ExpediaHotelController
             if (isset($filters['hotel_name'])) {
                 $hotelNameArr = explode(' ', $filters['hotel_name']);
                 foreach ($hotelNameArr as $hotelName) {
-                    $results->where('expedia_content_main.name', 'like', '%'.$hotelName.'%');
+                    $queryBuilder->where('expedia_content_main.name', 'like', '%'.$hotelName.'%');
                 }
             }
 
-            $count = $results->count();
+            $count = $queryBuilder->count();
             $totalPages = ceil($count / $resultsPerPage);
 
-            $results = $results->offset($resultsPerPage * ($page - 1))
+            $results = $queryBuilder->offset($resultsPerPage * ($page - 1))
                 ->limit($resultsPerPage)
                 ->cursor();
 
@@ -144,12 +147,9 @@ class ExpediaHotelController
     /**
      * @throws \Throwable
      */
-    public function price(array $filters, array $searchInspector): ?array
+    public function price(array $filters, array $searchInspector, array $preSearchData): ?array
     {
         try {
-            $preSearchData = $this->preSearchData($filters, 'price');
-            $filters = $preSearchData['filters'] ?? null;
-
             if (empty($preSearchData['ids'])) {
                 return [
                     'original' => [

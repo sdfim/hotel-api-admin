@@ -21,7 +21,7 @@
             $rating = '';
             foreach ($arr as $key => $value) {
                 if ($key === 'rating') {
-                    foreach (range(1, $value) as $item) {
+                    foreach (range(0, $value) as $item) {
                         $rating .= $ratingIcon;
                     }
                 }
