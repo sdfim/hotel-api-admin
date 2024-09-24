@@ -2,7 +2,7 @@
 
 namespace App\Livewire\PropertyWeighting;
 
-use App\Models\GiataProperty;
+use App\Models\Property;
 use App\Models\PropertyWeighting;
 use App\Models\Supplier;
 use Filament\Forms\Components\Select;
@@ -38,7 +38,7 @@ class UpdatePropertyWeighting extends Component implements HasForms
             ->schema([
                 Select::make('property')
                     ->searchable()
-                    ->getSearchResultsUsing(fn (string $search): array => GiataProperty::select(
+                    ->getSearchResultsUsing(fn (string $search): array => Property::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
                         ->where('name', 'like', "%$search%")
                         ->orWhere('code', $search)
@@ -46,7 +46,7 @@ class UpdatePropertyWeighting extends Component implements HasForms
                         ->pluck('full_name', 'code')
                         ->toArray()
                     )
-                    ->getOptionLabelUsing(fn ($value): ?string => GiataProperty::select(
+                    ->getOptionLabelUsing(fn ($value): ?string => Property::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
                         ->where('code', $value)->first()->full_name)
                     ->live()

@@ -4,10 +4,10 @@ namespace Modules\API\Controllers\ApiHandlers\ContentSuppliers;
 
 use App\Models\GiataGeography;
 use App\Models\GiataPlace;
-use App\Models\GiataProperty;
+use App\Models\Property;
 use App\Models\IcePortalPropery;
 use App\Models\Mapping;
-use App\Repositories\GiataPropertyRepository;
+use App\Repositories\PropertyRepository;
 use App\Repositories\IcePortalRepository;
 use Exception;
 use Illuminate\Http\Client\Pool;
@@ -39,7 +39,7 @@ class IcePortalHotelController
             $tticodes = GiataPlace::where('key', $filters['place'])->first()->tticodes;
             $city_id = 0;
             foreach ($tticodes as $tticode) {
-                $giataData = GiataProperty::where('code', $tticode)->first();
+                $giataData = Property::where('code', $tticode)->first();
                 if ($giataData) {
                     $city_id = $giataData->city_id;
                     break;
@@ -55,7 +55,7 @@ class IcePortalHotelController
             $geographyData = GiataGeography::where('city_id', $city_id)->first();
         }
 
-        $propertyRepository = new GiataPropertyRepository();
+        $propertyRepository = new PropertyRepository();
 
         $results = IcePortalRepository::dataByCity($geographyData->city_name);
         if (count($results) > 0 && ! request()->supplier_data) {
@@ -65,7 +65,7 @@ class IcePortalHotelController
         return $this->icePortalHttpRequest($geographyData, $filters, $propertyRepository);
     }
 
-    public function icePortalHttpRequest(GiataGeography $geographyData, array $filters, GiataPropertyRepository $propertyRepository): array
+    public function icePortalHttpRequest(GiataGeography $geographyData, array $filters, PropertyRepository $propertyRepository): array
     {
         $results = ['$results' => [], 'count' => '0'];
 

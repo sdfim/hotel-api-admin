@@ -14,15 +14,15 @@ class HbsiRepository
         $mainDB = config('database.connections.mysql.database');
         $cacheDB = config('database.connections.mysql_cache.database');
 
-        $results = DB::table($cacheDB.'.giata_properties')
-            ->join($mainDB.'.mappings', $cacheDB.'.giata_properties.code', '=', $mainDB.'.mappings.giata_id')
+        $results = DB::table($cacheDB.'.properties')
+            ->join($mainDB.'.mappings', $cacheDB.'.properties.code', '=', $mainDB.'.mappings.giata_id')
             ->where(is_numeric($input) ? 'city_id' : 'city', $input)
             ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::HBSI->value)
-            ->select($cacheDB.'.giata_properties.code as giata', $cacheDB.'.giata_properties.name', $mainDB.'.mappings.supplier_id as hbsi');
+            ->select($cacheDB.'.properties.code as giata', $cacheDB.'.properties.name', $mainDB.'.mappings.supplier_id as hbsi');
 
         if(isset($filters['hotel_name']))
         {
-            $results->where($cacheDB.'.giata_properties.hotel_name', 'like', '%'.$filters['hotel_name'].'%');
+            $results->where($cacheDB.'.properties.hotel_name', 'like', '%'.$filters['hotel_name'].'%');
         }
 
         $results = $results->get()
@@ -97,18 +97,18 @@ class HbsiRepository
         $mainDB = config('database.connections.mysql.database');
         $cacheDB = config('database.connections.mysql_cache.database');
 
-        $results = DB::table($cacheDB.'.giata_properties')
-            ->where($cacheDB.'.giata_properties.latitude', '>', $minMaxCoordinate['min_latitude'])
-            ->where($cacheDB.'.giata_properties.latitude', '<', $minMaxCoordinate['max_latitude'])
-            ->where($cacheDB.'.giata_properties.longitude', '>', $minMaxCoordinate['min_longitude'])
-            ->where($cacheDB.'.giata_properties.longitude', '<', $minMaxCoordinate['max_longitude'])
-            ->join($mainDB.'.mappings', $cacheDB.'.giata_properties.code', '=', $mainDB.'.mappings.giata_id')
+        $results = DB::table($cacheDB.'.properties')
+            ->where($cacheDB.'.properties.latitude', '>', $minMaxCoordinate['min_latitude'])
+            ->where($cacheDB.'.properties.latitude', '<', $minMaxCoordinate['max_latitude'])
+            ->where($cacheDB.'.properties.longitude', '>', $minMaxCoordinate['min_longitude'])
+            ->where($cacheDB.'.properties.longitude', '<', $minMaxCoordinate['max_longitude'])
+            ->join($mainDB.'.mappings', $cacheDB.'.properties.code', '=', $mainDB.'.mappings.giata_id')
             ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::HBSI->value)
-            ->select($cacheDB.'.giata_properties.code as giata', $cacheDB.'.giata_properties.name', $mainDB.'.mappings.supplier_id as hbsi');
+            ->select($cacheDB.'.properties.code as giata', $cacheDB.'.properties.name', $mainDB.'.mappings.supplier_id as hbsi');
 
         if(isset($filters['hotel_name']))
         {
-            $results->where($cacheDB.'.giata_properties.name', 'like', '%'.$filters['hotel_name'].'%');
+            $results->where($cacheDB.'.properties.name', 'like', '%'.$filters['hotel_name'].'%');
         }
 
         $results = $results->get()

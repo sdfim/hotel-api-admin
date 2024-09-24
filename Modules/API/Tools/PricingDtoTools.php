@@ -4,7 +4,7 @@ namespace Modules\API\Tools;
 
 use App\Models\GiataGeography;
 use App\Models\GiataPlace;
-use App\Models\GiataProperty;
+use App\Models\Property;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -16,7 +16,7 @@ class PricingDtoTools {
         $longitude = Arr::get($query, 'longitude', 0);
 
         if ($latitude == 0 && $longitude == 0) {
-            return GiataProperty::whereIn('code', $giataIds)
+            return Property::whereIn('code', $giataIds)
                 ->select('code', 'city')
                 ->get()
                 ->keyBy('code')
@@ -27,7 +27,7 @@ class PricingDtoTools {
                 })
                 ->toArray();
         } else {
-            return GiataProperty::whereIn('code', $giataIds)
+            return Property::whereIn('code', $giataIds)
                 ->selectRaw('code, rating, name, city, 6371 * 2 * ASIN(SQRT(POWER(SIN((latitude - abs(?)) * pi()/180 / 2), 2) + COS(latitude * pi()/180 ) * COS(abs(?) * pi()/180) * POWER(SIN((longitude - ?) *  pi()/180 / 2), 2))) as distance', [$latitude, $latitude, $longitude])
                 ->get()
                 ->keyBy('code')

@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\GiataProperty;
+use App\Models\Property;
 use App\Models\Mapping;
 use Exception;
 use GuzzleHttp\Client;
@@ -11,6 +11,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
+use Modules\API\Suppliers\Enums\PropertiesSourceEnum;
 
 class DownloadGiataData extends Command
 {
@@ -22,7 +23,7 @@ class DownloadGiataData extends Command
 
     public function handle(): void
     {
-        // GiataProperty::truncate();
+        // Property::truncate();
 
         $this->current_time = microtime(true);
 
@@ -96,7 +97,20 @@ class DownloadGiataData extends Command
         $batchDataMapperHbsi = [];
         $batchData = [];
         $propertyIds = [];
+        $propertiesToNotUpdate = Property::where('property_auto_updates', 0)
+          ->orWhereNot('source', PropertiesSourceEnum::Giata->value)
+          ->get()
+          ->mapWithKeys(function ($value) {
+            return [
+                $value->code => true,
+            ];
+          })
+          ->toArray();
+
         foreach ($proterties as $property) {
+            if (!blank($propertiesToNotUpdate[$property['code']])) {
+              continue;
+            }
 
             $phones = [];
             if (isset($property->Phone)) {
@@ -152,19 +166,19 @@ class DownloadGiataData extends Command
 
         try {
             DB::beginTransaction();
-            GiataProperty::whereIn('code', $propertyIds)->delete();
+            Property::whereIn('code', $propertyIds)->delete();
 
             // can overflow memory. if there is a memory overflow, the following block must be used
-            GiataProperty::insert($batchData);
+            Property::insert($batchData);
             // this block will not overflow memory, but it is slower because it inserts records one by one.
             // foreach ($batchData as $data) {
-            //     GiataProperty::create($data);
+            //     Property::create($data);
             // }
 
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('ImportJsonlData insert GiataProperty ', ['error' => $e->getMessage()]);
+            Log::error('ImportJsonlData insert Property ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
             return false;
@@ -177,7 +191,7 @@ class DownloadGiataData extends Command
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('ImportJsonlData insert MapperHbsiGiata ', ['error' => $e->getMessage()]);
+            Log::error('ImportJsonlData insert Mapping ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
             return false;

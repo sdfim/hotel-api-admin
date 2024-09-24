@@ -3,14 +3,10 @@
 namespace Modules\API\Suppliers\DTO\Expedia;
 
 use App\Models\ExpediaContent;
-use App\Models\GiataGeography;
-use App\Models\GiataPlace;
-use App\Models\GiataProperty;
 use App\Models\Supplier;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;

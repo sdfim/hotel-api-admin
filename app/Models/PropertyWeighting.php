@@ -28,6 +28,6 @@ class PropertyWeighting extends Model
 
     public function giataProperties(): BelongsTo
     {
-        return $this->belongsTo(GiataProperty::class, 'property', 'code');
+        return $this->belongsTo(Property::class, 'property', 'code');
     }
 }
