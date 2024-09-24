@@ -8,11 +8,6 @@ use Monolog\Handler\StreamHandler;
 return [
 
     'channels' => [
-        'multi' => [
-            'driver'       => 'monolog',
-            'channels'     => ['cloudwatch', 'datadog'],
-            'ignore_exceptions' => false,
-        ],
         'cloudwatch' => [
             'driver' => 'monolog',
             'handler' => AwsCloudwatchLogHandler::class,
@@ -32,18 +27,6 @@ return [
             ],
             'level' => env('LOG_LEVEL', 'debug'),
             'region' => env('LOG_CLOUDWATCH_DEFAULT_REGION', 'us-east-1'),
-            'formatter' => JsonFormatter::class,
-            'formatter_with' => [
-                'includeStacktraces' => true,
-            ],
-        ],
-        'datadog' => [
-            'driver'       => 'monolog',
-            'handler'      => StreamHandler::class,
-            'handler_with' => [
-                'stream' => storage_path('logs/laravel-datadog.log'),
-                'level'  => 'debug',
-            ],
             'formatter' => JsonFormatter::class,
             'formatter_with' => [
                 'includeStacktraces' => true,

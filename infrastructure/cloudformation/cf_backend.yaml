@@ -198,9 +198,6 @@ Parameters:
     Description: Aws Access Key Secret for Cloudwatch logging
     Type: String
     Default: ''
-  DatadogApiKey:
-    Description: Datadog Api Key
-    Type: String
   GitHubBackendRepo:
     Default: 'ultimatejetvacations/booking_engine'
     Description: Backend GitHub repository in format user/repo-name or organization-name/repo-name
@@ -369,8 +366,6 @@ Resources:
                 Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
               - Name: LOG_CHANNEL
                 Value: !Ref 'LogChannel'
-              - Name: DATADOG_API_KEY
-                Value: !Ref 'DatadogApiKey'
               - Name: DB_CONNECTION
                 Value: !Ref 'DbConnection'
               - Name: DB_DATABASE
@@ -531,8 +526,6 @@ Resources:
                 Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
               - Name: LOG_CHANNEL
                 Value: !Ref 'LogChannel'
-              - Name: DATADOG_API_KEY
-                Value: !Ref 'DatadogApiKey'
               - Name: DB_CONNECTION
                 Value: !Ref 'DbConnection'
               - Name: DB_DATABASE
@@ -750,8 +743,6 @@ Resources:
                 Value: !Ref 'LogAwsCloudwatchSecretAccessKey'
               - Name: LOG_CHANNEL
                 Value: !Ref 'LogChannel'
-              - Name: DATADOG_API_KEY
-                Value: !Ref 'DatadogApiKey'
               - Name: DB_CONNECTION
                 Value: !Ref 'DbConnection'
               - Name: DB_DATABASE
@@ -1770,9 +1761,6 @@ Resources:
           - '",'
           - '"LOG_CHANNEL":"'
           - !Ref 'LogChannel'
-          - '",'
-          - '"DATADOG_API_KEY":"'
-          - !Ref 'DatadogApiKey'
           - '",'
           - '"DB_CONNECTION":"'
           - !Ref 'DbConnection'
