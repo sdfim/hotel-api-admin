@@ -6,7 +6,6 @@ use App\Models\GiataPlace;
 use App\Models\Mapping;
 use Illuminate\Support\Facades\DB;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
-use Illuminate\Support\Facades\Log;
 
 class HbsiRepository
 {
