@@ -5,7 +5,10 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
-    ->withProviders()
+    ->withProviders([
+        \App\Support\Services\Logging\LoggingServiceProvider::class,
+        \App\Support\Services\UniversalUniqueIdentifier\UniversalUniqueIdentifierServiceProvider::class,
+    ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
@@ -23,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->throttleApi();
         $middleware->api(\App\Http\Middleware\FakeDataEndpoints::class);
+        $middleware->api(\App\Support\Services\UniversalUniqueIdentifier\UniversalUniqueIdentifierMiddleware::class);
 
         $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustProxies::class);
 

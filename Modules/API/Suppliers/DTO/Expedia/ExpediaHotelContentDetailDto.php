@@ -84,7 +84,15 @@ class ExpediaHotelContentDetailDto
 
         $rooms = [];
         if ($supplierResponse->rooms) {
-            foreach ($supplierResponse->rooms as $room) {
+            $_rooms = is_object($supplierResponse->rooms) ? $supplierResponse->rooms : json_decode($supplierResponse->rooms);
+
+            // THIS IS A TEMP LOG TO TEST AN ISSUE
+            if (! is_array($supplierResponse->rooms))
+            {
+                \Log::info('ROOM DETAIL TEMP INFO', ['room' => $supplierResponse->rooms]);
+            }
+
+            foreach ($_rooms as $room) {
                 $amenities = $room->amenities ? json_decode(json_encode($room->amenities), true) : [];
                 $images = [];
                 if (isset($room->images)) {
