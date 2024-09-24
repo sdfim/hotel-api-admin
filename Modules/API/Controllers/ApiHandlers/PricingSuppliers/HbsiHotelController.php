@@ -46,10 +46,10 @@ class HbsiHotelController
             $filters['latitude'] = $geoLocation['latitude'];
             $filters['longitude'] = $geoLocation['longitude'];
 
-            $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset);
+            $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset, $filters);
         } else {
             $minMaxCoordinate = $this->geography->calculateBoundingBox($filters['latitude'], $filters['longitude'], $filters['radius']);
-            $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset);
+            $ids = HbsiRepository::getIdsByCoordinate($minMaxCoordinate, $limit, $offset, $filters);
         }
 
         $endTime = microtime(true) - $timeStart;
