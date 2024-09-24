@@ -110,10 +110,12 @@ class ExpediaHotelController
             $count = $queryBuilder->count();
             $totalPages = ceil($count / $resultsPerPage);
 
+            $results = $queryBuilder->cursor();
+            /*
             $results = $queryBuilder->offset($resultsPerPage * ($page - 1))
                 ->limit($resultsPerPage)
                 ->cursor();
-
+                */
             $ids = collect($results)->pluck('property_id')->toArray();
 
             $results = ExpediaRepository::dtoDbToResponse($results, $fields);
