@@ -17,12 +17,12 @@ class ReportsApiHandler extends BaseController
 
         if ($from = $request->get('from'))
         {
-            $bookings->where('created_at', '>=', Carbon::parse($from)->startOfDay());
+            $bookings->where('created_at', '>=', Carbon::parse($from)->startOfDay()->setTimezone('EST'));
         }
 
         if ($to = $request->get('to'))
         {
-            $bookings->where('created_at', '<=', Carbon::parse($to)->endOfDay());
+            $bookings->where('created_at', '<=', Carbon::parse($to)->endOfDay()->setTimezone('EST'));
         }
 
         $bookings = $bookings->get()->map(fn ($booking) => [
