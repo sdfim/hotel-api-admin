@@ -66,7 +66,7 @@ class ApiBookingsMetadata extends Model
 
     public function hotel(): HasOneThrough
     {
-        if (!in_array([SupplierNameEnum::HBSI->value, SupplierNameEnum::EXPEDIA->value], $this->supplier->name))
+        if (!in_array($this->supplier->name, [SupplierNameEnum::HBSI->value, SupplierNameEnum::EXPEDIA->value]))
         {
             return null;
         }
