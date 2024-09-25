@@ -325,12 +325,14 @@ class HbsiBookApiController extends BaseBookApiController
             }
         } catch (Exception $e) {
             $responseError = explode('response:', $e->getMessage());
+
             $message = isset($responseError[1])
                 ? json_decode($responseError[1], true)['message']
                 : $e->getMessage();
             $res = [
                 'booking_item' => $apiBookingsMetadata->booking_item,
                 'status' => $message,
+                'Error' => $message,
             ];
 
             $dataResponseToSave = is_array($message) ? $message : [];

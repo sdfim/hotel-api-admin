@@ -142,6 +142,8 @@ class BookApiHandler extends BaseController
 //        ClearSearchCacheByBookingItemsJob::dispatch($itemsToDeleteFromCache); // Dispatch job to clear cache
         $this->searchCache->clear($itemsToDeleteFromCache);
 
+        $totalTime = (microtime(true) - $sts) . ' seconds';
+
         Log::info("BOOK ACTION - END - $request->booking_id", ['time' => $totalTime]); //$request->booking_id
 
         return $this->sendResponse($data, 'success');
@@ -309,7 +311,8 @@ class BookApiHandler extends BaseController
         }
 
         if (! empty($errors)) {
-            return $this->sendError($errors);
+            // we need the 3-4 parameters to match force cancellation critirea in the admin crm
+            return $this->sendError($errors, '', 400, $data);
         }
 
         return $this->sendResponse(['result' => $data], 'success');
