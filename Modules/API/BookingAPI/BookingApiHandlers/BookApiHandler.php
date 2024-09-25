@@ -311,6 +311,7 @@ class BookApiHandler extends BaseController
         }
 
         if (! empty($errors)) {
+            // we need the 3-4 parameters to match force cancellation critirea in the admin crm
             return $this->sendError($errors, '', 400, $data);
         }
 
