@@ -26,7 +26,7 @@ class PropertyWeighting extends Model
         return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
-    public function giataProperties(): BelongsTo
+    public function properties(): BelongsTo
     {
         return $this->belongsTo(Property::class, 'property', 'code');
     }

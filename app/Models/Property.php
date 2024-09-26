@@ -52,7 +52,8 @@ class Property extends Model
 
     public function __construct(array $attributes = [])
     {
-        parent::__construct($attributes);
+        $cacheDB = config('database.connections.mysql_cache.database');
+        $this->table = "$cacheDB.properties";
         $this->connection = config('database.active_connections.mysql_cache');
     }
 
