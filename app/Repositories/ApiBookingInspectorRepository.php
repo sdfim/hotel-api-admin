@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Modules\Enums\InspectorStatusEnum;
 use Modules\Enums\ItemTypeEnum;
@@ -202,6 +203,7 @@ class ApiBookingInspectorRepository
             ->where('type', 'book')
             ->where('sub_type', 'create')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->where('created_at', '>', Carbon::now()->subHour())
             ->get()
             ->pluck('booking_item')
             ->toArray();
