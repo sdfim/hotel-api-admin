@@ -8,6 +8,7 @@ use App\Models\Property;
 use Exception;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -40,28 +41,34 @@ class GiataTable extends Component implements HasForms, HasTable
     }
 
     private static function getMapSchema(): array {
-      return [
-          Grid::make(2)
-              ->schema([
-                  Select::make('supplier')
-                      ->label('Supplier')
-                      ->options([
-                          SupplierNameEnum::EXPEDIA->value    => SupplierNameEnum::EXPEDIA->value,
-                          SupplierNameEnum::HBSI->value       => SupplierNameEnum::HBSI->value,
-                          SupplierNameEnum::ICE_PORTAL->value => SupplierNameEnum::ICE_PORTAL->value,
-                      ])
-                      ->default(fn ($record) => $record->mapping?->supplier)
-                      ->required(),
-                  
-                  TextInput::make('supplier_id')
-                      ->label('Supplier ID')
-                      ->default(fn ($record) => $record->mapping?->supplier_id)
-                      ->required(),
-                  
-                  Hidden::make('match_percentage')
-                      ->default(fn ($record) => $record->mapping?->match_percentage ?? 100)
+        return [
+            Grid::make(1)
+                ->schema([
+                    Repeater::make('mappings')
+                        ->label('Mappings')
+                        ->columns(2)
+                        ->schema([
+                            Select::make('supplier')
+                                ->label('Supplier')
+                                ->options(function ($get)
+                                    {
+                                      // $selectedSuppliers = collect($get('mappings'))->pluck('supplier')->toArray();
+                                      $options = array_combine(SupplierNameEnum::getValues(), SupplierNameEnum::getValues());
+                                      return $options;
+                                    })
+                                ->default(fn ($record) => $record->mapping?->supplier)
+                                ->required(),
+
+                            TextInput::make('supplier_id')
+                                ->label('Supplier ID')
+                                ->default(fn ($record) => $record->mapping?->supplier_id)
+                                ->required(),
+
+                            Hidden::make('match_percentage')
+                                ->default(fn ($record) => $record->mapping?->match_percentage ?? 100),
+                        ])
               ])
-      ];
+        ];
     }
 
     private static function getFormSchema(bool $isEditable = true): array
