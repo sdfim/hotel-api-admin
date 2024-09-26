@@ -14,7 +14,6 @@ services:
       DB_USERNAME: admin
       DB_PASSWORD: mysqlsecretpasswd
       REDIS_HOST: redis
-      DATADOG_API_KEY: '${DATADOG_API_KEY:-non_api_key}'
     ports:
       - "8080:80"
     networks:

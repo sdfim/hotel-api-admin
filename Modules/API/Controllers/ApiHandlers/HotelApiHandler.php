@@ -618,6 +618,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         $results['query']['page'] = $page;
         $results['query']['results_per_page'] = $resultsPerPage;
         $results['count_per_page'] = count($pagedResults);
+        $results['count'] = count($mergedResults);
 
         return $results;
     }
@@ -649,8 +650,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             $countResponse += count($expediaResponse);
             $totalPages[$supplierName] = $expediaResponse['total_pages'] ?? 0;
-            $countClientResponse += count($clientResponse[$supplierName]);
-
+            $countClientResponse += count($dtoData['response']);
             unset($expediaResponse, $dtoData);
         }
 
