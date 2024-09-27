@@ -46,7 +46,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 {
     use Timer;
 
-    public const TTL = 60;
+    public const TTL = 0.5;
 
     private const PAGINATION_TO_RESULT = true;
 
