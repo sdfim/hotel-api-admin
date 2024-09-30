@@ -315,6 +315,8 @@ class ExpediaHotelPricingDto
             ]),
             'booking_pricing_data' => json_encode($roomResponse->toArray()),
             'created_at' => Carbon::now(),
+            'hotel_id' => $propertyGroup['giata_id'],
+            'room_id' => $roomGroup['id'],
         ];
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
