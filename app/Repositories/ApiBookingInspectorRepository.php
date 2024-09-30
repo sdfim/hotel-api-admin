@@ -6,6 +6,7 @@ use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use Illuminate\Support\Facades\Storage;
+use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
 use Modules\Enums\InspectorStatusEnum;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
@@ -202,6 +203,7 @@ class ApiBookingInspectorRepository
             ->where('type', 'book')
             ->where('sub_type', 'create')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->where('created_at', '>', Carbon::now()->subMinutes(HotelApiHandler::TTL))
             ->get()
             ->pluck('booking_item')
             ->toArray();
