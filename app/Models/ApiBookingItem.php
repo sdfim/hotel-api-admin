@@ -49,6 +49,8 @@ class ApiBookingItem extends Model
         'booking_item_data',
         'created_at',
         'complete_id',
+        'hotel_id',
+        'room_id',
     ];
 
     public function search(): BelongsTo

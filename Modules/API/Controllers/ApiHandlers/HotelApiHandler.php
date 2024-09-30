@@ -46,7 +46,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 {
     use Timer;
 
-    public const TTL = 0.5;
+    //TODO: TEMPORARILY REDUCED TO 0.5 TO AVOID CACHE CLEAR ISSUES IN Modules/API/Tools/ClearSearchCacheByBookingItemsTools.php
+    public const TTL = 60;
 
     private const PAGINATION_TO_RESULT = true;
 
