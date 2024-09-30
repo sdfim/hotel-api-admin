@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('match_percentage')->default(100); // Nuevo campo agregado
             $table->timestamps();
 
-            $table->unique(['giata_id', 'supplier', 'supplier_id']);
+            $table->unique(['giata_id', 'supplier']);
         });
     }
 
