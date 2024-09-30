@@ -3,6 +3,7 @@
 use App\Support\Services\Logging\Drivers\AwsCloudwatchLogHandler;
 use Aws\CloudWatchLogs\CloudWatchLogsClient;
 use Monolog\Formatter\JsonFormatter;
+use Monolog\Handler\StreamHandler;
 
 return [
 

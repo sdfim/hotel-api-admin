@@ -37,7 +37,6 @@ use Modules\Inspector\SearchInspectorController;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Throwable;
-
 /**
  * @OA\PathItem(
  * path="/api/content",
@@ -47,6 +46,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 {
     use Timer;
 
+    //TODO: TEMPORARILY REDUCED TO 0.5 TO AVOID CACHE CLEAR ISSUES IN Modules/API/Tools/ClearSearchCacheByBookingItemsTools.php
     public const TTL = 60;
 
     private const PAGINATION_TO_RESULT = true;
@@ -258,6 +258,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $keyPricingSearch = $request->type.':pricingSearch:'.http_build_query(Arr::dot($filters)).':'.$token;
             $tag = 'pricing_search';
             $taggedCache = Cache::tags($tag);
+
 
             Log::info('HotelApiHandler _ price _ preparation '.(microtime(true) - $sts).' seconds');
 
@@ -487,11 +488,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $taggedCache->put('arr_pricing_search', $arr_pricing_search, now()->addMinutes(self::TTL));
             }
 
+           $res = $this->applyFilters($res);
             Log::info('HotelApiHandler _ price _ end all time '.(microtime(true) - $stp).' seconds');
 
             if (self::PAGINATION_TO_RESULT) {
                 //                $res = $this->paginate($res, $request->input('page', 1), $request->input('results_per_page', 10));
-                $res = $this->combinedAndPaginate($res, $request->input('page', 1), $request->input('results_per_page', 10));
+                $res = $this->combinedAndPaginate($res, $request->input('page', 1), $request->input('results_per_page', 50), $res['query'] );
             }
 
             return $this->sendResponse($res, 'success');
@@ -501,6 +503,32 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             return $this->sendError($e->getMessage(), 'failed');
         }
+    }
+
+    private function filterByPrice(array $target , $maxPriceFilter, $minPriceFilter): array
+    {
+        return collect($target)->filter(function($hotel) use($maxPriceFilter, $minPriceFilter){
+            $hotelMinPrice = $hotel['lowest_priced_room_group'];
+            return ($maxPriceFilter >= $hotelMinPrice || $maxPriceFilter === null) &&
+                ($minPriceFilter <= $hotelMinPrice || $minPriceFilter === null);
+        })->toArray();
+    }
+
+    private function applyFilters(array $result): array
+    {
+        $filters = $result['query'];
+        $maxPriceFilter = Arr::get($filters, 'max_price', null);
+        $minPriceFilter = Arr::get($filters, 'min_price', null);
+
+        $output = Arr::get($result, 'results.Expedia_both', []);
+        $value = $this->filterByPrice($output  ?? [], $maxPriceFilter,$minPriceFilter);
+        $result['results']['Expedia_both'] = $value;
+
+        $output = Arr::get($result, 'results.HBSI', []);
+        $value = $this->filterByPrice($output  ?? [], $maxPriceFilter,$minPriceFilter);
+        $result['results']['HBSI'] = $value;
+
+        return $result;
     }
 
     /**
@@ -538,7 +566,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         return $results;
     }
 
-    public function combinedAndPaginate(array $results, int $page, int $resultsPerPage): array
+    public function combinedAndPaginate(array $results, int $page, int $resultsPerPage, array $filters): array
     {
         // Merge all supplier results into one array
         $mergedResults = [];
@@ -546,33 +574,36 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $mergedResults = array_merge($mergedResults, $supplierResults);
         }
 
-        // Sort the merged results by 'weight' and 'lowest_priced_room_group'
-        usort($mergedResults, function ($a, $b) use ($results) {
+        if( Arr::get($filters, 'order') === 'cheapest_price') {
+            $mergedResults = collect($mergedResults)->sortBy('lowest_priced_room_group')->values()->toArray();
+        }else{
+            usort($mergedResults, function ($a, $b) use ($results) {
 
-            if (Arr::has($results, 'query.latitude')) {
-                return ($a['distance'] < $b['distance']) ? -1 : 1;
-            }
+                if (Arr::has($results, 'query.latitude')) {
+                    return ($a['distance'] < $b['distance']) ? -1 : 1;
+                }
 
-            // Check if 'weight' key exists and is not zero for both items
-            $aWeightExists = isset($a['weight']) && $a['weight'] != 0;
-            $bWeightExists = isset($b['weight']) && $b['weight'] != 0;
+                // Check if 'weight' key exists and is not zero for both items
+                $aWeightExists = isset($a['weight']) && $a['weight'] != 0;
+                $bWeightExists = isset($b['weight']) && $b['weight'] != 0;
 
-            // If 'weight' key exists and is not zero for both items, compare these
-            if ($aWeightExists && $bWeightExists) {
-                return $b['weight'] <=> $a['weight']; // Changed order for descending sort
-            }
+                // If 'weight' key exists and is not zero for both items, compare these
+                if ($aWeightExists && $bWeightExists) {
+                    return $b['weight'] <=> $a['weight']; // Changed order for descending sort
+                }
 
-            // If 'weight' key exists and is not zero only for one item, that item should come first
-            if ($aWeightExists) {
-                return -1; // $a comes first
-            }
-            if ($bWeightExists) {
-                return 1; // $b comes first
-            }
+                // If 'weight' key exists and is not zero only for one item, that item should come first
+                if ($aWeightExists) {
+                    return -1; // $a comes first
+                }
+                if ($bWeightExists) {
+                    return 1; // $b comes first
+                }
 
-            // If 'weight' key does not exist or is zero for both items, compare 'lowest_priced_room_group'
-            return $a['lowest_priced_room_group'] <=> $b['lowest_priced_room_group'];
-        });
+                // If 'weight' key does not exist or is zero for both items, compare 'lowest_priced_room_group'
+                return $a['lowest_priced_room_group'] <=> $b['lowest_priced_room_group'];
+            });
+        }
 
         // Calculate the offset
         $offset = ($page - 1) * $resultsPerPage;
@@ -588,6 +619,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         $results['query']['page'] = $page;
         $results['query']['results_per_page'] = $resultsPerPage;
         $results['count_per_page'] = count($pagedResults);
+        $results['count'] = count($mergedResults);
 
         return $results;
     }
@@ -619,8 +651,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
             $countResponse += count($expediaResponse);
             $totalPages[$supplierName] = $expediaResponse['total_pages'] ?? 0;
-            $countClientResponse += count($clientResponse[$supplierName]);
-
+            $countClientResponse += count($dtoData['response']);
             unset($expediaResponse, $dtoData);
         }
 

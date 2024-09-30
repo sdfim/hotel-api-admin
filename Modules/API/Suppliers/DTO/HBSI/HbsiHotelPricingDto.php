@@ -423,6 +423,8 @@ class HbsiHotelPricingDto
             'rate_type' => $this->rate_type,
             'booking_pricing_data' => json_encode($booking_pricing_data),
             'created_at' => Carbon::now(),
+            'hotel_id' => $propertyGroup['giata_id'] ?? 0,
+            'room_id' => $rate['id'] ?? $roomType ?? 0,
         ];
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];

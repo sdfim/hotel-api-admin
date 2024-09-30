@@ -1,3 +1,5 @@
+ARG DATADOG_API_KEY
+
 FROM php:8.2-apache-bookworm as baseapache2
 
 RUN apt-get update && apt-get install -y git zip unzip libicu-dev libzip-dev && rm -rf /var/lib/apt/lists/*
