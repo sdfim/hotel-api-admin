@@ -29,6 +29,7 @@ class ExportBookingSupplier extends Command
      */
     public function handle(): void
     {
+        $this->info('Starting '.Carbon::now());
         $exportFilename = 'exports/obe_reservation_hotels_booking_supplier.csv';
         $csvWriter = Writer::createFromString();
 
@@ -52,7 +53,6 @@ class ExportBookingSupplier extends Command
         $bar = $this->output->createProgressBar($total);
         $bar->start();
 
-        $this->info('Starting '.Carbon::now());
         for ($offset = 0; $offset < $total; $offset += self::BATCH)
         {
             $percentage = round(($offset / $total) * 100);
@@ -71,6 +71,6 @@ class ExportBookingSupplier extends Command
             $bar->advance(self::BATCH);
         }
         Storage::put($exportFilename, $csvWriter->toString());
-        $this->info('Finsihed '.Carbon::now());
+        $this->info('Finished '.Carbon::now());
     }
 }
