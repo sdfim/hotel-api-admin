@@ -49,6 +49,9 @@ class ExportBookingSupplier extends Command
             ->select('booking_item', 'supplier_id');
         $total = $query->count();
 
+        $bar = $this->output->createProgressBar($total);
+        $bar->start();
+
         $this->info('Starting '.Carbon::now());
         for ($offset = 0; $offset < $total; $offset += self::BATCH)
         {
@@ -65,6 +68,7 @@ class ExportBookingSupplier extends Command
 
             // $this->info("Finished batch number $batchNumber ".Carbon::now());
             $csvWriter->insertAll($mappedApiBookingItemsBatch);
+            $bar->advance(self::BATCH);
         }
         Storage::put($exportFilename, $csvWriter->toString());
         $this->info('Finsihed '.Carbon::now());
