@@ -24,9 +24,12 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\RewriteUrls::class,
         ]);
 
+        $middleware->use([
+            \App\Support\Services\UniversalUniqueIdentifier\UniversalUniqueIdentifierMiddleware::class
+        ]);
+
         $middleware->throttleApi();
         $middleware->api(\App\Http\Middleware\FakeDataEndpoints::class);
-        $middleware->api(\App\Support\Services\UniversalUniqueIdentifier\UniversalUniqueIdentifierMiddleware::class);
 
         $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustProxies::class);
 
