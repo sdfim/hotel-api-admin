@@ -56,7 +56,7 @@ class ExportBookingSupplier extends Command
         for ($offset = 0; $offset < $total; $offset += self::BATCH)
         {
             $percentage = round(($offset / $total) * 100);
-            $this->info("Offset $offset - $percentage% - ".Carbon::now());
+            //$this->info("Offset $offset - $percentage% - ".Carbon::now());
             $apiBookingItemsBatch= $query->skip($offset)->take(self::BATCH)->get();
 
             $mappedApiBookingItemsBatch = $apiBookingItemsBatch->map(function ($item) use($supplierMap) {
