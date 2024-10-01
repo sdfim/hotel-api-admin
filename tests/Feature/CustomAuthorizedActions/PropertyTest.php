@@ -6,6 +6,7 @@ use App\Livewire\GiataTable;
 use App\Models\Property;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
 
 class PropertyTest extends CustomAuthorizedActionsTestCase
