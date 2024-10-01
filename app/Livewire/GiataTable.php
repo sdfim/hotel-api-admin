@@ -47,26 +47,24 @@ class GiataTable extends Component implements HasForms, HasTable
                     Repeater::make('mappings')
                         ->label('Mappings')
                         ->columns(2)
+                        ->relationship('mappings')
                         ->schema([
                             Select::make('supplier')
                                 ->label('Supplier')
-                                ->options(function ($get)
-                                    {
-                                      // $selectedSuppliers = collect($get('mappings'))->pluck('supplier')->toArray();
-                                      $options = array_combine(SupplierNameEnum::getValues(), SupplierNameEnum::getValues());
-                                      return $options;
-                                    })
-                                ->default(fn ($record) => $record->mapping?->supplier)
-                                ->required(),
+                                ->options(fn ()=> array_combine(SupplierNameEnum::getValues(), SupplierNameEnum::getValues()))
+                                ->default(fn ($record) => $record?->supplier)
+                                ->required()
+                                ->distinct(),
 
                             TextInput::make('supplier_id')
                                 ->label('Supplier ID')
-                                ->default(fn ($record) => $record->mapping?->supplier_id)
+                                ->default(fn ($record) => $record?->supplier_id)
                                 ->required(),
 
                             Hidden::make('match_percentage')
-                                ->default(fn ($record) => $record->mapping?->match_percentage ?? 100),
+                                ->default(fn ($record) => $record?->match_percentage ?? 100),
                         ])
+                        ->default(fn($record) => $record->mappings->toArray())
               ])
         ];
     }
@@ -203,18 +201,6 @@ class GiataTable extends Component implements HasForms, HasTable
         $property->update($data);
     }
 
-    private static function mapProperty (Property $property, array $data) {
-        Mapping::updateOrCreate(
-          ['giata_id' => $property->code],
-          [
-            'giata_id' => $property->code,
-            'supplier_id' => $data['supplier_id'],
-            'supplier' => $data['supplier'],
-            'match_percentage' => $data['match_percentage'],
-          ]
-        );
-    }
-
     /**
      * @throws Exception
      */
@@ -279,8 +265,7 @@ class GiataTable extends Component implements HasForms, HasTable
                         ->label('Map')
                         ->icon('heroicon-m-link')
                         ->modalHeading(fn (Property $record) => 'Property Mapping - ' . $record->code . ' ' . $record->name)
-                        ->form(fn() => GiataTable::getMapSchema())
-                        ->action(fn($record, $data) => GiataTable::mapProperty($record, $data)),
+                        ->form(fn() => GiataTable::getMapSchema()),
                     EditAction::make('edit')
                         ->modalHeading('Property Details - Edit')
                         ->form(fn() => GiataTable::getFormSchema(true))
