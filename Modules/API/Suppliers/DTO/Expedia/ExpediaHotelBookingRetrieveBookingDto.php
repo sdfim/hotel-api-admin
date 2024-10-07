@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace Modules\API\Suppliers\DTO\Expedia;
 
+use App\Models\GiataProperty;
 use App\Repositories\ApiBookingInspectorRepository;
+use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiSearchInspectorRepository;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\BookingAPI\ResponseModels\HotelRetrieveBookingResponseModel as ResponseModel;
 
@@ -23,9 +26,19 @@ class ExpediaHotelBookingRetrieveBookingDto
         $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
         $guests = json_decode($passengersData->request, true)['rooms'];
 
+        $itemPricingData = ApiBookingItemRepository::getItemPricingData($filters['booking_item']);
+        $itemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
+        $status = ApiBookingInspectorRepository::isCancel($filters['booking_item']) ? 'cancelled' : 'booked';
+        $hotelId = Arr::get($itemData, 'hotel_id', null);
+        $property = $hotelId ? GiataProperty::where('code', $hotelId)->first() : null;
+        $hotelName = $property ? $property->name : '';
+
+        $cancellationTerms = [];
+
         $rooms = [];
         foreach ($dataResponse['rooms'] as $k => $room) {
             $rooms[] = [
+                'status' => $room['status'],
                 'checkin' => $room['checkin'],
                 'checkout' => $room['checkout'],
                 'number_of_adults' => $room['number_of_adults'],
@@ -35,30 +48,36 @@ class ExpediaHotelBookingRetrieveBookingDto
                 'room_type' => $room['room_type'] ?? '',
                 'passengers' => $guests[$k] ?? [],
             ];
+
+            foreach (Arr::get($room, 'rate.cancel_penalties', []) as $penalty)
+            {
+                $cancellationTerms[] = ['penalty_start_date' => Arr::get($penalty, 'start')];
+            }
         }
 
         $responseModel = new ResponseModel();
-        $responseModel->setStatus($saveResponse['status']);
-        $responseModel->setBookingId($saveResponse['booking_id']);
-        $responseModel->setBookringItem($saveResponse['booking_item']);
-        $responseModel->setSupplier($saveResponse['supplier']);
-        $responseModel->setHotelName($saveResponse['hotel_name']);
+        $responseModel->setStatus($status);
+        $responseModel->setBookingId($filters['booking_id']);
+        $responseModel->setBookringItem($filters['booking_item']);
+        $responseModel->setSupplier('Expedia');
+        $responseModel->setHotelName($hotelName ?? Arr::get($saveResponse, 'hotel_name', ''));
 
         $responseModel->setRooms($rooms);
 
-        $responseModel->setCancellationTerms($saveResponse['cancellation_terms']);
-        $responseModel->setRate($saveResponse['rate']);
-        $responseModel->setTotalPrice($saveResponse['total_price']);
-        $responseModel->setTotalTax($saveResponse['total_tax']);
-        $responseModel->setTotalFees($saveResponse['total_fees']);
-        $responseModel->setTotalNet($saveResponse['total_net']);
-        $responseModel->setMarkup($saveResponse['markup']);
-        $responseModel->setCurrency($saveResponse['currency']);
-        $responseModel->setPerNightBreakdown($saveResponse['per_night_breakdown']);
+        $responseModel->setCancellationTerms($cancellationTerms);
+        $responseModel->setRate(Arr::get($saveResponse, 'rate', ''));
+        $responseModel->setTotalPrice(Arr::get($itemPricingData, 'total_price', 0));
+        $responseModel->setTotalTax(Arr::get($itemPricingData, 'total_tax', 0));
+        $responseModel->setTotalFees(Arr::get($itemPricingData, 'total_fees', 0));
+        $responseModel->setTotalNet(Arr::get($itemPricingData, 'total_net', 0));
+        $responseModel->setMarkup(Arr::get($itemPricingData, 'markup', 0));
+        $responseModel->setCurrency(Arr::get($itemPricingData, 'currency', ''));
+        $responseModel->setPerNightBreakdown(Arr::get($saveResponse, 'per_night_breakdown', 0));
         $responseModel->setBoardBasis('');
         //        $responseModel->setRoomName('');
         //        $responseModel->setRoomType('');
         $responseModel->setQuery($query);
+
         $responseModel->setSupplierBookId($dataResponse['itinerary_id'] ?? '');
         $responseModel->setConfirmationNumbers([
             'confirmation_number' => $responseModel->getSupplierBookId(),

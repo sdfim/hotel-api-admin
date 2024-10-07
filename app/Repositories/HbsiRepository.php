@@ -5,10 +5,11 @@ namespace App\Repositories;
 use App\Models\GiataPlace;
 use App\Models\MapperHbsiGiata;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class HbsiRepository
 {
-    public static function getIdsByDestinationGiata(string $input, int $limit = 100, int $page = 1): ?array
+    public static function getIdsByDestinationGiata(string $input, int $limit = 100, int $page = 1, array $filters = []): ?array
     {
         $mainDB = config('database.connections.mysql.database');
         $cacheDB = config('database.connections.mysql_cache.database');
@@ -16,8 +17,14 @@ class HbsiRepository
         $results = DB::table($cacheDB.'.giata_properties')
             ->join($mainDB.'.mapper_hbsi_giatas', $cacheDB.'.giata_properties.code', '=', $mainDB.'.mapper_hbsi_giatas.giata_id')
             ->where(is_numeric($input) ? 'city_id' : 'city', $input)
-            ->select($cacheDB.'.giata_properties.code as giata', $cacheDB.'.giata_properties.name', $mainDB.'.mapper_hbsi_giatas.hbsi_id as hbsi')
-            ->get()
+            ->select($cacheDB.'.giata_properties.code as giata', $cacheDB.'.giata_properties.name', $mainDB.'.mapper_hbsi_giatas.hbsi_id as hbsi');
+
+        if(isset($filters['hotel_name']))
+        {
+            $results->where($cacheDB.'.giata_properties.hotel_name', 'like', '%'.$filters['hotel_name'].'%');
+        }
+
+        $results = $results->get()
             ->mapWithKeys(function ($value) {
                 return [
                     $value->hbsi => [
@@ -84,7 +91,7 @@ class HbsiRepository
         ];
     }
 
-    public static function getIdsByCoordinate(array $minMaxCoordinate, int $limit = 100, int $page = 1): array
+    public static function getIdsByCoordinate(array $minMaxCoordinate, int $limit = 100, int $page = 1, $filters = []): array
     {
         $mainDB = config('database.connections.mysql.database');
         $cacheDB = config('database.connections.mysql_cache.database');
@@ -95,8 +102,14 @@ class HbsiRepository
             ->where($cacheDB.'.giata_properties.longitude', '>', $minMaxCoordinate['min_longitude'])
             ->where($cacheDB.'.giata_properties.longitude', '<', $minMaxCoordinate['max_longitude'])
             ->join($mainDB.'.mapper_hbsi_giatas', $cacheDB.'.giata_properties.code', '=', $mainDB.'.mapper_hbsi_giatas.giata_id')
-            ->select($cacheDB.'.giata_properties.code as giata', $cacheDB.'.giata_properties.name', $mainDB.'.mapper_hbsi_giatas.hbsi_id as hbsi')
-            ->get()
+            ->select($cacheDB.'.giata_properties.code as giata', $cacheDB.'.giata_properties.name', $mainDB.'.mapper_hbsi_giatas.hbsi_id as hbsi');
+
+        if(isset($filters['hotel_name']))
+        {
+            $results->where($cacheDB.'.giata_properties.name', 'like', '%'.$filters['hotel_name'].'%');
+        }
+
+        $results = $results->get()
             ->mapWithKeys(function ($value) {
                 return [
                     $value->hbsi => [

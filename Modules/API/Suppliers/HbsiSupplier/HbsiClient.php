@@ -716,6 +716,10 @@ class HbsiClient
 
     private function processResGuestsArrByAge(array $guests, array $filters): array
     {
+        $apiBookingItem = ApiBookingItem::where('booking_item', $filters['booking_item'])->first();
+        $pricingData = json_decode($apiBookingItem->booking_pricing_data, true);
+        $roomCapacity = Arr::get($pricingData, 'capacity', []);
+
         $resGuestsArr = [];
         $index = 0;
         foreach ($guests as $guestRoom) {
@@ -725,7 +729,7 @@ class HbsiClient
                 \Log::info($diff->y);
                 $age = $diff->y < self::AGE_CHILD ? $diff->y : self::AGE_ADULTS;
 
-                $resGuestsArr[$index] = $this->createGuestArrByAge($index, $age, $guest, $filters);
+                $resGuestsArr[$index] = $this->createGuestArrByAge($index, $age, $guest, $filters, $roomCapacity);
                 if ($index === 0) {
                     $this->mainGuest = $resGuestsArr[$index]['Profiles']['ProfileInfo']['Profile']['Customer'];
                 }
@@ -751,11 +755,28 @@ class HbsiClient
         return $guestArr;
     }
 
-    private function createGuestArrByAge(int $index, int $age, array $guest, array $filters): array
+    private function createGuestArrByAge(int $index, int $age, array $guest, array $filters, array $roomCapacity): array
     {
         $guestArr = [];
         $guestArr['@attributes']['ResGuestRPH'] = $index + 1;
         $guestArr['@attributes']['Age'] = $age;
+
+        // we translate the input age to the age expected by the hotel. Added also Arr::has for compatibility for old searches
+        if (Arr::get($roomCapacity, 'unknown', 0) > 0 && Arr::has($roomCapacity, 'children'))
+        {
+            $adults = Arr::get($roomCapacity, 'adults', 0);
+            $children = Arr::get($roomCapacity, 'children', []);
+
+            if ($age === self::AGE_ADULTS && $adults === 0)
+            {
+                $guestArr['@attributes']['Age'] = -1;
+            }
+            elseif ($age !== self::AGE_ADULTS && ! in_array($age, $children))
+            {
+                $guestArr['@attributes']['Age'] = -1;
+            }
+        }
+
         if ($index === 0) {
             $guestArr['Profiles']['ProfileInfo']['Profile']['Customer'] = $this->createCustomerArr($guest, $filters);
         } else {

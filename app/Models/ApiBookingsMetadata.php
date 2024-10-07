@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Modules\Enums\SupplierNameEnum;
 
 class ApiBookingsMetadata extends Model
 {
@@ -60,5 +62,27 @@ class ApiBookingsMetadata extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function hotel(): HasOneThrough
+    {
+        return match($this->supplier->name){
+            SupplierNameEnum::HBSI->value => $this->hasOneThrough(
+                GiataProperty::class,
+                MapperHbsiGiata::class,
+                'hbsi_id', // Foreign key on the MapperHbsiGiata table...
+                'code', // Foreign key on the GiataProperty table...
+                'hotel_supplier_id', // Local key on the ApiBookingsMetadata table...
+                'giata_id' // Local key on the MapperHbsiGiata table...
+            ),
+            SupplierNameEnum::EXPEDIA->value => $this->hasOneThrough(
+                GiataProperty::class,
+                MapperExpediaGiata::class,
+                'expedia_id', // Foreign key on the MapperExpediaGiata table...
+                'code', // Foreign key on the GiataProperty table...
+                'hotel_supplier_id', // Local key on the ApiBookingsMetadata table...
+                'giata_id' // Local key on the MapperExpediaGiata table...
+            ),
+        };
     }
 }

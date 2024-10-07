@@ -65,6 +65,7 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
     {
         $arr_link = explode('?', $link);
         $path = $arr_link[0];
+        $path = str_replace('\\', '', $path);
         $arr_param = explode('=', $arr_link[1]);
         $paramToken = [$arr_param[0] => str_replace('token=', '', $arr_link[1])];
 

@@ -179,6 +179,9 @@ Parameters:
   GiataMainPassword:
     Description: GIATA Main Password
     Type: String
+  GoogleApiDeveloperKey:
+    Description: Google API Developer Key
+    Type: String
   GitHubBackendBranch:
     Default: 'master'
     Description: Backend (api) branch name that will trigger the pipeline (e.g. main, dev)
@@ -355,6 +358,8 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: GOOGLE_API_DEVELOPER_KEY
+                Value: !Ref 'GoogleApiDeveloperKey'
               - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
                 Value: !Ref 'LogAwsCloudwatchAccessKeyId'
               - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
@@ -513,6 +518,8 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: GOOGLE_API_DEVELOPER_KEY
+                Value: !Ref 'GoogleApiDeveloperKey'
               - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
                 Value: !Ref 'LogAwsCloudwatchAccessKeyId'
               - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
@@ -728,6 +735,8 @@ Resources:
                 Value: !Ref 'GiataMainUsername'
               - Name: GIATA_MAIN_PASSWORD
                 Value: !Ref 'GiataMainPassword'
+              - Name: GOOGLE_API_DEVELOPER_KEY
+                Value: !Ref 'GoogleApiDeveloperKey'
               - Name: LOG_AWSCLOUDWATCH_ACCESSKEYID
                 Value: !Ref 'LogAwsCloudwatchAccessKeyId'
               - Name: LOG_AWSCLOUDWATCH_SECRETACCESSKEY
@@ -1740,6 +1749,9 @@ Resources:
           - '",'
           - '"GIATA_MAIN_PASSWORD":"'
           - !Ref 'GiataMainPassword'
+          - '",'
+          - '"GOOGLE_API_DEVELOPER_KEY":"'
+          - !Ref 'GoogleApiDeveloperKey'
           - '",'
           - '"LOG_AWSCLOUDWATCH_ACCESSKEYID":"'
           - !Ref 'LogAwsCloudwatchAccessKeyId'

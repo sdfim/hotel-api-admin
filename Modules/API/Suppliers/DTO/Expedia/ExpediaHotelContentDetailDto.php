@@ -2,8 +2,9 @@
 
 namespace Modules\API\Suppliers\DTO\Expedia;
 
+use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
-use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponse;
+use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponseFactory;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 
@@ -32,8 +33,12 @@ class ExpediaHotelContentDetailDto
         $viewAmenities = request()->get('category_amenities') === 'true';
 
         $address = $supplierResponse->address['line_1'].', '.
-            $supplierResponse->address['city'].' - '.
-            $supplierResponse->address['postal_code'];
+            $supplierResponse->address['city'];
+
+        if ($postalCode = Arr::get($supplierResponse->address, 'postal_code'))
+        {
+            $address .= " - $postalCode";
+        }
 
         $hotelResponse = ContentDetailResponseFactory::create();
         $hotelResponse->setGiataHotelCode($giata_id);
@@ -60,8 +65,16 @@ class ExpediaHotelContentDetailDto
         ]);
         $hotelResponse->setCheckInTime($supplierResponse->checkin_time ?? '');
         $hotelResponse->setCheckOutTime($supplierResponse->checkout_time ?? '');
-        $hotelResponse->setHotelFees($supplierResponse->fees ? json_decode(json_encode($supplierResponse->fees), true) : []);
-        $hotelResponse->setPolicies($supplierResponse->policies ? json_decode(json_encode($supplierResponse->policies), true) : []);
+
+        $fees = $supplierResponse->fees ? json_decode(json_encode($supplierResponse->fees), true) : [];
+        $policies = $supplierResponse->policies ? json_decode(json_encode($supplierResponse->policies), true) : [];
+
+        // These validations are required because for some properties we are receiving [""] for fees/policies
+        $fees = is_string($fees)  ? [] : $fees;
+        $policies = is_string($policies) ? [] : $policies;
+
+        $hotelResponse->setHotelFees($fees);
+        $hotelResponse->setPolicies($policies);
         $hotelResponse->setDescriptions($supplierResponse->descriptions ? json_decode(json_encode($supplierResponse->descriptions), true) : []);
         $hotelResponse->setAddress($supplierResponse->address ? $address : '');
         $hotelResponse->setSupplierInformation([
@@ -71,7 +84,15 @@ class ExpediaHotelContentDetailDto
 
         $rooms = [];
         if ($supplierResponse->rooms) {
-            foreach ($supplierResponse->rooms as $room) {
+            $_rooms = is_object($supplierResponse->rooms) ? $supplierResponse->rooms : json_decode($supplierResponse->rooms);
+
+            // THIS IS A TEMP LOG TO TEST AN ISSUE
+            if (! is_array($supplierResponse->rooms))
+            {
+                \Log::info('ROOM DETAIL TEMP INFO', ['room' => $supplierResponse->rooms]);
+            }
+
+            foreach ($_rooms as $room) {
                 $amenities = $room->amenities ? json_decode(json_encode($room->amenities), true) : [];
                 $images = [];
                 if (isset($room->images)) {
@@ -79,7 +100,7 @@ class ExpediaHotelContentDetailDto
                         $images[] = $image->links->{'350px'}->href;
                     }
                 }
-                $roomResponse = new ContentDetailRoomsResponse();
+                $roomResponse = ContentDetailRoomsResponseFactory::create();
                 $roomResponse->setSupplierRoomId($room->id);
                 $roomResponse->setSupplierRoomName($room->name);
                 if ($viewAmenities) {

@@ -1,0 +1,20 @@
+<?php
+
+namespace Modules\API\ContentAPI\ResponseModels;
+
+class ContentDetailRoomsResponseFactory
+{
+    public static function create(): ContentDetailRoomsResponse
+    {
+        $contentDetailRoomsResponse = new ContentDetailRoomsResponse();
+
+        $contentDetailRoomsResponse->setSupplierRoomId(0);
+        $contentDetailRoomsResponse->setSupplierRoomName('');
+        $contentDetailRoomsResponse->setSupplierRoomCode('');
+        $contentDetailRoomsResponse->setAmenities([]);
+        $contentDetailRoomsResponse->setImages([]);
+        $contentDetailRoomsResponse->setDescriptions('');
+
+        return $contentDetailRoomsResponse;
+    }
+}

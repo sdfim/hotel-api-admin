@@ -3,6 +3,7 @@
 use App\Support\Services\Logging\Drivers\AwsCloudwatchLogHandler;
 use Aws\CloudWatchLogs\CloudWatchLogsClient;
 use Monolog\Formatter\JsonFormatter;
+use Monolog\Handler\StreamHandler;
 
 return [
 
@@ -29,6 +30,9 @@ return [
             'formatter' => JsonFormatter::class,
             'formatter_with' => [
                 'includeStacktraces' => true,
+            ],
+            'processors' => [
+                \App\Support\Services\Logging\Processors\LogCommandInformationProcessor::class,
             ],
         ],
     ],

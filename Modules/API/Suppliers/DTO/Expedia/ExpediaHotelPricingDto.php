@@ -149,42 +149,45 @@ class ExpediaHotelPricingDto
         $roomGroupsResponse->setCurrency($this->currency ?? 'USD');
 
         $rooms = [];
+        $roomsResponse = [];
         $priceRoomData = [];
         foreach ($roomGroup['rates'] as $key => $room) {
-
             foreach ($room['bed_groups'] as $bedGroupKey => $bedGroup)
             {
                 $roomData = $this->setRoomResponse((array) $room, $roomGroup, $propertyGroup, $giataId, $bedGroup);
                 $roomResponse = $roomData['roomResponse'];
                 $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
-                $rooms[$bedGroupKey] = $roomResponse;
-                $priceRoomData[$bedGroupKey] = $pricingRulesApplierRoom;
+                $rooms[$key][$bedGroupKey] = $roomResponse;
+                $roomsResponse[] = $roomResponse;
+                $priceRoomData[$key][$bedGroupKey] = $pricingRulesApplierRoom;
             }
         }
-        $roomGroupsResponse->setRooms($rooms);
+        $roomGroupsResponse->setRooms($roomsResponse);
 
-        $lowestPricedRoom = 100000;
-        $keyLowestPricedRoom = 0;
+        $lowestPricedRoom = 1000000;
+        $keyLowestPricedRoom = array_key_first($priceRoomData); // set first as default
+        $keyLowestPricedBedGroup = array_key_first($priceRoomData[$keyLowestPricedRoom]); // set first as default
+
         foreach ($priceRoomData as $key => $priceRoom) {
-            if ($priceRoom['total_price'] > 0 && $priceRoom['total_price'] < $lowestPricedRoom) {
-                $lowestPricedRoom = $priceRoom['total_price'];
-                $keyLowestPricedRoom = $key;
+            foreach ($priceRoom as $bedGroupKey => $bedGroupPrice) {
+                if ($bedGroupPrice['total_price'] >= 0 && $bedGroupPrice['total_price'] < $lowestPricedRoom) {
+                    $lowestPricedRoom = $bedGroupPrice['total_price'];
+                    $keyLowestPricedRoom = $key;
+                    $keyLowestPricedBedGroup = $bedGroupKey;
+                }
             }
         }
-
-        $cancellationPolicies = $rooms[$keyLowestPricedRoom]['cancellation_policies'];
 
         /** return lowest priced room data */
-        $roomGroupsResponse->setTotalPrice($priceRoomData[$keyLowestPricedRoom]['total_price'] ?? 0.0);
-        $roomGroupsResponse->setTotalTax($priceRoomData[$keyLowestPricedRoom]['total_tax'] ?? 0.0);
-        $roomGroupsResponse->setTotalFees($priceRoomData[$keyLowestPricedRoom]['total_fees'] ?? 0.0);
-        $roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom]['total_net'] ?? 0.0);
-        $roomGroupsResponse->setMarkup($priceRoomData[$keyLowestPricedRoom]['markup'] ?? 0.0);
+        $roomGroupsResponse->setTotalPrice($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['total_price'] ?? 0.0);
+        $roomGroupsResponse->setTotalTax($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['total_tax'] ?? 0.0);
+        $roomGroupsResponse->setTotalFees($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['total_fees'] ?? 0.0);
+        $roomGroupsResponse->setTotalNet($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['total_net'] ?? 0.0);
+        $roomGroupsResponse->setMarkup($priceRoomData[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['markup'] ?? 0.0);
 
-
-        $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom]['non_refundable']);
-        $roomGroupsResponse->setRateId(intval($rooms[$keyLowestPricedRoom]['rate_id']) ?? null);
-        $roomGroupsResponse->setCancellationPolicies($rooms[$keyLowestPricedRoom]['cancellation_policies']);
+        $roomGroupsResponse->setNonRefundable($rooms[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['non_refundable']);
+        $roomGroupsResponse->setRateId(intval($rooms[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['rate_id']) ?? null);
+        $roomGroupsResponse->setCancellationPolicies($rooms[$keyLowestPricedRoom][$keyLowestPricedBedGroup]['cancellation_policies']);
 
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
@@ -284,7 +287,7 @@ class ExpediaHotelPricingDto
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setPackageDeal(Arr::get($rate, 'sale_scenario.package', false));
         $roomResponse->setPromotions($promotions);
-        $roomResponse->setNonRefundable($rate['refundable']);
+        $roomResponse->setNonRefundable(!$rate['refundable']);
 
         $roomResponse->setCurrency($this->currency);
 
@@ -312,6 +315,8 @@ class ExpediaHotelPricingDto
             ]),
             'booking_pricing_data' => json_encode($roomResponse->toArray()),
             'created_at' => Carbon::now(),
+            'hotel_id' => $propertyGroup['giata_id'],
+            'room_id' => $roomGroup['id'],
         ];
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];

@@ -76,6 +76,17 @@ class HbsiService
             $completeBookingItem['booking_pricing_data']['rate_description'][] = $booking_pricing_data['rate_description'];
             $completeBookingItem['booking_pricing_data']['supplier_room_id'][] = $booking_pricing_data['supplier_room_id'];
             $completeBookingItem['booking_pricing_data']['supplier_room_name'][] = $booking_pricing_data['supplier_room_name'];
+
+            $completeBookingItem['booking_pricing_data']['cancellation_policies'][] = [
+                'room' => ($key+1),
+                'booking_item' => $bookingItem->booking_item,
+                'cancellation_policies' => $booking_pricing_data['cancellation_policies'],
+            ];
+            $completeBookingItem['booking_pricing_data']['breakdown'][] = [
+                'room' => ($key+1),
+                'booking_item' => $bookingItem->booking_item,
+                'breakdown' => $booking_pricing_data['breakdown'],
+            ];
         }
 
         $completeBookingItem['booking_item'] = $completeItem;
@@ -97,6 +108,8 @@ class HbsiService
         $completeBookingItem['booking_pricing_data']['rate_description'] = implode(';', $completeBookingItem['booking_pricing_data']['rate_description']);
         $completeBookingItem['booking_pricing_data']['supplier_room_id'] = implode(';', $completeBookingItem['booking_pricing_data']['supplier_room_id']);
         $completeBookingItem['booking_pricing_data']['supplier_room_name'] = implode(';', $completeBookingItem['booking_pricing_data']['supplier_room_name']);
+        $completeBookingItem['booking_pricing_data']['cancellation_policies'] = json_decode(json_encode($completeBookingItem['booking_pricing_data']['cancellation_policies']));
+        $completeBookingItem['booking_pricing_data']['breakdown'] = json_decode(json_encode($completeBookingItem['booking_pricing_data']['breakdown']));
         $completeBookingItem['booking_pricing_data'] = json_encode($completeBookingItem['booking_pricing_data']);
 
         ApiBookingItem::insertOrIgnore($completeBookingItem);

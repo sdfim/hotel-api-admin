@@ -6,7 +6,10 @@ use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Collection;
+use App\Models\ApiBookingsMetadata;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
 use Modules\Enums\InspectorStatusEnum;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
@@ -219,8 +222,15 @@ class ApiBookingInspectorRepository
             [];
     }
 
-    public static function isBook(string $booking_id, string $booking_item): bool
+    public static function isBook(string $booking_id, string $booking_item, bool $validateWithBookingInspector = true): bool
     {
+        if (! $validateWithBookingInspector)
+        {
+            return ApiBookingsMetadata::where('booking_id', $booking_id)
+                ->where('booking_item', $booking_item)
+                ->exists();
+        }
+
         return ApiBookingInspector::where('booking_id', $booking_id)
             ->where('booking_item', $booking_item)
             ->where('type', 'book')
@@ -281,6 +291,7 @@ class ApiBookingInspectorRepository
             ->where('type', 'book')
             ->where('sub_type', 'create')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->where('created_at', '>', Carbon::now()->subMinutes(HotelApiHandler::TTL))
             ->get()
             ->pluck('booking_item')
             ->toArray();
@@ -328,6 +339,15 @@ class ApiBookingInspectorRepository
             ->get();
     }
 
+    public static function isCancel(string $booking_item): bool
+    {
+        return ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'cancel_booking')
+            ->where('sub_type', 'true')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->exists();
+    }
+
     public static function getBookItemsByBookingItem(string $booking_item): ?object
     {
         $bookingInspector = ApiBookingInspector::where('booking_item', $booking_item)
@@ -359,9 +379,9 @@ class ApiBookingInspectorRepository
 
         $token_id = ChannelRenository::getTokenId(request()->bearerToken());
         $booking_item = $query['booking_item'] ?? null;
-        $search_id = $query['search_id'] ?? ($booking_item
+        $search_id = $query['search_id'] ?? $booking_item
             ? ApiBookingItem::where('booking_item', $booking_item)->first()?->search_id
-            : null);
+            : null;
 
         $inspector = new ApiBookingInspector();
         $inspector->booking_id = $booking_id;

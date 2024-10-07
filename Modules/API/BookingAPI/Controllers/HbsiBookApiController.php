@@ -2,19 +2,18 @@
 
 namespace Modules\API\BookingAPI\Controllers;
 
+use App\Jobs\SaveBookingInspector;
 use App\Jobs\SaveBookingItems;
 use App\Jobs\SaveBookingMetadata;
-use App\Jobs\SaveBookingInspector;
 use App\Jobs\SaveReservations;
 use App\Jobs\SaveSearchInspector;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
-use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
-use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiBookingItemRepository;
+use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiSearchInspectorRepository;
 use App\Repositories\HbsiRepository;
 use Exception;
@@ -42,8 +41,14 @@ class HbsiBookApiController extends BaseBookApiController
         '3' => 'UltimateJet',
     ];
 
-    private const CODE_ALREADY_CANCELLED = '95'; // Reservation with ID is already cancelled
-    private const CODE_BOOKING_STILL_CONFIRMED = '394'; // Cancelled after due date
+    private const ALREADY_CANCELLED_CODE = '95';
+
+    private const NON_CANCELLABLE_BOOKING_CODE_ERRORS = [
+        '394', // Cancelled after due date
+        '450', // Reservation Expired
+        '97', // Not Found
+    ];
+
     private const CODE_WRONG_PASSENGER_NAME = '251';
     private const MAX_CANCEL_BOOKING_RETRY_COUNT = 1;
 
@@ -66,9 +71,13 @@ class HbsiBookApiController extends BaseBookApiController
         $filters['search_id'] = $bookingInspector->search_id;
         $filters['booking_item'] = $bookingInspector->booking_item;
 
+        Log::info("BOOK ACTION - HBSI - $booking_id", ['filters' => $filters]); //$booking_id
+
         $passengers = BookingRepository::getPassengers($booking_id, $filters['booking_item']);
 
         if (! $passengers) {
+            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => 'Passengers not found', 'filters' => $filters]); //$booking_id
+
             return [
                 'error' => 'Passengers not found.',
                 'booking_item' => $filters['booking_item'],
@@ -78,6 +87,8 @@ class HbsiBookApiController extends BaseBookApiController
             $dataPassengers = json_decode($passengersArr['request'], true);
         }
         if (! isset($filters['credit_cards'])) {
+            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => 'Credit card not found', 'filters' => $filters]); //$booking_id
+
             return [
                 'error' => 'Credit card not found.',
                 'booking_item' => $filters['booking_item'],
@@ -92,9 +103,14 @@ class HbsiBookApiController extends BaseBookApiController
         $error = true;
         try {
             Log::info('HbsiBookApiController | book | '.json_encode($filters));
+            Log::info("BOOK ACTION - REQUEST TO HBSI START - HBSI - $booking_id", ['filters' => $filters]); //$booking_id
+            $sts = microtime(true);
             $xmlPriceData = $this->hbsiClient->handleBook($filters, $inspectorBook);
+            Log::info("BOOK ACTION - REQUEST TO HBSI FINISH - HBSI - $booking_id", ['time' => (microtime(true) - $sts) . ' seconds','filters' => $filters]); //$booking_id
 
             if (isset($xmlPriceData['error'])) {
+                Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => $xmlPriceData['error'], 'filters' => $filters]); //$booking_id
+
                 return [
                     'error' => $xmlPriceData['error'],
                     'booking_item' => $filters['booking_item'] ?? '',
@@ -133,6 +149,7 @@ class HbsiBookApiController extends BaseBookApiController
             }
 
         } catch (RequestException $e) {
+            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
             Log::error('HbsiBookApiController | book | RequestException '.$e->getResponse()->getBody());
             Log::error($e->getTraceAsString());
 
@@ -145,6 +162,7 @@ class HbsiBookApiController extends BaseBookApiController
                 'supplier' => SupplierNameEnum::HBSI->value,
             ];
         } catch (\Exception $e) {
+            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
             Log::error('HbsiBookApiController | book | Exception '.$e->getMessage());
             Log::error($e->getTraceAsString());
 
@@ -165,6 +183,8 @@ class HbsiBookApiController extends BaseBookApiController
         }
 
         if (! $dataResponse) {
+            Log::info("BOOK ACTION - ERROR - HBSI - $booking_id", ['error' => 'Empty dataResponse', 'filters' => $filters]); //$booking_id
+
             return [];
         }
 
@@ -273,17 +293,20 @@ class HbsiBookApiController extends BaseBookApiController
                 $res = $dataResponse['Errors'];
                 $code = $response->children()->attributes()['Code'];
 
-                if (static::CODE_BOOKING_STILL_CONFIRMED == $code) {
+                if (static::ALREADY_CANCELLED_CODE == $code)
+                {
                     return [
-                        'booking_item' => $apiBookingsMetadata->booking_item,
-                        'status' => 'Room canceled.',
+                        'booking_item'  => $apiBookingsMetadata->booking_item,
+                        'status'        => 'Room canceled.',
                     ];
                 }
 
-                if (static::CODE_ALREADY_CANCELLED == $code) {
+                if (in_array($code, static::NON_CANCELLABLE_BOOKING_CODE_ERRORS))
+                {
                     return [
-                        'booking_item' => $apiBookingsMetadata->booking_item,
-                        'status' => 'Room is already cancelled.',
+                        ...$res,
+                        'booking_item'  => $apiBookingsMetadata->booking_item,
+                        'cancellable'   => false,
                     ];
                 }
 
@@ -318,14 +341,17 @@ class HbsiBookApiController extends BaseBookApiController
             }
         } catch (Exception $e) {
             $responseError = explode('response:', $e->getMessage());
+
             $message = isset($responseError[1])
                 ? json_decode($responseError[1], true)['message']
                 : $e->getMessage();
             $res = [
                 'booking_item' => $apiBookingsMetadata->booking_item,
                 'status' => $message,
+                'Error' => $message,
             ];
-            $dataResponseToSave = $message;
+
+            $dataResponseToSave = is_array($message) ? $message : [];
 
             SaveBookingInspector::dispatch($inspectorCansel, $dataResponseToSave, $res, 'error',
                 ['side' => 'app', 'message' => $message]);
@@ -336,19 +362,20 @@ class HbsiBookApiController extends BaseBookApiController
 
     public function listBookings(): ?array
     {
+        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+        $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
+        $itemsBooked = ApiBookingInspector::where('token_id', $token_id)
+            ->where('supplier_id', $supplierId)
+            ->where('type', 'book')
+            ->where('sub_type', 'create')
+            ->distinct()
+            ->get();
+
+        $filters['booking_id'] = request()->get('booking_id');
         $filters['supplier_data'] = request()->get('supplier_data') ?? false;
-
-        $bookingIds = ApiBookingInspectorRepository::getBookedBookingIdsByChannel();
-
-        $itemsBooked = ApiBookingsMetadataRepository::bookedItemsByBookingIds($bookingIds);
-
         $data = [];
-        foreach ($itemsBooked as $k => $item) {
-            $filters['booking_id'] = $item->booking_id;
+        foreach ($itemsBooked as $item) {
             $data[] = $this->retrieveBooking($filters, $item);
-            if ($k == 5) {
-                break;
-            }
         }
 
         return $data;

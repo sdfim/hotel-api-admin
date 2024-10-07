@@ -232,6 +232,7 @@ class ExpediaBookApiController extends BaseBookApiController
         } catch (RequestException $e) {
             $this->handleException($e, $bookingInspector, 'Request Exception occurred', $e->getMessage(), $originalRQ);
         } catch (Exception $e) {
+            $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage(), []);
             $this->handleException($e, $bookingInspector, 'Unexpected error', $e->getMessage(), $originalRQ);
         }
 
@@ -267,9 +268,13 @@ class ExpediaBookApiController extends BaseBookApiController
             'supplier_error' => false,
         ];
 
+        Log::info("BOOK ACTION - EXPEDIA - $booking_id", ['filters' => $filters]); //$booking_id
+
         $passengers = BookingRepository::getPassengers($booking_id, $filters['booking_item']);
 
         if (! $passengers) {
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => 'Passengers not found.', 'filters' => $filters]); //$booking_id
+
             return [
                 'error' => 'Passengers not found.',
                 'booking_item' => $filters['booking_item'],
@@ -328,7 +333,10 @@ class ExpediaBookApiController extends BaseBookApiController
         ]);
 
         try {
+            Log::info("BOOK ACTION - REQUEST TO EXPEDIA START - EXPEDIA - $booking_id", ['filters' => $filters]); //$booking_id
+            $sts = microtime(true);
             $response = $this->rapidClient->post($props['path'], $props['paramToken'], $body, $this->headers());
+            Log::info("BOOK ACTION - REQUEST TO EXPEDIA FINISH - EXPEDIA - $booking_id", ['time' => (microtime(true) - $sts) . ' seconds','filters' => $filters]); //$booking_id
 
             $content = json_decode($response->getBody()->getContents(), true);
 
@@ -344,10 +352,16 @@ class ExpediaBookApiController extends BaseBookApiController
             SaveBookingInspector::dispatch($inspectorBook, $content, $clientResponse);
 
         } catch (ConnectException $e) {
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+
             $this->handleException($e, $inspectorBook, 'Connection timeout', 'Connection timeout', $originalRQ);
         } catch (ServerException $e) {
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+
             $this->handleException($e, $inspectorBook, 'Server error', 'Server error', $originalRQ);
         } catch (RequestException $e) {
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+
             $this->handleException($e, $inspectorBook, 'Request Exception occurred', $e->getMessage(), $originalRQ);
 
             $error = [
@@ -355,10 +369,14 @@ class ExpediaBookApiController extends BaseBookApiController
                 'supplier_error' => true,
             ];
         } catch (Exception $e) {
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => $e->getMessage(), 'filters' => $filters, 'trace' => $e->getTraceAsString()]); //$booking_id
+
             $this->handleException($e, $inspectorBook, 'Unexpected error', $e->getMessage(), $originalRQ);
         }
 
         if (empty($content)) {
+            Log::info("BOOK ACTION - ERROR - EXPEDIA - $booking_id", ['error' => 'Empty content', 'filters' => $filters]); //$booking_id
+
             return [];
         }
 
@@ -478,7 +496,7 @@ class ExpediaBookApiController extends BaseBookApiController
     {
         $booking_id = $filters['booking_id'];
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
-        $inspectorCansel = BookingRepository::newBookingInspector([
+        $inspectorCancel = BookingRepository::newBookingInspector([
             $booking_id, $filters, $supplierId, 'cancel_booking', 'true', 'hotel',
         ]);
 
@@ -502,6 +520,12 @@ class ExpediaBookApiController extends BaseBookApiController
             'room_id' => $room,
         ];
         $body = json_encode($bodyArr);
+        $originalRQ = [
+            'params' => $props['paramToken'],
+            'path' => $props['path'],
+            'headers' => $this->headers(),
+            'body' => json_decode($body,true),
+        ];
 
         try {
             $response = $this->rapidClient->delete($path, $props['paramToken'], $body, $this->headers());
@@ -512,7 +536,10 @@ class ExpediaBookApiController extends BaseBookApiController
             ];
             $dataResponse = json_decode($response->getBody()->getContents(), true) ?? $res;
 
-            SaveBookingInspector::dispatch($inspectorCansel, $dataResponse, $res);
+            $dataResponse['original']['response'] = $dataResponse;
+            $dataResponse['original']['request'] = $originalRQ;
+
+            SaveBookingInspector::dispatch($inspectorCancel, $dataResponse, $res);
         } catch (Exception $e) {
             $responseError = explode('response:', $e->getMessage());
             $responseErrorArr = json_decode($responseError[1], true);
@@ -522,7 +549,7 @@ class ExpediaBookApiController extends BaseBookApiController
                 'room' => $room,
                 'status' => $message,
             ];
-            SaveBookingInspector::dispatch($inspectorCansel, $responseError, $res, 'error',
+            SaveBookingInspector::dispatch($inspectorCancel, $responseError, $res, 'error',
                 ['side' => 'app', 'message' => $message]);
         }
 
@@ -569,7 +596,6 @@ class ExpediaBookApiController extends BaseBookApiController
             'Customer-Ip' => '5.5.5.5',
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
-            'Test' => 'standard',
         ];
     }
 

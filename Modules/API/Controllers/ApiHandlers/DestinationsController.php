@@ -6,23 +6,31 @@ use App\Models\GiataGeography;
 use App\Models\GiataPlace;
 use App\Models\GiataPoi;
 use Google\Client;
+use Google\Service\Exception;
 use Google\Service\MapsPlaces;
+use Google\Service\MapsPlaces\GoogleMapsPlacesV1AutocompletePlacesRequest;
+use Google\Service\MapsPlaces\GoogleMapsPlacesV1AutocompletePlacesResponseSuggestion;
 use Google\Service\MapsPlaces\GoogleMapsPlacesV1Place;
 use Google\Service\MapsPlaces\GoogleMapsPlacesV1PlaceAddressComponent;
 use Google\Service\MapsPlaces\GoogleMapsPlacesV1SearchTextRequest;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Modules\API\Requests\DestinationRequest;
 use Modules\Enums\SearchSuggestionStrategy;
 
 class DestinationsController
 {
+    /**
+     * @throws Exception
+     */
     public function destinations(DestinationRequest $request): JsonResponse
     {
         if ($request->strategy === SearchSuggestionStrategy::Google->value && $request->giata === null) {
             return response()->json([
                 'success' => true,
-                'data' => $this->getGooglePlaceSuggestions($request),
+                'data' => $this->getGooglePlaceAutocompleteSuggestions($request),
             ]);
         }
 
@@ -220,11 +228,11 @@ class DestinationsController
         return $response;
     }
 
-    private function getGooglePlaceSuggestions(DestinationRequest $request)
+    private function getGooglePlaceTextSearchSuggestions(DestinationRequest $request)
     {
         $client = new Client();
         $client->setApplicationName('OBE');
-        $client->setDeveloperKey('AIzaSyD2WsimQb0Xgu9vIYRrTa1nbS9CBEZBJC0');
+        $client->setDeveloperKey(env('GOOGLE_API_DEVELOPER_KEY'));
 
         $service = new MapsPlaces($client);
 
@@ -263,6 +271,71 @@ class DestinationsController
                 'longitude' => $place->getLocation()->longitude,
             ],
         ]);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function getGooglePlaceAutocompleteSuggestions(DestinationRequest $request)
+    {
+        $client = new Client();
+        $client->setApplicationName('OBE');
+        $client->setDeveloperKey(env('GOOGLE_API_DEVELOPER_KEY'));
+
+        $service = new MapsPlaces($client);
+        $searchCriteria = $request->q;
+
+        $primaryTypes = ['airport', 'hotel', 'resort_hotel', 'country', 'continent'];
+
+        if ($searchCriteria === null) {
+            return collect();
+        }
+
+        // It's probably an airport
+        if (strlen($searchCriteria) === 3) {
+            $searchCriteria .= ' airport';
+            $primaryTypes = ['airport'];
+        }
+
+        $sessionToken = Str::uuid();
+
+        $params = new GoogleMapsPlacesV1AutocompletePlacesRequest();
+        $params->input = $searchCriteria;
+        $params->sessionToken = $sessionToken;
+        $params->includedPrimaryTypes = $primaryTypes;
+        $results = $service->places->autocomplete($params);
+
+        return collect($results->getSuggestions())->map(function (GoogleMapsPlacesV1AutocompletePlacesResponseSuggestion $place) use ($sessionToken)
+        {
+            $types = $place->getPlacePrediction()->getTypes();
+            $type = 'Landmark';
+
+            if (! empty(array_intersect(['hotel', 'resort_hotel', 'lodging'], $types)))
+            {
+                $type = 'Resort';
+            }
+            elseif (in_array('airport', $types))
+            {
+                $type = 'Airport';
+            }
+            elseif (in_array('country', $types))
+            {
+                $type = 'Country';
+            }
+            elseif (in_array('continent', $types))
+            {
+                $type = 'Continent';
+            }
+
+            return [
+                 'full_name' => $place->getPlacePrediction()->getStructuredFormat()->getMainText()->getText(),
+                 'place' => $place->getPlacePrediction()->getPlaceId(),
+                 'session' => $sessionToken,
+                 'country_code' => collect(explode(', ', $place->getPlacePrediction()->getText()->text))->last(),
+                 'type' => $type,
+                 'location' => null,
+                ];
+        });
     }
 
     private function getCleanSearchCriteria(?string $criteria): ?string

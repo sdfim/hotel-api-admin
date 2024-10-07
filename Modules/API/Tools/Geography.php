@@ -3,6 +3,15 @@
 namespace Modules\API\Tools;
 
 use App\Models\GiataProperty;
+use Google\Client;
+use Google\Service\Exception;
+use Google\Service\MapsPlaces;
+use Google\Service\MapsPlaces\GoogleMapsPlacesV1AutocompletePlacesRequest;
+use Google\Service\MapsPlaces\GoogleMapsPlacesV1AutocompletePlacesResponseSuggestion;
+use Google\Service\MapsPlaces\GoogleMapsPlacesV1Place;
+use GuzzleHttp\Psr7\Request;
+use Illuminate\Support\Str;
+use Modules\API\Requests\DestinationRequest;
 
 class Geography
 {
@@ -45,5 +54,34 @@ class Geography
                 $destinationCoordinates['min_longitude'], $destinationCoordinates['max_longitude'],
             ])
             ->first()->city_id ?? null;
+    }
+
+
+    /**
+     * @throws Exception
+     * @throws \Google\Exception
+     */
+    public function getPlaceDetailById(string $id, string $session)
+    {
+        $client = new Client();
+        $client->setDefer(true);
+        $client->setApplicationName('OBE');
+        $client->setDeveloperKey(env('GOOGLE_API_DEVELOPER_KEY'));
+
+        $service = new MapsPlaces($client);
+
+        /** @var Request $results */
+        $request = $service->places->get("places/$id", [
+            'sessionToken'  => $session,
+        ]);
+
+        $request = $request->withHeader('X-Goog-FieldMask', 'displayName,location');
+
+        $place = $client->execute($request, GoogleMapsPlacesV1Place::class);
+
+        return [
+            'latitude'  => $place->getLocation()->latitude,
+            'longitude' => $place->getLocation()->longitude,
+        ];
     }
 }

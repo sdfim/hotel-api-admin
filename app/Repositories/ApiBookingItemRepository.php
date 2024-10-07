@@ -22,7 +22,7 @@ class ApiBookingItemRepository
 
     public static function getSearchId(string $booking_item): string
     {
-        return ApiBookingItem::where('booking_item', $booking_item)->first()->search_id;
+        return ApiBookingItem::where('booking_item', $booking_item)->first()?->search_id ?? '';
     }
 
     public static function getItemData(string $booking_item): ?array
@@ -90,8 +90,18 @@ class ApiBookingItemRepository
         return Arr::get(self::getItemData($booking_item), 'hotel_supplier_id');
     }
 
-    public static function getChildrenBookingItems(string $bookingItem): ?array
+    public static function getParentBookingItem(string $bookingItem): string
+    {
+        if (self::isComlete($bookingItem)) {
+            $parentBookingItem = $bookingItem;
+        } else {
+            $parentBookingItem = ApiBookingItem::where('booking_item', $bookingItem)->first()->complete_id;
+        }
 
+        return $parentBookingItem;
+    }
+
+    public static function getChildrenBookingItems(string $bookingItem): ?array
     {
         return ApiBookingItem::where('booking_item', $bookingItem)->first()?->child_items;
     }

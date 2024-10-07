@@ -41,6 +41,16 @@ class MapperExpediaGiata extends Model
      */
     public $incrementing = false;
 
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $mainDB = config('database.connections.mysql.database');
+
+        $this->table = "$mainDB.mapper_expedia_giatas";
+        $this->connection = config('database.active_connections.mysql');
+    }
+
     public function expedia(): HasOne
     {
         return $this->hasOne(ExpediaContent::class, 'property_id', 'expedia_id');
