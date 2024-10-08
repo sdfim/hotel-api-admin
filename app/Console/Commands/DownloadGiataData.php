@@ -94,7 +94,6 @@ class DownloadGiataData extends Command
         $xml = simplexml_load_string($xmlContent);
         $proterties = $xml->TTI_Property;
 
-        $batchDataMapperHbsi = [];
         $batchData = [];
         $propertyIds = [];
         $propertiesToNotUpdate = Property::where('property_auto_updates', 0)
@@ -149,17 +148,6 @@ class DownloadGiataData extends Command
                 'created_at' => date('Y-m-d H:i:s'),
             ];
 
-            foreach ($property->CrossReferences->CrossReference as $crossReference) {
-                if ((string) $crossReference['Code'] == 'ULTIMATE_JET_VACATIONS' && (string) $crossReference['Status'] !== 'Inactive') {
-                    $batchDataMapperHbsi[] = [
-                        'supplier_id' => $crossReference->Code['HotelCode'],
-                        'giata_id' => (int) $property['Code'],
-                        'supplier' => MappingSuppliersEnum::HBSI->value,
-                        'match_percentage' => 100,
-                    ];
-                }
-            }
-
             $batchData[] = $data;
             $propertyIds[] = $data['code'];
         }
@@ -185,19 +173,6 @@ class DownloadGiataData extends Command
         }
 
         try {
-            DB::beginTransaction();
-            Mapping::hBSI()->whereIn('giata_id', $propertyIds)->delete();
-            Mapping::insert($batchDataMapperHbsi);
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            Log::error('ImportJsonlData insert Mapping ', ['error' => $e->getMessage()]);
-            Log::error($e->getTraceAsString());
-
-            return false;
-        }
-
-        try {
             $url_next = explode('<More_Properties xlink:href=', $xmlContent)[1];
             $url_arr = explode('"', $url_next);
             $url = array_key_exists(1, $url_arr) ? $url_arr[1] : false;
@@ -208,7 +183,7 @@ class DownloadGiataData extends Command
             return false;
         }
 
-        unset($batchData, $batchDataMapperHbsi, $propertyIds, $proterties, $xml, $xmlContent);
+        unset($batchData, $propertyIds, $proterties, $xml, $xmlContent);
 
         return $url;
     }
