@@ -202,7 +202,7 @@ class ExpediaBookApiController extends BaseBookApiController
 
             $this->handleException($e, $inspectorBook, 'Request Exception occurred', $e->getMessage(), $originalRQ);
 
-            $error = [
+            return [
                 'error'          => [...$error['error'], $e->getMessage()],
                 'supplier_error' => true,
             ];
