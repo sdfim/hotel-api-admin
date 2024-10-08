@@ -52,6 +52,7 @@ class Property extends Model
 
     public function __construct(array $attributes = [])
     {
+        parent::__construct($attributes);
         $cacheDB = config('database.connections.mysql_cache.database');
         $this->table = "$cacheDB.properties";
         $this->connection = config('database.active_connections.mysql_cache');
@@ -75,9 +76,9 @@ class Property extends Model
         ];
     }
 
-    public function mapping()
+    public function mappings()
     {
-        return $this->hasOne(Mapping::class, 'giata_id', 'code');
+        return $this->hasMany(Mapping::class, 'giata_id', 'code');
     }
 
     public function mapperExpediaGiata(): HasOne

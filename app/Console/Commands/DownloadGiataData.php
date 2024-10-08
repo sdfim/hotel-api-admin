@@ -107,7 +107,7 @@ class DownloadGiataData extends Command
           ->toArray();
 
         foreach ($proterties as $property) {
-            if (!blank($propertiesToNotUpdate[$property['code']])) {
+            if (isset($propertiesToNotUpdate[$property['code']]) && $propertiesToNotUpdate[$property['code']]) {
               continue;
             }
 
