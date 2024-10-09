@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\API\BookingFlow;
 
+use App\Models\ApiBookingInspector;
+use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
 use App\Models\MapperHbsiGiata;
 use App\Repositories\ApiBookingInspectorRepository;
@@ -61,7 +63,7 @@ class BookingChangeTest extends TestCase
         $response = $this->request()->json(
             'PUT',
             route('changeSoftBooking'),
-            $this->getSoftChangeData()
+            $this->getSoftChangeData(),
         );
 
         $response->assertStatus(200);
@@ -88,9 +90,12 @@ class BookingChangeTest extends TestCase
         $searchRequest = json_decode($apiSearchInspector->request, true);
 
         if (!MapperHbsiGiata::where('hbsi_id','51721')->exists()) {
+            $bookingItem = ApiBookingItem::where('booking_item', self::$bookingItem)->first();
+            $giataId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_id');
             MapperHbsiGiata::insert([
                 ['hbsi_id' => '51721', 'giata_id' => 10767040, 'perc' => 50],
                 ['hbsi_id' => '51721', 'giata_id' => 42851280, 'perc' => 50],
+                ['hbsi_id' => '51721', 'giata_id' => $giataId, 'perc' => 100],
             ]);
         }
         $response = $this->request()->json(
@@ -105,7 +110,7 @@ class BookingChangeTest extends TestCase
                 'checkin' => $searchRequest['checkin'],
                 'checkout' => $searchRequest['checkout'],
                 'occupancy' => [['adults' => 1]],
-            ]
+            ],
         );
 
         $response->assertStatus(200);
@@ -234,11 +239,16 @@ class BookingChangeTest extends TestCase
 
     private function getHardChangeData(): array
     {
+        $changePassengersInspector = ApiBookingInspector::where('booking_id', self::$bookingId)
+            ->where('booking_item', self::$bookingItem)
+            ->where('type', 'change_passengers')->first();;
+        $passengers = json_decode($changePassengersInspector->request, true)['passengers'];
+
         return [
             'booking_id' => self::$bookingId,
             'booking_item' => self::$bookingItem,
             'new_booking_item' => self::$newBookingItem,
-            ...$this->getPassengers(),
+            'passengers' => $passengers,
         ];
     }
 }

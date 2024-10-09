@@ -166,6 +166,6 @@ class HbsiRepository
 
     public static function getByGiataId(string $giataId): ?array
     {
-        return  MapperHbsiGiata::where('giata_id', $giataId)->first()->toArray();
+        return  MapperHbsiGiata::where('giata_id', $giataId)->first()?->toArray();
     }
 }

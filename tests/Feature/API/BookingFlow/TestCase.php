@@ -8,14 +8,18 @@ use App\Models\User;
 use Database\Seeders\GeneralConfigurationSeeder;
 use Database\Seeders\SuppliersSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Tests\RefreshDatabaseMany;
 
 class TestCase extends BaseTestCase
 {
+    use RefreshDatabaseMany;
+
     protected static User $user;
     protected static string $accessToken;
 
     protected function setUp(): void
     {
+        $this->useTransactions = false;
         parent::setUp();
         $this->setUpTestData();
     }
