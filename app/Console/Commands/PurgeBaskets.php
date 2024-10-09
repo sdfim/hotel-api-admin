@@ -60,6 +60,7 @@ class PurgeBaskets extends Command
         }
 
         // Stop bookings with in a number of hours from time of search execution, hours*
+        $deleteBookingItems = [];
         $this->info('PurgeBaskets: Stop bookings with in a number of hours from time of search execution, hours*');
         $kept_hours = GeneralConfiguration::first()->stop_bookings;
         // Is NOT Book Status
