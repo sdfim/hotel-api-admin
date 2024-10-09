@@ -3,20 +3,21 @@
 namespace Tests\Feature\CustomAuthorizedActions;
 
 use App\Livewire\GiataTable;
-use App\Models\GiataProperty;
+use App\Models\Property;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
 
-class GiataPropertyTest extends CustomAuthorizedActionsTestCase
+class PropertyTest extends CustomAuthorizedActionsTestCase
 {
-    private Collection|GiataProperty|Model|null $giata = null;
+    private Collection|Property|Model|null $giata = null;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->giata = GiataProperty::factory()->count(10)->create();
+        $this->giata = Property::factory()->count(10)->create();
     }
 
     /**

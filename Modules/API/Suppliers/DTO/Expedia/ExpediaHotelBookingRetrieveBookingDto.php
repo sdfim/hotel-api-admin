@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\API\Suppliers\DTO\Expedia;
 
-use App\Models\GiataProperty;
+use App\Models\Property;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiSearchInspectorRepository;
@@ -26,7 +26,7 @@ class ExpediaHotelBookingRetrieveBookingDto
         $itemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
         $status = ApiBookingInspectorRepository::isCancel($filters['booking_item']) ? 'cancelled' : 'booked';
         $hotelId = Arr::get($itemData, 'hotel_id', null);
-        $property = $hotelId ? GiataProperty::where('code', $hotelId)->first() : null;
+        $property = $hotelId ? Property::where('code', $hotelId)->first() : null;
         $hotelName = $property ? $property->name : '';
 
         $cancellationTerms = [];

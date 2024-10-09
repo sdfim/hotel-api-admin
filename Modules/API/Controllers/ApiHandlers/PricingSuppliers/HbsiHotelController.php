@@ -2,7 +2,6 @@
 
 namespace Modules\API\Controllers\ApiHandlers\PricingSuppliers;
 
-use App\Repositories\GiataPropertyRepository;
 use App\Repositories\HbsiRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;

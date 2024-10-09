@@ -31,6 +31,9 @@ return [
             'formatter_with' => [
                 'includeStacktraces' => true,
             ],
+            'processors' => [
+                \App\Support\Services\Logging\Processors\LogCommandInformationProcessor::class,
+            ],
         ],
     ],
 

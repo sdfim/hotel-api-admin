@@ -115,10 +115,20 @@ class ExpediaBookApiController extends BaseBookApiController
         $queryHold = $filters['query']['hold'] ?? false;
 
         $dataResponse = json_decode(Storage::get($bookingInspector->response_path));
+
+        /*
+         * With this condition we validate the booking item. It has to have the available status and have the book property
+         * Some bookings has the 'sold_out' status with no book link and this is causing an "undefined property: stdClass::$book" exception
+         */
+        if ($dataResponse->status !== 'available' || ! property_exists($dataResponse->links, 'book'))
+        {
+            return [
+                'error' => ['The room you are trying to book is not available, please try again with another room'],
+            ];
+        }
+
         $linkBookItineraries = $dataResponse->links->book->href;
-
         $props = $this->getPathParamsFromLink($linkBookItineraries);
-
 
         $bodyArr['email'] = $filters['booking_contact']['email'];
         $bodyArr['phone'] = $filters['booking_contact']['phone'];
@@ -192,7 +202,7 @@ class ExpediaBookApiController extends BaseBookApiController
 
             $this->handleException($e, $inspectorBook, 'Request Exception occurred', $e->getMessage(), $originalRQ);
 
-            $error = [
+            return [
                 'error'          => [...$error['error'], $e->getMessage()],
                 'supplier_error' => true,
             ];

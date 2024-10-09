@@ -4,8 +4,8 @@ namespace App\Repositories;
 
 use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
-use App\Models\MapperExpediaGiata;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Mapping;
 
 class ApiSearchInspectorRepository
 {
@@ -111,7 +111,7 @@ class ApiSearchInspectorRepository
 
         $price = json_decode($apiBookingItem->booking_pricing_data, true);
 
-        $expedia_hotel_id = MapperExpediaGiata::where('giata_id', $booking_item_data['hotel_id'])?->first()?->expedia_id;
+        $expedia_hotel_id = Mapping::expedia()->where('giata_id', $booking_item_data['hotel_id'])?->first()?->supplier_id;
 
         return [
             'query' => $client_response['query'],
@@ -173,6 +173,5 @@ class ApiSearchInspectorRepository
         \Log::info('Created ApiSearchInspector:', ['inspector' => $inspector]);
 
         return $inspector->toArray();
-
     }
 }

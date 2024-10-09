@@ -31,7 +31,7 @@ class PropertyWeightingTable extends Component implements HasForms, HasTable
                     ->label('Property code')
                     ->searchable()
                     ->toggleable(),
-                TextColumn::make('giataProperties.name')
+                TextColumn::make('properties.name')
                     ->label('Property name')
                     ->searchable()
                     ->toggleable(),
