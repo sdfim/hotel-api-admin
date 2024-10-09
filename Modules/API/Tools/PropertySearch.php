@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use OpenSearch\ClientBuilder;
 
-class GiataPropertySearch implements SearchInterface
+class PropertySearch implements SearchInterface
 {
     public function available(): bool
     {
@@ -21,7 +21,7 @@ class GiataPropertySearch implements SearchInterface
                 $response = Http::get(config("open-search.connections.$connection.host"));
             }
         } catch (Exception $e) {
-            Log::error('GiataPropertySearch | available | open-search.connections ', [
+            Log::error('PropertySearch | available | open-search.connections ', [
                 'message' => $e->getMessage(),
                 '$connection' => $connection,
                 'user' => config("open-search.connections.$connection.user"),

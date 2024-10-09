@@ -3,8 +3,8 @@
 namespace Modules\API\Suppliers\DTO;
 
 use App\Models\ApiBookingItem;
-use App\Models\GiataProperty;
-use App\Models\MapperHbsiGiata;
+use App\Models\Property;
+use App\Models\Mapping;
 use DateTime;
 use Exception;
 use Illuminate\Support\Facades\Log;
@@ -31,13 +31,13 @@ class BaseHotelBookDto
         //        if ($booking_item_data['hotel_id'] == 0 || $booking_item_data['hotel_id'] == '') {
         //            $booking_item_data['hotel_id'] = MapperHbsiGiata::where('hbsi_id', $booking_item_data['hotel_supplier_id'])->first()->giata_id;
         //        }
-        //        $hotelName = GiataProperty::where('code', $booking_item_data['hotel_id'])->first()->name;
+        //        $hotelName = Property::where('code', $booking_item_data['hotel_id'])->first()->name;
 
         $hotel_id = '';
         $hotelName = '';
         if (! isset($booking_item_data['hotel_id']) || $booking_item_data['hotel_id'] == 0 || $booking_item_data['hotel_id'] == '') {
             if (isset($booking_item_data['hotel_supplier_id'])) {
-                $mapper = MapperHbsiGiata::where('hbsi_id', $booking_item_data['hotel_supplier_id'])->first();
+                $mapper = Mapping::hBSI()->where('supplier_id', $booking_item_data['hotel_supplier_id'])->first();
                 if ($mapper) {
                     $booking_item_data['hotel_id'] = $mapper->giata_id;
                 } else {
@@ -50,11 +50,11 @@ class BaseHotelBookDto
 
         if (isset($booking_item_data['hotel_id'])) {
             $hotel_id = $booking_item_data['hotel_id'];
-            $property = GiataProperty::where('code', $booking_item_data['hotel_id'])->first();
+            $property = Property::where('code', $booking_item_data['hotel_id'])->first();
             if ($property) {
                 $hotelName = $property->name;
             } else {
-                Log::error('toHotelBookResponseModel | Unable to find GiataProperty for hotel_id: '.$booking_item_data['hotel_id']);
+                Log::error('toHotelBookResponseModel | Unable to find Property for hotel_id: '.$booking_item_data['hotel_id']);
             }
         } else {
             Log::error('toHotelBookResponseModel | hotel_id is not set in booking_item_data');

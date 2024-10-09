@@ -2,10 +2,11 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use App\Models\MapperExpediaGiata;
+use App\Models\Mapping;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
 class MappingExpediaGiatasController extends Controller
 {
@@ -17,22 +18,25 @@ class MappingExpediaGiatasController extends Controller
         $expedia_id = $request->get('expedia_id');
         $giata_id = $request->get('giata_id');
         $giata_last_id = $request->get('giata_last_id') ?? null;
-        $mapper = MapperExpediaGiata::where('expedia_id', $expedia_id)->where('giata_id', $giata_last_id)->first();
+        $mapper = Mapping::expedia()->where('supplier_id', $expedia_id)->where('giata_id', $giata_last_id)->first();
 
         if (is_null($giata_id)) {
-            DB::table('mapper_expedia_giatas')
-                ->where('expedia_id', $expedia_id)
+            DB::table('mappings')
+                ->where('supplier_id', $expedia_id)
                 ->where('giata_id', $giata_last_id)
+                ->where('supplier', MappingSuppliersEnum::Expedia->value)
                 ->delete();
         } elseif ($mapper) {
-            DB::table('mapper_expedia_giatas')
-                ->where('expedia_id', $expedia_id)
+            DB::table('mappings')
+                ->where('supplier_id', $expedia_id)
                 ->where('giata_id', $giata_last_id)
+                ->where('supplier', MappingSuppliersEnum::Expedia->value)
                 ->update(['giata_id' => $giata_id]);
         } else {
-            MapperExpediaGiata::create([
-                'expedia_id' => $expedia_id,
+            Mapping::create([
+                'supplier_id' => $expedia_id,
                 'giata_id' => $giata_id,
+                'supplier' => MappingSuppliersEnum::Expedia->value,
                 'step' => 100,
             ]);
         }
@@ -45,8 +49,7 @@ class MappingExpediaGiatasController extends Controller
      */
     public function destroy(string $id): RedirectResponse
     {
-        //
-        $channels = MapperExpediaGiata::findOrFail($id);
+        $channels = Mapping::expedia()->where('supplier_id', $id)->firstOrFail();
         $channels->delete();
 
         return redirect()->route('expedia.index')

@@ -2,7 +2,7 @@
 
 namespace Modules\API\Tools;
 
-use App\Models\GiataProperty;
+use App\Models\Property;
 use Google\Client;
 use Google\Service\Exception;
 use Google\Service\MapsPlaces;
@@ -47,7 +47,7 @@ class Geography
     {
         $destinationCoordinates = $this->calculateBoundingBox($latitude, $longitude, $radius);
 
-        return GiataProperty::whereBetween('latitude', [
+        return Property::whereBetween('latitude', [
             $destinationCoordinates['min_latitude'], $destinationCoordinates['max_latitude'],
         ])
             ->whereBetween('longitude', [

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class GiataProperty extends Model
+class Property extends Model
 {
     use HasFactory;
 
@@ -14,11 +14,6 @@ class GiataProperty extends Model
      * @var mixed
      */
     protected $connection;
-
-    /**
-     * @var string
-     */
-    protected $primaryKey = 'code';
 
     /**
      * @var bool
@@ -39,19 +34,27 @@ class GiataProperty extends Model
         'locale_id',
         'address',
         'mapper_address',
+        'mapper_postal_code',
+        'mapper_phone_number',
         'phone',
         'position',
+        'rating',
         'latitude',
         'longitude',
         'url',
         'cross_references',
+        'source',
+        'property_auto_updates',
+        'content_auto_updates',
     ];
 
-    protected $table = 'giata_properties';
+    protected $table = 'properties';
 
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
+        $cacheDB = config('database.connections.mysql_cache.database');
+        $this->table = "$cacheDB.properties";
         $this->connection = config('database.active_connections.mysql_cache');
     }
 
@@ -68,12 +71,20 @@ class GiataProperty extends Model
             'phone' => 'json',
             'position' => 'json',
             'cross_references' => 'json',
+            'rating' => 'double',
+            'url' => 'array'
         ];
+    }
+
+    public function mappings()
+    {
+        return $this->hasMany(Mapping::class, 'giata_id', 'code');
     }
 
     public function mapperExpediaGiata(): HasOne
     {
-        return $this->hasOne(MapperExpediaGiata::class, 'giata_id', 'code');
+        return $this->hasOne(Mapping::class, 'giata_id', 'code')
+            ->expedia();
     }
 
     public function giataGeography(): HasOne
@@ -83,7 +94,8 @@ class GiataProperty extends Model
 
     public function hbsi(): HasOne
     {
-        return $this->hasOne(MapperHbsiGiata::class, 'giata_id', 'code')
+        return $this->hasOne(Mapping::class, 'giata_id', 'code')
+            ->hBSI()
             ->connection(config('database.connections.mysql_cache'));
     }
 }

@@ -46,3 +46,6 @@ php artisan download-giata-data
       * Password: `C5EV0gEU9OnlS5r`
       * Password: `C5EV0gEU9OnlS5r`
       * See [UsersSeeder.php](../database/seeders/UserSeeder.php)
+
+
+* If expedia needs to be tested locally, go to confluence booking engine installation document, and download the expedia_obe.zip file. It contains two scripts to be run, containing a portion of the expedia data, as downloading everything is too heavy.

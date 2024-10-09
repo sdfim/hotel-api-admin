@@ -2,10 +2,7 @@
 
 namespace Modules\API\Suppliers\DTO\HBSI;
 
-use App\Models\GiataPlace;
-use App\Models\GiataProperty;
 use App\Models\Supplier;
-use App\Repositories\GiataGeographyRepository;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
