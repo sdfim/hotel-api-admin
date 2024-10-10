@@ -31,7 +31,7 @@ use Livewire\Component;
 use Modules\Enums\SupplierNameEnum;
 use stdClass;
 
-class GiataTable extends Component implements HasForms, HasTable
+class PropertiesTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
@@ -65,6 +65,7 @@ class GiataTable extends Component implements HasForms, HasTable
                                 ->default(fn ($record) => $record?->match_percentage ?? 100),
                         ])
                         ->default(fn($record) => $record->mappings->toArray())
+                        ->addActionLabel('Add a Mapping'),
               ])
         ];
     }
@@ -93,10 +94,10 @@ class GiataTable extends Component implements HasForms, HasTable
                               ->orderBy('city_name')
                               ->pluck('city_name', 'city_id')
                               ->toArray())
-                          ->getOptionLabelUsing(fn ($value) => GiataTable::getCityById($value)->city_name)
+                          ->getOptionLabelUsing(fn ($value) => PropertiesTable::getCityById($value)->city_name)
                           ->reactive()
                           ->afterStateUpdated(function ($set, $state) {
-                              $city = GiataTable::getCityById($state);
+                              $city = PropertiesTable::getCityById($state);
 
                               $set('locale_id', $city->locale_id);
                               $set('locale', $city->locale_name);
@@ -162,14 +163,14 @@ class GiataTable extends Component implements HasForms, HasTable
     private static function preparePropertyData (array $data) {
         $data['property_auto_updates'] = 0;
         $data['city_id'] = (int) $data['city_id'];
-        $data['city'] = GiataTable::getCityById($data['city_id'])->city_name;
+        $data['city'] = PropertiesTable::getCityById($data['city_id'])->city_name;
         return $data;
     }
 
     private static function createProperty (array $data) {
-        $data = GiataTable::preparePropertyData($data);
+        $data = PropertiesTable::preparePropertyData($data);
         // $data['source'] = PropertiesSourceEnum::Custom->value;
-        $city = GiataTable::getCityById($data['city_id']);
+        $city = PropertiesTable::getCityById($data['city_id']);
         $data['cross_references'] = new stdClass(); // Empty Object
         $data['address'] = [
             "UseType"       => "7",
@@ -197,7 +198,7 @@ class GiataTable extends Component implements HasForms, HasTable
     }
 
     private static function updateProperty (Property $property, array $data) {
-        $data = GiataTable::preparePropertyData($data);
+        $data = PropertiesTable::preparePropertyData($data);
         $property->update($data);
     }
 
@@ -212,8 +213,8 @@ class GiataTable extends Component implements HasForms, HasTable
               CreateAction::make()
                 ->label('Create')
                 ->modalHeading('Create new property')
-                ->form(fn() => GiataTable::getFormSchema(true))
-                ->mutateFormDataUsing(fn (array $data) => GiataTable::createProperty($data))
+                ->form(fn() => PropertiesTable::getFormSchema(true))
+                ->mutateFormDataUsing(fn (array $data) => PropertiesTable::createProperty($data))
             ])
             ->query(Property::query())
             ->columns([
@@ -228,7 +229,7 @@ class GiataTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->sortable()
                     ->searchable(isIndividual: true)
-                    ->view('dashboard.giata.column.name-field'),
+                    ->view('dashboard.properties.column.name-field'),
                 TextColumn::make('city')
                     ->sortable()
                     ->toggleable()
@@ -258,20 +259,24 @@ class GiataTable extends Component implements HasForms, HasTable
                     ->label('Phone')
                     ->toggleable()
                     ->searchable(isIndividual: true),
+                TextColumn::make('source')
+                    ->label('Type')
+                    ->toggleable()
+                    ->searchable(isIndividual: true),
             ])
             ->actions([
               ActionGroup::make([
                     Action::make('map')
-                        ->label('Map')
+                        ->label('Mappings')
                         ->icon('heroicon-m-link')
                         ->modalHeading(fn (Property $record) => 'Property Mapping - ' . $record->code . ' ' . $record->name)
-                        ->form(fn() => GiataTable::getMapSchema()),
+                        ->form(fn() => PropertiesTable::getMapSchema()),
                     EditAction::make('edit')
                         ->modalHeading('Property Details - Edit')
-                        ->form(fn() => GiataTable::getFormSchema(true))
-                        ->action(fn($record, $data) => GiataTable::updateProperty($record, $data)),
+                        ->form(fn() => PropertiesTable::getFormSchema(true))
+                        ->action(fn($record, $data) => PropertiesTable::updateProperty($record, $data)),
                     ViewAction::make('view')
-                        ->form(fn() => GiataTable::getFormSchema(false))
+                        ->form(fn() => PropertiesTable::getFormSchema(false))
                         ->modalHeading('Property Details - View'),
                 ]),
             ]);
@@ -279,6 +284,6 @@ class GiataTable extends Component implements HasForms, HasTable
 
     public function render(): View
     {
-        return view('livewire.giata-table');
+        return view('livewire.properties-table');
     }
 }

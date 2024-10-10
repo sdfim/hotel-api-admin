@@ -1,17 +1,17 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Giata') }}
+    {{ __('Properties') }}
 @endsection
 @section('content')
     <!-- -->
-    <x-page-title title="Giata" pagetitle="index"/>
+    <x-page-title title="Properties" pagetitle="index"/>
 
     <div class="grid grid-cols-12 gap-5">
         <div class="col-span-12">
             <div class="card dark:bg-zinc-800 dark:border-zinc-600">
                 <div
                     class="card-body relative overflow-x-auto text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
-                    @livewire('giata-table')
+                    @livewire('properties-table')
                 </div>
             </div>
         </div>
