@@ -2,7 +2,7 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use App\Models\GiataProperty;
+use App\Models\Property;
 use Illuminate\Contracts\View\View;
 
 class GiataController extends Controller
@@ -26,7 +26,7 @@ class GiataController extends Controller
     public function show(string $id): View
     {
         $text = $this->message;
-        $giata = GiataProperty::where('code', $id)->first();
+        $giata = Property::where('code', $id)->first();
 
         return view('dashboard.giata.show', compact('giata', 'text'));
     }

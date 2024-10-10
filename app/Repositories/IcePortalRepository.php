@@ -2,8 +2,9 @@
 
 namespace App\Repositories;
 
-use App\Models\GiataProperty;
+use App\Models\Property;
 use Illuminate\Support\Facades\DB;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
 class IcePortalRepository
 {
@@ -18,9 +19,10 @@ class IcePortalRepository
 
         $results = DB::connection('mysql_cache')
             ->table("$cacheDB.ice_hbsi_properties")
-            ->leftJoin("$mainDB.mapper_ice_portal_giatas", "$cacheDB.ice_hbsi_properties.code", '=', "{$mainDB}.mapper_ice_portal_giatas.ice_portal_id")
+            ->leftJoin("$mainDB.mappings", "$cacheDB.ice_hbsi_properties.code", '=', "{$mainDB}.mappings.supplier_id")
+            ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::IcePortal->value)
             ->where('city', $city)
-            ->select("$cacheDB.ice_hbsi_properties.*", "$mainDB.mapper_ice_portal_giatas.*")
+            ->select("$cacheDB.ice_hbsi_properties.*", "$mainDB.mappings.*")
             ->get()
             ->map(function ($value) {
                 return (array) $value;
@@ -28,9 +30,9 @@ class IcePortalRepository
             ->toArray();
 
         foreach ($results as &$result) {
-            if (isset($result['mapper_ice_portal_giatas']) && $result['mapper_ice_portal_giatas'] != null) {
-                $result['giata_id'] = $result['mapper_ice_portal_giatas'][0]['giata_id'];
-                $result['perc'] = $result['mapper_ice_portal_giatas'][0]['perc'];
+            if (isset($result['mappings']) && $result['mappings'] != null) {
+                $result['giata_id'] = $result['mappings'][0]['giata_id'];
+                $result['perc'] = $result['mappings'][0]['match_percentage'];
             }
         }
 
@@ -40,18 +42,19 @@ class IcePortalRepository
     public static function getIdsByDestinationGiata(string $input): array
     {
         if (is_numeric($input)) {
-            $query = GiataProperty::where('city_id', $input);
+            $query = Property::where('city_id', $input);
         } else {
-            $query = GiataProperty::where('city', $input);
+            $query = Property::where('city', $input);
         }
 
         $mainDB = config('database.connections.mysql.database');
 
-        return $query->leftJoin($mainDB.'.mapper_ice_portal_giatas', $mainDB.'.mapper_ice_portal_giatas.giata_id', '=', 'giata_properties.code')
-            ->select($mainDB.'.mapper_ice_portal_giatas.ice_portal_id')
-            ->whereNotNull($mainDB.'.mapper_ice_portal_giatas.ice_portal_id')
+        return $query->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.giata_id', '=', 'properties.code')
+            ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::IcePortal->value)
+            ->select($mainDB.'.mappings.supplier_id')
+            ->whereNotNull($mainDB.'.mappings.supplier_id')
             ->get()
-            ->pluck('ice_portal_id')
+            ->pluck('supplier_id')
             ->toArray();
     }
 
@@ -59,14 +62,15 @@ class IcePortalRepository
     {
         $mainDB = config('database.connections.mysql.database');
 
-        return GiataProperty::where('giata_properties.latitude', '>', $minMaxCoordinate['min_latitude'])
-            ->where('giata_properties.latitude', '<', $minMaxCoordinate['max_latitude'])
-            ->where('giata_properties.longitude', '>', $minMaxCoordinate['min_longitude'])
-            ->where('giata_properties.longitude', '<', $minMaxCoordinate['max_longitude'])
-            ->leftJoin($mainDB.'.mapper_ice_portal_giatas', $mainDB.'.mapper_ice_portal_giatas.giata_id', '=', 'giata_properties.code')
-            ->select($mainDB.'.mapper_ice_portal_giatas.ice_portal_id')
-            ->whereNotNull($mainDB.'.mapper_ice_portal_giatas.ice_portal_id')
+        return Property::where('properties.latitude', '>', $minMaxCoordinate['min_latitude'])
+            ->where('properties.latitude', '<', $minMaxCoordinate['max_latitude'])
+            ->where('properties.longitude', '>', $minMaxCoordinate['min_longitude'])
+            ->where('properties.longitude', '<', $minMaxCoordinate['max_longitude'])
+            ->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.giata_id', '=', 'properties.code')
+            ->where($mainDB . '.mappings.supplier', MappingSuppliersEnum::IcePortal->value)
+            ->select($mainDB.'.mappings.supplier_id')
+            ->whereNotNull($mainDB.'.mappings.supplier_id')
             ->first()
-            ->ice_portal_id ?? 0;
+            ->supplier_id ?? 0;
     }
 }

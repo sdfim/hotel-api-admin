@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 use Modules\API\ContentAPI\Controllers\HotelSearchBuilder;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Tools\Geography;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
+
 
 class ExpediaHotelController
 {
@@ -72,8 +74,10 @@ class ExpediaHotelController
 
             $selectFields = [
                 'expedia_content_main.*',
-                $mainDB.'.mapper_expedia_giatas.expedia_id',
-                $mainDB.'.mapper_expedia_giatas.giata_id',
+                'expedia_content_slave.images as images',
+                'expedia_content_slave.amenities as amenities',
+                $mainDB.'.mappings.supplier_id',
+                $mainDB.'.mappings.giata_id',
             ];
 
             if ($initiator === 'search') {
@@ -90,9 +94,10 @@ class ExpediaHotelController
             }
 
             $queryBuilder->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
-                ->leftJoin($mainDB.'.mapper_expedia_giatas', $mainDB.'.mapper_expedia_giatas.expedia_id', '=', 'expedia_content_main.property_id')
+                ->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.supplier_id', '=', 'expedia_content_main.property_id')
                 ->where('expedia_content_main.is_active', 1)
-                ->whereNotNull($mainDB.'.mapper_expedia_giatas.expedia_id')
+                ->where($mainDB.'.mappings.supplier',MappingSuppliersEnum::Expedia->value)
+                ->whereNotNull($mainDB.'.mappings.supplier_id')
                 ->select($selectFields);
 
             if (isset($filters['hotel_name'])) {
