@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Storage;
 use League\Csv\Exception;
-use League\Csv\Reader;
 use League\Csv\Writer;
 
 class ExportBookingSupplier extends Command
@@ -55,8 +54,6 @@ class ExportBookingSupplier extends Command
 
         for ($offset = 0; $offset < $total; $offset += self::BATCH)
         {
-            $percentage = round(($offset / $total) * 100);
-            //$this->info("Offset $offset - $percentage% - ".Carbon::now());
             $apiBookingItemsBatch= $query->skip($offset)->take(self::BATCH)->get();
 
             $mappedApiBookingItemsBatch = $apiBookingItemsBatch->map(function ($item) use($supplierMap) {
@@ -71,6 +68,6 @@ class ExportBookingSupplier extends Command
             $bar->advance(self::BATCH);
         }
         Storage::put($exportFilename, $csvWriter->toString());
-        $this->info('Finished '.Carbon::now());
+        $this->info("\nFinished ".Carbon::now());
     }
 }
