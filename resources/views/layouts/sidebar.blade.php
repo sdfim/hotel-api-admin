@@ -95,32 +95,23 @@
                         </li>
                     </ul>
                 </li>
-                <li>
-                    <a href="javascript: void(0);" aria-expanded="false"
+                {{-- <li> --}}
+                    {{-- <a href="javascript: void(0);" aria-expanded="false"
                        class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-map"></i>
                         <span data-key="t-property-mapping">Property Mapping</span>
+                    </a> --}}
+                    {{-- <a href="{{ Route('properties.index') }}"
+                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        Properties
                     </a>
-                    <ul>
-                        <li>
-                            <a href="{{ Route('giata.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                Giata
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ Route('expedia.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                Expedia
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{ Route('ice-hbsi.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                ICE Portal
-                            </a>
-                        </li>
-                    </ul>
+                </li> --}}
+                <li>
+                    <a href="{{ Route('properties.index') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-map"></i>
+                        <span data-key="t-property-mapping">Properties</span>
+                    </a>
                 </li>
                 <li>
                     <a href="{{ Route('statistic-charts') }}"
