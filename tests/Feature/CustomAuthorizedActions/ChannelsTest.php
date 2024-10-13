@@ -7,14 +7,13 @@ use App\Livewire\Channels\UpdateChannelsForm;
 use App\Models\Channel;
 use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\Test;
 
 class ChannelsTest extends CustomAuthorizedActionsTestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_channels_index_is_opening(): void
     {
         $response = $this->get('/admin/channels');
@@ -22,9 +21,7 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_creating_channel(): void
     {
         $channels = Channel::factory()->create();
@@ -34,9 +31,7 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_storing_new_channel(): void
     {
         $token = auth()->user()->createToken('New Channel Name');
@@ -56,9 +51,7 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
         $this->assertDatabaseHas('channels', ['name' => 'New Channel Name']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_updating_new_channel(): void
     {
         $data = [
@@ -75,9 +68,7 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
         $response->assertSessionHas('success', 'Channels created successfully.');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_editing_an_existing_channel(): void
     {
         $channels = Channel::factory()->create();
@@ -87,9 +78,7 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_showing_an_existing_channel(): void
     {
         $channel = Channel::factory()->create();
@@ -103,9 +92,7 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
         $response->assertSee($channel->description);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_destroying_an_existing_channel(): void
     {
         $channel = Channel::factory()->create();
@@ -119,9 +106,7 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
         $this->assertDatabaseMissing('channels', ['id' => $channel->id]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_validation_of_channel_form_and_updating_an_existing_channel(): void
     {
         $channel = Channel::factory()->create();
@@ -139,9 +124,7 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_validation_of_channel_form_and_storing_new_channel(): void
     {
         Livewire::test(CreateChannelsForm::class)

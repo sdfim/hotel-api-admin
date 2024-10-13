@@ -11,9 +11,7 @@ use Tests\TestCase;
 
 class ApiTokenPermissionsTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_api_token_permissions_can_be_updated(): void
     {
         if (! Features::hasApiFeatures()) {

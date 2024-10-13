@@ -10,9 +10,7 @@ use Tests\TestCase;
 
 class CreateApiTokenTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_api_tokens_can_be_created(): void
     {
         if (! Features::hasApiFeatures()) {

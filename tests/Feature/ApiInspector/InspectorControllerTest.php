@@ -12,9 +12,7 @@ class InspectorControllerTest extends TestCase
     use RefreshDatabase;
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_search_index_is_opening(): void
     {
         $this->auth();

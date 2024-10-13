@@ -12,9 +12,7 @@ use Tests\TestCase;
 
 class EmailVerificationTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_email_verification_screen_can_be_rendered(): void
     {
         if (! Features::enabled(Features::emailVerification())) {
@@ -28,9 +26,7 @@ class EmailVerificationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_email_can_be_verified(): void
     {
         if (! Features::enabled(Features::emailVerification())) {
@@ -56,9 +52,7 @@ class EmailVerificationTest extends TestCase
         $response->assertRedirect(AppServiceProvider::HOME.'?verified=1');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_email_can_not_verified_with_invalid_hash(): void
     {
         if (! Features::enabled(Features::emailVerification())) {

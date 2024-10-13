@@ -9,9 +9,7 @@ use Tests\TestCase;
 
 class ProfileInformationTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_current_profile_information_is_available(): void
     {
         $this->actingAs($user = User::factory()->create());
@@ -23,9 +21,7 @@ class ProfileInformationTest extends TestCase
         $this->assertEquals($user->email, $component->state['email']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_profile_information_can_be_updated(): void
     {
         $this->actingAs($user = User::factory()->create());

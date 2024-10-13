@@ -10,9 +10,7 @@ use Tests\TestCase;
 
 class TwoFactorAuthenticationSettingsTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_two_factor_authentication_can_be_enabled(): void
     {
         if (! Features::canManageTwoFactorAuthentication()) {
@@ -32,9 +30,7 @@ class TwoFactorAuthenticationSettingsTest extends TestCase
         $this->assertCount(8, $user->recoveryCodes());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_recovery_codes_can_be_regenerated(): void
     {
         if (! Features::canManageTwoFactorAuthentication()) {
@@ -58,9 +54,7 @@ class TwoFactorAuthenticationSettingsTest extends TestCase
         $this->assertCount(8, array_diff($user->recoveryCodes(), $user->fresh()->recoveryCodes()));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_two_factor_authentication_can_be_disabled(): void
     {
         if (! Features::canManageTwoFactorAuthentication()) {

@@ -7,9 +7,7 @@ use App\Models\Reservation;
 
 class ReservationsTest extends CustomAuthorizedActionsTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_reservation_index_is_opening(): void
     {
         $response = $this->get('/admin/reservations');
@@ -17,9 +15,7 @@ class ReservationsTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_showing_an_existing_reservation_record(): void
     {
         $channel = Channel::factory()->create();

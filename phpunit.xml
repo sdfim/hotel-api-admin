@@ -10,7 +10,7 @@
         </testsuite>
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
-            <exclude>tests/Feature/API</exclude>
+            <exclude>tests/Feature/API/Local</exclude>
         </testsuite>
     </testsuites>
     <source>

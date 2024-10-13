@@ -43,7 +43,7 @@ class BaseController extends Controller
     /**
      * success response method.
      */
-    public function sendResponse(array $result, ?string $message = null): JsonResponse
+    public function sendResponse(array $result, ?string $message = null, ?int $code = 200): JsonResponse
     {
         $response = [
             'success' => true,
@@ -58,7 +58,7 @@ class BaseController extends Controller
             $response['message'] = $message;
         }
 
-        return response()->json($response);
+        return response()->json($response, $code);
     }
 
     /**

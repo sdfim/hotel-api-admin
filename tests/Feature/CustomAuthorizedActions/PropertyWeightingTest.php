@@ -8,14 +8,13 @@ use App\Models\PropertyWeighting;
 use App\Models\Supplier;
 use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\Test;
 
 class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_validation_of_property_weighting_form_during_creation(): void
     {
         Livewire::test(CreatePropertyWeighting::class)
@@ -30,9 +29,7 @@ class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_property_weighting_form_validation_and_possibility_of_creating_new_property_weighting(): void
     {
         $supplier = Supplier::factory()->create();
@@ -51,9 +48,7 @@ class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
         $this->assertDatabaseHas('property_weightings', $data);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_property_weighting_index_is_opening(): void
     {
         $response = $this->get('/admin/property-weighting');
@@ -61,9 +56,7 @@ class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_property_weighting_creating_is_opening(): void
     {
         $response = $this->get('/admin/property-weighting/create');
@@ -71,9 +64,7 @@ class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_property_weighting_showing_is_opening(): void
     {
         $propertyWeighting = PropertyWeighting::factory()->create();
@@ -83,9 +74,7 @@ class PropertyWeightingTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_updating_an_existing_property_weighting(): void
     {
         $property_weighting = PropertyWeighting::factory()->create();

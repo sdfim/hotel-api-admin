@@ -10,9 +10,7 @@ class RoleMiddlewareTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_it_aborts_request_if_user_does_not_have_required_role(): void
     {
         $user = User::factory()->create();
@@ -21,9 +19,7 @@ class RoleMiddlewareTest extends TestCase
         $response->assertStatus(404);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_it_aborts_request_if_user_does_not_have_required_permission(): void
     {
         $user = User::factory()->create();

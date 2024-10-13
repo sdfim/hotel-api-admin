@@ -23,9 +23,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
         $this->expediaPricingRulesApplier = new ExpediaPricingRulesApplier($requestArray, $pricingRules);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_apply_pricing_rules_to_rooms(): void
     {
         $giataId = 1;
