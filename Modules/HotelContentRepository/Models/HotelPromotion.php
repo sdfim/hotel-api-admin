@@ -28,8 +28,12 @@ class HotelPromotion extends Model
         'terms_conditions',
         'exclusions',
         'deposit_info',
+    ];
+
+    protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
+        'pivot'
     ];
 
     public function hotel()

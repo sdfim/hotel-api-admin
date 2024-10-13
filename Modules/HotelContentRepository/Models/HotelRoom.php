@@ -22,8 +22,12 @@ class HotelRoom extends Model
         'room_name',
         'hbs_data_mapped_name',
         'room_description',
+    ];
+
+    protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
+        'pivot'
     ];
 
     public function hotel()

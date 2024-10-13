@@ -24,8 +24,12 @@ class TravelAgencyCommission extends Model
         'commission_value',
         'date_range_start',
         'date_range_end',
+    ];
+
+    protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
+        'pivot'
     ];
 
     public function hotel()

@@ -29,8 +29,12 @@ class HotelDescriptiveContent extends Model
         'staff_contact_info',
         'validity_start',
         'validity_end',
+    ];
+
+    protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
+        'pivot'
     ];
 
     public function hotel()

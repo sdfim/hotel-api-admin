@@ -36,8 +36,12 @@ class Hotel extends Model
         'channel_management',
         'hotel_board_basis',
         'default_currency',
+    ];
+
+    protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
+        'pivot'
     ];
 
     public function affiliations()

@@ -22,8 +22,12 @@ class HotelInformativeService extends Model
         'service_name',
         'service_description',
         'service_cost',
+    ];
+
+    protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
+        'pivot'
     ];
 
     public function hotel()

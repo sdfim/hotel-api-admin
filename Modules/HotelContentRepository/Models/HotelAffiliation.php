@@ -22,8 +22,12 @@ class HotelAffiliation extends Model
         'hotel_id',
         'affiliation_name',
         'combinable',
+    ];
+
+    protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
+        'pivot'
     ];
 
     public function hotel()

@@ -21,7 +21,12 @@ class HotelAttribute extends Model
         'hotel_id',
         'name',
         'attribute_value',
-        'created_at'
+    ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'pivot'
     ];
 
     public function hotel()

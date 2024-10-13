@@ -24,8 +24,12 @@ class HotelFeeTax extends Model
         'rack_value',
         'tax',
         'type',
+    ];
+
+    protected $hidden = [
         'created_at',
-        'updated_at'
+        'updated_at',
+        'pivot'
     ];
 
     public function hotel()

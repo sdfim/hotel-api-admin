@@ -21,7 +21,12 @@ class KeyMapping extends Model
         'hotel_id',
         'key_id',
         'key_name',
-        'created_at'
+    ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'pivot'
     ];
 
     public function hotel()

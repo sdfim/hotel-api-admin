@@ -24,6 +24,12 @@ class HotelImage extends Model
         'section',
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'pivot'
+    ];
+
     public function galleries()
     {
         return $this->belongsToMany(ImageGallery::class, 'pd_gallery_images', 'image_id', 'gallery_id');

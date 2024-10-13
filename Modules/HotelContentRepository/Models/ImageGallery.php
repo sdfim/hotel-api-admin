@@ -22,6 +22,12 @@ class ImageGallery extends Model
         'description',
     ];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'pivot'
+    ];
+
     public function images()
     {
         return $this->belongsToMany(HotelImage::class, 'pd_gallery_images', 'gallery_id', 'image_id');
