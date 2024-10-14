@@ -18,7 +18,7 @@ class HotelDescriptiveContent extends Model
     protected $table = 'pd_hotel_descriptive_content';
 
     protected $fillable = [
-        'hotel_id',
+        'content_sections_id',
         'section_name',
         'meta_description',
         'property_description',
@@ -37,8 +37,8 @@ class HotelDescriptiveContent extends Model
         'pivot'
     ];
 
-    public function hotel()
+    public function contentSection()
     {
-        return $this->belongsTo(Hotel::class);
+        return $this->belongsTo(HotelDescriptiveContentSection::class, 'content_sections_id');
     }
 }

@@ -69,9 +69,9 @@ class Hotel extends Model
         return $this->hasMany(HotelAttribute::class);
     }
 
-    public function descriptiveContents()
+    public function descriptiveContentsSection()
     {
-        return $this->hasMany(HotelDescriptiveContent::class);
+        return $this->hasMany(HotelDescriptiveContentSection::class);
     }
 
     public function feeTaxes()

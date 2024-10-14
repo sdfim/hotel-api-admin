@@ -19,7 +19,12 @@ class HotelControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking', 'address', 'star_rating', 'website',  'num_rooms', 'featured', 'location', 'content_source_id', 'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis', 'default_currency']
+                '*' => [
+                    'id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking',
+                    'address', 'star_rating', 'website',  'num_rooms', 'featured', 'location', 'content_source_id',
+                    'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis',
+                    'default_currency'
+                ]
             ],
             'message'
         ]);
@@ -33,7 +38,12 @@ class HotelControllerTest extends TestCase
         $response = $this->request()->postJson('api/repo/hotels', $data);
         $response->assertStatus(201);
         $response->assertJsonStructure([
-            'data' => ['id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking', 'address', 'star_rating', 'website',  'num_rooms', 'featured', 'location', 'content_source_id', 'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis', 'default_currency'],
+            'data' => [
+                'id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking',
+                'address', 'star_rating', 'website',  'num_rooms', 'featured', 'location', 'content_source_id',
+                'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis',
+                'default_currency'
+            ],
             'message'
         ]);
         $this->assertDatabaseHas('pd_hotels', $data);
@@ -46,7 +56,12 @@ class HotelControllerTest extends TestCase
         $response = $this->request()->getJson("api/repo/hotels/{$hotel->id}");
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking', 'address', 'star_rating', 'website',  'num_rooms', 'featured', 'location', 'content_source_id', 'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis', 'default_currency'],
+            'data' => [
+                'id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking',
+                'address', 'star_rating', 'website',  'num_rooms', 'featured', 'location', 'content_source_id',
+                'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis',
+                'default_currency'
+            ],
             'message'
         ]);
         $this->assertDatabaseHas('pd_hotels', $hotel->toArray());
@@ -60,7 +75,12 @@ class HotelControllerTest extends TestCase
         $response = $this->request()->putJson("api/repo/hotels/{$hotel->id}", $data);
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking', 'address', 'star_rating', 'website',  'num_rooms', 'featured', 'location', 'content_source_id', 'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis', 'default_currency'],
+            'data' => [
+                'id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking',
+                'address', 'star_rating', 'website',  'num_rooms', 'featured', 'location', 'content_source_id',
+                'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis',
+                'default_currency'
+            ],
             'message'
         ]);
         $this->assertDatabaseHas('pd_hotels', $data);

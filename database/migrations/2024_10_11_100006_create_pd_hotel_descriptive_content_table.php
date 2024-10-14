@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('pd_hotel_descriptive_content', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('hotel_id');
+            $table->unsignedBigInteger('content_sections_id');
             $table->string('section_name', 255);
             $table->text('meta_description');
             $table->text('property_description');
@@ -23,7 +23,7 @@ return new class extends Migration
             $table->date('validity_end')->nullable();
             $table->timestamps();
 
-            $table->foreign('hotel_id')->references('id')->on('pd_hotels')->onDelete('cascade');
+            $table->foreign('content_sections_id')->references('id')->on('pd_hotel_descriptive_content_sections')->onDelete('cascade');
         });
     }
 

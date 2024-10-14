@@ -8,6 +8,7 @@ use Modules\API\Controllers\RouteApiController;
 use Modules\HotelContentRepository\Http\Controllers\ContentSourceController;
 use Modules\HotelContentRepository\Http\Controllers\HotelAffiliationController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
+use Modules\HotelContentRepository\Http\Controllers\HotelDescriptiveContentSectionController;
 use Modules\HotelContentRepository\Http\Controllers\HotelFeeTaxController;
 use Modules\HotelContentRepository\Http\Controllers\HotelAttributeController;
 use Modules\HotelContentRepository\Http\Controllers\HotelDescriptiveContentController;
@@ -34,6 +35,8 @@ class HotelContentRepositoryApiRoutes
 
             Route::resource('hotel-attributes', HotelAttributeController::class);
 
+            Route::resource('hotel-descriptive-content-sections', HotelDescriptiveContentSectionController::class)
+                ->parameters(['hotel-descriptive-content-sections' => 'section']);
             Route::resource('hotel-descriptive-contents', HotelDescriptiveContentController::class);
 
             Route::resource('hotel-fee-taxes', HotelFeeTaxController::class);

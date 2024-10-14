@@ -3,8 +3,8 @@
 namespace Modules\HotelContentRepository\Models\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelDescriptiveContent;
+use Modules\HotelContentRepository\Models\HotelDescriptiveContentSection;
 
 class HotelDescriptiveContentFactory extends Factory
 {
@@ -13,7 +13,7 @@ class HotelDescriptiveContentFactory extends Factory
     public function definition()
     {
         return [
-            'hotel_id' => Hotel::factory()->create()->id,
+            'content_sections_id' => HotelDescriptiveContentSection::factory()->create()->id,
             'section_name' => $this->faker->word,
             'meta_description' => $this->faker->sentence,
             'property_description' => $this->faker->paragraph,

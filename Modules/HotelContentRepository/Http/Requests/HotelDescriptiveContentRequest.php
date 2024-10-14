@@ -15,7 +15,7 @@ class HotelDescriptiveContentRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'hotel_id' => 'required|integer',
+            'content_sections_id' => 'required|integer',
             'section_name' => 'required|string|max:255',
             'meta_description' => 'required|string',
             'property_description' => 'required|string',
