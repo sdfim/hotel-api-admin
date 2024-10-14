@@ -264,7 +264,6 @@ class PropertiesTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->searchable(isIndividual: true),
             ])
-
             ->actions([
               ActionGroup::make([
                     Action::make('map')
