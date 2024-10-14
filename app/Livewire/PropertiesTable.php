@@ -228,7 +228,12 @@ class PropertiesTable extends Component implements HasForms, HasTable
                 ViewColumn::make('name')
                     ->toggleable()
                     ->sortable()
-                    ->searchable(isIndividual: true)
+                    ->searchable(
+                        isIndividual: true,
+                        query: function (Builder $query, string $search): Builder {
+                          return $query->whereRaw('MATCH(name) AGAINST(? IN NATURAL LANGUAGE MODE)', [$search]);
+                        }
+                    )
                     ->view('dashboard.properties.column.name-field'),
                 TextColumn::make('city')
                     ->sortable()
