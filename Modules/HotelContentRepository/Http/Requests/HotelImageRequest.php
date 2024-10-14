@@ -18,7 +18,7 @@ class HotelImageRequest extends ApiRequest
             'image_url' => 'required|string|max:255',
             'tag' => 'required|string|max:100',
             'weight' => 'required|integer',
-            'section' => 'required|in:gallery,room,exterior,amenities',
+            'section' => 'required|in:gallery,hotel,room,promotion,exterior,amenities',
         ];
     }
 }

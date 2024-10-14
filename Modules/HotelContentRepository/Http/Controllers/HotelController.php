@@ -20,8 +20,8 @@ class HotelController extends BaseController
             'descriptiveContents',
             'feeTaxes',
             'informativeServices',
-            'promotions',
-            'rooms',
+            'promotions.galleries.images',
+            'rooms.galleries.images',
             'keyMappings',
             'travelAgencyCommissions',
             'galleries.images'
@@ -43,8 +43,8 @@ class HotelController extends BaseController
             'descriptiveContents',
             'feeTaxes',
             'informativeServices',
-            'promotions',
-            'rooms',
+            'promotions.galleries.images',
+            'rooms.galleries.images',
             'keyMappings',
             'travelAgencyCommissions',
             'galleries.images'

@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('image_url', 255);
             $table->string('tag', 100);
             $table->integer('weight');
-            $table->enum('section', ['gallery', 'room', 'exterior', 'amenities']);
+            $table->enum('section', ['gallery','hotel','room','promotion','exterior','amenities']);
             $table->timestamps();
         });
     }
