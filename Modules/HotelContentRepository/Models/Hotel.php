@@ -30,9 +30,9 @@ class Hotel extends Model
         'num_rooms',
         'featured',
         'location',
-        'content_source',
-        'room_images_source',
-        'property_images_source',
+        'content_source_id',
+        'room_images_source_id',
+        'property_images_source_id',
         'channel_management',
         'hotel_board_basis',
         'default_currency',
@@ -43,6 +43,21 @@ class Hotel extends Model
         'updated_at',
         'pivot'
     ];
+
+    public function contentSource()
+    {
+        return $this->belongsTo(ContentSource::class, 'content_source_id');
+    }
+
+    public function roomImagesSource()
+    {
+        return $this->belongsTo(ContentSource::class, 'room_images_source_id');
+    }
+
+    public function propertyImagesSource()
+    {
+        return $this->belongsTo(ContentSource::class, 'property_images_source_id');
+    }
 
     public function affiliations()
     {

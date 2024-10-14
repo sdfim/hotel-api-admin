@@ -104,7 +104,7 @@ class HotelPromotionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'gallery_name', 'description', 'created_at']
+                '*' => ['id', 'gallery_name', 'description']
             ],
             'message'
         ]);

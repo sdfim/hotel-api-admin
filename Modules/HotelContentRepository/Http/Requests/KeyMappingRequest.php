@@ -17,7 +17,7 @@ class KeyMappingRequest extends ApiRequest
         return [
             'hotel_id' => 'required|integer',
             'key_id' => 'required|string|max:255',
-            'key_name' => 'required|in:UJV system,GIATA',
-        ];
+            'key_mapping_owner_id' => 'required|exists:pd_key_mapping_owners,id',
+            ];
     }
 }

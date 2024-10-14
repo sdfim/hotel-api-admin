@@ -17,6 +17,9 @@ class HotelController extends BaseController
         $hotels = Hotel::with([
             'affiliations',
             'attributes',
+            'contentSource',
+            'roomImagesSource',
+            'propertyImagesSource',
             'descriptiveContents',
             'feeTaxes',
             'informativeServices',
@@ -40,6 +43,9 @@ class HotelController extends BaseController
         $hotel = Hotel::with([
             'affiliations',
             'attributes',
+            'contentSource',
+            'roomImagesSource',
+            'propertyImagesSource',
             'descriptiveContents',
             'feeTaxes',
             'informativeServices',
