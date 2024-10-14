@@ -2,15 +2,15 @@
 
 namespace Tests\Feature\ApiInspector;
 
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use PHPUnit\Framework\Attributes\Test;
+use Tests\Feature\AuthenticatesUser;
 use Tests\TestCase;
 
-class InspectorControllerTest extends TestCase
+class SearchInspectorControllerTest extends TestCase
 {
-    use RefreshDatabase;
-    use WithFaker;
+    use RefreshDatabase, WithFaker, AuthenticatesUser;
 
     #[Test]
     public function test_search_index_is_opening(): void
@@ -20,15 +20,5 @@ class InspectorControllerTest extends TestCase
         $response = $this->get('/admin/search-inspector');
 
         $response->assertStatus(200);
-    }
-
-    public function auth(): void
-    {
-        $user = User::factory()->create();
-
-        $this->post(route('login'), [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
     }
 }
