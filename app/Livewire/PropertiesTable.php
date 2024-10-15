@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Helpers\Strings;
 use App\Models\GiataGeography;
 use App\Models\Mapping;
 use App\Models\Property;
@@ -231,7 +232,8 @@ class PropertiesTable extends Component implements HasForms, HasTable
                     ->searchable(
                         isIndividual: true,
                         query: function (Builder $query, string $search): Builder {
-                          return $query->whereRaw('MATCH(name) AGAINST(? IN NATURAL LANGUAGE MODE)', [$search]);
+                          $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
+                          return $query->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)");
                         }
                     )
                     ->view('dashboard.properties.column.name-field'),
