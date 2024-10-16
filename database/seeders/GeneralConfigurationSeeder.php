@@ -13,7 +13,7 @@ class GeneralConfigurationSeeder extends Seeder
     public function run(): void
     {
         $config = new GeneralConfiguration();
-        $config->currently_suppliers = ['1', '2'];
+        $config->currently_suppliers = ['1'];
         $config->time_supplier_requests = 60;
         $config->time_reservations_kept = 7;
         $config->time_inspector_retained = 60;

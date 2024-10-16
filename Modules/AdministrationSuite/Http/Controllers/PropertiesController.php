@@ -2,22 +2,22 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use App\Models\GiataProperty;
+use App\Models\Property;
 use Illuminate\Contracts\View\View;
 
-class GiataController extends Controller
+class PropertiesController extends Controller
 {
     /**
      * @var array|string[]
      */
-    private array $message = ['show' => 'Show Giata'];
+    private array $message = ['show' => 'Show Properties'];
 
     /**
      * Display a listing of the resource.
      */
     public function index(): View
     {
-        return view('dashboard.giata.index');
+        return view('dashboard.properties.index');
     }
 
     /**
@@ -26,8 +26,8 @@ class GiataController extends Controller
     public function show(string $id): View
     {
         $text = $this->message;
-        $giata = GiataProperty::where('code', $id)->first();
+        $property = Property::where('code', $id)->first();
 
-        return view('dashboard.giata.show', compact('giata', 'text'));
+        return view('dashboard.properties.show', compact('property', 'text'));
     }
 }

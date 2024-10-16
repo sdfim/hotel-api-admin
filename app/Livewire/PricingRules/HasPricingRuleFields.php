@@ -3,7 +3,7 @@
 namespace App\Livewire\PricingRules;
 
 use App\Models\Channel;
-use App\Models\GiataProperty;
+use App\Models\Property;
 use App\Models\Supplier;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Fieldset;
@@ -189,14 +189,14 @@ trait HasPricingRuleFields
                                             ->label('Property')
                                             ->searchable()
                                             ->getSearchResultsUsing(function (string $search): ?array {
-                                                $result = GiataProperty::select(
+                                                $result = Property::select(
                                                     DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
                                                     ->where('name', 'like', "%$search%")->limit(30);
 
                                                 return $result->pluck('full_name', 'code')->toArray() ?? [];
                                             })
                                             ->getOptionLabelUsing(function ($value): ?string {
-                                                $result = GiataProperty::select(
+                                                $result = Property::select(
                                                     DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
                                                     ->where('code', $value)->first();
 
@@ -209,14 +209,14 @@ trait HasPricingRuleFields
                                             ->label('Destination')
                                             ->searchable()
                                             ->getSearchResultsUsing(function (string $search): array {
-                                                $result = GiataProperty::select(
+                                                $result = Property::select(
                                                     DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
                                                     ->where('city', 'like', "%$search%")->limit(30);
 
                                                 return $result->pluck('full_name', 'city_id')->toArray() ?? [];
                                             })
                                             ->getOptionLabelUsing(function ($value): ?string {
-                                                $result = GiataProperty::select(
+                                                $result = Property::select(
                                                     DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'))
                                                     ->where('city_id', $value)->first();
 

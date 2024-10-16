@@ -2,14 +2,15 @@
 
 namespace App\Repositories;
 
-use App\Models\GiataProperty;
-use App\Models\MapperIcePortalGiata;
+use App\Models\Property;
+use App\Models\Mapping;
 use App\Traits\Timer;
 use Illuminate\Support\Facades\Log;
-use Modules\API\Tools\GiataPropertySearch;
+use Modules\API\Tools\PropertySearch;
 use Modules\Enums\SupplierNameEnum;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
-class GiataPropertyRepository
+class PropertyRepository
 {
     use Timer;
 
@@ -19,7 +20,7 @@ class GiataPropertyRepository
 
     private bool $availableElasticSearch;
 
-    private GiataPropertySearch $giataPropertySearch;
+    private PropertySearch $propertySearch;
 
     private array $batchIcePortal = [];
 
@@ -37,10 +38,10 @@ class GiataPropertyRepository
         $latitude = bcdiv(strval($latitude), '1', 1);
 
         if ($this->availableElasticSearch) {
-            return $this->giataPropertySearch->search($hotelName, $latitude, $city);
+            return $this->propertySearch->search($hotelName, $latitude, $city);
         }
 
-        return GiataProperty::where('latitude', 'like', $latitude.'%')
+        return Property::where('latitude', 'like', $latitude.'%')
             ->whereRaw('MATCH(name) AGAINST(? IN BOOLEAN MODE)', $hotelNameSearch)
             ->get()
             ->toArray();
@@ -48,19 +49,19 @@ class GiataPropertyRepository
 
     public function associateByGiata(array $supplierData, string $supplier): array
     {
-        $this->giataPropertySearch = new GiataPropertySearch();
-        $this->availableElasticSearch = $this->giataPropertySearch->available();
+        $this->propertySearch = new PropertySearch();
+        $this->availableElasticSearch = $this->propertySearch->available();
 
         if ($supplier == SupplierNameEnum::ICE_PORTAL->value) {
 
             $hotelsIds = array_column($supplierData, 'listingID');
 
-            $mapperIcePortalGiataTable = MapperIcePortalGiata::whereIn('ice_portal_id', $hotelsIds)->get();
+            $mapperIcePortalGiataTable = Mapping::icePortal()->whereIn('supplier_id', $hotelsIds)->get();
             $mapperIcePortalGiata = [];
             foreach ($mapperIcePortalGiataTable as $item) {
-                $mapperIcePortalGiata[$item->getRawOriginal('ice_portal_id')] = [
+                $mapperIcePortalGiata[$item->getRawOriginal('supplier_id')] = [
                     'giata_code' => $item->getRawOriginal('giata_id'),
-                    'perc' => $item->getRawOriginal('perc'),
+                    'perc' => $item->getRawOriginal('match_percentage'),
                 ];
             }
 
@@ -111,14 +112,15 @@ class GiataPropertyRepository
 
         if ($supplier == 'ICE_PORTAL' && ! in_array($id.'_'.$code, $this->listBatchHbsi) && $perc !== 0) {
             $this->batchIcePortal[] = [
-                'ice_portal_id' => $id,
+                'supplier_id' => $id,
+                'supplier' => MappingSuppliersEnum::IcePortal->value,
                 'giata_id' => $code,
-                'perc' => $perc,
+                'match_percentage' => $perc,
             ];
             $this->listBatchHotels[] = $id.'_'.$code;
         }
 
-        Log::debug('GiataPropertyRepository | getGiataCode | runtime '.$this->duration(), [
+        Log::debug('PropertyRepository | getGiataCode | runtime '.$this->duration(), [
             'supplier' => $supplier,
             'count' => count($giata),
             'id' => $id,
@@ -138,14 +140,14 @@ class GiataPropertyRepository
     {
         if ($insertAnyway || count($this->batchIcePortal) > self::BATCH_SIZE) {
             // InsertBatchData::dispatch($this->batchBooking, $this->batchHotels);
-            MapperIcePortalGiata::insert($this->batchIcePortal);
+            Mapping::insert($this->batchIcePortal);
             $this->batchIcePortal = [];
         }
     }
 
     public function getCityIdByCoordinate(array $minMaxCoordinate): ?int
     {
-        return GiataProperty::where('latitude', '>', $minMaxCoordinate['min_latitude'])
+        return Property::where('latitude', '>', $minMaxCoordinate['min_latitude'])
             ->where('latitude', '<', $minMaxCoordinate['max_latitude'])
             ->where('longitude', '>', $minMaxCoordinate['min_longitude'])
             ->where('longitude', '<', $minMaxCoordinate['max_longitude'])
