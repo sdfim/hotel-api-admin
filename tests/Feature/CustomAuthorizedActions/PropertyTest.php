@@ -24,7 +24,7 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
     #[Test]
     public function test_giata_table_index_is_opening(): void
     {
-        $response = $this->get('/admin/giata');
+        $response = $this->get('/admin/properties');
 
         $response->assertStatus(200);
     }
@@ -38,7 +38,6 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanRenderTableColumn('code')
             ->assertCanRenderTableColumn('name')
             ->assertCanRenderTableColumn('city')
-            ->assertCanRenderTableColumn('city_id')
             ->assertCanRenderTableColumn('locale')
             ->assertCanRenderTableColumn('latitude')
             ->assertCanRenderTableColumn('longitude')
@@ -78,17 +77,6 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
             ->searchTableColumns(['city' => $city])
             ->assertCanSeeTableRecords($this->giata->where('city', $city))
             ->assertCanNotSeeTableRecords($this->giata->where('city', '!=', $city));
-    }
-
-    #[Test]
-    public function test_possibility_of_searching_by_city_id(): void
-    {
-        $city_id = $this->giata->first()->city_id;
-
-        livewire::test(PropertiesTable::class)
-            ->searchTableColumns(['city_id' => $city_id])
-            ->assertCanSeeTableRecords($this->giata->where('city_id', $city_id))
-            ->assertCanNotSeeTableRecords($this->giata->where('city_id', '!=', $city_id));
     }
 
     #[Test]

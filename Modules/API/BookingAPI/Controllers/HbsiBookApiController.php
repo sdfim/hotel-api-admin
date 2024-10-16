@@ -15,6 +15,7 @@ use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiBookingsMetadataRepository;
 use App\Repositories\ApiSearchInspectorRepository;
+use App\Repositories\ChannelRenository;
 use App\Repositories\HbsiRepository;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -456,7 +457,7 @@ class HbsiBookApiController extends BaseBookApiController
     {
         $booking_item = $filters['booking_item'];
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
-        $searchId = Str::uuid();
+        $searchId = (string) Str::uuid();
         $hotelId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_id');
         $supplierId = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
         $searchInspector = ApiSearchInspectorRepository::newSearchInspector([$searchId, $filters, [$supplierId], 'change', 'hotel']);
@@ -551,7 +552,7 @@ class HbsiBookApiController extends BaseBookApiController
     {
         try {
             $hbsiHotel = HbsiRepository::getByGiataId($hotelId);
-            $hotelIds = [$hbsiHotel['hbsi_id']];
+            $hotelIds = [$hbsiHotel['supplier_id']];
 
             if (empty($hotelIds)) {
                 return [

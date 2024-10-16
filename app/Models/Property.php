@@ -21,6 +21,11 @@ class Property extends Model
     public $incrementing = false;
 
     /**
+     * @var string
+     */
+    protected $primaryKey = 'code';
+
+    /**
      * @var string[]
      */
     protected $fillable = [

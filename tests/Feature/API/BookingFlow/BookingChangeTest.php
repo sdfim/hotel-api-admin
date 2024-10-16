@@ -5,7 +5,7 @@ namespace Tests\Feature\API\BookingFlow;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
-use App\Models\MapperHbsiGiata;
+use App\Models\Mapping;
 use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -89,15 +89,15 @@ class BookingChangeTest extends TestCase
         })->first();
         $searchRequest = json_decode($apiSearchInspector->request, true);
 
-        if (!MapperHbsiGiata::where('hbsi_id','51721')->exists()) {
+        if (!Mapping::where('supplier_id','51721')->exists()) {
             $bookingItem = ApiBookingItem::where('booking_item', self::$bookingItem)->first();
             $giataId = Arr::get(json_decode($bookingItem->booking_item_data, true), 'hotel_id');
-            MapperHbsiGiata::insert([
-                ['hbsi_id' => '51721', 'giata_id' => 10767040, 'perc' => 50],
-                ['hbsi_id' => '51721', 'giata_id' => 42851280, 'perc' => 50],
-                ['hbsi_id' => '51721', 'giata_id' => $giataId, 'perc' => 100],
+            Mapping::insert([
+                ['supplier' => 'HBSI', 'supplier_id' => '51722', 'giata_id' => 18774844, 'match_percentage' => 50],
+                ['supplier' => 'HBSI', 'supplier_id' => '51721', 'giata_id' => 42851280, 'match_percentage' => 50],
             ]);
         }
+
         $response = $this->request()->json(
             'POST',
             route('availabilityChange'),
