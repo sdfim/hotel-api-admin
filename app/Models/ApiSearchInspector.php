@@ -50,6 +50,7 @@ class ApiSearchInspector extends Model
         'request',
         'response_path',
         'original_path',
+        'destination_name',
         'client_response_path',
     ];
 
