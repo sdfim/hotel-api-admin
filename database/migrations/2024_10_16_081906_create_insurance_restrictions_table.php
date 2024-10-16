@@ -17,7 +17,6 @@ return new class extends Migration {
             $table->string('value')->nullable(); // Nullable if needed
             $table->timestamps();
 
-            // Foreign key constraints
             $table->foreign('insurance_plan_id')->references('id')->on('insurance_plans')->onDelete('cascade');
             $table->foreign('provider_id')->references('id')->on('insurance_providers')->onDelete('cascade');
             $table->foreign('restriction_type_id')->references('id')->on('insurance_restriction_types')->onDelete('cascade');
