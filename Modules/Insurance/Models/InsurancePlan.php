@@ -11,15 +11,26 @@ class InsurancePlan extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['booking_item', 'trip_cost_from', 'trip_cost_to', 'total_insurance_cost', 'commission', 'supplier_cost', 'min_trip_duration', 'max_trip_duration', 'valid_from', 'valid_to', 'insurance_provider_id'];
+    protected $fillable = [
+        'booking_item',
+        'total_insurance_cost',
+        'commission_ujv',
+        'supplier_fee',
+        'insurance_provider_id',
+    ];
 
     public function provider(): BelongsTo
     {
-        return $this->belongsTo(InsuranceProvider::class);
+        return $this->belongsTo(InsuranceProvider::class, 'insurance_provider_id');
     }
 
     public function restrictions(): HasMany
     {
         return $this->hasMany(InsuranceRestriction::class);
+    }
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(InsuranceApplication::class);
     }
 }

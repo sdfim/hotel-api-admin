@@ -16,4 +16,14 @@ class InsuranceProvider extends Model
     {
         return $this->hasMany(InsurancePlan::class);
     }
+
+    public function restrictions(): HasMany
+    {
+        return $this->hasMany(InsuranceRestriction::class, 'provider_id');
+    }
+
+    public function documentations(): HasMany
+    {
+        return $this->hasMany(InsuranceProviderDocumentation::class);
+    }
 }

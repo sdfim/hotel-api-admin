@@ -10,10 +10,17 @@ class InsuranceApplication extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['insurance_plan_id', 'name', 'location', 'age', 'applied_at'];
+    protected $fillable = [
+        'insurance_plan_id',
+        'name',
+        'location',
+        'age',
+        'applied_at',
+        'total_insurance_cost_pp',
+    ];
 
-    public function insurancePlan(): BelongsTo
+    public function plan(): BelongsTo
     {
-        return $this->belongsTo(InsurancePlan::class);
+        return $this->belongsTo(InsurancePlan::class, 'insurance_plan_id');
     }
 }

@@ -10,15 +10,26 @@ class InsuranceRestriction extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['insurance_plan_id', 'restriction_type_id', 'location', 'min_age', 'max_age'];
+    protected $fillable = [
+        'insurance_plan_id',
+        'provider_id',
+        'restriction_type_id',
+        'compare',
+        'value',
+    ];
 
-    public function insurancePlan(): BelongsTo
+    public function plan(): BelongsTo
     {
-        return $this->belongsTo(InsurancePlan::class);
+        return $this->belongsTo(InsurancePlan::class, 'insurance_plan_id');
+    }
+
+    public function provider(): BelongsTo
+    {
+        return $this->belongsTo(InsuranceProvider::class, 'provider_id');
     }
 
     public function restrictionType(): BelongsTo
     {
-        return $this->belongsTo(InsuranceRestrictionType::class);
+        return $this->belongsTo(InsuranceRestrictionType::class, 'restriction_type_id');
     }
 }

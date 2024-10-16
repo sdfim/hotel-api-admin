@@ -3,16 +3,19 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Insurance\Seeders\InsuranceProviderSeeder;
 
 return new class extends Migration {
     public function up(): void
     {
         Schema::create('insurance_providers', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Name of the insurance provider
-            $table->text('contact_info')->nullable(); // Contact information of the provider
+            $table->string('name');
+            $table->text('contact_info')->nullable();
             $table->timestamps();
         });
+
+        (new InsuranceProviderSeeder())->run();
     }
 
     public function down(): void
