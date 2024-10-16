@@ -2,6 +2,7 @@
 
 namespace App\Livewire\PricingRules;
 
+use App\Helpers\Strings;
 use App\Models\Channel;
 use App\Models\Property;
 use App\Models\Supplier;
@@ -189,18 +190,13 @@ trait HasPricingRuleFields
                                             ->label('Property')
                                             ->searchable()
                                             ->getSearchResultsUsing(function (string $search): ?array {
+                                                $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
                                                 $result = Property::select(
-                                                    DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
-                                                    ->where('name', 'like', "%$search%")->limit(30);
-
+                                                        DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
+                                                            ->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
+                                                            ->limit(30);
+                                        
                                                 return $result->pluck('full_name', 'code')->toArray() ?? [];
-                                            })
-                                            ->getOptionLabelUsing(function ($value): ?string {
-                                                $result = Property::select(
-                                                    DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
-                                                    ->where('code', $value)->first();
-
-                                                return $result->full_name ?? null;
                                             })
                                             ->required(),
                                     ],
