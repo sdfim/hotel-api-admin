@@ -80,7 +80,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                           ->label('Code')
                           ->disabled(!$isEditable)
                           ->required(),
-                          
+
                       TextInput::make('name')
                           ->label('Name')
                           ->disabled(!$isEditable)
@@ -104,7 +104,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                           })
                           ->disabled(!$isEditable)
                           ->required(),
-                          
+
                       Hidden::make('locale_id')
                           ->required(),
 
@@ -117,7 +117,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                           ->label('Address')
                           ->disabled(!$isEditable)
                           ->required(),
-                        
+
                       TextInput::make('mapper_postal_code')
                           ->label('Postal Code')
                           ->numeric()
