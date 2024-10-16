@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\ApiBookingItem;
+use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
@@ -43,7 +43,7 @@ class ExportBookingSupplier extends Command
           $supplierMap[$supplier['id']] = $supplier['name'];
         }
 
-        $query = ApiBookingItem::query()
+        $query = ApiBookingsMetadata::query()
             ->whereNotNull('booking_item')
             ->whereNotNull('supplier_id')
             ->select('booking_item', 'supplier_id');
