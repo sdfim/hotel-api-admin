@@ -16,12 +16,12 @@ return new class extends Migration
             $table->boolean('direct_connection');
             $table->boolean('manual_contract');
             $table->boolean('commission_tracking');
-            $table->json('address');
+            $table->json('address')->nullable();
             $table->integer('star_rating');
             $table->string('website', 255);
             $table->integer('num_rooms');
             $table->boolean('featured');
-            $table->string('location', 255);
+            $table->json('location')->nullable();
             $table->unsignedBigInteger('content_source_id');
             $table->unsignedBigInteger('room_images_source_id');
             $table->unsignedBigInteger('property_images_source_id');

@@ -32,10 +32,14 @@ class TransformExpediaContentToHotels extends Command
     {
         $expediaId = ContentSource::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         // Example transformation logic
+
+        $address = $expediaContent->address;
+        unset($address['localized']);
+
         $hotelData = [
             'name' => $expediaContent->name,
-
-            'type' => Arr::get($expediaContent->expediaSlave->brand, 'name'),
+            // Direct Connection, Manual Contract, Commission Tracking (No Rules Apply)
+            'type' => 'Direct Connection',
 
             'verified' => true,
             'direct_connection' => true,
@@ -44,12 +48,12 @@ class TransformExpediaContentToHotels extends Command
             'featured' => false,
             'channel_management' => true,
 
-            'address' => $expediaContent?->address,
+            'address' => $address,
+            'location' => Arr::get($expediaContent?->location, 'coordinates'),
             'star_rating' => $expediaContent?->rating,
 
             'website' => '',
             'num_rooms' => Arr::get($expediaContent->expediaSlave->statistics, '52.value'),
-            'location' => $expediaContent?->sity ?? '',
 
             'content_source_id' => $expediaId,
             'room_images_source_id' => $expediaId,
@@ -79,6 +83,9 @@ class TransformExpediaContentToHotels extends Command
         // HotelInformativeService::create([...]);
         // HotelPromotion::create([...]);
         // HotelRoom::create([...]);
+
+        // KeyMapping::create([...]);
+        // TravelAgencyCommission::create([...]);
 
         // Example for expediaSlave related data
         if ($expediaContent->expediaSlave) {

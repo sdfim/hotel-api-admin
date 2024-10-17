@@ -45,6 +45,7 @@ class Hotel extends Model
         'commission_tracking' => 'boolean',
         'featured' => 'boolean',
         'address' => 'array',
+        'location' => 'array',
     ];
 
     protected $hidden = [

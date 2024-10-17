@@ -103,7 +103,8 @@ class HotelDTO
                 'service_description' => $service->service_description,
                 'service_cost' => $service->service_cost,
             ];
-        });        $this->promotions = $hotel->promotions->map(function ($promotion) {
+        });
+        $this->promotions = $hotel->promotions->map(function ($promotion) {
             return [
                 'promotion_name' => $promotion->promotion_name,
                 'description' => $promotion->description,
