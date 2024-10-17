@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('insurance_plans', function (Blueprint $table) {
             $table->id();
-            $table->uuid('booking_item');
+            $table->uuid('booking_item')->charset('utf8mb4')->collation('utf8mb4_unicode_ci');
             $table->decimal('total_insurance_cost', 10);
             $table->decimal('commission_ujv', 10);
             $table->decimal('supplier_fee', 10);

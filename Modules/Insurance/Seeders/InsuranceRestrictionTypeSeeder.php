@@ -12,7 +12,7 @@ class InsuranceRestrictionTypeSeeder extends Seeder
     public function run(): void
     {
         foreach (RestrictionTypeNames::LIST as $type) {
-            InsuranceRestrictionType::create(['name' => $type]);
+            InsuranceRestrictionType::firstOrCreate(['name' => $type]);
         }
     }
 }

@@ -36,7 +36,7 @@ class TripMateDefaultRestrictions extends Seeder
             ];
 
             foreach ($restrictions as $restriction) {
-                InsuranceRestriction::create($restriction);
+                InsuranceRestriction::firstOrCreate($restriction);
             }
         }
     }

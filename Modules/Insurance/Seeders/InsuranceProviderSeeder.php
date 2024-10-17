@@ -9,8 +9,9 @@ class InsuranceProviderSeeder extends Seeder
 {
     public function run(): void
     {
-        InsuranceProvider::create([
+        InsuranceProvider::firstOrCreate([
             'name' => 'TripMate',
+        ], [
             'contact_info' => '',
         ]);
     }
