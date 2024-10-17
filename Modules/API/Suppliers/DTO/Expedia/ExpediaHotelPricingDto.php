@@ -284,6 +284,7 @@ class ExpediaHotelPricingDto
         $roomResponse->setPackageDeal(Arr::get($rate, 'sale_scenario.package', false));
         $roomResponse->setPromotions($promotions);
         $roomResponse->setNonRefundable(!$rate['refundable']);
+        $roomResponse->setAmenities($this->getAmenitiesFromRate($rate));
 
         $roomResponse->setCurrency($this->currency);
 
@@ -316,6 +317,13 @@ class ExpediaHotelPricingDto
         ];
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
+    }
+
+    private function getAmenitiesFromRate(array $rate): array
+    {
+        $amenities = Arr::get($rate, 'amenities', []);
+
+        return array_values(array_map(fn (array $amenity) => $amenity['name'], $amenities));
     }
 
     private function getBreakdown(array $roomsPricingArray): array

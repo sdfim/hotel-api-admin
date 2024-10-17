@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Http\Requests\AttachOrDetachGalleryRequest;
 use Modules\HotelContentRepository\Http\Requests\HotelRequest;
+use Modules\HotelContentRepository\Models\DTOs\HotelDTO;
 use Modules\HotelContentRepository\Models\Hotel;
 use Illuminate\Http\Request;
 use Modules\API\BaseController;
@@ -17,7 +18,10 @@ class HotelController extends BaseController
         $hotels = Hotel::with([
             'affiliations',
             'attributes',
-            'descriptiveContents',
+            'contentSource',
+            'roomImagesSource',
+            'propertyImagesSource',
+            'descriptiveContentsSection.content',
             'feeTaxes',
             'informativeServices',
             'promotions.galleries.images',
@@ -26,7 +30,12 @@ class HotelController extends BaseController
             'travelAgencyCommissions',
             'galleries.images'
         ])->get();
-        return $this->sendResponse($hotels->toArray(), 'index success', Response::HTTP_OK);
+
+        $hotelDTOs = $hotels->map(function ($hotel) {
+            return new HotelDTO($hotel);
+        });
+
+        return $this->sendResponse($hotelDTOs->toArray(), 'index success', Response::HTTP_OK);
     }
 
     public function store(HotelRequest $request)
@@ -40,7 +49,10 @@ class HotelController extends BaseController
         $hotel = Hotel::with([
             'affiliations',
             'attributes',
-            'descriptiveContents',
+            'contentSource',
+            'roomImagesSource',
+            'propertyImagesSource',
+            'descriptiveContentsSection.content',
             'feeTaxes',
             'informativeServices',
             'promotions.galleries.images',
@@ -49,7 +61,11 @@ class HotelController extends BaseController
             'travelAgencyCommissions',
             'galleries.images'
         ])->findOrFail($id);
-        return $this->sendResponse($hotel->toArray(), 'show success', Response::HTTP_OK);
+
+        $hotelDTO = new HotelDTO($hotel);
+
+        return $this->sendResponse([$hotelDTO], 'show success', Response::HTTP_OK);
+
     }
 
     public function update(HotelRequest $request, $id)

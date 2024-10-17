@@ -12,7 +12,7 @@ class HotelImageController extends BaseController
 {
     public function index()
     {
-        $hotelImages = HotelImage::all();
+        $hotelImages = HotelImage::with(['section'])->get();
         return $this->sendResponse($hotelImages->toArray(), 'index success', Response::HTTP_OK);
     }
 
@@ -24,7 +24,7 @@ class HotelImageController extends BaseController
 
     public function show($id)
     {
-        $hotelImage = HotelImage::findOrFail($id);
+        $hotelImage = HotelImage::with(['section'])->findOrFail($id);
         return $this->sendResponse($hotelImage->toArray(), 'show success', Response::HTTP_OK);
     }
 

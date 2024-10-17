@@ -12,7 +12,7 @@ class KeyMappingController extends BaseController
 {
     public function index()
     {
-        $keyMappings = KeyMapping::all();
+        $keyMappings = KeyMapping::with(['keyMappingOwner'])->get();
         return $this->sendResponse($keyMappings->toArray(), 'index success', Response::HTTP_OK);
     }
 
@@ -24,7 +24,7 @@ class KeyMappingController extends BaseController
 
     public function show($id)
     {
-        $keyMapping = KeyMapping::findOrFail($id);
+        $keyMapping = KeyMapping::with(['keyMappingOwner'])->findOrFail($id);
         return $this->sendResponse($keyMapping->toArray(), 'show success', Response::HTTP_OK);
     }
 

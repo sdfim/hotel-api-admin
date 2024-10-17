@@ -12,10 +12,11 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('hotel_id');
             $table->string('key_id', 255);
-            $table->enum('key_name', ['UJV system', 'GIATA']);
+            $table->unsignedBigInteger('key_mapping_owner_id');
             $table->timestamps();
 
             $table->foreign('hotel_id')->references('id')->on('pd_hotels')->onDelete('cascade');
+            $table->foreign('key_mapping_owner_id')->references('id')->on('pd_key_mapping_owners');
         });
     }
 

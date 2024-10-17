@@ -89,7 +89,7 @@ class ImageGalleryControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 'id', 'gallery_name', 'description', 'images' => [
-                    '*' => ['id', 'image_url', 'tag', 'weight', 'section']
+                    '*' => ['id', 'image_url', 'tag', 'weight', 'section_id']
                 ]
             ],
             'message'

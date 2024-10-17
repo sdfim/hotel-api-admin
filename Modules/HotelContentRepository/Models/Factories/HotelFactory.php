@@ -3,8 +3,8 @@
 namespace Modules\HotelContentRepository\Models\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Models\ImageGallery;
 
 class HotelFactory extends Factory
 {
@@ -25,9 +25,9 @@ class HotelFactory extends Factory
             'num_rooms' => $this->faker->numberBetween(1, 500),
             'featured' => $this->faker->boolean,
             'location' => $this->faker->address,
-            'content_source' => $this->faker->randomElement(['IcePortal', 'Expedia', 'Internal']),
-            'room_images_source' => $this->faker->randomElement(['IcePortal', 'Expedia', 'Internal']),
-            'property_images_source' => $this->faker->randomElement(['IcePortal', 'Expedia', 'Internal']),
+            'content_source_id' => ContentSource::factory(),
+            'room_images_source_id' => ContentSource::factory(),
+            'property_images_source_id' => ContentSource::factory(),
             'channel_management' => $this->faker->boolean,
             'hotel_board_basis' => $this->faker->word,
             'default_currency' => $this->faker->currencyCode,

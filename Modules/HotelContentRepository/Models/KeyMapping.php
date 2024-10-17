@@ -20,7 +20,7 @@ class KeyMapping extends Model
     protected $fillable = [
         'hotel_id',
         'key_id',
-        'key_name',
+        'key_mapping_owner_id',
     ];
 
     protected $hidden = [
@@ -32,5 +32,10 @@ class KeyMapping extends Model
     public function hotel()
     {
         return $this->belongsTo(Hotel::class);
+    }
+
+    public function keyMappingOwner()
+    {
+        return $this->belongsTo(KeyMappingOwner::class, 'key_mapping_owner_id');
     }
 }

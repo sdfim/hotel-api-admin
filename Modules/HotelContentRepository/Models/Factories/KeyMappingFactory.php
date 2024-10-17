@@ -5,6 +5,7 @@ namespace Modules\HotelContentRepository\Models\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\KeyMapping;
+use Modules\HotelContentRepository\Models\KeyMappingOwner;
 
 class KeyMappingFactory extends Factory
 {
@@ -15,7 +16,7 @@ class KeyMappingFactory extends Factory
         return [
             'hotel_id' => Hotel::factory(),
             'key_id' => $this->faker->uuid,
-            'key_name' => $this->faker->randomElement(['UJV system', 'GIATA']),
+            'key_mapping_owner_id' => KeyMappingOwner::factory(),
         ];
     }
 }

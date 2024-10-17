@@ -14,7 +14,7 @@ class HotelAffiliationControllerTest extends TestCase
     public function test_can_create_hotel_affiliation()
     {
         $data = HotelAffiliation::factory()->make()->toArray();
-        $response = $this->request()->postJson('api/repo/hotel-affiliations', $data);;
+        $response = $this->request()->postJson('api/repo/hotel-affiliations', $data);
         $response->assertStatus(201)
             ->assertJsonFragment($data);
         $this->assertDatabaseHas('pd_hotel_affiliations', $data);

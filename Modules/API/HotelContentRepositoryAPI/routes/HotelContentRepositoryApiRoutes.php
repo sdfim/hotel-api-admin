@@ -5,17 +5,21 @@ namespace Modules\API\HotelContentRepositoryAPI\routes;
 use Illuminate\Support\Facades\Route;
 use Modules\API\Controllers\ApiHandlers\DestinationsController;
 use Modules\API\Controllers\RouteApiController;
+use Modules\HotelContentRepository\Http\Controllers\ContentSourceController;
 use Modules\HotelContentRepository\Http\Controllers\HotelAffiliationController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
+use Modules\HotelContentRepository\Http\Controllers\HotelDescriptiveContentSectionController;
 use Modules\HotelContentRepository\Http\Controllers\HotelFeeTaxController;
 use Modules\HotelContentRepository\Http\Controllers\HotelAttributeController;
 use Modules\HotelContentRepository\Http\Controllers\HotelDescriptiveContentController;
 use Modules\HotelContentRepository\Http\Controllers\HotelImageController;
+use Modules\HotelContentRepository\Http\Controllers\HotelImageSectionController;
 use Modules\HotelContentRepository\Http\Controllers\HotelInformativeServiceController;
 use Modules\HotelContentRepository\Http\Controllers\HotelPromotionController;
 use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
 use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
 use Modules\HotelContentRepository\Http\Controllers\KeyMappingController;
+use Modules\HotelContentRepository\Http\Controllers\KeyMappingOwnerController;
 use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
 
 class HotelContentRepositoryApiRoutes
@@ -31,6 +35,8 @@ class HotelContentRepositoryApiRoutes
 
             Route::resource('hotel-attributes', HotelAttributeController::class);
 
+            Route::resource('hotel-descriptive-content-sections', HotelDescriptiveContentSectionController::class)
+                ->parameters(['hotel-descriptive-content-sections' => 'section']);
             Route::resource('hotel-descriptive-contents', HotelDescriptiveContentController::class);
 
             Route::resource('hotel-fee-taxes', HotelFeeTaxController::class);
@@ -55,6 +61,12 @@ class HotelContentRepositoryApiRoutes
             Route::resource('image-galleries', ImageGalleryController::class);
             Route::post('image-galleries/{id}/attach-image', [ImageGalleryController::class, 'attachImage']);
             Route::post('image-galleries/{id}/detach-image', [ImageGalleryController::class, 'detachImage']);
+
+            Route::resource('content-sources', ContentSourceController::class);
+
+            Route::resource('hotel-image-sections', HotelImageSectionController::class);
+
+            Route::resource('key-mapping-owners', KeyMappingOwnerController::class);
         });
     }
 }

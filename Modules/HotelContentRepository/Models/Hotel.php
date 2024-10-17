@@ -30,12 +30,22 @@ class Hotel extends Model
         'num_rooms',
         'featured',
         'location',
-        'content_source',
-        'room_images_source',
-        'property_images_source',
+        'content_source_id',
+        'room_images_source_id',
+        'property_images_source_id',
         'channel_management',
         'hotel_board_basis',
         'default_currency',
+    ];
+
+    protected $casts = [
+        'verified' => 'boolean',
+        'direct_connection' => 'boolean',
+        'manual_contract' => 'boolean',
+        'commission_tracking' => 'boolean',
+        'featured' => 'boolean',
+        'address' => 'array',
+        'location' => 'array',
     ];
 
     protected $hidden = [
@@ -43,6 +53,21 @@ class Hotel extends Model
         'updated_at',
         'pivot'
     ];
+
+    public function contentSource()
+    {
+        return $this->belongsTo(ContentSource::class, 'content_source_id');
+    }
+
+    public function roomImagesSource()
+    {
+        return $this->belongsTo(ContentSource::class, 'room_images_source_id');
+    }
+
+    public function propertyImagesSource()
+    {
+        return $this->belongsTo(ContentSource::class, 'property_images_source_id');
+    }
 
     public function affiliations()
     {
@@ -54,9 +79,9 @@ class Hotel extends Model
         return $this->hasMany(HotelAttribute::class);
     }
 
-    public function descriptiveContents()
+    public function descriptiveContentsSection()
     {
-        return $this->hasMany(HotelDescriptiveContent::class);
+        return $this->hasMany(HotelDescriptiveContentSection::class);
     }
 
     public function feeTaxes()

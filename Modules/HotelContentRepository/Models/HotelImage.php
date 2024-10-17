@@ -21,14 +21,19 @@ class HotelImage extends Model
         'image_url',
         'tag',
         'weight',
-        'section',
-    ];
+        'section_id',
+        ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
         'pivot'
     ];
+
+    public function section()
+    {
+        return $this->belongsTo(HotelImageSection::class, 'section_id');
+    }
 
     public function galleries()
     {

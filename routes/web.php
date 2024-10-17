@@ -57,8 +57,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('exceptions-report', ExceptionsReportController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
         Route::resource('exceptions-report-chart', ExceptionsReportChartController::class)->except(['delete', 'store', 'create', 'update', 'destroy', 'edit']);
 
-        Route::get('/property-mapping', [PropertyMappingController::class, 'index'])->name('property_mapping');
-        Route::resource('reservations', ReservationsController::class)->except(['delete', 'store', 'create']);
+        Route::get('/property-mapping', [PropertiesController::class, 'index'])->name('property_mapping');
+        Route::resource('reservations', ReservationsController::class)->only(['index', 'show']);
         Route::resource('property-weighting', PropertyWeightingController::class)->only(['index', 'create', 'show', 'edit']);
         Route::resource('properties', PropertiesController::class)->except(['delete', 'store', 'create']);
         Route::resource('ice-hbsi', IceHbsiController::class)->except(['delete', 'store', 'create']);

@@ -18,7 +18,7 @@ class HotelImageControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id',  'image_url', 'tag', 'weight', 'section']
+                '*' => ['id',  'image_url', 'tag', 'weight', 'section_id']
             ],
             'message'
         ]);
@@ -32,7 +32,7 @@ class HotelImageControllerTest extends TestCase
         $response = $this->request()->postJson('api/repo/hotel-images', $data);
         $response->assertStatus(201);
         $response->assertJsonStructure([
-            'data' => ['id',  'image_url', 'tag', 'weight', 'section'],
+            'data' => ['id',  'image_url', 'tag', 'weight', 'section_id'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_hotel_images', $data);
@@ -45,7 +45,7 @@ class HotelImageControllerTest extends TestCase
         $response = $this->request()->getJson("api/repo/hotel-images/{$image->id}");
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id',  'image_url', 'tag', 'weight', 'section'],
+            'data' => ['id',  'image_url', 'tag', 'weight', 'section_id'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_hotel_images', $image->toArray());
@@ -59,7 +59,7 @@ class HotelImageControllerTest extends TestCase
         $response = $this->request()->putJson("api/repo/hotel-images/{$image->id}", $data);
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id',  'image_url', 'tag', 'weight', 'section'],
+            'data' => ['id',  'image_url', 'tag', 'weight', 'section_id'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_hotel_images', $data);

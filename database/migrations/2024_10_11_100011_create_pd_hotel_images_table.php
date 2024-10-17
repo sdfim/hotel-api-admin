@@ -13,8 +13,10 @@ return new class extends Migration
             $table->string('image_url', 255);
             $table->string('tag', 100);
             $table->integer('weight');
-            $table->enum('section', ['gallery','hotel','room','promotion','exterior','amenities']);
+            $table->unsignedBigInteger('section_id');
             $table->timestamps();
+
+            $table->foreign('section_id')->references('id')->on('pd_hotel_image_sections');
         });
     }
 
