@@ -16,7 +16,7 @@ return new class extends Migration
             $table->boolean('direct_connection');
             $table->boolean('manual_contract');
             $table->boolean('commission_tracking');
-            $table->text('address');
+            $table->json('address');
             $table->integer('star_rating');
             $table->string('website', 255);
             $table->integer('num_rooms');

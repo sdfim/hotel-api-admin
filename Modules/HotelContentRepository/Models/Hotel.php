@@ -38,6 +38,15 @@ class Hotel extends Model
         'default_currency',
     ];
 
+    protected $casts = [
+        'verified' => 'boolean',
+        'direct_connection' => 'boolean',
+        'manual_contract' => 'boolean',
+        'commission_tracking' => 'boolean',
+        'featured' => 'boolean',
+        'address' => 'array',
+    ];
+
     protected $hidden = [
         'created_at',
         'updated_at',
