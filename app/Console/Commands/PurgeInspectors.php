@@ -34,39 +34,28 @@ class PurgeInspectors extends Command
         $kept_days = GeneralConfiguration::first()->time_inspector_retained;
         $kept_date = date('Y-m-d H:i:s', strtotime('-'.$kept_days.' days'));
 
-        // get search_ids from booking inspectors as booked
-        $search_ids = ApiBookingInspector::where('type', 'book')
-            ->where('sub_type', 'create')
-            ->distinct()
-            ->pluck('search_id');
-
-        // get search inspectors that are not booked
-        $inspector = ApiSearchInspector::where('created_at', '<', $kept_date)
-            ->whereNotIn('search_id', $search_ids)
-            ->get();
-
-        // clear inspectors
-        if ($inspector->count() > 0) {
-            $this->clear($inspector);
+        // clear ApiSearchInspector
+        $searchInspectors = ApiSearchInspector::where('created_at', '<', $kept_date)->get();
+        if ($searchInspectors->count() > 0) {
+            $this->info('PurgeInspectors: clear ApiSearchInspector');
+            foreach ($searchInspectors as $inspector) {
+                Storage::delete($inspector->response_path);
+                Storage::delete(str_replace('.json', '.original.json', $inspector->response_path));
+                Storage::delete($inspector->client_response_path);
+                $inspector->delete();
+            }
         }
 
-        // test
-        // $this->info('PurgeInspectors: test');
-        // $kept_days = 1;
-        // $kept_date = date('Y-m-d H:i:s', strtotime('+' . $kept_days . ' days'));
-        // $inspector = ApiSearchInspector::where('created_at', '<', $kept_date);
-        // if ($inspector->count() > 0) $this->clear($inspector);
-    }
-
-    private function clear($inspector): void
-    {
-        $this->info('PurgeInspectors: clear');
-        $inspector->chunk(100, function ($inspectors) {
-            foreach ($inspectors as $inspector) {
+        // clear ApiBookingInspector
+        $bookingInspectors = ApiBookingInspector::where('created_at', '<', $kept_date)->get();
+        if ($bookingInspectors->count() > 0) {
+            $this->info('PurgeInspectors: clear ApiBookingInspector');
+            foreach ($bookingInspectors as $inspector) {
                 Storage::delete($inspector->response_path);
                 Storage::delete($inspector->client_response_path);
                 $inspector->delete();
             }
-        });
+        }
     }
+
 }
