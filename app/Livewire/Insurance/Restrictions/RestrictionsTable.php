@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Insurance\Restrictions;
 
+use App\Models\Property;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables;
@@ -13,6 +14,8 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Modules\Insurance\Models\InsuranceRestriction;
 
@@ -45,6 +48,17 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                 TextColumn::make('value')
                     ->label('Restriction value')
                     ->sortable()
+                    ->formatStateUsing(function (Model $record) {
+                        $restrictionType = $record->restrictionType->name;
+
+                        if ($restrictionType === 'customer_location' || $restrictionType === 'travel_location') {
+                            return Property::select(
+                                DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'))
+                                ->where('city_id', $record->value)->first()->full_name ?? $record->value;
+                        }
+
+                        return $record->value;
+                    })
             ])
             ->filters([
                 //

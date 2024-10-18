@@ -18,7 +18,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="ml-1 mr-1 col-span-9 xl:col-span-6">
+                    <div class="ml-1 mr-1 col-span-9 xl:col-span-6" style="min-height: 460px">
                         @livewire('insurance.restrictions.create-restriction-form')
                     </div>
                 </div>
