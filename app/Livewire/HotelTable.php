@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
@@ -55,16 +56,18 @@ class HotelTable extends Component implements HasForms, HasTable
                 'galleries.images'
             ]))
             ->columns([
-                CustomTextColumn::make('name')
+                TextColumn::make('name')
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable()
+                    ->wrap()
                     ->tooltip(function ($record) {
                         return implode("\n", [
                             'Verified: ' . ($record->verified ? 'Yes' : 'No'),
                             'Direct Connection: ' . ($record->direct_connection ? 'Yes' : 'No'),
                             'Manual Contract: ' . ($record->manual_contract ? 'Yes' : 'No'),
                             'Commission Tracking: ' . ($record->commission_tracking ? 'Yes' : 'No'),
+                            'Channel Management: ' . ($record->channel_management ? 'Yes' : 'No'),
                         ]);
                     }),
                 CustomTextColumn::make('type')
@@ -79,18 +82,18 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
-                CustomTextColumn::make('website')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
+//                CustomTextColumn::make('website')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
                 CustomTextColumn::make('num_rooms')
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
-                CustomTextColumn::make('featured')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
+//                CustomTextColumn::make('featured')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
                 CustomTextColumn::make('location')
                     ->searchable(isIndividual: true)
                     ->toggleable()
@@ -100,18 +103,15 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable()
-                    ->formatStateUsing(function ($record) {
-                        return $record->content_source_id . ' ' . $record->room_images_source_id . ' ' . $record->property_images_source_id;
+                    ->default(function ($record) {
+                        return $record->contentSource->name . ' ' . $record->roomImagesSource->name . ' ' . $record->propertyImagesSource->name;
                     }),
-                CustomTextColumn::make('channel_management')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('hotel_board_basis')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
+//                CustomTextColumn::make('hotel_board_basis')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
                 CustomTextColumn::make('default_currency')
+                    ->label('Currency')
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
@@ -123,21 +123,21 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
-                CustomTextColumn::make('contentSource.name')
-                    ->label('Content Source')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('roomImagesSource.name')
-                    ->label('Room Images Source')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('propertyImagesSource.name')
-                    ->label('Property Images Source')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
+//                CustomTextColumn::make('contentSource.name')
+//                    ->label('Content Source')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
+//                CustomTextColumn::make('roomImagesSource.name')
+//                    ->label('Room Images Source')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
+//                CustomTextColumn::make('propertyImagesSource.name')
+//                    ->label('Property Images Source')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
                 CustomTextColumn::make('descriptiveContentsSection')
                     ->label('Descriptive Contents')
                     ->searchable(isIndividual: true)
