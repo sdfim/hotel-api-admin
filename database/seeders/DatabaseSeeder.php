@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             GeneralConfigurationSeeder::class,
             PropertyWeightingSeeder::class,
             PricingRuleSeeder::class,
+            TestPropertiesSeeder::class
         ]);
     }
 }
