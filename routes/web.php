@@ -13,13 +13,16 @@ use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
 use Modules\AdministrationSuite\Http\Controllers\GeographyController;
 use Modules\AdministrationSuite\Http\Controllers\IceHbsiController;
 use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
+use Modules\AdministrationSuite\Http\Controllers\PermissionsController;
 use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
 use Modules\AdministrationSuite\Http\Controllers\PropertiesController;
 use Modules\AdministrationSuite\Http\Controllers\PropertyWeightingController;
 use Modules\AdministrationSuite\Http\Controllers\ReservationsController;
+use Modules\AdministrationSuite\Http\Controllers\RolesController;
 use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
+use Modules\AdministrationSuite\Http\Controllers\UsersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -64,6 +67,10 @@ Route::prefix('admin')->group(function () {
         Route::resource('expedia', ExpediaController::class)->only('index');
         Route::get('/statistic-charts', [StatisticChartsController::class, 'index'])->name('statistic-charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->only(['store', 'destroy']);
+
+        Route::resource('users', UsersController::class)->only(['index', 'edit']);
+        Route::resource('roles', RolesController::class)->only(['index', 'edit', 'create']);
+        Route::get('permissions', PermissionsController::class)->name('permissions.index');
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
