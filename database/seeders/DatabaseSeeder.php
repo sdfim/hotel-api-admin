@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Modules\HotelContentRepository\DB\Seeders\HotelContentRepositorySeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,8 +19,10 @@ class DatabaseSeeder extends Seeder
             SuppliersSeeder::class,
             ChannelSeeder::class,
             GeneralConfigurationSeeder::class,
-            PropertyWeightingSeeder::class,
-            PricingRuleSeeder::class,
+//            PropertyWeightingSeeder::class,
+//            PricingRuleSeeder::class,
+
+            HotelContentRepositorySeeder::class,
         ]);
     }
 }

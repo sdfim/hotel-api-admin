@@ -11,9 +11,14 @@ return new class extends Migration
         Schema::create('pd_hotel_rooms', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('hotel_id');
-            $table->string('room_name', 255);
-            $table->string('hbs_data_mapped_name', 255);
-            $table->text('room_description');
+            $table->string('hbs_data_mapped_name');
+
+            $table->string('name');
+            $table->text('description');
+            $table->json('amenities')->nullable();
+            $table->json('occupancy')->nullable();
+            $table->json('bed_groups')->nullable();
+
             $table->timestamps();
 
             $table->foreign('hotel_id')->references('id')->on('pd_hotels')->onDelete('cascade');

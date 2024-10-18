@@ -12,14 +12,14 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('content_sections_id');
             $table->string('section_name', 255);
-            $table->text('meta_description');
+            $table->text('meta_description')->nullable();
             $table->text('property_description');
-            $table->text('cancellation_policy');
-            $table->text('pet_policy');
-            $table->text('terms_conditions');
-            $table->text('fees_paid_at_hotel');
-            $table->text('staff_contact_info');
-            $table->date('validity_start');
+            $table->text('cancellation_policy')->nullable();
+            $table->text('pet_policy')->nullable();
+            $table->text('terms_conditions')->nullable();
+            $table->text('fees_paid_at_hotel')->nullable();
+            $table->text('staff_contact_info')->nullable();
+            $table->date('validity_start')->nullable();
             $table->date('validity_end')->nullable();
             $table->timestamps();
 

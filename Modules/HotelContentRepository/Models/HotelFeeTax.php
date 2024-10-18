@@ -24,6 +24,7 @@ class HotelFeeTax extends Model
         'rack_value',
         'tax',
         'type',
+        'fee_category',
     ];
 
     protected $hidden = [
