@@ -13,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -47,10 +48,12 @@ class ChannelsTable extends Component implements HasForms, HasTable
                     ViewAction::make()
                         ->url(fn (Channel $record): string => route('channels.show', $record)),
                     EditAction::make()
-                        ->url(fn (Channel $record): string => route('channels.edit', $record)),
+                        ->url(fn (Channel $record): string => route('channels.edit', $record))
+                        ->visible(fn (Channel $record) => Gate::allows('update', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn (Channel $record) => $record->delete()),
+                        ->action(fn (Channel $record) => $record->delete())
+                        ->visible(fn (Channel $record) => Gate::allows('delete', $record)),
                 ]),
             ]);
     }

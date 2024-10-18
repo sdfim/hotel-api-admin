@@ -9,6 +9,14 @@ use Illuminate\View\View;
 
 class ChannelsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:view,App\Models\Channel')->only(['index', 'show']);
+        $this->middleware('can:create,App\Models\Channel')->only(['create', 'store']);
+        $this->middleware('can:update,App\Models\Channel')->only(['edit', 'update']);
+        $this->middleware('can:delete,App\Models\Channel')->only('destroy');
+    }
+
     /**
      * @var array|string[]
      */

@@ -33,9 +33,13 @@ trait HasRolesAndPermissions
         return false;
     }
 
-    public function hasPermission($permission): bool
+    public function hasPermission(string $permission): bool
     {
-        return (bool) $this->permissions->where('slug', $permission)->count();
+        return $this->permissions()->where('slug', $permission)->exists() ||
+            $this->roles()->whereHas(
+                'permissions',
+                fn ($query) => $query->where('slug', $permission),
+            )->exists();
     }
 
     public function hasPermissionTo($permission): bool
