@@ -16,8 +16,8 @@ jobs:
       DB_ROOT_USER: root
       DB_ROOT_PASSWORD: mysqlpasswdroot
       DB_DATABASE_HOST: mysql
-      DB_DATABASE_1: tests_obe
-      DB_DATABASE_2: tests_obe_content
+      DB_DATABASE: tests_obe
+      SUPPLIER_CONTENT_DB_DATABASE: tests_obe_content
       DB_DATABASE_USER: admin
       BOOKING_SUPPLIER_HBSI_USERNAME: ${{ secrets.BOOKING_SUPPLIER_HBSI_USERNAME }}
       BOOKING_SUPPLIER_HBSI_PASSWORD: ${{ secrets.BOOKING_SUPPLIER_HBSI_PASSWORD }}
@@ -68,10 +68,10 @@ jobs:
 
       - name: Create Databases And Grant All Privileges
         run: |
-          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE_1 }};"
-          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE_2 }};"
-          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "GRANT ALL PRIVILEGES ON ${{ env.DB_DATABASE_1 }}.* TO '${{ env.DB_DATABASE_USER }}'@'%';"
-          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "GRANT ALL PRIVILEGES ON ${{ env.DB_DATABASE_2 }}.* TO '${{ env.DB_DATABASE_USER }}'@'%';"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE }};"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.SUPPLIER_CONTENT_DB_DATABASE }};"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "GRANT ALL PRIVILEGES ON ${{ env.DB_DATABASE }}.* TO '${{ env.DB_DATABASE_USER }}'@'%';"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "GRANT ALL PRIVILEGES ON ${{ env.SUPPLIER_CONTENT_DB_DATABASE }}.* TO '${{ env.DB_DATABASE_USER }}'@'%';"
           mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "FLUSH PRIVILEGES;"
 
       - name: Run Database Migrations With Seeding
