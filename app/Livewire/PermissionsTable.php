@@ -5,7 +5,6 @@ namespace App\Livewire;
 use App\Models\Permission;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -28,9 +27,6 @@ class PermissionsTable extends Component implements HasForms, HasTable
                     ->searchable(),
                 TextColumn::make('slug')
                     ->searchable(),
-            ])->headerActions([
-                CreateAction::make('create')
-                    ->url(fn (): string => route('roles.create')),
             ]);
     }
 

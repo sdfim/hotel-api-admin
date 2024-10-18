@@ -24,6 +24,9 @@ class PermissionSeeder extends Seeder
         'ice_portal_propery',
         'expedia_content',
         'mapping',
+        'user',
+        'role',
+        'permission',
     ];
 
     /**

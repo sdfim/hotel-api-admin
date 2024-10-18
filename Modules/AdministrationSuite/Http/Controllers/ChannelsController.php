@@ -7,15 +7,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class ChannelsController extends Controller
+class ChannelsController extends BaseWithPolicyController
 {
-    public function __construct()
-    {
-        $this->middleware('can:view,App\Models\Channel')->only(['index', 'show']);
-        $this->middleware('can:create,App\Models\Channel')->only(['create', 'store']);
-        $this->middleware('can:update,App\Models\Channel')->only(['edit', 'update']);
-        $this->middleware('can:delete,App\Models\Channel')->only('destroy');
-    }
+    protected static string $model = Channel::class;
 
     /**
      * @var array|string[]

@@ -13,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -35,15 +36,18 @@ class RolesTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     EditAction::make()
-                        ->url(fn (Role $record): string => route('roles.edit', $record)),
+                        ->url(fn (Role $record): string => route('roles.edit', $record))
+                        ->visible(fn (Role $record) => Gate::allows('update', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn (Role $record) => $record->delete()),
+                        ->action(fn (Role $record) => $record->delete())
+                        ->visible(fn (Role $record) => Gate::allows('delete', $record)),
                 ])->hidden(fn (Role $record) => $record->slug == 'admin'),
             ])->headerActions([
                 CreateAction::make()
                     ->label('Create')
-                    ->url(fn (): string => route('roles.create')),
+                    ->url(fn (): string => route('roles.create'))
+                    ->visible(fn () => Gate::allows('create', Role::class)),
             ]);
     }
 

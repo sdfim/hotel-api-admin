@@ -5,8 +5,10 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 use App\Models\Role;
 use Illuminate\View\View;
 
-class RolesController extends Controller
+class RolesController extends BaseWithPolicyController
 {
+    protected static string $model = Role::class;
+
     private array $message = ['edit' => 'Edit Role', 'create' => 'Create Role'];
     /**
      * Display a listing of the resource.

@@ -5,8 +5,10 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 use App\Models\User;
 use Illuminate\View\View;
 
-class UsersController extends Controller
+class UsersController extends BaseWithPolicyController
 {
+    protected static string $model = User::class;
+
     private array $message = ['edit' => 'Edit User'];
     /**
      * Display a listing of the resource.

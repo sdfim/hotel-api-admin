@@ -13,6 +13,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -38,10 +39,12 @@ class UsersTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     EditAction::make()
-                        ->url(fn (User $record): string => route('users.edit', $record)),
+                        ->url(fn (User $record): string => route('users.edit', $record))
+                        ->visible(fn (User $record) => Gate::allows('update', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn (User $record) => $record->delete()),
+                        ->action(fn (User $record) => $record->delete())
+                        ->visible(fn (User $record) => Gate::allows('delete', $record)),
                 ]),
             ]);
     }
