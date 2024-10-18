@@ -15,12 +15,12 @@ use Modules\AdministrationSuite\Http\Controllers\IceHbsiController;
 use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
 use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
 use Modules\AdministrationSuite\Http\Controllers\PropertiesController;
-use Modules\AdministrationSuite\Http\Controllers\PropertyMappingController;
 use Modules\AdministrationSuite\Http\Controllers\PropertyWeightingController;
 use Modules\AdministrationSuite\Http\Controllers\ReservationsController;
 use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
+use Modules\HotelContentRepository\Http\Controllers\HotelController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +65,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('expedia', ExpediaController::class)->except(['delete', 'store', 'create']);
         Route::get('/statistic-charts', [StatisticChartsController::class, 'index'])->name('statistic-charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->except(['index', 'update', 'create']);
+
+        Route::resource('hotel_repository', HotelController::class);
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
