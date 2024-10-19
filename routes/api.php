@@ -5,6 +5,7 @@ use Modules\API\ContentAPI\routes\ContentApiRoutes;
 use Modules\API\HotelContentRepositoryAPI\routes\HotelContentRepositoryApiRoutes;
 use Modules\API\PricingAPI\routes\PricingApiRoutes;
 use Modules\API\Report\routes\ReportApiRoutes;
+use Modules\Insurance\routes\InsuranceApiRoutes;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,3 +27,5 @@ BookingApiRoutes::routes();
 ReportApiRoutes::routes();
 
 HotelContentRepositoryApiRoutes::routes();
+
+InsuranceApiRoutes::routes();

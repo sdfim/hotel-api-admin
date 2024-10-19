@@ -12,6 +12,8 @@ use Modules\AdministrationSuite\Http\Controllers\ExpediaController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
 use Modules\AdministrationSuite\Http\Controllers\GeographyController;
 use Modules\AdministrationSuite\Http\Controllers\IceHbsiController;
+use Modules\AdministrationSuite\Http\Controllers\InsuranceProvidersController;
+use Modules\AdministrationSuite\Http\Controllers\InsuranceRestrictionsController;
 use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
 use Modules\AdministrationSuite\Http\Controllers\PermissionsController;
 use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
@@ -74,6 +76,9 @@ Route::prefix('admin')->group(function () {
         Route::get('permissions', PermissionsController::class)->name('permissions.index');
 
         Route::resource('hotel_repository', HotelController::class)->only(['index', 'edit']);
+
+        Route::resource('/insurance-providers', InsuranceProvidersController::class)->only(['index', 'create', 'edit']);
+        Route::resource('/insurance-restrictions', InsuranceRestrictionsController::class)->only(['index', 'create', 'edit']);
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
