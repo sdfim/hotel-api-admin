@@ -1,9 +1,9 @@
 name: Laravel
 on:
   push:
-    branches: ["master", "dev"]
+    branches: ["master", "dev", "stage-ndr"]
   pull_request:
-    branches: ["master", "dev"]
+    branches: ["master", "dev", "stage-ndr"]
 
 jobs:
   laravel-phpunit:
