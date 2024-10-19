@@ -32,6 +32,39 @@
                     </ul>
                 </li>
                 <li>
+                    <a href="javascript: void(0);" aria-expanded="false"
+                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-gear"></i>
+                        <span data-key="t-configuration">Users and permissions</span>
+                    </a>
+                    <ul>
+                        <li>
+                            <a href="{{ Route('users.index') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px]
+                               font-medium text-gray-700 transition-all
+                               duration-150 ease-linear hover:text-violet-500
+                               dark:text-gray-300 dark:active:text-white
+                               dark:hover:text-white">Users</a>
+                        </li>
+                        <li>
+                            <a href="{{ Route('roles.index') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px]
+                               font-medium text-gray-700 transition-all
+                               duration-150 ease-linear hover:text-violet-500
+                               dark:text-gray-300 dark:active:text-white
+                               dark:hover:text-white">Roles</a>
+                        </li>
+                        <li>
+                            <a href="{{ Route('permissions.index') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px]
+                               font-medium text-gray-700 transition-all
+                               duration-150 ease-linear hover:text-violet-500
+                               dark:text-gray-300 dark:active:text-white
+                               dark:hover:text-white">Permissions</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
                     <a href="{{ Route('reservations.index') }}"
                        class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                         <i class="dripicons-pin"></i>

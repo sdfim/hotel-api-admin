@@ -7,8 +7,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class SuppliersController extends Controller
+class SuppliersController extends BaseWithPolicyController
 {
+    protected static string $model = Supplier::class;
+
     /**
      * @var array|string[]
      */

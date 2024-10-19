@@ -13,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -46,11 +47,13 @@ class SuppliersTable extends Component implements HasForms, HasTable
                         ->url(fn (Supplier $record): string => route('suppliers.show', $record)),
                     EditAction::make()
                         ->disabled(fn (Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
-                        ->url(fn (Supplier $record): string => route('suppliers.edit', $record)),
+                        ->url(fn (Supplier $record): string => route('suppliers.edit', $record))
+                        ->visible(fn (Supplier $record): bool => Gate::allows('update', $record)),
                     DeleteAction::make()
                         ->disabled(fn (Supplier $record): bool => in_array(strtolower($record->name), ['expedia', 'hbsi']))
                         ->requiresConfirmation()
-                        ->action(fn (Supplier $record) => $record->delete()),
+                        ->action(fn (Supplier $record) => $record->delete())
+                        ->visible(fn (Supplier $record): bool => Gate::allows('delete', $record)),
                 ]),
             ]);
     }
