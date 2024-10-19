@@ -10,10 +10,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 RUN apk update \
     && apk add --no-cache curl libpq-dev icu-dev zip unzip bash gmp-dev $PHPIZE_DEPS
 
+RUN apk update && apk add --no-cache supervisor busybox-suid
+
+RUN apk update && apk add --no-cache libzip-dev && docker-php-ext-configure zip && docker-php-ext-install zip
+
 RUN set -eux \
     && pecl install redis \
     && docker-php-ext-enable redis \
-    && true \
+    && true 
 
 RUN  docker-php-ext-configure intl \
     && docker-php-ext-install pdo_pgsql intl bcmath opcache exif pcntl gmp
@@ -37,7 +41,10 @@ RUN apk add --no-cache \
       libpng-dev
 
 RUN apk update && apk add --no-cache libzip-dev && docker-php-ext-configure zip && docker-php-ext-install zip
-
+# Install MySQL client and pdo_mysql extension
+RUN apk add --no-cache mysql-client \
+    && docker-php-ext-install pdo_mysql
+	
 RUN rm -rf /tmp/* /var/tmp/* \
     && docker-php-source delete
 
@@ -45,6 +52,9 @@ RUN adduser -G "www-data" -u $uid -D -h /home/$user $user
 
 RUN mkdir -p /home/$user/.composer && \
     chown -R $uid:$uid /home/$user
+
+# Install Node.js and npm
+RUN apk add --no-cache nodejs npm
 
 WORKDIR /var/www/html
 
