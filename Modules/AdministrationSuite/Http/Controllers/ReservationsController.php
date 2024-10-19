@@ -5,8 +5,10 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 use App\Models\Reservation;
 use Illuminate\View\View;
 
-class ReservationsController extends Controller
+class ReservationsController extends BaseWithPolicyController
 {
+    protected static string $model = Reservation::class;
+
     /**
      * @var array|string[]
      */

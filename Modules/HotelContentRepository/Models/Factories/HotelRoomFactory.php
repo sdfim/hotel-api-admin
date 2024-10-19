@@ -14,9 +14,9 @@ class HotelRoomFactory extends Factory
     {
         return [
             'hotel_id' => Hotel::factory(),
-            'room_name' => $this->faker->word,
+            'name' => $this->faker->word,
             'hbs_data_mapped_name' => $this->faker->word,
-            'room_description' => $this->faker->paragraph,
+            'description' => $this->faker->paragraph,
         ];
     }
 }

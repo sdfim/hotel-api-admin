@@ -22,7 +22,7 @@ class PermissionServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        try {
+        /*try {
             Permission::get()->map(function ($permission) {
                 Gate::define($permission->slug, function ($user) use ($permission) {
                     return $user->hasPermissionTo($permission);
@@ -30,6 +30,6 @@ class PermissionServiceProvider extends ServiceProvider
             });
         } catch (Exception $e) {
             report($e);
-        }
+        }*/
     }
 }

@@ -19,9 +19,15 @@ class HotelRoom extends Model
 
     protected $fillable = [
         'hotel_id',
-        'room_name',
         'hbs_data_mapped_name',
-        'room_description',
+        'name',
+        'description',
+    ];
+
+    protected $casts = [
+        'amenities' => 'array',
+        'occupancy' => 'array',
+        'bed_groups' => 'array',
     ];
 
     protected $hidden = [

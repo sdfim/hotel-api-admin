@@ -7,8 +7,10 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-class ChannelsController extends Controller
+class ChannelsController extends BaseWithPolicyController
 {
+    protected static string $model = Channel::class;
+
     /**
      * @var array|string[]
      */

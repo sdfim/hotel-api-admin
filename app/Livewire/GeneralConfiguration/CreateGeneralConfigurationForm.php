@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
@@ -97,7 +98,8 @@ class CreateGeneralConfigurationForm extends Component implements HasForms
                     ->required(),
             ])
             ->statePath('data')
-            ->model($this->getDynamicModel());
+            ->model($this->getDynamicModel())
+            ->disabled(!Gate::allows('update', GeneralConfiguration::class));
     }
 
     public function save(): Redirector|RedirectResponse

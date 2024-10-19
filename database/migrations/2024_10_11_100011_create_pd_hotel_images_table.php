@@ -10,9 +10,9 @@ return new class extends Migration
     {
         Schema::create('pd_hotel_images', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('image_url', 255);
+            $table->string('image_url')->index();
             $table->string('tag', 100);
-            $table->integer('weight');
+            $table->string('weight');
             $table->unsignedBigInteger('section_id');
             $table->timestamps();
 
