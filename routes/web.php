@@ -23,6 +23,7 @@ use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
+use Modules\HotelContentRepository\Http\Controllers\HotelController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +72,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('users', UsersController::class)->only(['index', 'edit']);
         Route::resource('roles', RolesController::class)->only(['index', 'edit', 'create']);
         Route::get('permissions', PermissionsController::class)->name('permissions.index');
+
+        Route::resource('hotel_repository', HotelController::class)->only(['index', 'edit']);
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');

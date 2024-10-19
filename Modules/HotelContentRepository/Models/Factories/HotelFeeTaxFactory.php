@@ -18,7 +18,8 @@ class HotelFeeTaxFactory extends Factory
             'net_value' => $this->faker->randomFloat(2, 10, 1000),
             'rack_value' => $this->faker->randomFloat(2, 10, 1000),
             'tax' => $this->faker->randomFloat(2, 0, 100),
-            'type' => $this->faker->randomElement(['per_person', 'per_night', 'per_person_per_night']),
+            'type' => $this->faker->randomElement(['per_person', 'per_night', 'per_person', 'per_night']),
+            'fee_category' => $this->faker->randomElement(['optional', 'mandatory']),
         ];
     }
 }
