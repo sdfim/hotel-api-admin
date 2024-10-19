@@ -7,19 +7,18 @@ use Illuminate\Database\Seeder;
 
 class RoleSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $manager = new Role();
-        $manager->name = 'Admin';
-        $manager->slug = 'admin';
-        $manager->save();
+        $roles = [
+            ['name' => 'Admin', 'slug' => 'admin'],
+            ['name' => 'User', 'slug' => 'user'],
+        ];
 
-        $developer = new Role();
-        $developer->name = 'User';
-        $developer->slug = 'user';
-        $developer->save();
+        foreach ($roles as $roleData) {
+            Role::firstOrCreate(
+                ['slug' => $roleData['slug']],
+                ['name' => $roleData['name']]
+            );
+        }
     }
 }
