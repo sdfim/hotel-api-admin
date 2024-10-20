@@ -2,13 +2,19 @@
 
 namespace App\Providers;
 
-use App\Models\Permission;
-use Exception;
+use App\Policies\HotelPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Modules\HotelContentRepository\Models\Hotel;
 
 class PermissionServiceProvider extends ServiceProvider
 {
+    private static array $permissions = [
+        'statistic-charts',
+        'swagger-docs',
+        'log-viewer',
+    ];
+
     /**
      * Register services.
      */
@@ -22,14 +28,12 @@ class PermissionServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        /*try {
-            Permission::get()->map(function ($permission) {
-                Gate::define($permission->slug, function ($user) use ($permission) {
-                    return $user->hasPermissionTo($permission);
-                });
+        Gate::policy(Hotel::class, HotelPolicy::class);
+
+        foreach (self::$permissions as $permission) {
+            Gate::define($permission, function ($user) use ($permission) {
+                return $user->hasPermission($permission);
             });
-        } catch (Exception $e) {
-            report($e);
-        }*/
+        }
     }
 }

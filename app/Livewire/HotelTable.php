@@ -9,6 +9,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Filament\Tables;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\HotelContentRepository\Filament\CustomTextColumn;
@@ -181,10 +182,12 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->tooltip('View'),
                 Tables\Actions\DeleteAction::make()
                     ->label('')
-                    ->tooltip('Delete'),
+                    ->tooltip('Delete')
+                    ->visible(fn (Hotel $record): bool => Gate::allows('delete', $record)),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->visible(Gate::allows('create', Hotel::class)),
             ]);
     }
 

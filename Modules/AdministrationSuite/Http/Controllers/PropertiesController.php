@@ -5,8 +5,10 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 use App\Models\Property;
 use Illuminate\Contracts\View\View;
 
-class PropertiesController extends Controller
+class PropertiesController extends BaseWithPolicyController
 {
+    protected static string $model = Property::class;
+
     /**
      * @var array|string[]
      */

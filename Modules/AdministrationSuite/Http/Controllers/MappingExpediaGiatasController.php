@@ -8,8 +8,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 
-class MappingExpediaGiatasController extends Controller
+class MappingExpediaGiatasController extends BaseWithPolicyController
 {
+    protected static string $model = Mapping::class;
+
     /**
      * Store a newly created resource in storage.
      */

@@ -34,7 +34,8 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(ApiBookingInspector::orderBy('created_at', 'DESC'))
+            ->query(ApiBookingInspector::query())
+            ->defaultSort('created_at', 'DESC')
             ->columns([
                 ViewColumn::make('search_id')
                     ->searchable(isIndividual: true)

@@ -48,11 +48,14 @@ class RolesForm extends Component implements HasForms, HasTable
                     ->live(true)
                     ->required()
                     ->maxLength(191)
-                    ->afterStateUpdated(fn ($state, Set $set) => $set('slug', Str::slug($state))),
+                    ->afterStateUpdated(
+                        fn ($state, Set $set) => !$this->record->exists ? $set('slug', Str::slug($state)) : $state
+                    ),
                 TextInput::make('slug')
                     ->unique(ignorable: $this->record)
                     ->required()
-                    ->maxLength(191),
+                    ->maxLength(191)
+                    ->disabled($this->record->exists),
             ])
             ->statePath('data')
             ->model($this->record);

@@ -13,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -64,10 +65,12 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ViewAction::make()
                         ->url(fn (PricingRule $record): string => route('pricing-rules.show', $record)),
                     EditAction::make()
-                        ->url(fn (PricingRule $record): string => route('pricing-rules.edit', $record)),
+                        ->url(fn (PricingRule $record): string => route('pricing-rules.edit', $record))
+                        ->visible(fn (PricingRule $record): bool => Gate::allows('update', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn (PricingRule $record) => $record->delete()),
+                        ->action(fn (PricingRule $record) => $record->delete())
+                        ->visible(fn (PricingRule $record): bool => Gate::allows('delete', $record)),
                 ]),
             ]);
     }

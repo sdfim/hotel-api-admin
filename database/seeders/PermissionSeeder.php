@@ -27,6 +27,13 @@ class PermissionSeeder extends Seeder
         'user',
         'role',
         'permission',
+        'hotel',
+    ];
+
+    private static array $permissions = [
+        'statistic-charts',
+        'swagger-docs',
+        'log-viewer',
     ];
 
     /**
@@ -40,15 +47,28 @@ class PermissionSeeder extends Seeder
             $modelName = Str::ucfirst(Str::camel($prefix));
 
             foreach ($permissionTypes as $type) {
-                $slug = $prefix . "." . $type;
-
-                if (!Permission::where('slug', $slug)->exists()) {
-                    $permission = new Permission();
-                    $permission->slug = $slug;
-                    $permission->name = $modelName . ' ' . $type;
-                    $permission->save();
-                }
+                $this->createIfNotExists(
+                    slug: $prefix . "." . $type,
+                    name: $modelName . ' ' . $type,
+                );
             }
+        }
+
+        foreach (self::$permissions as $permission) {
+            $this->createIfNotExists(
+                slug: $permission,
+                name: Str::replace(['-', '_'], ' ', Str::ucfirst($permission)),
+            );
+        }
+    }
+
+    private function createIfNotExists(string $slug, string $name): void
+    {
+        if (!Permission::where('slug', $slug)->exists()) {
+            $permission = new Permission();
+            $permission->slug = $slug;
+            $permission->name = $name;
+            $permission->save();
         }
     }
 }
