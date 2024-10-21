@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Livewire;
+namespace Modules\HotelContentRepository\Livewire\Hotel;
 
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
+use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Filament\Tables;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\HotelContentRepository\Filament\CustomTextColumn;
 use Modules\HotelContentRepository\Models\Hotel;
-use Filament\Forms;
-use Filament\Forms\Form;
 
 class HotelTable extends Component implements HasForms, HasTable
 {
@@ -26,14 +26,14 @@ class HotelTable extends Component implements HasForms, HasTable
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')->required(),
-                Forms\Components\TextInput::make('type')->required(),
-                Forms\Components\TextInput::make('address')->required(),
-                Forms\Components\TextInput::make('star_rating')->required(),
-                Forms\Components\TextInput::make('website')->required(),
-                Forms\Components\TextInput::make('num_rooms')->required(),
-                Forms\Components\TextInput::make('featured')->required(),
-                Forms\Components\TextInput::make('location')->required(),
+                TextInput::make('name')->required(),
+                TextInput::make('type')->required(),
+                TextInput::make('address')->required(),
+                TextInput::make('star_rating')->required(),
+                TextInput::make('website')->required(),
+                TextInput::make('num_rooms')->required(),
+                TextInput::make('featured')->required(),
+                TextInput::make('location')->required(),
             ]);
     }
 
@@ -179,7 +179,10 @@ class HotelTable extends Component implements HasForms, HasTable
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('')
-                    ->tooltip('View'),
+                    ->tooltip('View')
+                    ->url(fn (Hotel $record): string => route('hotel_repository.edit', $record))
+//                    ->visible(fn (Hotel $record) => Gate::allows('update', $record))
+                ,
                 Tables\Actions\DeleteAction::make()
                     ->label('')
                     ->tooltip('Delete')
@@ -193,6 +196,6 @@ class HotelTable extends Component implements HasForms, HasTable
 
     public function render(): View
     {
-        return view('livewire.hotel-table');
+        return view('livewire.hotels.hotel-table');
     }
 }

@@ -26,6 +26,7 @@ use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
+use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,7 +76,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('roles', RolesController::class)->only(['index', 'edit', 'create']);
         Route::get('permissions', PermissionsController::class)->name('permissions.index');
 
-        Route::resource('hotel_repository', HotelController::class)->only(['index', 'edit']);
+        Route::resource('hotel_repository', HotelController::class);
+        Route::resource('hotel_rooms', HotelRoomController::class);
 
         Route::resource('/insurance-providers', InsuranceProvidersController::class)->only(['index', 'create', 'edit']);
         Route::resource('/insurance-restrictions', InsuranceRestrictionsController::class)->only(['index', 'create', 'edit']);

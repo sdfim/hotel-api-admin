@@ -5,13 +5,20 @@ namespace App\Providers;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Suppliers\ExpediaSupplier\PropertyCallFactory;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
+use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
+use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
+use Modules\HotelContentRepository\Livewire\HotelAffiliations\HotelAffiliationsTable;
+use Modules\HotelContentRepository\Livewire\HotelAttributes\HotelAttributesTable;
+use Modules\HotelContentRepository\Livewire\HotelFeeTaxes\HotelFeeTaxTable;
+use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
+use Modules\HotelContentRepository\Models\HotelRoom;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -56,6 +63,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Livewire::component('hotels.hotel-form', HotelForm::class);
+        Livewire::component('hotels.hotel-table', HotelTable::class);
+        Livewire::component('hotels.hotel-room-table', HotelRoomTable::class);
+        Livewire::component('hotels.hotel-affiliations-table', HotelAffiliationsTable::class);
+        Livewire::component('hotels.hotel-attributes-table', HotelAttributesTable::class);
+        Livewire::component('hotels.hotel-fee-tax-table', HotelFeeTaxTable::class);
+
         $currentUrl = URL::current();
         if (! str_contains($currentUrl, 'localhost') && ! str_contains($currentUrl, '127.0.0.1')) {
             URL::forceScheme('https');
