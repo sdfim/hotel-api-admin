@@ -71,12 +71,5 @@ class PermissionSeeder extends Seeder
             $permission->name = $name;
             $permission->save();
         }
-
-        // Assign all permissions to the 'Admin' role
-        $adminRole = Role::where('slug', 'admin')->first();
-        if ($adminRole) {
-            $permissions = Permission::all();
-            $adminRole->permissions()->sync($permissions->pluck('id')->toArray());
-        }
     }
 }
