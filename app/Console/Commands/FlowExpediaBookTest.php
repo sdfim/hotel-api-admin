@@ -69,6 +69,8 @@ class FlowExpediaBookTest extends Command
         $this->info('search_id = '.$searchId);
         $this->info('booking_item = '.$bookingItem);
 
+		sleep(3);
+
         $bookingId = $this->addBookingItem($bookingItem);
         $bookingItems['search_1'] = $bookingItem;
 
@@ -80,8 +82,12 @@ class FlowExpediaBookTest extends Command
         $this->info('search_id = '.$searchId);
         $this->info('booking_item = '.$bookingItem);
 
+		sleep(3);
+
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
         $bookingItems['search_2'] = $bookingItem;
+
+		sleep(3);
 
         $this->warn('addPassengers group for SEARCH 1, SEARCH 2');
         $this->addPassengers($bookingId, $bookingItems, $query);
@@ -94,11 +100,14 @@ class FlowExpediaBookTest extends Command
         $this->info('search_id = '.$searchId);
         $this->info('booking_item = '.$bookingItem);
 
+		sleep(3);
+
         $bookingId = $this->addBookingItem($bookingItem, $bookingId);
         $bookingItems2['search_3'] = $bookingItem;
         $this->addPassengers($bookingId, $bookingItems2, $query2);
 
         sleep(3);
+		
         $this->warn('REMOVE ITEM');
         $this->removeBookingItem($bookingId, $bookingItem);
 

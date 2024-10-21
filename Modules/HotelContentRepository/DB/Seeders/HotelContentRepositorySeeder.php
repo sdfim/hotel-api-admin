@@ -14,19 +14,19 @@ class HotelContentRepositorySeeder extends Seeder
         // Seed ContentSource
         $contentSources = ['Expedia', 'IcePortal', 'Internal'];
         foreach ($contentSources as $source) {
-            ContentSource::create(['name' => $source]);
+            ContentSource::firstOrCreate(['name' => $source]);
         }
 
         // Seed HotelImageSection
         $hotelImageSections = ['hotel', 'room', 'exterior', 'amenities', 'gallery'];
         foreach ($hotelImageSections as $section) {
-            HotelImageSection::create(['name' => $section]);
+            HotelImageSection::firstOrCreate(['name' => $section]);
         }
 
         // Seed KeyMappingOwner
         $keyMappingOwners = ['GIATA', 'UJV system'];
         foreach ($keyMappingOwners as $owner) {
-            KeyMappingOwner::create(['name' => $owner]);
+            KeyMappingOwner::firstOrCreate(['name' => $owner]);
         }
     }
 }
