@@ -17,6 +17,7 @@ class InsurancePlan extends Model
         'commission_ujv',
         'supplier_fee',
         'insurance_provider_id',
+        'request'
     ];
 
     public function provider(): BelongsTo

@@ -12,8 +12,6 @@ use Modules\AdministrationSuite\Http\Controllers\ExpediaController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
 use Modules\AdministrationSuite\Http\Controllers\GeographyController;
 use Modules\AdministrationSuite\Http\Controllers\IceHbsiController;
-use Modules\AdministrationSuite\Http\Controllers\InsuranceProvidersController;
-use Modules\AdministrationSuite\Http\Controllers\InsuranceRestrictionsController;
 use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
 use Modules\AdministrationSuite\Http\Controllers\PermissionsController;
 use Modules\AdministrationSuite\Http\Controllers\PricingRulesController;
@@ -26,6 +24,8 @@ use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
+use Modules\Insurance\Http\Controllers\InsuranceProvidersController;
+use Modules\Insurance\Http\Controllers\InsuranceRestrictionsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -39,10 +39,10 @@ use Modules\HotelContentRepository\Http\Controllers\HotelController;
 */
 
 Route::get('/admin/', function () {
-    if (! Auth::check()) {
-        return redirect(config('app.url').'/admin/login');
+    if (!Auth::check()) {
+        return redirect(config('app.url') . '/admin/login');
     } else {
-        return redirect(config('app.url').'/admin/reservations');
+        return redirect(config('app.url') . '/admin/reservations');
     }
 })->name('root');
 

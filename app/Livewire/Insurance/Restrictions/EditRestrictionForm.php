@@ -40,15 +40,18 @@ class EditRestrictionForm extends Component implements HasForms
     {
         return $form
             ->schema([
-                Select::make('insurance_plan_id')
-                    ->label('Insurance Plan')
-                    ->relationship(name: 'plan', titleAttribute: 'booking_item')
-                    ->searchable(),
-                Select::make('provider_id')
-                    ->label('Provider')
-                    ->relationship(name: 'provider', titleAttribute: 'name')
-                    ->preload()
-                    ->required(),
+                Grid::make()
+                    ->schema([
+                        Select::make('insurance_plan_id')
+                            ->label('Insurance Plan')
+                            ->relationship(name: 'plan', titleAttribute: 'booking_item')
+                            ->searchable(),
+                        Select::make('provider_id')
+                            ->label('Provider')
+                            ->relationship(name: 'provider', titleAttribute: 'name')
+                            ->preload()
+                            ->required(),
+                    ]),
                 Grid::make(3)
                     ->schema([
                         Select::make('restriction_type_id')
