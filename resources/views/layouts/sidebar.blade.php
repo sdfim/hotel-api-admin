@@ -3,6 +3,7 @@
     use App\Models\GeneralConfiguration;
     use App\Models\Channel;
     use App\Models\Supplier;
+    use App\Models\User;
     use App\Models\Role;
     use App\Models\Permission;
     use App\Models\Reservation;
