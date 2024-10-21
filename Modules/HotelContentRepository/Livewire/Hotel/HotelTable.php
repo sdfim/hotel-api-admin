@@ -2,16 +2,11 @@
 
 namespace Modules\HotelContentRepository\Livewire\Hotel;
 
-use App\Models\User;
-use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Tables;
-use Filament\Tables\Actions\ActionGroup;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -190,21 +185,12 @@ class HotelTable extends Component implements HasForms, HasTable
                 ,
                 Tables\Actions\DeleteAction::make()
                     ->label('')
-                    ->tooltip('Delete'),
+                    ->tooltip('Delete')
+                    ->visible(fn (Hotel $record): bool => Gate::allows('delete', $record)),
             ])
-//            ->actions([
-//                ActionGroup::make([
-//                    EditAction::make()
-//                        ->url(fn (User $record): string => route('users.edit', $record))
-//                        ->visible(fn (User $record) => Gate::allows('update', $record)),
-//                    DeleteAction::make()
-//                        ->requiresConfirmation()
-//                        ->action(fn (User $record) => $record->delete())
-//                        ->visible(fn (User $record) => Gate::allows('delete', $record)),
-//                ]),
-//            ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->visible(Gate::allows('create', Hotel::class)),
             ]);
     }
 

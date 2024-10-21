@@ -5,8 +5,10 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 use App\Models\PricingRule;
 use Illuminate\View\View;
 
-class PricingRulesController extends Controller
+class PricingRulesController extends BaseWithPolicyController
 {
+    protected static string $model = PricingRule::class;
+
     private array $message = ['create' => 'Add New Pricing Rules', 'edit' => 'Edit Pricing Rules', 'show' => 'Show Pricing Rules'];
 
     /**

@@ -16,6 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Modules\Insurance\Models\InsuranceRestriction;
 
@@ -66,10 +67,12 @@ class RestrictionsTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     EditAction::make()
-                        ->url(fn(InsuranceRestriction $record): string => route('insurance-restrictions.edit', $record)),
+                        ->url(fn(InsuranceRestriction $record): string => route('insurance-restrictions.edit', $record))
+                        ->visible(fn(InsuranceRestriction $record): bool => Gate::allows('update', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(InsuranceRestriction $record) => $record->delete()),
+                        ->action(fn(InsuranceRestriction $record) => $record->delete())
+                        ->visible(fn(InsuranceRestriction $record): bool => Gate::allows('delete', $record)),
                 ]),
             ])
             ->bulkActions([

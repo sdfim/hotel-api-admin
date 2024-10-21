@@ -2,12 +2,14 @@
 
 namespace Modules\HotelContentRepository\Http\Controllers;
 
+use Modules\AdministrationSuite\Http\Controllers\BaseWithPolicyController;
 use Modules\HotelContentRepository\Models\Hotel;
 use Illuminate\Contracts\View\View;
-use Modules\AdministrationSuite\Http\Controllers\Controller;
 
-class HotelController extends Controller
+class HotelController extends BaseWithPolicyController
 {
+    protected static string $model = Hotel::class;
+
     private array $message = ['edit' => 'Edit Hotel'];
 
 

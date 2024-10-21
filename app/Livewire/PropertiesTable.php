@@ -24,6 +24,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -80,7 +81,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                           ->label('Code')
                           ->disabled(!$isEditable)
                           ->required(),
-                          
+
                       TextInput::make('name')
                           ->label('Name')
                           ->disabled(!$isEditable)
@@ -104,7 +105,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                           })
                           ->disabled(!$isEditable)
                           ->required(),
-                          
+
                       Hidden::make('locale_id')
                           ->required(),
 
@@ -117,7 +118,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                           ->label('Address')
                           ->disabled(!$isEditable)
                           ->required(),
-                        
+
                       TextInput::make('mapper_postal_code')
                           ->label('Postal Code')
                           ->numeric()
@@ -213,8 +214,9 @@ class PropertiesTable extends Component implements HasForms, HasTable
               CreateAction::make()
                 ->label('Create')
                 ->modalHeading('Create new property')
-                ->form(fn() => PropertiesTable::getFormSchema(true))
+                ->form(fn() => PropertiesTable::getFormSchema())
                 ->mutateFormDataUsing(fn (array $data) => PropertiesTable::createProperty($data))
+                ->visible(fn () => Gate::allows('create', Property::class)),
             ])
             ->query(Property::query())
             ->columns([
@@ -270,11 +272,13 @@ class PropertiesTable extends Component implements HasForms, HasTable
                         ->label('Mappings')
                         ->icon('heroicon-m-link')
                         ->modalHeading(fn (Property $record) => 'Property Mapping - ' . $record->code . ' ' . $record->name)
-                        ->form(fn() => PropertiesTable::getMapSchema()),
+                        ->form(fn() => PropertiesTable::getMapSchema())
+                        ->visible(fn (Property $record) => Gate::allows('update', $record)),
                     EditAction::make('edit')
                         ->modalHeading('Property Details - Edit')
                         ->form(fn() => PropertiesTable::getFormSchema(true))
-                        ->action(fn($record, $data) => PropertiesTable::updateProperty($record, $data)),
+                        ->action(fn($record, $data) => PropertiesTable::updateProperty($record, $data))
+                        ->visible(fn (Property $record) => Gate::allows('update', $record)),
                     ViewAction::make('view')
                         ->form(fn() => PropertiesTable::getFormSchema(false))
                         ->modalHeading('Property Details - View'),

@@ -28,7 +28,8 @@ class ReservationsTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(Reservation::query()->whereNull('canceled_at')->orderBy('created_at', 'DESC'))
+            ->query(Reservation::query()->whereNull('canceled_at'))
+            ->defaultSort('created_at', 'DESC')
             ->columns([
                 ViewColumn::make('reservation_contains')
                     ->searchable(isIndividual: true)

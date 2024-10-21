@@ -23,6 +23,7 @@
         <exclude>
             <directory>app/Livewire/Insurance</directory>
             <directory>app/Livewire/Charts</directory>
+            <directory>app/Livewire/Insurance</directory>
         </exclude>
     </source>
     <php>

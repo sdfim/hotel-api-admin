@@ -5,8 +5,10 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 use App\Models\ApiSearchInspector;
 use Illuminate\View\View;
 
-class SearchInspectorController extends Controller
+class SearchInspectorController extends BaseWithPolicyController
 {
+    protected static string $model = ApiSearchInspector::class;
+
     /**
      * @var array|string[]
      */
