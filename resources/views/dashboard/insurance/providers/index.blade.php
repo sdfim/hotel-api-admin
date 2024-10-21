@@ -1,3 +1,4 @@
+@php use Modules\Insurance\Models\InsuranceProvider; @endphp
 @extends('layouts.master')
 @section('title')
     {{ __('Insurance Providers') }}
@@ -5,6 +6,7 @@
 @section('content')
     <!-- -->
     <x-page-title title="Insurance Providers" pagetitle="index"/>
+    @can('create', InsuranceProvider::class)
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="mb-6">
@@ -13,6 +15,7 @@
             </div>
         </div>
     </div>
+    @endcan
     <div class="grid grid-cols-12 gap-5">
         <div class="col-span-12">
             <div class="card dark:bg-zinc-800 dark:border-zinc-600">

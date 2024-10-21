@@ -29,6 +29,8 @@ class PermissionSeeder extends Seeder
         'role',
         'permission',
         'hotel',
+        'insurance_provider',
+        'insurance_restriction',
     ];
 
     private static array $permissions = [

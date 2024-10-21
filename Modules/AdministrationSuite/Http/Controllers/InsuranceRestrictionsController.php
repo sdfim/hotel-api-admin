@@ -5,8 +5,10 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 use Illuminate\View\View;
 use Modules\Insurance\Models\InsuranceRestriction;
 
-class InsuranceRestrictionsController extends Controller
+class InsuranceRestrictionsController extends BaseWithPolicyController
 {
+    protected static string $model = InsuranceRestriction::class;
+
 	private array $message = ['create' => 'Add New Restriction', 'edit' => 'Edit Restriction'];
 
 	public function index(): View

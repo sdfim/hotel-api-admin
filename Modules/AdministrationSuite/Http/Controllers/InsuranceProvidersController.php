@@ -5,8 +5,10 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 use Illuminate\View\View;
 use Modules\Insurance\Models\InsuranceProvider;
 
-class InsuranceProvidersController extends Controller
+class InsuranceProvidersController extends BaseWithPolicyController
 {
+    protected static string $model = InsuranceProvider::class;
+
 	private array $message = ['create' => 'Add New Provider', 'edit' => 'Edit Provider'];
 
 	public function index(): View
