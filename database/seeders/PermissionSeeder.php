@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -69,6 +70,13 @@ class PermissionSeeder extends Seeder
             $permission->slug = $slug;
             $permission->name = $name;
             $permission->save();
+        }
+
+        // Assign all permissions to the 'Admin' role
+        $adminRole = Role::where('slug', 'admin')->first();
+        if ($adminRole) {
+            $permissions = Permission::all();
+            $adminRole->permissions()->sync($permissions->pluck('id')->toArray());
         }
     }
 }
