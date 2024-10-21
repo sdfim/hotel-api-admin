@@ -32,7 +32,7 @@ class PermissionServiceProvider extends ServiceProvider
 
         foreach (self::$permissions as $permission) {
             Gate::define($permission, function ($user) use ($permission) {
-                return $user->hasPermission($permission);
+                return $user->hasPermission($permission) || $user->hasRole('admin');
             });
         }
     }

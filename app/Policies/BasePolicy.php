@@ -31,6 +31,6 @@ class BasePolicy
 
     private function can(string $name, User $user): bool
     {
-        return $user->hasPermission($this->getPrefix().'.'.$name);
+        return $user->hasPermission($this->getPrefix().'.'.$name) || $user->hasRole('admin');
     }
 }
