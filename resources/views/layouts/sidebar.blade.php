@@ -130,7 +130,7 @@
                         </a>
                     </li>
                 @endif
-                @if($canView(ApiSearchInspector::class) || $cantView(ApiBookingInspector::class) || $canView(ApiBookingItem::class))
+                @if($canView(ApiSearchInspector::class) || $canView(ApiBookingInspector::class) || $canView(ApiBookingItem::class))
                     <li class="@if(Route::currentRouteName() == 'booking-inspector.show' || Route::currentRouteName() == 'search-inspector.show' || Route::currentRouteName() == 'booking-items.show') mm-active @endif">
                         <a href="javascript: void(0);" aria-expanded="false"
                            class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">

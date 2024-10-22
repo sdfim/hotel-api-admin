@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
-use App\Livewire\Users\UpdateUsersForm;
+use App\Livewire\Users\UsersForm;
 use App\Livewire\Users\UsersTable;
 use App\Models\Role;
 use App\Models\User;
@@ -37,10 +37,10 @@ class UsersTest extends CustomAuthorizedActionsTestCase
         $user = User::factory()->create();
 
         $this->get(route('users.edit', $user->id))
-            ->assertSeeLivewire(UpdateUsersForm::class)
+            ->assertSeeLivewire(UsersForm::class)
             ->assertStatus(200);
 
-        $component = Livewire::test(UpdateUsersForm::class, ['user' => $user]);
+        $component = Livewire::test(UsersForm::class, ['user' => $user]);
 
         $name = $this->faker->name;
         $email = $this->faker->email;
