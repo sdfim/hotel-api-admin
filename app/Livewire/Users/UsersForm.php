@@ -20,11 +20,12 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 
-class UpdateUsersForm extends Component implements HasForms, HasTable
+class UsersForm extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
@@ -45,6 +46,16 @@ class UpdateUsersForm extends Component implements HasForms, HasTable
 
     public function form(Form $form): Form
     {
+        $additionalFormData = [];
+
+        if (!$this->record->exists) {
+            $additionalFormData[] = TextInput::make('password')
+                ->required()
+                ->password()
+                ->revealable()
+                ->formatStateUsing(fn () => Str::password(10));
+        }
+
         return $form
             ->schema([
                 TextInput::make('name')
@@ -57,7 +68,8 @@ class UpdateUsersForm extends Component implements HasForms, HasTable
                     ->maxLength(191),
                 Select::make('role')
                     ->options(Role::pluck('name', 'id'))
-                    ->required()
+                    ->required(),
+                ...$additionalFormData,
             ])
             ->statePath('data')
             ->model($this->record);
@@ -105,12 +117,19 @@ class UpdateUsersForm extends Component implements HasForms, HasTable
 
     public function edit(): Redirector|RedirectResponse
     {
+        $exists = $this->record->exists;
         $data = $this->form->getState();
-        $this->record->update(Arr::only($data, ['name', 'email']));
+        $this->record->fill(Arr::only($data, ['name', 'email']));
+
+        if (!$exists) {
+            $this->record->password = bcrypt($data['password']);
+        }
+
+        $this->record->save();
         $this->record->roles()->sync([$data['role']]);
 
         Notification::make()
-            ->title('Updated successfully')
+            ->title($exists ? 'Updated successfully' : 'Created successfully')
             ->success()
             ->send();
 
@@ -119,6 +138,6 @@ class UpdateUsersForm extends Component implements HasForms, HasTable
 
     public function render(): View
     {
-        return view('livewire.users.update-users-form');
+        return view('livewire.users.users-form');
     }
 }

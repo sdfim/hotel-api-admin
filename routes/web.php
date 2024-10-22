@@ -72,7 +72,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/statistic-charts', [StatisticChartsController::class, 'index'])->name('statistic-charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->only(['store', 'destroy']);
 
-        Route::resource('users', UsersController::class)->only(['index', 'edit']);
+        Route::resource('users', UsersController::class)->only(['index', 'edit', 'create']);
         Route::resource('roles', RolesController::class)->only(['index', 'edit', 'create']);
         Route::get('permissions', PermissionsController::class)->name('permissions.index');
 
