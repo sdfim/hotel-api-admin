@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Livewire\HotelAttributes;
 
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -15,6 +16,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
+use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelAttribute;
 
 class HotelAttributesTable extends Component implements HasForms, HasTable
@@ -38,6 +40,11 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
     public function schemeForm(): array
     {
         return [
+            Select::make('hotel_id')
+                ->label('Hotel')
+                ->options(Hotel::pluck('name', 'id'))
+//                ->when($this->hotelId, fn($select) => $select->searchable())
+                ->required(),
             TextInput::make('name')->label('Attribute Name')->required(),
             TextInput::make('attribute_value')->label('Value')->required(),
         ];
@@ -58,13 +65,17 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
                 EditAction::make()
                     ->label('')
                     ->tooltip('Edit Affiliation')
-                ->form($this->schemeForm()),
+                    ->form($this->schemeForm()),
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),
             ])
             ->headerActions([
-                CreateAction::make()->form($this->schemeForm()),
+                CreateAction::make()
+                    ->form($this->schemeForm())
+                    ->fillForm(function () {
+                        return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
+                    }),
             ]);
     }
 

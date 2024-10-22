@@ -59,7 +59,7 @@ class HotelTable extends Component implements HasForms, HasTable
                 'rooms',
                 'keyMappings',
                 'travelAgencyCommissions',
-                'galleries.images'
+                'galleries'
             ]))
             ->columns([
                 TextColumn::make('name')
@@ -195,7 +195,7 @@ class HotelTable extends Component implements HasForms, HasTable
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->form(HotelForm::schemeForm())
+                    ->form((new HotelForm())->schemeForm())
                     ->visible(Gate::allows('create', Hotel::class)),
             ]);
     }
