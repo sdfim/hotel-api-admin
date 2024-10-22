@@ -15,7 +15,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
         $this->supplierId = Supplier::getSupplierId('Expedia');
     }
 
-    /**
+    /**l
      * @return array{
      *      total_price: float|int,
      *      total_tax: float|int,
@@ -24,7 +24,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
      *      markup: float|int
      *  }
      */
-    public function apply(int $giataId, array $roomsPricingArray, bool $b2b = true): array
+    public function apply(int $giataId, array $roomsPricingArray, string $roomName, string|int $roomCode, bool $b2b = true): array
     {
         $this->initPricingRulesProperties();
 
@@ -39,7 +39,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
         }
 
         foreach ($this->pricingRules as $pricingRule) {
-            if ($this->validPricingRule($giataId, $pricingRule['conditions'])) {
+            if ($this->validPricingRule($giataId, $pricingRule['conditions'], $roomName, $roomCode, ['supplier_id', 'property', 'room_name', 'room_code'])) {
                 $this->applyPricingRulesLogic($pricingRule);
             }
         }
