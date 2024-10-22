@@ -32,10 +32,15 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('name')->label('Attribute Name')->required(),
-                TextInput::make('attribute_value')->label('Value')->required(),
-            ]);
+            ->schema($this->schemeForm());
+    }
+
+    public function schemeForm(): array
+    {
+        return [
+            TextInput::make('name')->label('Attribute Name')->required(),
+            TextInput::make('attribute_value')->label('Value')->required(),
+        ];
     }
 
     public function table(Table $table): Table
@@ -52,13 +57,14 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
             ->actions([
                 EditAction::make()
                     ->label('')
-                    ->tooltip('Edit Affiliation'),
+                    ->tooltip('Edit Affiliation')
+                ->form($this->schemeForm()),
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()->form($this->schemeForm()),
             ]);
     }
 

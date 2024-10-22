@@ -32,15 +32,20 @@ class HotelFeeTaxTable extends Component implements HasForms, HasTable
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('name')->label('Name')->required(),
-                TextInput::make('hotel_id')->label('Hotel ID')->required(),
-                TextInput::make('net_value')->label('Net Value')->required(),
-                TextInput::make('rack_value')->label('Rack Value')->required(),
-                TextInput::make('tax')->label('Tax')->required(),
-                TextInput::make('type')->label('Type')->required(),
-                TextInput::make('fee_category')->label('Fee Category')->required(),
-            ]);
+            ->schema($this->schemeForm());
+    }
+
+    public function schemeForm(): array
+    {
+        return [
+            TextInput::make('name')->label('Name')->required(),
+            TextInput::make('hotel_id')->label('Hotel ID')->required(),
+            TextInput::make('net_value')->label('Net Value')->required(),
+            TextInput::make('rack_value')->label('Rack Value')->required(),
+            TextInput::make('tax')->label('Tax')->required(),
+            TextInput::make('type')->label('Type')->required(),
+            TextInput::make('fee_category')->label('Fee Category')->required(),
+        ];
     }
 
     public function table(Table $table): Table
@@ -62,13 +67,14 @@ class HotelFeeTaxTable extends Component implements HasForms, HasTable
             ->actions([
                 EditAction::make()
                     ->label('')
-                    ->tooltip('Edit Fee Tax'),
+                    ->tooltip('Edit Fee Tax')
+                    ->form($this->schemeForm()),
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()->form($this->schemeForm()),
             ]);
     }
 

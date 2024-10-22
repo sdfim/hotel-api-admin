@@ -100,6 +100,30 @@ class HotelForm extends Component implements HasForms
             ->columns(1);
     }
 
+    public static function schemeForm(): array
+    {
+        return [
+            TextInput::make('name')->label('Name')->required(),
+            TextInput::make('type')->label('Type')->required(),
+            TextInput::make('address')->label('Address')->required(),
+            TextInput::make('location')->label('Location')->required(),
+            Select::make('content_source_id')->label('Content Source')->options(ContentSource::pluck('name', 'id'))->required(),
+            Select::make('room_images_source_id')->label('Room Images Source')->options(ContentSource::pluck('name', 'id'))->required(),
+            Select::make('property_images_source_id')->label('Property Images Source')->options(ContentSource::pluck('name', 'id'))->required(),
+            Checkbox::make('verified')->label('Verified'),
+            Checkbox::make('direct_connection')->label('Direct Connection'),
+            Checkbox::make('manual_contract')->label('Manual Contract'),
+            Checkbox::make('commission_tracking')->label('Commission Tracking'),
+            Checkbox::make('featured')->label('Featured'),
+            TextInput::make('star_rating')->label('Star Rating')->required(),
+            TextInput::make('website')->label('Website')->url()->required(),
+            TextInput::make('num_rooms')->label('Number of Rooms')->required(),
+            TextInput::make('channel_management')->label('Channel Management')->required(),
+            TextInput::make('hotel_board_basis')->label('Hotel Board Basis'),
+            TextInput::make('default_currency')->label('Default Currency')->required(),
+        ];
+    }
+
     public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();

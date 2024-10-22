@@ -10,6 +10,7 @@ use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
@@ -33,10 +34,15 @@ class HotelAffiliationsTable extends Component implements HasForms, HasTable
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('affiliation_name')->label('Affiliation Name')->required(),
-                TextInput::make('combinable')->label('Combinable')->required(),
-            ]);
+            ->schema($this->schemeForm());
+    }
+
+    public function schemeForm(): array
+    {
+        return  [
+            TextInput::make('affiliation_name')->label('Affiliation Name')->required(),
+            TextInput::make('combinable')->label('Combinable')->required(),
+        ];
     }
 
     public function table(Table $table): Table
@@ -47,19 +53,23 @@ class HotelAffiliationsTable extends Component implements HasForms, HasTable
             )
             ->columns([
                 TextColumn::make('affiliation_name')->label('Affiliation Name')->searchable(),
-                BooleanColumn::make('combinable')->label('Combinable'),
+                IconColumn::make('combinable')
+                    ->label('Combinable')
+                    ->boolean(),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([
                 EditAction::make()
-                ->label('')
-                ->tooltip('Edit Affiliation'),
+                    ->label('')
+                    ->tooltip('Edit Affiliation')
+                    ->form($this->schemeForm())
+                    ->modalHeading('Edit Affiliation'),
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()->form($this->schemeForm()),
             ]);
     }
 

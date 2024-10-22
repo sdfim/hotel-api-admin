@@ -25,16 +25,21 @@ class HotelTable extends Component implements HasForms, HasTable
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('name')->required(),
-                TextInput::make('type')->required(),
-                TextInput::make('address')->required(),
-                TextInput::make('star_rating')->required(),
-                TextInput::make('website')->required(),
-                TextInput::make('num_rooms')->required(),
-                TextInput::make('featured')->required(),
-                TextInput::make('location')->required(),
-            ]);
+            ->schema($this->schemeForm());
+    }
+
+    public function schemeForm(): array
+    {
+        return [
+            TextInput::make('name')->label('Name')->required(),
+            TextInput::make('type')->label('Type')->required(),
+            TextInput::make('address')->label('Address')->required(),
+            TextInput::make('star_rating')->label('Star Rating')->required(),
+            TextInput::make('website')->label('Website')->required(),
+            TextInput::make('num_rooms')->label('Number of Rooms')->required(),
+            TextInput::make('featured')->label('Featured')->required(),
+            TextInput::make('location')->label('Location')->required(),
+        ];
     }
 
     public function table(Table $table): Table
@@ -190,6 +195,7 @@ class HotelTable extends Component implements HasForms, HasTable
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
+                    ->form(HotelForm::schemeForm())
                     ->visible(Gate::allows('create', Hotel::class)),
             ]);
     }
