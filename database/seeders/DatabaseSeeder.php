@@ -7,7 +7,6 @@ use Modules\HotelContentRepository\DB\Seeders\HotelContentRepositorySeeder;
 use Modules\Insurance\Seeders\InsuranceProviderSeeder;
 use Modules\Insurance\Seeders\InsuranceRestrictionTypeSeeder;
 use Modules\Insurance\Seeders\TripMateDefaultRestrictions;
-use Modules\HotelContentRepository\DB\Seeders\HotelContentRepositorySeeder;
 
 class DatabaseSeeder extends Seeder
 {

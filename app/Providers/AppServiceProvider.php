@@ -45,6 +45,10 @@ class AppServiceProvider extends ServiceProvider
 
             return new ExpediaService($propertyCallFactory);
         });
+
+		if ($this->app->environment('local')) {
+            $this->app->register(HorizonServiceProvider::class);
+        }
     }
 
     /**
