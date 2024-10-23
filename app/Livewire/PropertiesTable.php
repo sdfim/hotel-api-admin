@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Helpers\Strings;
 use App\Models\GiataGeography;
 use App\Models\Mapping;
 use App\Models\Property;
@@ -230,7 +231,13 @@ class PropertiesTable extends Component implements HasForms, HasTable
                 ViewColumn::make('name')
                     ->toggleable()
                     ->sortable()
-                    ->searchable(isIndividual: true)
+                    ->searchable(
+                        isIndividual: true,
+                        query: function (Builder $query, string $search): Builder {
+                          $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
+                          return $query->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)");
+                        }
+                    )
                     ->view('dashboard.properties.column.name-field'),
                 TextColumn::make('city')
                     ->sortable()
