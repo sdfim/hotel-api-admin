@@ -5,7 +5,7 @@ namespace Modules\Insurance\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class InsurancePriceRange extends Model
+class InsuranceRateTier extends Model
 {
     use HasFactory;
 

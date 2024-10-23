@@ -173,6 +173,11 @@
                                class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                 Restrictions</a>
                         </li>
+                        <li>
+                            <a href="{{ Route('insurance-rate-tiers.index') }}"
+                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                Rate Tiers</a>
+                        </li>
                     </ul>
                 </li>
                 <li>

@@ -3,11 +3,11 @@
 namespace Modules\Insurance\Models\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Modules\Insurance\Models\InsurancePriceRange;
+use Modules\Insurance\Models\InsuranceRateTier;
 
-class InsurancePriceRangeFactory extends Factory
+class InsuranceRateTierFactory extends Factory
 {
-    protected $model = InsurancePriceRange::class;
+    protected $model = InsuranceRateTier::class;
 
     public function definition(): array
     {

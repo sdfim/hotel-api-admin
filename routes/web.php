@@ -25,6 +25,7 @@ use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
 use Modules\Insurance\Http\Controllers\InsuranceProvidersController;
+use Modules\Insurance\Http\Controllers\InsuranceRateTiersController;
 use Modules\Insurance\Http\Controllers\InsuranceRestrictionsController;
 
 /*
@@ -79,6 +80,7 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('/insurance-providers', InsuranceProvidersController::class)->only(['index', 'create', 'edit']);
         Route::resource('/insurance-restrictions', InsuranceRestrictionsController::class)->only(['index', 'create', 'edit']);
+        Route::resource('/insurance-rate-tiers', InsuranceRateTiersController::class)->only(['index', 'create', 'edit']);
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
