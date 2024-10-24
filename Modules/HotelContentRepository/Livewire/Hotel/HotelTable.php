@@ -59,7 +59,6 @@ class HotelTable extends Component implements HasForms, HasTable
                 'promotions',
                 'rooms',
                 'keyMappings',
-                'travelAgencyCommissions',
                 'galleries'
             ]))
             ->columns([
@@ -169,10 +168,6 @@ class HotelTable extends Component implements HasForms, HasTable
 //                    ->toggleable()
 //                    ->sortable(),
 //                CustomTextColumn::make('keyMappings')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('travelAgencyCommissions')
 //                    ->searchable(isIndividual: true)
 //                    ->toggleable()
 //                    ->sortable(),

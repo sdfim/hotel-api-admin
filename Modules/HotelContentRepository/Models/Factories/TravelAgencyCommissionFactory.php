@@ -13,9 +13,7 @@ class TravelAgencyCommissionFactory extends Factory
     public function definition()
     {
         return [
-            'hotel_id' => Hotel::factory(),
-            'consortium_id' => $this->faker->numberBetween(1, 100),
-            'room_type' => $this->faker->word,
+            'name' => $this->faker->name,
             'commission_value' => $this->faker->randomFloat(2, 0, 100),
             'date_range_start' => $this->faker->date,
             'date_range_end' => $this->faker->date,

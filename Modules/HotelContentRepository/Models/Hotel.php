@@ -109,11 +109,6 @@ class Hotel extends Model
         return $this->hasMany(KeyMapping::class);
     }
 
-    public function travelAgencyCommissions()
-    {
-        return $this->hasMany(TravelAgencyCommission::class);
-    }
-
     public function galleries()
     {
         return $this->belongsToMany(ImageGallery::class, 'pd_hotel_gallery', 'hotel_id', 'gallery_id');

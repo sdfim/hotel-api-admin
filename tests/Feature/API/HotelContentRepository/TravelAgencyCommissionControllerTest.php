@@ -18,7 +18,7 @@ class TravelAgencyCommissionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'hotel_id', 'consortium_id', 'room_type', 'commission_value', 'date_range_start', 'date_range_end']
+                '*' => ['id', 'commission_value', 'date_range_start', 'date_range_end']
             ],
             'message'
         ]);
@@ -32,7 +32,7 @@ class TravelAgencyCommissionControllerTest extends TestCase
         $response = $this->request()->postJson('api/repo/travel-agency-commissions', $data);
         $response->assertStatus(201);
         $response->assertJsonStructure([
-            'data' => ['id', 'hotel_id', 'consortium_id', 'room_type', 'commission_value', 'date_range_start', 'date_range_end'],
+            'data' => ['name', 'commission_value', 'date_range_start', 'date_range_end'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_travel_agency_commissions', $data);
@@ -45,7 +45,7 @@ class TravelAgencyCommissionControllerTest extends TestCase
         $response = $this->request()->getJson("api/repo/travel-agency-commissions/{$commission->id}");
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'hotel_id', 'consortium_id', 'room_type', 'commission_value', 'date_range_start', 'date_range_end'],
+            'data' => ['id', 'commission_value', 'date_range_start', 'date_range_end'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_travel_agency_commissions', $commission->toArray());
@@ -59,7 +59,7 @@ class TravelAgencyCommissionControllerTest extends TestCase
         $response = $this->request()->putJson("api/repo/travel-agency-commissions/{$commission->id}", $data);
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'hotel_id', 'consortium_id', 'room_type', 'commission_value', 'date_range_start', 'date_range_end'],
+            'data' => ['id', 'commission_value', 'date_range_start', 'date_range_end'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_travel_agency_commissions', $data);

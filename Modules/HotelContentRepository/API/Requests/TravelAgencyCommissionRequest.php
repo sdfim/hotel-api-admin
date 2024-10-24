@@ -15,9 +15,7 @@ class TravelAgencyCommissionRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'hotel_id' => 'required|integer',
-            'consortium_id' => 'required|integer',
-            'room_type' => 'required|string|max:255',
+            'name' => 'required|string',
             'commission_value' => 'required|numeric',
             'date_range_start' => 'required|date',
             'date_range_end' => 'required|date',

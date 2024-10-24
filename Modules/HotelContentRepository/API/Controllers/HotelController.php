@@ -27,7 +27,6 @@ class HotelController extends BaseController
             'promotions.galleries.images',
             'rooms.galleries.images',
             'keyMappings',
-            'travelAgencyCommissions',
             'galleries.images'
         ])->get();
 
@@ -58,7 +57,6 @@ class HotelController extends BaseController
             'promotions.galleries.images',
             'rooms.galleries.images',
             'keyMappings',
-            'travelAgencyCommissions',
             'galleries.images'
         ])->findOrFail($id);
 

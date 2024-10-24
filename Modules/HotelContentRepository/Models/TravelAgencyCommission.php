@@ -30,11 +30,6 @@ class TravelAgencyCommission extends Model
         'pivot'
     ];
 
-    public function hotel()
-    {
-        return $this->belongsTo(Hotel::class);
-    }
-
     public function conditions()
     {
         return $this->hasMany(TravelAgencyCommissionCondition::class, 'travel_agency_commissions_id');
