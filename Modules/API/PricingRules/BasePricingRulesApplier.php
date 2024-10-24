@@ -75,10 +75,10 @@ class BasePricingRulesApplier
         string     $roomName,
         string|int $roomCode,
         array $conditionsFieldsToVerify = ['supplier_id', 'property'],
-        bool  $useAndCondition = false  // Use AND condition if true, OR condition if false
+        bool  $useAndCondition = false  // Использовать AND условие, если true, OR условие, если false
     ): bool
     {
-        // Initialize array to store results for each condition type
+        // Инициализируем массив для хранения результатов по каждому типу условия
         $validPricingRule = [
             'supplier_id' => [],
             'property' => [],
@@ -88,40 +88,46 @@ class BasePricingRulesApplier
 
         $conditionsCollection = collect($conditions);
 
-        // Evaluate each condition for the specified fields
+        // Проверяем каждое условие для указанных полей
         foreach ($conditionsFieldsToVerify as $field) {
             $filtered = $conditionsCollection->where('field', $field);
 
             foreach ($filtered as $condition) {
-                // Add results based on field-specific comparison
+                // Приводим оба значения к строкам перед сравнением
                 $validPricingRule[$field][] = match ($field) {
-                    'supplier_id' => $this->supplierId === $condition['value_from'],
-                    'property' => $giataId === $condition['value_from'],
-                    'room_name' => $roomName === $condition['value_from'],
-                    'room_code' => $roomCode === $condition['value_from'],
+                    'supplier_id' => (string)$condition['value_from'] === (string)$this->supplierId,
+                    'property' => (string)$condition['value_from'] === (string)$giataId,
+                    'room_name' => (string)$condition['value_from'] === (string)$roomName,
+                    'room_code' => (string)$condition['value_from'] === (string)$roomCode,
                     default => false
                 };
+            }
+
+            // Если условий для поля нет, оно автоматически считается валидным
+            if ($filtered->isEmpty()) {
+                $validPricingRule[$field][] = true;
             }
         }
 
         if ($useAndCondition) {
-            // AND Condition: Each group must have at least one true value
+            // AND условие: каждая группа должна содержать хотя бы одно true значение
             foreach ($validPricingRule as $results) {
                 if (!in_array(true, $results, true)) {
-                    return false; // Return false if any group has no true values
+                    return false; // Вернуть false, если хотя бы одна группа не имеет true значений
                 }
             }
-            return true; // All groups have at least one true value
+            return true; // Все группы содержат хотя бы одно true значение
         } else {
-            // OR Condition: Return true if at least one true condition exists across all groups
+            // OR условие: вернуть true, если хотя бы одно true условие существует среди всех групп
             foreach ($validPricingRule as $results) {
                 if (in_array(true, $results, true)) {
-                    return true; // Return true if any true condition is found
+                    return true; // Вернуть true, если найдено хотя бы одно true условие
                 }
             }
-            return false; // Return false if no true conditions were found in any group
+            return false; // Вернуть false, если ни одно условие не выполнилось
         }
     }
+
 
     protected function applyPricingRulesLogic(array $pricingRule): void
     {
