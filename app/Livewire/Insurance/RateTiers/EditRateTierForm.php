@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Insurance\RateTiers;
 
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -31,11 +32,26 @@ class EditRateTierForm extends Component implements HasForms
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                    ->unique(ignorable: $this->record)
-                    ->required()
-                    ->maxLength(191),
-                TextInput::make('contact_info')
+                Grid::make(3)
+                    ->schema([
+                        TextInput::make('min_price')
+                            ->label('Min Price')
+                            ->numeric()
+                            ->inputMode('decimal')
+                            ->required()
+                            ->unique(ignorable: $this->record),
+                        TextInput::make('max_price')
+                            ->label('Max Price')
+                            ->numeric()
+                            ->inputMode('decimal')
+                            ->required()
+                            ->unique(ignorable: $this->record),
+                        TextInput::make('insurance_rate')
+                            ->label('Insurance Rate, %')
+                            ->numeric()
+                            ->inputMode('decimal')
+                            ->required()
+                    ])
             ])
             ->statePath('data')
             ->model($this->record);

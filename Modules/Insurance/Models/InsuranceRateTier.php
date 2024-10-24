@@ -9,7 +9,7 @@ class InsuranceRateTier extends Model
 {
     use HasFactory;
 
-    protected $table = 'insurance_price_ranges';
+    protected $table = 'insurance_rate_tiers';
 
     protected $fillable = [
         'min_price',

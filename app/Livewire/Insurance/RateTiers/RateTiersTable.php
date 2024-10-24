@@ -26,11 +26,18 @@ class RateTiersTable extends Component implements HasForms, HasTable
         return $table
             ->query(InsuranceRateTier::query())
             ->columns([
-                TextColumn::make('name')
+                TextColumn::make('min_price')
+                    ->label('Min Price')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('contact_info')
+                TextColumn::make('max_price')
+                    ->label('Max Price')
+                    ->sortable()
                     ->searchable(),
+                TextColumn::make('insurance_rate')
+                    ->label('Insurance Rate, %')
+                    ->sortable()
+                    ->searchable()
             ])
             ->filters([
                 //
