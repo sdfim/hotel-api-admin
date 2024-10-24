@@ -75,10 +75,9 @@ class BasePricingRulesApplier
         string     $roomName,
         string|int $roomCode,
         array $conditionsFieldsToVerify = ['supplier_id', 'property'],
-        bool  $useAndCondition = false  // Использовать AND условие, если true, OR условие, если false
+        bool  $useAndCondition = false
     ): bool
     {
-        // Инициализируем массив для хранения результатов по каждому типу условия
         $validPricingRule = [
             'supplier_id' => [],
             'property' => [],
@@ -88,12 +87,10 @@ class BasePricingRulesApplier
 
         $conditionsCollection = collect($conditions);
 
-        // Проверяем каждое условие для указанных полей
         foreach ($conditionsFieldsToVerify as $field) {
             $filtered = $conditionsCollection->where('field', $field);
 
             foreach ($filtered as $condition) {
-                // Приводим оба значения к строкам перед сравнением
                 $validPricingRule[$field][] = match ($field) {
                     'supplier_id' => (string)$condition['value_from'] === (string)$this->supplierId,
                     'property' => (string)$condition['value_from'] === (string)$giataId,
@@ -103,31 +100,27 @@ class BasePricingRulesApplier
                 };
             }
 
-            // Если условий для поля нет, оно автоматически считается валидным
             if ($filtered->isEmpty()) {
                 $validPricingRule[$field][] = true;
             }
         }
 
         if ($useAndCondition) {
-            // AND условие: каждая группа должна содержать хотя бы одно true значение
             foreach ($validPricingRule as $results) {
                 if (!in_array(true, $results, true)) {
-                    return false; // Вернуть false, если хотя бы одна группа не имеет true значений
+                    return false;
                 }
             }
-            return true; // Все группы содержат хотя бы одно true значение
+            return true;
         } else {
-            // OR условие: вернуть true, если хотя бы одно true условие существует среди всех групп
             foreach ($validPricingRule as $results) {
                 if (in_array(true, $results, true)) {
-                    return true; // Вернуть true, если найдено хотя бы одно true условие
+                    return true;
                 }
             }
-            return false; // Вернуть false, если ни одно условие не выполнилось
+            return false;
         }
     }
-
 
     protected function applyPricingRulesLogic(array $pricingRule): void
     {
