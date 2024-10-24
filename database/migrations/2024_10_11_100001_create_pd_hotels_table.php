@@ -18,7 +18,7 @@ return new class extends Migration
             $table->boolean('commission_tracking');
             $table->json('address')->nullable();
             $table->integer('star_rating');
-            $table->string('website', 255);
+            $table->string('website', 255)->nullable();
             $table->integer('num_rooms');
             $table->boolean('featured');
             $table->json('location')->nullable();
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->unsignedBigInteger('room_images_source_id');
             $table->unsignedBigInteger('property_images_source_id');
             $table->boolean('channel_management');
-            $table->string('hotel_board_basis', 255);
+            $table->string('hotel_board_basis', 255)->nullable();
             $table->string('default_currency', 10);
             $table->timestamps();
 

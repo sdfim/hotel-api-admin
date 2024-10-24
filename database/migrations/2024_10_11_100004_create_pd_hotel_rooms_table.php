@@ -15,9 +15,6 @@ return new class extends Migration
 
             $table->string('name');
             $table->text('description');
-            $table->json('amenities')->nullable();
-            $table->json('occupancy')->nullable();
-            $table->json('bed_groups')->nullable();
 
             $table->timestamps();
 

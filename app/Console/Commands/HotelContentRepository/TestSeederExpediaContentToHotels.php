@@ -22,7 +22,7 @@ use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\KeyMapping;
 use Modules\HotelContentRepository\Models\KeyMappingOwner;
 
-class TransformExpediaContentToHotels extends Command
+class TestSeederExpediaContentToHotels extends Command
 {
     use BaseTrait;
 
@@ -52,7 +52,7 @@ class TransformExpediaContentToHotels extends Command
 
             $this->info('End Transform ExpediaContent ' . $this->runtime() . ' seconds.');
 
-            if ($k > 100) break;
+            if ($k > 20) break;
         }
 
         $this->info('Transformation completed successfully. ' . (microtime(true) - $st) . ' seconds.');
@@ -260,9 +260,9 @@ class TransformExpediaContentToHotels extends Command
                 'hbs_data_mapped_name' => '',
                 'name' => $name,
                 'description' => $cleanDescription,
-                'amenities' => array_values(Arr::get($room, 'amenities', [])),
-                'occupancy' => Arr::get($room, 'occupancy', 'No occupancy'),
-                'bed_groups' => array_values(Arr::get($room, 'bed_groups', [])),
+//                'amenities' => array_values(Arr::get($room, 'amenities', [])),
+//                'occupancy' => Arr::get($room, 'occupancy', 'No occupancy'),
+//                'bed_groups' => array_values(Arr::get($room, 'bed_groups', [])),
             ];
 
             $hotelRoom = HotelRoom::updateOrCreate(

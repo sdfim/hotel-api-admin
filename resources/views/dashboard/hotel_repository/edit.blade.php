@@ -23,6 +23,11 @@
                     </div>
 
                     <div class="mt-8">
+                        <h2 class="text-xl font-semibold">Key & Owner</h2>
+                        @livewire('hotels.key-mapping-table', ['hotelId' => $hotelId])
+                    </div>
+
+                    <div class="mt-8">
                         <h2 class="text-xl font-semibold">Hotel Rooms</h2>
                         @livewire('hotels.hotel-room-table', ['hotelId' => $hotelId])
                     </div>

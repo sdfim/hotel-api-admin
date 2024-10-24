@@ -116,19 +116,19 @@ class HotelTable extends Component implements HasForms, HasTable
 //                    ->searchable(isIndividual: true)
 //                    ->toggleable()
 //                    ->sortable(),
-                CustomTextColumn::make('default_currency')
-                    ->label('Currency')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('affiliations')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('attributes')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
+//                CustomTextColumn::make('default_currency')
+//                    ->label('Currency')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
+//                CustomTextColumn::make('affiliations')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
+//                CustomTextColumn::make('attributes')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
 //                CustomTextColumn::make('contentSource.name')
 //                    ->label('Content Source')
 //                    ->searchable(isIndividual: true)
@@ -144,37 +144,37 @@ class HotelTable extends Component implements HasForms, HasTable
 //                    ->searchable(isIndividual: true)
 //                    ->toggleable()
 //                    ->sortable(),
-                CustomTextColumn::make('descriptiveContentsSection')
-                    ->label('Descriptive Contents')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('feeTaxes')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('informativeServices')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('promotions')
-                    ->label('Promotions Galleries')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('rooms')
-                    ->label('Rooms Galleries')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('keyMappings')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('travelAgencyCommissions')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
+//                CustomTextColumn::make('descriptiveContentsSection')
+//                    ->label('Descriptive Contents')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
+//                CustomTextColumn::make('feeTaxes')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
+//                CustomTextColumn::make('informativeServices')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
+//                CustomTextColumn::make('promotions')
+//                    ->label('Promotions Galleries')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
+//                CustomTextColumn::make('rooms')
+//                    ->label('Rooms Galleries')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
+//                CustomTextColumn::make('keyMappings')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
+//                CustomTextColumn::make('travelAgencyCommissions')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
                 CustomTextColumn::make('galleries')
                     ->label('Galleries')
                     ->searchable(isIndividual: true)

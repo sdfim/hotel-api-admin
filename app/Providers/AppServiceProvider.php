@@ -18,7 +18,7 @@ use Modules\HotelContentRepository\Livewire\HotelAffiliations\HotelAffiliationsT
 use Modules\HotelContentRepository\Livewire\HotelAttributes\HotelAttributesTable;
 use Modules\HotelContentRepository\Livewire\HotelFeeTaxes\HotelFeeTaxTable;
 use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
-use Modules\HotelContentRepository\Models\HotelRoom;
+use Modules\HotelContentRepository\Livewire\KeyMappings\KeyMappingTable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -65,6 +65,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Livewire::component('hotels.hotel-form', HotelForm::class);
         Livewire::component('hotels.hotel-table', HotelTable::class);
+        Livewire::component('hotels.key-mapping-table', KeyMappingTable::class);
         Livewire::component('hotels.hotel-room-table', HotelRoomTable::class);
         Livewire::component('hotels.hotel-affiliations-table', HotelAffiliationsTable::class);
         Livewire::component('hotels.hotel-attributes-table', HotelAttributesTable::class);
