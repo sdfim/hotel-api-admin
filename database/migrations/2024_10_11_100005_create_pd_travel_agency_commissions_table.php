@@ -10,6 +10,7 @@ return new class extends Migration
     {
         Schema::create('pd_travel_agency_commissions', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('name', 255);
             $table->decimal('commission_value', 10, 2);
             $table->date('date_range_start');
             $table->date('date_range_end');

@@ -43,6 +43,9 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
     public function schemeForm(): array
     {
         return [
+            TextInput::make('name')
+                ->label('Commission Name')
+                ->required(),
             TextInput::make('commission_value')
                 ->label('Commission Value')
                 ->required(),
@@ -74,7 +77,7 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     ]),
 
                 ])
-                ->createItemButtonLabel('Conditions')
+                ->createItemButtonLabel('Add Conditions')
                 ->required(),
         ];
     }
@@ -91,8 +94,8 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                 return $query;
             })
             ->columns([
-                TextColumn::make('hotel_id')
-                    ->label('Hotel ID')
+                TextColumn::make('name')
+                    ->label('Commission Name')
                     ->searchable(isIndividual: true)
                     ->toggleable(),
                 TextColumn::make('commission_value')

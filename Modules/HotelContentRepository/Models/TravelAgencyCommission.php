@@ -18,7 +18,7 @@ class TravelAgencyCommission extends Model
     protected $table = 'pd_travel_agency_commissions';
 
     protected $fillable = [
-        'hotel_id',
+        'name',
         'commission_value',
         'date_range_start',
         'date_range_end',
