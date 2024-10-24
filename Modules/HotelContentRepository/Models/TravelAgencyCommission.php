@@ -19,8 +19,6 @@ class TravelAgencyCommission extends Model
 
     protected $fillable = [
         'hotel_id',
-        'consortium_id',
-        'room_type',
         'commission_value',
         'date_range_start',
         'date_range_end',
@@ -35,5 +33,10 @@ class TravelAgencyCommission extends Model
     public function hotel()
     {
         return $this->belongsTo(Hotel::class);
+    }
+
+    public function conditions()
+    {
+        return $this->hasMany(TravelAgencyCommissionCondition::class, 'travel_agency_commissions_id');
     }
 }

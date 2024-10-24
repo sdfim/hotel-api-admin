@@ -27,6 +27,7 @@ use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
 use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
+use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,6 +79,7 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('hotel_repository', HotelController::class);
         Route::resource('hotel_rooms', HotelRoomController::class);
+        Route::resource('travel-agency-commission', TravelAgencyCommissionController::class);
 
         Route::resource('/insurance-providers', InsuranceProvidersController::class)->only(['index', 'create', 'edit']);
         Route::resource('/insurance-restrictions', InsuranceRestrictionsController::class)->only(['index', 'create', 'edit']);

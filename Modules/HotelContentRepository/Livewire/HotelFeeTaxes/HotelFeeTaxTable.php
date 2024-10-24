@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Livewire\HotelFeeTaxes;
 
+use App\Helpers\ClassHelper;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -122,6 +123,10 @@ class HotelFeeTaxTable extends Component implements HasForms, HasTable
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
                     })
+                    ->tooltip('Add New Fee')
+                    ->icon('heroicon-o-plus')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton(),
             ]);
     }
 

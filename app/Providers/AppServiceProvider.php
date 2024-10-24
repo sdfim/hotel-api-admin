@@ -19,6 +19,7 @@ use Modules\HotelContentRepository\Livewire\HotelAttributes\HotelAttributesTable
 use Modules\HotelContentRepository\Livewire\HotelFeeTaxes\HotelFeeTaxTable;
 use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
 use Modules\HotelContentRepository\Livewire\KeyMappings\KeyMappingTable;
+use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyCommissionTable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -63,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Livewire::component('commissions.travel-agency-commission-table', TravelAgencyCommissionTable::class);
         Livewire::component('hotels.hotel-form', HotelForm::class);
         Livewire::component('hotels.hotel-table', HotelTable::class);
         Livewire::component('hotels.key-mapping-table', KeyMappingTable::class);

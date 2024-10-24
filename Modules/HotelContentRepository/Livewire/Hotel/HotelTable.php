@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Livewire\Hotel;
 
+use App\Helpers\ClassHelper;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -196,7 +197,11 @@ class HotelTable extends Component implements HasForms, HasTable
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->form((new HotelForm())->schemeForm())
-                    ->visible(Gate::allows('create', Hotel::class)),
+                    ->visible(Gate::allows('create', Hotel::class))
+                    ->tooltip('Add New Hotel')
+                    ->icon('heroicon-o-plus')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton(),
             ]);
     }
 

@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Livewire\HotelRooms;
 
+use App\Helpers\ClassHelper;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
@@ -119,7 +120,11 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
-                    }),
+                    })
+                    ->tooltip('Add New Room')
+                    ->icon('heroicon-o-plus')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton(),
             ]);
     }
 

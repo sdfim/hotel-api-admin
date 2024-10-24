@@ -14,6 +14,7 @@
     use App\Models\ApiExceptionReport;
     use App\Models\Property;
     use Modules\HotelContentRepository\Models\Hotel;
+    use Modules\HotelContentRepository\Models\TravelAgencyCommission;
     use App\Models\GiataGeography;
     use Modules\Insurance\Models\InsuranceProvider;
     use Modules\Insurance\Models\InsuranceRestriction;
@@ -121,6 +122,15 @@
                         </a>
                     </li>
                 @endif
+                    {{--                @if($canView(TravelAgencyCommission::class))--}}
+                    <li>
+                        <a href="{{ Route('travel-agency-commission.index') }}"
+                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-lifting"></i>
+                            <span data-key="t-property-weighting">Agency Commissions</span>
+                        </a>
+                    </li>
+                    {{--                @endif--}}
                 @if($canView(PropertyWeighting::class))
                     <li>
                         <a href="{{ Route('property-weighting.index') }}"
@@ -163,118 +173,118 @@
                     </li>
                 @endif
                 @if($canView(ApiExceptionReport::class))
-                <li class="@if(Route::currentRouteName() == 'exceptions-report.show') mm-active @endif">
-                    <a href="javascript: void(0);" aria-expanded="false"
-                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-graph-line"></i>
-                        <span data-key="t-inspector">Exceptions Report</span>
-                    </a>
-                    <ul>
-                        <li>
-                            <a href="{{ Route('exceptions-report.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
-                                Data</a>
-                        </li>
-                        <li>
-                            <a href="{{ Route('exceptions-report-chart.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
-                                Chart</a>
-                        </li>
-                    </ul>
-                </li>
+                    <li class="@if(Route::currentRouteName() == 'exceptions-report.show') mm-active @endif">
+                        <a href="javascript: void(0);" aria-expanded="false"
+                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-graph-line"></i>
+                            <span data-key="t-inspector">Exceptions Report</span>
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="{{ Route('exceptions-report.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'search-inspector.show') active @endif">
+                                    Data</a>
+                            </li>
+                            <li>
+                                <a href="{{ Route('exceptions-report-chart.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
+                                    Chart</a>
+                            </li>
+                        </ul>
+                    </li>
                 @endif
                 @if($canView(Property::class))
-                <li>
-                    <a href="{{ Route('properties.index') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-map"></i>
-                        <span data-key="t-property-mapping">Properties</span>
-                    </a>
-                </li>
+                    <li>
+                        <a href="{{ Route('properties.index') }}"
+                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-map"></i>
+                            <span data-key="t-property-mapping">Properties</span>
+                        </a>
+                    </li>
                 @endif
                 @if($canView(Hotel::class))
-                <li>
-                    <a href="javascript: void(0);" aria-expanded="false"
-                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-graduation"></i>
-                        <span data-key="t-configuration">Content Repository</span>
-                    </a>
-                    <ul>
-                        <li>
-                            <a href="{{ Route('hotel_repository.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px]
+                    <li>
+                        <a href="javascript: void(0);" aria-expanded="false"
+                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-graduation"></i>
+                            <span data-key="t-configuration">Content Repository</span>
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="{{ Route('hotel_repository.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px]
                                font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500
                                dark:text-gray-300 dark:active:text-white dark:hover:text-white">Hotels</a>
-                        </li>
-                        <li>
-                            <a href="{{ Route('hotel_rooms.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px]
+                            </li>
+                            <li>
+                                <a href="{{ Route('hotel_rooms.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px]
                                font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500
                                dark:text-gray-300 dark:active:text-white dark:hover:text-white">Rooms</a>
-                        </li>
-                    </ul>
-                </li>
+                            </li>
+                        </ul>
+                    </li>
                 @endif
                 @can('statistic-charts')
-                <li>
-                    <a href="{{ Route('statistic-charts') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-graph-pie"></i>
-                        <span data-key="t-statistic-charts"> Statistic charts</span>
-                    </a>
-                </li>
+                    <li>
+                        <a href="{{ Route('statistic-charts') }}"
+                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-graph-pie"></i>
+                            <span data-key="t-statistic-charts"> Statistic charts</span>
+                        </a>
+                    </li>
                 @endcan
                 @if($canView(GiataGeography::class))
-                <li>
-                    <a href="{{ Route('geography') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-direction"></i>
-                        <span data-key="t-geography"> Geography</span>
-                    </a>
-                </li>
+                    <li>
+                        <a href="{{ Route('geography') }}"
+                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-direction"></i>
+                            <span data-key="t-geography"> Geography</span>
+                        </a>
+                    </li>
                 @endif
                 @if($canView(InsuranceProvider::class) || $canView(InsuranceRestriction::class))
-                <li>
-                    <a href="javascript: void(0);" aria-expanded="false"
-                       class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-pill"></i>
-                        <span data-key="t-configuration">Insurance</span>
-                    </a>
-                    <ul>
-                        @if($canView(InsuranceProvider::class))
-                        <li>
-                            <a href="{{ Route('insurance-providers.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                Providers</a>
-                        </li>
-                        @endif
-                        @if($canView(InsuranceRestriction::class))
-                        <li>
-                            <a href="{{ Route('insurance-restrictions.index') }}"
-                               class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                Restrictions</a>
-                        </li>
-                        @endif
-                    </ul>
-                </li>
+                    <li>
+                        <a href="javascript: void(0);" aria-expanded="false"
+                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-pill"></i>
+                            <span data-key="t-configuration">Insurance</span>
+                        </a>
+                        <ul>
+                            @if($canView(InsuranceProvider::class))
+                                <li>
+                                    <a href="{{ Route('insurance-providers.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                        Providers</a>
+                                </li>
+                            @endif
+                            @if($canView(InsuranceRestriction::class))
+                                <li>
+                                    <a href="{{ Route('insurance-restrictions.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                        Restrictions</a>
+                                </li>
+                            @endif
+                        </ul>
+                    </li>
                 @endif
                 @can('log-viewer')
-                <li>
-                    <a href="{{ url('admin/log-viewer') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-document-remove"></i>
-                        <span data-key="t-log-viewer"> Log Viewer</span>
-                    </a>
-                </li>
+                    <li>
+                        <a href="{{ url('admin/log-viewer') }}"
+                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-document-remove"></i>
+                            <span data-key="t-log-viewer"> Log Viewer</span>
+                        </a>
+                    </li>
                 @endcan
                 @can('swagger-docs')
-                <li>
-                    <a href="{{ url(config('app.url').'/admin/api/documentation') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-document-edit"></i>
-                        <span data-key="t-api-documentatio"> OpenApi Documentation</span>
-                    </a>
-                </li>
+                    <li>
+                        <a href="{{ url(config('app.url').'/admin/api/documentation') }}"
+                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-document-edit"></i>
+                            <span data-key="t-api-documentatio"> OpenApi Documentation</span>
+                        </a>
+                    </li>
                 @endcan
 
                 <!--

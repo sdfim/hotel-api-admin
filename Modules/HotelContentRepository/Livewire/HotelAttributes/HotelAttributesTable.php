@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Livewire\HotelAttributes;
 
+use App\Helpers\ClassHelper;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -64,7 +65,7 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
             ->actions([
                 EditAction::make()
                     ->label('')
-                    ->tooltip('Edit Affiliation')
+                    ->tooltip('Edit Attribute')
                     ->form($this->schemeForm()),
             ])
             ->bulkActions([
@@ -75,7 +76,11 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
-                    }),
+                    })
+                    ->tooltip('Add New Attribute')
+                    ->icon('heroicon-o-plus')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton(),
             ]);
     }
 
