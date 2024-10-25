@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
-use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -31,6 +30,11 @@ class PermissionSeeder extends Seeder
         'hotel',
         'insurance_provider',
         'insurance_restriction',
+        'config_attribute',
+        'config_consortium',
+        'config_descriptive_type',
+        'config_job_description',
+        'config_service_type',
     ];
 
     private static array $permissions = [

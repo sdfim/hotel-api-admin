@@ -2,6 +2,16 @@
 
 namespace App\Providers;
 
+use App\Models\Configurations\ConfigAttribute;
+use App\Models\Configurations\ConfigConsortium;
+use App\Models\Configurations\ConfigDescriptiveType;
+use App\Models\Configurations\ConfigJobDescription;
+use App\Models\Configurations\ConfigServiceType;
+use App\Policies\Configurations\ConfigAttributePolicy;
+use App\Policies\Configurations\ConfigConsortiumPolicy;
+use App\Policies\Configurations\ConfigDescriptiveTypePolicy;
+use App\Policies\Configurations\ConfigJobDescriptionPolicy;
+use App\Policies\Configurations\ConfigServiceTypePolicy;
 use App\Policies\HotelPolicy;
 use App\Policies\InsuranceProviderPolicy;
 use App\Policies\InsuranceRestrictionPolicy;
@@ -20,9 +30,14 @@ class PermissionServiceProvider extends ServiceProvider
     ];
 
     private static array $modelPolicies = [
-        Hotel::class                => HotelPolicy::class,
-        InsuranceProvider::class    => InsuranceProviderPolicy::class,
-        InsuranceRestriction::class => InsuranceRestrictionPolicy::class,
+        Hotel::class                 => HotelPolicy::class,
+        InsuranceProvider::class     => InsuranceProviderPolicy::class,
+        InsuranceRestriction::class  => InsuranceRestrictionPolicy::class,
+        ConfigAttribute::class       => ConfigAttributePolicy::class,
+        ConfigConsortium::class      => ConfigConsortiumPolicy::class,
+        ConfigDescriptiveType::class => ConfigDescriptiveTypePolicy::class,
+        ConfigJobDescription::class  => ConfigJobDescriptionPolicy::class,
+        ConfigServiceType::class     => ConfigServiceTypePolicy::class,
     ];
 
     /**
