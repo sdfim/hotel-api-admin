@@ -19,7 +19,7 @@ class HotelAttributeControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'name', 'attribute_value']
+                '*' => ['id', 'hotel_id', 'hotel_id']
             ],
             'message'
         ]);
@@ -32,7 +32,7 @@ class HotelAttributeControllerTest extends TestCase
         $response = $this->request()->postJson('api/repo/hotel-attributes', $data);
         $response->assertStatus(201);
         $response->assertJsonStructure([
-            'data' => ['id', 'name', 'attribute_value'],
+            'data' => ['id', 'hotel_id', 'hotel_id'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_hotel_attributes', $data);
@@ -45,7 +45,7 @@ class HotelAttributeControllerTest extends TestCase
         $response = $this->request()->getJson("api/repo/hotel-attributes/{$attribute->id}");
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'name', 'attribute_value'],
+            'data' => ['id', 'hotel_id', 'hotel_id'],
             'message'
         ]);
     }
@@ -58,7 +58,7 @@ class HotelAttributeControllerTest extends TestCase
         $response = $this->request()->putJson("api/repo/hotel-attributes/{$attribute->id}", $data);
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'data' => ['id', 'name', 'attribute_value'],
+                'data' => ['id', 'hotel_id', 'hotel_id'],
                 'message'
             ]);
         $this->assertDatabaseHas('pd_hotel_attributes', $data);

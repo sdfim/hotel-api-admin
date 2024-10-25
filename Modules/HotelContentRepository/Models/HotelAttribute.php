@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Configurations\ConfigAttribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelAttributeFactory;
@@ -19,18 +20,22 @@ class HotelAttribute extends Model
 
     protected $fillable = [
         'hotel_id',
-        'name',
-        'attribute_value',
+        'attribute_id',
     ];
 
     protected $hidden = [
-        'created_at',
-        'updated_at',
         'pivot'
     ];
+
+    public $timestamps = false;
 
     public function hotel()
     {
         return $this->belongsTo(Hotel::class);
+    }
+
+    public function attribute()
+    {
+        return $this->belongsTo(ConfigAttribute::class);
     }
 }

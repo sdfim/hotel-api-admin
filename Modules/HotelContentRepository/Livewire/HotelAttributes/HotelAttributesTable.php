@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\HotelAttributes;
 
 use App\Helpers\ClassHelper;
+use App\Models\Configurations\ConfigAttribute;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -46,8 +47,10 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
                 ->options(Hotel::pluck('name', 'id'))
 //                ->when($this->hotelId, fn($select) => $select->searchable())
                 ->required(),
-            TextInput::make('name')->label('Attribute Name')->required(),
-            TextInput::make('attribute_value')->label('Value')->required(),
+            Select::make('attribute_id')
+                ->label('Attribute')
+                ->options(ConfigAttribute::pluck('name', 'id'))
+                ->required(),
         ];
     }
 
@@ -55,12 +58,11 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
     {
         return $table
             ->query(
-                HotelAttribute::query()->where('hotel_id', $this->hotelId)
+                HotelAttribute::with('attribute')->where('hotel_id', $this->hotelId)
             )
             ->columns([
-                TextColumn::make('name')->label('Attribute Name')->searchable(),
-                TextColumn::make('attribute_value')->label('Value')->searchable(),
-                TextColumn::make('created_at')->label('Created At')->date(),
+                TextColumn::make('attribute.name')->label('Attribute Name')->searchable(),
+                TextColumn::make('attribute.default_value')->label('Value')->searchable(),
             ])
             ->actions([
                 EditAction::make()
