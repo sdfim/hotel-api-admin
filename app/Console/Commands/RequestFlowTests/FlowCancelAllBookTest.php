@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\RequestFlowTests;
 
 use App\Repositories\ApiBookingInspectorRepository;
 use Illuminate\Console\Command;

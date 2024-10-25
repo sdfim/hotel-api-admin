@@ -193,6 +193,7 @@ class ApiSearchInspectorRepository
         $inspector->suppliers = implode(',', $suppliers);
         $inspector->request = json_encode($request);
         $inspector->token_id = $token_id;
+        $inspector->destination_name = Arr::get($request,'destination_name');
 
         \Log::info('Created ApiSearchInspector:', ['inspector' => $inspector]);
 

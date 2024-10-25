@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\RequestFlowTests;
 
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
