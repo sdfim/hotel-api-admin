@@ -88,6 +88,7 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                                         ->label('Room Type')
                                         ->required(),
                                 ],
+                                default => []
                             })
                             ->columns(1)
                             ->columnStart(2)
