@@ -15,6 +15,7 @@ use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
 use Modules\HotelContentRepository\Livewire\HotelAffiliations\HotelAffiliationsTable;
+use Modules\HotelContentRepository\Livewire\HotelAgeRestriction\HotelAgeRestrictionTable;
 use Modules\HotelContentRepository\Livewire\HotelAttributes\HotelAttributesTable;
 use Modules\HotelContentRepository\Livewire\HotelFeeTaxes\HotelFeeTaxTable;
 use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
@@ -64,14 +65,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Livewire::component('commissions.travel-agency-commission-table', TravelAgencyCommissionTable::class);
-        Livewire::component('hotels.hotel-form', HotelForm::class);
-        Livewire::component('hotels.hotel-table', HotelTable::class);
-        Livewire::component('hotels.key-mapping-table', KeyMappingTable::class);
-        Livewire::component('hotels.hotel-room-table', HotelRoomTable::class);
-        Livewire::component('hotels.hotel-affiliations-table', HotelAffiliationsTable::class);
-        Livewire::component('hotels.hotel-attributes-table', HotelAttributesTable::class);
-        Livewire::component('hotels.hotel-fee-tax-table', HotelFeeTaxTable::class);
+        $this->registerContentRepositoryComponents();
 
         $currentUrl = URL::current();
         if (! str_contains($currentUrl, 'localhost') && ! str_contains($currentUrl, '127.0.0.1')) {
@@ -88,5 +82,18 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+    }
+
+    protected function registerContentRepositoryComponents(): void
+    {
+        Livewire::component('commissions.travel-agency-commission-table', TravelAgencyCommissionTable::class);
+        Livewire::component('hotels.hotel-form', HotelForm::class);
+        Livewire::component('hotels.hotel-table', HotelTable::class);
+        Livewire::component('hotels.key-mapping-table', KeyMappingTable::class);
+        Livewire::component('hotels.hotel-room-table', HotelRoomTable::class);
+        Livewire::component('hotels.hotel-affiliations-table', HotelAffiliationsTable::class);
+        Livewire::component('hotels.hotel-attributes-table', HotelAttributesTable::class);
+        Livewire::component('hotels.hotel-age-restriction-table', HotelAgeRestrictionTable::class);
+        Livewire::component('hotels.hotel-fee-tax-table', HotelFeeTaxTable::class);
     }
 }

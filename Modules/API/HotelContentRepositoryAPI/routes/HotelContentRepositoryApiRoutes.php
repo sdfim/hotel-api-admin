@@ -7,6 +7,8 @@ use Modules\API\Controllers\ApiHandlers\DestinationsController;
 use Modules\API\Controllers\RouteApiController;
 use Modules\HotelContentRepository\API\Controllers\ContentSourceController;
 use Modules\HotelContentRepository\API\Controllers\HotelAffiliationController;
+use Modules\HotelContentRepository\API\Controllers\HotelAgeRestrictionController;
+use Modules\HotelContentRepository\API\Controllers\HotelAgeRestrictionTypeController;
 use Modules\HotelContentRepository\API\Controllers\HotelController;
 use Modules\HotelContentRepository\API\Controllers\HotelDescriptiveContentSectionController;
 use Modules\HotelContentRepository\API\Controllers\HotelFeeTaxController;
@@ -21,6 +23,7 @@ use Modules\HotelContentRepository\API\Controllers\ImageGalleryController;
 use Modules\HotelContentRepository\API\Controllers\KeyMappingController;
 use Modules\HotelContentRepository\API\Controllers\KeyMappingOwnerController;
 use Modules\HotelContentRepository\API\Controllers\TravelAgencyCommissionController;
+use Modules\HotelContentRepository\Models\HotelAgeRestrictionType;
 
 class HotelContentRepositoryApiRoutes
 {
@@ -51,8 +54,10 @@ class HotelContentRepositoryApiRoutes
             Route::post('hotel-rooms/{id}/attach-gallery', [HotelRoomController::class, 'attachGallery']);
             Route::post('hotel-rooms/{id}/detach-gallery', [HotelRoomController::class, 'detachGallery']);
 
-
             Route::resource('key-mappings', KeyMappingController::class);
+
+            Route::resource('age-restriction-types', HotelAgeRestrictionTypeController::class);
+            Route::resource('age-restrictions', HotelAgeRestrictionController::class);
 
             Route::resource('travel-agency-commissions', TravelAgencyCommissionController::class);
 

@@ -28,6 +28,9 @@ class DatabaseSeeder extends Seeder
             TripMateDefaultRestrictions::class,
 
             HotelContentRepositorySeeder::class,
+
+            ConfigConsortiumSeeder::class,
+            ConfigAttributeSeeder::class,
         ]);
     }
 }

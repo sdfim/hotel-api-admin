@@ -28,22 +28,27 @@
                     </div>
 
                     <div class="mt-8">
-                        <h2 class="text-xl font-semibold">Hotel Rooms</h2>
+                        <h2 class="text-xl font-semibold">Rooms</h2>
                         @livewire('hotels.hotel-room-table', ['hotelId' => $hotelId])
                     </div>
 
                     <div class="mt-8">
-                        <h2 class="text-xl font-semibold">Hotel Attributes</h2>
+                        <h2 class="text-xl font-semibold">Attributes</h2>
                         @livewire('hotels.hotel-attributes-table', ['hotelId' => $hotelId])
                     </div>
 
                     <div class="mt-8">
-                        <h2 class="text-xl font-semibold">Hotel Affiliations</h2>
+                        <h2 class="text-xl font-semibold">Age Restrictions</h2>
+                        @livewire('hotels.hotel-age-restriction-table', ['hotelId' => $hotelId])
+                    </div>
+
+                    <div class="mt-8">
+                        <h2 class="text-xl font-semibold">Affiliations</h2>
                         @livewire('hotels.hotel-affiliations-table', ['hotelId' => $hotelId])
                     </div>
 
                     <div class="mt-8">
-                        <h2 class="text-xl font-semibold">Hotel Fee and Tax</h2>
+                        <h2 class="text-xl font-semibold">Fee and Tax</h2>
                         @livewire('hotels.hotel-fee-tax-table', ['hotelId' => $hotelId])
                     </div>
                 </div>
