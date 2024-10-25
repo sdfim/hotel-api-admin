@@ -5,8 +5,10 @@ namespace Modules\AdministrationSuite\Http\Controllers;
 use App\Models\PropertyWeighting;
 use Illuminate\Contracts\View\View;
 
-class PropertyWeightingController extends Controller
+class PropertyWeightingController extends BaseWithPolicyController
 {
+    protected static string $model = PropertyWeighting::class;
+
     /**
      * @var array|string[]
      */

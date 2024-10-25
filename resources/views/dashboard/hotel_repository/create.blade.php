@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Edit User') }}
+    {{ __('Create Hotel') }}
 @endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6">
@@ -14,12 +14,13 @@
                     <div class="row">
                         <div class="col-lg-12 margin-tb">
                             <div class="mb-6">
-                                <x-button-back route="{{ route('users.index') }}" text="Back"/>
+                                <x-button-back route="{{ route('hotel_repository.index') }}" text="Back"/>
                             </div>
                         </div>
                     </div>
                     <div class="ml-1 mr-1 col-span-9 xl:col-span-6">
-                        @livewire('users.update-users-form', compact('user'))
+                        @livewire('hotels.hotel-form')
+{{--                        {{ dd($hotel) }}--}}
                     </div>
                 </div>
             </div>

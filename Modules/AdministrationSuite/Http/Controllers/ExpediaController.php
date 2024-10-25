@@ -2,10 +2,13 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
+use App\Models\ExpediaContent;
 use Illuminate\Contracts\View\View;
 
-class ExpediaController extends Controller
+class ExpediaController extends BaseWithPolicyController
 {
+    protected static string $model = ExpediaContent::class;
+
     /**
      * Display a listing of the resource.
      */

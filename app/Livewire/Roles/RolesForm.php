@@ -13,12 +13,14 @@ use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\HeaderActionsPosition;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -32,6 +34,8 @@ class RolesForm extends Component implements HasForms, HasTable
     public ?array $data = [];
 
     public Role $record;
+
+    public array $permissionIds = [];
 
     public function mount(Role $role): void
     {
@@ -48,11 +52,14 @@ class RolesForm extends Component implements HasForms, HasTable
                     ->live(true)
                     ->required()
                     ->maxLength(191)
-                    ->afterStateUpdated(fn ($state, Set $set) => $set('slug', Str::slug($state))),
+                    ->afterStateUpdated(
+                        fn ($state, Set $set) => !$this->record->exists ? $set('slug', Str::slug($state)) : $state
+                    ),
                 TextInput::make('slug')
                     ->unique(ignorable: $this->record)
                     ->required()
-                    ->maxLength(191),
+                    ->maxLength(191)
+                    ->disabled($this->record->exists),
             ])
             ->statePath('data')
             ->model($this->record);
@@ -64,10 +71,12 @@ class RolesForm extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(
                 Permission::query()
-                    ->whereHas(
-                        'roles',
-                        fn ($query) => $query->where('role_id', $this->record->id)
-                    )
+                    ->when($this->record->exists, function ($query) {
+                        return $query->whereHas('roles', fn ($query) => $query->where('role_id', $this->record->id));
+                    })
+                    ->when(!$this->record->exists, function ($query) {
+                        return $query->whereIn('id', $this->permissionIds);
+                    })
             )
             ->columns([
                 TextColumn::make('name')
@@ -77,14 +86,23 @@ class RolesForm extends Component implements HasForms, HasTable
             ])
             ->bulkActions([
                 DeleteBulkAction::make('delete')
-                    ->action(fn (Collection $records) => $this->record
-                        ->permissions()
-                        ->detach($records->pluck('id'))
-                    ),
+                    ->action(function (Collection $records) {
+                        if ($this->record->exists) {
+                            $this->record->permissions()->detach($records->pluck('id'));
+                        } else {
+                            $ids = $records->pluck('id')->all();
+                            $this->permissionIds = array_filter($this->permissionIds, fn ($id) => !in_array($id, $ids));
+                        }
+                    }),
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->label('Add permission')
+                    ->extraAttributes(['class' => 'btn text-violet-500 hover:text-white border-violet-500
+                    hover:bg-violet-600 hover:border-violet-600 focus:bg-violet-600 focus:text-white
+                    focus:border-violet-600 focus:ring focus:ring-violet-500/30
+                    active:bg-violet-600 active:border-violet-600'])
+                    ->iconButton()
+                    ->icon(new HtmlString('<i class="bx bx-plus block text-lg"></i>'))
                     ->form([
                         Select::make('id')
                             ->multiple()
@@ -92,17 +110,32 @@ class RolesForm extends Component implements HasForms, HasTable
                             ->options(Permission::whereDoesntHave(
                                 'roles',
                                 fn ($query) => $query->where('role_id', $this->record->id)
-                            )->pluck('name', 'id'))
+                            )->whereNotIn('id', $this->permissionIds)
+                                ->pluck('name', 'id'))
                     ])
-                    ->action(fn ($data) => $this->record->permissions()->attach($data['id'])),
+                    ->action(function ($data) {
+                        if ($this->record->exists) {
+                            $this->record->permissions()->attach($data['id']);
+                        } else {
+                            $this->permissionIds = [
+                                ...$this->permissionIds,
+                                ...$data['id'],
+                            ];
+                        }
+                    }),
             ]);
     }
 
     public function edit(): Redirector|RedirectResponse
     {
+        $exists = $this->record->exists;
         $data = $this->form->getState();
         $this->record->fill($data);
         $this->record->save();
+
+        if (!$exists) {
+            $this->record->permissions()->attach($this->permissionIds);
+        }
 
         Notification::make()
             ->title('Updated successfully')

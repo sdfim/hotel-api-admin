@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
-use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -28,6 +27,20 @@ class PermissionSeeder extends Seeder
         'user',
         'role',
         'permission',
+        'hotel',
+        'insurance_provider',
+        'insurance_restriction',
+        'config_attribute',
+        'config_consortium',
+        'config_descriptive_type',
+        'config_job_description',
+        'config_service_type',
+    ];
+
+    private static array $permissions = [
+        'statistic-charts',
+        'swagger-docs',
+        'log-viewer',
     ];
 
     /**
@@ -41,22 +54,28 @@ class PermissionSeeder extends Seeder
             $modelName = Str::ucfirst(Str::camel($prefix));
 
             foreach ($permissionTypes as $type) {
-                $slug = $prefix . "." . $type;
-
-                if (!Permission::where('slug', $slug)->exists()) {
-                    $permission = new Permission();
-                    $permission->slug = $slug;
-                    $permission->name = $modelName . ' ' . $type;
-                    $permission->save();
-                }
+                $this->createIfNotExists(
+                    slug: $prefix . "." . $type,
+                    name: $modelName . ' ' . $type,
+                );
             }
         }
 
-        // Assign all permissions to the 'Admin' role
-        $adminRole = Role::where('slug', 'admin')->first();
-        if ($adminRole) {
-            $permissions = Permission::all();
-            $adminRole->permissions()->sync($permissions->pluck('id')->toArray());
+        foreach (self::$permissions as $permission) {
+            $this->createIfNotExists(
+                slug: $permission,
+                name: Str::replace(['-', '_'], ' ', Str::ucfirst($permission)),
+            );
+        }
+    }
+
+    private function createIfNotExists(string $slug, string $name): void
+    {
+        if (!Permission::where('slug', $slug)->exists()) {
+            $permission = new Permission();
+            $permission->slug = $slug;
+            $permission->name = $name;
+            $permission->save();
         }
     }
 }

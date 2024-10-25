@@ -6,6 +6,7 @@ use App\Repositories\PropertyWeightingRepository;
 use Illuminate\Support\Collection;
 use Mockery;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class EnrichmentWeightPricingTest extends TestCase

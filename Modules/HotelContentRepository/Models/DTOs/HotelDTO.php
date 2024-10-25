@@ -156,15 +156,6 @@ class HotelDTO
                 'value' => $mapping->keyMappingOwner->name,
             ];
         });
-        $this->travel_agency_commissions = $hotel->travelAgencyCommissions->map(function ($commission) {
-            return [
-                'consortium' => $commission->consortium_id,
-                'room_type' => $commission->room_type,
-                'commission_value' => $commission->commission_value,
-                'date_range_start' => $commission->date_range_start,
-                'date_range_end' => $commission->date_range_end,
-            ];
-        });
         $this->galleries = $hotel->galleries->map(function ($gallery) {
             return [
                 'gallery_name' => $gallery->gallery_name,

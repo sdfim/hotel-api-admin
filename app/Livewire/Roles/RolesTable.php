@@ -14,6 +14,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -45,7 +46,12 @@ class RolesTable extends Component implements HasForms, HasTable
                 ])->hidden(fn (Role $record) => $record->slug == 'admin'),
             ])->headerActions([
                 CreateAction::make()
-                    ->label('Create')
+                    ->extraAttributes(['class' => 'btn text-violet-500 hover:text-white border-violet-500
+                    hover:bg-violet-600 hover:border-violet-600 focus:bg-violet-600 focus:text-white
+                    focus:border-violet-600 focus:ring focus:ring-violet-500/30
+                    active:bg-violet-600 active:border-violet-600'])
+                    ->iconButton()
+                    ->icon(new HtmlString('<i class="bx bx-plus block text-lg"></i>'))
                     ->url(fn (): string => route('roles.create'))
                     ->visible(fn () => Gate::allows('create', Role::class)),
             ]);

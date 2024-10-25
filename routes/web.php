@@ -5,6 +5,11 @@ use Illuminate\Support\Facades\Route;
 use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\BookingItemsController;
 use Modules\AdministrationSuite\Http\Controllers\ChannelsController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigConsortiumController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigDescriptiveTypeController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigJobDescriptionController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigServiceTypeController;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportChartController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportController;
@@ -27,6 +32,8 @@ use Modules\HotelContentRepository\Http\Controllers\HotelController;
 use Modules\Insurance\Http\Controllers\InsuranceProvidersController;
 use Modules\Insurance\Http\Controllers\InsuranceRateTiersController;
 use Modules\Insurance\Http\Controllers\InsuranceRestrictionsController;
+use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
+use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,10 +47,10 @@ use Modules\Insurance\Http\Controllers\InsuranceRestrictionsController;
 */
 
 Route::get('/admin/', function () {
-    if (!Auth::check()) {
-        return redirect(config('app.url') . '/admin/login');
+    if (! Auth::check()) {
+        return redirect(config('app.url').'/admin/login');
     } else {
-        return redirect(config('app.url') . '/admin/reservations');
+        return redirect(config('app.url').'/admin/reservations');
     }
 })->name('root');
 
@@ -72,15 +79,25 @@ Route::prefix('admin')->group(function () {
         Route::get('/statistic-charts', [StatisticChartsController::class, 'index'])->name('statistic-charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->only(['store', 'destroy']);
 
-        Route::resource('users', UsersController::class)->only(['index', 'edit']);
+        Route::resource('users', UsersController::class)->only(['index', 'edit', 'create']);
         Route::resource('roles', RolesController::class)->only(['index', 'edit', 'create']);
         Route::get('permissions', PermissionsController::class)->name('permissions.index');
 
-        Route::resource('hotel_repository', HotelController::class)->only(['index', 'edit']);
+        Route::resource('hotel_repository', HotelController::class);
+        Route::resource('hotel_rooms', HotelRoomController::class);
+        Route::resource('travel-agency-commission', TravelAgencyCommissionController::class);
 
         Route::resource('/insurance-providers', InsuranceProvidersController::class)->only(['index', 'create', 'edit']);
         Route::resource('/insurance-restrictions', InsuranceRestrictionsController::class)->only(['index', 'create', 'edit']);
         Route::resource('/insurance-rate-tiers', InsuranceRateTiersController::class)->only(['index', 'create', 'edit']);
+
+        Route::prefix('configurations')->name('configurations.')->group(function () {
+            Route::resource('attributes', ConfigAttributeController::class)->only(['index', 'create', 'edit']);
+            Route::resource('consortia', ConfigConsortiumController::class)->only(['index', 'create', 'edit']);
+            Route::resource('descriptive-types', ConfigDescriptiveTypeController::class)->only(['index', 'create', 'edit']);
+            Route::resource('job-descriptions', ConfigJobDescriptionController::class)->only(['index', 'create', 'edit']);
+            Route::resource('service-types', ConfigServiceTypeController::class)->only(['index', 'create', 'edit']);
+        });
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');

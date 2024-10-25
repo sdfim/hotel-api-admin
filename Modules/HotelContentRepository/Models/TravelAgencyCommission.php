@@ -18,9 +18,7 @@ class TravelAgencyCommission extends Model
     protected $table = 'pd_travel_agency_commissions';
 
     protected $fillable = [
-        'hotel_id',
-        'consortium_id',
-        'room_type',
+        'name',
         'commission_value',
         'date_range_start',
         'date_range_end',
@@ -32,8 +30,8 @@ class TravelAgencyCommission extends Model
         'pivot'
     ];
 
-    public function hotel()
+    public function conditions()
     {
-        return $this->belongsTo(Hotel::class);
+        return $this->hasMany(TravelAgencyCommissionCondition::class, 'travel_agency_commissions_id');
     }
 }

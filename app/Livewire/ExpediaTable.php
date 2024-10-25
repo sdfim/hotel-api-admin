@@ -30,7 +30,8 @@ class ExpediaTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10])
-            ->query(ExpediaContent::query()->orderBy('rating', 'desc'))
+            ->query(ExpediaContent::query())
+            ->defaultSort('rating', 'desc')
             ->columns([
                 TextColumn::make('property_id')
                     ->sortable()

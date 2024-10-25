@@ -6,6 +6,7 @@ use App\Models\User;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
@@ -46,6 +47,11 @@ class UsersTable extends Component implements HasForms, HasTable
                         ->action(fn (User $record) => $record->delete())
                         ->visible(fn (User $record) => Gate::allows('delete', $record)),
                 ]),
+            ])->headerActions([
+                CreateAction::make()
+                    ->label('Create')
+                    ->url(fn (): string => route('users.create'))
+                    ->visible(fn () => Gate::allows('create', User::class)),
             ]);
     }
 

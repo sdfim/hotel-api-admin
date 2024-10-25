@@ -13,6 +13,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Modules\Insurance\Models\InsuranceProvider;
 
@@ -38,10 +39,12 @@ class ProvidersTable extends Component implements HasForms, HasTable
             ->actions([
                 ActionGroup::make([
                     EditAction::make()
-                        ->url(fn(InsuranceProvider $record): string => route('insurance-providers.edit', $record)),
+                        ->url(fn(InsuranceProvider $record): string => route('insurance-providers.edit', $record))
+                        ->visible(fn(InsuranceProvider $record) => Gate::allows('update', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn(InsuranceProvider $record) => $record->delete()),
+                        ->action(fn(InsuranceProvider $record) => $record->delete())
+                        ->visible(fn(InsuranceProvider $record) => Gate::allows('delete', $record)),
                 ]),
             ])
             ->bulkActions([

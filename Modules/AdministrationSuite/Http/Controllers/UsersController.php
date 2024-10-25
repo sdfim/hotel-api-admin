@@ -9,7 +9,8 @@ class UsersController extends BaseWithPolicyController
 {
     protected static string $model = User::class;
 
-    private array $message = ['edit' => 'Edit User'];
+    private array $message = ['edit' => 'Edit User', 'create' => 'Create User'];
+
     /**
      * Display a listing of the resource.
      */
@@ -26,6 +27,17 @@ class UsersController extends BaseWithPolicyController
         $user = User::findOrFail($id);
         $text = $this->message;
 
-        return view('dashboard.users.edit', compact('user', 'text'));
+        return view('dashboard.users.form', compact('user', 'text'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): View
+    {
+        $user = new User();
+        $text = $this->message;
+
+        return view('dashboard.users.form', compact('user', 'text'));
     }
 }

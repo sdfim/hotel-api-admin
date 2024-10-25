@@ -37,9 +37,23 @@ class ImageGallery extends Model
         return $this->belongsToMany(Hotel::class, 'pd_hotel_gallery', 'gallery_id', 'hotel_id');
     }
 
+    public function scopeHasHotel($query, $hotelId)
+    {
+        return $query->whereHas('hotels', function ($q) use ($hotelId) {
+            $q->where('hotel_id', $hotelId);
+        });
+    }
+
     public function hotelRooms()
     {
         return $this->belongsToMany(HotelRoom::class, 'pd_hotel_room_gallery', 'gallery_id', 'hotel_room_id');
+    }
+
+    public function scopeHasHotelRoom($query, $hotelRoomId)
+    {
+        return $query->whereHas('hotelRooms', function ($q) use ($hotelRoomId) {
+            $q->where('hotel_room_id', $hotelRoomId);
+        });
     }
 
     public function hotelPromotions()

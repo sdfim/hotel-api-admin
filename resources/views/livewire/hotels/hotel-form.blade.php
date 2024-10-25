@@ -7,9 +7,5 @@
         </x-button>
     </form>
 
-    <div class="pt-16">
-        {{ $this->table }}
-    </div>
-
     <x-filament-actions::modals/>
 </div>

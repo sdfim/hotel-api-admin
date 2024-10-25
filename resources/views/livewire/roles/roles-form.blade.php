@@ -11,11 +11,9 @@
         </x-button>
     </form>
 
-    @if ($record->exists)
-        <div class="pt-16">
-            {{ $this->table }}
-        </div>
-    @endif
+    <div class="pt-16">
+        {{ $this->table }}
+    </div>
 
     <x-filament-actions::modals/>
 </div>
