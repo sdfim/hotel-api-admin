@@ -30,6 +30,7 @@ class PermissionSeeder extends Seeder
         'hotel',
         'insurance_provider',
         'insurance_restriction',
+        'insurance_rate_tier',
         'config_attribute',
         'config_consortium',
         'config_descriptive_type',

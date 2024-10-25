@@ -17,7 +17,7 @@
     use Modules\HotelContentRepository\Models\TravelAgencyCommission;
     use App\Models\GiataGeography;
     use Modules\Insurance\Models\InsuranceProvider;
-    use Modules\Insurance\Models\InsuranceRestriction;
+    use Modules\Insurance\Models\InsuranceRateTier;use Modules\Insurance\Models\InsuranceRestriction;
     use App\Models\Configurations\ConfigAttribute;
     use App\Models\Configurations\ConfigConsortium;
     use App\Models\Configurations\ConfigDescriptiveType;
@@ -171,15 +171,15 @@
                         </a>
                     </li>
                 @endif
-                    {{--                @if($canView(TravelAgencyCommission::class))--}}
-                    <li>
-                        <a href="{{ Route('travel-agency-commission.index') }}"
-                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                            <i class="dripicons-lifting"></i>
-                            <span data-key="t-property-weighting">Agency Commissions</span>
-                        </a>
-                    </li>
-                    {{--                @endif--}}
+                {{--                @if($canView(TravelAgencyCommission::class))--}}
+                <li>
+                    <a href="{{ Route('travel-agency-commission.index') }}"
+                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <i class="dripicons-lifting"></i>
+                        <span data-key="t-property-weighting">Agency Commissions</span>
+                    </a>
+                </li>
+                {{--                @endif--}}
                 @if($canView(PropertyWeighting::class))
                     <li>
                         <a href="{{ Route('property-weighting.index') }}"
@@ -292,7 +292,7 @@
                         </a>
                     </li>
                 @endif
-                @if($canView(InsuranceProvider::class) || $canView(InsuranceRestriction::class))
+                @if($canView(InsuranceProvider::class) || $canView(InsuranceRestriction::class) || $canView(InsuranceRateTier::class))
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
                            class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
@@ -312,6 +312,13 @@
                                     <a href="{{ Route('insurance-restrictions.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                         Restrictions</a>
+                                </li>
+                            @endif
+                            @if($canView(InsuranceRateTier::class))
+                                <li>
+                                    <a href="{{ Route('insurance-rate-tiers.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                        Rate Tier</a>
                                 </li>
                             @endif
                         </ul>

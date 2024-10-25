@@ -1,26 +1,14 @@
-@php use Modules\Insurance\Models\InsuranceProvider; @endphp
 @extends('layouts.master')
 @section('title')
     {{ __('Insurance Providers') }}
 @endsection
 @section('content')
-    <!-- -->
     <x-page-title title="Insurance Providers" pagetitle="index"/>
-    @can('create', InsuranceProvider::class)
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <div class="mb-6">
-                <a class="btn text-violet-500 hover:text-white border-violet-500 hover:bg-violet-600 hover:border-violet-600 focus:bg-violet-600 focus:text-white focus:border-violet-600 focus:ring focus:ring-violet-500/30 active:bg-violet-600 active:border-violet-600"
-                   href="{{ route('insurance-providers.create') }}"> <i class="bx bx-plus block text-lg"></i></a>
-            </div>
-        </div>
-    </div>
-    @endcan
     <div class="grid grid-cols-12 gap-5">
         <div class="col-span-12">
             <div class="card dark:bg-zinc-800 dark:border-zinc-600">
-                <div class="card-body relative overflow-x-auto">
-                    @livewire('insurance.providers.providers-table')
+                <div class="card-body relative overflow-x-auto text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
+                    @livewire('insurance.providers-table')
                 </div>
             </div>
         </div>

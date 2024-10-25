@@ -20,6 +20,9 @@ use Modules\HotelContentRepository\Livewire\HotelFeeTaxes\HotelFeeTaxTable;
 use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
 use Modules\HotelContentRepository\Livewire\KeyMappings\KeyMappingTable;
 use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyCommissionTable;
+use Modules\Insurance\Livewire\Insurance\Providers\ProvidersTable;
+use Modules\Insurance\Livewire\Insurance\RateTiers\RateTiersTable;
+use Modules\Insurance\Livewire\Insurance\Restrictions\RestrictionsTable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -54,7 +57,7 @@ class AppServiceProvider extends ServiceProvider
             return new ExpediaService($propertyCallFactory);
         });
 
-		if ($this->app->environment('local')) {
+        if ($this->app->environment('local')) {
             $this->app->register(HorizonServiceProvider::class);
         }
     }
@@ -73,8 +76,12 @@ class AppServiceProvider extends ServiceProvider
         Livewire::component('hotels.hotel-attributes-table', HotelAttributesTable::class);
         Livewire::component('hotels.hotel-fee-tax-table', HotelFeeTaxTable::class);
 
+        Livewire::component('insurance.providers-table', ProvidersTable::class);
+        Livewire::component('insurance.restrictions-table', RestrictionsTable::class);
+        Livewire::component('insurance.rate-tiers-table', RateTiersTable::class);
+
         $currentUrl = URL::current();
-        if (! str_contains($currentUrl, 'localhost') && ! str_contains($currentUrl, '127.0.0.1')) {
+        if (!str_contains($currentUrl, 'localhost') && !str_contains($currentUrl, '127.0.0.1')) {
             URL::forceScheme('https');
         }
         Schema::defaultStringLength(191);

@@ -29,11 +29,11 @@ use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
+use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
+use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
 use Modules\Insurance\Http\Controllers\InsuranceProvidersController;
 use Modules\Insurance\Http\Controllers\InsuranceRateTiersController;
 use Modules\Insurance\Http\Controllers\InsuranceRestrictionsController;
-use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
-use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,10 +47,10 @@ use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionContro
 */
 
 Route::get('/admin/', function () {
-    if (! Auth::check()) {
-        return redirect(config('app.url').'/admin/login');
+    if (!Auth::check()) {
+        return redirect(config('app.url') . '/admin/login');
     } else {
-        return redirect(config('app.url').'/admin/reservations');
+        return redirect(config('app.url') . '/admin/reservations');
     }
 })->name('root');
 
@@ -87,9 +87,9 @@ Route::prefix('admin')->group(function () {
         Route::resource('hotel_rooms', HotelRoomController::class);
         Route::resource('travel-agency-commission', TravelAgencyCommissionController::class);
 
-        Route::resource('/insurance-providers', InsuranceProvidersController::class)->only(['index', 'create', 'edit']);
-        Route::resource('/insurance-restrictions', InsuranceRestrictionsController::class)->only(['index', 'create', 'edit']);
-        Route::resource('/insurance-rate-tiers', InsuranceRateTiersController::class)->only(['index', 'create', 'edit']);
+        Route::resource('/insurance-providers', InsuranceProvidersController::class)->only(['index']);
+        Route::resource('/insurance-restrictions', InsuranceRestrictionsController::class)->only(['index']);
+        Route::resource('/insurance-rate-tiers', InsuranceRateTiersController::class)->only(['index']);
 
         Route::prefix('configurations')->name('configurations.')->group(function () {
             Route::resource('attributes', ConfigAttributeController::class)->only(['index', 'create', 'edit']);
