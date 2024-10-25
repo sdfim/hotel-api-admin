@@ -3,6 +3,9 @@
 namespace Modules\HotelContentRepository\Livewire\TravelAgencyCommission;
 
 use App\Helpers\ClassHelper;
+use App\Models\Channel;
+use App\Models\Configurations\ConfigConsortium;
+use App\Models\Supplier;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
@@ -11,6 +14,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -27,13 +31,6 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
 {
     use InteractsWithForms;
     use InteractsWithTable;
-
-    public int $hotelId;
-
-    public function mount(int $hotelId)
-    {
-        $this->hotelId = $hotelId;
-    }
 
     public function form(Form $form): Form
     {
@@ -67,14 +64,36 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     Select::make('field')
                         ->label('Field')
                         ->options([
-                            'room_type' => 'Room Type',
                             'consortia' => 'Consortia',
-                    ])
-                        ->required(),
-                    TextInput::make('value')
-                        ->label('Value')
-                        ->required(),
+                            'room_type' => 'Room Type',
+                        ])
+                        ->live()
+                        ->required()
+                        ->afterStateUpdated(fn(Select $component) => $component
+                            ->getContainer()
+                            ->getComponent('dynamicFieldValue')
+                            ->getChildComponentContainer()
+                            ->fill()
+                        ),
+                        Grid::make()
+                            ->schema(components: fn(Get $get): array => match ($get('field')) {
+                                'consortia' => [
+                                    Select::make('value')
+                                        ->label('Consortia')
+                                        ->options(ConfigConsortium::all()->pluck('name', 'id'))
+                                        ->required(),
+                                ],
+                                'room_type' => [
+                                    TextInput::make('value')
+                                        ->label('Room Type')
+                                        ->required(),
+                                ],
+                            })
+                            ->columns(1)
+                            ->columnStart(2)
+                            ->key('dynamicFieldValue')
                     ]),
+
 
                 ])
                 ->createItemButtonLabel('Add Conditions')
@@ -86,13 +105,7 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(function () {
-                $query = TravelAgencyCommission::with('conditions');
-                if ($this->hotelId !== 0) {
-                    $query->where('hotel_id', $this->hotelId);
-                }
-                return $query;
-            })
+            ->query(TravelAgencyCommission::with('conditions'))
             ->columns([
                 TextColumn::make('name')
                     ->label('Commission Name')
