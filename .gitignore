@@ -28,3 +28,5 @@ fullchain.pem
 supervisord.log
 supervisord.pid
 worker.log
+rr
+.rr.yaml

@@ -14,6 +14,8 @@ services:
     depends_on:
       - mysql
       - redis
+    command: ["php", "/var/www/html/artisan", "octane:start", "--host=0.0.0.0", "--port=8000"]
+    # command: ["./rr serve"]
 
   nginx:
     image: nginx:alpine
