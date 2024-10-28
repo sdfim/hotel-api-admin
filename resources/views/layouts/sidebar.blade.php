@@ -23,6 +23,7 @@
     use App\Models\Configurations\ConfigDescriptiveType;
     use App\Models\Configurations\ConfigJobDescription;
     use App\Models\Configurations\ConfigServiceType;
+    use App\Models\Configurations\ConfigChain;
 
     $canView = fn (string $model): bool => Auth::user()->can('view', $model);
     $canConfigurationGroup = fn (): bool =>
@@ -33,7 +34,8 @@
         $canView(ConfigConsortium::class) ||
         $canView(ConfigDescriptiveType::class) ||
         $canView(ConfigJobDescription::class) ||
-        $canView(ConfigServiceType::class);
+        $canView(ConfigServiceType::class) ||
+        $canView(ConfigChain::class);
 @endphp
 
     <!-- ========== Left Sidebar Start ========== -->
@@ -107,6 +109,13 @@
                                     <a href="{{ route('configurations.service-types.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
                                     >Service Types Configuration</a>
+                                </li>
+                            @endif
+                            @if($canView(ConfigChain::class))
+                                <li>
+                                    <a href="{{ route('configurations.chains.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
+                                    >Chains Configuration</a>
                                 </li>
                             @endif
                         </ul>
