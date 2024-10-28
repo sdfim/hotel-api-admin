@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Users;
 
+use App\Helpers\ClassHelper;
 use App\Models\User;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -49,7 +50,9 @@ class UsersTable extends Component implements HasForms, HasTable
                 ]),
             ])->headerActions([
                 CreateAction::make()
-                    ->label('Create')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->icon('heroicon-o-plus')
+                    ->iconButton()
                     ->url(fn (): string => route('users.create'))
                     ->visible(fn () => Gate::allows('create', User::class)),
             ]);
