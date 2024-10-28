@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\Factories;
 
+use App\Models\Configurations\ConfigServiceType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelInformativeService;
@@ -14,9 +15,7 @@ class HotelInformativeServiceFactory extends Factory
     {
         return [
             'hotel_id' => Hotel::factory(),
-            'service_name' => $this->faker->word,
-            'service_description' => $this->faker->paragraph,
-            'service_cost' => $this->faker->randomFloat(2, 10, 1000),
+            'service_id' => ConfigServiceType::factory(),
         ];
     }
 }

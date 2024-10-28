@@ -18,6 +18,7 @@ use Modules\HotelContentRepository\Livewire\HotelAffiliations\HotelAffiliationsT
 use Modules\HotelContentRepository\Livewire\HotelAgeRestriction\HotelAgeRestrictionTable;
 use Modules\HotelContentRepository\Livewire\HotelAttributes\HotelAttributesTable;
 use Modules\HotelContentRepository\Livewire\HotelFeeTaxes\HotelFeeTaxTable;
+use Modules\HotelContentRepository\Livewire\HotelInformativeServices\HotelInformativeServicesTable;
 use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
 use Modules\HotelContentRepository\Livewire\KeyMappings\KeyMappingTable;
 use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyCommissionTable;
@@ -93,6 +94,7 @@ class AppServiceProvider extends ServiceProvider
         Livewire::component('hotels.hotel-room-table', HotelRoomTable::class);
         Livewire::component('hotels.hotel-affiliations-table', HotelAffiliationsTable::class);
         Livewire::component('hotels.hotel-attributes-table', HotelAttributesTable::class);
+        Livewire::component('hotels.hotel-informative-services-table', HotelInformativeServicesTable::class);
         Livewire::component('hotels.hotel-age-restriction-table', HotelAgeRestrictionTable::class);
         Livewire::component('hotels.hotel-fee-tax-table', HotelFeeTaxTable::class);
     }

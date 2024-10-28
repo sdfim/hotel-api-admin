@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Configurations\ConfigServiceType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelInformativeServiceFactory;
@@ -19,19 +20,22 @@ class HotelInformativeService extends Model
 
     protected $fillable = [
         'hotel_id',
-        'service_name',
-        'service_description',
-        'service_cost',
+        'service_id',
     ];
 
     protected $hidden = [
-        'created_at',
-        'updated_at',
         'pivot'
     ];
+
+    public $timestamps = false;
 
     public function hotel()
     {
         return $this->belongsTo(Hotel::class);
+    }
+
+    public function service()
+    {
+        return $this->belongsTo(ConfigServiceType::class);
     }
 }

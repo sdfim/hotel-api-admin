@@ -16,9 +16,6 @@ class HotelAgeRestrictionControllerTest extends TestCase
     public function test_can_create_hotel_age_restriction()
     {
         $data = HotelAgeRestriction::factory()->make()->toArray();
-
-        dd($data);
-
         $response = $this->request()->postJson('api/repo/age-restrictions', $data);
         $response->assertStatus(201)
             ->assertJsonFragment($data);

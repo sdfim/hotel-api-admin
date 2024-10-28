@@ -33,18 +33,29 @@
                     </div>
 
                     <div class="mt-8">
-                        <h2 class="text-xl font-semibold">Attributes</h2>
-                        @livewire('hotels.hotel-attributes-table', ['hotelId' => $hotelId])
+                        <div class="flex flex-col xl:flex-row gap-8">
+                            <div class="flex-1">
+                                <h2 class="text-xl font-semibold">Attributes</h2>
+                                @livewire('hotels.hotel-attributes-table', ['hotelId' => $hotelId])
+                            </div>
+                            <div class="flex-1">
+                                <h2 class="text-xl font-semibold">Services</h2>
+                                @livewire('hotels.hotel-informative-services-table', ['hotelId' => $hotelId])
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mt-8">
-                        <h2 class="text-xl font-semibold">Age Restrictions</h2>
-                        @livewire('hotels.hotel-age-restriction-table', ['hotelId' => $hotelId])
-                    </div>
-
-                    <div class="mt-8">
-                        <h2 class="text-xl font-semibold">Affiliations</h2>
-                        @livewire('hotels.hotel-affiliations-table', ['hotelId' => $hotelId])
+                        <div class="flex flex-col xl:flex-row gap-8">
+                            <div class="flex-1">
+                                <h2 class="text-xl font-semibold">Age Restrictions</h2>
+                                @livewire('hotels.hotel-age-restriction-table', ['hotelId' => $hotelId])
+                            </div>
+                            <div class="flex-1">
+                                <h2 class="text-xl font-semibold">Affiliations</h2>
+                                @livewire('hotels.hotel-affiliations-table', ['hotelId' => $hotelId])
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mt-8">
