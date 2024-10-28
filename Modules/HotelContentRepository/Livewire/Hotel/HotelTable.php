@@ -7,11 +7,15 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
+use Livewire\Features\SupportRedirects\Redirector;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -22,26 +26,6 @@ class HotelTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
-
-    public function form(Form $form): Form
-    {
-        return $form
-            ->schema($this->schemeForm());
-    }
-
-    public function schemeForm(): array
-    {
-        return [
-            TextInput::make('name')->label('Name')->required(),
-            TextInput::make('type')->label('Type')->required(),
-            TextInput::make('address')->label('Address')->required(),
-            TextInput::make('star_rating')->label('Star Rating')->required(),
-            TextInput::make('website')->label('Website')->required(),
-            TextInput::make('num_rooms')->label('Number of Rooms')->required(),
-            TextInput::make('featured')->label('Featured')->required(),
-            TextInput::make('location')->label('Location')->required(),
-        ];
-    }
 
     public function table(Table $table): Table
     {
@@ -59,7 +43,8 @@ class HotelTable extends Component implements HasForms, HasTable
                 'promotions',
                 'rooms',
                 'keyMappings',
-                'galleries'
+                'galleries',
+                'jobDescriptions',
             ]))
             ->columns([
                 TextColumn::make('name')
@@ -82,6 +67,14 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->sortable(),
                 CustomTextColumn::make('address')
                     ->searchable(isIndividual: true)
+                    ->getStateUsing(function ($record) {
+                        $string = '';
+                        foreach ($record->address as $key => $item)    {
+                            if (is_array($item)) continue;
+                            $string .= $key .  ': ' . $item . ', ';
+                        }
+                        return $string;
+                    })
                     ->toggleable()
                     ->sortable(),
                 CustomTextColumn::make('star_rating')
@@ -102,6 +95,14 @@ class HotelTable extends Component implements HasForms, HasTable
 //                    ->sortable(),
                 CustomTextColumn::make('location')
                     ->searchable(isIndividual: true)
+                    ->getStateUsing(function ($record) {
+                        $string = '';
+                        foreach ($record->location as $key => $item)    {
+                            if (is_array($item)) continue;
+                            $string .= $key .  ': ' . $item . ', ';
+                        }
+                        return $string;
+                    })
                     ->toggleable()
                     ->sortable(),
                 CustomTextColumn::make('combined_sources')
@@ -196,8 +197,43 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->tooltip('Add New Hotel')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->action(function ($data) {
+                        return $this->create($data);
+                    }),
             ]);
+    }
+
+    private function create($data): Redirector|RedirectResponse
+    {
+        $data['address'] = array_reduce($data['address'], function ($result, $item) {
+            $result[$item['field']] = $item['value'];
+            return $result;
+        }, []);
+
+        $data['location'] = array_reduce($data['location'], function ($result, $item) {
+            $result[$item['field']] = $item['value'];
+            return $result;
+        }, []);
+
+        $hotel = Hotel::create(Arr::only($data, [
+            'name', 'location', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking', 'address', 'star_rating', 'website', 'num_rooms', 'featured', 'content_source_id', 'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis', 'default_currency'
+        ]));
+
+        if (isset($data['jobDescriptions'])) {
+            $hotel->jobDescriptions()->sync($data['jobDescriptions']);
+        }
+
+        if (isset($data['galleries'])) {
+            $hotel->galleries()->sync($data['galleries']);
+        }
+
+        Notification::make()
+            ->title('Created successfully')
+            ->success()
+            ->send();
+
+        return redirect()->route('hotel_repository.index');
     }
 
     public function render(): View

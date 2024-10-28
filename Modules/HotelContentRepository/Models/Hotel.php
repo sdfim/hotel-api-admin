@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Configurations\ConfigJobDescription;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelFactory;
@@ -112,5 +113,10 @@ class Hotel extends Model
     public function galleries()
     {
         return $this->belongsToMany(ImageGallery::class, 'pd_hotel_gallery', 'hotel_id', 'gallery_id');
+    }
+
+    public function jobDescriptions()
+    {
+        return $this->belongsToMany(ConfigJobDescription::class, 'pd_hotel_job_descriptions', 'hotel_id', 'job_description_id');
     }
 }
