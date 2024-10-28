@@ -3,11 +3,13 @@
 namespace App\Providers;
 
 use App\Models\Configurations\ConfigAttribute;
+use App\Models\Configurations\ConfigChain;
 use App\Models\Configurations\ConfigConsortium;
 use App\Models\Configurations\ConfigDescriptiveType;
 use App\Models\Configurations\ConfigJobDescription;
 use App\Models\Configurations\ConfigServiceType;
 use App\Policies\Configurations\ConfigAttributePolicy;
+use App\Policies\Configurations\ConfigChainPolicy;
 use App\Policies\Configurations\ConfigConsortiumPolicy;
 use App\Policies\Configurations\ConfigDescriptiveTypePolicy;
 use App\Policies\Configurations\ConfigJobDescriptionPolicy;
@@ -38,6 +40,7 @@ class PermissionServiceProvider extends ServiceProvider
         ConfigDescriptiveType::class => ConfigDescriptiveTypePolicy::class,
         ConfigJobDescription::class  => ConfigJobDescriptionPolicy::class,
         ConfigServiceType::class     => ConfigServiceTypePolicy::class,
+        ConfigChain::class           => ConfigChainPolicy::class,
     ];
 
     /**
