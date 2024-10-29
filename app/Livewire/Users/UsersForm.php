@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Users;
 
+use App\Helpers\ClassHelper;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -101,7 +102,9 @@ class UsersForm extends Component implements HasForms, HasTable
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->label('Add permission')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->icon('heroicon-o-plus')
+                    ->iconButton()
                     ->form([
                         Select::make('id')
                             ->multiple()

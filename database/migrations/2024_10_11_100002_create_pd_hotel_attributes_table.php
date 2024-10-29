@@ -9,13 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('pd_hotel_attributes', function (Blueprint $table) {
-            $table->bigIncrements('id');
+            $table->unsignedBigInteger('id', true);
             $table->unsignedBigInteger('hotel_id');
-            $table->string('name', 255);
-            $table->string('attribute_value', 255);
-            $table->timestamps();
+            $table->unsignedBigInteger('attribute_id');
 
             $table->foreign('hotel_id')->references('id')->on('pd_hotels')->onDelete('cascade');
+            $table->foreign('attribute_id')->references('id')->on('config_attributes')->onDelete('cascade');
         });
     }
 

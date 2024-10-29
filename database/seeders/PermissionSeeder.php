@@ -35,12 +35,14 @@ class PermissionSeeder extends Seeder
         'config_descriptive_type',
         'config_job_description',
         'config_service_type',
+        'config_chain',
     ];
 
     private static array $permissions = [
         'statistic-charts',
         'swagger-docs',
         'log-viewer',
+        'config-group',
     ];
 
     /**

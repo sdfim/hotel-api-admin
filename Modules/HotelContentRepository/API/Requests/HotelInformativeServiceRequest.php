@@ -16,9 +16,7 @@ class HotelInformativeServiceRequest extends ApiRequest
     {
         return [
             'hotel_id' => 'required|integer',
-            'service_name' => 'required|string|max:255',
-            'service_description' => 'required|string',
-            'service_cost' => 'required|numeric',
+            'service_id' => 'required|integer',
         ];
     }
 }

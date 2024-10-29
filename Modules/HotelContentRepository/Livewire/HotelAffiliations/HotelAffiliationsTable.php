@@ -48,7 +48,13 @@ class HotelAffiliationsTable extends Component implements HasForms, HasTable
                 ->options(Hotel::pluck('name', 'id'))
 //                ->when($this->hotelId, fn($select) => $select->searchable())
                 ->required(),
-            TextInput::make('affiliation_name')->label('Affiliation Name')->required(),
+            Select::make('affiliation_name')
+                ->label('Affiliation Name')
+                ->options([
+                    'UJV Exclusive Amenities' => 'UJV Exclusive Amenities',
+                    'Consortia Inclusions' => 'Consortia Inclusions',
+                ])
+                ->required(),
             Select::make('combinable')
                 ->label('Combinable')
                 ->options([

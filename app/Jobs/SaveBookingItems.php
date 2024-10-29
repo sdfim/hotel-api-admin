@@ -26,6 +26,11 @@ class SaveBookingItems implements ShouldQueue
      */
     public function handle(): void
     {
-        ApiBookingItem::insert($this->bookingItems);
+        $chunks = array_chunk($this->bookingItems, 100);
+
+        foreach($chunks as $value)
+        {
+            ApiBookingItem::insert($value);
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Configurations\ConfigDescriptiveType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelDescriptiveContentFactory;
@@ -19,16 +20,8 @@ class HotelDescriptiveContent extends Model
 
     protected $fillable = [
         'content_sections_id',
-        'section_name',
-        'meta_description',
-        'property_description',
-        'cancellation_policy',
-        'pet_policy',
-        'terms_conditions',
-        'fees_paid_at_hotel',
-        'staff_contact_info',
-        'validity_start',
-        'validity_end',
+        'descriptive_type_id',
+        'value',
     ];
 
     protected $hidden = [
@@ -40,5 +33,10 @@ class HotelDescriptiveContent extends Model
     public function contentSection()
     {
         return $this->belongsTo(HotelDescriptiveContentSection::class, 'content_sections_id');
+    }
+
+    public function descriptiveType()
+    {
+        return $this->belongsTo(ConfigDescriptiveType::class, 'descriptive_type_id');
     }
 }

@@ -11,12 +11,10 @@ return new class extends Migration
         Schema::create('pd_hotel_informative_services', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('hotel_id');
-            $table->string('service_name', 255);
-            $table->text('service_description');
-            $table->decimal('service_cost', 10, 2);
-            $table->timestamps();
+            $table->unsignedBigInteger('service_id');
 
             $table->foreign('hotel_id')->references('id')->on('pd_hotels')->onDelete('cascade');
+            $table->foreign('service_id')->references('id')->on('config_service_types')->onDelete('cascade');
         });
     }
 

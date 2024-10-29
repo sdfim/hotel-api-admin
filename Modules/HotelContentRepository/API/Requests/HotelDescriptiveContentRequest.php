@@ -16,16 +16,8 @@ class HotelDescriptiveContentRequest extends ApiRequest
     {
         return [
             'content_sections_id' => 'required|integer',
-            'section_name' => 'required|string|max:255',
-            'meta_description' => 'required|string',
-            'property_description' => 'required|string',
-            'cancellation_policy' => 'required|string',
-            'pet_policy' => 'required|string',
-            'terms_conditions' => 'required|string',
-            'fees_paid_at_hotel' => 'required|string',
-            'staff_contact_info' => 'required|string',
-            'validity_start' => 'required|date',
-            'validity_end' => 'nullable|date',
+            'descriptive_type_id' => 'required|integer',
+            'value' => 'required|string',
         ];
     }
 }

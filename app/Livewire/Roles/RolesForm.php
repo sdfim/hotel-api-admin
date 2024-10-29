@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Roles;
 
+use App\Helpers\ClassHelper;
 use App\Models\Permission;
 use App\Models\Role;
 use Filament\Forms\Components\Select;
@@ -97,12 +98,9 @@ class RolesForm extends Component implements HasForms, HasTable
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->extraAttributes(['class' => 'btn text-violet-500 hover:text-white border-violet-500
-                    hover:bg-violet-600 hover:border-violet-600 focus:bg-violet-600 focus:text-white
-                    focus:border-violet-600 focus:ring focus:ring-violet-500/30
-                    active:bg-violet-600 active:border-violet-600'])
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->icon('heroicon-o-plus')
                     ->iconButton()
-                    ->icon(new HtmlString('<i class="bx bx-plus block text-lg"></i>'))
                     ->form([
                         Select::make('id')
                             ->multiple()

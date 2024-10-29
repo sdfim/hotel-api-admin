@@ -2,6 +2,8 @@
 
 namespace Modules\HotelContentRepository\Livewire\Hotel;
 
+use App\Models\Configurations\ConfigJobDescription;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Textarea;
 use Livewire\Component;
@@ -18,6 +20,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\RedirectResponse;
 use Livewire\Features\SupportRedirects\Redirector;
 use Modules\HotelContentRepository\Models\ImageGallery;
+use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 
 class HotelForm extends Component implements HasForms
 {
@@ -33,9 +36,22 @@ class HotelForm extends Component implements HasForms
 
         $data = $this->record->toArray();
 
-        $data['address'] = $this->record->address ? json_encode($this->record->address) : '';
-        $data['location'] = $this->record->location ? json_encode($this->record->location) : '';
+        $data['address'] = [];
+        foreach ($this->record->address as $key => $value) {
+            $data['address'][] = [
+                'field' => $key,
+                'value' => $value
+            ];
+        }
+        $data['location'] = [];
+        foreach ($this->record->location as $key => $value) {
+            $data['location'][] = [
+                'field' => $key,
+                'value' => $value
+            ];
+        }
         $data['galleries'] = $this->record->galleries->pluck('id')->toArray();
+        $data['jobDescriptions'] = $this->record->jobDescriptions->pluck('id')->toArray();
 
         $this->form->fill($data);
     }
@@ -59,8 +75,52 @@ class HotelForm extends Component implements HasForms
                         ->schema([
                             TextInput::make('name')->required()->maxLength(191),
                             TextInput::make('type')->required()->maxLength(191),
-                            Textarea::make('address')->required(),
-                            TextInput::make('location')->required(),
+                            CustomRepeater::make('address')
+                                ->schema([
+                                    Select::make('field')
+                                        ->label('')
+                                        ->options([
+                                        'city' => 'City',
+                                        'line_1' => 'Line 1',
+                                        'postal_code' => 'Postal Code',
+                                        'country_code' => 'Country Code',
+                                        'state_province_code' => 'State Province Code',
+                                        'state_province_name' => 'State Province Name',
+                                        'obfuscation_required' => 'Obfuscation Required',
+                                    ])->required(),
+                                    TextInput::make('value')
+                                        ->label(''),
+
+                                ])
+                                ->defaultItems(1)
+                                ->required()
+                                ->afterStateHydrated(function ($component, $state) {
+                                    $component->state($state ?? []);
+                                })
+                                ->beforeStateDehydrated(function ($state) {
+                                    return json_encode($state);
+                                })->columns(2),
+                            CustomRepeater::make('location')
+                                ->schema([
+                                    Select::make('field')
+                                        ->label('')
+                                        ->options([
+                                        'latitude' => 'Latitude',
+                                        'longitude' => 'Longitude',
+                                    ])->required(),
+                                    TextInput::make('value')
+                                        ->label('')
+                                        ->numeric('decimal'),
+                                ])
+                                ->defaultItems(1)
+                                ->required()
+                                ->afterStateHydrated(function ($component, $state) {
+                                    $component->state($state ?? []);
+                                })
+                                ->beforeStateDehydrated(function ($state) {
+                                    return json_encode($state);
+                                })
+                                ->columns(2),
                             Select::make('galleries')
                                 ->label('Galleries')
                                 ->multiple()
@@ -69,6 +129,10 @@ class HotelForm extends Component implements HasForms
                                         ? ImageGallery::hasHotel($this->record->id)->pluck('gallery_name', 'id')
                                         : ImageGallery::pluck('gallery_name', 'id');
                                 }),
+                            Select::make('jobDescriptions')
+                                ->label('Job Descriptions')
+                                ->multiple()
+                                ->options(ConfigJobDescription::pluck('name', 'id')),
                         ])
                         ->columns(2),
 
@@ -105,20 +169,37 @@ class HotelForm extends Component implements HasForms
     public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
-//        $data['location'] = [
-//            'latitude' => $data['latitude'],
-//            'longitude' => $data['longitude'],
-//        ];
-        $this->record->update(Arr::only($data, [
+
+        $data['address'] = array_reduce($data['address'], function ($result, $item) {
+            $result[$item['field']] = $item['value'];
+            return $result;
+        }, []);
+
+        $data['location'] = array_reduce($data['location'], function ($result, $item) {
+            $result[$item['field']] = $item['value'];
+            return $result;
+        }, []);
+
+        $hotel = Hotel::find($this->record->id);
+
+        $hotel->update(Arr::only($data, [
             'name', 'location', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking', 'address', 'star_rating', 'website', 'num_rooms', 'featured', 'content_source_id', 'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis', 'default_currency'
         ]));
+
+        if (isset($data['jobDescriptions'])) {
+            $hotel->jobDescriptions()->sync($data['jobDescriptions']);
+        }
+
+        if (isset($data['galleries'])) {
+            $hotel->galleries()->sync($data['galleries']);
+        }
 
         Notification::make()
             ->title('Updated successfully')
             ->success()
             ->send();
 
-        return redirect()->route('hotels.index');
+        return redirect()->route('hotel_repository.index');
     }
 
     public function render()

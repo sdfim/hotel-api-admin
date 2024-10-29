@@ -52,7 +52,7 @@ class TestSeederExpediaContentToHotels extends Command
 
             $this->info('End Transform ExpediaContent ' . $this->runtime() . ' seconds.');
 
-            if ($k > 20) break;
+            if ($k > 5) break;
         }
 
         $this->info('Transformation completed successfully. ' . (microtime(true) - $st) . ' seconds.');
@@ -98,12 +98,12 @@ class TestSeederExpediaContentToHotels extends Command
             $hotelData);
 
         $this->updateOrCreateHotelAffiliation($hotel);
-        $this->updateOrCreateHotelAttributes($expediaContent, $hotel);
+//        $this->updateOrCreateHotelAttributes($expediaContent, $hotel);
         $this->updateOrCreateHotelImages($expediaContent, $hotel);
         $this->updateOrCreateKey($expediaContent, $hotel);
         $this->updateOrRooms($expediaContent, $hotel);
         $this->updateOrFeeTaxs($expediaContent, $hotel);
-        $this->updateOrDescriptiveContent($expediaContent, $hotel);
+//        $this->updateOrDescriptiveContent($expediaContent, $hotel);
 
         // HotelDescriptiveContent::create([...]);
         // HotelDescriptiveContentSection::create([...]);
