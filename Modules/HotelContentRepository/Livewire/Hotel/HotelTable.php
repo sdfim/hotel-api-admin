@@ -3,10 +3,8 @@
 namespace Modules\HotelContentRepository\Livewire\Hotel;
 
 use App\Helpers\ClassHelper;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -113,68 +111,23 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->default(function ($record) {
                         return $record->contentSource->name . ' ' . $record->roomImagesSource->name . ' ' . $record->propertyImagesSource->name;
                     }),
-//                CustomTextColumn::make('hotel_board_basis')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('default_currency')
-//                    ->label('Currency')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('affiliations')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('attributes')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('contentSource.name')
-//                    ->label('Content Source')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('roomImagesSource.name')
-//                    ->label('Room Images Source')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('propertyImagesSource.name')
-//                    ->label('Property Images Source')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('descriptiveContentsSection')
-//                    ->label('Descriptive Contents')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('feeTaxes')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('informativeServices')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('promotions')
-//                    ->label('Promotions Galleries')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('rooms')
-//                    ->label('Rooms Galleries')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('keyMappings')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-                CustomTextColumn::make('galleries')
+                TextColumn::make('galleries')
                     ->label('Galleries')
                     ->searchable(isIndividual: true)
+                    ->formatStateUsing(function ($state) {
+                        $items = explode(', ', $state);
+                        $string = '';
+                        foreach ($items as $item) {
+                            $dataItem = json_decode($item, true);
+                            if (is_null($dataItem)) {
+                                continue;
+                            }
+                            $string .= $dataItem['gallery_name'] . '</b><br>';
+                        }
+                        return $string;
+                    })
+                    ->html()
+                    ->wrap()
                     ->toggleable()
                     ->sortable(),
             ])
