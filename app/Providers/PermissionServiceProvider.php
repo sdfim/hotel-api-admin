@@ -29,6 +29,7 @@ class PermissionServiceProvider extends ServiceProvider
         'statistic-charts',
         'swagger-docs',
         'log-viewer',
+        'config-group',
     ];
 
     private static array $modelPolicies = [

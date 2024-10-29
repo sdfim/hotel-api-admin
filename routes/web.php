@@ -11,6 +11,7 @@ use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigConsortium
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigDescriptiveTypeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigJobDescriptionController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigServiceTypeController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\GroupConfigController;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportChartController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportController;
@@ -97,6 +98,7 @@ Route::prefix('admin')->group(function () {
             Route::resource('job-descriptions', ConfigJobDescriptionController::class)->only(['index', 'create', 'edit']);
             Route::resource('service-types', ConfigServiceTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('chains', ConfigChainController::class)->only(['index', 'create', 'edit']);
+            Route::resource('config-group', GroupConfigController::class)->only(['index']);
         });
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);

@@ -76,46 +76,53 @@
                                         Configuration</a>
                                 </li>
                             @endif
-                            @if($canView(ConfigAttribute::class))
+{{--                            @if($canView(ConfigAttribute::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="{{ route('configurations.attributes.index') }}"--}}
+{{--                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"--}}
+{{--                                    >Attributes Configuration</a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+{{--                            @if($canView(ConfigConsortium::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="{{ route('configurations.consortia.index') }}"--}}
+{{--                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"--}}
+{{--                                    >Consortia Configuration</a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+{{--                            @if($canView(ConfigDescriptiveType::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="{{ route('configurations.descriptive-types.index') }}"--}}
+{{--                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"--}}
+{{--                                    >Descriptive Types Configuration</a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+{{--                            @if($canView(ConfigJobDescription::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="{{ route('configurations.job-descriptions.index') }}"--}}
+{{--                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"--}}
+{{--                                    >Job Descriptions Configuration</a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+{{--                            @if($canView(ConfigServiceType::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="{{ route('configurations.service-types.index') }}"--}}
+{{--                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"--}}
+{{--                                    >Service Types Configuration</a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+{{--                            @if($canView(ConfigChain::class))--}}
+{{--                                <li>--}}
+{{--                                    <a href="{{ route('configurations.chains.index') }}"--}}
+{{--                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"--}}
+{{--                                    >Chains Configuration</a>--}}
+{{--                                </li>--}}
+{{--                            @endif--}}
+                                @can('config-group')
                                 <li>
-                                    <a href="{{ route('configurations.attributes.index') }}"
+                                    <a href="{{ route('configurations.config-group.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Attributes Configuration</a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigConsortium::class))
-                                <li>
-                                    <a href="{{ route('configurations.consortia.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Consortia Configuration</a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigDescriptiveType::class))
-                                <li>
-                                    <a href="{{ route('configurations.descriptive-types.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Descriptive Types Configuration</a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigJobDescription::class))
-                                <li>
-                                    <a href="{{ route('configurations.job-descriptions.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Job Descriptions Configuration</a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigServiceType::class))
-                                <li>
-                                    <a href="{{ route('configurations.service-types.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Service Types Configuration</a>
-                                </li>
-                            @endif
-                            @if($canView(ConfigChain::class))
-                                <li>
-                                    <a href="{{ route('configurations.chains.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Chains Configuration</a>
+                                    >Setting Group</a>
                                 </li>
                             @endif
                         </ul>
@@ -125,7 +132,7 @@
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
                            class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                            <i class="dripicons-gear"></i>
+                            <i class="dripicons-user-group"></i>
                             <span data-key="t-configuration">Users and permissions</span>
                         </a>
                         <ul>

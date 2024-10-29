@@ -42,6 +42,7 @@ class PermissionSeeder extends Seeder
         'statistic-charts',
         'swagger-docs',
         'log-viewer',
+        'config-group',
     ];
 
     /**
