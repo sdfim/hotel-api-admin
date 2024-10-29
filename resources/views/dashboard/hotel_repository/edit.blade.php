@@ -62,6 +62,11 @@
                         <h2 class="text-xl font-semibold">Fee and Tax</h2>
                         @livewire('hotels.hotel-fee-tax-table', ['hotelId' => $hotelId])
                     </div>
+
+                    <div class="mt-8">
+                        <h2 class="text-xl font-semibold">Descriptive Content Section</h2>
+                        @livewire('hotels.hotel-descriptive-content-section-table', ['hotelId' => $hotelId])
+                    </div>
                 </div>
             </div>
         </div>

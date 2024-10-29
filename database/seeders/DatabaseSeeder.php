@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             ConfigConsortiumSeeder::class,
             ConfigAttributeSeeder::class,
             ConfigServiceTypeSeeder::class,
+            ConfigDescriptiveTypeSeeder::class,
         ]);
     }
 }

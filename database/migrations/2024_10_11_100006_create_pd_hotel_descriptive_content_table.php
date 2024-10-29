@@ -11,19 +11,12 @@ return new class extends Migration
         Schema::create('pd_hotel_descriptive_content', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('content_sections_id');
-            $table->string('section_name', 255);
-            $table->text('meta_description')->nullable();
-            $table->text('property_description');
-            $table->text('cancellation_policy')->nullable();
-            $table->text('pet_policy')->nullable();
-            $table->text('terms_conditions')->nullable();
-            $table->text('fees_paid_at_hotel')->nullable();
-            $table->text('staff_contact_info')->nullable();
-            $table->date('validity_start')->nullable();
-            $table->date('validity_end')->nullable();
+            $table->unsignedBigInteger('descriptive_type_id');
+            $table->text('value')->nullable();
             $table->timestamps();
 
             $table->foreign('content_sections_id')->references('id')->on('pd_hotel_descriptive_content_sections')->onDelete('cascade');
+            $table->foreign('descriptive_type_id')->references('id')->on('config_descriptive_types')->onDelete('cascade');
         });
     }
 

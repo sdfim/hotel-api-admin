@@ -103,7 +103,7 @@ class TestSeederExpediaContentToHotels extends Command
         $this->updateOrCreateKey($expediaContent, $hotel);
         $this->updateOrRooms($expediaContent, $hotel);
         $this->updateOrFeeTaxs($expediaContent, $hotel);
-        $this->updateOrDescriptiveContent($expediaContent, $hotel);
+//        $this->updateOrDescriptiveContent($expediaContent, $hotel);
 
         // HotelDescriptiveContent::create([...]);
         // HotelDescriptiveContentSection::create([...]);

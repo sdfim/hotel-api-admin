@@ -20,9 +20,10 @@ class HotelDescriptiveContentControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'content_sections_id', 'meta_description', 'property_description',
-                    'cancellation_policy', 'pet_policy', 'terms_conditions', 'fees_paid_at_hotel',
-                    'staff_contact_info', 'validity_start', 'validity_end'
+                    'id',
+                    'content_sections_id',
+                    'descriptive_type_id',
+                    'value',
                 ]
             ],
             'message'
@@ -38,9 +39,10 @@ class HotelDescriptiveContentControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'content_sections_id', 'meta_description', 'property_description',
-                'cancellation_policy', 'pet_policy', 'terms_conditions', 'fees_paid_at_hotel',
-                'staff_contact_info', 'validity_start', 'validity_end'
+                'id',
+                'content_sections_id',
+                'descriptive_type_id',
+                'value',
             ],
             'message'
         ]);
@@ -55,9 +57,10 @@ class HotelDescriptiveContentControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'content_sections_id', 'meta_description', 'property_description',
-                'cancellation_policy', 'pet_policy', 'terms_conditions', 'fees_paid_at_hotel',
-                'staff_contact_info', 'validity_start', 'validity_end'
+                'id',
+                'content_sections_id',
+                'descriptive_type_id',
+                'value',
             ],
             'message'
         ]);
@@ -73,9 +76,10 @@ class HotelDescriptiveContentControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'content_sections_id', 'meta_description', 'property_description',
-                'cancellation_policy', 'pet_policy', 'terms_conditions', 'fees_paid_at_hotel',
-                'staff_contact_info', 'validity_start', 'validity_end'
+                'id',
+                'content_sections_id',
+                'descriptive_type_id',
+                'value',
             ],
             'message'
         ]);
