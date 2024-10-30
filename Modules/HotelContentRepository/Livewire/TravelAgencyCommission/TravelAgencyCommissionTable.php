@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
+use Modules\HotelContentRepository\Models\TravelAgencyCommissionCondition;
 
 class TravelAgencyCommissionTable extends Component implements HasForms, HasTable
 {
@@ -113,6 +114,23 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     ->label('Commission Name')
                     ->searchable(isIndividual: true)
                     ->toggleable(),
+                TextColumn::make('conditions')
+                    ->label('Describe')
+                    ->formatStateUsing(function ($state) {
+                        $items = explode(', ', $state);
+                        $string = '';
+                        foreach ($items as $item) {
+                            $dataItem = json_decode($item, true);
+                            if ($dataItem['field'] === 'consortia') {
+                                $string .= $dataItem['field'] . ': ' . ConfigConsortium::where('id', $dataItem['value'])->first()->name . '</b><br>';
+                            } else {
+                                $string .= $dataItem['field'] . ': <b>' . $dataItem['value'] . '</b><br>';
+                            }
+                        }
+                        return $string;
+                    })
+                    ->html()
+                    ->searchable(),
                 TextColumn::make('commission_value')
                     ->label('Commission Value')
                     ->sortable()
