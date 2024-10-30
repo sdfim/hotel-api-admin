@@ -85,15 +85,18 @@ class HotelFeeTaxTable extends Component implements HasForms, HasTable
 
                 TextInputColumn::make('net_value')
                     ->label('Net Value')
-                    ->sortable(),
+                    ->sortable()
+                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/']),
 
                 TextInputColumn::make('rack_value')
                     ->label('Rack Value')
-                    ->sortable(),
+                    ->sortable()
+                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/']),
 
                 TextInputColumn::make('tax')
                     ->label('Tax')
-                    ->sortable(),
+                    ->sortable()
+                    ->rules(['numeric', 'regex:/^\d+(\.\d{1,2})?$/']),
 
                 SelectColumn::make('type')
                     ->label('Type')

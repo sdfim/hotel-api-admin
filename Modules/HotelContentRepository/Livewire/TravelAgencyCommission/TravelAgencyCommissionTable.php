@@ -45,6 +45,7 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                 ->required(),
             TextInput::make('commission_value')
                 ->label('Commission Value')
+                ->numeric('decimal')
                 ->required(),
             Grid::make()->schema([
                     DatePicker::make('date_range_start')

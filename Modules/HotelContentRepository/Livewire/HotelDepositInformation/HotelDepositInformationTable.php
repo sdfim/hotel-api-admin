@@ -52,10 +52,13 @@ class HotelDepositInformationTable extends Component implements HasForms, HasTab
                 ->required()
                 ->numeric(),
             TextInput::make('per_channel')
+                ->numeric('decimal')
                 ->label('Per Channel'),
             TextInput::make('per_room')
+                ->numeric('decimal')
                 ->label('Per Room'),
             TextInput::make('per_rate')
+                ->numeric('decimal')
                 ->label('Per Rate'),
         ];
     }

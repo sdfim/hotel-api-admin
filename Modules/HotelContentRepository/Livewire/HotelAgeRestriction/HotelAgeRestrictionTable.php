@@ -51,6 +51,7 @@ class HotelAgeRestrictionTable extends Component implements HasForms, HasTable
                 ->options(HotelAgeRestrictionType::pluck('name', 'id'))
                 ->required(),
             TextInput::make('value')
+                ->numeric()
                 ->label('Value')
                 ->required(),
             Checkbox::make('active')

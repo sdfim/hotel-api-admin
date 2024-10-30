@@ -27,6 +27,12 @@ class HotelFeeTax extends Model
         'fee_category',
     ];
 
+    protected $casts = [
+        'net_value' => 'float',
+        'rack_value' => 'float',
+        'tax' => 'float',
+    ];
+
     protected $hidden = [
         'created_at',
         'updated_at',
