@@ -49,7 +49,10 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
                 ->required(),
             Select::make('attribute_id')
                 ->label('Attribute')
-                ->options(ConfigAttribute::pluck('name', 'id'))
+                ->options(ConfigAttribute::all()->pluck('name', 'id')->map(function ($name, $id) {
+                    $attribute = ConfigAttribute::find($id);
+                    return $name . ' ' . $attribute->default_value;
+                }))
                 ->required(),
         ];
     }

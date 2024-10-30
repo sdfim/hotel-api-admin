@@ -1,26 +1,28 @@
 <?php
 
-namespace Modules\HotelContentRepository\Livewire\HotelInformativeServices;
-
+namespace Modules\HotelContentRepository\Livewire\HotelDepositInformation;
 
 use App\Helpers\ClassHelper;
-use App\Models\Configurations\ConfigServiceType;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+
 use Filament\Tables\Table;
 use Livewire\Component;
 use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Models\HotelInformativeService;
+use Modules\HotelContentRepository\Models\HotelDepositInformation;
 
-class HotelInformativeServicesTable extends Component implements HasForms, HasTable
+class HotelDepositInformationTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
@@ -40,18 +42,21 @@ class HotelInformativeServicesTable extends Component implements HasForms, HasTa
 
     public function schemeForm(): array
     {
-        return [
+        return  [
             Select::make('hotel_id')
                 ->label('Hotel')
                 ->options(Hotel::pluck('name', 'id'))
                 ->required(),
-            Select::make('service_id')
-                ->label('Service Type')
-                ->options(ConfigServiceType::all()->pluck('name', 'id')->map(function ($name, $id) {
-                    $serviceType = ConfigServiceType::find($id);
-                    return $name . ' (' . $serviceType->cost . ')';
-                }))
-                ->required(),
+            TextInput::make('days_departure')
+                ->label('Days Prior to Departure')
+                ->required()
+                ->numeric(),
+            TextInput::make('per_channel')
+                ->label('Per Channel'),
+            TextInput::make('per_room')
+                ->label('Per Room'),
+            TextInput::make('per_rate')
+                ->label('Per Rate'),
         ];
     }
 
@@ -59,18 +64,21 @@ class HotelInformativeServicesTable extends Component implements HasForms, HasTa
     {
         return $table
             ->query(
-                HotelInformativeService::with('service')->where('hotel_id', $this->hotelId)
+                HotelDepositInformation::query()->where('hotel_id', $this->hotelId)
             )
             ->columns([
-                TextColumn::make('service.name')->label('Service Type')->searchable(),
-                TextColumn::make('service.description')->label('Description')->searchable(),
-                TextColumn::make('service.cost')->label('Cost')->searchable(),
+                TextColumn::make('days_departure')->label('Days Prior to Departure')->searchable(),
+                TextColumn::make('per_channel')->label('Per Channel')->searchable(),
+                TextColumn::make('per_room')->label('Per Room')->searchable(),
+                TextColumn::make('per_rate')->label('Per Rate')->searchable(),
+                TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([
                 EditAction::make()
                     ->label('')
-                    ->tooltip('Edit Service')
-                    ->form($this->schemeForm()),
+                    ->tooltip('Edit Deposit Information')
+                    ->form($this->schemeForm())
+                    ->modalHeading('Edit Deposit Information'),
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),
@@ -81,7 +89,7 @@ class HotelInformativeServicesTable extends Component implements HasForms, HasTa
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
                     })
-                    ->tooltip('Add New Service')
+                    ->tooltip('Add New Deposit Information')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->iconButton(),
@@ -90,6 +98,6 @@ class HotelInformativeServicesTable extends Component implements HasForms, HasTa
 
     public function render()
     {
-        return view('livewire.hotels.hotel-informative-services-table');
+        return view('livewire.hotels.hotel-deposit-information-table');
     }
 }

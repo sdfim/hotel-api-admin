@@ -52,7 +52,7 @@ class TestSeederExpediaContentToHotels extends Command
 
             $this->info('End Transform ExpediaContent ' . $this->runtime() . ' seconds.');
 
-            if ($k > 5) break;
+            if ($k > 3) break;
         }
 
         $this->info('Transformation completed successfully. ' . (microtime(true) - $st) . ' seconds.');
@@ -61,7 +61,6 @@ class TestSeederExpediaContentToHotels extends Command
     private function transformAndSave($expediaContent)
     {
         $expediaId = ContentSource::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
-        // Example transformation logic
 
         $address = $expediaContent->address;
         unset($address['localized']);

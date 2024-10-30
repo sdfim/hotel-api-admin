@@ -12,14 +12,13 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('hotel_id');
             $table->string('promotion_name', 255);
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->date('validity_start');
             $table->date('validity_end');
             $table->date('booking_start');
             $table->date('booking_end');
-            $table->text('terms_conditions');
-            $table->text('exclusions');
-            $table->text('deposit_info');
+            $table->text('terms_conditions')->nullable();
+            $table->text('exclusions')->nullable();
             $table->timestamps();
 
             $table->foreign('hotel_id')->references('id')->on('pd_hotels')->onDelete('cascade');

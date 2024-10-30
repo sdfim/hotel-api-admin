@@ -63,6 +63,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->query(function () {
                 $query = HotelRoom::query()->with(['hotel', 'galleries']);
                 if ($this->hotelId !== null) {

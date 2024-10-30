@@ -60,4 +60,11 @@ class ImageGallery extends Model
     {
         return $this->belongsToMany(HotelPromotion::class, 'pd_hotel_promotion_gallery', 'gallery_id', 'hotel_promotion_id');
     }
+
+    public function scopeHasHotelPromotion($query, $hotelPromotionId)
+    {
+        return $query->whereHas('hotelPromotions', function ($q) use ($hotelPromotionId) {
+            $q->where('hotel_promotion_id', $hotelPromotionId);
+        });
+    }
 }

@@ -1,0 +1,44 @@
+<?php
+
+namespace Modules\HotelContentRepository\API\Controllers;
+
+use Modules\HotelContentRepository\Models\HotelDepositInformation;
+use Modules\HotelContentRepository\API\Requests\HotelDepositInformationRequest;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Modules\API\BaseController;
+
+class HotelDepositInformationController extends BaseController
+{
+    public function index()
+    {
+        $hotelDepositInformations = HotelDepositInformation::all();
+        return $this->sendResponse($hotelDepositInformations->toArray(), 'index success', Response::HTTP_OK);
+    }
+
+    public function store(HotelDepositInformationRequest $request)
+    {
+        $hotelDepositInformation = HotelDepositInformation::create($request->validated());
+        return $this->sendResponse($hotelDepositInformation->toArray(), 'create success', Response::HTTP_CREATED);
+    }
+
+    public function show($id)
+    {
+        $hotelDepositInformation = HotelDepositInformation::findOrFail($id);
+        return $this->sendResponse($hotelDepositInformation->toArray(), 'show success', Response::HTTP_OK);
+    }
+
+    public function update(HotelDepositInformationRequest $request, $id)
+    {
+        $hotelDepositInformation = HotelDepositInformation::findOrFail($id);
+        $hotelDepositInformation->update($request->validated());
+        return $this->sendResponse($hotelDepositInformation->toArray(), 'update success', Response::HTTP_OK);
+    }
+
+    public function destroy($id)
+    {
+        $hotelDepositInformation = HotelDepositInformation::findOrFail($id);
+        $hotelDepositInformation->delete();
+        return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
+    }
+}

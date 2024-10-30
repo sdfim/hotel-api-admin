@@ -22,7 +22,6 @@ class HotelPromotionFactory extends Factory
             'booking_end' => $this->faker->date,
             'terms_conditions' => $this->faker->paragraph,
             'exclusions' => $this->faker->paragraph,
-            'deposit_info' => $this->faker->paragraph,
-        ];
+            ];
     }
 }
