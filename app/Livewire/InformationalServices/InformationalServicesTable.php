@@ -1,0 +1,64 @@
+<?php
+
+namespace App\Livewire\InformationalServices;
+
+use App\Helpers\ClassHelper;
+use App\Models\InformationalService;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
+use Livewire\Component;
+
+class InformationalServicesTable extends Component implements HasForms, HasTable
+{
+    use InteractsWithForms;
+    use InteractsWithTable;
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->paginated([5, 10, 25, 50])
+            ->query(InformationalService::query())
+            ->columns([
+                TextColumn::make('name')->searchable(),
+                TextColumn::make('description')->searchable(),
+                TextColumn::make('cost')->searchable(),
+                TextColumn::make('date')->searchable(),
+                TextColumn::make('time')->searchable(),
+                TextColumn::make('type')->searchable(),
+            ])
+            ->actions([
+                ActionGroup::make([
+                    EditAction::make()
+                        ->url(fn (InformationalService $record): string => route('informational-services.edit', $record))
+                        ->visible(fn (InformationalService $record) => Gate::allows('update', $record)),
+                    DeleteAction::make()
+                        ->requiresConfirmation()
+                        ->action(fn (InformationalService $record) => $record->delete())
+                        ->visible(fn (InformationalService $record) => Gate::allows('delete', $record)),
+                ]),
+            ])->headerActions([
+                CreateAction::make()
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->icon('heroicon-o-plus')
+                    ->iconButton()
+                    ->url(fn (): string => route('informational-services.create'))
+                    ->visible(fn () => Gate::allows('create', InformationalService::class)),
+            ]);
+    }
+
+    public function render(): View
+    {
+        return view('livewire.informational-services.informational-services-table');
+    }
+}

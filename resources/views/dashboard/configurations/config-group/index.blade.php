@@ -22,11 +22,11 @@
     <div class="mt-8">
         <div class="flex flex-col xl:flex-row gap-8">
             <div class="flex-1">
-                <h2 class="text-xl font-semibold">Chains</h2>
+                <h2 class="text-xl font-semibold">Consortia</h2>
                 @livewire('configurations.consortia.consortia-table')
             </div>
             <div class="flex-1">
-                <h2 class="text-xl font-semibold">Attributes</h2>
+                <h2 class="text-xl font-semibold">Descriptive Types</h2>
                 @livewire('configurations.descriptive-types.descriptive-types-table')
             </div>
         </div>

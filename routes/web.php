@@ -19,6 +19,7 @@ use Modules\AdministrationSuite\Http\Controllers\ExpediaController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
 use Modules\AdministrationSuite\Http\Controllers\GeographyController;
 use Modules\AdministrationSuite\Http\Controllers\IceHbsiController;
+use Modules\AdministrationSuite\Http\Controllers\InformationalServicesController;
 use Modules\AdministrationSuite\Http\Controllers\InsuranceProvidersController;
 use Modules\AdministrationSuite\Http\Controllers\InsuranceRestrictionsController;
 use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
@@ -79,6 +80,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('expedia', ExpediaController::class)->only('index');
         Route::get('/statistic-charts', [StatisticChartsController::class, 'index'])->name('statistic-charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->only(['store', 'destroy']);
+
+        Route::resource('informational-services', InformationalServicesController::class)->only(['index', 'edit', 'create']);
 
         Route::resource('users', UsersController::class)->only(['index', 'edit', 'create']);
         Route::resource('roles', RolesController::class)->only(['index', 'edit', 'create']);

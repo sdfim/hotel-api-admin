@@ -12,6 +12,7 @@
     use App\Models\ApiSearchInspector;
     use App\Models\ApiBookingInspector;
     use App\Models\ApiExceptionReport;
+    use App\Models\InformationalService;
     use App\Models\Property;
     use Modules\HotelContentRepository\Models\Hotel;
     use Modules\HotelContentRepository\Models\TravelAgencyCommission;
@@ -187,7 +188,16 @@
                         </a>
                     </li>
                 @endif
-                    {{--                @if($canView(TravelAgencyCommission::class))--}}
+                @if($canView(InformationalService::class))
+                    <li>
+                        <a href="{{ Route('informational-services.index') }}"
+                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-information"></i>
+                            <span data-key="t-property-weighting">InformationalService</span>
+                        </a>
+                    </li>
+                @endif
+                @if($canView(TravelAgencyCommission::class))
                     <li>
                         <a href="{{ Route('travel-agency-commission.index') }}"
                            class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
@@ -195,7 +205,7 @@
                             <span data-key="t-property-weighting">Agency Commissions</span>
                         </a>
                     </li>
-                    {{--                @endif--}}
+                @endif
                 @if($canView(PropertyWeighting::class))
                     <li>
                         <a href="{{ Route('property-weighting.index') }}"
