@@ -45,13 +45,13 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
             Select::make('hotel_id')
                 ->label('Hotel')
                 ->options(Hotel::pluck('name', 'id'))
-//                ->when($this->hotelId, fn($select) => $select->searchable())
+                ->disabled(fn () => $this->hotelId)
                 ->required(),
             Select::make('attribute_id')
                 ->label('Attribute')
                 ->options(ConfigAttribute::all()->pluck('name', 'id')->map(function ($name, $id) {
                     $attribute = ConfigAttribute::find($id);
-                    return $name . ' ' . $attribute->default_value;
+                    return $name . ': ' . $attribute->default_value;
                 }))
                 ->required(),
         ];
@@ -81,6 +81,10 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
+                    })
+                    ->action(function ($data) {
+                        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
+                        HotelAttribute::create($data);
                     })
                     ->tooltip('Add New Attribute')
                     ->icon('heroicon-o-plus')

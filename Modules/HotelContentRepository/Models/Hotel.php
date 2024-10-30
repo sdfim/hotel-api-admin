@@ -22,14 +22,11 @@ class Hotel extends Model
         'name',
         'type',
         'verified',
-        'direct_connection',
-        'manual_contract',
-        'commission_tracking',
         'address',
         'star_rating',
         'website',
         'num_rooms',
-        'featured',
+        'verified',
         'location',
         'content_source_id',
         'room_images_source_id',
@@ -41,10 +38,6 @@ class Hotel extends Model
 
     protected $casts = [
         'verified' => 'boolean',
-        'direct_connection' => 'boolean',
-        'manual_contract' => 'boolean',
-        'commission_tracking' => 'boolean',
-        'featured' => 'boolean',
         'address' => 'array',
         'location' => 'array',
     ];

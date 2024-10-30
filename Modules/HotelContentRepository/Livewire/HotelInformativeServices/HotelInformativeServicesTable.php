@@ -44,6 +44,7 @@ class HotelInformativeServicesTable extends Component implements HasForms, HasTa
             Select::make('hotel_id')
                 ->label('Hotel')
                 ->options(Hotel::pluck('name', 'id'))
+                ->disabled(fn () => $this->hotelId)
                 ->required(),
             Select::make('service_id')
                 ->label('Service Type')
@@ -80,6 +81,10 @@ class HotelInformativeServicesTable extends Component implements HasForms, HasTa
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
+                    })
+                    ->action(function ($data) {
+                        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
+                        HotelInformativeService::create($data);
                     })
                     ->tooltip('Add New Service')
                     ->icon('heroicon-o-plus')

@@ -16,16 +16,12 @@ class HotelRequest extends ApiRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
+            'type' => 'required|string|in:Direct connection,Manual contract,Commission tracking',
             'verified' => 'required|boolean',
-            'direct_connection' => 'required|boolean',
-            'manual_contract' => 'required|boolean',
-            'commission_tracking' => 'required|boolean',
             'address' => 'required|string',
             'star_rating' => 'required|integer|min:1|max:5',
             'website' => 'required|string|max:255',
             'num_rooms' => 'required|integer',
-            'featured' => 'required|boolean',
             'location' => 'required|string|max:255',
             'content_source_id' => 'required|exists:pd_content_sources,id',
             'room_images_source_id' => 'required|exists:pd_content_sources,id',

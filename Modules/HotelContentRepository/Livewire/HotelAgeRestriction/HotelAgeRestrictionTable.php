@@ -45,6 +45,7 @@ class HotelAgeRestrictionTable extends Component implements HasForms, HasTable
             Select::make('hotel_id')
                 ->label('Hotel')
                 ->options(Hotel::pluck('name', 'id'))
+                ->disabled(fn () => $this->hotelId)
                 ->required(),
             Select::make('age_restriction_id')
                 ->label('Age Restriction')
@@ -101,6 +102,7 @@ class HotelAgeRestrictionTable extends Component implements HasForms, HasTable
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->iconButton()
                     ->action(function ($data) {
+                        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
                         HotelAgeRestriction::create([
                             'hotel_id' => $data['hotel_id'],
                             'restriction_type_id' => $data['age_restriction_id'],

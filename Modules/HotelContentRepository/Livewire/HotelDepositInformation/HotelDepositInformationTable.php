@@ -46,6 +46,7 @@ class HotelDepositInformationTable extends Component implements HasForms, HasTab
             Select::make('hotel_id')
                 ->label('Hotel')
                 ->options(Hotel::pluck('name', 'id'))
+                ->disabled(fn () => $this->hotelId)
                 ->required(),
             TextInput::make('days_departure')
                 ->label('Days Prior to Departure')
@@ -91,6 +92,10 @@ class HotelDepositInformationTable extends Component implements HasForms, HasTab
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
+                    })
+                    ->action(function ($data) {
+                        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
+                        HotelDepositInformation::create($data);
                     })
                     ->tooltip('Add New Deposit Information')
                     ->icon('heroicon-o-plus')

@@ -49,16 +49,7 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable()
-                    ->wrap()
-                    ->tooltip(function ($record) {
-                        return implode("\n", [
-                            'Verified: ' . ($record->verified ? 'Yes' : 'No'),
-                            'Direct Connection: ' . ($record->direct_connection ? 'Yes' : 'No'),
-                            'Manual Contract: ' . ($record->manual_contract ? 'Yes' : 'No'),
-                            'Commission Tracking: ' . ($record->commission_tracking ? 'Yes' : 'No'),
-                            'Channel Management: ' . ($record->channel_management ? 'Yes' : 'No'),
-                        ]);
-                    }),
+                    ->wrap(),
                 CustomTextColumn::make('type')
                     ->searchable(isIndividual: true)
                     ->toggleable()
@@ -87,10 +78,6 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
-//                CustomTextColumn::make('featured')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
                 CustomTextColumn::make('location')
                     ->searchable(isIndividual: true)
                     ->getStateUsing(function ($record) {

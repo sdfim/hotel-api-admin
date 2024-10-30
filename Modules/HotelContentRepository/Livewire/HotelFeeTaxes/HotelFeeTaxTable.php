@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\HotelFeeTaxes;
 
 use App\Helpers\ClassHelper;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -45,32 +46,44 @@ class HotelFeeTaxTable extends Component implements HasForms, HasTable
             Select::make('hotel_id')
                 ->label('Hotel')
                 ->options(Hotel::pluck('name', 'id'))
-//                ->when($this->hotelId, fn($select) => $select->searchable())
+                ->disabled(fn () => $this->hotelId)
                 ->required(),
             TextInput::make('name')->label('Name')->required(),
-            TextInput::make('net_value')
-                ->label('Net Value')
-                ->numeric(2)
-                ->required(),
-            TextInput::make('rack_value')
-                ->label('Rack Value')
-                ->numeric(2)
-                ->required(),
-            TextInput::make('tax')
-                ->label('Tax')
-                ->numeric(2)
-                ->required(),
-            Select::make('type')
-                ->label('Type')
-                ->options([
-                    'per person' => 'per person',
-                    'per day' => 'per day',
-                    'per night' => 'per night',
-                    'per accommodation' => 'per accommodation',
-                    'per stay' => 'per stay',
-                ])
-                ->required(),
-            TextInput::make('fee_category')->label('Fee Category')->required(),
+            Grid::make(2)
+                ->schema([
+                    Select::make('type')
+                        ->label('Type')
+                        ->options([
+                            'per person' => 'per person',
+                            'per day' => 'per day',
+                            'per night' => 'per night',
+                            'per accommodation' => 'per accommodation',
+                            'per stay' => 'per stay',
+                        ])
+                        ->required(),
+                    Select::make('fee_category')
+                        ->label('Fee Category')
+                        ->options([
+                            'mandatory' => 'mandatory',
+                            'optional' => 'optional',
+                        ])
+                        ->required(),
+                ]),
+            Grid::make(3)
+                ->schema([
+                    TextInput::make('net_value')
+                        ->label('Net Value')
+                        ->numeric(2)
+                        ->required(),
+                    TextInput::make('rack_value')
+                        ->label('Rack Value')
+                        ->numeric(2)
+                        ->required(),
+                    TextInput::make('tax')
+                        ->label('Tax')
+                        ->numeric(2)
+                        ->required(),
+                ]),
         ];
     }
 
@@ -108,7 +121,13 @@ class HotelFeeTaxTable extends Component implements HasForms, HasTable
                         'per stay' => 'per stay',
                     ])
                     ->sortable(),
-                TextInputColumn::make('fee_category')->label('Fee Category')->sortable(),
+                SelectColumn::make('fee_category')
+                    ->label('Fee Category')
+                    ->options([
+                        'mandatory' => 'mandatory',
+                        'optional' => 'optional',
+                    ])
+                    ->sortable(),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([
@@ -125,6 +144,10 @@ class HotelFeeTaxTable extends Component implements HasForms, HasTable
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
+                    })
+                    ->action(function ($data) {
+                        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
+                        HotelFeeTax::create($data);
                     })
                     ->tooltip('Add New Fee')
                     ->icon('heroicon-o-plus')

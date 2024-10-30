@@ -3,9 +3,11 @@
 namespace Modules\HotelContentRepository\Livewire\Hotel;
 
 use App\Models\Configurations\ConfigJobDescription;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 use Livewire\Component;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
@@ -74,7 +76,13 @@ class HotelForm extends Component implements HasForms
                     Tabs\Tab::make('General Information')
                         ->schema([
                             TextInput::make('name')->required()->maxLength(191),
-                            TextInput::make('type')->required()->maxLength(191),
+                            Select::make('type')
+                                ->label('Type')
+                                ->options([
+                                    'Direct connection' => 'Direct connection',
+                                    'Manual contract' => 'Manual contract',
+                                    'Commission tracking' => 'Commission tracking',
+                                ])->required(),
                             CustomRepeater::make('address')
                                 ->schema([
                                     Select::make('field')
@@ -136,32 +144,39 @@ class HotelForm extends Component implements HasForms
                         ])
                         ->columns(2),
 
-
                     // Tab 2
-                    Tabs\Tab::make('Verification & Sources')
+                    Tabs\Tab::make('Sources & Management')
                         ->schema([
-                            Select::make('content_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
-                            Select::make('room_images_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
-                            Select::make('property_images_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
-                            Checkbox::make('verified'),
-                            Checkbox::make('direct_connection'),
-                            Checkbox::make('manual_contract'),
-                            Checkbox::make('commission_tracking'),
-                            Checkbox::make('featured'),
-                        ])
-                        ->columns(3),
-
-                    // Tab 3
-                    Tabs\Tab::make('Details & Management')
-                        ->schema([
-                            TextInput::make('star_rating')->required()->numeric(),
-                            TextInput::make('website')->url()->maxLength(191),
-                            TextInput::make('num_rooms')->required()->numeric(),
-                            TextInput::make('channel_management')->required(),
-                            TextInput::make('hotel_board_basis'),
-                            TextInput::make('default_currency')->required()->maxLength(3),
+                            Grid::make(3)
+                                ->schema([
+                                Select::make('content_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
+                                Select::make('room_images_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
+                                Select::make('property_images_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
+                            ]),
+                            Grid::make(3)
+                                ->schema([
+                                    TextInput::make('default_currency')->required()->maxLength(3),
+                                    TextInput::make('star_rating')->required()->numeric(),
+                                    TextInput::make('num_rooms')->required()->numeric(),
+                                ]),
+                            Grid::make(3)
+                                ->schema([
+                                    TextInput::make('channel_management')->required(),
+                                    TextInput::make('website')->url()->maxLength(191),
+                                    TextInput::make('hotel_board_basis'),
+                                ]),
                         ])
                         ->columns(2),
+
+                    // Tab 3
+                    Tabs\Tab::make('Verification ')
+                        ->schema([
+                            Toggle::make('verified')
+                                ->label('Verified')
+                                ->onColor('success')
+                                ->offColor('danger')
+                                ->required(),
+                        ]),
                 ])
         ];
     }

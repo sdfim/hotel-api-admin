@@ -45,7 +45,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
             Select::make('hotel_id')
                 ->label('Hotel')
                 ->options(Hotel::pluck('name', 'id'))
-//                ->when($this->hotelId, fn($select) => $select->searchable())
+                ->disabled(fn () => $this->hotelId)
                 ->required(),
             TextInput::make('hbs_data_mapped_name')->label('HBS Data Mapped Name'),
             TextInput::make('name')->label('Name')->required(),
@@ -73,7 +73,6 @@ class HotelRoomTable extends Component implements HasForms, HasTable
             })
             ->columns([
                 TextColumn::make('id')->label('ID')->sortable(),
-//                TextColumn::make('hotel_id')->label('Hotel ID')->sortable(),
                 TextColumn::make('hotel.name')
                     ->label('Hotel Name')
                     ->searchable(isIndividual: true)
@@ -121,6 +120,10 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
+                    })
+                    ->action(function ($data) {
+                        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
+                        HotelRoom::create($data);
                     })
                     ->tooltip('Add New Room')
                     ->icon('heroicon-o-plus')

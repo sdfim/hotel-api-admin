@@ -49,6 +49,7 @@ class HotelPromotionTable extends Component implements HasForms, HasTable
             Select::make('hotel_id')
                 ->label('Hotel')
                 ->options(Hotel::pluck('name', 'id'))
+                ->disabled(fn () => $this->hotelId)
                 ->required(),
             TextInput::make('promotion_name')
                 ->label('Promotion Name')
@@ -120,6 +121,10 @@ class HotelPromotionTable extends Component implements HasForms, HasTable
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
+                    })
+                    ->action(function ($data) {
+                        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
+                        HotelPromotion::create($data);
                     })
                     ->tooltip('Add New Promotion')
                     ->icon('heroicon-o-plus')

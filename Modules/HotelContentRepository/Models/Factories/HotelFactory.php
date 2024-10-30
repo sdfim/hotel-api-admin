@@ -14,16 +14,16 @@ class HotelFactory extends Factory
     {
         return [
             'name' => $this->faker->company,
-            'type' => $this->faker->word,
             'verified' => $this->faker->boolean,
-            'direct_connection' => $this->faker->boolean,
-            'manual_contract' => $this->faker->boolean,
-            'commission_tracking' => $this->faker->boolean,
+            'type' => $this->faker->randomElement([
+                'Direct connection',
+                'Manual contract',
+                'Commission tracking',
+            ]),
             'address' => $this->faker->address,
             'star_rating' => $this->faker->numberBetween(1, 5),
             'website' => $this->faker->url,
             'num_rooms' => $this->faker->numberBetween(1, 500),
-            'featured' => $this->faker->boolean,
             'location' => $this->faker->address,
             'content_source_id' => ContentSource::factory(),
             'room_images_source_id' => ContentSource::factory(),

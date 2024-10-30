@@ -48,6 +48,7 @@ class HotelDescriptiveContentSectionTable extends Component implements HasForms,
             Select::make('hotel_id')
                 ->label('Hotel')
                 ->options(Hotel::pluck('name', 'id'))
+                ->disabled(fn () => $this->hotelId)
                 ->required(),
             TextInput::make('section_name')
                 ->label('Section Name')
@@ -164,6 +165,7 @@ class HotelDescriptiveContentSectionTable extends Component implements HasForms,
 
     protected function saveOrUpdate(array $data)
     {
+        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
         $section = HotelDescriptiveContentSection::updateOrCreate(
             [
                 'section_name' => $data['section_name'],
