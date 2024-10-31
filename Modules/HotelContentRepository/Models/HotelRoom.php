@@ -19,7 +19,7 @@ class HotelRoom extends Model
 
     protected $fillable = [
         'hotel_id',
-        'hbs_data_mapped_name',
+        'hbsi_data_mapped_name',
         'name',
         'description',
     ];

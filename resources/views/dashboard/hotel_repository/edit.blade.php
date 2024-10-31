@@ -57,7 +57,7 @@
                                 @livewire('hotels.hotel-attributes-table', ['hotelId' => $hotelId])
                             </div>
                             <div class="flex-1">
-                                <h2 class="text-xl font-semibold">Services</h2>
+                                <h2 class="text-xl font-semibold">Informational Service</h2>
                                 @livewire('hotels.hotel-informative-services-table', ['hotelId' => $hotelId])
                             </div>
                         </div>

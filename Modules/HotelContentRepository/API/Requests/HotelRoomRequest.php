@@ -17,7 +17,7 @@ class HotelRoomRequest extends ApiRequest
         return [
             'hotel_id' => 'required|integer',
             'name' => 'required|string|max:255',
-            'hbs_data_mapped_name' => 'required|string|max:255',
+            'hbsi_data_mapped_name' => 'required|string|max:255',
             'description' => 'required|string',
         ];
     }

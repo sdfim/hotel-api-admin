@@ -3,11 +3,17 @@
 namespace Modules\HotelContentRepository\Livewire\Hotel;
 
 use App\Models\Configurations\ConfigJobDescription;
+use App\Models\Property;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Livewire\Component;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
@@ -68,6 +74,17 @@ class HotelForm extends Component implements HasForms
     public function schemeForm(): array
     {
         return [
+            Section::make('Verification Section')
+                ->schema([
+                    Toggle::make('verified')
+                        ->label('Verified')
+                        ->onColor('success')
+                        ->offColor('danger')
+                        ->extraAttributes(['style' => 'display: flex; justify-content: flex-end;'])
+                        ->required(),
+                ]),
+
+
             Tabs::make('Hotel Details')
                 ->columns(1)
                 ->tabs([
@@ -106,7 +123,8 @@ class HotelForm extends Component implements HasForms
                                 })
                                 ->beforeStateDehydrated(function ($state) {
                                     return json_encode($state);
-                                })->columns(2),
+                                })
+                                ->columns(2),
                             CustomRepeater::make('location')
                                 ->schema([
                                     Select::make('field')
@@ -162,17 +180,25 @@ class HotelForm extends Component implements HasForms
                                 ]),
                         ])
                         ->columns(2),
-
-                    // Tab 3
-                    Tabs\Tab::make('Verification ')
-                        ->schema([
-                            Toggle::make('verified')
-                                ->label('Verified')
-                                ->onColor('success')
-                                ->offColor('danger')
-                                ->required(),
-                        ]),
-                ])
+                ]),
+            Actions::make([
+                Actions\Action::make('Fill Location from Property')
+                    ->label('Fill Location from Property')
+                    ->action(function (Get $get, Set $set) {
+                        $keyMappings = $this->record->keyMappings->toArray();
+                        $filteredKeyMappings = array_filter($keyMappings, function ($mapping) {
+                            return $mapping['key_mapping_owner_id'] === 1;
+                        });
+                        $keyIds = array_column($filteredKeyMappings, 'key_id');
+                        $property = Property::find($keyIds)->first();
+                        if ($property) {
+                            $set('location', [
+                                ['field' => 'latitude', 'value' => $property->latitude],
+                                ['field' => 'longitude', 'value' => $property->longitude],
+                            ]);
+                        }
+                    }),
+            ]),
         ];
     }
 

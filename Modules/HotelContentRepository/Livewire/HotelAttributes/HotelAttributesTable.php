@@ -49,10 +49,7 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
                 ->required(),
             Select::make('attribute_id')
                 ->label('Attribute')
-                ->options(ConfigAttribute::all()->pluck('name', 'id')->map(function ($name, $id) {
-                    $attribute = ConfigAttribute::find($id);
-                    return $name . ': ' . $attribute->default_value;
-                }))
+                ->options(ConfigAttribute::all()->pluck('name', 'id'))
                 ->required(),
         ];
     }
@@ -65,7 +62,7 @@ class HotelAttributesTable extends Component implements HasForms, HasTable
             )
             ->columns([
                 TextColumn::make('attribute.name')->label('Attribute Name')->searchable(),
-                TextColumn::make('attribute.default_value')->label('Value')->searchable(),
+//                TextColumn::make('attribute.default_value')->label('Value')->searchable(),
             ])
             ->actions([
                 EditAction::make()

@@ -256,7 +256,7 @@ class TestSeederExpediaContentToHotels extends Command
             $roomData = [
                 'hotel_id' => $hotel->id,
                 // TODO: need special tools to create a map
-                'hbs_data_mapped_name' => '',
+                'hbsi_data_mapped_name' => '',
                 'name' => $name,
                 'description' => $cleanDescription,
 //                'amenities' => array_values(Arr::get($room, 'amenities', [])),

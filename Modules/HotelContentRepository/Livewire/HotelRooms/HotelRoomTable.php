@@ -47,7 +47,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                 ->options(Hotel::pluck('name', 'id'))
                 ->disabled(fn () => $this->hotelId)
                 ->required(),
-            TextInput::make('hbs_data_mapped_name')->label('HBS Data Mapped Name'),
+            TextInput::make('hbsi_data_mapped_name')->label('HBSI Data Mapped Name'),
             TextInput::make('name')->label('Name')->required(),
             Textarea::make('description')
                 ->label('Description')
@@ -72,33 +72,33 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                 return $query;
             })
             ->columns([
-                TextColumn::make('id')->label('ID')->sortable(),
-                TextColumn::make('hotel.name')
-                    ->label('Hotel Name')
-                    ->searchable(isIndividual: true)
-                    ->sortable()
-                    ->wrap(),
-                TextColumn::make('hbs_data_mapped_name')
-                    ->label('HBS Data Mapped Name')
+//                TextColumn::make('id')->label('ID')->sortable(),
+//                TextColumn::make('hotel.name')
+//                    ->label('Hotel Name')
+//                    ->searchable(isIndividual: true)
+//                    ->sortable()
+//                    ->wrap(),
+                TextColumn::make('hbsi_data_mapped_name')
+                    ->label('HBSI Data Mapped Name')
                     ->searchable(isIndividual: true)
                     ->sortable(),
                 TextColumn::make('name')
                     ->label('Name')
                     ->searchable(isIndividual: true)
                     ->sortable(),
-                TextColumn::make('description')
-                    ->label('Description')
-                    ->searchable(isIndividual: true)
-                    ->sortable()
-                    ->wrap()
-                    ->extraAttributes(['class' => 'scrollable-column']),
+//                TextColumn::make('description')
+//                    ->label('Description')
+//                    ->searchable(isIndividual: true)
+//                    ->sortable()
+//                    ->wrap()
+//                    ->extraAttributes(['class' => 'scrollable-column']),
                 TextColumn::make('created_at')->label('Created At')->date(),
-                TextColumn::make('galleries')
-                    ->label('Galleries')
-                    ->formatStateUsing(function ($record) {
-                        return $record->galleries->pluck('gallery_name')->implode(', ');
-                    })
-                    ->wrap(),
+//                TextColumn::make('galleries')
+//                    ->label('Galleries')
+//                    ->formatStateUsing(function ($record) {
+//                        return $record->galleries->pluck('gallery_name')->implode(', ');
+//                    })
+//                    ->wrap(),
             ])
             ->actions([
                 EditAction::make()

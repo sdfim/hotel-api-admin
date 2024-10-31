@@ -60,63 +60,63 @@
                                 <li>
                                     <a href="{{ Route('general_configuration') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">General
-                                        Configuration</a>
+                                        </a>
                                 </li>
                             @endif
                             @if($canView(Channel::class))
                                 <li>
                                     <a href="{{ Route('channels.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Channels
-                                        Configuration</a>
+                                        </a>
                                 </li>
                             @endif
                             @if($canView(Supplier::class))
                                 <li>
                                     <a href="{{ Route('suppliers.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Suppliers
-                                        Configuration</a>
+                                        </a>
                                 </li>
                             @endif
                             @if($canView(ConfigAttribute::class))
                                 <li>
                                     <a href="{{ route('configurations.attributes.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Attributes Configuration</a>
+                                    >Attributes </a>
                                 </li>
                             @endif
                             @if($canView(ConfigConsortium::class))
                                 <li>
                                     <a href="{{ route('configurations.consortia.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Consortia Configuration</a>
+                                    >Consortia </a>
                                 </li>
                             @endif
                             @if($canView(ConfigDescriptiveType::class))
                                 <li>
                                     <a href="{{ route('configurations.descriptive-types.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Descriptive Types Configuration</a>
+                                    >Descriptive Types </a>
                                 </li>
                             @endif
                             @if($canView(ConfigJobDescription::class))
                                 <li>
                                     <a href="{{ route('configurations.job-descriptions.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Job Descriptions Configuration</a>
+                                    >Job Descriptions </a>
                                 </li>
                             @endif
                             @if($canView(ConfigServiceType::class))
                                 <li>
                                     <a href="{{ route('configurations.service-types.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Service Types Configuration</a>
+                                    >Service Types </a>
                                 </li>
                             @endif
                             @if($canView(ConfigChain::class))
                                 <li>
                                     <a href="{{ route('configurations.chains.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Chains Configuration</a>
+                                    >Chains </a>
                                 </li>
                             @endif
 {{--                                @can('config-group')--}}
@@ -193,7 +193,7 @@
                         <a href="{{ Route('informational-services.index') }}"
                            class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                             <i class="dripicons-information"></i>
-                            <span data-key="t-property-weighting">InformationalService</span>
+                            <span data-key="t-property-weighting">Informational Service</span>
                         </a>
                     </li>
                 @endif

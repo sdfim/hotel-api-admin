@@ -50,9 +50,9 @@ class HotelDescriptiveContentSectionTable extends Component implements HasForms,
                 ->options(Hotel::pluck('name', 'id'))
                 ->disabled(fn () => $this->hotelId)
                 ->required(),
-            TextInput::make('section_name')
-                ->label('Section Name')
-                ->required(),
+//            TextInput::make('section_name')
+//                ->label('Section Name')
+//                ->required(),
             Grid::make(2)
                 ->schema([
                     DatePicker::make('start_date')
@@ -83,7 +83,7 @@ class HotelDescriptiveContentSectionTable extends Component implements HasForms,
         return $table
             ->query(HotelDescriptiveContentSection::with('content')->where('hotel_id', $this->hotelId))
             ->columns([
-                TextColumn::make('section_name')->label('Section Name')->searchable(),
+//                TextColumn::make('section_name')->label('Section Name')->searchable(),
                 TextColumn::make('start_date')->label('Start Date')->date(),
                 TextColumn::make('end_date')->label('End Date')->date(),
                 TextColumn::make('content')
@@ -110,8 +110,8 @@ class HotelDescriptiveContentSectionTable extends Component implements HasForms,
                         return $this->getFillFormData($record->id);
                     })
                     ->modalHeading('Edit Section')
-                    ->action(function (array $data) {
-                        $this->saveOrUpdate($data);
+                    ->action(function (array $data, HotelDescriptiveContentSection $record) {
+                        $this->saveOrUpdate($data, $record->id);
                     }),
             ])
             ->bulkActions([
@@ -163,12 +163,13 @@ class HotelDescriptiveContentSectionTable extends Component implements HasForms,
         return $data;
     }
 
-    protected function saveOrUpdate(array $data)
+    protected function saveOrUpdate(array $data, ?int $recordId = null): void
     {
         if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
+
         $section = HotelDescriptiveContentSection::updateOrCreate(
             [
-                'section_name' => $data['section_name'],
+                'id' => $recordId,
                 'hotel_id' => $data['hotel_id']
             ],
             [

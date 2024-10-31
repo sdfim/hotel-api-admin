@@ -140,7 +140,7 @@ class HotelDTO
         $this->rooms = $hotel->rooms->map(function ($room) {
             return [
                 'name' => $room->name,
-                'hbs_data_mapped_name' => $room->hbs_data_mapped_name,
+                'hbsi_data_mapped_name' => $room->hbsi_data_mapped_name,
                 'description' => $room->description,
                 'galleries' => $room->galleries->map(function ($gallery) {
                     return [
