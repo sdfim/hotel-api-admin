@@ -27,7 +27,8 @@ class HotelController extends BaseController
             'promotions.galleries.images',
             'rooms.galleries.images',
             'keyMappings',
-            'galleries.images'
+            'galleries.images',
+            'contactInformation'
         ])->get();
 
         $hotelDTOs = $hotels->map(function ($hotel) {
@@ -57,7 +58,8 @@ class HotelController extends BaseController
             'promotions.galleries.images',
             'rooms.galleries.images',
             'keyMappings',
-            'galleries.images'
+            'galleries.images',
+            'contactInformation'
         ])->findOrFail($id);
 
         $hotelDTO = new HotelDTO($hotel);

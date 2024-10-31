@@ -108,8 +108,8 @@ class Hotel extends Model
         return $this->belongsToMany(ImageGallery::class, 'pd_hotel_gallery', 'hotel_id', 'gallery_id');
     }
 
-    public function jobDescriptions()
+    public function contactInformation()
     {
-        return $this->belongsToMany(ConfigJobDescription::class, 'pd_hotel_job_descriptions', 'hotel_id', 'job_description_id');
+        return $this->hasMany(HotelContactInformation::class);
     }
 }

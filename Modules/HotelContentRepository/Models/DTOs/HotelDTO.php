@@ -8,9 +8,6 @@ class HotelDTO
     public $name;
     public $type;
     public $verified;
-    public $direct_connection;
-    public $manual_contract;
-    public $commission_tracking;
     public $address;
     public $star_rating;
     public $website;
@@ -33,6 +30,7 @@ class HotelDTO
     public $key_mappings;
     public $travel_agency_commissions;
     public $galleries;
+    public $contact_information;
 
     public function __construct($hotel)
     {
@@ -40,9 +38,6 @@ class HotelDTO
         $this->name = $hotel->name;
         $this->type = $hotel->type;
         $this->verified = (bool) $hotel->verified;
-        $this->direct_connection = (bool) $hotel->direct_connection;
-        $this->manual_contract = (bool) $hotel->manual_contract;
-        $this->commission_tracking = (bool) $hotel->commission_tracking;
         $this->address = $hotel->address;
         $this->star_rating = $hotel->star_rating;
         $this->website = $hotel->website;
@@ -55,6 +50,19 @@ class HotelDTO
         $this->channel_management = (bool) $hotel->channel_management;
         $this->hotel_board_basis = $hotel->hotel_board_basis;
         $this->default_currency = $hotel->default_currency;
+        $this->contact_information = $hotel->contactInformation->map(function ($contact) {
+            return [
+                'first_name' => $contact->first_name,
+                'last_name' => $contact->last_name,
+                'email' => $contact->email,
+                'phone' => $contact->phone,
+                'job_descriptions' => $contact->contactInformations->map(function ($job) {
+                    return [
+                        'name' => $job->name,
+                    ];
+                }),
+            ];
+        });
         $this->affiliations = $hotel->affiliations->map(function ($affiliation) {
             return [
                 'affiliation_name' => $affiliation->affiliation_name,
