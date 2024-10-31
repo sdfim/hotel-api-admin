@@ -124,7 +124,7 @@ class PriceHotelRequest extends ApiRequest
         return [
             'type' => 'required|string',
             'currency' => ['string', 'in:'.implode(',', $validCurrencies)],
-            'hotel_name' => 'string',
+            'hotel_name' => 'nullable|string',
             'supplier' => 'string',
             'checkin' => 'required|date_format:Y-m-d|after:yesterday',
             'checkout' => 'required|date_format:Y-m-d|after:checkin',
@@ -133,7 +133,7 @@ class PriceHotelRequest extends ApiRequest
             'giata_ids.*' => 'integer',
 
             'place' => 'required_without_all:giata_ids,latitude,longitude,destination|nullable|string|max:32',
-            'session' => 'string|max:36',
+            'session' => 'required_with:place|nullable|string|max:36',
 
             'destination' => 'required_without_all:giata_ids,latitude,longitude,place|integer|min:1,max:999999',
 
