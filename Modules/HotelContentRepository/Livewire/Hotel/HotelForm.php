@@ -53,7 +53,6 @@ class HotelForm extends Component implements HasForms
             ];
         }
         $data['galleries'] = $this->record->galleries->pluck('id')->toArray();
-        $data['jobDescriptions'] = $this->record->jobDescriptions->pluck('id')->toArray();
 
         $this->form->fill($data);
     }
