@@ -31,6 +31,8 @@ class BaseBookApiController extends BaseController
                 $bookingPricingData[] = array_merge($pricing_data, $childBookingItemPricingData[$k]);
             }
             $booking_pricing_data['breakdown'] = $bookingPricingData;
+        } else {
+            $booking_pricing_data['breakdown'] = [$booking_pricing_data];
         }
 
         $searchInspector = ApiSearchInspector::where('search_id', $bookingInspector->search_id)->first();
