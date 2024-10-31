@@ -42,7 +42,7 @@ class HotelTable extends Component implements HasForms, HasTable
                 'rooms',
                 'keyMappings',
                 'galleries',
-                'jobDescriptions',
+                'contactInformation'
             ]))
             ->columns([
                 TextColumn::make('name')
@@ -159,10 +159,6 @@ class HotelTable extends Component implements HasForms, HasTable
         $hotel = Hotel::create(Arr::only($data, [
             'name', 'location', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking', 'address', 'star_rating', 'website', 'num_rooms', 'featured', 'content_source_id', 'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis', 'default_currency'
         ]));
-
-        if (isset($data['jobDescriptions'])) {
-            $hotel->jobDescriptions()->sync($data['jobDescriptions']);
-        }
 
         if (isset($data['galleries'])) {
             $hotel->galleries()->sync($data['galleries']);

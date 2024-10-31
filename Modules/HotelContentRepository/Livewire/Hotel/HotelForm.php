@@ -196,10 +196,6 @@ class HotelForm extends Component implements HasForms
             'name', 'location', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking', 'address', 'star_rating', 'website', 'num_rooms', 'featured', 'content_source_id', 'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis', 'default_currency'
         ]));
 
-        if (isset($data['jobDescriptions'])) {
-            $hotel->jobDescriptions()->sync($data['jobDescriptions']);
-        }
-
         if (isset($data['galleries'])) {
             $hotel->galleries()->sync($data['galleries']);
         }
