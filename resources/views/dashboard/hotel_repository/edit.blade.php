@@ -36,6 +36,11 @@
                     </div>
 
                     <div class="mt-8">
+                        <h2 class="text-xl font-semibold">Contact Information</h2>
+                        @livewire('hotels.hotel-contact-information-table', ['hotelId' => $hotelId])
+                    </div>
+
+                    <div class="mt-8">
                         <h2 class="text-xl font-semibold">Rooms</h2>
                         @livewire('hotels.hotel-room-table', ['hotelId' => $hotelId])
                     </div>

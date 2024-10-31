@@ -9,6 +9,7 @@ use Modules\HotelContentRepository\API\Controllers\ContentSourceController;
 use Modules\HotelContentRepository\API\Controllers\HotelAffiliationController;
 use Modules\HotelContentRepository\API\Controllers\HotelAgeRestrictionController;
 use Modules\HotelContentRepository\API\Controllers\HotelAgeRestrictionTypeController;
+use Modules\HotelContentRepository\API\Controllers\HotelContactInformationController;
 use Modules\HotelContentRepository\API\Controllers\HotelController;
 use Modules\HotelContentRepository\API\Controllers\HotelDepositInformationController;
 use Modules\HotelContentRepository\API\Controllers\HotelDescriptiveContentSectionController;
@@ -46,6 +47,8 @@ class HotelContentRepositoryApiRoutes
             Route::resource('hotel-fee-taxes', HotelFeeTaxController::class);
 
             Route::resource('hotel-informative-services', HotelInformativeServiceController::class);
+
+            Route::resource('hotel-contact-information', HotelContactInformationController::class);
 
             Route::resource('hotel-deposit-information', HotelDepositInformationController::class);
 

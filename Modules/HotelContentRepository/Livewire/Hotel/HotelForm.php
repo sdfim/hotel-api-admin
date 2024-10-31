@@ -137,10 +137,6 @@ class HotelForm extends Component implements HasForms
                                         ? ImageGallery::hasHotel($this->record->id)->pluck('gallery_name', 'id')
                                         : ImageGallery::pluck('gallery_name', 'id');
                                 }),
-                            Select::make('jobDescriptions')
-                                ->label('Job Descriptions')
-                                ->multiple()
-                                ->options(ConfigJobDescription::pluck('name', 'id')),
                         ])
                         ->columns(2),
 
