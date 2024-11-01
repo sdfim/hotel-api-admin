@@ -22,7 +22,8 @@ return new class extends Migration
             $table->string('website', 255)->nullable();
             $table->integer('num_rooms');
             $table->json('location')->nullable();
-            $table->unsignedBigInteger('content_source_id');
+            $table->decimal('lat', 10, 7)->nullable();
+            $table->decimal('lng', 10, 7)->nullable();            $table->unsignedBigInteger('content_source_id');
             $table->unsignedBigInteger('room_images_source_id');
             $table->unsignedBigInteger('property_images_source_id');
             $table->boolean('channel_management');

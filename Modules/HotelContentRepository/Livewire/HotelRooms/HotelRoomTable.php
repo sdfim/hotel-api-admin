@@ -13,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
@@ -78,14 +79,16 @@ class HotelRoomTable extends Component implements HasForms, HasTable
 //                    ->searchable(isIndividual: true)
 //                    ->sortable()
 //                    ->wrap(),
-                TextColumn::make('hbsi_data_mapped_name')
+                TextInputColumn::make('hbsi_data_mapped_name')
                     ->label('HBSI Data Mapped Name')
                     ->searchable(isIndividual: true)
-                    ->sortable(),
-                TextColumn::make('name')
+                    ->sortable()
+                    ->extraAttributes(['style' => 'width: 100%']),
+                TextInputColumn::make('name')
                     ->label('Name')
                     ->searchable(isIndividual: true)
-                    ->sortable(),
+                    ->sortable()
+                    ->extraAttributes(['style' => 'width: 100%']),
 //                TextColumn::make('description')
 //                    ->label('Description')
 //                    ->searchable(isIndividual: true)

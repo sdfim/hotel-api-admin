@@ -79,6 +79,8 @@ class TestSeederExpediaContentToHotels extends Command
 
             'address' => $address,
             'location' => Arr::get($expediaContent?->location, 'coordinates'),
+            'lat' => Arr::get($expediaContent?->location, 'coordinates.latitude'),
+            'lng' => Arr::get($expediaContent?->location, 'coordinates.longitude'),
             'star_rating' => $expediaContent?->rating,
 
             'website' => '',

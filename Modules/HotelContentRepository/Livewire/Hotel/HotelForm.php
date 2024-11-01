@@ -29,6 +29,8 @@ use Illuminate\Http\RedirectResponse;
 use Livewire\Features\SupportRedirects\Redirector;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
+use Cheesegrits\FilamentGoogleMaps\Fields\Map;
+use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
 
 class HotelForm extends Component implements HasForms
 {
@@ -84,7 +86,6 @@ class HotelForm extends Component implements HasForms
                         ->required(),
                 ]),
 
-
             Tabs::make('Hotel Details')
                 ->columns(1)
                 ->tabs([
@@ -99,53 +100,116 @@ class HotelForm extends Component implements HasForms
                                     'Manual contract' => 'Manual contract',
                                     'Commission tracking' => 'Commission tracking',
                                 ])->required(),
-                            CustomRepeater::make('address')
-                                ->schema([
-                                    Select::make('field')
-                                        ->label('')
-                                        ->options([
-                                        'city' => 'City',
-                                        'line_1' => 'Line 1',
-                                        'postal_code' => 'Postal Code',
-                                        'country_code' => 'Country Code',
-                                        'state_province_code' => 'State Province Code',
-                                        'state_province_name' => 'State Province Name',
-                                        'obfuscation_required' => 'Obfuscation Required',
-                                    ])->required(),
-                                    TextInput::make('value')
-                                        ->label(''),
 
-                                ])
-                                ->defaultItems(1)
-                                ->required()
-                                ->afterStateHydrated(function ($component, $state) {
-                                    $component->state($state ?? []);
-                                })
-                                ->beforeStateDehydrated(function ($state) {
-                                    return json_encode($state);
-                                })
-                                ->columns(2),
-                            CustomRepeater::make('location')
+                            Grid::make()
                                 ->schema([
-                                    Select::make('field')
-                                        ->label('')
-                                        ->options([
-                                        'latitude' => 'Latitude',
-                                        'longitude' => 'Longitude',
-                                    ])->required(),
-                                    TextInput::make('value')
-                                        ->label('')
-                                        ->numeric('decimal'),
+                                    Grid::make()
+                                        ->schema([
+                                            TextInput::make('full_address')
+                                                ->label('Get location by address')
+                                                ->columnSpan(1),
+
+                                            Grid::make()
+                                                ->schema([
+                                                    TextInput::make('lat')
+                                                        ->label('Latitude')
+                                                        ->required()
+                                                        ->numeric(),
+                                                    TextInput::make('lng')
+                                                        ->label('Longitude')
+                                                        ->required()
+                                                        ->numeric(),
+
+                                                ])
+                                                ->columns(2)
+                                                ->columnSpan(1),
+
+                                            CustomRepeater::make('address')
+                                                ->schema([
+                                                    Select::make('field')
+                                                        ->label('')
+                                                        ->options([
+                                                            'city' => 'City',
+                                                            'line_1' => 'Line 1',
+                                                            'postal_code' => 'Postal Code',
+                                                            'country_code' => 'Country Code',
+                                                            'state_province_code' => 'State Province Code',
+                                                            'state_province_name' => 'State Province Name',
+                                                            'obfuscation_required' => 'Obfuscation Required',
+                                                        ])->required(),
+                                                    TextInput::make('value')
+                                                        ->label(''),
+
+                                                ])
+                                                ->defaultItems(1)
+                                                ->required()
+                                                ->afterStateHydrated(function ($component, $state) {
+                                                    $component->state($state ?? []);
+                                                })
+                                                ->beforeStateDehydrated(function ($state) {
+                                                    return json_encode($state);
+                                                })
+                                                ->columns(2)
+                                                ->columnSpan(1),
+                                        ])
+                                        ->columns(1)
+                                        ->columnSpan(1),
+
+                                    Map::make('location_gm')
+                                        ->label('Location')
+                                        ->reactive()
+                                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                            $set('lat', $state['lat']);
+                                            $set('lng', $state['lng']);
+                                        })
+                                        ->height(fn () => '400px')
+                                        ->defaultZoom(17)
+                                        ->autocomplete('full_address')
+                                        ->autocompleteReverse(true)
+                                        ->reverseGeocode([
+                                            'street' => '%n %S',
+                                            'city' => '%L',
+                                            'state' => '%A1',
+                                            'zip' => '%z',
+                                        ])
+                                        ->defaultLocation(fn () => [$this->data['lat'] ?? 39.526610, $this->data['lng'] ?? -107.727261])
+                                        ->draggable()
+                                        ->clickable(false)
+                                        ->geolocate()
+                                        ->geolocateLabel('Get Location')
+                                        ->geolocateOnLoad(true, false)
+                                        ->columnSpan(1),
                                 ])
-                                ->defaultItems(1)
-                                ->required()
-                                ->afterStateHydrated(function ($component, $state) {
-                                    $component->state($state ?? []);
-                                })
-                                ->beforeStateDehydrated(function ($state) {
-                                    return json_encode($state);
-                                })
                                 ->columns(2),
+
+
+
+//                                    CustomRepeater::make('location')
+//                                        ->schema([
+//                                            Select::make('field')
+//                                                ->label('')
+//                                                ->options([
+//                                                'latitude' => 'Latitude',
+//                                                'longitude' => 'Longitude',
+//                                            ])->required(),
+//                                            TextInput::make('value')
+//                                                ->label('')
+//                                                ->numeric('decimal'),
+//                                        ])
+//                                        ->defaultItems(1)
+//                                        ->required()
+//                                        ->afterStateHydrated(function ($component, $state) {
+//                                            $component->state($state ?? []);
+//                                        })
+//                                        ->beforeStateDehydrated(function ($state) {
+//                                            return json_encode($state);
+//                                        })
+//                                        ->columns(2),
+
+
+
+
+
                             Select::make('galleries')
                                 ->label('Galleries')
                                 ->multiple()
@@ -181,24 +245,24 @@ class HotelForm extends Component implements HasForms
                         ])
                         ->columns(2),
                 ]),
-            Actions::make([
-                Actions\Action::make('Fill Location from Property')
-                    ->label('Fill Location from Property')
-                    ->action(function (Get $get, Set $set) {
-                        $keyMappings = $this->record->keyMappings->toArray();
-                        $filteredKeyMappings = array_filter($keyMappings, function ($mapping) {
-                            return $mapping['key_mapping_owner_id'] === 1;
-                        });
-                        $keyIds = array_column($filteredKeyMappings, 'key_id');
-                        $property = Property::find($keyIds)->first();
-                        if ($property) {
-                            $set('location', [
-                                ['field' => 'latitude', 'value' => $property->latitude],
-                                ['field' => 'longitude', 'value' => $property->longitude],
-                            ]);
-                        }
-                    }),
-            ]),
+//            Actions::make([
+//                Actions\Action::make('Fill Location from Property')
+//                    ->label('Fill Location from Property')
+//                    ->action(function (Get $get, Set $set) {
+//                        $keyMappings = $this->record->keyMappings->toArray();
+//                        $filteredKeyMappings = array_filter($keyMappings, function ($mapping) {
+//                            return $mapping['key_mapping_owner_id'] === 1;
+//                        });
+//                        $keyIds = array_column($filteredKeyMappings, 'key_id');
+//                        $property = Property::find($keyIds)->first();
+//                        if ($property) {
+//                            $set('location', [
+//                                ['field' => 'latitude', 'value' => $property->latitude],
+//                                ['field' => 'longitude', 'value' => $property->longitude],
+//                            ]);
+//                        }
+//                    }),
+//            ]),
         ];
     }
 
@@ -219,7 +283,23 @@ class HotelForm extends Component implements HasForms
         $hotel = Hotel::find($this->record->id);
 
         $hotel->update(Arr::only($data, [
-            'name', 'location', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking', 'address', 'star_rating', 'website', 'num_rooms', 'featured', 'content_source_id', 'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis', 'default_currency'
+            'name',
+            'location',
+            'type',
+            'verified',
+            'lat',
+            'lng',
+            'address',
+            'star_rating',
+            'website',
+            'num_rooms',
+            'featured',
+            'content_source_id',
+            'room_images_source_id',
+            'property_images_source_id',
+            'channel_management',
+            'hotel_board_basis',
+            'default_currency'
         ]));
 
         if (isset($data['galleries'])) {
