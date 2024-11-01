@@ -199,7 +199,13 @@ class ExpediaHotelPricingDto
         $pricingRulesApplier['markup'] = 0.0;
         $occupancy_pricing = $rate['occupancy_pricing'];
         try {
-            $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $occupancy_pricing, $roomGroup['room_name'] ?? '', intval($roomGroup['id']) ?? null);
+            $pricingRulesApplier = $this->pricingRulesApplier->apply(
+                $giataId,
+                $occupancy_pricing,
+                $roomGroup['room_name'] ?? '',
+                intval($roomGroup['id']) ?? null,
+                $roomGroup['room_type'] ?? ''
+            );
         } catch (Exception $e) {
             Log::error('ExpediaHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());

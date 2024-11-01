@@ -79,7 +79,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
      *      markup: float|int
      *  }
      */
-    public function apply(int $giataId, array $roomsPricingArray, string $roomName, string|int $roomCode, bool $b2b = true): array
+    public function apply(int $giataId, array $roomsPricingArray, string $roomName, string|int $roomCode, string|int $roomType, bool $b2b = true): array
     {
         $this->initPricingRulesProperties();
 
@@ -93,7 +93,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         $this->updateTotals($roomTotals);
 
         foreach ($this->pricingRules as $pricingRule) {
-            if ($this->validPricingRule($giataId, $pricingRule['conditions'], $roomName, $roomCode, ['supplier_id', 'property', 'room_name'])) {
+            if ($this->validPricingRule($giataId, $pricingRule['conditions'], $roomName, $roomCode, $roomType, ['supplier_id', 'property', 'room_name', 'room_type'])) {
                 $this->applyPricingRulesLogic($pricingRule);
             }
         }

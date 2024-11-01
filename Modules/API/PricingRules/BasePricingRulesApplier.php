@@ -74,6 +74,7 @@ class BasePricingRulesApplier
         array      $conditions,
         string     $roomName,
         string|int $roomCode,
+        string|int $roomType,
         array $conditionsFieldsToVerify = ['supplier_id', 'property'],
         bool  $useAndCondition = false
     ): bool
@@ -83,7 +84,12 @@ class BasePricingRulesApplier
             'property' => [],
             'room_name' => [],
             'room_code' => [],
+            'room_type' => [],
         ];
+
+        if ($roomType === 'A5V') {
+            $info = $roomType;
+        }
 
         $conditionsCollection = collect($conditions);
 
@@ -96,13 +102,25 @@ class BasePricingRulesApplier
                     'property' => (string)$condition['value_from'] === (string)$giataId,
                     'room_name' => (string)$condition['value_from'] === (string)$roomName,
                     'room_code' => (string)$condition['value_from'] === (string)$roomCode,
+                    'room_type' => (string)$condition['value_from'] === (string)$roomType,
                     default => false
                 };
             }
 
-            if ($filtered->isEmpty()) {
-                $validPricingRule[$field][] = true;
-            }
+//            if ($filtered->isEmpty()) {
+//                $validPricingRule[$field][] = false;
+//            }
+        }
+
+
+
+        if ($validPricingRule['supplier_id'] === []
+            && $validPricingRule['property'] === []
+            && $validPricingRule['room_name'] === []
+            && $validPricingRule['room_code'] === []
+            && $validPricingRule['room_type'] === []
+        ) {
+            return true;
         }
 
         if ($useAndCondition) {

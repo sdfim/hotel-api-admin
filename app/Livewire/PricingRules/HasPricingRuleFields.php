@@ -48,42 +48,60 @@ trait HasPricingRuleFields
                         ->label('IMPORTANT: Rules dates explanation')
                         ->columnSpan(3)
                         ->content(fn() => new HtmlString(<<<HTML
-                                When doing a search, the users will need to select a start and an end travel date.
-                                This rule will only apply if the "Rule Start Date" and the "Rule Expiration Date" are contained
-                                within the travel dates selected by the user.<br>
-                                <br>
-                                For example, consider the following scenario:<br>
-                                Assume that you select Jan 15, $currentYear as the "Rule Start Date" and Jan 20, $currentYear
-                                as the "Rule Expiration Date"<br>
-                                <ul class="list-disc pl-6">
-                                    <li class="mb-2">
-                                        User selects Jan 10, $currentYear as the start travel date <br>
-                                        User selects Jan 14, $currentYear as the end travel date <br>
-                                        Will this rule apply? NO
-                                    </li>
-                                    <li class="mb-2">
-                                        User selects Jan 12, $currentYear as the start travel date <br>
-                                        User selects Jan 18, $currentYear as the end travel date <br>
-                                        Will this rule apply? NO
-                                    </li>
-                                    <li class="mb-2">
-                                        User selects Jan 18, $currentYear as the start travel date <br>
-                                        User selects Jan 24, $currentYear as the end travel date <br>
-                                        Will this rule apply? NO
-                                    </li>
-                                    <li class="mb-2">
-                                        User selects Jan 15, $currentYear as the start travel date <br>
-                                        User selects Jan 18, $currentYear as the end travel date <br>
-                                        Will this rule apply? YES
-                                    </li>
-                                    <li class="mb-2">
-                                        User selects Jan 17, $currentYear as the start travel date <br>
-                                        User selects Jan 20, $currentYear as the end travel date <br>
-                                        Will this rule apply? YES
-                                    </li>
-                                </ul>
-                            HTML
-                        )),
+        <button type="button" onclick="toggleCollapse()">
+            <span id="toggleIcon">▼</span> Toggle Explanation
+        </button>
+        <div id="collapseContent" style="display: none;">
+            When doing a search, the users will need to select a start and an end travel date.
+            This rule will only apply if the "Rule Start Date" and the "Rule Expiration Date" are contained
+            within the travel dates selected by the user.<br>
+            <br>
+            For example, consider the following scenario:<br>
+            Assume that you select Jan 15, $currentYear as the "Rule Start Date" and Jan 20, $currentYear
+            as the "Rule Expiration Date"<br>
+            <ul class="list-disc pl-6">
+                <li class="mb-2">
+                    User selects Jan 10, $currentYear as the start travel date <br>
+                    User selects Jan 14, $currentYear as the end travel date <br>
+                    Will this rule apply? NO
+                </li>
+                <li class="mb-2">
+                    User selects Jan 12, $currentYear as the start travel date <br>
+                    User selects Jan 18, $currentYear as the end travel date <br>
+                    Will this rule apply? NO
+                </li>
+                <li class="mb-2">
+                    User selects Jan 18, $currentYear as the start travel date <br>
+                    User selects Jan 24, $currentYear as the end travel date <br>
+                    Will this rule apply? NO
+                </li>
+                <li class="mb-2">
+                    User selects Jan 15, $currentYear as the start travel date <br>
+                    User selects Jan 18, $currentYear as the end travel date <br>
+                    Will this rule apply? YES
+                </li>
+                <li class="mb-2">
+                    User selects Jan 17, $currentYear as the start travel date <br>
+                    User selects Jan 20, $currentYear as the end travel date <br>
+                    Will this rule apply? YES
+                </li>
+            </ul>
+        </div>
+        <script>
+            function toggleCollapse() {
+                var content = document.getElementById('collapseContent');
+                var icon = document.getElementById('toggleIcon');
+                if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    icon.textContent = '▲';
+                } else {
+                    content.style.display = 'none';
+                    icon.textContent = '▼';
+                }
+            }
+        </script>
+    HTML
+                        ))
                 ])
                 ->columns(3),
             Fieldset::make('Price settings')
