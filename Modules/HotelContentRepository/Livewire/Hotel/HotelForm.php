@@ -40,6 +40,11 @@ class HotelForm extends Component implements HasForms
 
     public Hotel $record;
 
+    public function __construct()
+    {
+        $this->record = new Hotel();
+    }
+
     public function mount(Hotel $hotel): void
     {
         $this->record = $hotel;
@@ -84,7 +89,8 @@ class HotelForm extends Component implements HasForms
                         ->offColor('danger')
                         ->extraAttributes(['style' => 'display: flex; justify-content: flex-end;'])
                         ->required(),
-                ]),
+                ])
+                ->hidden(fn () => !$this->record->exists),
 
             Tabs::make('Hotel Details')
                 ->columns(1)
@@ -183,32 +189,27 @@ class HotelForm extends Component implements HasForms
                                 ->columns(2),
 
 
-
-//                                    CustomRepeater::make('location')
-//                                        ->schema([
-//                                            Select::make('field')
-//                                                ->label('')
-//                                                ->options([
-//                                                'latitude' => 'Latitude',
-//                                                'longitude' => 'Longitude',
-//                                            ])->required(),
-//                                            TextInput::make('value')
-//                                                ->label('')
-//                                                ->numeric('decimal'),
-//                                        ])
-//                                        ->defaultItems(1)
-//                                        ->required()
-//                                        ->afterStateHydrated(function ($component, $state) {
-//                                            $component->state($state ?? []);
-//                                        })
-//                                        ->beforeStateDehydrated(function ($state) {
-//                                            return json_encode($state);
-//                                        })
-//                                        ->columns(2),
-
-
-
-
+//                            CustomRepeater::make('location')
+//                                ->schema([
+//                                    Select::make('field')
+//                                        ->label('')
+//                                        ->options([
+//                                        'latitude' => 'Latitude',
+//                                        'longitude' => 'Longitude',
+//                                    ])->required(),
+//                                    TextInput::make('value')
+//                                        ->label('')
+//                                        ->numeric('decimal'),
+//                                ])
+//                                ->defaultItems(1)
+//                                ->required()
+//                                ->afterStateHydrated(function ($component, $state) {
+//                                    $component->state($state ?? []);
+//                                })
+//                                ->beforeStateDehydrated(function ($state) {
+//                                    return json_encode($state);
+//                                })
+//                                ->columns(2),
 
                             Select::make('galleries')
                                 ->label('Galleries')
@@ -270,15 +271,26 @@ class HotelForm extends Component implements HasForms
     {
         $data = $this->form->getState();
 
+        if (!isset($data['verified'])) {
+            $data['verified'] = false;
+        }
+
         $data['address'] = array_reduce($data['address'], function ($result, $item) {
             $result[$item['field']] = $item['value'];
             return $result;
         }, []);
 
-        $data['location'] = array_reduce($data['location'], function ($result, $item) {
-            $result[$item['field']] = $item['value'];
-            return $result;
-        }, []);
+        if (isset($data['location'])) {
+            $data['location'] = array_reduce($data['location'], function ($result, $item) {
+                $result[$item['field']] = $item['value'];
+                return $result;
+            }, []);
+        } else {
+            $data['location'] = [
+                'latitude' => $data['lat'] ?? 0,
+                'longitude' => $data['lng'] ?? 0,
+            ];
+        }
 
         $hotel = Hotel::find($this->record->id);
 
