@@ -2,11 +2,13 @@
 
 namespace Modules\Insurance\API\Controllers;
 
+use App\Repositories\ApiBookingInspectorRepository;
 use Illuminate\Http\JsonResponse;
 use Modules\API\BaseController;
 use Modules\Insurance\API\Requests\InsuaranceAddRequest;
 use Modules\Insurance\Models\InsurancePlan;
 use Modules\Insurance\Models\InsuranceProvider;
+use Modules\Insurance\Models\InsuranceRateTier;
 
 class InsuranceApiController extends BaseController
 {
@@ -16,15 +18,27 @@ class InsuranceApiController extends BaseController
 
         $insurancePlan = new InsurancePlan();
         $insurancePlan->booking_item = $validated['booking_item'];
-        // определяем из booking_item * %
-       /*
-        Separate Table with Frontend *:
+
+        $isBooked = ApiBookingInspectorRepository::isBook($insurancePlan->booking_item, $validated['booking_item']);
+
+        //TODO: find out if we need to applying pricing rules before calculating insurance price
+
+        if (!$isBooked) return $this->sendError('Invalid booking item', 500);
+
+        $bookingItemTotalPrice = 0;
+
+        /*Separate Table with Frontend *:
         We could set up a separate table for the price ranges(X Price & Y Price) and the insurance markup, with a simple frontend to manage these ranges .
-        This would make it easy to add or change them when needed .
-       */
-//        $insurancePlan->total_insurance_cost = ;
-//        $insurancePlan->supplier_fee = ;
-//        $insurancePlan->commission_ujv = ;
+        This would make it easy to add or change them when needed .*/
+
+        $insuranceRateTier = InsuranceRateTier::where('min_price', '<=', $bookingItemTotalPrice)
+            ->where('max_price', '>=', $bookingItemTotalPrice)
+            ->first();
+
+        $insurancePlan->total_insurance_cost = ($bookingItemTotalPrice / $insuranceRateTier->insurance_rate) * 100;
+
+//        $insurancePlan->supplier_fee = 0;
+//        $insurancePlan->commission_ujv = 0;
 
         $insurancePlan->insurance_provider_id = InsuranceProvider::where('name', $validated['insurance_provider'])->pluck('id')->first();
 

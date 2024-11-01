@@ -14,11 +14,13 @@ use App\Policies\Configurations\ConfigJobDescriptionPolicy;
 use App\Policies\Configurations\ConfigServiceTypePolicy;
 use App\Policies\HotelPolicy;
 use App\Policies\InsuranceProviderPolicy;
+use App\Policies\InsuranceRateTierPolicy;
 use App\Policies\InsuranceRestrictionPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\Insurance\Models\InsuranceProvider;
+use Modules\Insurance\Models\InsuranceRateTier;
 use Modules\Insurance\Models\InsuranceRestriction;
 
 class PermissionServiceProvider extends ServiceProvider
@@ -30,14 +32,15 @@ class PermissionServiceProvider extends ServiceProvider
     ];
 
     private static array $modelPolicies = [
-        Hotel::class                 => HotelPolicy::class,
-        InsuranceProvider::class     => InsuranceProviderPolicy::class,
-        InsuranceRestriction::class  => InsuranceRestrictionPolicy::class,
-        ConfigAttribute::class       => ConfigAttributePolicy::class,
-        ConfigConsortium::class      => ConfigConsortiumPolicy::class,
+        Hotel::class => HotelPolicy::class,
+        InsuranceProvider::class => InsuranceProviderPolicy::class,
+        InsuranceRestriction::class => InsuranceRestrictionPolicy::class,
+        InsuranceRateTier::class => InsuranceRateTierPolicy::class,
+        ConfigAttribute::class => ConfigAttributePolicy::class,
+        ConfigConsortium::class => ConfigConsortiumPolicy::class,
         ConfigDescriptiveType::class => ConfigDescriptiveTypePolicy::class,
-        ConfigJobDescription::class  => ConfigJobDescriptionPolicy::class,
-        ConfigServiceType::class     => ConfigServiceTypePolicy::class,
+        ConfigJobDescription::class => ConfigJobDescriptionPolicy::class,
+        ConfigServiceType::class => ConfigServiceTypePolicy::class,
     ];
 
     /**

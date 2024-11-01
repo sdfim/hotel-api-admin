@@ -17,7 +17,8 @@
     use Modules\HotelContentRepository\Models\TravelAgencyCommission;
     use App\Models\GiataGeography;
     use Modules\Insurance\Models\InsuranceProvider;
-    use Modules\Insurance\Models\InsuranceRateTier;use Modules\Insurance\Models\InsuranceRestriction;
+    use Modules\Insurance\Models\InsuranceRestriction;
+    use Modules\Insurance\Models\InsuranceRateTier;
     use App\Models\Configurations\ConfigAttribute;
     use App\Models\Configurations\ConfigConsortium;
     use App\Models\Configurations\ConfigDescriptiveType;
