@@ -82,7 +82,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
             )
             ->defaultSort('created_at', 'desc')
             ->columns($this->viewMode === 'grid' ? $this->getGridColumns() : $this->getTableColumns()) // Modify this line
-            ->contentGrid(['md' => 3, 'xl' => 4])
+            ->contentGrid(['md' => 3, 'xl' => 4, '2xl' => 5])
             ->bulkActions([
                 DeleteBulkAction::make('delete')
                     ->action(function ($records) {
@@ -202,6 +202,8 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                         ->searchable(),
                     TextColumn::make('section.name')
                         ->searchable(),
+                    TextColumn::make('weight')
+                        ->searchable(),
                 ])
         ];
     }
@@ -209,6 +211,9 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
     private function getTableColumns(): array // Add this method
     {
         return [
+            TextColumn::make('id')
+                ->sortable()
+                ->searchable(),
             ImageColumn::make('image_url')
                 ->size('100px'),
             TextColumn::make('tag')

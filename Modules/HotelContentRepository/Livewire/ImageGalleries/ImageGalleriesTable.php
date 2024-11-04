@@ -34,9 +34,17 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
             )
             ->columns([
                 ImageColumn::make('images.image_url')
-                    ->size('100px')
+                    ->size('70px')
                     ->stacked()
-                    ->limit()
+                    ->circular()
+                    ->extraAttributes(['class' => 'rounded-full'])
+                    ->getStateUsing(function ($record) {
+                        return collect($record->images)
+                            ->shuffle()
+                            ->pluck('image_url')
+                            ->toArray();
+                    })
+                    ->limit(4)
                     ->limitedRemainingText(),
                 TextColumn::make('gallery_name')
                     ->searchable(),
