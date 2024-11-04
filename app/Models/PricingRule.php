@@ -38,6 +38,15 @@ class PricingRule extends Model
 
     public function conditions(): HasMany
     {
-        return $this->hasMany(PricingRuleCondition::class, 'pricing_rule_id', 'id');
+        return $this->hasMany(PricingRuleCondition::class, 'pricing_rule_id', 'id')
+            ->where(function ($query) {
+                $query->WhereNull('group_condition');
+            });
+    }
+
+    public function conditionsOR(): HasMany
+    {
+        return $this->hasMany(PricingRuleCondition::class, 'pricing_rule_id', 'id')
+            ->where('group_condition', 'or');
     }
 }
