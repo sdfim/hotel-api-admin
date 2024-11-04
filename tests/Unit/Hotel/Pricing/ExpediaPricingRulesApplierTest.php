@@ -59,7 +59,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
             'total_tax' => 355.5,
             'total_fees' => 270.0,
             'total_net' => 2196.0,
-            'markup' => 0.0,
+            'markup' => 60.0,
         ];
     }
 
@@ -100,6 +100,9 @@ class ExpediaPricingRulesApplierTest extends TestCase
                 'price_value_target' => 'per_room',
                 'conditions' => [
                     ['field' => 'destination', 'compare' => '=', 'value_from' => 961, 'value_to' => null],
+                ],
+                'conditions_o_r' => [
+                    [],
                 ],
             ],
         ];
