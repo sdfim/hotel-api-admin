@@ -215,9 +215,7 @@ class HotelForm extends Component implements HasForms
                                 ->label('Galleries')
                                 ->multiple()
                                 ->options(function () {
-                                    return isset($this->record)
-                                        ? ImageGallery::hasHotel($this->record->id)->pluck('gallery_name', 'id')
-                                        : ImageGallery::pluck('gallery_name', 'id');
+                                    return ImageGallery::pluck('gallery_name', 'id');
                                 }),
                         ])
                         ->columns(2),

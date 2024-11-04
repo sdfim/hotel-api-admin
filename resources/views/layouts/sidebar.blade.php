@@ -25,6 +25,8 @@
     use App\Models\Configurations\ConfigJobDescription;
     use App\Models\Configurations\ConfigServiceType;
     use App\Models\Configurations\ConfigChain;
+    use Modules\HotelContentRepository\Models\ImageGallery;
+    use Modules\HotelContentRepository\Models\HotelImage;
 
     $canView = fn (string $model): bool => Auth::user()->can('view', $model);
     $canConfigurationGroup = fn (): bool =>
@@ -265,6 +267,44 @@
                                    class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white @if(Route::currentRouteName() == 'booking-inspector.show') active @endif">
                                     Chart</a>
                             </li>
+                        </ul>
+                    </li>
+                @endif
+                @if($canView(ImageGallery::class) || $canView(HotelImage::class))
+                    <li>
+                        <a href="javascript: void(0);" aria-expanded="false"
+                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium
+                           text-gray-700 transition-all duration-150 ease-linear
+                           hover:text-violet-500 dark:text-gray-300 dark:active:text-white
+                           dark:hover:text-white">
+                            <i class="dripicons-photo-group"></i>
+                            <span>Image Galleries</span>
+                        </a>
+                        <ul>
+                            @if($canView(ImageGallery::class))
+                            <li>
+                                <a href="{{ Route('image-galleries.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
+                                   text-gray-700 transition-all duration-150 ease-linear
+                                   hover:text-violet-500 dark:text-gray-300 dark:active:text-white
+                                   dark:hover:text-white">
+                                    <i class="dripicons-view-thumb"></i>
+                                    <span>Galleries</span>
+                                </a>
+                            </li>
+                            @endif
+                            @if($canView(HotelImage::class))
+                            <li>
+                                <a href="{{ Route('images.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
+                                   text-gray-700 transition-all duration-150 ease-linear
+                                   hover:text-violet-500 dark:text-gray-300 dark:active:text-white
+                                   dark:hover:text-white">
+                                    <i class="dripicons-photo"></i>
+                                    <span>Images</span>
+                                </a>
+                            </li>
+                            @endif
                         </ul>
                     </li>
                 @endif

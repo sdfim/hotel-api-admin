@@ -10,7 +10,7 @@ class ImageGallery extends Model
 {
     use HasFactory;
 
-    protected static function newFactory()
+    protected static function newFactory(): ImageGalleryFactory
     {
         return ImageGalleryFactory::new();
     }

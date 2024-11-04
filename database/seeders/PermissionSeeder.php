@@ -36,6 +36,8 @@ class PermissionSeeder extends Seeder
         'config_job_description',
         'config_service_type',
         'config_chain',
+        'image_gallery',
+        'hotel_image',
     ];
 
     private static array $permissions = [
