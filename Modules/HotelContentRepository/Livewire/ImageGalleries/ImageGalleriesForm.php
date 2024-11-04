@@ -14,6 +14,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Filament\Tables;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
 use Modules\HotelContentRepository\Models\HotelImage;
@@ -35,16 +36,19 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     public ?array $data = [];
-
     public ImageGallery $record;
-
     public array $imageIds = [];
+    public string $viewMode = 'grid';
 
     public function mount(ImageGallery $imageGallery): void
     {
         $this->record = $imageGallery;
-
         $this->form->fill($this->record->attributesToArray());
+    }
+
+    public function toggleViewMode(): void
+    {
+        $this->viewMode = $this->viewMode === 'grid' ? 'table' : 'grid';
     }
 
     public function form(Form $form): Form
@@ -77,15 +81,8 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                     })
             )
             ->defaultSort('created_at', 'desc')
-            ->columns([
-                TextColumn::make('id'),
-                ImageColumn::make('image_url')
-                    ->size('100px'),
-                TextColumn::make('tag')
-                    ->searchable(),
-                TextColumn::make('section.name')
-                    ->searchable(),
-            ])
+            ->columns($this->viewMode === 'grid' ? $this->getGridColumns() : $this->getTableColumns()) // Modify this line
+            ->contentGrid(['md' => 3, 'xl' => 4])
             ->bulkActions([
                 DeleteBulkAction::make('delete')
                     ->action(function ($records) {
@@ -98,6 +95,13 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                     }),
             ])
             ->headerActions([
+                Action::make('toggleViewMode')
+                    ->label('')
+                    ->tooltip('Switch to ' . ($this->viewMode === 'grid' ? 'Table' : 'Grid') . ' View')
+                    ->icon($this->viewMode === 'grid' ? 'heroicon-o-table-cells' : 'heroicon-o-cube-transparent')
+                    ->iconButton()
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->action(fn() => $this->toggleViewMode()),
                 Action::make('Create image')
                     ->tooltip('Create image')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
@@ -184,6 +188,34 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                         }
                     }),
             ]);
+    }
+
+    private function getGridColumns(): array // Add this method
+    {
+        return [
+            Tables\Columns\Layout\Grid::make()
+                ->columns(1)
+                ->schema([
+                    ImageColumn::make('image_url')
+                        ->size('200px'),
+                    TextColumn::make('tag')
+                        ->searchable(),
+                    TextColumn::make('section.name')
+                        ->searchable(),
+                ])
+        ];
+    }
+
+    private function getTableColumns(): array // Add this method
+    {
+        return [
+            ImageColumn::make('image_url')
+                ->size('100px'),
+            TextColumn::make('tag')
+                ->searchable(),
+            TextColumn::make('section.name')
+                ->searchable(),
+        ];
     }
 
     private function getSelectImages(?string $search = null): Collection
