@@ -3,6 +3,7 @@
 namespace App\Livewire\PricingRules;
 
 use App\Helpers\Strings;
+use App\Livewire\Components\CustomRepeater;
 use App\Models\Channel;
 use App\Models\Property;
 use App\Models\Supplier;
@@ -159,9 +160,10 @@ trait HasPricingRuleFields
 
     private function getBaseRepiter(?string $group_type = 'conditions', ?string $group_condition = null): Repeater
     {
-        return Repeater::make($group_type)
+        return CustomRepeater::make($group_type)
             ->relationship()
-            ->label($group_type === 'conditionsOR' ? 'Rule conditions (OR)' : 'Rule conditions (AND)')
+            ->label('')
+            ->addActionLabel($customButtonLabel ?? 'Add condition')
             ->schema([
                     Select::make('field')
                         ->options([
@@ -264,104 +266,132 @@ trait HasPricingRuleFields
                                     ->required(),
                             ],
                             'travel_date' => [
-                                DateTimePicker::make('value_from')
-                                    ->label('Travel date from')
-                                    ->native(false)
-                                    ->time(false)
-                                    ->format('Y-m-d')
-                                    ->displayFormat('d-m-Y')
-                                    ->required(),
-                                DateTimePicker::make('value_to')
-                                    ->label('Travel date to')
-                                    ->native(false)
-                                    ->time(false)
-                                    ->format('Y-m-d')
-                                    ->displayFormat('d-m-Y')
-                                    ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                    ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
-                                    ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                Grid::make()
+                                    ->schema([
+                                        DateTimePicker::make('value_from')
+                                            ->label('Travel date from')
+                                            ->native(false)
+                                            ->time(false)
+                                            ->format('Y-m-d')
+                                            ->displayFormat('d-m-Y')
+                                            ->required(),
+                                        DateTimePicker::make('value_to')
+                                            ->label('Travel date to')
+                                            ->native(false)
+                                            ->time(false)
+                                            ->format('Y-m-d')
+                                            ->displayFormat('d-m-Y')
+                                            ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                            ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                            ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                    ])
+                                    ->columns(2),
                             ],
                             'booking_date' => [
-                                DateTimePicker::make('value_from')
-                                    ->label('Booking date from')
-                                    ->native(false)
-                                    ->time(false)
-                                    ->format('Y-m-d')
-                                    ->displayFormat('d-m-Y')
-                                    ->required(),
-                                DateTimePicker::make('value_to')
-                                    ->label('Booking date to')
-                                    ->native(false)
-                                    ->time(false)
-                                    ->format('Y-m-d')
-                                    ->displayFormat('d-m-Y')
-                                    ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                    ->disabled(fn(Get $get): bool => $get('compare') !== 'between')
-                                    ->readonly(fn(Get $get): bool => $get('compare') === 'between'),
+                                Grid::make()
+                                    ->schema([
+                                        DateTimePicker::make('value_from')
+                                            ->label('Booking date from')
+                                            ->native(false)
+                                            ->time(false)
+                                            ->format('Y-m-d')
+                                            ->displayFormat('d-m-Y')
+                                            ->required(),
+                                        DateTimePicker::make('value_to')
+                                            ->label('Booking date to')
+                                            ->native(false)
+                                            ->time(false)
+                                            ->format('Y-m-d')
+                                            ->displayFormat('d-m-Y')
+                                            ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                            ->disabled(fn(Get $get): bool => $get('compare') !== 'between')
+                                            ->readonly(fn(Get $get): bool => $get('compare') === 'between'),
+                                    ])
+                                    ->columns(2),
                             ],
                             'total_guests' => [
-                                TextInput::make('value_from')
-                                    ->label('Total guests from')
-                                    ->numeric()
-                                    ->required(),
-                                TextInput::make('value_to')
-                                    ->label('Total guests to')
-                                    ->numeric()
-                                    ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                    ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
-                                    ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                Grid::make()
+                                    ->schema([
+                                        TextInput::make('value_from')
+                                            ->label('Total guests from')
+                                            ->numeric()
+                                            ->required(),
+                                        TextInput::make('value_to')
+                                            ->label('Total guests to')
+                                            ->numeric()
+                                            ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                            ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                            ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                    ])
+                                    ->columns(2),
                             ],
                             'days_until_departure' => [
-                                TextInput::make('value_from')
-                                    ->label('Days until departure from')
-                                    ->numeric()
-                                    ->required(),
-                                TextInput::make('value_to')
-                                    ->label('Days until departure to')
-                                    ->numeric()
-                                    ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                    ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
-                                    ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                Grid::make()
+                                    ->schema([
+                                        TextInput::make('value_from')
+                                            ->label('Days until departure from')
+                                            ->numeric()
+                                            ->required(),
+                                        TextInput::make('value_to')
+                                            ->label('Days until departure to')
+                                            ->numeric()
+                                            ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                            ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                            ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                    ])
+                                    ->columns(2),
                             ],
                             'nights' => [
-                                TextInput::make('value_from')
-                                    ->label('Nights from')
-                                    ->numeric()
-                                    ->required(),
-                                TextInput::make('value_to')
-                                    ->label('Nights to')
-                                    ->numeric()
-                                    ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                    ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
-                                    ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                Grid::make()
+                                    ->schema([
+                                        TextInput::make('value_from')
+                                            ->label('Nights from')
+                                            ->numeric()
+                                            ->required(),
+                                        TextInput::make('value_to')
+                                            ->label('Nights to')
+                                            ->numeric()
+                                            ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                            ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                            ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                    ])
+                                    ->columns(2),
                             ],
                             'rating' => [
-                                TextInput::make('value_from')
-                                    ->label('Rating from')
-                                    ->numeric()
-                                    ->minValue(fn(): float => 1.0)
-                                    ->maxValue(fn(): float => 5.5)
-                                    ->required(),
-                                TextInput::make('value_to')
-                                    ->label('Rating to')
-                                    ->numeric()
-                                    ->minValue(fn(): float => 1.0)
-                                    ->maxValue(fn(): float => 5.5)
-                                    ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                    ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
-                                    ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                Grid::make()
+                                    ->schema([
+                                        TextInput::make('value_from')
+                                            ->label('Rating from')
+                                            ->numeric()
+                                            ->minValue(fn(): float => 1.0)
+                                            ->maxValue(fn(): float => 5.5)
+                                            ->required(),
+                                        TextInput::make('value_to')
+                                            ->label('Rating to')
+                                            ->numeric()
+                                            ->minValue(fn(): float => 1.0)
+                                            ->maxValue(fn(): float => 5.5)
+                                            ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                            ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                            ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                    ])
+                                    ->columns(2),
                             ],
                             'number_of_rooms' => [
-                                TextInput::make('value_from')
-                                    ->label('Number of rooms from')
-                                    ->numeric()
-                                    ->required(),
-                                TextInput::make('value_to')
-                                    ->label('Number of rooms to')
-                                    ->numeric()
-                                    ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                    ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
-                                    ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                Grid::make()
+                                    ->schema([
+                                        TextInput::make('value_from')
+                                            ->label('Number of rooms from')
+                                            ->numeric()
+                                            ->required(),
+                                        TextInput::make('value_to')
+                                            ->label('Number of rooms to')
+                                            ->numeric()
+                                            ->required(fn(Get $get): bool => $get('compare') === 'between')
+                                            ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
+                                            ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                    ])
+                                    ->columns(2),
                             ],
                             'rate_code' => [
                                 TextInput::make('value_from')
@@ -395,15 +425,16 @@ trait HasPricingRuleFields
                             ],
                             default => []
                         })
-                        ->columns()
+                        ->columns(1)
                         ->columnStart(3)
                         ->key('dynamicFieldValue'),
                     TextInput::make('group_condition')
+                        ->label('')
                         ->default($group_condition)
                         ->dehydrated(true)
                         ->extraAttributes(['style' => 'display: none;']),
                 ])
                 ->required()
-                ->columns(4);
+                ->columns(3);
     }
 }
