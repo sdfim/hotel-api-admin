@@ -70,13 +70,13 @@ class BasePricingRulesApplier
     }
 
     protected function validPricingRule(
+        string     $typeCondition,
         int        $giataId,
         array      $conditions,
         string     $roomName,
         string|int $roomCode,
         string|int $roomType,
-        array $conditionsFieldsToVerify = ['supplier_id', 'property'],
-        bool  $useAndCondition = false
+        array $conditionsFieldsToVerify = ['supplier_id', 'property']
     ): bool
     {
         $validPricingRule = [
@@ -87,11 +87,7 @@ class BasePricingRulesApplier
             'room_type' => [],
         ];
 
-        if ($roomType === 'A5V') {
-            $info = $roomType;
-        }
-
-        $conditionsCollection = collect($conditions);
+        $conditionsCollection = collect($typeCondition === 'AND' ? $conditions['conditions'] : $conditions['conditions_o_r']);
 
         foreach ($conditionsFieldsToVerify as $field) {
             $filtered = $conditionsCollection->where('field', $field);
@@ -106,38 +102,15 @@ class BasePricingRulesApplier
                     default => false
                 };
             }
-
-//            if ($filtered->isEmpty()) {
-//                $validPricingRule[$field][] = false;
-//            }
         }
 
-
-
-        if ($validPricingRule['supplier_id'] === []
-            && $validPricingRule['property'] === []
-            && $validPricingRule['room_name'] === []
-            && $validPricingRule['room_code'] === []
-            && $validPricingRule['room_type'] === []
-        ) {
+        if (array_filter($validPricingRule) === []) {
             return true;
         }
 
-        if ($useAndCondition) {
-            foreach ($validPricingRule as $results) {
-                if (!in_array(true, $results, true)) {
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            foreach ($validPricingRule as $results) {
-                if (in_array(true, $results, true)) {
-                    return true;
-                }
-            }
-            return false;
-        }
+        return $typeCondition === 'AND'
+            ? !in_array(false, array_merge(...array_values($validPricingRule)), true)
+            : in_array(true, array_merge(...array_values($validPricingRule)), true);
     }
 
     protected function applyPricingRulesLogic(array $pricingRule): void
