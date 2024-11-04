@@ -66,6 +66,8 @@ class PropertyPriceCall
 
     private const PARTNER_POINT_SALE = 'partner_point_of_sale';
 
+    private const INCLUDE = 'include';
+
     private const BATCH_SIZE = 250;
 
     // Call parameters
@@ -290,6 +292,10 @@ class PropertyPriceCall
         }
         if (! empty($this->paymentTerms)) {
             $queryParams[self::PAYMENT_TERMS] = $this->paymentTerms;
+
+            if ($this->paymentTerms === self::STANDALONE_RATES['payment_terms']) {
+                $queryParams[self::INCLUDE] = 'rooms.rates.marketing_fee_incentives';
+            }
         }
         if (! empty($this->partnerPointSale)) {
             $queryParams[self::PARTNER_POINT_SALE] = $this->partnerPointSale;
