@@ -10,7 +10,7 @@ class InsuranceRestrictionType extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'label'];
 
     public function restrictions(): HasMany
     {

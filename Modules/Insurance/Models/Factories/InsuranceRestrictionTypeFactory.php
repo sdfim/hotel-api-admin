@@ -13,7 +13,8 @@ class InsuranceRestrictionTypeFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->randomElement(RestrictionTypeNames::LIST),
+            'name' => $this->faker->randomElement(array_keys(RestrictionTypeNames::OPTIONS)),
+            'label' => $this->faker->randomElement(array_values(RestrictionTypeNames::OPTIONS)),
         ];
     }
 }

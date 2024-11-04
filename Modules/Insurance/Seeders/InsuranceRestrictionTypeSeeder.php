@@ -11,8 +11,11 @@ class InsuranceRestrictionTypeSeeder extends Seeder
 {
     public function run(): void
     {
-        foreach (RestrictionTypeNames::LIST as $type) {
-            InsuranceRestrictionType::firstOrCreate(['name' => $type]);
+        foreach (RestrictionTypeNames::OPTIONS as $name => $label) {
+            InsuranceRestrictionType::updateOrCreate(
+                ['name' => $name],
+                ['label' => $label]
+            );
         }
     }
 }

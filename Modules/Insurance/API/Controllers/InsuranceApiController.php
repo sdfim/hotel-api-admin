@@ -2,16 +2,21 @@
 
 namespace Modules\Insurance\API\Controllers;
 
-use App\Repositories\ApiBookingInspectorRepository;
+use App\Models\ApiBookingInspector;
+use App\Repositories\ApiBookingItemRepository;
+use App\Repositories\ApiSearchInspectorRepository;
 use Illuminate\Http\JsonResponse;
 use Modules\API\BaseController;
 use Modules\Insurance\API\Requests\InsuaranceAddRequest;
+use Modules\Insurance\Models\InsuranceApplication;
 use Modules\Insurance\Models\InsurancePlan;
 use Modules\Insurance\Models\InsuranceProvider;
 use Modules\Insurance\Models\InsuranceRateTier;
 
 class InsuranceApiController extends BaseController
 {
+    private int $ujvCommission = 5;
+
     public function add(InsuaranceAddRequest $request): JsonResponse
     {
         $validated = $request->validated();
@@ -19,28 +24,50 @@ class InsuranceApiController extends BaseController
         $insurancePlan = new InsurancePlan();
         $insurancePlan->booking_item = $validated['booking_item'];
 
-        $isBooked = ApiBookingInspectorRepository::isBook($insurancePlan->booking_item, $validated['booking_item']);
+        // Check if the booking_item is in cart from app booking inspector
+        $apiBookingInspectorItem = ApiBookingInspector::where('type', 'add_item')
+            ->where('booking_item', $validated['booking_item'])
+            ->where('status', 'success')
+            ->first();
 
-        //TODO: find out if we need to applying pricing rules before calculating insurance price
+        if (!$apiBookingInspectorItem) return $this->sendError('Invalid booking item', 500);
 
-        if (!$isBooked) return $this->sendError('Invalid booking item', 500);
+        $searchId = $apiBookingInspectorItem->search_id;
+
+        $itemPricing = ApiBookingItemRepository::getItemPricingData($validated['booking_item']);
+
+        // go api search inspector, check json of request, get number of passengers, children and their ages
+        $apiSearchInspectorItem = ApiSearchInspectorRepository::getRequest($searchId);
+
+        $insuranceApplications = [];
+
+        // TODO: loop through occupancy to create insurance application records, we can get children ages from request, as well as location(for now we should use destination key, determinate by coordinates will be implemented later)
+
+        InsuranceApplication::create($insuranceApplications);
+
+        $insuranceProvider = InsuranceProvider::where('name', $validated['provider'])->first();
+
+        if (!$insuranceProvider) return $this->sendError('Invalid insurance provider', 500);
 
         $bookingItemTotalPrice = 0;
 
-        /*Separate Table with Frontend *:
-        We could set up a separate table for the price ranges(X Price & Y Price) and the insurance markup, with a simple frontend to manage these ranges .
-        This would make it easy to add or change them when needed .*/
-
-        $insuranceRateTier = InsuranceRateTier::where('min_price', '<=', $bookingItemTotalPrice)
+        $insuranceRateTier = InsuranceRateTier::where('insurance_provider_id', $insuranceProvider->id)
+            ->where('min_price', '<=', $bookingItemTotalPrice)
             ->where('max_price', '>=', $bookingItemTotalPrice)
             ->first();
 
-        $insurancePlan->total_insurance_cost = ($bookingItemTotalPrice / $insuranceRateTier->insurance_rate) * 100;
+        $insuranceProviderFee = $insuranceProvider->rate_type === 'fixed' ?
+            $insuranceProvider->rate_value : ($bookingItemTotalPrice / 100) * $insuranceRateTier->rate_value;
 
-//        $insurancePlan->supplier_fee = 0;
-//        $insurancePlan->commission_ujv = 0;
+        $commissionUjv = ($bookingItemTotalPrice / 100) * $this->ujvCommission;
 
-        $insurancePlan->insurance_provider_id = InsuranceProvider::where('name', $validated['insurance_provider'])->pluck('id')->first();
+        $insurancePlan->total_insurance_cost = $insuranceProviderFee + $commissionUjv;
+
+        $insurancePlan->insurance_provider_fee = $insuranceProviderFee;
+
+        $insurancePlan->commission_ujv = $commissionUjv;
+
+        $insurancePlan->insurance_provider_id = $insuranceProvider->id;
 
         if ($insurancePlan->save()) {
             return $this->sendResponse($insurancePlan->toArray(), 'Insurance plan added successfully', 201);

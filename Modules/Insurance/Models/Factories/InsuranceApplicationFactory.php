@@ -14,6 +14,7 @@ class InsuranceApplicationFactory extends Factory
     {
         return [
             'insurance_plan_id' => InsurancePlan::factory(),
+            'room_number' => rand(1, 3),
             'name' => $this->faker->name,
             'location' => $this->faker->city,
             'age' => $this->faker->numberBetween(18, 80),

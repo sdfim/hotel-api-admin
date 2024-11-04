@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->uuid('booking_item');
             $table->decimal('total_insurance_cost', 10);
             $table->decimal('commission_ujv', 10);
-            $table->decimal('supplier_fee', 10);
+            $table->decimal('insurance_provider_fee', 10);
             $table->json('request')->nullable();
 
             $table->foreignId('insurance_provider_id')->constrained('insurance_providers')->onDelete('cascade');

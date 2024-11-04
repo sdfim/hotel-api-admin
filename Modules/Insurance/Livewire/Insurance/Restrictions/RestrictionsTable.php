@@ -62,7 +62,7 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                 ->schema([
                     Select::make('restriction_type_id')
                         ->label('Restriction Type')
-                        ->relationship(name: 'restrictionType', titleAttribute: 'name')
+                        ->relationship(name: 'restrictionType', titleAttribute: 'label')
                         ->preload()
                         ->required()
                         ->live()
@@ -145,7 +145,7 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                     ->label('Provider name')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('restrictionType.name')
+                TextColumn::make('restrictionType.label')
                     ->label('Restriction type')
                     ->sortable()
                     ->searchable(),

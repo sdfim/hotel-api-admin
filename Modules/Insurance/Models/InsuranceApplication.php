@@ -12,6 +12,7 @@ class InsuranceApplication extends Model
 
     protected $fillable = [
         'insurance_plan_id',
+        'room_number',
         'name',
         'location',
         'age',

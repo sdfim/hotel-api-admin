@@ -3,6 +3,8 @@
 namespace Modules\Insurance\Livewire\Insurance\RateTiers;
 
 use App\Helpers\ClassHelper;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -32,23 +34,38 @@ class RateTiersTable extends Component implements HasForms, HasTable
     public function schemeForm(?InsuranceRateTier $record = null): array
     {
         return [
-            TextInput::make('min_price')
-                ->label('Min Price')
-                ->numeric()
-                ->inputMode('decimal')
-                ->required()
-                ->unique(ignorable: $record),
-            TextInput::make('max_price')
-                ->label('Max Price')
-                ->numeric()
-                ->inputMode('decimal')
-                ->required()
-                ->unique(ignorable: $record),
-            TextInput::make('insurance_rate')
-                ->label('Insurance Rate, %')
-                ->numeric()
-                ->inputMode('decimal')
-                ->required()
+            Grid::make(3)
+                ->schema([
+                    Select::make('insurance_provider_id')
+                        ->label('Provider')
+                        ->relationship(name: 'provider', titleAttribute: 'name')
+                        ->preload()
+                        ->required(),
+                    TextInput::make('min_price')
+                        ->label('Min Price')
+                        ->numeric()
+                        ->inputMode('decimal')
+                        ->required()
+                        ->unique(ignorable: $record),
+                    TextInput::make('max_price')
+                        ->label('Max Price')
+                        ->numeric()
+                        ->inputMode('decimal')
+                        ->required()
+                        ->unique(ignorable: $record),
+                ]),
+            Grid::make()
+                ->schema([
+                    Select::make('rate_type')
+                        ->options([
+                            'fixed' => 'Fixed price',
+                            'percentage' => 'Percentage',
+                        ])
+                        ->required(),
+                    TextInput::make('rate_value')
+                        ->numeric()
+                        ->required(),
+                ])
         ];
     }
 
@@ -57,6 +74,10 @@ class RateTiersTable extends Component implements HasForms, HasTable
         return $table
             ->query(InsuranceRateTier::query())
             ->columns([
+                TextColumn::make('provider.name')
+                    ->label('Insurance Provider')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('min_price')
                     ->label('Min Price')
                     ->sortable()
@@ -65,10 +86,18 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     ->label('Max Price')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('insurance_rate')
-                    ->label('Insurance Rate, %')
+                TextColumn::make('rate_type')
+                    ->label('Rate Type')
                     ->sortable()
                     ->searchable()
+                    ->formatStateUsing(fn($state) => match ($state) {
+                        'fixed' => 'Fixed price',
+                        'percentage' => 'Percentage',
+                    }),
+                TextColumn::make('rate_value')
+                    ->label('Rate Value')
+                    ->sortable()
+                    ->searchable(),
             ])
             ->actions([
                 EditAction::make()
