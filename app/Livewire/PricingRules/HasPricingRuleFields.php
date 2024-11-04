@@ -235,7 +235,7 @@ trait HasPricingRuleFields
                                         $result = Property::select(
                                             DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
                                             ->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
-                                            ->limit(30);
+                                            ->limit(100);
 
                                         return $result->pluck('full_name', 'code')->toArray() ?? [];
                                     })
