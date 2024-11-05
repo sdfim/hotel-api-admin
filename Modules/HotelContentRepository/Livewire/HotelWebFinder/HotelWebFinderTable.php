@@ -20,6 +20,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Arr;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Models\Hotel;
@@ -198,7 +199,8 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
 
         $startDate = Carbon::now()->addMonth()->format('Y-m-d');
         $endDate = Carbon::parse($startDate)->addDays(7)->format('Y-m-d');
-        $destination = 'New+York';
+        $hotel = Hotel::find($this->hotelId);
+        $destination = Arr::get($hotel?->address, 'city', 'New+York');
         $numberOfRooms = '1';
 
         $data['example'] = str_replace(
