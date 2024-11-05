@@ -116,6 +116,11 @@ class Hotel extends Model
         return $this->hasMany(HotelContactInformation::class);
     }
 
+    public function webFinders()
+    {
+        return $this->hasMany(HotelWebFinder::class);
+    }
+
     /**
      * ADD THE FOLLOWING METHODS TO YOUR Modules\HotelContentRepository\Models\Hotel MODEL
      *

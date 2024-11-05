@@ -21,6 +21,8 @@ use Modules\HotelContentRepository\API\Controllers\HotelImageSectionController;
 use Modules\HotelContentRepository\API\Controllers\HotelInformativeServiceController;
 use Modules\HotelContentRepository\API\Controllers\HotelPromotionController;
 use Modules\HotelContentRepository\API\Controllers\HotelRoomController;
+use Modules\HotelContentRepository\API\Controllers\HotelWebFinderController;
+use Modules\HotelContentRepository\API\Controllers\HotelWebFinderUnitController;
 use Modules\HotelContentRepository\API\Controllers\ImageGalleryController;
 use Modules\HotelContentRepository\API\Controllers\KeyMappingController;
 use Modules\HotelContentRepository\API\Controllers\KeyMappingOwnerController;
@@ -51,6 +53,9 @@ class HotelContentRepositoryApiRoutes
             Route::resource('hotel-contact-information', HotelContactInformationController::class);
 
             Route::resource('hotel-deposit-information', HotelDepositInformationController::class);
+
+            Route::resource('hotel-web-finders', HotelWebFinderController::class);
+            Route::resource('hotel-web-finder-units', HotelWebFinderUnitController::class);
 
             Route::resource('hotel-promotions', HotelPromotionController::class);
             Route::post('hotel-promotions/{id}/attach-gallery', [HotelPromotionController::class, 'attachGallery']);
