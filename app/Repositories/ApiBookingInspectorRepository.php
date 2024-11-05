@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Storage;
 use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
 use Modules\Enums\InspectorStatusEnum;
 use Modules\Enums\ItemTypeEnum;
-use Modules\Enums\SupplierNameEnum;
 
 class ApiBookingInspectorRepository
 {
@@ -296,5 +295,13 @@ class ApiBookingInspectorRepository
         \Log::info('Created ApiBookingInspector:', ['inspector' => $inspector]);
 
         return $inspector->toArray();
+    }
+
+    public static function isBookingItemInCart(string $bookingItem): ?ApiBookingInspector
+    {
+       return ApiBookingInspector::where('type', 'add_item')
+            ->where('booking_item', $bookingItem)
+            ->where('status', 'success')
+            ->first();
     }
 }

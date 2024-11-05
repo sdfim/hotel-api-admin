@@ -2,7 +2,7 @@
 
 namespace Modules\Insurance\API\Controllers;
 
-use App\Models\ApiBookingInspector;
+use App\Repositories\ApiBookingInspectorRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiSearchInspectorRepository;
 use Illuminate\Http\JsonResponse;
@@ -15,8 +15,6 @@ use Modules\Insurance\Models\InsuranceRateTier;
 
 class InsuranceApiController extends BaseController
 {
-    private int $ujvCommission = 5;
-
     public function add(InsuaranceAddRequest $request): JsonResponse
     {
         $validated = $request->validated();
@@ -25,10 +23,7 @@ class InsuranceApiController extends BaseController
         $insurancePlan->booking_item = $validated['booking_item'];
 
         // Check if the booking_item is in cart from app booking inspector
-        $apiBookingInspectorItem = ApiBookingInspector::where('type', 'add_item')
-            ->where('booking_item', $validated['booking_item'])
-            ->where('status', 'success')
-            ->first();
+        $apiBookingInspectorItem = ApiBookingInspectorRepository::isBookingItemInCart($validated['booking_item']);
 
         if (!$apiBookingInspectorItem) {
             return $this->sendError('The specified booking item is not valid or not found in the booking inspector', 404);
@@ -57,10 +52,14 @@ class InsuranceApiController extends BaseController
             ->where('max_price', '>=', $bookingItemTotalPrice)
             ->first();
 
+        if (!$insuranceRateTier) {
+            return $this->sendError('No applicable insurance rate tier found.', 400);
+        }
+
         $insuranceProviderFee = $insuranceProvider->rate_type === 'fixed' ?
             $insuranceProvider->rate_value : ($bookingItemTotalPrice / 100) * $insuranceRateTier->rate_value;
 
-        $commissionUjv = ($bookingItemTotalPrice / 100) * $this->ujvCommission;
+        $commissionUjv = ($bookingItemTotalPrice / 100) * env('UJV_INSURANCE_COMMISSION', 5);
 
         $insurancePlan->total_insurance_cost = $insuranceProviderFee + $commissionUjv;
         $insurancePlan->insurance_provider_fee = $insuranceProviderFee;

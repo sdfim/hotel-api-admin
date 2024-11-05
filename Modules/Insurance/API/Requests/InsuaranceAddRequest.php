@@ -15,8 +15,7 @@ class InsuaranceAddRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'booking_item' => 'required|size:36',
-            'booking_id' => 'required|size:36',
+            'booking_item' => 'required|size:36|unique:insurance_plans,booking_item',
             'insurance_provider' => 'required|exists:insurance_providers,name',
         ];
     }

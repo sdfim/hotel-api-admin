@@ -10,7 +10,7 @@ class InsuranceApiRoutes
     public static function routes(): void
     {
         Route::middleware('auth:sanctum')->prefix('insurance')->group(function () {
-            Route::post('add', [InsuranceApiController::class, 'addInsurance']);
+            Route::post('add', [InsuranceApiController::class, 'add']);
         });
     }
 }
