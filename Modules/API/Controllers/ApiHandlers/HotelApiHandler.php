@@ -171,12 +171,14 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     {
         try {
             $supplierNames = explode(', ', GeneralConfiguration::pluck('content_supplier')->toArray()[0]);
+            $roomTypeCodes = $request->input('room_type_codes') ?? [];
             $keyPricingSearch = $request->type.':contentDetail:'.http_build_query(Arr::dot($request->all()));
 
             if (Cache::has($keyPricingSearch.':dataResponse') && Cache::has($keyPricingSearch.':clientResponse')) {
 
                 $dataResponse = Cache::get($keyPricingSearch.':dataResponse');
                 $clientResponse = Cache::get($keyPricingSearch.':clientResponse');
+
             } else {
 
                 $dataResponse = [];
@@ -197,7 +199,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $data = $this->icePortal->detail($request);
                         $dataResponse[$supplierName] = $data;
                         $clientResponse[$supplierName] = count($data) > 0
-                            ? $this->HbsiHotelContentDetailDto->HbsiToContentDetailResponse((object) $data, $request->input('property_id'))
+                            ? $this->HbsiHotelContentDetailDto->HbsiToContentDetailResponse((object) $data, $request->input('property_id'), $roomTypeCodes)
                             : [];
                     }
                 }
