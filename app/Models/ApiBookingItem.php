@@ -53,6 +53,10 @@ class ApiBookingItem extends Model
         'room_id',
     ];
 
+    protected $casts = [
+        'child_items' => 'array',
+    ];
+
     public function search(): BelongsTo
     {
         return $this->belongsTo(ApiSearchInspector::class, 'search_id', 'search_id');

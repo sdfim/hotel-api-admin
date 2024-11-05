@@ -110,7 +110,11 @@ class HbsiService
         $completeBookingItem['booking_pricing_data']['breakdown'] = json_decode(json_encode($completeBookingItem['booking_pricing_data']['breakdown']));
         $completeBookingItem['booking_pricing_data'] = json_encode($completeBookingItem['booking_pricing_data']);
 
-        ApiBookingItem::insert($completeBookingItem);
+        ApiBookingItem::insertOrIgnore($completeBookingItem);
+
+        $bookingParentItem = ApiBookingItem::where('booking_item', $completeItem)->first();
+        $bookingParentItem->child_items = $room_combinations;
+        $bookingParentItem->update();
 
         foreach ($room_combinations as $key => $value) {
             $bookingItem = ApiBookingItem::where('booking_item', $value)->first();
