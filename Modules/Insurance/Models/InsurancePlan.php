@@ -7,6 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Class InsurancePlan
+ *
+ * @property int $id
+ * @property string $booking_item
+ * @property float $total_insurance_cost
+ * @property float $commission_ujv
+ * @property float $insurance_provider_fee
+ * @property int $insurance_provider_id
+ * @property string|null $request
+ *
+ * @property InsuranceProvider $provider
+ * @property InsuranceRestriction[] $restrictions
+ * @property InsuranceApplication[] $applications
+ */
 class InsurancePlan extends Model
 {
     use HasFactory;
@@ -15,7 +30,7 @@ class InsurancePlan extends Model
         'booking_item',
         'total_insurance_cost',
         'commission_ujv',
-        'supplier_fee',
+        'insurance_provider_fee',
         'insurance_provider_id',
         'request'
     ];

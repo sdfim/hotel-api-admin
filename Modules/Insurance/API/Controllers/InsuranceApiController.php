@@ -30,26 +30,27 @@ class InsuranceApiController extends BaseController
             ->where('status', 'success')
             ->first();
 
-        if (!$apiBookingInspectorItem) return $this->sendError('Invalid booking item', 500);
+        if (!$apiBookingInspectorItem) {
+            return $this->sendError('The specified booking item is not valid or not found in the booking inspector', 404);
+        }
+
+        $insuranceProvider = InsuranceProvider::where('name', $validated['provider'])->first();
+
+        if (!$insuranceProvider) {
+            return $this->sendError('The selected insurance provider is invalid or unavailable', 404);
+        }
 
         $searchId = $apiBookingInspectorItem->search_id;
 
         $itemPricing = ApiBookingItemRepository::getItemPricingData($validated['booking_item']);
 
-        // go api search inspector, check json of request, get number of passengers, children and their ages
+        if (!$itemPricing) {
+            return $this->sendError('Unable to retrieve pricing data for the specified booking item', 500);
+        }
+
         $apiSearchInspectorItem = ApiSearchInspectorRepository::getRequest($searchId);
 
-        $insuranceApplications = [];
-
-        // TODO: loop through occupancy to create insurance application records, we can get children ages from request, as well as location(for now we should use destination key, determinate by coordinates will be implemented later)
-
-        InsuranceApplication::create($insuranceApplications);
-
-        $insuranceProvider = InsuranceProvider::where('name', $validated['provider'])->first();
-
-        if (!$insuranceProvider) return $this->sendError('Invalid insurance provider', 500);
-
-        $bookingItemTotalPrice = 0;
+        $bookingItemTotalPrice = $itemPricing['total_price'] ?? 0;
 
         $insuranceRateTier = InsuranceRateTier::where('insurance_provider_id', $insuranceProvider->id)
             ->where('min_price', '<=', $bookingItemTotalPrice)
@@ -62,17 +63,45 @@ class InsuranceApiController extends BaseController
         $commissionUjv = ($bookingItemTotalPrice / 100) * $this->ujvCommission;
 
         $insurancePlan->total_insurance_cost = $insuranceProviderFee + $commissionUjv;
-
         $insurancePlan->insurance_provider_fee = $insuranceProviderFee;
-
         $insurancePlan->commission_ujv = $commissionUjv;
-
         $insurancePlan->insurance_provider_id = $insuranceProvider->id;
 
-        if ($insurancePlan->save()) {
-            return $this->sendResponse($insurancePlan->toArray(), 'Insurance plan added successfully', 201);
+        if (!$insurancePlan->save()) {
+            return $this->sendError('Failed to create the insurance plan. Please try again later.', 500);
+        }
+
+        $totalPassengersNumber = ApiSearchInspectorRepository::getTotalOccupancy($apiSearchInspectorItem['occupancy']);
+        $totalInsuranceCostPerPerson = $totalPassengersNumber > 0 ? $insurancePlan->total_insurance_cost / $totalPassengersNumber : 0;
+
+        $insuranceApplications = [];
+        $now = now();
+
+        foreach ($apiSearchInspectorItem['occupancy'] as $roomIndex => $room) {
+            $baseApplicationData = [
+                'insurance_plan_id' => $insurancePlan->id,
+                'room_number' => $roomIndex + 1,
+                'name' => '',
+                'location' => $apiSearchInspectorItem['destination'] ?? '',
+                'applied_at' => $now,
+                'total_insurance_cost_pp' => $totalInsuranceCostPerPerson,
+            ];
+
+            if (!empty($room['children_ages'])) {
+                foreach ($room['children_ages'] as $childrenAge) {
+                    $insuranceApplications[] = $baseApplicationData + ['age' => $childrenAge];
+                }
+            }
+
+            for ($i = 0; $i < $room['adults']; $i++) {
+                $insuranceApplications[] = $baseApplicationData + ['age' => 33];
+            }
+        }
+
+        if (InsuranceApplication::insert($insuranceApplications)) {
+            return $this->sendResponse($insurancePlan->toArray(), 'Insurance plan and related applications successfully created', 201);
         } else {
-            return $this->sendError('Failed to add insurance plan', 500);
+            return $this->sendError('Failed to create insurance applications. Please try again later.', 500);
         }
     }
 }

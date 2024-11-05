@@ -6,6 +6,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Class InsuranceRestriction
+ *
+ * @property int $id
+ * @property int $insurance_plan_id
+ * @property int $provider_id
+ * @property int $restriction_type_id
+ * @property string $compare
+ * @property mixed $value
+ *
+ * @property InsurancePlan $plan
+ * @property InsuranceProvider $provider
+ * @property InsuranceRestrictionType $restrictionType
+ */
 class InsuranceRestriction extends Model
 {
     use HasFactory;

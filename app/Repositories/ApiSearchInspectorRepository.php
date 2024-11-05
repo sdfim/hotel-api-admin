@@ -4,9 +4,9 @@ namespace App\Repositories;
 
 use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
+use App\Models\Mapping;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Mapping;
 
 class ApiSearchInspectorRepository
 {
@@ -120,6 +120,42 @@ class ApiSearchInspectorRepository
             'expedia_hotel_id' => $expedia_hotel_id,
             'hotel_id' => $booking_item_data['hotel_id'],
         ];
+    }
+
+    public static function getTotalOccupancy(array $occupancy): int
+    {
+        $numberOfChildren = 0;
+        $numberOfAdults = 0;
+
+        foreach ($occupancy as $room) {
+            if (!empty($room['children_ages'])) {
+                $numberOfChildren += count($room['children_ages']);
+            }
+
+            $numberOfAdults += $room['adults'];
+        }
+
+        return $numberOfChildren + $numberOfAdults;
+    }
+
+    public static function getOccupancyBreakdown(array $occupancy): array
+    {
+        $breakdown = [
+            'children' => 0,
+            'adults' => 0,
+        ];
+
+        foreach ($occupancy as $room) {
+            if (!empty($room['children_ages'])) {
+                $breakdown['children'] += count($room['children_ages']);
+            }
+
+            $breakdown['adults'] += $room['adults'] ?? 0;
+        }
+
+        $breakdown['total'] = $breakdown['children'] + $breakdown['adults'];
+
+        return $breakdown;
     }
 
     public function getTotalOccupancyAttribute(): int

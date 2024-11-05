@@ -6,6 +6,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Class InsuranceProviderDocumentation
+ *
+ * @property int $id
+ * @property int $provider_id
+ * @property string $type_document
+ * @property string $uri
+ *
+ * @property InsuranceProvider $provider
+ */
 class InsuranceProviderDocumentation extends Model
 {
     use HasFactory;
