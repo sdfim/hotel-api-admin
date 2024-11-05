@@ -31,6 +31,7 @@ class HotelDTO
     public $travel_agency_commissions;
     public $galleries;
     public $contact_information;
+    public $web_finder;
 
     public function __construct($hotel)
     {
@@ -50,6 +51,7 @@ class HotelDTO
         $this->channel_management = (bool) $hotel->channel_management;
         $this->hotel_board_basis = $hotel->hotel_board_basis;
         $this->default_currency = $hotel->default_currency;
+        $this->web_finder = $hotel->webFinder->finder;
         $this->contact_information = $hotel->contactInformation->map(function ($contact) {
             return [
                 'first_name' => $contact->first_name,

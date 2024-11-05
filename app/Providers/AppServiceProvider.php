@@ -30,6 +30,7 @@ use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesTable;
 use Modules\HotelContentRepository\Livewire\KeyMappings\KeyMappingTable;
 use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyCommissionTable;
+use Modules\HotelContentRepository\Livewire\HotelWebFinder\HotelWebFinderTable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -113,5 +114,6 @@ class AppServiceProvider extends ServiceProvider
         Livewire::component('image-galleries.image-galleries-form', ImageGalleriesForm::class);
         Livewire::component('hotel-images.hotel-images-table', HotelImagesTable::class);
         Livewire::component('hotel-images.hotel-images-form', HotelImagesForm::class);
+        Livewire::component('hotels.hotel-web-finder-table', HotelWebFinderTable::class);
     }
 }
