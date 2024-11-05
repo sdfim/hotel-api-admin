@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\ApiBookingItem;
 use App\Models\ApiSearchInspector;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Mapping;
 
@@ -169,6 +170,7 @@ class ApiSearchInspectorRepository
         $inspector->suppliers = implode(',', $suppliers);
         $inspector->request = json_encode($request);
         $inspector->token_id = $token_id;
+        $inspector->destination_name = Arr::get($request,'destination_name');
 
         \Log::info('Created ApiSearchInspector:', ['inspector' => $inspector]);
 

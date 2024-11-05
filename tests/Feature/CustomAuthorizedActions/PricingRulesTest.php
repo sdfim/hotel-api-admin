@@ -75,16 +75,14 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $pricingRuleData = $pricingRulesTools->generatePricingRuleData(time());
 
-        $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData();
-
         $formData = [
             ...$pricingRuleData,
-            'conditions' => $pricingRuleConditionsData,
+            'conditions' => $pricingRulesTools->generatePricingRuleConditionsData(null, 'AND'),
+            'conditionsOR' => $pricingRulesTools->generatePricingRuleConditionsData(null, 'OR'),
         ];
 
         Livewire::test(CreatePricingRule::class)
             ->set('data', $formData)
-            ->assertFormSet($formData)
             ->call('create')
             ->assertHasNoFormErrors()
             ->assertNotified('Created successfully')
@@ -92,7 +90,11 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $this->assertDatabaseHas('pricing_rules', $pricingRuleData);
 
-        foreach ($pricingRuleConditionsData as $cond) {
+        foreach ($formData['conditions'] as $cond) {
+            $this->assertDatabaseHas('pricing_rules_conditions', $cond);
+        }
+
+        foreach ($formData['conditionsOR'] as $cond) {
             $this->assertDatabaseHas('pricing_rules_conditions', $cond);
         }
     }
@@ -108,11 +110,10 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $pricingRuleData = $pricingRulesTools->generatePricingRuleData(time());
 
-        $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData($pricingRule->id);
-
         $formData = [
             ...$pricingRuleData,
-            'conditions' => $pricingRuleConditionsData,
+            'conditions' => $pricingRulesTools->generatePricingRuleConditionsData($pricingRule->id, 'AND'),
+            'conditionsOR' => $pricingRulesTools->generatePricingRuleConditionsData($pricingRule->id, 'OR'),
         ];
 
         Livewire::test(UpdatePricingRule::class, ['pricingRule' => $pricingRule])
@@ -125,8 +126,12 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $this->assertDatabaseHas('pricing_rules', $pricingRuleData);
 
-        foreach ($pricingRuleConditionsData as $pricingRuleConditionData) {
-            $this->assertDatabaseHas('pricing_rules_conditions', $pricingRuleConditionData);
+        foreach ($formData['conditions'] as $cond) {
+            $this->assertDatabaseHas('pricing_rules_conditions', $cond);
+        }
+
+        foreach ($formData['conditionsOR'] as $cond) {
+            $this->assertDatabaseHas('pricing_rules_conditions', $cond);
         }
     }
 

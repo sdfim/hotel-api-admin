@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\Factories;
 
+use App\Models\Configurations\ConfigAttribute;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelAttribute;
@@ -14,8 +15,7 @@ class HotelAttributeFactory extends Factory
     {
         return [
             'hotel_id' => Hotel::factory(),
-            'name' => $this->faker->word,
-            'attribute_value' => $this->faker->word,
+            'attribute_id' => ConfigAttribute::factory(),
         ];
     }
 }

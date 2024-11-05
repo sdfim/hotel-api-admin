@@ -13,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
@@ -45,9 +46,9 @@ class HotelRoomTable extends Component implements HasForms, HasTable
             Select::make('hotel_id')
                 ->label('Hotel')
                 ->options(Hotel::pluck('name', 'id'))
-//                ->when($this->hotelId, fn($select) => $select->searchable())
+                ->disabled(fn () => $this->hotelId)
                 ->required(),
-            TextInput::make('hbs_data_mapped_name')->label('HBS Data Mapped Name'),
+            TextInput::make('hbsi_data_mapped_name')->label('HBSI Data Mapped Name'),
             TextInput::make('name')->label('Name')->required(),
             Textarea::make('description')
                 ->label('Description')
@@ -63,6 +64,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
+            ->defaultPaginationPageOption(5)
             ->query(function () {
                 $query = HotelRoom::query()->with(['hotel', 'galleries']);
                 if ($this->hotelId !== null) {
@@ -71,34 +73,35 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                 return $query;
             })
             ->columns([
-                TextColumn::make('id')->label('ID')->sortable(),
-//                TextColumn::make('hotel_id')->label('Hotel ID')->sortable(),
-                TextColumn::make('hotel.name')
-                    ->label('Hotel Name')
+//                TextColumn::make('id')->label('ID')->sortable(),
+//                TextColumn::make('hotel.name')
+//                    ->label('Hotel Name')
+//                    ->searchable(isIndividual: true)
+//                    ->sortable()
+//                    ->wrap(),
+                TextInputColumn::make('hbsi_data_mapped_name')
+                    ->label('HBSI Data Mapped Name')
                     ->searchable(isIndividual: true)
                     ->sortable()
-                    ->wrap(),
-                TextColumn::make('hbs_data_mapped_name')
-                    ->label('HBS Data Mapped Name')
-                    ->searchable(isIndividual: true)
-                    ->sortable(),
-                TextColumn::make('name')
+                    ->extraAttributes(['style' => 'width: 100%']),
+                TextInputColumn::make('name')
                     ->label('Name')
                     ->searchable(isIndividual: true)
-                    ->sortable(),
-                TextColumn::make('description')
-                    ->label('Description')
-                    ->searchable(isIndividual: true)
                     ->sortable()
-                    ->wrap()
-                    ->extraAttributes(['class' => 'scrollable-column']),
+                    ->extraAttributes(['style' => 'width: 100%']),
+//                TextColumn::make('description')
+//                    ->label('Description')
+//                    ->searchable(isIndividual: true)
+//                    ->sortable()
+//                    ->wrap()
+//                    ->extraAttributes(['class' => 'scrollable-column']),
                 TextColumn::make('created_at')->label('Created At')->date(),
-                TextColumn::make('galleries')
-                    ->label('Galleries')
-                    ->formatStateUsing(function ($record) {
-                        return $record->galleries->pluck('gallery_name')->implode(', ');
-                    })
-                    ->wrap(),
+//                TextColumn::make('galleries')
+//                    ->label('Galleries')
+//                    ->formatStateUsing(function ($record) {
+//                        return $record->galleries->pluck('gallery_name')->implode(', ');
+//                    })
+//                    ->wrap(),
             ])
             ->actions([
                 EditAction::make()
@@ -120,6 +123,10 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
+                    })
+                    ->action(function ($data) {
+                        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
+                        HotelRoom::create($data);
                     })
                     ->tooltip('Add New Room')
                     ->icon('heroicon-o-plus')

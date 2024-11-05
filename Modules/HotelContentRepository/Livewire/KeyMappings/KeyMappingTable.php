@@ -44,8 +44,9 @@ class KeyMappingTable extends Component implements HasForms, HasTable
             Select::make('hotel_id')
                 ->label('Hotel')
                 ->options(Hotel::pluck('name', 'id'))
+                ->disabled(fn () => $this->hotelId)
                 ->required(),
-            TextInput::make('name')->label('Name')->required(),
+//            TextInput::make('name')->label('Name')->required(),
             Select::make('key_mapping_owner_id')
                 ->label('Key Mapping Owner')
                 ->options(KeyMappingOwner::pluck('name', 'id'))
@@ -61,7 +62,7 @@ class KeyMappingTable extends Component implements HasForms, HasTable
                 KeyMapping::with('keyMappingOwner')->where('hotel_id', $this->hotelId)
             )
             ->columns([
-                TextInputColumn::make('name')->label('Name')->searchable(),
+//                TextInputColumn::make('name')->label('Name')->searchable(),
                 TextInputColumn::make('key_id')->label('Key id')->searchable(),
                 TextColumn::make('keyMappingOwner.name')->label('Owner'),
                 TextColumn::make('created_at')->label('Created At')->date(),
@@ -80,6 +81,10 @@ class KeyMappingTable extends Component implements HasForms, HasTable
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
+                    })
+                    ->action(function ($data) {
+                        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
+                        KeyMapping::create($data);
                     })
                     ->tooltip('Add New Mapping')
                     ->icon('heroicon-o-plus')

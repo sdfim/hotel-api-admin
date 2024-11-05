@@ -4,6 +4,14 @@
     display: none !important;
 }
 
+.custom-repeater-class .grid.gap-y-2{
+    row-gap: 0 !important;
+}
+
+.choices .choices__input.choices__input--cloned{
+    padding-left: 10px !important;
+}
+
 .scrollable-column {
     max-height: 115px;
     overflow-y: auto;

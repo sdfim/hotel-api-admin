@@ -22,7 +22,7 @@ class HotelPromotionControllerTest extends TestCase
                 '*' => [
                     'id', 'hotel_id', 'promotion_name', 'description',
                     'validity_start', 'validity_end', 'booking_start', 'booking_end',
-                    'terms_conditions', 'exclusions', 'deposit_info'
+                    'terms_conditions', 'exclusions'
                 ]
             ],
             'message'
@@ -40,7 +40,7 @@ class HotelPromotionControllerTest extends TestCase
             'data' => [
                 'id', 'hotel_id', 'promotion_name', 'description',
                 'validity_start', 'validity_end', 'booking_start', 'booking_end',
-                'terms_conditions', 'exclusions', 'deposit_info'
+                'terms_conditions', 'exclusions'
             ],
             'message'
         ]);
@@ -57,7 +57,7 @@ class HotelPromotionControllerTest extends TestCase
             'data' => [
                 'id', 'hotel_id', 'promotion_name', 'description',
                 'validity_start', 'validity_end', 'booking_start', 'booking_end',
-                'terms_conditions', 'exclusions', 'deposit_info'
+                'terms_conditions', 'exclusions'
             ],
             'message'
         ]);
@@ -75,7 +75,7 @@ class HotelPromotionControllerTest extends TestCase
             'data' => [
                 'id', 'hotel_id', 'promotion_name', 'description',
                 'validity_start', 'validity_end', 'booking_start', 'booking_end',
-                'terms_conditions', 'exclusions', 'deposit_info'
+                'terms_conditions', 'exclusions'
             ],
             'message'
         ]);

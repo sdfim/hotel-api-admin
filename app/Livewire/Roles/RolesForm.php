@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Roles;
 
+use App\Helpers\ClassHelper;
 use App\Models\Permission;
 use App\Models\Role;
 use Filament\Forms\Components\Select;
@@ -12,15 +13,14 @@ use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\HeaderActionsPosition;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -84,6 +84,17 @@ class RolesForm extends Component implements HasForms, HasTable
                 TextColumn::make('slug')
                     ->searchable(),
             ])
+            ->actions([
+                DeleteAction::make('delete')
+                    ->iconButton()
+                    ->action(function (Permission $permission) {
+                        if ($this->record->exists) {
+                            $this->record->permissions()->detach($permission->id);
+                        } else {
+                            $this->permissionIds = array_filter($this->permissionIds, fn ($id) => $id != $permission->id);
+                        }
+                    })
+            ])
             ->bulkActions([
                 DeleteBulkAction::make('delete')
                     ->action(function (Collection $records) {
@@ -97,12 +108,9 @@ class RolesForm extends Component implements HasForms, HasTable
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->extraAttributes(['class' => 'btn text-violet-500 hover:text-white border-violet-500
-                    hover:bg-violet-600 hover:border-violet-600 focus:bg-violet-600 focus:text-white
-                    focus:border-violet-600 focus:ring focus:ring-violet-500/30
-                    active:bg-violet-600 active:border-violet-600'])
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->icon('heroicon-o-plus')
                     ->iconButton()
-                    ->icon(new HtmlString('<i class="bx bx-plus block text-lg"></i>'))
                     ->form([
                         Select::make('id')
                             ->multiple()

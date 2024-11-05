@@ -52,7 +52,7 @@ class TestSeederExpediaContentToHotels extends Command
 
             $this->info('End Transform ExpediaContent ' . $this->runtime() . ' seconds.');
 
-            if ($k > 20) break;
+            if ($k > 3) break;
         }
 
         $this->info('Transformation completed successfully. ' . (microtime(true) - $st) . ' seconds.');
@@ -61,7 +61,6 @@ class TestSeederExpediaContentToHotels extends Command
     private function transformAndSave($expediaContent)
     {
         $expediaId = ContentSource::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
-        // Example transformation logic
 
         $address = $expediaContent->address;
         unset($address['localized']);
@@ -80,6 +79,8 @@ class TestSeederExpediaContentToHotels extends Command
 
             'address' => $address,
             'location' => Arr::get($expediaContent?->location, 'coordinates'),
+            'lat' => Arr::get($expediaContent?->location, 'coordinates.latitude'),
+            'lng' => Arr::get($expediaContent?->location, 'coordinates.longitude'),
             'star_rating' => $expediaContent?->rating,
 
             'website' => '',
@@ -98,12 +99,12 @@ class TestSeederExpediaContentToHotels extends Command
             $hotelData);
 
         $this->updateOrCreateHotelAffiliation($hotel);
-        $this->updateOrCreateHotelAttributes($expediaContent, $hotel);
+//        $this->updateOrCreateHotelAttributes($expediaContent, $hotel);
         $this->updateOrCreateHotelImages($expediaContent, $hotel);
         $this->updateOrCreateKey($expediaContent, $hotel);
         $this->updateOrRooms($expediaContent, $hotel);
         $this->updateOrFeeTaxs($expediaContent, $hotel);
-        $this->updateOrDescriptiveContent($expediaContent, $hotel);
+//        $this->updateOrDescriptiveContent($expediaContent, $hotel);
 
         // HotelDescriptiveContent::create([...]);
         // HotelDescriptiveContentSection::create([...]);
@@ -257,7 +258,7 @@ class TestSeederExpediaContentToHotels extends Command
             $roomData = [
                 'hotel_id' => $hotel->id,
                 // TODO: need special tools to create a map
-                'hbs_data_mapped_name' => '',
+                'hbsi_data_mapped_name' => '',
                 'name' => $name,
                 'description' => $cleanDescription,
 //                'amenities' => array_values(Arr::get($room, 'amenities', [])),

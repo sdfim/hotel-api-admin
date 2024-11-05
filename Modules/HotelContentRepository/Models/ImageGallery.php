@@ -10,7 +10,7 @@ class ImageGallery extends Model
 {
     use HasFactory;
 
-    protected static function newFactory()
+    protected static function newFactory(): ImageGalleryFactory
     {
         return ImageGalleryFactory::new();
     }
@@ -59,5 +59,12 @@ class ImageGallery extends Model
     public function hotelPromotions()
     {
         return $this->belongsToMany(HotelPromotion::class, 'pd_hotel_promotion_gallery', 'gallery_id', 'hotel_promotion_id');
+    }
+
+    public function scopeHasHotelPromotion($query, $hotelPromotionId)
+    {
+        return $query->whereHas('hotelPromotions', function ($q) use ($hotelPromotionId) {
+            $q->where('hotel_promotion_id', $hotelPromotionId);
+        });
     }
 }

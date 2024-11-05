@@ -11,18 +11,19 @@ return new class extends Migration
         Schema::create('pd_hotels', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name', 255);
-            $table->string('type', 255);
             $table->boolean('verified');
-            $table->boolean('direct_connection');
-            $table->boolean('manual_contract');
-            $table->boolean('commission_tracking');
+            $table->enum('type', [
+                'Direct connection',
+                'Manual contract',
+                'Commission tracking',
+            ]);
             $table->json('address')->nullable();
             $table->integer('star_rating');
             $table->string('website', 255)->nullable();
             $table->integer('num_rooms');
-            $table->boolean('featured');
             $table->json('location')->nullable();
-            $table->unsignedBigInteger('content_source_id');
+            $table->decimal('lat', 10, 7)->nullable();
+            $table->decimal('lng', 10, 7)->nullable();            $table->unsignedBigInteger('content_source_id');
             $table->unsignedBigInteger('room_images_source_id');
             $table->unsignedBigInteger('property_images_source_id');
             $table->boolean('channel_management');

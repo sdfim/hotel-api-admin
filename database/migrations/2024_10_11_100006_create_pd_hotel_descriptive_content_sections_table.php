@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('pd_hotel_descriptive_content_sections', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('hotel_id');
-            $table->string('section_name', 255);
+            $table->string('section_name', 255)->nullable();
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();
             $table->timestamps();

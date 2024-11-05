@@ -12,6 +12,7 @@
     use App\Models\ApiSearchInspector;
     use App\Models\ApiBookingInspector;
     use App\Models\ApiExceptionReport;
+    use App\Models\InformationalService;
     use App\Models\Property;
     use Modules\HotelContentRepository\Models\Hotel;
     use Modules\HotelContentRepository\Models\TravelAgencyCommission;
@@ -24,6 +25,9 @@
     use App\Models\Configurations\ConfigDescriptiveType;
     use App\Models\Configurations\ConfigJobDescription;
     use App\Models\Configurations\ConfigServiceType;
+    use App\Models\Configurations\ConfigChain;
+    use Modules\HotelContentRepository\Models\ImageGallery;
+    use Modules\HotelContentRepository\Models\HotelImage;
 
     $canView = fn (string $model): bool => Auth::user()->can('view', $model);
     $canConfigurationGroup = fn (): bool =>
@@ -34,7 +38,8 @@
         $canView(ConfigConsortium::class) ||
         $canView(ConfigDescriptiveType::class) ||
         $canView(ConfigJobDescription::class) ||
-        $canView(ConfigServiceType::class);
+        $canView(ConfigServiceType::class) ||
+        $canView(ConfigChain::class);
 @endphp
 
     <!-- ========== Left Sidebar Start ========== -->
@@ -58,56 +63,63 @@
                                 <li>
                                     <a href="{{ Route('general_configuration') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">General
-                                        Configuration</a>
+                                        </a>
                                 </li>
                             @endif
                             @if($canView(Channel::class))
                                 <li>
                                     <a href="{{ Route('channels.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Channels
-                                        Configuration</a>
+                                        </a>
                                 </li>
                             @endif
                             @if($canView(Supplier::class))
                                 <li>
                                     <a href="{{ Route('suppliers.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Suppliers
-                                        Configuration</a>
+                                        </a>
                                 </li>
                             @endif
                             @if($canView(ConfigAttribute::class))
                                 <li>
                                     <a href="{{ route('configurations.attributes.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Attributes Configuration</a>
+                                    >Attributes </a>
                                 </li>
                             @endif
                             @if($canView(ConfigConsortium::class))
                                 <li>
                                     <a href="{{ route('configurations.consortia.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Consortia Configuration</a>
+                                    >Consortia </a>
                                 </li>
                             @endif
                             @if($canView(ConfigDescriptiveType::class))
                                 <li>
                                     <a href="{{ route('configurations.descriptive-types.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Descriptive Types Configuration</a>
+                                    >Descriptive Types </a>
                                 </li>
                             @endif
                             @if($canView(ConfigJobDescription::class))
                                 <li>
                                     <a href="{{ route('configurations.job-descriptions.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Job Descriptions Configuration</a>
+                                    >Job Descriptions </a>
                                 </li>
                             @endif
                             @if($canView(ConfigServiceType::class))
                                 <li>
                                     <a href="{{ route('configurations.service-types.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
-                                    >Service Types Configuration</a>
+                                    >Service Types </a>
+                                </li>
+                            @endif
+                            @if($canView(ConfigChain::class))
+                                <li>
+                                    <a href="{{ route('configurations.chains.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
+                                    >Chains </a>
                                 </li>
                             @endif
                         </ul>
@@ -117,7 +129,7 @@
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
                            class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                            <i class="dripicons-gear"></i>
+                            <i class="dripicons-user-group"></i>
                             <span data-key="t-configuration">Users and permissions</span>
                         </a>
                         <ul>
@@ -172,15 +184,24 @@
                         </a>
                     </li>
                 @endif
-                {{--                @if($canView(TravelAgencyCommission::class))--}}
-                <li>
-                    <a href="{{ Route('travel-agency-commission.index') }}"
-                       class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i class="dripicons-lifting"></i>
-                        <span data-key="t-property-weighting">Agency Commissions</span>
-                    </a>
-                </li>
-                {{--                @endif--}}
+                @if($canView(InformationalService::class))
+                    <li>
+                        <a href="{{ Route('informational-services.index') }}"
+                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-information"></i>
+                            <span data-key="t-property-weighting">Informational Service</span>
+                        </a>
+                    </li>
+                @endif
+                @if($canView(TravelAgencyCommission::class))
+                    <li>
+                        <a href="{{ Route('travel-agency-commission.index') }}"
+                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                            <i class="dripicons-lifting"></i>
+                            <span data-key="t-property-weighting">Agency Commissions</span>
+                        </a>
+                    </li>
+                @endif
                 @if($canView(PropertyWeighting::class))
                     <li>
                         <a href="{{ Route('property-weighting.index') }}"
@@ -243,6 +264,44 @@
                         </ul>
                     </li>
                 @endif
+                @if($canView(ImageGallery::class) || $canView(HotelImage::class))
+                    <li>
+                        <a href="javascript: void(0);" aria-expanded="false"
+                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium
+                           text-gray-700 transition-all duration-150 ease-linear
+                           hover:text-violet-500 dark:text-gray-300 dark:active:text-white
+                           dark:hover:text-white">
+                            <i class="dripicons-photo-group"></i>
+                            <span>Image Galleries</span>
+                        </a>
+                        <ul>
+                            @if($canView(ImageGallery::class))
+                            <li>
+                                <a href="{{ Route('image-galleries.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
+                                   text-gray-700 transition-all duration-150 ease-linear
+                                   hover:text-violet-500 dark:text-gray-300 dark:active:text-white
+                                   dark:hover:text-white">
+                                    <i class="dripicons-view-thumb"></i>
+                                    <span>Galleries</span>
+                                </a>
+                            </li>
+                            @endif
+                            @if($canView(HotelImage::class))
+                            <li>
+                                <a href="{{ Route('images.index') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
+                                   text-gray-700 transition-all duration-150 ease-linear
+                                   hover:text-violet-500 dark:text-gray-300 dark:active:text-white
+                                   dark:hover:text-white">
+                                    <i class="dripicons-photo"></i>
+                                    <span>Images</span>
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
+                    </li>
+                @endif
                 @if($canView(Property::class))
                     <li>
                         <a href="{{ Route('properties.index') }}"
@@ -254,25 +313,11 @@
                 @endif
                 @if($canView(Hotel::class))
                     <li>
-                        <a href="javascript: void(0);" aria-expanded="false"
-                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <a href="{{ Route('hotel_repository.index') }}"
+                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                             <i class="dripicons-graduation"></i>
-                            <span data-key="t-configuration">Content Repository</span>
+                            <span data-key="t-property-mapping">Content Repository</span>
                         </a>
-                        <ul>
-                            <li>
-                                <a href="{{ Route('hotel_repository.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px]
-                               font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500
-                               dark:text-gray-300 dark:active:text-white dark:hover:text-white">Hotels</a>
-                            </li>
-                            <li>
-                                <a href="{{ Route('hotel_rooms.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px]
-                               font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500
-                               dark:text-gray-300 dark:active:text-white dark:hover:text-white">Rooms</a>
-                            </li>
-                        </ul>
                     </li>
                 @endif
                 @can('statistic-charts')

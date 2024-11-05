@@ -46,9 +46,15 @@ class HotelAffiliationsTable extends Component implements HasForms, HasTable
             Select::make('hotel_id')
                 ->label('Hotel')
                 ->options(Hotel::pluck('name', 'id'))
-//                ->when($this->hotelId, fn($select) => $select->searchable())
+                ->disabled(fn () => $this->hotelId)
                 ->required(),
-            TextInput::make('affiliation_name')->label('Affiliation Name')->required(),
+            Select::make('affiliation_name')
+                ->label('Affiliation Name')
+                ->options([
+                    'UJV Exclusive Amenities' => 'UJV Exclusive Amenities',
+                    'Consortia Inclusions' => 'Consortia Inclusions',
+                ])
+                ->required(),
             Select::make('combinable')
                 ->label('Combinable')
                 ->options([
@@ -87,6 +93,10 @@ class HotelAffiliationsTable extends Component implements HasForms, HasTable
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
+                    })
+                    ->action(function ($data) {
+                        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
+                        HotelAffiliation::create($data);
                     })
                     ->tooltip('Add New Affiliation')
                     ->icon('heroicon-o-plus')

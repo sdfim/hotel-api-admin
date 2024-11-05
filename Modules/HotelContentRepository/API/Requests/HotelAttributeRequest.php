@@ -16,8 +16,7 @@ class HotelAttributeRequest extends ApiRequest
     {
         return [
             'hotel_id' => 'required|integer',
-            'name' => 'required|string|max:255',
-            'attribute_value' => 'required|string|max:255',
+            'attribute_id' => 'required|integer',
         ];
     }
 }

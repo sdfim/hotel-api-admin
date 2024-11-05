@@ -29,7 +29,6 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Livewire\Component;
-// use Modules\API\Suppliers\Enums\PropertiesSourceEnum; // TODO: This is not being found, unclear why.
 use Modules\Enums\SupplierNameEnum;
 use stdClass;
 

@@ -24,7 +24,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
      *      markup: float|int
      *  }
      */
-    public function apply(int $giataId, array $roomsPricingArray, string $roomName, string|int $roomCode, bool $b2b = true): array
+    public function apply(int $giataId, array $roomsPricingArray, string $roomName, string|int $roomCode, string|int $roomType, bool $b2b = true): array
     {
         $this->initPricingRulesProperties();
 
@@ -39,7 +39,8 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
         }
 
         foreach ($this->pricingRules as $pricingRule) {
-            if ($this->validPricingRule($giataId, $pricingRule['conditions'], $roomName, $roomCode, ['supplier_id', 'property', 'room_name', 'room_code'])) {
+            $params = [$giataId, $pricingRule, $roomName, $roomCode, $roomType, ['supplier_id', 'property', 'room_name', 'room_code', 'room_type']];
+            if ($this->validPricingRule('OR', ...$params) && $this->validPricingRule('AND', ...$params)) {
                 $this->applyPricingRulesLogic($pricingRule);
             }
         }

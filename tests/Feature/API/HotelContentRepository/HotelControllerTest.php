@@ -20,8 +20,8 @@ class HotelControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking',
-                    'address', 'star_rating', 'website', 'num_rooms', 'featured', 'location',
+                    'id', 'name', 'type', 'verified',
+                    'address', 'star_rating', 'website', 'num_rooms', 'location',
                     'channel_management', 'hotel_board_basis',
                     'default_currency'
                 ]
@@ -39,8 +39,8 @@ class HotelControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking',
-                'address', 'star_rating', 'website', 'num_rooms', 'featured', 'location',
+                'id', 'name', 'type', 'verified',
+                'address', 'star_rating', 'website', 'num_rooms', 'location',
                 'channel_management', 'hotel_board_basis',
                 'default_currency'
             ],
@@ -59,8 +59,8 @@ class HotelControllerTest extends TestCase
             'success',
             'data' => [
                 '*' => [
-                    'id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking',
-                    'address', 'star_rating', 'website', 'num_rooms', 'featured', 'location',
+                    'id', 'name', 'type', 'verified',
+                    'address', 'star_rating', 'website', 'num_rooms', 'location',
                     'channel_management', 'hotel_board_basis', 'default_currency'
                 ]
             ],
@@ -78,8 +78,8 @@ class HotelControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking',
-                'address', 'star_rating', 'website', 'num_rooms', 'featured', 'location',
+                'id', 'name', 'type', 'verified',
+                'address', 'star_rating', 'website', 'num_rooms', 'location',
                 'channel_management', 'hotel_board_basis', 'default_currency'
             ],
             'message'

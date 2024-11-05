@@ -20,5 +20,6 @@ class PricingRuleCondition extends Model
         'value_from',
         'value_to',
         'pricing_rule_id',
+        'group_condition',
     ];
 }

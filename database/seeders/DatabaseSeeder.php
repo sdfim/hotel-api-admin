@@ -10,9 +10,6 @@ use Modules\Insurance\Seeders\TripMateDefaultRestrictions;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         $this->call([
@@ -28,6 +25,11 @@ class DatabaseSeeder extends Seeder
             TripMateDefaultRestrictions::class,
 
             HotelContentRepositorySeeder::class,
+
+            ConfigConsortiumSeeder::class,
+            ConfigAttributeSeeder::class,
+            ConfigServiceTypeSeeder::class,
+            ConfigDescriptiveTypeSeeder::class,
         ]);
     }
 }

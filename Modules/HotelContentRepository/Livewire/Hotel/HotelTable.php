@@ -3,15 +3,17 @@
 namespace Modules\HotelContentRepository\Livewire\Hotel;
 
 use App\Helpers\ClassHelper;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
+use Livewire\Features\SupportRedirects\Redirector;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -22,26 +24,6 @@ class HotelTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
-
-    public function form(Form $form): Form
-    {
-        return $form
-            ->schema($this->schemeForm());
-    }
-
-    public function schemeForm(): array
-    {
-        return [
-            TextInput::make('name')->label('Name')->required(),
-            TextInput::make('type')->label('Type')->required(),
-            TextInput::make('address')->label('Address')->required(),
-            TextInput::make('star_rating')->label('Star Rating')->required(),
-            TextInput::make('website')->label('Website')->required(),
-            TextInput::make('num_rooms')->label('Number of Rooms')->required(),
-            TextInput::make('featured')->label('Featured')->required(),
-            TextInput::make('location')->label('Location')->required(),
-        ];
-    }
 
     public function table(Table $table): Table
     {
@@ -59,29 +41,29 @@ class HotelTable extends Component implements HasForms, HasTable
                 'promotions',
                 'rooms',
                 'keyMappings',
-                'galleries'
+                'galleries',
+                'contactInformation'
             ]))
             ->columns([
                 TextColumn::make('name')
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable()
-                    ->wrap()
-                    ->tooltip(function ($record) {
-                        return implode("\n", [
-                            'Verified: ' . ($record->verified ? 'Yes' : 'No'),
-                            'Direct Connection: ' . ($record->direct_connection ? 'Yes' : 'No'),
-                            'Manual Contract: ' . ($record->manual_contract ? 'Yes' : 'No'),
-                            'Commission Tracking: ' . ($record->commission_tracking ? 'Yes' : 'No'),
-                            'Channel Management: ' . ($record->channel_management ? 'Yes' : 'No'),
-                        ]);
-                    }),
+                    ->wrap(),
                 CustomTextColumn::make('type')
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
                 CustomTextColumn::make('address')
                     ->searchable(isIndividual: true)
+                    ->getStateUsing(function ($record) {
+                        $string = '';
+                        foreach ($record->address as $key => $item)    {
+                            if (is_array($item)) continue;
+                            $string .= $key .  ': ' . $item . ', ';
+                        }
+                        return $string;
+                    })
                     ->toggleable()
                     ->sortable(),
                 CustomTextColumn::make('star_rating')
@@ -96,12 +78,16 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
-//                CustomTextColumn::make('featured')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
                 CustomTextColumn::make('location')
                     ->searchable(isIndividual: true)
+                    ->getStateUsing(function ($record) {
+                        $string = '';
+                        foreach ($record->location as $key => $item)    {
+                            if (is_array($item)) continue;
+                            $string .= $key .  ': ' . $item . ', ';
+                        }
+                        return $string;
+                    })
                     ->toggleable()
                     ->sortable(),
                 CustomTextColumn::make('combined_sources')
@@ -112,68 +98,23 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->default(function ($record) {
                         return $record->contentSource->name . ' ' . $record->roomImagesSource->name . ' ' . $record->propertyImagesSource->name;
                     }),
-//                CustomTextColumn::make('hotel_board_basis')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('default_currency')
-//                    ->label('Currency')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('affiliations')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('attributes')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('contentSource.name')
-//                    ->label('Content Source')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('roomImagesSource.name')
-//                    ->label('Room Images Source')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('propertyImagesSource.name')
-//                    ->label('Property Images Source')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('descriptiveContentsSection')
-//                    ->label('Descriptive Contents')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('feeTaxes')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('informativeServices')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('promotions')
-//                    ->label('Promotions Galleries')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('rooms')
-//                    ->label('Rooms Galleries')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('keyMappings')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-                CustomTextColumn::make('galleries')
+                TextColumn::make('galleries')
                     ->label('Galleries')
                     ->searchable(isIndividual: true)
+                    ->formatStateUsing(function ($state) {
+                        $items = explode(', ', $state);
+                        $string = '';
+                        foreach ($items as $item) {
+                            $dataItem = json_decode($item, true);
+                            if (is_null($dataItem)) {
+                                continue;
+                            }
+                            $string .= $dataItem['gallery_name'] . '</b><br>';
+                        }
+                        return $string;
+                    })
+                    ->html()
+                    ->wrap()
                     ->toggleable()
                     ->sortable(),
             ])
@@ -196,8 +137,66 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->tooltip('Add New Hotel')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->action(function ($data) {
+                        return $this->create($data);
+                    }),
             ]);
+    }
+
+    private function create($data): Redirector|RedirectResponse
+    {
+        $data['address'] = array_reduce($data['address'], function ($result, $item) {
+            $result[$item['field']] = $item['value'];
+            return $result;
+        }, []);
+
+        if (!isset($data['verified'])) {
+            $data['verified'] = false;
+        }
+
+        if (isset($data['location'])) {
+            $data['location'] = array_reduce($data['location'], function ($result, $item) {
+                $result[$item['field']] = $item['value'];
+                return $result;
+            }, []);
+        } else {
+            $data['location'] = [
+                'latitude' => $data['lat'] ?? 0,
+                'longitude' => $data['lng'] ?? 0,
+            ];
+        }
+
+        $hotel = Hotel::create(Arr::only($data, [
+            'name',
+            'location',
+            'type',
+            'verified',
+            'lat',
+            'lng',
+            'address',
+            'star_rating',
+            'website',
+            'num_rooms',
+            'featured',
+            'content_source_id',
+            'room_images_source_id',
+            'property_images_source_id',
+            'channel_management',
+            'hotel_board_basis',
+            'default_currency'
+        ]));
+
+        if (isset($data['galleries'])) {
+            $hotel->galleries()->sync($data['galleries']);
+        }
+
+        Notification::make()
+            ->title('Created successfully')
+            ->success()
+            ->send();
+
+        return redirect()->route('hotel_repository.index');
     }
 
     public function render(): View

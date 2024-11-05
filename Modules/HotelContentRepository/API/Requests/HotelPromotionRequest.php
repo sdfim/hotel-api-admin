@@ -24,7 +24,6 @@ class HotelPromotionRequest extends ApiRequest
             'booking_end' => 'required|date',
             'terms_conditions' => 'required|string',
             'exclusions' => 'required|string',
-            'deposit_info' => 'required|string',
         ];
     }
 }

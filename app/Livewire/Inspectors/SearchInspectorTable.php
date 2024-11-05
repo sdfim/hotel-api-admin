@@ -41,6 +41,8 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     }),
                 TextColumn::make('search_type')
                     ->label('Search Type'),
+                TextColumn::make('destination_name')
+                    ->label('Destination Name'),
                 ViewColumn::make('view error data')
                     ->label('')
                     ->view('dashboard.search-inspector.column.error-data'),
