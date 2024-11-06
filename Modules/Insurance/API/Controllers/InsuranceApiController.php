@@ -10,10 +10,12 @@ use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiSearchInspectorRepository;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\API\BaseController;
 use Modules\Insurance\API\Requests\InsuranceAddRequest;
+use Modules\Insurance\Models\DTOs\InsurancePlanDTO;
 use Modules\Insurance\Models\InsuranceApplication;
 use Modules\Insurance\Models\InsurancePlan;
 use Modules\Insurance\Models\InsuranceProvider;
@@ -28,19 +30,15 @@ class InsuranceApiController extends BaseController
         // Initialize $originalRQ as well to ensure it's accessible in catch
         $originalRQ = null;
 
-        // Validate the incoming request
-        $validated = $request->validated();
+        $bookingItem = $request->input('booking_item');
 
         // Check if the InsurancePlan with the same booking_item already exists
-        $existingInsurancePlan = InsurancePlan::where('booking_item', $validated['booking_item'])->first();
+        $existingInsurancePlan = InsurancePlan::where('booking_item', $bookingItem)->first();
 
         if ($existingInsurancePlan) {
             // If the InsurancePlan already exists, return it with its applications
-            return $this->sendResponse(
-                $existingInsurancePlan->load('applications')->toArray(),
-                'Insurance plan already exists with the specified booking item.',
-                201
-            );
+            $insurancePlanDTO = new InsurancePlanDTO($existingInsurancePlan, 'Insurance plan already exists with the specified booking item.');
+            return response()->json($insurancePlanDTO, 201);
         }
 
         // Start a database transaction to ensure atomic operations
@@ -49,16 +47,17 @@ class InsuranceApiController extends BaseController
         try {
             // Create a new InsurancePlan
             $insurancePlan = new InsurancePlan();
-            $insurancePlan->booking_item = $validated['booking_item'];
+            $insurancePlan->booking_item = $bookingItem;
 
             // Check if the booking_item is in cart from app booking inspector
-            $apiBookingInspectorItem = ApiBookingInspectorRepository::isBookingItemInCart($validated['booking_item']);
+            $apiBookingInspectorItem = ApiBookingInspectorRepository::isBookingItemInCart($bookingItem);
+
 
             if (!$apiBookingInspectorItem) {
                 return $this->sendError('The specified booking item is not valid or not found in the booking inspector', 404);
             }
 
-            $insuranceProvider = InsuranceProvider::where('name', $validated['insurance_provider'])->first();
+            $insuranceProvider = InsuranceProvider::where('name', $request['insurance_provider'])->first();
 
             if (!$insuranceProvider) {
                 return $this->sendError('The selected insurance provider is invalid or unavailable', 404);
@@ -66,15 +65,15 @@ class InsuranceApiController extends BaseController
 
             $searchId = $apiBookingInspectorItem->search_id;
 
-            $itemPricing = ApiBookingItemRepository::getItemPricingData($validated['booking_item']);
+            $itemPricing = ApiBookingItemRepository::getItemPricingData($bookingItem);
 
-            if (!$itemPricing) {
+            if (empty($itemPricing)) {
                 return $this->sendError('Unable to retrieve pricing data for the specified booking item', 500);
             }
 
             $apiSearchInspectorItem = ApiSearchInspectorRepository::getRequest($searchId);
 
-            $bookingItemTotalPrice = (float)$itemPricing['total_price'] ?? 0;
+            $bookingItemTotalPrice = (float)Arr::get($itemPricing, 'total_price', 0);
 
             $insuranceRateTier = InsuranceRateTier::where('insurance_provider_id', $insuranceProvider->id)
                 ->where('min_price', '<=', $bookingItemTotalPrice)
@@ -89,13 +88,13 @@ class InsuranceApiController extends BaseController
             $insuranceProviderFee = $insuranceProvider->rate_type === 'fixed' ?
                 $insuranceProvider->rate_value : ($bookingItemTotalPrice / 100) * $insuranceRateTier->rate_value;
 
-            $commissionUjv = (float)($bookingItemTotalPrice / 100) * (float)env('UJV_INSURANCE_COMMISSION', 5);
+            $commissionUjv = (float)($bookingItemTotalPrice / 100) * (float)env('INSURANCE_COMMISSION', 5);
 
             $insurancePlan->total_insurance_cost = $insuranceProviderFee + $commissionUjv;
             $insurancePlan->insurance_provider_fee = $insuranceProviderFee;
             $insurancePlan->commission_ujv = $commissionUjv;
             $insurancePlan->insurance_provider_id = $insuranceProvider->id;
-            $insurancePlan->request = json_encode($request->all());
+            $insurancePlan->request = $request->all();
 
             if (!$insurancePlan->save()) {
                 DB::rollBack();
@@ -142,7 +141,7 @@ class InsuranceApiController extends BaseController
             $bookingId = $apiBookingInspectorItem->booking_id;
 
             $filters = [
-                'booking_item' => $validated['booking_item'],
+                'booking_item' => $bookingItem,
                 'insurance_provider' => $insuranceProvider->name,
                 'search_id' => $searchId,
             ];
@@ -161,12 +160,12 @@ class InsuranceApiController extends BaseController
             ];
 
             // Return the newly created insurance plan with its applications
-            $responseData = $insurancePlan->load('applications')->toArray();
-            $content['original']['response'] = $responseData;
+            $insurancePlanDTO = new InsurancePlanDTO($insurancePlan, 'Insurance plan and related applications successfully created');
+            $responseData = (array) $insurancePlanDTO;
             $content['original']['request'] = $originalRQ;
 
             // Dispatch the SaveBookingInspector job
-            SaveBookingInspector::dispatch($bookingInspector, $content, []);
+            SaveBookingInspector::dispatch($bookingInspector, $content, $responseData);
 
             // Commit the transaction
             DB::commit();
