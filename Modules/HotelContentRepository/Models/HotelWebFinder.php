@@ -5,9 +5,11 @@ namespace Modules\HotelContentRepository\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelWebFinderFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class HotelWebFinder extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected static function newFactory()
@@ -24,6 +26,10 @@ class HotelWebFinder extends Model
         'example',
     ];
 
+    public static function getFilterableFields()
+    {
+        return (new static)->fillable;
+    }
 
     public function hotels()
     {

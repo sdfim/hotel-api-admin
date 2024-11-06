@@ -15,7 +15,9 @@ class HotelController extends BaseController
 {
     public function index()
     {
-        $hotels = Hotel::with([
+        $query = Hotel::query();
+        $query = $this->applyFilters($query, Hotel::class);
+        $hotels = $query->with([
             'affiliations',
             'attributes',
             'contentSource',

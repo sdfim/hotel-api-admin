@@ -13,7 +13,10 @@ class HotelPromotionController extends BaseController
 {
     public function index()
     {
-        $hotelPromotions = HotelPromotion::with(['galleries.images'])->get();
+        $query = HotelPromotion::query();
+        $query = $this->applyFilters($query, HotelPromotion::class);
+        $hotelPromotions = $query->with(['galleries.images'])->get();
+
         return $this->sendResponse($hotelPromotions->toArray(), 'index success', Response::HTTP_OK);
     }
 

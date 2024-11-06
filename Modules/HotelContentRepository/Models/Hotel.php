@@ -2,13 +2,14 @@
 
 namespace Modules\HotelContentRepository\Models;
 
-use App\Models\Configurations\ConfigJobDescription;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class Hotel extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected static function newFactory()

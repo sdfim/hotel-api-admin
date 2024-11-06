@@ -12,7 +12,10 @@ class HotelWebFinderController extends BaseController
 {
     public function index()
     {
-        $webFinders = HotelWebFinder::all();
+        $query = HotelWebFinder::query();
+        $query = $this->applyFilters($query, HotelWebFinder::class);
+        $webFinders = $query->get();
+
         return $this->sendResponse($webFinders->toArray(), 'index success', Response::HTTP_OK);
     }
 

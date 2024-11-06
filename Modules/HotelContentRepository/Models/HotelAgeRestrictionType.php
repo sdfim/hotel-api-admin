@@ -5,9 +5,11 @@ namespace Modules\HotelContentRepository\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelAgeRestrictionTypeFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class HotelAgeRestrictionType extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected $table = 'pd_hotel_age_restriction_types';
