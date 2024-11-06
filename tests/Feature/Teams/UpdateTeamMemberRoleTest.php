@@ -1,23 +1,25 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Teams;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Jetstream\Http\Livewire\TeamMemberManager;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class UpdateTeamMemberRoleTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[Test]
     public function test_team_member_roles_can_be_updated(): void
     {
         $this->actingAs($user = User::factory()->withPersonalTeam()->create());
 
         $user->currentTeam->users()->attach(
-            $otherUser = User::factory()->create(), ['role' => 'admin']
+            $otherUser = User::factory()->create(), ['role' => 'owner']
         );
 
         Livewire::test(TeamMemberManager::class, ['team' => $user->currentTeam])
@@ -30,12 +32,13 @@ class UpdateTeamMemberRoleTest extends TestCase
         ));
     }
 
+    #[Test]
     public function test_only_team_owner_can_update_team_member_roles(): void
     {
         $user = User::factory()->withPersonalTeam()->create();
 
         $user->currentTeam->users()->attach(
-            $otherUser = User::factory()->create(), ['role' => 'admin']
+            $otherUser = User::factory()->create(), ['role' => 'owner']
         );
 
         $this->actingAs($otherUser);
@@ -47,7 +50,7 @@ class UpdateTeamMemberRoleTest extends TestCase
             ->assertStatus(403);
 
         $this->assertTrue($otherUser->fresh()->hasTeamRole(
-            $user->currentTeam->fresh(), 'admin'
+            $user->currentTeam->fresh(), 'owner'
         ));
     }
 }

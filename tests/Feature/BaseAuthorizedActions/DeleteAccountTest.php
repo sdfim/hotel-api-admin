@@ -1,18 +1,20 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\BaseAuthorizedActions;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Http\Livewire\DeleteUserForm;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class DeleteAccountTest extends TestCase
 {
     use RefreshDatabase;
 
+    #[Test]
     public function test_user_accounts_can_be_deleted(): void
     {
         if (! Features::hasAccountDeletionFeatures()) {
@@ -28,6 +30,7 @@ class DeleteAccountTest extends TestCase
         $this->assertNull($user->fresh());
     }
 
+    #[Test]
     public function test_correct_password_must_be_provided_before_account_can_be_deleted(): void
     {
         if (! Features::hasAccountDeletionFeatures()) {
