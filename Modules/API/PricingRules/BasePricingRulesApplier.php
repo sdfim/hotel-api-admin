@@ -20,8 +20,6 @@ class BasePricingRulesApplier
 
     protected float|int $totalPrice = 0;
 
-    protected float|int $commissionAmount = 0;
-
     protected float|int $totalTax = 0;
 
     protected float|int $totalFees = 0;
@@ -69,8 +67,6 @@ class BasePricingRulesApplier
         $this->totalFees += (float) $roomTotals['total_fees'];
 
         $this->totalNet += (float) $roomTotals['total_net'];
-
-        $this->commissionAmount = (float) $roomTotals['commission_amount'];
     }
 
     protected function validPricingRule(
@@ -143,7 +139,6 @@ class BasePricingRulesApplier
             'total_tax' => $this->totalTax,
             'total_fees' => $this->totalFees,
             'total_net' => $this->totalNet,
-            'commission_amount' => $this->commissionAmount,
         ];
 
         $markup = round($this->markup, 2);
