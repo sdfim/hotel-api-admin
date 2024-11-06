@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Policies;
+namespace App\Policies\Base;
 
 use App\Models\User;
 
 class BasePolicy
 {
     protected static string $prefix = 'base';
+
+    protected static bool $withTeam = false;
 
     private static array $methods = [
         'view',
@@ -33,6 +35,21 @@ class BasePolicy
 
     protected function can(string $name, User $user): bool
     {
-        return $user->hasPermission($this->getPrefix().'.'.$name) || $user->hasRole('admin');
+        $permission = $this->getPrefix().'.'.$name;
+
+        return $user->hasPermission($permission) ||
+            $this->withTeam($name, $user) ||
+            $user->hasRole('admin');
+    }
+
+    protected function withTeam(string $name, User $user): bool
+    {
+        $withTeam = false;
+        if (static::$withTeam) {
+            $currentTeam = $user->currentTeam;
+            $withTeam = $user->hasTeamPermission($currentTeam, $name);
+        }
+
+        return $withTeam;
     }
 }
