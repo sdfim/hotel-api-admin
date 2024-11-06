@@ -13,7 +13,7 @@ class HotelImageController extends BaseController
     public function index()
     {
         $query = HotelImage::query();
-        $query = $this->applyFilters($query, HotelImage::class);
+        $query = $this->filter($query, HotelImage::class);
         $hotelImages = $query->with(['section'])->get();
 
         return $this->sendResponse($hotelImages->toArray(), 'index success', Response::HTTP_OK);

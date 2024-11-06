@@ -13,7 +13,7 @@ class HotelDepositInformationController extends BaseController
     public function index()
     {
         $query = HotelDepositInformation::query();
-        $query = $this->applyFilters($query, HotelDepositInformation::class);
+        $query = $this->filter($query, HotelDepositInformation::class);
         $hotelDepositInformations = $query->get();
 
         return $this->sendResponse($hotelDepositInformations->toArray(), 'index success', Response::HTTP_OK);

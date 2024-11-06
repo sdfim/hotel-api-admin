@@ -13,7 +13,7 @@ class ContentSourceController extends BaseController
     public function index()
     {
         $query = ContentSource::query();
-        $query = $this->applyFilters($query, ContentSource::class);
+        $query = $this->filter($query, ContentSource::class);
         $contentSources = $query->get();
 
         return $this->sendResponse($contentSources->toArray(), 'index success', Response::HTTP_OK);

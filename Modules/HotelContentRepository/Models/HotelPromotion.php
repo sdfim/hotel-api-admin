@@ -38,11 +38,6 @@ class HotelPromotion extends Model
         'pivot'
     ];
 
-    public static function getFilterableFields()
-    {
-        return (new static)->fillable;
-    }
-
     public function hotel()
     {
         return $this->belongsTo(Hotel::class);

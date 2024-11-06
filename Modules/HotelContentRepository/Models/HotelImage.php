@@ -32,11 +32,6 @@ class HotelImage extends Model
         'pivot'
     ];
 
-    public static function getFilterableFields()
-    {
-        return (new static)->fillable;
-    }
-
     public function section()
     {
         return $this->belongsTo(HotelImageSection::class, 'section_id');

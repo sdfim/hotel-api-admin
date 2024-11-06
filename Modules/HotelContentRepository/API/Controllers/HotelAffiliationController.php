@@ -14,7 +14,7 @@ class HotelAffiliationController extends BaseController
     public function index()
     {
         $query = HotelAffiliation::query();
-        $query = $this->applyFilters($query, HotelAffiliation::class);
+        $query = $this->filter($query, HotelAffiliation::class);
         $hotelAffiliations = $query->get();
 
         return $this->sendResponse($hotelAffiliations->toArray(), 'index success', Response::HTTP_OK);

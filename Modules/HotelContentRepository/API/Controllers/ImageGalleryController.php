@@ -14,7 +14,7 @@ class ImageGalleryController extends BaseController
     public function index()
     {
         $query = ImageGallery::query();
-        $query = $this->applyFilters($query, ImageGallery::class);
+        $query = $this->filter($query, ImageGallery::class);
         $galleries = $query->with(['images'])->get();
 
         return $this->sendResponse($galleries->toArray(), 'index success', Response::HTTP_OK);

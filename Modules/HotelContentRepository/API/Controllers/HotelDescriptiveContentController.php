@@ -14,7 +14,7 @@ class HotelDescriptiveContentController extends BaseController
     public function index()
     {
         $query = HotelDescriptiveContent::query();
-        $query = $this->applyFilters($query, HotelDescriptiveContent::class);
+        $query = $this->filter($query, HotelDescriptiveContent::class);
         $hotelDescriptiveContents = $query->get();
 
         return $this->sendResponse($hotelDescriptiveContents->toArray(), 'index success', Response::HTTP_OK);

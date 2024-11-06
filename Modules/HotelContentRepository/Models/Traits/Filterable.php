@@ -9,7 +9,7 @@ trait Filterable
         return (new static)->fillable;
     }
 
-    public function scopeApplyFilters($query)
+    public function scopeFilter($query)
     {
         $filterableFields = self::getFilterableFields();
 

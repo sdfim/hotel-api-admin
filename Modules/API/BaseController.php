@@ -79,7 +79,7 @@ class BaseController extends Controller
         return response()->json($response, $code);
     }
 
-    protected function applyFilters($query, $model)
+    protected function filter($query, $model)
     {
         $filterableFields = $model::getFilterableFields();
 
