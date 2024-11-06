@@ -13,15 +13,14 @@ use Filament\Forms\Form;
 use Filament\Forms\Set;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\HeaderActionsPosition;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -84,6 +83,17 @@ class RolesForm extends Component implements HasForms, HasTable
                     ->searchable(),
                 TextColumn::make('slug')
                     ->searchable(),
+            ])
+            ->actions([
+                DeleteAction::make('delete')
+                    ->iconButton()
+                    ->action(function (Permission $permission) {
+                        if ($this->record->exists) {
+                            $this->record->permissions()->detach($permission->id);
+                        } else {
+                            $this->permissionIds = array_filter($this->permissionIds, fn ($id) => $id != $permission->id);
+                        }
+                    })
             ])
             ->bulkActions([
                 DeleteBulkAction::make('delete')

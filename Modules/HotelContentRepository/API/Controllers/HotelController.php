@@ -28,7 +28,8 @@ class HotelController extends BaseController
             'rooms.galleries.images',
             'keyMappings',
             'galleries.images',
-            'contactInformation'
+            'contactInformation',
+            'webFinders',
         ])->get();
 
         $hotelDTOs = $hotels->map(function ($hotel) {
@@ -59,7 +60,8 @@ class HotelController extends BaseController
             'rooms.galleries.images',
             'keyMappings',
             'galleries.images',
-            'contactInformation'
+            'contactInformation',
+            'webFinders',
         ])->findOrFail($id);
 
         $hotelDTO = new HotelDTO($hotel);
@@ -94,5 +96,19 @@ class HotelController extends BaseController
         $hotel = Hotel::findOrFail($id);
         $hotel->galleries()->detach($request->gallery_id);
         return $this->sendResponse($hotel->galleries->toArray(), 'Gallery detached successfully', Response::HTTP_OK);
+    }
+
+    public function attachWebFinder(Request $request, $id)
+    {
+        $hotel = Hotel::findOrFail($id);
+        $hotel->webFinders()->attach($request->web_finder_id);
+        return $this->sendResponse($hotel->webFinders->toArray(), 'Web Finder attached successfully', Response::HTTP_OK);
+    }
+
+    public function detachWebFinder(Request $request, $id)
+    {
+        $hotel = Hotel::findOrFail($id);
+        $hotel->webFinders()->detach($request->web_finder_id);
+        return $this->sendResponse($hotel->webFinders->toArray(), 'Web Finder detached successfully', Response::HTTP_OK);
     }
 }

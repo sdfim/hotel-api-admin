@@ -36,6 +36,15 @@
                     </div>
 
                     <div class="mt-8">
+                        <div class="flex flex-col xl:flex-row gap-8">
+                            <div class="flex-1">
+                                <h2 class="text-xl font-semibold">Website Search Generation</h2>
+                                @livewire('hotels.hotel-web-finder-table', ['hotelId' => $hotelId])
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8">
                         <h2 class="text-xl font-semibold">Contact Information</h2>
                         @livewire('hotels.hotel-contact-information-table', ['hotelId' => $hotelId])
                     </div>

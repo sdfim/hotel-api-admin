@@ -21,11 +21,16 @@ use Modules\HotelContentRepository\Livewire\HotelContactInformation\HotelContact
 use Modules\HotelContentRepository\Livewire\HotelDepositInformation\HotelDepositInformationTable;
 use Modules\HotelContentRepository\Livewire\HotelDescriptiveContentSection\HotelDescriptiveContentSectionTable;
 use Modules\HotelContentRepository\Livewire\HotelFeeTaxes\HotelFeeTaxTable;
+use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
+use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesTable;
 use Modules\HotelContentRepository\Livewire\HotelInformativeServices\HotelInformativeServicesTable;
 use Modules\HotelContentRepository\Livewire\HotelPromotion\HotelPromotionTable;
 use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
+use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
+use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesTable;
 use Modules\HotelContentRepository\Livewire\KeyMappings\KeyMappingTable;
 use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyCommissionTable;
+use Modules\HotelContentRepository\Livewire\HotelWebFinder\HotelWebFinderTable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -105,5 +110,10 @@ class AppServiceProvider extends ServiceProvider
         Livewire::component('hotels.hotel-promotion-table', HotelPromotionTable::class);
         Livewire::component('hotels.hotel-deposit-information-table', HotelDepositInformationTable::class);
         Livewire::component('hotels.hotel-contact-information-table', HotelContactInformationTable::class);
+        Livewire::component('image-galleries.image-galleries-table', ImageGalleriesTable::class);
+        Livewire::component('image-galleries.image-galleries-form', ImageGalleriesForm::class);
+        Livewire::component('hotel-images.hotel-images-table', HotelImagesTable::class);
+        Livewire::component('hotel-images.hotel-images-form', HotelImagesForm::class);
+        Livewire::component('hotels.hotel-web-finder-table', HotelWebFinderTable::class);
     }
 }

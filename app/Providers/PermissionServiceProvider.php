@@ -16,7 +16,9 @@ use App\Policies\Configurations\ConfigConsortiumPolicy;
 use App\Policies\Configurations\ConfigDescriptiveTypePolicy;
 use App\Policies\Configurations\ConfigJobDescriptionPolicy;
 use App\Policies\Configurations\ConfigServiceTypePolicy;
+use App\Policies\HotelImagePolicy;
 use App\Policies\HotelPolicy;
+use App\Policies\ImageGalleryPolicy;
 use App\Policies\InformationalServicePolicy;
 use App\Policies\InsuranceProviderPolicy;
 use App\Policies\InsuranceRestrictionPolicy;
@@ -25,6 +27,8 @@ use App\Policies\TravelAgencyCommissionPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\HotelImage;
+use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 use Modules\Insurance\Models\InsuranceProvider;
 use Modules\Insurance\Models\InsuranceRestriction;
@@ -50,6 +54,8 @@ class PermissionServiceProvider extends ServiceProvider
         ConfigChain::class             => ConfigChainPolicy::class,
         InformationalService::class    => InformationalServicePolicy::class,
         TravelAgencyCommission::class  => TravelAgencyCommissionPolicy::class,
+        ImageGallery::class            => ImageGalleryPolicy::class,
+        HotelImage::class              => HotelImagePolicy::class,
     ];
 
     /**

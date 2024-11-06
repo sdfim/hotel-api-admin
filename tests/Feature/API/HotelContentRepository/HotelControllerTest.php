@@ -4,6 +4,7 @@ namespace Tests\Feature\API\HotelContentRepository;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\HotelWebFinder;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -139,6 +140,52 @@ class HotelControllerTest extends TestCase
         $this->assertDatabaseMissing('pd_hotel_gallery', [
             'hotel_id' => $hotel->id,
             'gallery_id' => $gallery->id,
+        ]);
+    }
+
+    #[Test]
+    public function test_can_attach_web_finder_to_hotel()
+    {
+        $hotel = Hotel::factory()->create();
+        $webFinder = HotelWebFinder::factory()->create();
+
+        $response = $this->request()->postJson("api/repo/hotels/{$hotel->id}/attach-web-finder", [
+            'web_finder_id' => $webFinder->id,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'data' => [
+                '*' => ['id', 'base_url', 'finder', 'type', 'example']
+            ],
+            'message'
+        ]);
+        $this->assertDatabaseHas('pd_hotel_web_finder_hotel', [
+            'hotel_id' => $hotel->id,
+            'web_finder_id' => $webFinder->id,
+        ]);
+    }
+
+    #[Test]
+    public function test_can_detach_web_finder_from_hotel()
+    {
+        $hotel = Hotel::factory()->create();
+        $webFinder = HotelWebFinder::factory()->create();
+        $hotel->webFinders()->attach($webFinder->id);
+
+        $response = $this->request()->postJson("api/repo/hotels/{$hotel->id}/detach-web-finder", [
+            'web_finder_id' => $webFinder->id,
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'success',
+            'message'
+        ]);
+
+        $this->assertDatabaseMissing('pd_hotel_web_finder_hotel', [
+            'hotel_id' => $hotel->id,
+            'web_finder_id' => $webFinder->id,
         ]);
     }
 }
