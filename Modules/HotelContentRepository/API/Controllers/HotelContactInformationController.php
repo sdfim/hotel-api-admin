@@ -13,7 +13,10 @@ class HotelContactInformationController extends BaseController
 {
     public function index()
     {
-        $hotelContactInformations = HotelContactInformation::all();
+        $query = HotelContactInformation::query();
+        $query = $this->applyFilters($query, HotelContactInformation::class);
+        $hotelContactInformations = $query->get();
+
         return $this->sendResponse($hotelContactInformations->toArray(), 'index success', Response::HTTP_OK);
     }
 

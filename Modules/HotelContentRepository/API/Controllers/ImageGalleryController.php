@@ -13,7 +13,10 @@ class ImageGalleryController extends BaseController
 {
     public function index()
     {
-        $galleries = ImageGallery::with('images')->get();
+        $query = ImageGallery::query();
+        $query = $this->applyFilters($query, ImageGallery::class);
+        $galleries = $query->with(['images'])->get();
+
         return $this->sendResponse($galleries->toArray(), 'index success', Response::HTTP_OK);
     }
 

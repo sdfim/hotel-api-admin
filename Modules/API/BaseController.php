@@ -78,4 +78,17 @@ class BaseController extends Controller
 
         return response()->json($response, $code);
     }
+
+    protected function applyFilters($query, $model)
+    {
+        $filterableFields = $model::getFilterableFields();
+
+        foreach ($filterableFields as $field) {
+            if (request()->has($field)) {
+                $query->where($field, 'like', '%' . request()->input($field) . '%');
+            }
+        }
+
+        return $query;
+    }
 }

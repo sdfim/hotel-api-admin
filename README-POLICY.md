@@ -40,6 +40,7 @@ checks, you can also override the permission check method.
 namespace App\Policies;
 
 use App\Models\User;
+use App\Policies\Base\BasePolicy;
 
 class UserPolicy extends BasePolicy
 {

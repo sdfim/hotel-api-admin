@@ -13,7 +13,10 @@ class HotelAttributeController extends BaseController
 {
     public function index()
     {
-        $hotelAttributes = HotelAttribute::all();
+        $query = HotelAttribute::query();
+        $query = $this->applyFilters($query, HotelAttribute::class);
+        $hotelAttributes = $query->get();
+
         return $this->sendResponse($hotelAttributes->toArray(), 'index success', Response::HTTP_OK);
     }
 

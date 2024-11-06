@@ -2,12 +2,12 @@
 
 namespace Tests\Feature\Properties;
 
+use App\Models\Supplier;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use PHPUnit\Framework\Attributes\Test;
-use Tests\TestCase;
 use Tests\Feature\AuthenticatesUser;
-use App\Models\Supplier;
+use Tests\TestCase;
 
 class SuppliersControllerTest extends TestCase
 {

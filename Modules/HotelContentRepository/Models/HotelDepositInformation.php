@@ -5,9 +5,11 @@ namespace Modules\HotelContentRepository\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelDepositInformationFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class HotelDepositInformation extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected static function newFactory()
@@ -20,9 +22,8 @@ class HotelDepositInformation extends Model
     protected $fillable = [
         'hotel_id',
         'days_departure',
-        'per_channel',
-        'per_room',
-        'per_rate',
+        'pricing_parameters',
+        'pricing_value',
     ];
 
     protected $hidden = [

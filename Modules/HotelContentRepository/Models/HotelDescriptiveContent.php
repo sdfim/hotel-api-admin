@@ -6,9 +6,11 @@ use App\Models\Configurations\ConfigDescriptiveType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelDescriptiveContentFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class HotelDescriptiveContent extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected static function newFactory()

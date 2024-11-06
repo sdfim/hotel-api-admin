@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TeamController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
@@ -58,6 +59,8 @@ Route::get('/admin/', function () {
         return redirect(config('app.url').'/admin/reservations');
     }
 })->name('root');
+
+Route::post('/teams/switch', [TeamController::class, 'switch'])->name('teams.switch');
 
 Route::prefix('admin')->group(function () {
     Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {

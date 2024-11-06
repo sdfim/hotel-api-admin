@@ -6,9 +6,11 @@ use App\Models\Configurations\ConfigJobDescription;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelContactInformationFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class HotelContactInformation extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected static function newFactory()

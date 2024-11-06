@@ -12,7 +12,10 @@ class TravelAgencyCommissionController extends BaseController
 {
     public function index()
     {
-        $commissions = TravelAgencyCommission::all();
+        $query = TravelAgencyCommission::query();
+        $query = $this->applyFilters($query, TravelAgencyCommission::class);
+        $commissions = $query->get();
+
         return $this->sendResponse($commissions->toArray(), 'index success', Response::HTTP_OK);
     }
 
