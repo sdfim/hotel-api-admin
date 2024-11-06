@@ -38,6 +38,20 @@ class DetailHotelRequest extends ApiRequest
      *      example=98736411
      *    )
      *   ),
+     * 
+     *    @OA\Parameter(
+     *      name="room_type_codes",
+     *      in="query"
+     *      required=false,
+     *      description="Array of room type codes. (e.g., ['ODK'])"
+     *      @OA\Schema(
+     *         type="array",
+     *         @OA\Items(
+     *             type="string",
+     *             example="ODK"
+     *         )
+     *     )
+     *   )
      *
      *   @OA\Response(
      *     response=200,
@@ -93,6 +107,8 @@ class DetailHotelRequest extends ApiRequest
             'property_id' => 'required|int|digits_between:4,12',
             'type' => 'required|in:hotel,flight,combo',
             'supplier' => 'string',
+            'room_type_codes' => 'array', 
+            'room_type_codes.*' => 'string',
         ];
     }
 

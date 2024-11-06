@@ -117,6 +117,10 @@ class HbsiService
         $bookingParentItem = ApiBookingItem::where('booking_item', $completeItem)->first();
         $bookingParentItem->child_items = $room_combinations;
         $bookingParentItem->update();
+
+        $bookingParentItem = ApiBookingItem::where('booking_item', $completeItem)->first();
+        $bookingParentItem->child_items = $room_combinations;
+        $bookingParentItem->update();
     }
 
     public function getArrOccupancy(array $filters): array

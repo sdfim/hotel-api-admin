@@ -17,7 +17,7 @@ class IcePortalHotelContentDetailDto
         $this->client = new IceHBSIClient();
     }
 
-    public function HbsiToContentDetailResponse(object $supplierResponse, int $giata_id): array
+    public function HbsiToContentDetailResponse(object $supplierResponse, int $giata_id, array $roomTypeCodes = []): array
     {
         $assets = $this->client->get('/v1/listings/'.$supplierResponse->listingID.'/assets', [
             'includeDisabledAssets' => 'true',
@@ -35,7 +35,7 @@ class IcePortalHotelContentDetailDto
         $contentResponse = [];
 
         $icePortalAssetDto = new IcePortalAssetDto();
-        $result = $icePortalAssetDto->IcePortalToAssets($assetsResponse);
+        $result = $icePortalAssetDto->IcePortalToAssets($assetsResponse, $roomTypeCodes);
 
         $hotelImages = $result['hotelImages'];
         $roomImages = $result['roomImages'];
@@ -72,6 +72,12 @@ class IcePortalHotelContentDetailDto
 
         $rooms = [];
         foreach ($supplierResponse->roomTypes as $room) {
+
+            if (!empty($roomTypeCodes) && !in_array($room['roomCode'], $roomTypeCodes)) 
+            {
+                continue;
+            }
+            
             $images = array_merge($roomImages[$room['roomID']] ?? [], $roomAmenitiesGeneral);
             $roomResponse = ContentDetailRoomsResponseFactory::create();
             $roomResponse->setSupplierRoomId($room['roomID']);
