@@ -12,9 +12,8 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('hotel_id');
             $table->integer('days_departure');
-            $table->decimal('per_channel', 8, 2)->nullable();
-            $table->decimal('per_room', 8, 2)->nullable();
-            $table->decimal('per_rate', 8, 2)->nullable();
+            $table->string('pricing_parameters');
+            $table->decimal('pricing_value', 8, 2)->nullable();
             $table->timestamps();
 
             $table->foreign('hotel_id')->references('id')->on('pd_hotels')->onDelete('cascade');

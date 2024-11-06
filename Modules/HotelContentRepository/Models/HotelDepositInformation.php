@@ -20,9 +20,8 @@ class HotelDepositInformation extends Model
     protected $fillable = [
         'hotel_id',
         'days_departure',
-        'per_channel',
-        'per_room',
-        'per_rate',
+        'pricing_parameters',
+        'pricing_value',
     ];
 
     protected $hidden = [

@@ -52,15 +52,17 @@ class HotelDepositInformationTable extends Component implements HasForms, HasTab
                 ->label('Days Prior to Departure')
                 ->required()
                 ->numeric(),
-            TextInput::make('per_channel')
+            Select::make('pricing_parameters')
+                ->label('Pricing Parameters')
+                ->options([
+                    'per_channel' => 'Per Channel',
+                    'per_room' => 'Per Room',
+                    'per_rate' => 'Per Rate',
+                ])
+                ->required(),
+            TextInput::make('pricing_value')
                 ->numeric('decimal')
-                ->label('Per Channel'),
-            TextInput::make('per_room')
-                ->numeric('decimal')
-                ->label('Per Room'),
-            TextInput::make('per_rate')
-                ->numeric('decimal')
-                ->label('Per Rate'),
+                ->label('Pricing Value'),
         ];
     }
 
@@ -72,9 +74,8 @@ class HotelDepositInformationTable extends Component implements HasForms, HasTab
             )
             ->columns([
                 TextColumn::make('days_departure')->label('Days Prior to Departure')->searchable(),
-                TextColumn::make('per_channel')->label('Per Channel')->searchable(),
-                TextColumn::make('per_room')->label('Per Room')->searchable(),
-                TextColumn::make('per_rate')->label('Per Rate')->searchable(),
+                TextColumn::make('pricing_parameters')->label('Pricing Parameters')->searchable(),
+                TextColumn::make('pricing_value')->label('Value')->searchable(),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([
