@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->append([
             \App\Http\Middleware\SetLocationHeader::class,
             \App\Http\Middleware\RewriteUrls::class,
+            \App\Http\Middleware\SelectTeamAfterAcceptMiddleware::class,
         ]);
 
         $middleware->use([
