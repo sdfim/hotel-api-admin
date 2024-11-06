@@ -14,7 +14,6 @@ return new class extends Migration {
             $table->string('name');
             $table->string('location');
             $table->integer('age');
-            $table->timestamp('applied_at')->nullable();
             $table->decimal('total_insurance_cost_pp', 10); // Cost per passenger
             $table->timestamps();
         });

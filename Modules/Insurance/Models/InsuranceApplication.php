@@ -2,7 +2,6 @@
 
 namespace Modules\Insurance\Models;
 
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,7 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string $name
  * @property string $location
  * @property int $age
- * @property Carbon $applied_at
  * @property float $total_insurance_cost_pp
  *
  * @property InsurancePlan $plan
@@ -31,8 +29,9 @@ class InsuranceApplication extends Model
         'name',
         'location',
         'age',
-        'applied_at',
         'total_insurance_cost_pp',
+        'created_at',
+        'updated_at',
     ];
 
     public function plan(): BelongsTo

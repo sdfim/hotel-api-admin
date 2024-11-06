@@ -12,14 +12,17 @@ class InsuranceApplicationFactory extends Factory
 
     public function definition(): array
     {
+        $date = $this->faker->dateTime;
+
         return [
             'insurance_plan_id' => InsurancePlan::factory(),
             'room_number' => rand(1, 3),
             'name' => $this->faker->name,
             'location' => $this->faker->city,
             'age' => $this->faker->numberBetween(18, 80),
-            'applied_at' => $this->faker->dateTime,
             'total_insurance_cost_pp' => $this->faker->randomFloat(2, 50, 500),
+            'created_at' => $date,
+            'updated_at' => $date,
         ];
     }
 }

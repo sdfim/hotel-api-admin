@@ -114,7 +114,6 @@ class InsuranceApiController extends BaseController
                     'room_number' => $roomIndex + 1,
                     'name' => '',
                     'location' => $apiSearchInspectorItem['destination'] ?? '',
-                    'applied_at' => $now,
                     'total_insurance_cost_pp' => $totalInsuranceCostPerPerson,
                     'created_at' => $now,
                     'updated_at' => $now,

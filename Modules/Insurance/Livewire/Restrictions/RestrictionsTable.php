@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Insurance\Livewire\Insurance\Restrictions;
+namespace Modules\Insurance\Livewire\Restrictions;
 
 use App\Helpers\ClassHelper;
 use App\Models\Property;

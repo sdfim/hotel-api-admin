@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Insurance\Livewire\Insurance\Providers;
+namespace Modules\Insurance\Livewire\Providers;
 
 use App\Helpers\ClassHelper;
 use Filament\Forms\Components\TextInput;
