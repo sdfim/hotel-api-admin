@@ -18,7 +18,9 @@
     use Modules\HotelContentRepository\Models\TravelAgencyCommission;
     use App\Models\GiataGeography;
     use Modules\Insurance\Models\InsuranceProvider;
+    use Modules\Insurance\Models\InsuranceProviderDocumentation;
     use Modules\Insurance\Models\InsuranceRestriction;
+    use Modules\Insurance\Models\InsuranceRateTier;
     use App\Models\Configurations\ConfigAttribute;
     use App\Models\Configurations\ConfigConsortium;
     use App\Models\Configurations\ConfigDescriptiveType;
@@ -121,13 +123,6 @@
                                     >Chains </a>
                                 </li>
                             @endif
-{{--                                @can('config-group')--}}
-{{--                                <li>--}}
-{{--                                    <a href="{{ route('configurations.config-group.index') }}"--}}
-{{--                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"--}}
-{{--                                    >Setting Group</a>--}}
-{{--                                </li>--}}
-{{--                            @endif--}}
                         </ul>
                     </li>
                 @endif
@@ -326,29 +321,6 @@
                         </a>
                     </li>
                 @endif
-{{--                @if($canView(Hotel::class))--}}
-{{--                    <li>--}}
-{{--                        <a href="javascript: void(0);" aria-expanded="false"--}}
-{{--                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">--}}
-{{--                            <i class="dripicons-graduation"></i>--}}
-{{--                            <span data-key="t-configuration">Content Repository</span>--}}
-{{--                        </a>--}}
-{{--                        <ul>--}}
-{{--                            <li>--}}
-{{--                                <a href="{{ Route('hotel_repository.index') }}"--}}
-{{--                                   class="pl-14 pr-4 py-2 block text-[13.5px]--}}
-{{--                               font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500--}}
-{{--                               dark:text-gray-300 dark:active:text-white dark:hover:text-white">Hotels</a>--}}
-{{--                            </li>--}}
-{{--                            <li>--}}
-{{--                                <a href="{{ Route('hotel_rooms.index') }}"--}}
-{{--                                   class="pl-14 pr-4 py-2 block text-[13.5px]--}}
-{{--                               font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500--}}
-{{--                               dark:text-gray-300 dark:active:text-white dark:hover:text-white">Rooms</a>--}}
-{{--                            </li>--}}
-{{--                        </ul>--}}
-{{--                    </li>--}}
-{{--                @endif--}}
                 @can('statistic-charts')
                     <li>
                         <a href="{{ Route('statistic-charts') }}"
@@ -367,7 +339,7 @@
                         </a>
                     </li>
                 @endif
-                @if($canView(InsuranceProvider::class) || $canView(InsuranceRestriction::class))
+                @if($canView(InsuranceProvider::class) || $canView(InsuranceProviderDocumentation::class) || $canView(InsuranceRestriction::class) || $canView(InsuranceRateTier::class))
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
                            class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
@@ -382,11 +354,25 @@
                                         Providers</a>
                                 </li>
                             @endif
+                            @if($canView(InsuranceProvider::class))
+                                <li>
+                                    <a href="{{ Route('insurance-providers-documentation.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                        Providers Documentation</a>
+                                </li>
+                           @endif
                             @if($canView(InsuranceRestriction::class))
                                 <li>
                                     <a href="{{ Route('insurance-restrictions.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                         Restrictions</a>
+                                </li>
+                            @endif
+                            @if($canView(InsuranceRateTier::class))
+                                <li>
+                                    <a href="{{ Route('insurance-rate-tiers.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                        Rate Tier</a>
                                 </li>
                             @endif
                         </ul>

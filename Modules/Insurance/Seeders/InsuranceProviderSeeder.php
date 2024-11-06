@@ -12,6 +12,8 @@ class InsuranceProviderSeeder extends Seeder
         InsuranceProvider::firstOrCreate([
             'name' => 'TripMate',
         ], [
+            'markup_type' => 'percentage',
+            'markup_value' => 30,
             'contact_info' => '',
         ]);
     }

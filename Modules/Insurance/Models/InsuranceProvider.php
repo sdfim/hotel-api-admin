@@ -6,11 +6,25 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Class InsuranceProvider
+ *
+ * @property int $id
+ * @property string $name
+ * @property string $contact_info
+ *
+ * @property InsurancePlan[] $plans
+ * @property InsuranceRestriction[] $restrictions
+ * @property InsuranceProviderDocumentation[] $documentations
+ */
 class InsuranceProvider extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'contact_info'];
+    protected $fillable = [
+        'name',
+        'contact_info'
+    ];
 
     public function plans(): HasMany
     {

@@ -2,11 +2,10 @@
 
 namespace Modules\Insurance\API\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
-class InsuaranceAddRequest extends ApiRequest
+class InsuranceAddRequest extends ApiRequest
 {
     public function authorize(): bool
     {
@@ -15,6 +14,8 @@ class InsuaranceAddRequest extends ApiRequest
 
     public function rules(): array
     {
+        // we can use 'booking_item' => 'required|size:36|unique:insurance_plans,booking_item', if we want to check if
+        // InsurancePlan for required booking_item is already created
         return [
             'booking_item' => 'required|size:36',
             'insurance_provider' => 'required|exists:insurance_providers,name',

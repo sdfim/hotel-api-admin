@@ -10,10 +10,10 @@ return new class extends Migration {
         Schema::create('insurance_applications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('insurance_plan_id')->constrained('insurance_plans')->onDelete('cascade');
+            $table->integer('room_number');
             $table->string('name');
             $table->string('location');
             $table->integer('age');
-            $table->timestamp('applied_at')->nullable();
             $table->decimal('total_insurance_cost_pp', 10); // Cost per passenger
             $table->timestamps();
         });

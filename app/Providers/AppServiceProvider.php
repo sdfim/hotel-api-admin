@@ -26,11 +26,15 @@ use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesTable;
 use Modules\HotelContentRepository\Livewire\HotelInformativeServices\HotelInformativeServicesTable;
 use Modules\HotelContentRepository\Livewire\HotelPromotion\HotelPromotionTable;
 use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
+use Modules\HotelContentRepository\Livewire\HotelWebFinder\HotelWebFinderTable;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesTable;
 use Modules\HotelContentRepository\Livewire\KeyMappings\KeyMappingTable;
 use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyCommissionTable;
-use Modules\HotelContentRepository\Livewire\HotelWebFinder\HotelWebFinderTable;
+use Modules\Insurance\Livewire\Providers\ProvidersDocumentationTable;
+use Modules\Insurance\Livewire\Providers\ProvidersTable;
+use Modules\Insurance\Livewire\RateTiers\RateTiersTable;
+use Modules\Insurance\Livewire\Restrictions\RestrictionsTable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -65,7 +69,7 @@ class AppServiceProvider extends ServiceProvider
             return new ExpediaService($propertyCallFactory);
         });
 
-		if ($this->app->environment('local')) {
+        if ($this->app->environment('local')) {
             $this->app->register(HorizonServiceProvider::class);
         }
     }
@@ -78,7 +82,7 @@ class AppServiceProvider extends ServiceProvider
         $this->registerContentRepositoryComponents();
 
         $currentUrl = URL::current();
-        if (! str_contains($currentUrl, 'localhost') && ! str_contains($currentUrl, '127.0.0.1')) {
+        if (!str_contains($currentUrl, 'localhost') && !str_contains($currentUrl, '127.0.0.1')) {
             URL::forceScheme('https');
         }
         Schema::defaultStringLength(191);
@@ -115,5 +119,9 @@ class AppServiceProvider extends ServiceProvider
         Livewire::component('hotel-images.hotel-images-table', HotelImagesTable::class);
         Livewire::component('hotel-images.hotel-images-form', HotelImagesForm::class);
         Livewire::component('hotels.hotel-web-finder-table', HotelWebFinderTable::class);
+        Livewire::component('insurance.providers-table', ProvidersTable::class);
+        Livewire::component('insurance.providers-documentation-table', ProvidersDocumentationTable::class);
+        Livewire::component('insurance.restrictions-table', RestrictionsTable::class);
+        Livewire::component('insurance.rate-tiers-table', RateTiersTable::class);
     }
 }

@@ -14,8 +14,8 @@ class InsuranceProviderDocumentationFactory extends Factory
     {
         return [
             'provider_id' => InsuranceProvider::factory(),
-            'type_document' => $this->faker->word,
-            'uri' => $this->faker->url,
+            'document_type' => $this->faker->word,
+            'path' => $this->faker->url,
         ];
     }
 }

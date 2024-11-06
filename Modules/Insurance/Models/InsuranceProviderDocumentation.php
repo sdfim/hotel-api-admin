@@ -6,14 +6,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Class InsuranceProviderDocumentation
+ *
+ * @property int $id
+ * @property int $provider_id
+ * @property string $document_type
+ * @property string $path
+ *
+ * @property InsuranceProvider $provider
+ */
 class InsuranceProviderDocumentation extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'provider_id',
-        'type_document',
-        'uri',
+        'document_type',
+        'path',
     ];
 
     public function provider(): BelongsTo

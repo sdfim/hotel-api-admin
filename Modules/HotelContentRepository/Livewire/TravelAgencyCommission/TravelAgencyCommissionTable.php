@@ -3,9 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\TravelAgencyCommission;
 
 use App\Helpers\ClassHelper;
-use App\Models\Channel;
 use App\Models\Configurations\ConfigConsortium;
-use App\Models\Supplier;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
@@ -22,7 +20,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
@@ -49,34 +46,34 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                 ->numeric('decimal')
                 ->required(),
             Grid::make()->schema([
-                    DatePicker::make('date_range_start')
-                        ->label('Start Date')
-                        ->native(false)
-                        ->required(),
-                    DatePicker::make('date_range_end')
-                        ->label('End Date')
-                        ->native(false)
-                        ->required(),
-                ]),
+                DatePicker::make('date_range_start')
+                    ->label('Start Date')
+                    ->native(false)
+                    ->required(),
+                DatePicker::make('date_range_end')
+                    ->label('End Date')
+                    ->native(false)
+                    ->required(),
+            ]),
 
             Repeater::make('conditions')
                 ->label('Related Model')
                 ->schema([
                     Grid::make()->schema([
-                    Select::make('field')
-                        ->label('Field')
-                        ->options([
-                            'consortia' => 'Consortia',
-                            'room_type' => 'Room Type',
-                        ])
-                        ->live()
-                        ->required()
-                        ->afterStateUpdated(fn(Select $component) => $component
-                            ->getContainer()
-                            ->getComponent('dynamicFieldValue')
-                            ->getChildComponentContainer()
-                            ->fill()
-                        ),
+                        Select::make('field')
+                            ->label('Field')
+                            ->options([
+                                'consortia' => 'Consortia',
+                                'room_type' => 'Room Type',
+                            ])
+                            ->live()
+                            ->required()
+                            ->afterStateUpdated(fn(Select $component) => $component
+                                ->getContainer()
+                                ->getComponent('dynamicFieldValue')
+                                ->getChildComponentContainer()
+                                ->fill()
+                            ),
                         Grid::make()
                             ->schema(components: fn(Get $get): array => match ($get('field')) {
                                 'consortia' => [
@@ -182,7 +179,7 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     ->label('')
                     ->tooltip('Delete Travel Agency Commission')
                     ->requiresConfirmation()
-                    ->action(fn (TravelAgencyCommission $record) => $record->delete())
+                    ->action(fn(TravelAgencyCommission $record) => $record->delete())
 //                    ->visible(fn (TravelAgencyCommission $record): bool => Gate::allows('delete', $record))
                 ,
             ])
