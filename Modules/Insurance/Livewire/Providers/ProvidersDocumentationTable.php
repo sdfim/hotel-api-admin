@@ -62,8 +62,8 @@ class ProvidersDocumentationTable extends Component implements HasForms, HasTabl
                         ->unique(ignorable: $record)
                         ->required(),
                 ]),
-            FileUpload::make('uri')
-                ->label('File document')
+            FileUpload::make('path')
+                ->label('Upload file')
                 ->disk('public')
                 ->directory('insurance-documentation')
                 ->visibility('private')
@@ -130,6 +130,17 @@ class ProvidersDocumentationTable extends Component implements HasForms, HasTabl
                     ->tooltip('Delete Provider Documentation')
                     ->requiresConfirmation()
                     ->action(function (InsuranceProviderDocumentation $record) {
+                        $filePath = $record->path;
+
+                        if (Storage::disk('public')->exists($filePath)) {
+                            Storage::disk('public')->delete($filePath);
+                        } else {
+                            Notification::make()
+                                ->title('Can\'t delete file')
+                                ->danger()
+                                ->send();
+                        }
+
                         $record->delete();
 
                         Notification::make()
