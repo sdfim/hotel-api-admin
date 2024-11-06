@@ -11,8 +11,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $provider_id
- * @property string $type_document
- * @property string $uri
+ * @property string $document_type
+ * @property string $path
  *
  * @property InsuranceProvider $provider
  */
@@ -22,8 +22,8 @@ class InsuranceProviderDocumentation extends Model
 
     protected $fillable = [
         'provider_id',
-        'type_document',
-        'uri',
+        'document_type',
+        'path',
     ];
 
     public function provider(): BelongsTo

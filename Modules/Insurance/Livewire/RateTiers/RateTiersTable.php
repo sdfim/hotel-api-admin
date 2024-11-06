@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Insurance\Livewire\Insurance\RateTiers;
+namespace Modules\Insurance\Livewire\RateTiers;
 
 use App\Helpers\ClassHelper;
 use Filament\Forms\Components\Grid;

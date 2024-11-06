@@ -38,6 +38,7 @@ use Modules\HotelContentRepository\Http\Controllers\HotelImageController;
 use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
 use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
 use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
+use Modules\Insurance\Http\Controllers\InsuranceProvidersDocumentationController;
 use Modules\Insurance\Http\Controllers\InsuranceRateTiersController;
 
 /*
@@ -95,6 +96,7 @@ Route::prefix('admin')->group(function () {
         Route::resource('travel-agency-commission', TravelAgencyCommissionController::class);
 
         Route::resource('/insurance-providers', InsuranceProvidersController::class)->only(['index']);
+        Route::resource('/insurance-providers-documentation', InsuranceProvidersDocumentationController::class)->only(['index']);
         Route::resource('/insurance-restrictions', InsuranceRestrictionsController::class)->only(['index']);
         Route::resource('/insurance-rate-tiers', InsuranceRateTiersController::class)->only(['index']);
 

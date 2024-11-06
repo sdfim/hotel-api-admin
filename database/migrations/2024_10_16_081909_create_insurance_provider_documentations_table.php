@@ -10,7 +10,7 @@ return new class extends Migration {
         Schema::create('insurance_provider_documentations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('provider_id')->constrained('insurance_providers')->onDelete('cascade');
-            $table->string('type_document');
+            $table->string('document_type');
             $table->string('uri');
             $table->timestamps();
         });

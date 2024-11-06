@@ -19,6 +19,7 @@ use App\Policies\HotelImagePolicy;
 use App\Policies\HotelPolicy;
 use App\Policies\ImageGalleryPolicy;
 use App\Policies\InformationalServicePolicy;
+use App\Policies\InsuranceProviderDocumentationPolicy;
 use App\Policies\InsuranceProviderPolicy;
 use App\Policies\InsuranceRateTierPolicy;
 use App\Policies\InsuranceRestrictionPolicy;
@@ -30,6 +31,7 @@ use Modules\HotelContentRepository\Models\HotelImage;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 use Modules\Insurance\Models\InsuranceProvider;
+use Modules\Insurance\Models\InsuranceProviderDocumentation;
 use Modules\Insurance\Models\InsuranceRateTier;
 use Modules\Insurance\Models\InsuranceRestriction;
 
@@ -43,20 +45,21 @@ class PermissionServiceProvider extends ServiceProvider
     ];
 
     private static array $modelPolicies = [
-        Hotel::class                   => HotelPolicy::class,
-        InsuranceProvider::class       => InsuranceProviderPolicy::class,
-        InsuranceRestriction::class    => InsuranceRestrictionPolicy::class,
-        InsuranceRateTier::class       => InsuranceRateTierPolicy::class,
-        ConfigAttribute::class         => ConfigAttributePolicy::class,
-        ConfigConsortium::class        => ConfigConsortiumPolicy::class,
-        ConfigDescriptiveType::class   => ConfigDescriptiveTypePolicy::class,
-        ConfigJobDescription::class    => ConfigJobDescriptionPolicy::class,
-        ConfigServiceType::class       => ConfigServiceTypePolicy::class,
-        ConfigChain::class             => ConfigChainPolicy::class,
-        InformationalService::class    => InformationalServicePolicy::class,
-        TravelAgencyCommission::class  => TravelAgencyCommissionPolicy::class,
-        ImageGallery::class            => ImageGalleryPolicy::class,
-        HotelImage::class              => HotelImagePolicy::class,
+        Hotel::class                                => HotelPolicy::class,
+        InsuranceProvider::class                    => InsuranceProviderPolicy::class,
+        InsuranceProviderDocumentation::class       => InsuranceProviderDocumentationPolicy::class,
+        InsuranceRestriction::class                 => InsuranceRestrictionPolicy::class,
+        InsuranceRateTier::class                    => InsuranceRateTierPolicy::class,
+        ConfigAttribute::class                      => ConfigAttributePolicy::class,
+        ConfigConsortium::class                     => ConfigConsortiumPolicy::class,
+        ConfigDescriptiveType::class                => ConfigDescriptiveTypePolicy::class,
+        ConfigJobDescription::class                 => ConfigJobDescriptionPolicy::class,
+        ConfigServiceType::class                    => ConfigServiceTypePolicy::class,
+        ConfigChain::class                          => ConfigChainPolicy::class,
+        InformationalService::class                 => InformationalServicePolicy::class,
+        TravelAgencyCommission::class               => TravelAgencyCommissionPolicy::class,
+        ImageGallery::class                         => ImageGalleryPolicy::class,
+        HotelImage::class                           => HotelImagePolicy::class,
     ];
 
     /**
