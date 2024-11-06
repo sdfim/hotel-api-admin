@@ -11,11 +11,10 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Set;
-use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
@@ -104,9 +103,11 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
         return $table
             ->defaultPaginationPageOption(5)
             ->query(function () {
-                $query = HotelWebFinder::query()->with(['hotel']);
+                $query = HotelWebFinder::query()->with(['hotels', 'units']);
                 if ($this->hotelId !== null) {
-                    $query->where('hotel_id', $this->hotelId);
+                    $query->whereHas('hotels', function ($query) {
+                        $query->where('hotel_id', $this->hotelId);
+                    });
                 }
                 return $query;
             })
@@ -136,9 +137,15 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                     ->action(function (array $data, HotelWebFinder $record) {
                         $this->saveOrUpdate($data, $record->id);
                     }),
+                DeleteAction::make()
+                    ->label('')
+                    ->tooltip('Delete Web Finder')
+                    ->action(function (HotelWebFinder $record) {
+                        $record->delete();
+                    }),
             ])
             ->bulkActions([
-                DeleteBulkAction::make(),
+//                DeleteBulkAction::make(),
             ])
             ->headerActions([
                 CreateAction::make()
@@ -153,6 +160,25 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                     ->action(function (array $data) {
                         $this->saveOrUpdate($data);
                     }),
+                Action::make('attachCopy')
+                    ->label('')
+                    ->tooltip('Attach/Copy existing Web Finder')
+                    ->icon('heroicon-o-document-plus')
+                    ->iconButton()
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->modalHeading('Attach Existing Web Finder')
+                    ->form([
+                        Select::make('web_finder_id')
+                            ->label('Select Web Finder')
+                            ->options(HotelWebFinder::pluck('base_url', 'id'))
+                            ->required(),
+                    ])
+                    ->action(function (array $data) {
+                        $webFinder = HotelWebFinder::find($data['web_finder_id']);
+                        if ($webFinder) {
+                            $webFinder->hotels()->syncWithoutDetaching([$this->hotelId]);
+                        }
+                    }),
             ]);
     }
 
@@ -163,14 +189,13 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
 
     protected function getFillFormData(int $recordId): array
     {
-        $data = [
-            'hotel_id' => $this->hotelId,
-        ];
+        $data = [];
 
         if ($recordId) {
-            $webFinder = HotelWebFinder::where('id', $recordId)->with('units')->first();
+            $webFinder = HotelWebFinder::with(['units', 'hotels'])->find($recordId);
 
             if ($webFinder) {
+                $data['hotel_id'] = $webFinder->hotels->first()->id ?? null;
                 $data['base_url'] = $webFinder->base_url;
                 $data['finder'] = $webFinder->finder;
                 $data['type'] = $webFinder->type;
@@ -188,8 +213,6 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
 
     protected function saveOrUpdate(array $data, ?int $recordId = null): void
     {
-        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
-
         $startDate = Carbon::now()->addMonth()->format('Y-m-d');
         $endDate = Carbon::parse($startDate)->addDays(7)->format('Y-m-d');
         $hotel = Hotel::find($this->hotelId);
@@ -203,10 +226,7 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
         );
 
         $webFinder = HotelWebFinder::updateOrCreate(
-            [
-                'id' => $recordId,
-                'hotel_id' => $data['hotel_id']
-            ],
+            ['id' => $recordId],
             [
                 'base_url' => $data['base_url'],
                 'finder' => $data['finder'],
@@ -214,6 +234,8 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                 'example' => $data['example'],
             ]
         );
+
+        $webFinder->hotels()->sync([$this->hotelId]);
 
         $webFinder->units()->delete();
 

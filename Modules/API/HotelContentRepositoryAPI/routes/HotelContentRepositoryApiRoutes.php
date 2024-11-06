@@ -37,6 +37,8 @@ class HotelContentRepositoryApiRoutes
             Route::resource('hotels', HotelController::class);
             Route::post('hotels/{id}/attach-gallery', [HotelController::class, 'attachGallery']);
             Route::post('hotels/{id}/detach-gallery', [HotelController::class, 'detachGallery']);
+            Route::post('hotels/{id}/attach-web-finder', [HotelController::class, 'attachWebFinder']);
+            Route::post('hotels/{id}/detach-web-finder', [HotelController::class, 'detachWebFinder']);
 
             Route::resource('hotel-affiliations', HotelAffiliationController::class);
 

@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('pd_hotel_web_finders', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('hotel_id');
             $table->string('base_url');
             $table->string('finder');
             $table->string('type')->default('pricing');

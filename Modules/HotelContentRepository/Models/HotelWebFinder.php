@@ -18,16 +18,16 @@ class HotelWebFinder extends Model
     protected $table = 'pd_hotel_web_finders';
 
     protected $fillable = [
-        'hotel_id',
         'base_url',
         'finder',
         'type',
         'example',
     ];
 
-    public function hotel()
+
+    public function hotels()
     {
-        return $this->belongsTo(Hotel::class);
+        return $this->belongsToMany(Hotel::class, 'pd_hotel_web_finder_hotel', 'web_finder_id', 'hotel_id');
     }
 
     public function units()

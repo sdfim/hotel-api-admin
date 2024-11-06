@@ -118,7 +118,7 @@ class Hotel extends Model
 
     public function webFinders()
     {
-        return $this->hasMany(HotelWebFinder::class);
+        return $this->belongsToMany(HotelWebFinder::class, 'pd_hotel_web_finder_hotel', 'hotel_id', 'web_finder_id');
     }
 
     /**
