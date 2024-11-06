@@ -13,7 +13,7 @@ class KeyMappingController extends BaseController
     public function index()
     {
         $query = KeyMapping::query();
-        $query = $this->applyFilters($query, KeyMapping::class);
+        $query = $this->filter($query, KeyMapping::class);
         $keyMappings = $query->with(['keyMappingOwner'])->get();
 
         return $this->sendResponse($keyMappings->toArray(), 'index success', Response::HTTP_OK);

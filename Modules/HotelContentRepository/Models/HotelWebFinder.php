@@ -26,11 +26,6 @@ class HotelWebFinder extends Model
         'example',
     ];
 
-    public static function getFilterableFields()
-    {
-        return (new static)->fillable;
-    }
-
     public function hotels()
     {
         return $this->belongsToMany(Hotel::class, 'pd_hotel_web_finder_hotel', 'web_finder_id', 'hotel_id');

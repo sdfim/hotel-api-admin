@@ -14,7 +14,7 @@ class HotelContactInformationController extends BaseController
     public function index()
     {
         $query = HotelContactInformation::query();
-        $query = $this->applyFilters($query, HotelContactInformation::class);
+        $query = $this->filter($query, HotelContactInformation::class);
         $hotelContactInformations = $query->get();
 
         return $this->sendResponse($hotelContactInformations->toArray(), 'index success', Response::HTTP_OK);

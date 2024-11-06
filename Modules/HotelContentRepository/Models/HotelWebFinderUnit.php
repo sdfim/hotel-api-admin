@@ -25,11 +25,6 @@ class HotelWebFinderUnit extends Model
         'value',
     ];
 
-    public static function getFilterableFields()
-    {
-        return (new static)->fillable;
-    }
-
     public function webFinder()
     {
         return $this->belongsTo(HotelWebFinder::class, 'web_finder_id');

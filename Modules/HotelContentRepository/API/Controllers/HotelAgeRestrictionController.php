@@ -12,7 +12,7 @@ class HotelAgeRestrictionController extends BaseController
     public function index()
     {
         $query = HotelAgeRestriction::query();
-        $query = $this->applyFilters($query, HotelAgeRestriction::class);
+        $query = $this->filter($query, HotelAgeRestriction::class);
         $restrictions = $query->get();
 
         return $this->sendResponse($restrictions->toArray(), 'index success', Response::HTTP_OK);

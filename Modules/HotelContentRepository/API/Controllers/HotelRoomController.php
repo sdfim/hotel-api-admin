@@ -14,7 +14,7 @@ class HotelRoomController extends BaseController
     public function index()
     {
         $query = HotelRoom::query();
-        $query = $this->applyFilters($query, HotelRoom::class);
+        $query = $this->filter($query, HotelRoom::class);
         $hotelRooms = $query->with(['galleries.images'])->get();
 
         return $this->sendResponse($hotelRooms->toArray(), 'index success', Response::HTTP_OK);

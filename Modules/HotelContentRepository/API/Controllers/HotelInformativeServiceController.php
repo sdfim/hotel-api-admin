@@ -13,7 +13,7 @@ class HotelInformativeServiceController extends BaseController
     public function index()
     {
         $query = HotelInformativeService::query();
-        $query = $this->applyFilters($query, HotelInformativeService::class);
+        $query = $this->filter($query, HotelInformativeService::class);
         $hotelInformativeServices = $query->get();
 
         return $this->sendResponse($hotelInformativeServices->toArray(), 'index success', Response::HTTP_OK);

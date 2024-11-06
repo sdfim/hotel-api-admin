@@ -26,11 +26,6 @@ class HotelDescriptiveContentSection extends Model
         'end_date',
     ];
 
-    public static function getFilterableFields()
-    {
-        return (new static)->fillable;
-    }
-
     public function hotel()
     {
         return $this->belongsTo(Hotel::class, 'hotel_id');
