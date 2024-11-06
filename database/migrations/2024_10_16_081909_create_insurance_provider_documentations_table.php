@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('provider_id')->constrained('insurance_providers')->onDelete('cascade');
             $table->string('document_type');
-            $table->string('uri');
+            $table->string('path');
             $table->timestamps();
         });
     }
