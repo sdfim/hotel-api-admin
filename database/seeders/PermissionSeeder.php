@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -71,6 +72,8 @@ class PermissionSeeder extends Seeder
                 name: Str::replace(['-', '_'], ' ', Str::ucfirst($permission)),
             );
         }
+
+        $this->assignPermissionsToAdmin();
     }
 
     private function createIfNotExists(string $slug, string $name): void
@@ -80,6 +83,16 @@ class PermissionSeeder extends Seeder
             $permission->slug = $slug;
             $permission->name = $name;
             $permission->save();
+        }
+    }
+
+    private function assignPermissionsToAdmin(): void
+    {
+        $admin = User::where('email', 'admin@ujv.com')->first();
+
+        if ($admin) {
+            $permissions = Permission::all();
+            $admin->permissions()->syncWithoutDetaching($permissions->pluck('id')->toArray());
         }
     }
 }

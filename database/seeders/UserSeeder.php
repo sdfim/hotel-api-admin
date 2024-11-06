@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Team;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
@@ -29,6 +30,16 @@ class UserSeeder extends Seeder
             $admin->save();
             $admin->roles()->attach($admin_role);
             $admin->permissions()->attach($createAdminPermission);
+
+            $adminTeam = Team::create([
+                'user_id' => $admin->id,
+                'name' => $admin->name . "'s Team",
+                'personal_team' => true,
+            ]);
+            $admin->ownedTeams()->save($adminTeam);
+            $admin->switchTeam($adminTeam);
+        } else {
+            $admin = User::where('email', 'admin@ujv.com')->first();
         }
 
         $user_role = Role::where('slug', 'user')->first();
@@ -47,5 +58,25 @@ class UserSeeder extends Seeder
             $user->roles()->attach($user_role);
             $user->permissions()->attach($createUserPermission);
         }
+
+        // Проверяем, есть ли у администратора личная команда
+        $adminTeam = $admin->ownedTeams()->where('personal_team', true)->first();
+
+        if (!$adminTeam) {
+            // Если команды нет, создаем новую
+            $adminTeam = Team::create([
+                'user_id' => $admin->id,
+                'name' => $admin->name . "'s Team",
+                'personal_team' => true,
+            ]);
+
+            // Сохраняем новую команду для администратора и переключаем его на нее
+            $admin->ownedTeams()->save($adminTeam);
+            $admin->switchTeam($adminTeam);
+        } else {
+            // Переключаем администратора на уже существующую команду
+            $admin->switchTeam($adminTeam);
+        }
+
     }
 }
