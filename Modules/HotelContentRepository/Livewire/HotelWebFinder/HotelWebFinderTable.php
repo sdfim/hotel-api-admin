@@ -34,17 +34,10 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
     public ?int $hotelId = null;
     public $base_url;
     public $units = [];
-    public $finder;
 
     public function mount(?int $hotelId = null)
     {
         $this->hotelId = $hotelId;
-        $record = HotelWebFinder::where('hotel_id', $hotelId)->first();
-        if ($record) {
-            $this->base_url = $record->base_url;
-            $this->units = $record->units->toArray();
-            $this->finder = $record->finder;
-        }
     }
 
     public function form(Form $form): Form
@@ -67,9 +60,9 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                 ->label('Base URL')
                 ->live()
                 ->live(debounce: 500)
-                ->afterStateUpdated(function ($state, Set $set) {
+                ->afterStateUpdated(function ($state, Set $set, ?HotelWebFinder $record) {
                     $this->base_url = $state;
-                    $finder = $this->updateFinder();
+                    $finder = $this->updateFinder($record);
                     $set('finder', $finder);
                 })
                 ->required(),
@@ -92,9 +85,9 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                 ])
                 ->defaultItems(1)
                 ->required()
-                ->afterStateUpdated(function ($state, Set $set) {
+                ->afterStateUpdated(function ($state, Set $set, ?HotelWebFinder $record) {
                     $this->units = $state;
-                    $finder = $this->updateFinder();
+                    $finder = $this->updateFinder($record);
                     $set('finder', $finder);
                 })
                 ->columns(2)
@@ -229,14 +222,13 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
         }
     }
 
-    protected function updateFinder()
+    protected function updateFinder(?HotelWebFinder $record = null): string
     {
-        $preFinder = explode('?', $this->finder);
+        $preFinder = explode('?', $record?->finder);
         $finder = $this->base_url ? $this->base_url . '?' : ($preFinder[0] ? $preFinder[0] . '?' : '');
         if (!empty($this->units)) {
             $step = 0;
             foreach ($this->units as $unit) {
-                \Log::debug('updateFinder ' . $step);
                 $finder .= ($step > 0 ? '&' : '') . $unit['value'] . '={' . $unit['field'] . '}';
                 $step++;
             }
