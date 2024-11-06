@@ -95,6 +95,7 @@ class InsuranceApiController extends BaseController
             $insurancePlan->insurance_provider_fee = $insuranceProviderFee;
             $insurancePlan->commission_ujv = $commissionUjv;
             $insurancePlan->insurance_provider_id = $insuranceProvider->id;
+            $insurancePlan->request = json_encode($request->all());
 
             if (!$insurancePlan->save()) {
                 DB::rollBack();
