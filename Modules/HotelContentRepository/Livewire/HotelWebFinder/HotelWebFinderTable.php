@@ -169,8 +169,11 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                     ->modalHeading('Attach Existing Web Finder')
                     ->form([
                         Select::make('web_finder_id')
+                            ->searchable()
                             ->label('Select Web Finder')
-                            ->options(HotelWebFinder::pluck('base_url', 'id'))
+                            ->options(HotelWebFinder::all()->mapWithKeys(function ($item) {
+                                return [$item->id => $item->type . ' - ' . $item->base_url];
+                            }))
                             ->required(),
                     ])
                     ->action(function (array $data) {
