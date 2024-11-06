@@ -33,12 +33,12 @@
 
                 <div class="space-y-8">
                     <!-- Current Team Display -->
-                    @if (Auth::user()->currentTeam)
+                    {{--@if (Auth::user()->currentTeam)--}}
                         <x-section-border/>
 
                         <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow">
                             <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Current
-                                Team: {{ Auth::user()->currentTeam->name }}</h2>
+                                Team: {{ Auth::user()->currentTeam?->name ?? 'Not selected' }}</h2>
                         </div>
 
                         <!-- Team Switcher -->
@@ -57,7 +57,7 @@
                                 @endforeach
                             </div>
                         </div>
-                    @endif
+                    {{--@endif--}}
 
                     <!-- Account Deletion Section -->
                     @if (Laravel\Jetstream\Jetstream::hasAccountDeletionFeatures())

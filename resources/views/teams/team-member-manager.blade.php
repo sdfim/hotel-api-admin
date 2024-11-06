@@ -76,7 +76,7 @@
         </div>
     @endif
 
-    @if ($team->teamInvitations->isNotEmpty() && Gate::check('addTeamMember', $team))
+    @if ($team?->teamInvitations?->isNotEmpty() && Gate::check('addTeamMember', $team))
         <x-section-border />
 
         <!-- Team Member Invitations -->
@@ -113,7 +113,7 @@
         </div>
     @endif
 
-    @if ($team->users->isNotEmpty())
+    @if ($team?->users?->isNotEmpty())
         <x-section-border />
 
         <!-- Manage Team Members -->
