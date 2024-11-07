@@ -40,6 +40,7 @@ return [
                 */
                 'annotations' => [
                     base_path('Modules/API'),
+                    base_path('Modules/HotelContentRepository/API'),
                 ],
 
             ],

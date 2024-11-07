@@ -37,6 +37,18 @@ use Illuminate\Http\JsonResponse;
  *   name="Booking API | Booking Endpoints",
  *   description="API Endpoints of Booking (reservation)"
  * ),
+ * @OA\Tag(
+ *     name="Content Repository | Hotel API",
+ *     description="API Endpoints for Content Repository Hotels"
+ * ),
+ * @OA\Tag(
+ *      name="Content Repository | Room API",
+ *      description="API Endpoints for Content Repository Rooms"
+ *  ),
+ * @OA\Tag(
+ *     name="Insurance API",
+ *     description="API Endpoints for Insurance"
+ * )
  */
 class BaseController extends Controller
 {

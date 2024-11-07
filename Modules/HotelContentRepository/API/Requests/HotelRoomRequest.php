@@ -7,6 +7,330 @@ use Modules\API\Validate\ApiRequest;
 
 class HotelRoomRequest extends ApiRequest
 {
+    /**
+     * @OA\Get(
+     *   tags={"Content Repository | Rooms"},
+     *   path="/api/repo/hotel-rooms",
+     *   summary="Get all hotel rooms",
+     *   description="Retrieve all hotel room records with optional filters.",
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK"
+     *   ),
+     *   @OA\Response(
+     *     response=401,
+     *     description="Unauthenticated",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/UnAuthenticatedResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse")
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=400,
+     *     description="Bad Request",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BadRequestResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse")
+     *       }
+     *     )
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
+     *
+     * @OA\Post(
+     *   tags={"Content Repository | Rooms"},
+     *   path="/api/repo/hotel-rooms",
+     *   summary="Create a new hotel room",
+     *   description="Create a new hotel room entry.",
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *       type="object",
+     *       required={"hotel_id", "name", "hbsi_data_mapped_name", "description"},
+     *       @OA\Property(property="hotel_id", type="integer", example=1),
+     *       @OA\Property(property="name", type="string", example="Deluxe Room"),
+     *       @OA\Property(property="hbsi_data_mapped_name", type="string", example="Deluxe Room Mapped"),
+     *       @OA\Property(property="description", type="string", example="A luxurious room with all amenities.")
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=201,
+     *     description="Created"
+     *   ),
+     *   @OA\Response(
+     *     response=401,
+     *     description="Unauthenticated",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/UnAuthenticatedResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse")
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=400,
+     *     description="Bad Request",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BadRequestResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse")
+     *       }
+     *     )
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
+     *
+     * @OA\Get(
+     *   tags={"Content Repository | Rooms"},
+     *   path="/api/repo/hotel-rooms/{id}",
+     *   summary="Get hotel room details",
+     *   description="Retrieve details of a specific hotel room.",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID of the hotel room",
+     *     @OA\Schema(
+     *       type="integer",
+     *       example=1
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK"
+     *   ),
+     *   @OA\Response(
+     *     response=401,
+     *     description="Unauthenticated",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/UnAuthenticatedResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse")
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=404,
+     *     description="Not Found",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/NotFoundResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/NotFoundResponse", example="NotFoundResponse")
+     *       }
+     *     )
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
+     *
+     * @OA\Put(
+     *   tags={"Content Repository | Rooms"},
+     *   path="/api/repo/hotel-rooms/{id}",
+     *   summary="Update hotel room details",
+     *   description="Update details of a specific hotel room.",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID of the hotel room",
+     *     @OA\Schema(
+     *       type="integer",
+     *       example=1
+     *     )
+     *   ),
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *       type="object",
+     *       required={"hotel_id", "name", "hbsi_data_mapped_name", "description"},
+     *       @OA\Property(property="hotel_id", type="integer", example=1),
+     *       @OA\Property(property="name", type="string", example="Deluxe Room"),
+     *       @OA\Property(property="hbsi_data_mapped_name", type="string", example="Deluxe Room Mapped"),
+     *       @OA\Property(property="description", type="string", example="A luxurious room with all amenities.")
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK"
+     *   ),
+     *   @OA\Response(
+     *     response=401,
+     *     description="Unauthenticated",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/UnAuthenticatedResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse")
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=400,
+     *     description="Bad Request",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BadRequestResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse")
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=404,
+     *     description="Not Found",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/NotFoundResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/NotFoundResponse", example="NotFoundResponse")
+     *       }
+     *     )
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
+     *
+     * @OA\Delete(
+     *   tags={"Content Repository | Rooms"},
+     *   path="/api/repo/hotel-rooms/{id}",
+     *   summary="Delete a hotel room",
+     *   description="Delete a specific hotel room.",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID of the hotel room",
+     *     @OA\Schema(
+     *       type="integer",
+     *       example=1
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=204,
+     *     description="No Content"
+     *   ),
+     *   @OA\Response(
+     *     response=401,
+     *     description="Unauthenticated",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/UnAuthenticatedResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse")
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=404,
+     *     description="Not Found",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/NotFoundResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/NotFoundResponse", example="NotFoundResponse")
+     *       }
+     *     )
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
+     *
+     * @OA\Post(
+     *   tags={"Content Repository | Rooms"},
+     *   path="/api/repo/hotel-rooms/{id}/attach-gallery",
+     *   summary="Attach a gallery to a hotel room",
+     *   description="Attach a gallery to a specific hotel room.",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID of the hotel room",
+     *     @OA\Schema(
+     *       type="integer",
+     *       example=1
+     *     )
+     *   ),
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *       type="object",
+     *       required={"gallery_id"},
+     *       @OA\Property(property="gallery_id", type="integer", example=1)
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK"
+     *   ),
+     *   @OA\Response(
+     *     response=401,
+     *     description="Unauthenticated",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/UnAuthenticatedResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse")
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=400,
+     *     description="Bad Request",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BadRequestResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse")
+     *       }
+     *     )
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
+     *
+     * @OA\Post(
+     *   tags={"Content Repository | Rooms"},
+     *   path="/api/repo/hotel-rooms/{id}/detach-gallery",
+     *   summary="Detach a gallery from a hotel room",
+     *   description="Detach a gallery from a specific hotel room.",
+     *   @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="ID of the hotel room",
+     *     @OA\Schema(
+     *       type="integer",
+     *       example=1
+     *     )
+     *   ),
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\JsonContent(
+     *       type="object",
+     *       required={"gallery_id"},
+     *       @OA\Property(property="gallery_id", type="integer", example=1)
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=200,
+     *     description="OK"
+     *   ),
+     *   @OA\Response(
+     *     response=401,
+     *     description="Unauthenticated",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/UnAuthenticatedResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse")
+     *       }
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=400,
+     *     description="Bad Request",
+     *     @OA\JsonContent(
+     *       ref="#/components/schemas/BadRequestResponse",
+     *       examples={
+     *         "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse")
+     *       }
+     *     )
+     *   ),
+     *   security={{ "apiAuth": {} }}
+     * )
+     */
+
     public function authorize(): bool
     {
         return Auth::check();
