@@ -14,6 +14,8 @@ trait RefreshDatabaseMany
         RefreshDatabase::refreshDatabase as refreshTestDatabaseOriginal;
     }
 
+    protected bool $useTransactions = true;
+
     /**
      * @return void
      */
@@ -30,7 +32,9 @@ trait RefreshDatabaseMany
             RefreshDatabaseState::$migrated = true;
         }
 
-        $this->beginDatabaseTransaction();
+        if ($this->useTransactions) {
+            $this->beginDatabaseTransaction();
+        }
     }
 
     private function fresh($connection)

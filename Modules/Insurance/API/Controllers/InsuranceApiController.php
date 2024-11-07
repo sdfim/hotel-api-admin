@@ -49,9 +49,7 @@ class InsuranceApiController extends BaseController
             $insurancePlan = new InsurancePlan();
             $insurancePlan->booking_item = $bookingItem;
 
-            // Check if the booking_item is in cart from app booking inspector
-            $apiBookingInspectorItem = ApiBookingInspectorRepository::isBookingItemInCart($bookingItem);
-
+            [$bookingId, $filters, $supplierId, $apiBookingInspectorItem] = $this->getParams($request);
 
             if (!$apiBookingInspectorItem) {
                 return $this->sendError('The specified booking item is not valid or not found in the booking inspector', 404);
@@ -136,17 +134,6 @@ class InsuranceApiController extends BaseController
                 return $this->sendError('Failed to create insurance applications. Please try again later.', 500);
             }
 
-            // Fetch bookingId and create the booking inspector
-            $bookingId = $apiBookingInspectorItem->booking_id;
-
-            $filters = [
-                'booking_item' => $bookingItem,
-                'insurance_provider' => $insuranceProvider->name,
-                'search_id' => $searchId,
-            ];
-
-            $supplierId = Supplier::where('name', (string)$apiSearchInspectorItem['supplier'])->first()->id;
-
             $bookingInspector = BookingRepository::newBookingInspector([
                 $bookingId, $filters, $supplierId, 'add_insurance', '', 'hotel',
             ]);
@@ -193,5 +180,62 @@ class InsuranceApiController extends BaseController
 
             return $this->sendError('An error occurred while processing the insurance plan.', 500);
         }
+    }
+
+    public function delete(InsuranceAddRequest $request): JsonResponse
+    {
+        $bookingItem = $request->input('booking_item');
+        $insurancePlan = InsurancePlan::where('booking_item', $bookingItem)->first();
+
+        if (!$insurancePlan) {
+            return $this->sendError('Insurance plan not found', 404);
+        }
+
+        $insurancePlan->applications()->delete();
+        $insurancePlan->delete();
+
+        [$bookingId, $filters, $supplierId, $apiBookingInspectorItem] = $this->getParams($request);
+
+        if (!$apiBookingInspectorItem) {
+            return $this->sendError('The specified booking item is not valid or not found in the booking inspector', 404);
+        }
+
+        $bookingInspector = BookingRepository::newBookingInspector([
+            $bookingId, $filters, $supplierId, 'delete_insurance', '', 'hotel',
+        ]);
+
+        $originalRQ = [
+            'path' => $request->path(),
+            'headers' => $request->headers->all(),
+            'body' => $request->all(),
+        ];
+
+        $message = 'Insurance plan successfully deleted, no body 204 response';
+        $responseData = ['message' => $message];
+        SaveBookingInspector::dispatch($bookingInspector, ['original' => ['request' => $originalRQ]], $responseData);
+
+        return $this->sendResponse([], $message,  204);
+    }
+
+    private function getParams($request): array
+    {
+        $bookingItem = $request->input('booking_item');
+        $apiBookingInspectorItem = ApiBookingInspectorRepository::isBookingItemInCart($bookingItem);
+
+        if (!$apiBookingInspectorItem) {
+            return [];
+        }
+
+        $searchId = $apiBookingInspectorItem->search_id;
+        $apiSearchInspectorItem = ApiSearchInspectorRepository::getRequest($searchId);
+
+        $bookingId = $apiBookingInspectorItem->booking_id;
+
+        $filters = $request->all();
+        $filters['search_id'] = $apiBookingInspectorItem->search_id;
+
+        $supplierId = Supplier::where('name', (string)$apiSearchInspectorItem['supplier'])->first()->id;
+
+        return [$bookingId, $filters, $supplierId, $apiBookingInspectorItem];
     }
 }
