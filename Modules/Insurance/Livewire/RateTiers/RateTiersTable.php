@@ -9,6 +9,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
@@ -61,10 +62,18 @@ class RateTiersTable extends Component implements HasForms, HasTable
                             'fixed' => 'Fixed price',
                             'percentage' => 'Percentage',
                         ])
+                        ->live()
                         ->required(),
                     TextInput::make('rate_value')
                         ->numeric()
-                        ->required(),
+                        ->required()
+                        ->suffixIcon(function (Get $get) {
+                            return match ($get('rate_type')) {
+                                null, '' => false,
+                                'fixed' => 'heroicon-o-banknotes',
+                                'percentage' => 'heroicon-o-receipt-percent',
+                            };
+                        }),
                 ])
         ];
     }
