@@ -59,7 +59,6 @@ class ProvidersDocumentationTable extends Component implements HasForms, HasTabl
                             'privacy_policy' => 'Privacy Policy',
                             'terms_and_condition' => 'Terms & Conditions',
                         ])
-                        ->unique(ignorable: $record)
                         ->required(),
                 ]),
             FileUpload::make('path')
@@ -162,7 +161,7 @@ class ProvidersDocumentationTable extends Component implements HasForms, HasTabl
 
                         return $data;
                     })
-                    ->tooltip('Add New Provider Documentation')
+                    ->tooltip('Add Provider Documentation')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->iconButton(),
