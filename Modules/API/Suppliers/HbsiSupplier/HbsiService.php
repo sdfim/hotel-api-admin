@@ -25,9 +25,9 @@ class HbsiService
         $this->rate_type = ItemTypeEnum::SINGLE->value;
     }
 
-    public function updateBookingItemsData(string $completeItem): void
+    public function updateBookingItemsData(string $completeItem, array $room_combinations = []): void
     {
-        $room_combinations = Cache::get('room_combinations:'.$completeItem);
+        if (empty($room_combinations)) $room_combinations = Cache::get('room_combinations:'.$completeItem);
         $completeBookingItem = [];
         foreach ($room_combinations as $key => $value) {
             $bookingItem = ApiBookingItem::where('booking_item', $value)->first();
@@ -110,7 +110,7 @@ class HbsiService
         $completeBookingItem['booking_pricing_data']['breakdown'] = json_decode(json_encode($completeBookingItem['booking_pricing_data']['breakdown']));
         $completeBookingItem['booking_pricing_data'] = json_encode($completeBookingItem['booking_pricing_data']);
 
-        ApiBookingItem::insert($completeBookingItem);
+        ApiBookingItem::insertOrIgnore($completeBookingItem);
 
         foreach ($room_combinations as $key => $value) {
             $bookingItem = ApiBookingItem::where('booking_item', $value)->first();

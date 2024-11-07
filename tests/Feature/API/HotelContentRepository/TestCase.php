@@ -8,6 +8,7 @@ use App\Models\User;
 use Database\Seeders\GeneralConfigurationSeeder;
 use Database\Seeders\SuppliersSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Modules\Insurance\Seeders\InsuranceRateTierSeeder;
 use Tests\RefreshDatabaseMany;
 
 class TestCase extends BaseTestCase
@@ -34,6 +35,7 @@ class TestCase extends BaseTestCase
     protected function runSeeders(): void
     {
         $this->seed(SuppliersSeeder::class);
+        $this->seed(InsuranceRateTierSeeder::class);
         if (!GeneralConfiguration::exists()) {
             $this->seed(GeneralConfigurationSeeder::class);
         }

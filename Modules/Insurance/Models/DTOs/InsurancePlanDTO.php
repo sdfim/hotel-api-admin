@@ -6,13 +6,11 @@ use Modules\Insurance\Models\InsurancePlan;
 
 class InsurancePlanDTO
 {
-    public bool $success;
     public array $data;
     public string $message;
 
     public function __construct(InsurancePlan $insurancePlan, string $message)
     {
-        $this->success = true;
         $this->data = [
             'booking_item' => $insurancePlan->booking_item,
             'total_insurance_cost' => $insurancePlan->total_insurance_cost,

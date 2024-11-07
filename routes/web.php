@@ -110,7 +110,6 @@ Route::prefix('admin')->group(function () {
             Route::resource('job-descriptions', ConfigJobDescriptionController::class)->only(['index', 'create', 'edit']);
             Route::resource('service-types', ConfigServiceTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('chains', ConfigChainController::class)->only(['index', 'create', 'edit']);
-            Route::resource('config-group', GroupConfigController::class)->only(['index']);
         });
 
         Route::resource('image-galleries', ImageGalleryController::class)->only(['index', 'create', 'edit']);

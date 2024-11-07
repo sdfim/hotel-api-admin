@@ -2,27 +2,37 @@
 
 namespace Tests\Unit\Hotel\Content;
 
+use App\Models\PropertyWeighting;
 use App\Repositories\PropertyWeightingRepository;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Collection;
 use Mockery;
 use Modules\API\PropertyWeighting\EnrichmentWeight;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class EnrichmentWeightContentSearchTest extends TestCase
 {
+    protected $mockClientResponse;
+    protected $mockWeights;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->mockClientResponse = $this->createMockClientResponse();
+        $this->mockWeights = $this->createMockWeights();
+    }
+
     #[Test]
     public function test_enrichment_content_assert_equals_true(): void
     {
-        $mockClientResponse = $this->createMockClientResponse();
-        $mockWeights = $this->createMockWeights();
+        $mockPropertyWeightingRepository = Mockery::mock(PropertyWeightingRepository::class);
+        $mockPropertyWeightingRepository->shouldReceive('getWeights')->once()->andReturn($this->mockWeights);
 
-        $mockPropertyWeightingRepository = Mockery::mock('overload:'.PropertyWeightingRepository::class);
-        $mockPropertyWeightingRepository->shouldReceive('getWeights')->andReturn($mockWeights);
+        $enrichmentWeight = new EnrichmentWeight($mockPropertyWeightingRepository);
+        $result = $enrichmentWeight->enrichmentContent($this->mockClientResponse, 'type');
 
-        $enrichmentWeight = new EnrichmentWeight();
-        $result = $enrichmentWeight->enrichmentContent($mockClientResponse, 'type');
-
-        $expectedResult = $this->getExpectedResult();
+        $expectedResult = $this->getExpectedResult(true);
 
         $this->assertEquals($expectedResult, $result);
     }
@@ -30,14 +40,11 @@ class EnrichmentWeightContentSearchTest extends TestCase
     #[Test]
     public function test_enrichment_content_assert_equals_false(): void
     {
-        $mockClientResponse = $this->createMockClientResponse();
-        $mockWeights = $this->createMockWeights();
+        $mockPropertyWeightingRepository = Mockery::mock(PropertyWeightingRepository::class);
+        $mockPropertyWeightingRepository->shouldReceive('getWeights')->andReturn($this->mockWeights);
 
-        $mockPropertyWeightingRepository = Mockery::mock('overload:'.PropertyWeightingRepository::class);
-        $mockPropertyWeightingRepository->shouldReceive('getWeights')->andReturn($mockWeights);
-
-        $enrichmentWeight = new EnrichmentWeight();
-        $result = $enrichmentWeight->enrichmentContent($mockClientResponse, 'type');
+        $enrichmentWeight = new EnrichmentWeight($mockPropertyWeightingRepository);
+        $result = $enrichmentWeight->enrichmentContent($this->mockClientResponse, 'type');
 
         $expectedResult = $this->getExpectedResult(false);
 
@@ -71,9 +78,6 @@ class EnrichmentWeightContentSearchTest extends TestCase
         }
     }
 
-    /**
-     * @return array[]
-     */
     protected function createMockClientResponse(): array
     {
         return [
@@ -90,9 +94,9 @@ class EnrichmentWeightContentSearchTest extends TestCase
 
     protected function createMockWeights(): Collection
     {
-        return collect([
-            (object) ['property' => 1, 'weight' => 1],
-            (object) ['property' => 2, 'weight' => 2],
+        return new Collection([
+            new PropertyWeighting(['property' => 1, 'weight' => 1]),
+            new PropertyWeighting(['property' => 2, 'weight' => 2]),
         ]);
     }
 }
