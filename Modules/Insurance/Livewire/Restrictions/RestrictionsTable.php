@@ -46,20 +46,13 @@ class RestrictionsTable extends Component implements HasForms, HasTable
     public function schemeForm(): array
     {
         return [
-            Grid::make()
+            Grid::make(4)
                 ->schema([
-                    Select::make('insurance_plan_id')
-                        ->label('Insurance Plan')
-                        ->relationship(name: 'plan', titleAttribute: 'booking_item')
-                        ->searchable(),
                     Select::make('provider_id')
                         ->label('Provider')
                         ->relationship(name: 'provider', titleAttribute: 'name')
                         ->preload()
                         ->required(),
-                ]),
-            Grid::make(3)
-                ->schema([
                     Select::make('restriction_type_id')
                         ->label('Restriction Type')
                         ->relationship(name: 'restrictionType', titleAttribute: 'label')
@@ -127,7 +120,7 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                             ],
                         })
                         ->key('dynamicFieldValue')
-                        ->columnStart(3)
+                        ->columnStart(4)
                 ]),
         ];
     }
@@ -137,10 +130,6 @@ class RestrictionsTable extends Component implements HasForms, HasTable
         return $table
             ->query(InsuranceRestriction::query())
             ->columns([
-                TextColumn::make('insurance_plan_id')
-                    ->label('Insurance Plan ID')
-                    ->sortable()
-                    ->searchable(),
                 TextColumn::make('provider.name')
                     ->label('Provider name')
                     ->sortable()
