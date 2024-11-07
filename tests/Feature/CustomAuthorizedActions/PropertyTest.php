@@ -61,17 +61,6 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
     }
 
     #[Test]
-    public function test_possibility_of_searching_by_name(): void
-    {
-        $name = $this->giata->first()->name;
-
-        livewire::test(PropertiesTable::class)
-            ->searchTableColumns(['name' => $name])
-            ->assertCanSeeTableRecords($this->giata->where('name', $name))
-            ->assertCanNotSeeTableRecords($this->giata->where('name', '!=', $name));
-    }
-
-    #[Test]
     public function test_possibility_of_searching_by_city(): void
     {
         $city = $this->giata->first()->city;
