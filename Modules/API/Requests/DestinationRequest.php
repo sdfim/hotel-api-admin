@@ -49,8 +49,8 @@ class DestinationRequest extends ApiRequest
      *
      *        @OA\Schema(
      *          type="string",
-     *          enum={Default,Google},
-     *          default=Default
+     *          enum={"Default","Google"},
+     *          default="Default"
      *        )
      *      ),
      *
