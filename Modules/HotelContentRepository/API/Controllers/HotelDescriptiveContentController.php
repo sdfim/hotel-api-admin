@@ -13,7 +13,10 @@ class HotelDescriptiveContentController extends BaseController
 {
     public function index()
     {
-        $hotelDescriptiveContents = HotelDescriptiveContent::all();
+        $query = HotelDescriptiveContent::query();
+        $query = $this->filter($query, HotelDescriptiveContent::class);
+        $hotelDescriptiveContents = $query->get();
+
         return $this->sendResponse($hotelDescriptiveContents->toArray(), 'index success', Response::HTTP_OK);
     }
 

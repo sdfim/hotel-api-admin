@@ -4,9 +4,11 @@ namespace Modules\HotelContentRepository\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class TravelAgencyCommissionCondition extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected $table = 'pd_travel_agency_commissions_conditions';

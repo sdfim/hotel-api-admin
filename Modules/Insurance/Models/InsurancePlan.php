@@ -35,6 +35,13 @@ class InsurancePlan extends Model
         'request'
     ];
 
+    protected $casts = [
+        'total_insurance_cost' => 'float',
+        'commission_ujv' => 'float',
+        'insurance_provider_fee' => 'float',
+        'request' => 'array'
+    ];
+
     public function provider(): BelongsTo
     {
         return $this->belongsTo(InsuranceProvider::class, 'insurance_provider_id');

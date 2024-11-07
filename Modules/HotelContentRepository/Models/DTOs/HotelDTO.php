@@ -28,10 +28,9 @@ class HotelDTO
     public $promotions;
     public $rooms;
     public $key_mappings;
-    public $travel_agency_commissions;
     public $galleries;
     public $contact_information;
-    public $web_finder;
+    public $website_search_generation;
 
     public function __construct($hotel)
     {
@@ -51,7 +50,13 @@ class HotelDTO
         $this->channel_management = (bool) $hotel->channel_management;
         $this->hotel_board_basis = $hotel->hotel_board_basis;
         $this->default_currency = $hotel->default_currency;
-        $this->web_finder = $hotel->webFinder->finder;
+        $this->website_search_generation = $hotel->webFinders->map(function ($webFinder) {
+            return [
+                'finder' => $webFinder->finder,
+                'example' => $webFinder->example,
+                'type' => $webFinder?->type,
+                ];
+        });
         $this->contact_information = $hotel->contactInformation->map(function ($contact) {
             return [
                 'first_name' => $contact->first_name,

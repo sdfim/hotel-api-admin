@@ -9,6 +9,7 @@ use Illuminate\Contracts\View\View;
 class HotelController extends BaseWithPolicyController
 {
     protected static string $model = Hotel::class;
+    protected static ?string $parameterName = 'hotel_repository';
 
     private array $message = ['edit' => 'Edit Hotel'];
 

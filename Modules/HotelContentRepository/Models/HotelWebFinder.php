@@ -5,9 +5,11 @@ namespace Modules\HotelContentRepository\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelWebFinderFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class HotelWebFinder extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected static function newFactory()
@@ -18,14 +20,15 @@ class HotelWebFinder extends Model
     protected $table = 'pd_hotel_web_finders';
 
     protected $fillable = [
-        'hotel_id',
         'base_url',
         'finder',
+        'type',
+        'example',
     ];
 
-    public function hotel()
+    public function hotels()
     {
-        return $this->belongsTo(Hotel::class);
+        return $this->belongsToMany(Hotel::class, 'pd_hotel_web_finder_hotel', 'web_finder_id', 'hotel_id');
     }
 
     public function units()

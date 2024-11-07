@@ -2,13 +2,14 @@
 
 namespace Modules\HotelContentRepository\Models;
 
-use App\Models\Configurations\ConfigJobDescription;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class Hotel extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected static function newFactory()
@@ -116,9 +117,9 @@ class Hotel extends Model
         return $this->hasMany(HotelContactInformation::class);
     }
 
-    public function webFinder()
+    public function webFinders()
     {
-        return $this->hasOne(HotelWebFinder::class);
+        return $this->belongsToMany(HotelWebFinder::class, 'pd_hotel_web_finder_hotel', 'hotel_id', 'web_finder_id');
     }
 
     /**

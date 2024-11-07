@@ -13,7 +13,10 @@ class HotelDescriptiveContentSectionController extends BaseController
 {
     public function index()
     {
-        $section = HotelDescriptiveContentSection::with(['content'])->get();
+        $query = HotelDescriptiveContentSection::query();
+        $query = $this->filter($query, HotelDescriptiveContentSection::class);
+        $section = $query->with(['content'])->get();
+
         return $this->sendResponse($section->toArray(), 'index success', Response::HTTP_OK);
     }
 

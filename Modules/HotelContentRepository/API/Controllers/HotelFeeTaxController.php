@@ -13,7 +13,10 @@ class HotelFeeTaxController extends BaseController
 {
     public function index()
     {
-        $hotelFeeTaxes = HotelFeeTax::all();
+        $query = HotelFeeTax::query();
+        $query = $this->filter($query, HotelFeeTax::class);
+        $hotelFeeTaxes = $query->get();
+
         return $this->sendResponse($hotelFeeTaxes->toArray(), 'index success', Response::HTTP_OK);
     }
 

@@ -3,21 +3,23 @@
 namespace Modules\HotelContentRepository\Livewire\HotelWebFinder;
 
 use App\Helpers\ClassHelper;
+use Carbon\Carbon;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use Filament\Tables;
+use Filament\Forms\Set;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Arr;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Models\Hotel;
@@ -31,17 +33,10 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
     public ?int $hotelId = null;
     public $base_url;
     public $units = [];
-    public $finder;
 
-    public function mount(?int $hotelId = null, ?HotelWebFinder $record = null)
+    public function mount(?int $hotelId = null)
     {
         $this->hotelId = $hotelId;
-        if ($record) {
-            $this->base_url = $record->base_url;
-            $this->units = $record->units->toArray();
-//            $this->finder = $record->finder;
-            $this->updateFinder();
-        }
     }
 
     public function form(Form $form): Form
@@ -57,10 +52,17 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                 ->options(Hotel::pluck('name', 'id'))
                 ->disabled(fn () => $this->hotelId)
                 ->required(),
+            TextInput::make('type')
+                ->label('Search Type')
+                ->required(),
             TextInput::make('base_url')
                 ->label('Base URL')
-                ->afterStateHydrated(function ($component, $state) {
+                ->live()
+                ->live(debounce: 500)
+                ->afterStateUpdated(function ($state, Set $set, ?HotelWebFinder $record) {
                     $this->base_url = $state;
+                    $finder = $this->updateFinder($record);
+                    $set('finder', $finder);
                 })
                 ->required(),
 
@@ -71,33 +73,26 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                         ->options([
                             'start_date' => 'Start Date',
                             'end_date' => 'End Date',
-                            'duration' => 'Duration',
+                            'destination' => 'Destination',
                             'number_of_rooms' => 'Number of Rooms',
                             'property_code' => 'Property Code',
                         ])
                         ->required(),
                     TextInput::make('value')
                         ->label('')
-                        ->live()
-//                        ->afterStateHydrated(function ($component, $state) {
-//                            $this->updateFinder();
-//                        })
-
+                        ->live(debounce: 500)
                 ])
                 ->defaultItems(1)
                 ->required()
-                ->afterStateHydrated(function ($component, $state) {
+                ->afterStateUpdated(function ($state, Set $set, ?HotelWebFinder $record) {
                     $this->units = $state;
-                    $this->updateFinder('form');
+                    $finder = $this->updateFinder($record);
+                    $set('finder', $finder);
                 })
-//                ->beforeStateDehydrated(function ($state) {
-//                    return json_encode($state);
-//                })
                 ->columns(2)
                 ->columnSpan(1),
-            TextInput::make('finder')
+            Textarea::make('finder')
                 ->label('Finder')
-                ->live()
                 ->reactive()
                 ->required(),
         ];
@@ -108,23 +103,26 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
         return $table
             ->defaultPaginationPageOption(5)
             ->query(function () {
-                $query = HotelWebFinder::query()->with(['hotel']);
+                $query = HotelWebFinder::query()->with(['hotels', 'units']);
                 if ($this->hotelId !== null) {
-                    $query->where('hotel_id', $this->hotelId);
+                    $query->whereHas('hotels', function ($query) {
+                        $query->where('hotel_id', $this->hotelId);
+                    });
                 }
                 return $query;
             })
             ->columns([
-                TextInputColumn::make('base_url')
-                    ->label('Base URL')
-                    ->searchable(isIndividual: true)
-                    ->sortable()
-                    ->extraAttributes(['style' => 'width: 100%']),
-                TextInputColumn::make('finder')
-                    ->label('Finder')
-                    ->searchable(isIndividual: true)
-                    ->sortable()
-                    ->extraAttributes(['style' => 'width: 100%']),
+                TextColumn::make('type')
+                    ->label('Search Type')
+                    ->sortable(),
+                TextColumn::make('finder')
+                    ->label('Finder/Pattern')
+                    ->wrap(),
+                TextColumn::make('example')
+                    ->label('Example')
+                    ->url(fn($record) => $record->example)
+                    ->openUrlInNewTab()
+                    ->wrap(),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([
@@ -139,9 +137,15 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                     ->action(function (array $data, HotelWebFinder $record) {
                         $this->saveOrUpdate($data, $record->id);
                     }),
+                DeleteAction::make()
+                    ->label('')
+                    ->tooltip('Delete Web Finder')
+                    ->action(function (HotelWebFinder $record) {
+                        $record->delete();
+                    }),
             ])
             ->bulkActions([
-                DeleteBulkAction::make(),
+//                DeleteBulkAction::make(),
             ])
             ->headerActions([
                 CreateAction::make()
@@ -156,12 +160,29 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                     ->action(function (array $data) {
                         $this->saveOrUpdate($data);
                     }),
+                Action::make('attachCopy')
+                    ->label('')
+                    ->tooltip('Attach/Copy existing Web Finder')
+                    ->icon('heroicon-o-document-plus')
+                    ->iconButton()
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->modalHeading('Attach Existing Web Finder')
+                    ->form([
+                        Select::make('web_finder_id')
+                            ->searchable()
+                            ->label('Select Web Finder')
+                            ->options(HotelWebFinder::all()->mapWithKeys(function ($item) {
+                                return [$item->id => $item->type . ' - ' . $item->base_url];
+                            }))
+                            ->required(),
+                    ])
+                    ->action(function (array $data) {
+                        $webFinder = HotelWebFinder::find($data['web_finder_id']);
+                        if ($webFinder) {
+                            $webFinder->hotels()->syncWithoutDetaching([$this->hotelId]);
+                        }
+                    }),
             ]);
-    }
-
-    public function updatedUnits()
-    {
-        $this->updateFinder();
     }
 
     public function render()
@@ -171,16 +192,16 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
 
     protected function getFillFormData(int $recordId): array
     {
-        $data = [
-            'hotel_id' => $this->hotelId,
-        ];
+        $data = [];
 
         if ($recordId) {
-            $webFinder = HotelWebFinder::where('id', $recordId)->with('units')->first();
+            $webFinder = HotelWebFinder::with(['units', 'hotels'])->find($recordId);
 
             if ($webFinder) {
+                $data['hotel_id'] = $webFinder->hotels->first()->id ?? null;
                 $data['base_url'] = $webFinder->base_url;
                 $data['finder'] = $webFinder->finder;
+                $data['type'] = $webFinder->type;
                 $data['units'] = $webFinder->units->map(function ($unit) {
                     return [
                         'field' => $unit->field,
@@ -195,18 +216,29 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
 
     protected function saveOrUpdate(array $data, ?int $recordId = null): void
     {
-        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
+        $startDate = Carbon::now()->addMonth()->format('Y-m-d');
+        $endDate = Carbon::parse($startDate)->addDays(7)->format('Y-m-d');
+        $hotel = Hotel::find($this->hotelId);
+        $destination = Arr::get($hotel?->address, 'city', 'New+York');
+        $numberOfRooms = '1';
+
+        $data['example'] = str_replace(
+            ['{start_date}', '{end_date}', '{destination}', '{number_of_rooms}'],
+            [$startDate, $endDate, $destination, $numberOfRooms],
+            $data['finder']
+        );
 
         $webFinder = HotelWebFinder::updateOrCreate(
-            [
-                'id' => $recordId,
-                'hotel_id' => $data['hotel_id']
-            ],
+            ['id' => $recordId],
             [
                 'base_url' => $data['base_url'],
                 'finder' => $data['finder'],
+                'type' => $data['type'],
+                'example' => $data['example'],
             ]
         );
+
+        $webFinder->hotels()->sync([$this->hotelId]);
 
         $webFinder->units()->delete();
 
@@ -215,21 +247,20 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
         }
     }
 
-    protected function updateFinder(string $step = 'init')
+    protected function updateFinder(?HotelWebFinder $record = null): string
     {
-        $finder = $this->base_url . '?';
+        $preFinder = explode('?', $record?->finder);
+        $finder = $this->base_url ? $this->base_url . '?' : ($preFinder[0] ? $preFinder[0] . '?' : '');
         if (!empty($this->units)) {
-            foreach ($this->units as $index => $unit) {
-                $finder .= ($index > 0 ? '&' : '') . $unit['value'] . '={' . $unit['field'] . '}';
+            $step = 0;
+            foreach ($this->units as $unit) {
+                $finder .= ($step > 0 ? '&' : '') . $unit['value'] . '={' . $unit['field'] . '}';
+                $step++;
             }
+        } else {
+            $finder .= $preFinder[1] ?? '';
         }
 
-        $this->finder = $finder;
-
-        \Log::debug('updateFinder ' . $step , [
-            'units' => $this->units,
-            'base_url' => $this->base_url,
-            'finder' => $this->finder,
-        ]);
+        return $finder;
     }
 }

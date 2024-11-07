@@ -26,7 +26,7 @@ class ChannelsTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(Channel::query())
+            ->query($this->getChannelQuery())
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
@@ -34,6 +34,8 @@ class ChannelsTable extends Component implements HasForms, HasTable
                     ->searchable(),
                 TextColumn::make('access_token')
                     ->sortable(),
+                TextColumn::make('token.tokenable.name')
+                    ->label('Creator'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -56,6 +58,18 @@ class ChannelsTable extends Component implements HasForms, HasTable
                         ->visible(fn (Channel $record) => Gate::allows('delete', $record)),
                 ]),
             ]);
+    }
+
+    private function getChannelQuery()
+    {
+        $user = auth()->user();
+
+        return Channel::query()
+            ->when(!$user->hasRole('admin'), function ($query) use ($user) {
+                return $query->whereHas(
+                    'token', fn ($query) => $query->where('tokenable_id', $user->id),
+                );
+            });
     }
 
     public function render(): View

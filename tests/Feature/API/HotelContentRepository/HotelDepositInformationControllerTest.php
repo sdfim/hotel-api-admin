@@ -19,7 +19,7 @@ class HotelDepositInformationControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'hotel_id', 'days_departure', 'per_channel', 'per_room', 'per_rate'
+                    'id', 'hotel_id', 'days_departure', 'pricing_parameters', 'pricing_value'
                 ]
             ],
             'message'
@@ -35,7 +35,7 @@ class HotelDepositInformationControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'hotel_id', 'days_departure', 'per_channel', 'per_room', 'per_rate'
+                'id', 'hotel_id', 'days_departure', 'pricing_parameters', 'pricing_value'
             ],
             'message'
         ]);
@@ -50,7 +50,7 @@ class HotelDepositInformationControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'hotel_id', 'days_departure', 'per_channel', 'per_room', 'per_rate'
+                'id', 'hotel_id', 'days_departure', 'pricing_parameters', 'pricing_value'
             ],
             'message'
         ]);
@@ -66,7 +66,7 @@ class HotelDepositInformationControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'hotel_id', 'days_departure', 'per_channel', 'per_room', 'per_rate'
+                'id', 'hotel_id', 'days_departure', 'pricing_parameters', 'pricing_value'
             ],
             'message'
         ]);

@@ -123,7 +123,7 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->label('')
                     ->tooltip('View')
                     ->url(fn (Hotel $record): string => route('hotel_repository.edit', $record))
-//                    ->visible(fn (Hotel $record) => Gate::allows('update', $record))
+                    ->visible(fn (Hotel $record) => Gate::allows('update', $record))
                 ,
                 Tables\Actions\DeleteAction::make()
                     ->label('')

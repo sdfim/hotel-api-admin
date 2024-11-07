@@ -13,9 +13,10 @@ class HotelWebFinderFactory extends Factory
     public function definition()
     {
         return [
-            'hotel_id' => Hotel::factory(),
             'base_url' => $this->faker->url,
             'finder' => $this->faker->word,
+            'type' => $this->faker->word,
+            'example' => $this->faker->word,
         ];
     }
 }

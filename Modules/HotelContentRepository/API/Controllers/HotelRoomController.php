@@ -13,7 +13,10 @@ class HotelRoomController extends BaseController
 {
     public function index()
     {
-        $hotelRooms = HotelRoom::with(['galleries.images'])->get();
+        $query = HotelRoom::query();
+        $query = $this->filter($query, HotelRoom::class);
+        $hotelRooms = $query->with(['galleries.images'])->get();
+
         return $this->sendResponse($hotelRooms->toArray(), 'index success', Response::HTTP_OK);
     }
 

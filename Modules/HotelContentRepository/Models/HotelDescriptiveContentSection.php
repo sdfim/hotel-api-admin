@@ -5,9 +5,11 @@ namespace Modules\HotelContentRepository\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelDescriptiveContentSectionFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class HotelDescriptiveContentSection extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected static function newFactory()

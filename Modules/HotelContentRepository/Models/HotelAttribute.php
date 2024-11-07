@@ -6,9 +6,11 @@ use App\Models\Configurations\ConfigAttribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelAttributeFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class HotelAttribute extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected static function newFactory()

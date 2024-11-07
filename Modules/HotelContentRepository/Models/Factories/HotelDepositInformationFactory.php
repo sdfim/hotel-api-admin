@@ -15,9 +15,8 @@ class HotelDepositInformationFactory extends Factory
         return [
             'hotel_id' => Hotel::factory(),
             'days_departure' => $this->faker->numberBetween(1, 30),
-            'per_channel' => $this->faker->randomFloat(2, 0, 100),
-            'per_room' => $this->faker->randomFloat(2, 0, 100),
-            'per_rate' => $this->faker->randomFloat(2, 0, 100),
+            'pricing_parameters' => $this->faker->randomElement(['per_channel', 'per_room', 'per_rate']),
+            'pricing_value' => $this->faker->randomFloat(2, 0, 100),
         ];
     }
 }
