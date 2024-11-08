@@ -145,16 +145,11 @@ trait HasPricingRuleFields
                         ->required(),
                 ])
                 ->columns(4),
-            Fieldset::make('Rule conditions (AND)')
+            Fieldset::make('Сonditions')
                 ->schema([
                     $this->getBaseRepiter(),
                 ])
                 ->columns(1),
-            Fieldset::make('Rule conditions (OR)')
-                ->schema([
-                    $this->getBaseRepiter('conditionsOR', 'or')
-                ])
-            ->columns(1)
         ];
     }
 
@@ -194,16 +189,22 @@ trait HasPricingRuleFields
                         ),
                     Select::make('compare')
                         ->options(fn(Get $get): array => match ($get('field')) {
-                            'supplier_id', 'channel_id', 'property', 'destination', 'rate_code', 'room_type', 'room_code', 'room_name', 'meal_plan' => [
-                                '=' => '=',
-                                '!=' => '!=',
+                            'supplier_id', 'channel_id', 'rate_code', 'meal_plan'  => [
+                                '=' => 'Equals',
+                                '!=' => 'Not Equals',
+                            ],
+                            'property', 'destination', 'room_type', 'room_code', 'room_name' => [
+                                'in' => 'In List',
+                                '!in' => 'Not In List',
+                                '=' => 'Equals',
+                                '!=' => 'Not Equals',
                             ],
                             default => [
-                                '=' => '=',
-                                '!=' => '!=',
+                                '=' => 'Equals',
+                                '!=' => 'Not Equals',
                                 '<' => '<',
                                 '>' => '>',
-                                'between' => 'between',
+                                'between' => 'Between',
                             ],
                         })
                         ->live()
@@ -227,6 +228,29 @@ trait HasPricingRuleFields
                                     ->required(),
                             ],
                             'property' => [
+                                Select::make('value')
+                                    ->label('Property')
+                                    ->searchable()
+                                    ->multiple()
+                                    ->getSearchResultsUsing(function (string $search): ?array {
+                                        $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
+                                        $result = Property::select(
+                                            DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
+                                            ->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
+                                            ->limit(100);
+
+                                        return $result->pluck('full_name', 'code')->toArray() ?? [];
+                                    })
+                                    ->getOptionLabelUsing(function ($value): ?string {
+                                        $property = Property::select(DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
+                                            ->where('code', $value)
+                                            ->first();
+
+                                        return $property ? $property->full_name : null;
+                                    })
+                                    ->required()
+                                    ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
+
                                 Select::make('value_from')
                                     ->label('Property')
                                     ->searchable()
@@ -239,12 +263,38 @@ trait HasPricingRuleFields
 
                                         return $result->pluck('full_name', 'code')->toArray() ?? [];
                                     })
-                                    ->getOptionLabelUsing(function (string $value): ?string {
-                                        return Property::select(DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
-                                            ->where('code', $value)->first()?->full_name;
+                                    ->getOptionLabelUsing(function ($value): ?string {
+                                        $property = Property::select(DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
+                                            ->where('code', $value)
+                                            ->first();
+
+                                        return $property ? $property->full_name : null;
                                     })
+                                    ->required()
+                                    ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
                             ],
                             'destination' => [
+                                Select::make('value')
+                                    ->label('Destination')
+                                    ->searchable()
+                                    ->multiple()
+                                    ->getSearchResultsUsing(function (string $search): array {
+                                        $result = Property::select(
+                                            DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
+                                            ->where('city', 'like', "%$search%")->limit(30);
+
+                                        return $result->pluck('full_name', 'city_id')->toArray() ?? [];
+                                    })
+                                    ->getOptionLabelUsing(function ($value): ?string {
+                                        $result = Property::select(
+                                            DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'))
+                                            ->where('city_id', $value)->first();
+
+                                        return $result->full_name ?? '';
+                                    })
+                                    ->required()
+                                    ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
+
                                 Select::make('value_from')
                                     ->label('Destination')
                                     ->searchable()
@@ -262,8 +312,8 @@ trait HasPricingRuleFields
 
                                         return $result->full_name ?? '';
                                     })
-                                    ->multiple(fn(Get $get): bool => in_array($get('compare'), ['in', 'not_in']))
-                                    ->required(),
+                                    ->required()
+                                    ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
                             ],
                             'travel_date' => [
                                 Grid::make()
@@ -403,19 +453,40 @@ trait HasPricingRuleFields
                                 TextInput::make('value_from')
                                     ->label('Room type from')
                                     ->maxLength(191)
-                                    ->required(),
+                                    ->required()
+                                    ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
+
+                                TextInput::make('value')
+                                    ->label('Room type from')
+                                    ->maxLength(191)
+                                    ->required()
+                                    ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
                             ],
                             'room_code' => [
                                 TextInput::make('value_from')
                                     ->label('Room code')
                                     ->maxLength(191)
-                                    ->required(),
+                                    ->required()
+                                    ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
+
+                                TextInput::make('value')
+                                    ->label('Room code')
+                                    ->maxLength(191)
+                                    ->required()
+                                    ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
                             ],
                             'room_name' => [
                                 TextInput::make('value_from')
                                     ->label('Room name')
                                     ->maxLength(191)
-                                    ->required(),
+                                    ->required()
+                                    ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
+
+                                TextInput::make('value')
+                                    ->label('Room name')
+                                    ->maxLength(191)
+                                    ->required()
+                                    ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
                             ],
                             'meal_plan' => [
                                 TextInput::make('value_from')
@@ -428,13 +499,8 @@ trait HasPricingRuleFields
                         ->columns(1)
                         ->columnStart(3)
                         ->key('dynamicFieldValue'),
-                    TextInput::make('group_condition')
-                        ->label('')
-                        ->default($group_condition)
-                        ->dehydrated(true)
-                        ->extraAttributes(['style' => 'display: none;']),
                 ])
                 ->required()
-                ->columns(3);
+                ->columns(4);
     }
 }

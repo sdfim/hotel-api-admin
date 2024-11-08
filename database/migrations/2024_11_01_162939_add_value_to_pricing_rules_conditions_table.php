@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pricing_rules_conditions', function (Blueprint $table) {
-            $table->string('group_condition', 15)->after('pricing_rule_id')->nullable();
+            $table->json('value')->after('compare')->nullable();
+            $table->string('value_from')->nullable()->change();
+
+
         });
     }
 
@@ -22,7 +25,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('pricing_rules_conditions', function (Blueprint $table) {
-            $table->dropColumn('group_condition');
+            $table->dropColumn('value');
+            $table->string('value_from')->nullable(false)->change();
         });
     }
 };

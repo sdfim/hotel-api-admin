@@ -17,9 +17,27 @@ class PricingRuleCondition extends Model
     protected $fillable = [
         'field',
         'compare',
+        'value',
         'value_from',
         'value_to',
         'pricing_rule_id',
-        'group_condition',
+
     ];
+
+    protected $casts = [
+        'value' => 'json',
+    ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            if ($model->compare == 'in' || $model->compare == 'not_in') {
+                $model->value_from = null;
+            } else {
+                $model->value = null;
+            }
+        });
+    }
 }
