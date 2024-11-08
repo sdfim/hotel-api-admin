@@ -235,18 +235,24 @@ trait HasPricingRuleFields
                                     ->getSearchResultsUsing(function (string $search): ?array {
                                         $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
                                         $result = Property::select(
-                                            DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
+                                            DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name, code'))
                                             ->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
                                             ->limit(100);
-
-                                        return $result->pluck('full_name', 'code')->toArray() ?? [];
+                                        return $result->pluck('full_name', 'code')
+                                            ->mapWithKeys(function ($full_name, $code) {
+                                                return [$code => $full_name . ' (' . $code . ')'];
+                                            })
+                                            ->toArray() ?? [];
                                     })
-                                    ->getOptionLabelUsing(function ($value): ?string {
-                                        $property = Property::select(DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
-                                            ->where('code', $value)
-                                            ->first();
-
-                                        return $property ? $property->full_name : null;
+                                    ->getOptionLabelsUsing(function (array $values): ?array {
+                                        $properties = Property::select(DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
+                                            ->whereIn('code', $values)
+                                            ->get()
+                                            ->mapWithKeys(function ($property) {
+                                                return [$property->code => $property->full_name . ' (' . $property->code . ')'];
+                                            })
+                                            ->toArray();
+                                        return $properties;
                                     })
                                     ->required()
                                     ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
