@@ -291,12 +291,15 @@ trait HasPricingRuleFields
 
                                         return $result->pluck('full_name', 'city_id')->toArray() ?? [];
                                     })
-                                    ->getOptionLabelUsing(function ($value): ?string {
-                                        $result = Property::select(
-                                            DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'))
-                                            ->where('city_id', $value)->first();
-
-                                        return $result->full_name ?? '';
+                                    ->getOptionLabelsUsing(function (array $values): ?array {
+                                        $properties = Property::select(DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
+                                            ->whereIn('city_id', $values)
+                                            ->get()
+                                            ->mapWithKeys(function ($property) {
+                                                return [$property->city_id => $property->full_name . ' (' . $property->city_id . ')'];
+                                            })
+                                            ->toArray();
+                                        return $properties;
                                     })
                                     ->required()
                                     ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
