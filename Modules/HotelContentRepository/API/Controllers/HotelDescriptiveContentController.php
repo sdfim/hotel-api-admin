@@ -7,7 +7,7 @@ use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Models\HotelDescriptiveContent;
 use Modules\HotelContentRepository\API\Requests\HotelDescriptiveContentRequest;
 use Illuminate\Http\Request;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class HotelDescriptiveContentController extends BaseController
 {

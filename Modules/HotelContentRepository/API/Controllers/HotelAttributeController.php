@@ -7,7 +7,7 @@ use Modules\HotelContentRepository\Models\HotelAttribute;
 use Modules\HotelContentRepository\API\Requests\HotelAttributeRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class HotelAttributeController extends BaseController
 {

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Models\HotelImage;
 use Modules\HotelContentRepository\API\Requests\HotelImageRequest;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class HotelImageController extends BaseController
 {

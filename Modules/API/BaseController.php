@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 
 /**
  * @OA\Info(
- *    title="UJV API Documentation",
+ *    title="UJV Main API Documentation",
  *    version="1.0.0"
  * )
  *
@@ -38,13 +38,29 @@ use Illuminate\Http\JsonResponse;
  *   description="API Endpoints of Booking (reservation)"
  * ),
  * @OA\Tag(
- *     name="Content Repository | Hotel API",
- *     description="API Endpoints for Content Repository Hotels"
+ *      name="Content Repository | Hotels",
+ *      description="API Endpoints for Content Repository Hotels"
  * ),
  * @OA\Tag(
- *      name="Content Repository | Room API",
+ *      name="Content Repository | Rooms",
  *      description="API Endpoints for Content Repository Rooms"
  *  ),
+ * @OA\Tag(
+ *       name="Content Repository | Key Mapping Owners",
+ *       description="API Endpoints for Content Repository Key Mapping Owners"
+ *   ),
+ * @OA\Tag(
+ *       name="Content Repository | Key Mappings",
+ *       description="API Endpoints for Content Repository Key Mappings"
+ *   ),
+ * @OA\Tag(
+ *       name="Content Repository | Affiliations",
+ *       description="API Endpoints for Content Repository Affiliations"
+ *   ),
+ * @OA\Tag(
+ *        name="Content Repository | Attributes",
+ *        description="API Endpoints for Content Repository Attributes"
+ *    ),
  * @OA\Tag(
  *     name="Insurance API",
  *     description="API Endpoints for Insurance"

@@ -6,7 +6,7 @@ use Modules\HotelContentRepository\Models\HotelDepositInformation;
 use Modules\HotelContentRepository\API\Requests\HotelDepositInformationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class HotelDepositInformationController extends BaseController
 {

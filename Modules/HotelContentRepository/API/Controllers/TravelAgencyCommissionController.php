@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 use Modules\HotelContentRepository\API\Requests\TravelAgencyCommissionRequest;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class TravelAgencyCommissionController extends BaseController
 {

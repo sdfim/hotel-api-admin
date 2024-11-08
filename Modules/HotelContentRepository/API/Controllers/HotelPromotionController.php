@@ -7,7 +7,7 @@ use Illuminate\Http\Response;
 use Modules\HotelContentRepository\API\Requests\AttachOrDetachGalleryRequest;
 use Modules\HotelContentRepository\Models\HotelPromotion;
 use Modules\HotelContentRepository\API\Requests\HotelPromotionRequest;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class HotelPromotionController extends BaseController
 {

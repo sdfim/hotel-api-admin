@@ -7,7 +7,7 @@ use Modules\HotelContentRepository\Models\HotelContactInformation;
 use Modules\HotelContentRepository\API\Requests\HotelContactInformationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class HotelContactInformationController extends BaseController
 {

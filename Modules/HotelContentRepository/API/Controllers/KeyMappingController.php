@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Models\KeyMapping;
 use Modules\HotelContentRepository\API\Requests\KeyMappingRequest;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class KeyMappingController extends BaseController
 {

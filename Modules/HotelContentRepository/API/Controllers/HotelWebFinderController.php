@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Models\HotelWebFinder;
 use Modules\HotelContentRepository\API\Requests\HotelWebFinderRequest;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class HotelWebFinderController extends BaseController
 {

@@ -5,11 +5,12 @@ namespace Modules\HotelContentRepository\API\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\API\Requests\AttachOrDetachGalleryRequest;
+use Modules\HotelContentRepository\API\Requests\AttachOrDetachWebFinderRequest;
 use Modules\HotelContentRepository\API\Requests\HotelRequest;
 use Modules\HotelContentRepository\Models\DTOs\HotelDTO;
 use Modules\HotelContentRepository\Models\Hotel;
 use Illuminate\Http\Request;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class HotelController extends BaseController
 {
@@ -100,14 +101,14 @@ class HotelController extends BaseController
         return $this->sendResponse($hotel->galleries->toArray(), 'Gallery detached successfully', Response::HTTP_OK);
     }
 
-    public function attachWebFinder(Request $request, $id)
+    public function attachWebFinder(AttachOrDetachWebFinderRequest $request, $id)
     {
         $hotel = Hotel::findOrFail($id);
         $hotel->webFinders()->attach($request->web_finder_id);
         return $this->sendResponse($hotel->webFinders->toArray(), 'Web Finder attached successfully', Response::HTTP_OK);
     }
 
-    public function detachWebFinder(Request $request, $id)
+    public function detachWebFinder(AttachOrDetachWebFinderRequest $request, $id)
     {
         $hotel = Hotel::findOrFail($id);
         $hotel->webFinders()->detach($request->web_finder_id);

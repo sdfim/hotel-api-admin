@@ -5,7 +5,7 @@ namespace Modules\HotelContentRepository\API\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 use Modules\HotelContentRepository\API\Requests\HotelDescriptiveContentSectionRequest;
 use Modules\HotelContentRepository\Models\HotelDescriptiveContentSection;
 

@@ -7,7 +7,7 @@ use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Models\HotelFeeTax;
 use Modules\HotelContentRepository\API\Requests\HotelFeeTaxRequest;
 use Illuminate\Http\Request;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class HotelFeeTaxController extends BaseController
 {

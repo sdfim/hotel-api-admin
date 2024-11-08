@@ -2,7 +2,7 @@
 
 namespace Modules\HotelContentRepository\API\Controllers;
 
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Models\HotelAgeRestriction;
 use Modules\HotelContentRepository\API\Requests\HotelAgeRestrictionRequest;

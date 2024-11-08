@@ -1,0 +1,3063 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "UJVAPI Documentation",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/repo/hotel-affiliations": {
+            "get": {
+                "tags": [
+                    "Affiliations"
+                ],
+                "summary": "Get all hotel affiliations",
+                "description": "Retrieve all hotel affiliation records with optional filters.",
+                "operationId": "e6423c7070e9a89a377e773a5ee942bb",
+                "parameters": [
+                    {
+                        "name": "hotel_id",
+                        "in": "query",
+                        "description": "Filter by hotel ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "affiliation_name",
+                        "in": "query",
+                        "description": "Filter by affiliation name",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "UJV Exclusive Amenities"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Affiliations"
+                ],
+                "summary": "Create a new hotel affiliation",
+                "description": "Create a new hotel affiliation entry.",
+                "operationId": "e5660301c07083bb28ec53842f22586c",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "affiliation_name",
+                                    "combinable"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "affiliation_name": {
+                                        "type": "string",
+                                        "enum": [
+                                            "UJV Exclusive Amenities",
+                                            "Consortia Inclusions"
+                                        ],
+                                        "example": "UJV Exclusive Amenities"
+                                    },
+                                    "combinable": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-affiliations/{id}": {
+            "get": {
+                "tags": [
+                    "Affiliations"
+                ],
+                "summary": "Get hotel affiliation details",
+                "description": "Retrieve details of a specific hotel affiliation.",
+                "operationId": "c488ae73781d9e3529a22dd507cd5d61",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel affiliation",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Affiliations"
+                ],
+                "summary": "Update hotel affiliation details",
+                "description": "Update details of a specific hotel affiliation.",
+                "operationId": "addbfdb3411a98386521045e12204560",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel affiliation",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "affiliation_name",
+                                    "combinable"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "affiliation_name": {
+                                        "type": "string",
+                                        "enum": [
+                                            "UJV Exclusive Amenities",
+                                            "Consortia Inclusions"
+                                        ],
+                                        "example": "UJV Exclusive Amenities"
+                                    },
+                                    "combinable": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Affiliations"
+                ],
+                "summary": "Delete a hotel affiliation",
+                "description": "Delete a specific hotel affiliation.",
+                "operationId": "72abc8f5f69533b2f214420cc5dec5e4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel affiliation",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-attributes": {
+            "get": {
+                "tags": [
+                    "Attributes"
+                ],
+                "summary": "Get all hotel attributes",
+                "description": "Retrieve all hotel attribute records with optional filters.",
+                "operationId": "3570ac6df0bfde18f6f8d1869546ee57",
+                "parameters": [
+                    {
+                        "name": "hotel_id",
+                        "in": "query",
+                        "description": "Filter by hotel ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "attribute_id",
+                        "in": "query",
+                        "description": "Filter by attribute ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Attributes"
+                ],
+                "summary": "Create a new hotel attribute",
+                "description": "Create a new hotel attribute entry.",
+                "operationId": "140f85eee1dc9215ee16cf863392da52",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "attribute_id"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "attribute_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-attributes/{id}": {
+            "get": {
+                "tags": [
+                    "Attributes"
+                ],
+                "summary": "Get hotel attribute details",
+                "description": "Retrieve details of a specific hotel attribute.",
+                "operationId": "e5ea7ecf1b9295be8349af87f1b218b2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel attribute",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Attributes"
+                ],
+                "summary": "Update hotel attribute details",
+                "description": "Update details of a specific hotel attribute.",
+                "operationId": "132892ad3c8540065ad9fce5ca60697b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel attribute",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "attribute_id"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "attribute_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Attributes"
+                ],
+                "summary": "Delete a hotel attribute",
+                "description": "Delete a specific hotel attribute.",
+                "operationId": "ab9e6b6549073175df95a3672c4d315b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel attribute",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotels": {
+            "get": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Get all hotels",
+                "description": "Retrieve all hotel records with optional filters.",
+                "operationId": "68e176f7c48e236d11f1f8272c1940f0",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Filter by hotel name",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Filter by hotel type",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "Direct connection",
+                                "Manual contract",
+                                "Commission tracking"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "verified",
+                        "in": "query",
+                        "description": "Filter by verification status",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "address",
+                        "in": "query",
+                        "description": "Filter by hotel address",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "star_rating",
+                        "in": "query",
+                        "description": "Filter by star rating",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "maximum": 5,
+                            "minimum": 1
+                        }
+                    },
+                    {
+                        "name": "website",
+                        "in": "query",
+                        "description": "Filter by hotel website",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "num_rooms",
+                        "in": "query",
+                        "description": "Filter by number of rooms",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "location",
+                        "in": "query",
+                        "description": "Filter by hotel location",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "content_source_id",
+                        "in": "query",
+                        "description": "Filter by content source ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "room_images_source_id",
+                        "in": "query",
+                        "description": "Filter by room images source ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "property_images_source_id",
+                        "in": "query",
+                        "description": "Filter by property images source ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "channel_management",
+                        "in": "query",
+                        "description": "Filter by channel management",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "name": "hotel_board_basis",
+                        "in": "query",
+                        "description": "Filter by hotel board basis",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "default_currency",
+                        "in": "query",
+                        "description": "Filter by default currency",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Create a new hotel",
+                "description": "Create a new hotel entry.",
+                "operationId": "766fd568e70ac639dd94c3ac56754b89",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "type",
+                                    "verified",
+                                    "address",
+                                    "star_rating",
+                                    "website",
+                                    "num_rooms",
+                                    "location",
+                                    "content_source_id",
+                                    "room_images_source_id",
+                                    "property_images_source_id",
+                                    "channel_management",
+                                    "hotel_board_basis",
+                                    "default_currency"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Example Hotel"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Direct connection",
+                                            "Manual contract",
+                                            "Commission tracking"
+                                        ],
+                                        "example": "Direct connection"
+                                    },
+                                    "verified": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Example Street, Example City, EX 12345"
+                                    },
+                                    "star_rating": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "website": {
+                                        "type": "string",
+                                        "example": "https://examplehotel.com"
+                                    },
+                                    "num_rooms": {
+                                        "type": "integer",
+                                        "example": 100
+                                    },
+                                    "location": {
+                                        "type": "string",
+                                        "example": "Example City"
+                                    },
+                                    "content_source_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "room_images_source_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "property_images_source_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "channel_management": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "hotel_board_basis": {
+                                        "type": "string",
+                                        "example": "All Inclusive"
+                                    },
+                                    "default_currency": {
+                                        "type": "string",
+                                        "example": "USD"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotels/{id}": {
+            "get": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Get hotel details",
+                "description": "Retrieve details of a specific hotel.",
+                "operationId": "91a4ba6683798d25928a1f417437cca8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Update hotel details",
+                "description": "Update details of a specific hotel.",
+                "operationId": "acdbf1bda66ef813e4b31dad445da7e4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "type",
+                                    "verified",
+                                    "address",
+                                    "star_rating",
+                                    "website",
+                                    "num_rooms",
+                                    "location",
+                                    "content_source_id",
+                                    "room_images_source_id",
+                                    "property_images_source_id",
+                                    "channel_management",
+                                    "hotel_board_basis",
+                                    "default_currency"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Example Hotel"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Direct connection",
+                                            "Manual contract",
+                                            "Commission tracking"
+                                        ],
+                                        "example": "Direct connection"
+                                    },
+                                    "verified": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Example Street, Example City, EX 12345"
+                                    },
+                                    "star_rating": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "website": {
+                                        "type": "string",
+                                        "example": "https://examplehotel.com"
+                                    },
+                                    "num_rooms": {
+                                        "type": "integer",
+                                        "example": 100
+                                    },
+                                    "location": {
+                                        "type": "string",
+                                        "example": "Example City"
+                                    },
+                                    "content_source_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "room_images_source_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "property_images_source_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "channel_management": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "hotel_board_basis": {
+                                        "type": "string",
+                                        "example": "All Inclusive"
+                                    },
+                                    "default_currency": {
+                                        "type": "string",
+                                        "example": "USD"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Delete a hotel",
+                "description": "Delete a specific hotel.",
+                "operationId": "d6f3ebd31fe9a1d7956a9741aef950bd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotels/{id}/attach-gallery": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Attach a gallery to a hotel",
+                "description": "Attach a gallery to a specific hotel.",
+                "operationId": "bddf6d2edc35cac69b43c885a39bfd0c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "gallery_id"
+                                ],
+                                "properties": {
+                                    "gallery_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotels/{id}/detach-gallery": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Detach a gallery from a hotel",
+                "description": "Detach a gallery from a specific hotel.",
+                "operationId": "0d743acbf1ccf15126a092ae4e925b1e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "gallery_id"
+                                ],
+                                "properties": {
+                                    "gallery_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotels/{id}/attach-web-finder": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Attach a web finder to a hotel",
+                "description": "Attach a web finder to a specific hotel.",
+                "operationId": "14e006378ccfec941bbb7a98c6b201a7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "web_finder_id"
+                                ],
+                                "properties": {
+                                    "web_finder_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotels/{id}/detach-web-finder": {
+            "post": {
+                "tags": [
+                    "Hotels"
+                ],
+                "summary": "Detach a web finder from a hotel",
+                "description": "Detach a web finder from a specific hotel.",
+                "operationId": "004cfab3219a1fd9759d6bfc672fbaf5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "web_finder_id"
+                                ],
+                                "properties": {
+                                    "web_finder_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-rooms": {
+            "get": {
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Get all hotel rooms",
+                "description": "Retrieve all hotel room records with optional filters.",
+                "operationId": "ca750ef8cf9ab8a21aa1d94b4594be4f",
+                "parameters": [
+                    {
+                        "name": "hotel_id",
+                        "in": "query",
+                        "description": "Filter by hotel ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Filter by room name",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Deluxe Room"
+                        }
+                    },
+                    {
+                        "name": "hbsi_data_mapped_name",
+                        "in": "query",
+                        "description": "Filter by HBSI data mapped name",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Deluxe Room Mapped"
+                        }
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "description": "Filter by room description",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "A luxurious room with all amenities."
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Create a new hotel room",
+                "description": "Create a new hotel room entry.",
+                "operationId": "d2736934ad21a09540d8d3cfc5379582",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "name",
+                                    "hbsi_data_mapped_name",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Deluxe Room"
+                                    },
+                                    "hbsi_data_mapped_name": {
+                                        "type": "string",
+                                        "example": "Deluxe Room Mapped"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "A luxurious room with all amenities."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-rooms/{id}": {
+            "get": {
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Get hotel room details",
+                "description": "Retrieve details of a specific hotel room.",
+                "operationId": "82051c9509de417e2c68a28318e15364",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel room",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Update hotel room details",
+                "description": "Update details of a specific hotel room.",
+                "operationId": "685af02e35e58912ed56998294802c3f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel room",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "name",
+                                    "hbsi_data_mapped_name",
+                                    "description"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Deluxe Room"
+                                    },
+                                    "hbsi_data_mapped_name": {
+                                        "type": "string",
+                                        "example": "Deluxe Room Mapped"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "A luxurious room with all amenities."
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Delete a hotel room",
+                "description": "Delete a specific hotel room.",
+                "operationId": "382f28c7ce28b39d51ae70e7c8102e03",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel room",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-rooms/{id}/attach-gallery": {
+            "post": {
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Attach a gallery to a hotel room",
+                "description": "Attach a gallery to a specific hotel room.",
+                "operationId": "9e75de35a75090d17ba9606614099c19",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel room",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "gallery_id"
+                                ],
+                                "properties": {
+                                    "gallery_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-rooms/{id}/detach-gallery": {
+            "post": {
+                "tags": [
+                    "Rooms"
+                ],
+                "summary": "Detach a gallery from a hotel room",
+                "description": "Detach a gallery from a specific hotel room.",
+                "operationId": "a07ac89f8f78d06f7ecb1dc047bd1148",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel room",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "gallery_id"
+                                ],
+                                "properties": {
+                                    "gallery_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/key-mapping-owners": {
+            "get": {
+                "tags": [
+                    "Key Mapping Owners"
+                ],
+                "summary": "Get all key mapping owners",
+                "description": "Retrieve all key mapping owner records with optional filters.",
+                "operationId": "d58b7c5b78606049d78e13799c14841e",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Name of the key mapping owner to search for",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Owner Name"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Key Mapping Owners"
+                ],
+                "summary": "Create a new key mapping owner",
+                "description": "Create a new key mapping owner.",
+                "operationId": "5bfc7defd4a4e1a8f7335d3797d39fde",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Owner Name"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/key-mapping-owners/{id}": {
+            "get": {
+                "tags": [
+                    "Key Mapping Owners"
+                ],
+                "summary": "Get key mapping owner details",
+                "description": "Retrieve details of a specific key mapping owner.",
+                "operationId": "9d4c2cdfde59a63e8c191af8a2a3a50c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the key mapping owner",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Key Mapping Owners"
+                ],
+                "summary": "Update key mapping owner details",
+                "description": "Update details of a specific key mapping owner.",
+                "operationId": "ca514f755d133376b5e0ba25a3099be9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the key mapping owner",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Owner Name"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Key Mapping Owners"
+                ],
+                "summary": "Delete a key mapping owner",
+                "description": "Delete a specific key mapping owner.",
+                "operationId": "d88cc7d9da264de6b51943f74a3add3c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the key mapping owner",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/key-mappings": {
+            "get": {
+                "tags": [
+                    "Key Mappings"
+                ],
+                "summary": "Get all key mappings",
+                "description": "Retrieve all key mapping records with optional filters.",
+                "operationId": "c77354340e452740fd19aeba1ae5ad44",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Key Mappings"
+                ],
+                "summary": "Create a new key mapping",
+                "description": "Create a new key mapping.",
+                "operationId": "a78fc1a1d4fbc8df67fd9de8d1cb1318",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "key_id",
+                                    "key_mapping_owner_id"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "key_id": {
+                                        "type": "string",
+                                        "example": "Key123"
+                                    },
+                                    "key_mapping_owner_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/key-mappings/{id}": {
+            "get": {
+                "tags": [
+                    "Key Mappings"
+                ],
+                "summary": "Get key mapping details",
+                "description": "Retrieve details of a specific key mapping.",
+                "operationId": "7a4084e70a07381362a200021a047f3b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the key mapping",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Key Mappings"
+                ],
+                "summary": "Update key mapping details",
+                "description": "Update details of a specific key mapping.",
+                "operationId": "1a24d06445d9f40e5c6a6403b4389652",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the key mapping",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "key_id",
+                                    "key_mapping_owner_id"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "key_id": {
+                                        "type": "string",
+                                        "example": "Key123"
+                                    },
+                                    "key_mapping_owner_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Key Mappings"
+                ],
+                "summary": "Delete a key mapping",
+                "description": "Delete a specific key mapping.",
+                "operationId": "1a36866efa85671471a6f19ecb4a039d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the key mapping",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                },
+                                "examples": {
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "BadRequestResponse": {
+                "title": "BadRequest 400 error",
+                "description": "Schema of BadRequest 400 error",
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "description": "Error message",
+                        "type": "string",
+                        "example": "Invalid type"
+                    }
+                },
+                "type": "object"
+            },
+            "NotFoundResponse": {
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Resource not found"
+                    }
+                },
+                "type": "object"
+            },
+            "UnAuthenticatedResponse": {
+                "title": "UnAuthenticated 401 error",
+                "description": "Schema of UnAuthenticated 401 error",
+                "required": [
+                    "api_status",
+                    "message"
+                ],
+                "properties": {
+                    "api_status": {
+                        "description": "API status code",
+                        "type": "integer",
+                        "example": 401
+                    },
+                    "message": {
+                        "description": "Error message",
+                        "type": "string",
+                        "example": "UnAuthenticated"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "examples": {
+            "BadRequestResponse": {
+                "summary": "Example of BadRequest",
+                "value": {
+                    "message": "Invalid type"
+                }
+            },
+            "NotFoundResponse": {
+                "summary": "Example of NotFoundResponse",
+                "value": {
+                    "message": "Resource not found"
+                }
+            },
+            "UnAuthenticatedResponse": {
+                "summary": "Example of UnAuthenticated",
+                "value": {
+                    "api_status": "401",
+                    "message": "UnAuthenticated"
+                }
+            }
+        },
+        "securitySchemes": {
+            "apiAuth": {
+                "type": "http",
+                "description": "authentication token",
+                "name": "Token based Based",
+                "in": "header",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Hotels",
+            "description": "API Endpoints forHotels"
+        },
+        {
+            "name": "Rooms",
+            "description": "API Endpoints forRooms"
+        },
+        {
+            "name": "Key Mapping Owners",
+            "description": "API Endpoints forKey Mapping Owners"
+        },
+        {
+            "name": "Key Mappings",
+            "description": "API Endpoints forKey Mappings"
+        },
+        {
+            "name": "Affiliations",
+            "description": "API Endpoints forAffiliations"
+        },
+        {
+            "name": "Attributes",
+            "description": "API Endpoints forAttributes"
+        }
+    ]
+}

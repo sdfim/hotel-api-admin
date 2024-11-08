@@ -9,10 +9,50 @@ class HotelRoomRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Content Repository | Rooms"},
+     *   tags={"Rooms"},
      *   path="/api/repo/hotel-rooms",
      *   summary="Get all hotel rooms",
      *   description="Retrieve all hotel room records with optional filters.",
+     *   @OA\Parameter(
+     *     name="hotel_id",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by hotel ID",
+     *     @OA\Schema(
+     *       type="integer",
+     *       example=1
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="name",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by room name",
+     *     @OA\Schema(
+     *       type="string",
+     *       example="Deluxe Room"
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="hbsi_data_mapped_name",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by HBSI data mapped name",
+     *     @OA\Schema(
+     *       type="string",
+     *       example="Deluxe Room Mapped"
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="description",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by room description",
+     *     @OA\Schema(
+     *       type="string",
+     *       example="A luxurious room with all amenities."
+     *     )
+     *   ),
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -39,9 +79,10 @@ class HotelRoomRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
+
      *
      * @OA\Post(
-     *   tags={"Content Repository | Rooms"},
+     *   tags={"Rooms"},
      *   path="/api/repo/hotel-rooms",
      *   summary="Create a new hotel room",
      *   description="Create a new hotel room entry.",
@@ -84,7 +125,7 @@ class HotelRoomRequest extends ApiRequest
      * )
      *
      * @OA\Get(
-     *   tags={"Content Repository | Rooms"},
+     *   tags={"Rooms"},
      *   path="/api/repo/hotel-rooms/{id}",
      *   summary="Get hotel room details",
      *   description="Retrieve details of a specific hotel room.",
@@ -126,7 +167,7 @@ class HotelRoomRequest extends ApiRequest
      * )
      *
      * @OA\Put(
-     *   tags={"Content Repository | Rooms"},
+     *   tags={"Rooms"},
      *   path="/api/repo/hotel-rooms/{id}",
      *   summary="Update hotel room details",
      *   description="Update details of a specific hotel room.",
@@ -189,7 +230,7 @@ class HotelRoomRequest extends ApiRequest
      * )
      *
      * @OA\Delete(
-     *   tags={"Content Repository | Rooms"},
+     *   tags={"Rooms"},
      *   path="/api/repo/hotel-rooms/{id}",
      *   summary="Delete a hotel room",
      *   description="Delete a specific hotel room.",
@@ -231,7 +272,7 @@ class HotelRoomRequest extends ApiRequest
      * )
      *
      * @OA\Post(
-     *   tags={"Content Repository | Rooms"},
+     *   tags={"Rooms"},
      *   path="/api/repo/hotel-rooms/{id}/attach-gallery",
      *   summary="Attach a gallery to a hotel room",
      *   description="Attach a gallery to a specific hotel room.",
@@ -281,7 +322,7 @@ class HotelRoomRequest extends ApiRequest
      * )
      *
      * @OA\Post(
-     *   tags={"Content Repository | Rooms"},
+     *   tags={"Rooms"},
      *   path="/api/repo/hotel-rooms/{id}/detach-gallery",
      *   summary="Detach a gallery from a hotel room",
      *   description="Detach a gallery from a specific hotel room.",
@@ -339,7 +380,7 @@ class HotelRoomRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'hotel_id' => 'required|integer',
+            'hotel_id' => 'required|integer|exists:pd_hotels,id',
             'name' => 'required|string|max:255',
             'hbsi_data_mapped_name' => 'required|string|max:255',
             'description' => 'required|string',

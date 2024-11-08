@@ -9,7 +9,7 @@ class HotelRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Content Repository | Hotels"},
+     *   tags={"Hotels"},
      *   path="/api/repo/hotels",
      *   summary="Get all hotels",
      *   description="Retrieve all hotel records with optional filters.",
@@ -41,6 +41,107 @@ class HotelRequest extends ApiRequest
      *       type="boolean"
      *     )
      *   ),
+     *   @OA\Parameter(
+     *     name="address",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by hotel address",
+     *     @OA\Schema(
+     *       type="string"
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="star_rating",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by star rating",
+     *     @OA\Schema(
+     *       type="integer",
+     *       minimum=1,
+     *       maximum=5
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="website",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by hotel website",
+     *     @OA\Schema(
+     *       type="string"
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="num_rooms",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by number of rooms",
+     *     @OA\Schema(
+     *       type="integer"
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="location",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by hotel location",
+     *     @OA\Schema(
+     *       type="string"
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="content_source_id",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by content source ID",
+     *     @OA\Schema(
+     *       type="integer"
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="room_images_source_id",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by room images source ID",
+     *     @OA\Schema(
+     *       type="integer"
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="property_images_source_id",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by property images source ID",
+     *     @OA\Schema(
+     *       type="integer"
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="channel_management",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by channel management",
+     *     @OA\Schema(
+     *       type="boolean"
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="hotel_board_basis",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by hotel board basis",
+     *     @OA\Schema(
+     *       type="string"
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="default_currency",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by default currency",
+     *     @OA\Schema(
+     *       type="string"
+     *     )
+     *   ),
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -69,7 +170,7 @@ class HotelRequest extends ApiRequest
      * )
  *
      * @OA\Post(
-     *   tags={"Content Repository | Hotels"},
+     *   tags={"Hotels"},
      *   path="/api/repo/hotels",
      *   summary="Create a new hotel",
      *   description="Create a new hotel entry.",
@@ -122,7 +223,7 @@ class HotelRequest extends ApiRequest
      * )
  *
      * @OA\Get(
-     *   tags={"Content Repository | Hotels"},
+     *   tags={"Hotels"},
      *   path="/api/repo/hotels/{id}",
      *   summary="Get hotel details",
      *   description="Retrieve details of a specific hotel.",
@@ -164,7 +265,7 @@ class HotelRequest extends ApiRequest
      * )
  *
      * @OA\Put(
-     *   tags={"Content Repository | Hotels"},
+     *   tags={"Hotels"},
      *   path="/api/repo/hotels/{id}",
      *   summary="Update hotel details",
      *   description="Update details of a specific hotel.",
@@ -237,7 +338,7 @@ class HotelRequest extends ApiRequest
      * )
  *
      * @OA\Delete(
-     *   tags={"Content Repository | Hotels"},
+     *   tags={"Hotels"},
      *   path="/api/repo/hotels/{id}",
      *   summary="Delete a hotel",
      *   description="Delete a specific hotel.",
@@ -279,7 +380,7 @@ class HotelRequest extends ApiRequest
      * )
 
      * @OA\Post(
-     *   tags={"Content Repository | Hotels"},
+     *   tags={"Hotels"},
      *   path="/api/repo/hotels/{id}/attach-gallery",
      *   summary="Attach a gallery to a hotel",
      *   description="Attach a gallery to a specific hotel.",
@@ -329,7 +430,7 @@ class HotelRequest extends ApiRequest
      * )
 
      * @OA\Post(
-     *   tags={"Content Repository | Hotels"},
+     *   tags={"Hotels"},
      *   path="/api/repo/hotels/{id}/detach-gallery",
      *   summary="Detach a gallery from a hotel",
      *   description="Detach a gallery from a specific hotel.",
@@ -379,7 +480,7 @@ class HotelRequest extends ApiRequest
      * )
 
      * @OA\Post(
-     *   tags={"Content Repository | Hotels"},
+     *   tags={"Hotels"},
      *   path="/api/repo/hotels/{id}/attach-web-finder",
      *   summary="Attach a web finder to a hotel",
      *   description="Attach a web finder to a specific hotel.",
@@ -429,7 +530,7 @@ class HotelRequest extends ApiRequest
      * )
 
      * @OA\Post(
-     *   tags={"Content Repository | Hotels"},
+     *   tags={"Hotels"},
      *   path="/api/repo/hotels/{id}/detach-web-finder",
      *   summary="Detach a web finder from a hotel",
      *   description="Detach a web finder from a specific hotel.",

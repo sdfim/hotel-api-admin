@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Models\HotelInformativeService;
 use Modules\HotelContentRepository\API\Requests\HotelInformativeServiceRequest;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class HotelInformativeServiceController extends BaseController
 {

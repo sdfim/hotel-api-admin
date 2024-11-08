@@ -389,11 +389,25 @@
                 @endcan
                 @can('swagger-docs')
                     <li>
-                        <a href="{{ url(config('app.url').'/admin/api/documentation') }}"
-                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <a href="javascript: void(0);" aria-expanded="false"
+                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                             <i class="dripicons-document-edit"></i>
-                            <span data-key="t-api-documentatio"> OpenApi Documentation</span>
+                            <span data-key="t-api-documentation">Swagger</span>
                         </a>
+                        <ul>
+                            <li>
+                                <a href="{{ url(config('app.url').'/admin/api/documentation') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                    Main Documentation
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url(config('app.url').'/admin/api/doc-content-repository') }}"
+                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                    Content Repository
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 @endcan
 
