@@ -317,28 +317,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         default => throw new Exception("Unknown supplier: $supplier")
                     };
 
-                    \Log::debug('preSearchData DEBUG ',
-                        ['$preSearchData' => $preSearchData,
-                            'supplier' => $supplier,
-                            'filters' => $filters]
-                    );
-
-//                    $preSearchData = [
-//                        "data" =>  [
-//                            51722 => [
-//                                "giata" => 18774844,
-//                                "name" => "Moon Palace Nizuc",
-//                                "hbsi" => "51722"
-//                            ],
-//                            51721 => [
-//                                "giata" => 42851280,
-//                                "name" => "Nizuc Resort And Spa",
-//                                "hbsi" => "51721"
-//                            ]
-//                        ],
-//                        "total_pages" => 1.0
-//                    ];
-
                     foreach ($optionsQueries as $optionsQuery) {
                         $fiberKey = $supplier . '_' . $optionsQuery;
 
