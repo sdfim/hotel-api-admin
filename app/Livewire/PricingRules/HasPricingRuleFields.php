@@ -13,6 +13,7 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
@@ -296,7 +297,7 @@ trait HasPricingRuleFields
                                             ->whereIn('city_id', $values)
                                             ->get()
                                             ->mapWithKeys(function ($property) {
-                                                return [$property->city_id => $property->full_name . ' (' . $property->city_id . ')'];
+                                                return [$property->city_id => $property->full_name];
                                             })
                                             ->toArray();
                                         return $properties;
@@ -460,13 +461,13 @@ trait HasPricingRuleFields
                             ],
                             'room_type' => [
                                 TextInput::make('value_from')
-                                    ->label('Room type from')
+                                    ->label('Room type')
                                     ->maxLength(191)
                                     ->required()
                                     ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
 
-                                TextInput::make('value')
-                                    ->label('Room type from')
+                                Textarea::make('value')
+                                    ->label('Room types (semicolon separated)')
                                     ->maxLength(191)
                                     ->required()
                                     ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
@@ -478,8 +479,8 @@ trait HasPricingRuleFields
                                     ->required()
                                     ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
 
-                                TextInput::make('value')
-                                    ->label('Room code')
+                                Textarea::make('value')
+                                    ->label('Room codes (semicolon separated)')
                                     ->maxLength(191)
                                     ->required()
                                     ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
@@ -491,8 +492,8 @@ trait HasPricingRuleFields
                                     ->required()
                                     ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
 
-                                TextInput::make('value')
-                                    ->label('Room name')
+                                Textarea::make('value')
+                                    ->label('Room names (semicolon separated)')
                                     ->maxLength(191)
                                     ->required()
                                     ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),

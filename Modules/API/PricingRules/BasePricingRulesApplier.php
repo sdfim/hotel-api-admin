@@ -110,7 +110,8 @@ class BasePricingRulesApplier
         $compare = $condition['compare'];
         $valueFrom = $condition['value_from'];
         $valueArr = $condition['value'];
-        $valueArr = is_array($valueArr) ? $valueArr : preg_split('/,\s*/', $valueArr);
+//        $valueArr = is_array($valueArr) ? $valueArr : preg_split('/,\s*/', $valueArr);
+        $valueArr = is_array($valueArr) ? $valueArr : preg_split('/;\s*/', $valueArr);
         return match ($compare) {
             '=' => (string)$valueFrom === (string)$value,
             '!=' => (string)$valueFrom !== (string)$value,
