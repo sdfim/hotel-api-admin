@@ -80,6 +80,7 @@ class SearchInspectorController extends BaseInspectorController
             $inspectorPath = ApiSearchInspector::where('response_path', $path)?->first();
             // check if inspector not exists
             if (! $inspectorPath) {
+                $content = is_array($content) ? json_encode($content) : $content;
                 Storage::put($path, $content);
                 Log::debug('SearchInspectorController save to Storage: '.$this->executionTime().' seconds');
 
