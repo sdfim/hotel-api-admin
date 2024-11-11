@@ -14,7 +14,7 @@ class HotelAffiliationFactory extends Factory
     {
         return [
             'hotel_id' => Hotel::factory(),
-            'affiliation_name' => $this->faker->company,
+            'affiliation_name' => $this->faker->randomElement(['UJV Exclusive Amenities', 'Consortia Inclusions']),
             'combinable' => $this->faker->boolean,
         ];
     }

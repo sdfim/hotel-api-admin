@@ -154,7 +154,7 @@ trait HasPricingRuleFields
         ];
     }
 
-    private function getBaseRepiter(?string $group_type = 'conditions', ?string $group_condition = null): Repeater
+    private function getBaseRepiter(?string $group_type = 'conditions'): Repeater
     {
         return CustomRepeater::make($group_type)
             ->relationship()

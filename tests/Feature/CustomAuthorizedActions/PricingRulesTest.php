@@ -75,10 +75,11 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $pricingRuleData = $pricingRulesTools->generatePricingRuleData(time());
 
+        $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData();
+
         $formData = [
             ...$pricingRuleData,
-            'conditions' => $pricingRulesTools->generatePricingRuleConditionsData(null, 'AND'),
-            'conditionsOR' => $pricingRulesTools->generatePricingRuleConditionsData(null, 'OR'),
+            'conditions' => $pricingRuleConditionsData,
         ];
 
         Livewire::test(CreatePricingRule::class)
@@ -90,11 +91,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $this->assertDatabaseHas('pricing_rules', $pricingRuleData);
 
-        foreach ($formData['conditions'] as $cond) {
-            $this->assertDatabaseHas('pricing_rules_conditions', $cond);
-        }
-
-        foreach ($formData['conditionsOR'] as $cond) {
+        foreach ($pricingRuleConditionsData as $cond) {
             $this->assertDatabaseHas('pricing_rules_conditions', $cond);
         }
     }
@@ -110,10 +107,11 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $pricingRuleData = $pricingRulesTools->generatePricingRuleData(time());
 
+        $pricingRuleConditionsData = $pricingRulesTools->generatePricingRuleConditionsData($pricingRule->id);
+
         $formData = [
             ...$pricingRuleData,
-            'conditions' => $pricingRulesTools->generatePricingRuleConditionsData($pricingRule->id, 'AND'),
-            'conditionsOR' => $pricingRulesTools->generatePricingRuleConditionsData($pricingRule->id, 'OR'),
+            'conditions' => $pricingRuleConditionsData,
         ];
 
         Livewire::test(UpdatePricingRule::class, ['pricingRule' => $pricingRule])
@@ -126,12 +124,8 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         $this->assertDatabaseHas('pricing_rules', $pricingRuleData);
 
-        foreach ($formData['conditions'] as $cond) {
-            $this->assertDatabaseHas('pricing_rules_conditions', $cond);
-        }
-
-        foreach ($formData['conditionsOR'] as $cond) {
-            $this->assertDatabaseHas('pricing_rules_conditions', $cond);
+        foreach ($pricingRuleConditionsData as $pricingRuleConditionData) {
+            $this->assertDatabaseHas('pricing_rules_conditions', $pricingRuleConditionData);
         }
     }
 
