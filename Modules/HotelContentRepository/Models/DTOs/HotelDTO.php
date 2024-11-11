@@ -77,28 +77,23 @@ class HotelDTO
             ];
         });
         $this->attributes = $hotel->attributes->map(function ($attribute) {
-            return [
-                'name' => $attribute->name,
-                'attribute_value' => $attribute->attribute_value,
-            ];
+            return $attribute->attribute->name;
+//            return [
+//                'name' => $attribute->attribute->name,
+//                'attribute_value' => $attribute->attribute->attribute_value,
+//            ];
         });
         $this->descriptive_contents_section = $hotel->descriptiveContentsSection->map(function ($section) {
             return [
-                'section_name' => $section->section_name,
+//                'section_name' => $section->section_name,
                 'start_date' => $section->start_date,
                 'end_date' => $section->end_date,
                 'content' => $section->content->map(function ($content) {
                     return [
-                        'section_name' => $content->section_name,
-                        'meta_description' => $content->meta_description,
-                        'property_description' => $content->property_description,
-                        'cancellation_policy' => $content->cancellation_policy,
-                        'pet_policy' => $content->pet_policy,
-                        'terms_conditions' => $content->terms_conditions,
-                        'fees_paid_at_hotel' => $content->fees_paid_at_hotel,
-                        'staff_contact_info' => $content->staff_contact_info,
-                        'validity_start' => $content->validity_start,
-                        'validity_end' => $content->validity_end,
+                        'name' => $content->descriptiveType->name,
+                        'location' => $content->descriptiveType->location,
+                        'type' => $content->descriptiveType->type,
+                        'description' => $content->descriptiveType->description,
                     ];
                 }),
             ];
