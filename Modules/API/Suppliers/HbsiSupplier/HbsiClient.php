@@ -44,6 +44,32 @@ class HbsiClient
 
     private array $mainGuest;
 
+    const ERRORS = [
+        '15' => 'Invalid date',
+        '61' => 'Invalid currency code',
+        '69' => 'Minimum stay criteria not fulfilled',
+        '70' => 'Maximum stay criteria not fulfilled',
+        '87' => 'Booking reference invalid',
+        '95' => 'Booking already cancelled',
+        '97' => 'Booking reference not found',
+        '111' => 'Booking invalid',
+        '127' => 'Reservation already exists',
+        '146' => 'Service requested incorrect',
+        '147' => 'Taxes incorrect',
+        '161' => 'Search criteria invalid',
+        '245' => 'Invalid confirmation number',
+        '249' => 'Invalid rate code',
+        '251' => 'Last name and customer number do not match',
+        '321' => 'Required field missing',
+        '364' => 'Error rate range',
+        '394' => 'Invalid item',
+        '397' => 'Invalid number of adults',
+        '400' => 'Invalid property code',
+        '402' => 'Invalid room type',
+        '450' => 'Unable to process',
+        '459' => 'Invalid request code',
+    ];
+
     private Credentials $credentials;
 
     public function __construct(
@@ -230,8 +256,8 @@ class HbsiClient
             if (str_contains($body, 'Errors')) {
                 $return = $this->processXmlBody($body, $bodyQuery, true);
                 $response = $return['response']->children('soap-env', true)->Body->children()->children();
-                $code = $response->children()->attributes()['Code'];
-                $message = (string) $code === '95' ? 'Room is already cancelled.' : 'RQ Error';
+                $code = (string) $response->children()->attributes()['Code'];
+                $message = Arr::get(self::ERRORS, $code, 'Unknown error');
                 SaveBookingInspector::dispatch($inspector, $content, [], 'error', ['side' => 'app', 'message' => $message]);
             }
 
@@ -670,14 +696,16 @@ class HbsiClient
                     }
                 }
             }
-            for ($i = 0; $i < count(array_values($guests)[$keyRate]); $i++) {
-                $roomStaysArr['ResGuestRPHs'][]['@attributes']['RPH'] = strval($RPH);
-                $RPH++;
-            }
+
             if (isset($roomStaysArr['GuestCounts']['GuestCount']) && count($roomStaysArr['GuestCounts']['GuestCount']) > 1) {
                 $guestCounts = $roomStaysArr['GuestCounts']['GuestCount'];
                 unset($roomStaysArr['GuestCounts']);
                 $roomStaysArr['GuestCounts'] = $guestCounts;
+            }
+
+            foreach ($roomStaysArr['GuestCounts'] as $item) {
+                $roomStaysArr['ResGuestRPHs'][]['@attributes']['RPH'] = strval($RPH);
+                $RPH++;
             }
 
             $res[$keyRate] = $roomStaysArr;
