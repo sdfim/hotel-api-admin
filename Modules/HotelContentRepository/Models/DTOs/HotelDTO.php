@@ -114,9 +114,9 @@ class HotelDTO
         });
         $this->informative_services = $hotel->informativeServices->map(function ($service) {
             return [
-                'service_name' => $service->service_name,
-                'service_description' => $service->service_description,
-                'service_cost' => $service->service_cost,
+                'name' => $service->service->name,
+                'description' => $service->service->description,
+                'cost' => $service->service->cost,
             ];
         });
         $this->promotions = $hotel->promotions->map(function ($promotion) {
