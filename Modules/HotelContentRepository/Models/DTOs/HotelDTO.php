@@ -24,7 +24,7 @@ class HotelDTO
     public $attributes;
     public $descriptive_contents_section;
     public $fee_taxes;
-    public $informative_services;
+    public $informational_service;
     public $promotions;
     public $rooms;
     public $key_mappings;
@@ -112,7 +112,7 @@ class HotelDTO
                 'type' => $tax->type,
             ];
         });
-        $this->informative_services = $hotel->informativeServices->map(function ($service) {
+        $this->informational_service = $hotel->informativeServices->map(function ($service) {
             return [
                 'name' => $service->service->name,
                 'description' => $service->service->description,
