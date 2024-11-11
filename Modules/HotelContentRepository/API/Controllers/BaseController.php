@@ -58,6 +58,10 @@ use Modules\API\BaseController as MainController;
  *        description="API Endpoints for Descriptive Content"
  *    ),
  * @OA\Tag(
+ *        name="Website Search Generation",
+ *        description="API Endpoints for Website Search Generation"
+ *    ),
+ * @OA\Tag(
  *     name="Insurance API",
  *     description="API Endpoints for Insurance"
  * )

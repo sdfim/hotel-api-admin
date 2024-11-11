@@ -3405,6 +3405,354 @@
                 ]
             }
         },
+        "/api/repo/hotel-web-finders": {
+            "get": {
+                "tags": [
+                    "Website Search Generation"
+                ],
+                "summary": "Get all hotel web finders",
+                "description": "Retrieve all hotel web finder records with optional filters.",
+                "operationId": "6d1ee009eadb2e288366a28100ba8c2c",
+                "parameters": [
+                    {
+                        "name": "base_url",
+                        "in": "query",
+                        "description": "Filter by base URL",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "https://example.com"
+                        }
+                    },
+                    {
+                        "name": "finder",
+                        "in": "query",
+                        "description": "Filter by finder",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Finder Example"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Filter by type",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Type Example"
+                        }
+                    },
+                    {
+                        "name": "example",
+                        "in": "query",
+                        "description": "Filter by example",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Example"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Website Search Generation"
+                ],
+                "summary": "Create a new hotel web finder",
+                "description": "Create a new hotel web finder entry.",
+                "operationId": "42fad0d34744eb2b512af99ab327a765",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "base_url",
+                                    "finder",
+                                    "type"
+                                ],
+                                "properties": {
+                                    "base_url": {
+                                        "type": "string",
+                                        "example": "https://example.com"
+                                    },
+                                    "finder": {
+                                        "type": "string",
+                                        "example": "Finder Example"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "Type Example"
+                                    },
+                                    "example": {
+                                        "type": "string",
+                                        "example": "Example"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-web-finders/{id}": {
+            "get": {
+                "tags": [
+                    "Website Search Generation"
+                ],
+                "summary": "Get hotel web finder details",
+                "description": "Retrieve details of a specific hotel web finder.",
+                "operationId": "c14c48b52d5547288965af7ba39f1801",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel web finder",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Website Search Generation"
+                ],
+                "summary": "Update hotel web finder details",
+                "description": "Update details of a specific hotel web finder.",
+                "operationId": "a477606b52b572fa6ae6f88ad84cafed",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel web finder",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "base_url",
+                                    "finder",
+                                    "type"
+                                ],
+                                "properties": {
+                                    "base_url": {
+                                        "type": "string",
+                                        "example": "https://example.com"
+                                    },
+                                    "finder": {
+                                        "type": "string",
+                                        "example": "Finder Example"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "Type Example"
+                                    },
+                                    "example": {
+                                        "type": "string",
+                                        "example": "Example"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Website Search Generation"
+                ],
+                "summary": "Delete a hotel web finder",
+                "description": "Delete a specific hotel web finder.",
+                "operationId": "e378f023e661a1040b0cd7f1dca41195",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel web finder",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/repo/key-mapping-owners": {
             "get": {
                 "tags": [
@@ -4223,6 +4571,10 @@
         {
             "name": "Descriptive Content",
             "description": "API Endpoints for Descriptive Content"
+        },
+        {
+            "name": "Website Search Generation",
+            "description": "API Endpoints for Website Search Generation"
         }
     ]
 }
