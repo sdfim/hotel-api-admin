@@ -7,7 +7,7 @@ use Modules\API\BaseController as MainController;
 
 /**
  * @OA\Info(
- *    title="UJVAPI Documentation",
+ *    title="Contenr Repository API Documentation",
  *    version="1.0.0"
  * )
  *
@@ -23,27 +23,39 @@ use Modules\API\BaseController as MainController;
  *
  * @OA\Tag(
  *      name="Hotels",
- *      description="API Endpoints forHotels"
+ *      description="API Endpoints for Hotels"
  * ),
  * @OA\Tag(
  *      name="Rooms",
- *      description="API Endpoints forRooms"
+ *      description="API Endpoints for Rooms"
  *  ),
  * @OA\Tag(
  *       name="Key Mapping Owners",
- *       description="API Endpoints forKey Mapping Owners"
+ *       description="API Endpoints for Key Mapping Owners"
  *   ),
  * @OA\Tag(
  *       name="Key Mappings",
- *       description="API Endpoints forKey Mappings"
+ *       description="API Endpoints for Key Mappings"
+ *   ),
+ * @OA\Tag(
+ *       name="Attributes",
+ *       description="API Endpoints for Attributes"
  *   ),
  * @OA\Tag(
  *       name="Affiliations",
- *       description="API Endpoints forAffiliations"
+ *       description="API Endpoints for Affiliations"
  *   ),
  * @OA\Tag(
- *        name="Attributes",
- *        description="API Endpoints forAttributes"
+ *        name="Fee and Tax",
+ *        description="API Endpoints for Fee and Tax"
+ *    ),
+ * @OA\Tag(
+ *        name="Descriptive Content Section",
+ *        description="API Endpoints for Descriptive Content Section"
+ *    ),
+ * @OA\Tag(
+ *        name="Descriptive Content",
+ *        description="API Endpoints for Descriptive Content"
  *    ),
  * @OA\Tag(
  *     name="Insurance API",
