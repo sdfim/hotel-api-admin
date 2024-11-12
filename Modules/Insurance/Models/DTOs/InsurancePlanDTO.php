@@ -7,9 +7,8 @@ use Modules\Insurance\Models\InsurancePlan;
 class InsurancePlanDTO
 {
     public array $data;
-    public string $message;
 
-    public function __construct(InsurancePlan $insurancePlan, string $message)
+    public function __construct(InsurancePlan $insurancePlan)
     {
         $this->data = [
             'booking_item' => $insurancePlan->booking_item,
@@ -30,8 +29,7 @@ class InsurancePlanDTO
                     'applied_at' => $application->applied_at,
                     'total_insurance_cost_pp' => $application->total_insurance_cost_pp,
                 ];
-            })->toArray(),
+            }),
         ];
-        $this->message = $message;
     }
 }

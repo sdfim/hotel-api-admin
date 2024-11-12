@@ -37,8 +37,8 @@ class InsuranceApiController extends BaseController
 
         if ($existingInsurancePlan) {
             // If the InsurancePlan already exists, return it with its applications
-            $insurancePlanDTO = new InsurancePlanDTO($existingInsurancePlan, 'Insurance plan already exists with the specified booking item.');
-            return response()->json($insurancePlanDTO, 201);
+            $insurancePlanDTO = new InsurancePlanDTO($existingInsurancePlan);
+            return $this->sendResponse($insurancePlanDTO->data, 'Insurance plan already exists with the specified booking item.', 201);
         }
 
         // Start a database transaction to ensure atomic operations
@@ -146,8 +146,8 @@ class InsuranceApiController extends BaseController
             ];
 
             // Return the newly created insurance plan with its applications
-            $insurancePlanDTO = new InsurancePlanDTO($insurancePlan, 'Insurance plan and related applications successfully created');
-            $responseData = (array) $insurancePlanDTO;
+            $insurancePlanDTO = new InsurancePlanDTO($insurancePlan);
+            $responseData = $insurancePlanDTO->data;
             $content['original']['request'] = $originalRQ;
 
             // Dispatch the SaveBookingInspector job
