@@ -55,6 +55,9 @@ trait HasPricingRuleFields
                             $formattedDate = isset($this->record) && $this->record->rule_expiration_date
                                 ? Carbon::parse($this->record->rule_expiration_date)->format('Y-m-d')
                                 : '';
+                            if ($formattedDate === '2112-02-02') {
+                                $formattedDate = '';
+                            }
                             $component->state($formattedDate);
                         }),
                     Placeholder::make('travel_dates_explanation')
