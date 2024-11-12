@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -36,17 +37,17 @@ class PricingRule extends Model
         ];
     }
 
-    public function conditions(): HasMany
+    public function save(array $options = [])
     {
-        return $this->hasMany(PricingRuleCondition::class, 'pricing_rule_id', 'id')
-            ->where(function ($query) {
-                $query->WhereNull('group_condition');
-            });
+        if (empty($this->rule_expiration_date)) {
+            $this->rule_expiration_date = Carbon::create(2100, 1, 1);
+        }
+
+        parent::save($options);
     }
 
-    public function conditionsOR(): HasMany
+    public function conditions(): HasMany
     {
-        return $this->hasMany(PricingRuleCondition::class, 'pricing_rule_id', 'id')
-            ->where('group_condition', 'or');
+        return $this->hasMany(PricingRuleCondition::class, 'pricing_rule_id', 'id');
     }
 }

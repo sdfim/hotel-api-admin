@@ -17,12 +17,14 @@ class PricingDtoTools {
 
         if ($latitude == 0 && $longitude == 0) {
             return Property::whereIn('code', $giataIds)
-                ->select('code', 'city')
+                ->select('code', 'city', 'rating', 'name')
                 ->get()
                 ->keyBy('code')
                 ->map(function($item) {
                     return [
                         'city' => $item->city,
+                        'rating' => $item->rating,
+                        'hotel_name' => $item->name,
                     ];
                 })
                 ->toArray();

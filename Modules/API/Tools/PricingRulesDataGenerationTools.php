@@ -93,14 +93,14 @@ class PricingRulesDataGenerationTools
         ];
     }
 
-    public function generatePricingRuleConditionsData(?int $giataId = null, ?string $type = 'AND'): array
+    public function generatePricingRuleConditionsData(?int $giataId = null): array
     {
         $pricingRuleConditionsData = [];
 
         $randPricingRuleConditionFields = $this->faker->randomElements($this->getPricingRuleConditionFields(), rand(1, 14));
 
         foreach ($randPricingRuleConditionFields as $field) {
-            $pricingRuleConditionsData[] = $this->pricingRuleConditionApplyLogic($field, $giataId, $type);
+            $pricingRuleConditionsData[] = $this->pricingRuleConditionApplyLogic($field, $giataId);
         }
 
         return $pricingRuleConditionsData;
@@ -113,7 +113,7 @@ class PricingRulesDataGenerationTools
         return $this->pricingRuleConditionApplyLogic($field);
     }
 
-    protected function pricingRuleConditionApplyLogic(string $field, ?int $giataId = null, ?string $type = 'AND'): array
+    protected function pricingRuleConditionApplyLogic(string $field, ?int $giataId = null): array
     {
         $channelIds = Channel::pluck('id')->toArray();
 
@@ -129,7 +129,6 @@ class PricingRulesDataGenerationTools
         $condition = [
             'field' => $field,
             'compare' => $compare,
-            'group_condition' => $type === 'OR' ? 'or' : null,
         ];
 
         if (in_array($field, ['supplier_id', 'channel_id', 'property', 'destination', 'rate_code', 'room_type', 'meal_plan'])) {

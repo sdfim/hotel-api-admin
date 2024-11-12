@@ -70,7 +70,6 @@ class BasePricingRulesApplier
     }
 
     protected function validPricingRule(
-        string     $typeCondition,
         int        $giataId,
         array      $conditions,
         string     $roomName,
@@ -80,37 +79,46 @@ class BasePricingRulesApplier
     ): bool
     {
         $validPricingRule = [
-            'supplier_id' => [],
-            'property' => [],
-            'room_name' => [],
-            'room_code' => [],
-            'room_type' => [],
+            'supplier_id' => true,
+            'property' => true,
+            'room_name' => true,
+            'room_code' => true,
+            'room_type' => true,
         ];
 
-        $conditionsCollection = collect($typeCondition === 'AND' ? $conditions['conditions'] : $conditions['conditions_o_r']);
-
         foreach ($conditionsFieldsToVerify as $field) {
-            $filtered = $conditionsCollection->where('field', $field);
-
-            foreach ($filtered as $condition) {
-                $validPricingRule[$field][] = match ($field) {
-                    'supplier_id' => (string)$condition['value_from'] === (string)$this->supplierId,
-                    'property' => (string)$condition['value_from'] === (string)$giataId,
-                    'room_name' => (string)$condition['value_from'] === (string)$roomName,
-                    'room_code' => (string)$condition['value_from'] === (string)$roomCode,
-                    'room_type' => (string)$condition['value_from'] === (string)$roomType,
-                    default => false
+            foreach ($conditions as $condition) {
+                if ($condition['field'] !== $field) continue;
+                $validPricingRule[$field] = match ($field) {
+                    'supplier_id' => $this->evaluateCondition($condition, $this->supplierId),
+                    'property' => $this->evaluateCondition($condition, $giataId),
+                    'room_name' => $this->evaluateCondition($condition, $roomName),
+                    'room_code' => $this->evaluateCondition($condition, $roomCode),
+                    'room_type' => $this->evaluateCondition($condition, $roomType),
+                    default => true
                 };
             }
         }
 
-        if (array_filter($validPricingRule) === []) {
-            return true;
-        }
+        if (array_filter($validPricingRule) === []) return true;
 
-        return $typeCondition === 'AND'
-            ? !in_array(false, array_merge(...array_values($validPricingRule)), true)
-            : in_array(true, array_merge(...array_values($validPricingRule)), true);
+        return array_reduce($validPricingRule, fn($carry, $item) => $carry && $item, true);
+    }
+
+    private function evaluateCondition(array $condition, $value): bool
+    {
+        $compare = $condition['compare'];
+        $valueFrom = $condition['value_from'];
+        $valueArr = $condition['value'];
+//        $valueArr = is_array($valueArr) ? $valueArr : preg_split('/,\s*/', $valueArr);
+        $valueArr = is_array($valueArr) ? $valueArr : preg_split('/;\s*/', $valueArr);
+        return match ($compare) {
+            '=' => (string)$valueFrom === (string)$value,
+            '!=' => (string)$valueFrom !== (string)$value,
+            'in' => in_array($value, $valueArr),
+            'not_in' => !in_array($value, $valueArr),
+            default => false
+        };
     }
 
     protected function applyPricingRulesLogic(array $pricingRule): void

@@ -11,21 +11,14 @@ class Property extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'code';
+    protected $table = 'properties';
 
-    /**
-     * @var mixed
-     */
     protected $connection;
 
-    /**
-     * @var bool
-     */
     public $incrementing = false;
 
-    /**
-     * @var string[]
-     */
+    protected $primaryKey = 'code';
+
     protected $fillable = [
         'code',
         'last_updated',
@@ -51,7 +44,6 @@ class Property extends Model
         'content_auto_updates',
     ];
 
-    protected $table = 'properties';
 
     public function __construct(array $attributes = [])
     {
@@ -61,11 +53,6 @@ class Property extends Model
         $this->connection = config('database.active_connections.mysql_cache');
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
