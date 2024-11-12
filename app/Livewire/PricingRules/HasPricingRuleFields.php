@@ -7,6 +7,7 @@ use App\Livewire\Components\CustomRepeater;
 use App\Models\Channel;
 use App\Models\Property;
 use App\Models\Supplier;
+use Carbon\Carbon;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
@@ -34,18 +35,26 @@ trait HasPricingRuleFields
                         ->maxLength(191)
                         ->unique(ignoreRecord: true)
                         ->required(),
-                    DateTimePicker::make('rule_start_date')
-                        ->native(false)
-                        ->time(false)
-                        ->format('Y-m-d')
-                        ->displayFormat('d-m-Y')
-                        ->required(),
-                    DateTimePicker::make('rule_expiration_date')
-                        ->native(false)
-                        ->time(false)
-                        ->format('Y-m-d')
-                        ->displayFormat('d-m-Y')
-                        ->required(),
+                    TextInput::make('rule_start_date')
+                        ->label('Rule Start Date')
+                        ->type('date')
+                        ->required()
+                        ->afterStateHydrated(function (TextInput $component, $state) {
+                            $formattedDate = isset($this->record) && $this->record->rule_start_date
+                                ? Carbon::parse($this->record->rule_start_date)->format('Y-m-d')
+                                : date('Y-m-d');
+                            $component->state($formattedDate);
+                        }),
+
+                    TextInput::make('rule_expiration_date')
+                        ->label('Rule Expiration Date')
+                        ->type('date')
+                        ->afterStateHydrated(function (TextInput $component, $state) {
+                            $formattedDate = isset($this->record) && $this->record->rule_expiration_date
+                                ? Carbon::parse($this->record->rule_expiration_date)->format('Y-m-d')
+                                : '2100-01-01';
+                            $component->state($formattedDate);
+                        }),
                     Placeholder::make('travel_dates_explanation')
                         ->label('')
                         ->columnSpan(3)
@@ -55,12 +64,13 @@ trait HasPricingRuleFields
         </button>
         <div id="collapseContent" style="display: none;">
             When doing a search, the users will need to select a start and an end travel date.
-            This rule will only apply if the "Rule Start Date" and the "Rule Expiration Date" are contained
-            within the travel dates selected by the user.<br>
+            This rule will only apply if the "Rule Start Date" is contained within the travel dates selected by the user.
+            If the "Rule Expiration Date" is provided, it must also be contained within the travel dates selected by the user.
+            If the "Rule Expiration Date" is not provided, a default date of 01-01-2100 will be applied.<br>
             <br>
             For example, consider the following scenario:<br>
             Assume that you select Jan 15, $currentYear as the "Rule Start Date" and Jan 20, $currentYear
-            as the "Rule Expiration Date"<br>
+            as the "Rule Expiration Date" (if provided)<br>
             <ul class="list-disc pl-6">
                 <li class="mb-2">
                     User selects Jan 10, $currentYear as the start travel date <br>
@@ -190,11 +200,11 @@ trait HasPricingRuleFields
                         ),
                     Select::make('compare')
                         ->options(fn(Get $get): array => match ($get('field')) {
-                            'supplier_id', 'channel_id', 'rate_code', 'meal_plan'  => [
+                            'supplier_id', 'channel_id', 'meal_plan'  => [
                                 '=' => 'Equals',
                                 '!=' => 'Not Equals',
                             ],
-                            'property', 'destination', 'room_type', 'room_code', 'room_name' => [
+                            'property', 'destination', 'room_type', 'room_code', 'room_name', 'rate_code' => [
                                 'in' => 'In List',
                                 '!in' => 'Not In List',
                                 '=' => 'Equals',
@@ -238,6 +248,7 @@ trait HasPricingRuleFields
                                         $result = Property::select(
                                             DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name, code'))
                                             ->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
+                                            ->orWhere('code', 'like', "%$search%")
                                             ->limit(100);
                                         return $result->pluck('full_name', 'code')
                                             ->mapWithKeys(function ($full_name, $code) {
@@ -264,14 +275,15 @@ trait HasPricingRuleFields
                                     ->getSearchResultsUsing(function (string $search): ?array {
                                         $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
                                         $result = Property::select(
-                                            DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
+                                            DB::raw('CONCAT(name, " (", city, ", ", locale, ", ", code, ")") AS full_name'), 'code')
                                             ->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
+                                            ->orWhere('code', 'like', "%$search%")
                                             ->limit(100);
 
                                         return $result->pluck('full_name', 'code')->toArray() ?? [];
                                     })
                                     ->getOptionLabelUsing(function ($value): ?string {
-                                        $property = Property::select(DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'))
+                                        $property = Property::select(DB::raw('CONCAT(name, " (", city, ", ", locale, ", ", code, ")") AS full_name'))
                                             ->where('code', $value)
                                             ->first();
 
@@ -288,7 +300,9 @@ trait HasPricingRuleFields
                                     ->getSearchResultsUsing(function (string $search): array {
                                         $result = Property::select(
                                             DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
-                                            ->where('city', 'like', "%$search%")->limit(30);
+                                            ->where('city', 'like', "%$search%")
+                                            ->orWhere('city_id', 'like', "%$search%")
+                                            ->limit(30);
 
                                         return $result->pluck('full_name', 'city_id')->toArray() ?? [];
                                     })
@@ -455,9 +469,16 @@ trait HasPricingRuleFields
                             ],
                             'rate_code' => [
                                 TextInput::make('value_from')
-                                    ->label('Rate code from')
+                                    ->label('Rate code')
                                     ->maxLength(191)
-                                    ->required(),
+                                    ->required()
+                                    ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
+
+                                Textarea::make('value')
+                                    ->label('Rate codes (semicolon separated)')
+                                    ->maxLength(191)
+                                    ->required()
+                                    ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
                             ],
                             'room_type' => [
                                 TextInput::make('value_from')

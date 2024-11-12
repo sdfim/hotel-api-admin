@@ -3,6 +3,7 @@
 namespace App\Livewire\PricingRules;
 
 use App\Models\PricingRule;
+use App\Models\Property;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
@@ -30,6 +31,36 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable(isIndividual: true)
+                    ->toggleable(),
+                TextColumn::make('conditions')
+                    ->label('Property')
+                    ->html()
+                    ->formatStateUsing(function ($state) {
+                        $state = trim($state, " \t\n\r\0\x0B\"");
+                        $state = '[' . $state . ']';
+                        $data = json_decode($state, true);
+                        $filteredData = array_filter($data, function ($item) {
+                            return $item['field'] === 'property' && (!is_null($item['value']) || !is_null($item['value_from']));
+                        });
+                        $result = array_map(function ($item) {
+                            $propertyId = $item['value'] ?? $item['value_from'];
+                            $properties = Property::whereIn('code', (array) $propertyId)->get();
+                            return implode('<br>', $properties->map(function ($property) {
+                                return '<b>' . $property->name . '</b> (' . $property->code . ')';
+                            })->toArray());
+                        }, $filteredData);
+
+                        return implode('<br>', array_values($result));
+                    })
+                    ->searchable(
+                        isIndividual: true,
+                        query: function ($query, $search) {
+                            return $query->whereHas('conditions', function ($query) use ($search) {
+                                $query->where('field', 'property')
+                                    ->where('value', 'like', "%$search%");
+                            });
+                        }
+                    )
                     ->toggleable(),
                 TextColumn::make('rule_start_date')
                     ->dateTime()

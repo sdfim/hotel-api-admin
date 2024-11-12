@@ -174,19 +174,19 @@ class PropertiesTable extends Component implements HasForms, HasTable
         $city = PropertiesTable::getCityById($data['city_id']);
         $data['cross_references'] = new stdClass(); // Empty Object
         $data['address'] = [
-            "UseType"       => "7",
-            "CityName"      => $city->city_name,
-            "PostalCode"    => $data['mapper_postal_code'],
+            'UseType' => '7',
+            'CityName' => $city->city_name,
+            'PostalCode' => $data['mapper_postal_code'],
             // "StreetNmbr": "1", // TODO
             // "AddressLine": "Vicinale Santa Chiara", // TODO
-            "CountryName"   => $city->country_code,
-            "FormattedInd"  => "true"
+            'CountryName' => $city->country_code,
+            'FormattedInd' => 'true'
         ];
         $data['created_at'] = date('Y-m-d H:i:s');
         $data['last_updated'] = date('Y-m-d H:i:s');
         $data['phone'] = [
-          "PhoneNumber"   => $data['mapper_phone_number'],
-          "PhoneTechType" => "1"
+          'PhoneNumber' => $data['mapper_phone_number'],
+          'PhoneTechType' => '1'
         ];
         $data['position'] = [
           'Latitude' => $data['latitude'],
@@ -269,8 +269,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true),
                 TextColumn::make('source')
                     ->label('Type')
-                    ->toggleable()
-                    ->searchable(isIndividual: true),
+                    ->toggleable(),
             ])
             ->actions([
               ActionGroup::make([
