@@ -40,10 +40,12 @@ trait HasPricingRuleFields
                         ->type('date')
                         ->required()
                         ->afterStateHydrated(function (TextInput $component, $state) {
-                            $formattedDate = isset($this->record) && $this->record->rule_start_date
-                                ? Carbon::parse($this->record->rule_start_date)->format('Y-m-d')
-                                : date('Y-m-d');
-                            $component->state($formattedDate);
+                            if (isset($this->record)) {
+                                $formattedDate = $this->record->rule_start_date
+                                    ? Carbon::parse($this->record->rule_start_date)->format('Y-m-d')
+                                    : '';
+                                $component->state($formattedDate);
+                            }
                         }),
 
                     TextInput::make('rule_expiration_date')
@@ -52,7 +54,7 @@ trait HasPricingRuleFields
                         ->afterStateHydrated(function (TextInput $component, $state) {
                             $formattedDate = isset($this->record) && $this->record->rule_expiration_date
                                 ? Carbon::parse($this->record->rule_expiration_date)->format('Y-m-d')
-                                : '2100-01-01';
+                                : '';
                             $component->state($formattedDate);
                         }),
                     Placeholder::make('travel_dates_explanation')
