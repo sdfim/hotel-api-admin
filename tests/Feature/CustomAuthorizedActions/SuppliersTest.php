@@ -7,14 +7,13 @@ use App\Livewire\Suppliers\UpdateSuppliersForm;
 use App\Models\Supplier;
 use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\Test;
 
 class SuppliersTest extends CustomAuthorizedActionsTestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_validation_of_supplier_form_as_well_as_new_supplier_creating(): void
     {
         Livewire::test(CreateSuppliersForm::class)
@@ -39,9 +38,7 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
         ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_suppliers_index_is_opening(): void
     {
         $response = $this->get('/admin/suppliers');
@@ -49,9 +46,7 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_creating_supplier(): void
     {
         $suppliers = Supplier::factory()->create();
@@ -61,9 +56,7 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_storing_supplier(): void
     {
         $data = [
@@ -80,9 +73,7 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
         $response->assertSessionHas('success', 'Suppliers created successfully.');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_showing_an_existing_supplier(): void
     {
         $suppliers = Supplier::factory()->create();
@@ -97,9 +88,7 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
 
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_editing_an_existing_supplier(): void
     {
         $suppliers = Supplier::factory()->create();
@@ -109,9 +98,7 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_destroying_an_existing_supplier(): void
     {
         $suppliers = Supplier::factory()->create();
@@ -121,9 +108,7 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
         $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_updating_an_existing_supplier(): void
     {
         $suppliers = Supplier::factory()->create();

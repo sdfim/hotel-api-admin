@@ -5,12 +5,11 @@ namespace Tests\Feature\CustomAuthorizedActions;
 use App\Livewire\GeneralConfiguration\CreateGeneralConfigurationForm;
 use App\Models\GeneralConfiguration;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\Test;
 
 class GeneralConfigurationTest extends CustomAuthorizedActionsTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_general_configuration_index_is_opening(): void
     {
         $response = $this->get('/admin/general-configuration');
@@ -18,9 +17,7 @@ class GeneralConfigurationTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_inserting_into_general_configuration(): void
     {
         $data = $this->generate_test_data();
@@ -33,9 +30,7 @@ class GeneralConfigurationTest extends CustomAuthorizedActionsTestCase
         $this->assertDatabaseHas('general_configurations', $data);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_updating_of_general_configuration(): void
     {
         $general_configuration = GeneralConfiguration::factory()->create();

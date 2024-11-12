@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
+use PHPUnit\Framework\Attributes\Test;
+
 class ExceptionReportsTest extends CustomAuthorizedActionsTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_example(): void
     {
         $response = $this->get('/admin/exceptions-report');
