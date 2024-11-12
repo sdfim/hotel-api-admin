@@ -74,8 +74,8 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->date()
                     ->formatStateUsing(function ($state) {
-                        $date = Carbon::parse($state)->format('Y-m-d');
-                        return $date === '2112-02-02' ? '' : $state;
+                        $date = Carbon::parse($state);
+                        return $date->format('Y-m-d') === '2112-02-02' ? '' : $date->format('M j, Y');
                     }),
                 TextColumn::make('manipulable_price_type')
                     ->toggleable(),
@@ -101,12 +101,10 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ViewAction::make()
                         ->url(fn (PricingRule $record): string => route('pricing-rules.show', $record)),
                     EditAction::make()
-                        ->url(fn (PricingRule $record): string => route('pricing-rules.edit', $record))
-                        ->visible(fn (PricingRule $record): bool => Gate::allows('update', $record)),
+                        ->url(fn (PricingRule $record): string => route('pricing-rules.edit', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn (PricingRule $record) => $record->delete())
-                        ->visible(fn (PricingRule $record): bool => Gate::allows('delete', $record)),
+                        ->action(fn (PricingRule $record) => $record->delete()),
                 ]),
             ]);
     }
