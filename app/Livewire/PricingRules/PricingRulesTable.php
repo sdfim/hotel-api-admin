@@ -4,6 +4,7 @@ namespace App\Livewire\PricingRules;
 
 use App\Models\PricingRule;
 use App\Models\Property;
+use Carbon\Carbon;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
@@ -71,7 +72,11 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->dateTime()
                     ->sortable()
                     ->toggleable()
-                    ->date(),
+                    ->date()
+                    ->formatStateUsing(function ($state) {
+                        $date = Carbon::parse($state)->format('Y-m-d');
+                        return $date === '2112-02-02' ? '' : $state;
+                    }),
                 TextColumn::make('manipulable_price_type')
                     ->toggleable(),
                 TextColumn::make('price_value_type')
@@ -96,10 +101,12 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ViewAction::make()
                         ->url(fn (PricingRule $record): string => route('pricing-rules.show', $record)),
                     EditAction::make()
-                        ->url(fn (PricingRule $record): string => route('pricing-rules.edit', $record)),
+                        ->url(fn (PricingRule $record): string => route('pricing-rules.edit', $record))
+                        ->visible(fn (PricingRule $record): bool => Gate::allows('update', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn (PricingRule $record) => $record->delete()),
+                        ->action(fn (PricingRule $record) => $record->delete())
+                        ->visible(fn (PricingRule $record): bool => Gate::allows('delete', $record)),
                 ]),
             ]);
     }

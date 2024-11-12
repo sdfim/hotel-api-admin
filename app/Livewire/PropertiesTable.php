@@ -272,8 +272,7 @@ class PropertiesTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true),
                 TextColumn::make('source')
                     ->label('Type')
-                    ->toggleable()
-                    ->searchable(isIndividual: true),
+                    ->toggleable(),
             ])
             ->actions([
                 ActionGroup::make([

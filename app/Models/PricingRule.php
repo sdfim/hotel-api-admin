@@ -40,7 +40,7 @@ class PricingRule extends Model
     public function save(array $options = [])
     {
         if (empty($this->rule_expiration_date)) {
-            $this->rule_expiration_date = Carbon::create(2100, 1, 1);
+            $this->rule_expiration_date = Carbon::create(2112, 02, 02);
         }
 
         parent::save($options);
