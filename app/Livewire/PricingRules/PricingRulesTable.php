@@ -18,17 +18,42 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\HotelContentRepository\Models\Hotel;
 
 class PricingRulesTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
 
+    public ?int $hotelId = null;
+    public array $giataKeyIds = [];
+
+    public function mount(?int $hotelId = null)
+    {
+        $this->hotelId = $hotelId;
+        if ($this->hotelId) {
+            $this->giataKeyIds = Hotel::with(['keyMappings' => function ($query) {
+                $query->whereHas('keyMappingOwner', function ($query) {
+                    $query->where('name', 'GIATA');
+                });
+            }])->where('id', $this->hotelId)->get()->pluck('keyMappings.*.key_id')->flatten()->toArray();
+        }
+    }
+
     public function table(Table $table): Table
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(PricingRule::query())
+            ->query(function () {
+                $query = PricingRule::query();
+                if (!empty($this->giataKeyIds)) {
+                    $query->whereHas('conditions', function ($query) {
+                        $query->where('field', 'property')
+                            ->whereJsonContains('value', $this->giataKeyIds);
+                    });
+                }
+                return $query;
+            })
             ->columns([
                 TextColumn::make('name')
                     ->searchable(isIndividual: true)

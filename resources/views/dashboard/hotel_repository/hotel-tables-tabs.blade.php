@@ -1,6 +1,7 @@
 @php
     $tabs = [
         ['title' => 'Rooms', 'component' => 'hotels.hotel-room-table'],
+        ['title' => 'Pricing Rules', 'component' => 'pricing-rules.pricing-rules-table'],
         ['title' => 'Key & Owner', 'component' => 'hotels.key-mapping-table'],
         ['title' => 'Deposit Information', 'component' => 'hotels.hotel-deposit-information-table'],
         ['title' => 'Website Search Generation', 'component' => 'hotels.hotel-web-finder-table'],

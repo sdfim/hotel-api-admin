@@ -1,7 +1,6 @@
 @php
     $tabGroups = [
         'Additional Info' => [
-            ['title' => 'Key & Owner', 'component' => 'hotels.key-mapping-table'],
             ['title' => 'Deposit Information', 'component' => 'hotels.hotel-deposit-information-table'],
             ['title' => 'Attributes', 'component' => 'hotels.hotel-attributes-table'],
             ['title' => 'Informational Service', 'component' => 'hotels.hotel-informative-services-table'],
@@ -19,7 +18,8 @@
             ['title' => 'Promotions', 'component' => 'hotels.hotel-promotion-table'],
         ],
         'Pricing Rules' => [
-//            ['title' => 'Pricing Rules', 'component' => 'hotels.hotel-pricing-rules-table'],
+            ['title' => 'Key & Owner', 'component' => 'hotels.key-mapping-table'],
+            ['title' => 'Pricing Rules', 'component' => 'pricing-rules.pricing-rules-table'],
         ],
         'Fee and Tax' => [
             ['title' => 'Fee and Tax', 'component' => 'hotels.hotel-fee-tax-table'],
@@ -50,7 +50,7 @@
             @foreach ($tabGroups as $group => $tabs)
                 <div x-show="activeTab === '{{ Str::slug($group) }}'" class="filament-tabs-panel">
                     @foreach ($tabs as $tab)
-                        <h3 class="text-lg font-semibold">{{ $tab['title'] }}</h3>
+                        <h3 class="text-lg font-semibold mt-8">{{ $tab['title'] }}</h3>
                         @livewire($tab['component'], ['hotelId' => $hotelId])
                     @endforeach
                 </div>
