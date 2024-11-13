@@ -16,16 +16,4 @@ class Strings
 
         return $booleanSearch;
     }
-
-    public static function booleanSearchSignalsArray(): array
-    {
-        return ['+', '-', '>', '<', '(', ')', '"', '*'];
-    }
-
-    public static function cleanStringFromBooleanSearchSignals(string $string): string
-    {
-        $signalsToAvoid = array_merge(static::booleanSearchSignalsArray(), [',', ';']);
-
-        return str_replace($signalsToAvoid, '', $string);
-    }
 }
