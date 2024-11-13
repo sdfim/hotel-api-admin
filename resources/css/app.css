@@ -9,6 +9,57 @@
     font-weight: bold;
 }
 
+.sr_tab-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sr_tab-list {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.sr_tab-list::-webkit-scrollbar {
+    display: none;
+}
+
+.sr_tab-item {
+    list-style: none;
+    flex-shrink: 0;
+}
+
+.sr_tab-link {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    background-color: #f1f1f1;
+    color: #333;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    cursor: pointer;
+}
+
+.sr_tab-link:hover {
+    background-color: #e0e0e0; /* Немного темнее при наведении */
+}
+
+.sr_tab-link.sr_active {
+    background-color: #000; /* Черный фон для активного таба */
+    color: #fff; /* Белый текст для активного таба */
+    font-weight: bold;
+}
+
+.sr_tab-content {
+    width: 100%;
+    padding-top: 1rem;
+}
+
+.sr_tab-panel[x-show="true"] {
+    display: block;
+}
+
 .hotel-form-toggle-container {
     position: absolute;
     top: 0;
@@ -60,7 +111,7 @@
 }
 
 .hotel-form-toggle-button input:checked + .hotel-form-slider {
-    background-color: #0f60dc;
+    background-color: #155c03;
 }
 
 .hotel-form-toggle-button input:checked + .hotel-form-slider:before {

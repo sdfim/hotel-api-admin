@@ -1,45 +1,60 @@
 @php
-    $tabs = [
-        ['title' => 'Rooms', 'component' => 'hotels.hotel-room-table'],
-        ['title' => 'Pricing Rules', 'component' => 'pricing-rules.pricing-rules-table'],
-        ['title' => 'Key & Owner', 'component' => 'hotels.key-mapping-table'],
-        ['title' => 'Deposit Information', 'component' => 'hotels.hotel-deposit-information-table'],
-        ['title' => 'Website Search Generation', 'component' => 'hotels.hotel-web-finder-table'],
-        ['title' => 'Contact Information', 'component' => 'hotels.hotel-contact-information-table'],
-        ['title' => 'Promotions', 'component' => 'hotels.hotel-promotion-table'],
-        ['title' => 'Attributes', 'component' => 'hotels.hotel-attributes-table'],
-        ['title' => 'Informational Service', 'component' => 'hotels.hotel-informative-services-table'],
-        ['title' => 'Age Restrictions', 'component' => 'hotels.hotel-age-restriction-table'],
-        ['title' => 'Affiliations', 'component' => 'hotels.hotel-affiliations-table'],
-        ['title' => 'Fee and Tax', 'component' => 'hotels.hotel-fee-tax-table'],
-        ['title' => 'Descriptive Content Section', 'component' => 'hotels.hotel-descriptive-content-section-table'],
+    $tabGroups = [
+        'Additional Info' => [
+            ['title' => 'Deposit Information', 'component' => 'hotels.hotel-deposit-information-table'],
+            ['title' => 'Attributes', 'component' => 'hotels.hotel-attributes-table'],
+            ['title' => 'Informational Service', 'component' => 'hotels.hotel-informative-services-table'],
+            ['title' => 'Age Restrictions', 'component' => 'hotels.hotel-age-restriction-table'],
+            ['title' => 'Affiliations', 'component' => 'hotels.hotel-affiliations-table'],
+        ],
+        'Search' => [
+            ['title' => 'Website Search Generation', 'component' => 'hotels.hotel-web-finder-table'],
+            ['title' => 'Contact Information', 'component' => 'hotels.hotel-contact-information-table'],
+        ],
+        'Rooms' => [
+            ['title' => 'Rooms', 'component' => 'hotels.hotel-room-table'],
+        ],
+        'Promotions' => [
+            ['title' => 'Promotions', 'component' => 'hotels.hotel-promotion-table'],
+        ],
+        'Pricing Rules' => [
+            ['title' => 'Key & Owner', 'component' => 'hotels.key-mapping-table'],
+            ['title' => 'Pricing Rules', 'component' => 'pricing-rules.pricing-rules-table'],
+        ],
+        'Fee and Tax' => [
+            ['title' => 'Fee and Tax', 'component' => 'hotels.hotel-fee-tax-table'],
+        ],
+        'Descriptive Content' => [
+            ['title' => 'Descriptive Content Section', 'component' => 'hotels.hotel-descriptive-content-section-table'],
+        ],
     ];
 @endphp
 
-<div class="mt-8 mb-8">
-    <div x-data="{ activeTab: '{{ Str::slug($tabs[0]['title']) }}' }">
-        <ul class="flex border-b filament-tabs filament-tabs-item">
-            @foreach ($tabs as $tab)
-                <li class="mr-1 flex items-end">
-                    <a :class="{
-                            'border-b-2 border-primary-500 text-primary-600 font-semibold': activeTab === '{{ Str::slug($tab['title']) }}',
-                            'text-gray-500 hover:text-primary-500': activeTab !== '{{ Str::slug($tab['title']) }}'
-                        }"
-                       class="inline-block py-3 px-5 cursor-pointer transition duration-200 ease-in-out"
-                       @click="activeTab = '{{ Str::slug($tab['title']) }}'">
-                        <span>{{ $tab['title'] }}</span>
-                    </a>
-                </li>
-            @endforeach
-        </ul>
-        <div class="w-full pt-4">
-            @foreach ($tabs as $tab)
-                <div x-show="activeTab === '{{ Str::slug($tab['title']) }}'" class="filament-tabs-panel">
+<div x-data="{ activeTab: '{{ Str::slug(array_key_first($tabGroups)) }}' }" class="sr_tab-container">
+    <ul class="sr_tab-list flex justify-center">
+        @foreach ($tabGroups as $group => $tabs)
+            <li class="sr_tab-item mr-1 flex items-end">
+                <a href="#"
+                   class="sr_tab-link"
+                   :class="{ 'sr_active': activeTab === '{{ Str::slug($group) }}' }"
+                   @click.prevent="activeTab = '{{ Str::slug($group) }}'">
+                    <span>{{ $group }}</span>
+                </a>
+            </li>
+        @endforeach
+    </ul>
+    <div class="sr_tab-content w-full pt-4">
+        @foreach ($tabGroups as $group => $tabs)
+            <div x-show="activeTab === '{{ Str::slug($group) }}'" class="sr_tab-panel">
+                @foreach ($tabs as $tab)
+                    <h3 class="sr_tab-title text-lg font-semibold mt-8">{{ $tab['title'] }}</h3>
                     @livewire($tab['component'], ['hotelId' => $hotelId])
-                </div>
-            @endforeach
-        </div>
+                @endforeach
+            </div>
+        @endforeach
     </div>
 </div>
+
+
 
 
