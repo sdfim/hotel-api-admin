@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    {{ __('Hotel Content Repository') }}
+    {{ __('Supplier Content Repository') }}
 @endsection
 @section('content')
     <x-page-title title="Hotel Content Repository" pagetitle="index"/>

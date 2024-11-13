@@ -24,18 +24,23 @@
 
                     <div class="mt-5 ml-1 mr-1 col-span-9 xl:col-span-6" x-data="{ layout: 'tabs' }">
                         <div class="flex items-center justify-end space-x-2">
-                            <span :class="{ 'text-gray-400': layout === 'tabs' }" class="font-semibold" style="color: #1E3A8A;">Listed</span>
-                            <label class="hotel-form-toggle-button">
-                                <input type="checkbox" @click="layout = layout === 'tabs' ? 'default' : 'tabs'" :checked="layout === 'tabs'">
-                                <span class="hotel-form-slider"></span>
-                            </label>
-                            <span :class="{ 'text-gray-400': layout === 'default' }" class="font-semibold" style="color: #1E3A8A;">Tabbed</span>
+{{--                            <span :class="{ 'text-gray-400': layout === 'default' }" class="font-semibold" style="color: #1E3A8A;">Listed</span>--}}
+{{--                            <span :class="{ 'text-gray-400': layout === 'tabs' }" class="font-semibold" style="color: #1E3A8A;">Tabbed</span>--}}
+{{--                            <span :class="{ 'text-gray-400': layout === 'grouped' }" class="font-semibold" style="color: #1E3A8A;">Grouped</span>--}}
+                            <select @change="layout = $event.target.value" class="ml-2 border rounded">
+                                <option value="default" :selected="layout === 'default'">Listed</option>
+                                <option value="tabs" :selected="layout === 'tabs'">Tabbed</option>
+                                <option value="grouped" :selected="layout === 'grouped'">Grouped</option>
+                            </select>
                         </div>
                         <div x-show="layout === 'default'" class="mt-4">
                             @include('dashboard.hotel_repository.hotel-tables', ['hotelId' => $hotelId])
                         </div>
                         <div x-show="layout === 'tabs'" class="mt-4">
                             @include('dashboard.hotel_repository.hotel-tables-tabs', ['hotelId' => $hotelId])
+                        </div>
+                        <div x-show="layout === 'grouped'" class="mt-4">
+                            @include('dashboard.hotel_repository.hotel-tables-tabs-v2', ['hotelId' => $hotelId])
                         </div>
                     </div>
 

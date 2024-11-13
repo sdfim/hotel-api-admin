@@ -74,8 +74,8 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->date()
                     ->formatStateUsing(function ($state) {
-                        $date = Carbon::parse($state)->format('Y-m-d');
-                        return $date === '2112-02-02' ? '' : $state;
+                        $date = Carbon::parse($state)->format('M j, Y');
+                        return $date === 'Feb 2, 2112' ? '' : $date;
                     }),
                 TextColumn::make('manipulable_price_type')
                     ->toggleable(),
