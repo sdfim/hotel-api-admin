@@ -16,9 +16,10 @@ class InformativeServiceRequest extends ApiRequest
     {
         return [
             'booking_item' => 'required|string|exists:api_booking_items,booking_item',
-            'service_id' => 'required_without:service_name|integer|exists:config_service_types,id',
-            'service_name' => 'required_without:service_id|string|exists:config_service_types,name',
-            'cost' => 'decimal',
+            'services' => 'required|array',
+            'services.*.service_id' => 'required_without:services.*.service_name|integer|exists:config_service_types,id',
+            'services.*.service_name' => 'required_without:services.*.service_id|string|exists:config_service_types,name',
+            'services.*.cost' => 'required|numeric',
         ];
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Modules\AdministrationSuite\Http\Controllers;
 
-use Modules\AdministrationSuite\Http\Controllers\BaseWithPolicyController;
 use App\Models\InformationalService;
+use Modules\AdministrationSuite\Http\Controllers\BaseWithPolicyController;
 use Illuminate\Contracts\View\View;
 
 class InformationalServicesController extends BaseWithPolicyController

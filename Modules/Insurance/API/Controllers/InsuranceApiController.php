@@ -49,7 +49,7 @@ class InsuranceApiController extends BaseController
             $insurancePlan = new InsurancePlan();
             $insurancePlan->booking_item = $bookingItem;
 
-            [$bookingId, $filters, $supplierId, $apiBookingInspectorItem] = $this->getParams($request);
+            [$bookingId, $filters, $supplierId, $apiBookingInspectorItem] = BookingRepository::getParams($request);
 
             if (!$apiBookingInspectorItem) {
                 return $this->sendError('The specified booking item is not valid or not found in the booking inspector', 404);
@@ -194,7 +194,7 @@ class InsuranceApiController extends BaseController
         $insurancePlan->applications()->delete();
         $insurancePlan->delete();
 
-        [$bookingId, $filters, $supplierId, $apiBookingInspectorItem] = $this->getParams($request);
+        [$bookingId, $filters, $supplierId, $apiBookingInspectorItem] = BookingRepository::getParams($request);
 
         if (!$apiBookingInspectorItem) {
             return $this->sendError('The specified booking item is not valid or not found in the booking inspector', 404);
@@ -215,27 +215,5 @@ class InsuranceApiController extends BaseController
         SaveBookingInspector::dispatch($bookingInspector, ['original' => ['request' => $originalRQ]], $responseData);
 
         return $this->sendResponse([], $message,  204);
-    }
-
-    private function getParams($request): array
-    {
-        $bookingItem = $request->input('booking_item');
-        $apiBookingInspectorItem = ApiBookingInspectorRepository::isBookingItemInCart($bookingItem);
-
-        if (!$apiBookingInspectorItem) {
-            return [];
-        }
-
-        $searchId = $apiBookingInspectorItem->search_id;
-        $apiSearchInspectorItem = ApiSearchInspectorRepository::getRequest($searchId);
-
-        $bookingId = $apiBookingInspectorItem->booking_id;
-
-        $filters = $request->all();
-        $filters['search_id'] = $apiBookingInspectorItem->search_id;
-
-        $supplierId = Supplier::where('name', (string)$apiSearchInspectorItem['supplier'])->first()->id;
-
-        return [$bookingId, $filters, $supplierId, $apiBookingInspectorItem];
     }
 }
