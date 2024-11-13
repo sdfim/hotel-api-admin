@@ -14,7 +14,7 @@
                     <div class="row">
                         <div class="col-lg-12 margin-tb">
                             <div class="mb-6">
-                                <x-button-back route="{{ route('hotel_repository.index') }}" text="Back"/>
+                                <x-button-back class="large-button" route="{{ route('hotel_repository.index') }}" text="Back"/>
                             </div>
                         </div>
                     </div>
@@ -22,78 +22,23 @@
                         @livewire('hotels.hotel-form', compact('hotel'))
                     </div>
 
-                    <div class="mt-8">
-                        <div class="flex flex-col xl:flex-row gap-8">
-                            <div class="flex-1">
-                                <h2 class="text-xl font-semibold">Key & Owner</h2>
-                                @livewire('hotels.key-mapping-table', ['hotelId' => $hotelId])
-                            </div>
-                            <div class="flex-1">
-                                <h2 class="text-xl font-semibold">Deposit Information</h2>
-                                @livewire('hotels.hotel-deposit-information-table', ['hotelId' => $hotelId])
-                            </div>
+                    <div class="mt-5 ml-1 mr-1 col-span-9 xl:col-span-6" x-data="{ layout: 'tabs' }">
+                        <div class="flex items-center justify-end space-x-2">
+                            <span :class="{ 'text-gray-400': layout === 'tabs' }" class="font-semibold" style="color: #1E3A8A;">Listed</span>
+                            <label class="hotel-form-toggle-button">
+                                <input type="checkbox" @click="layout = layout === 'tabs' ? 'default' : 'tabs'" :checked="layout === 'tabs'">
+                                <span class="hotel-form-slider"></span>
+                            </label>
+                            <span :class="{ 'text-gray-400': layout === 'default' }" class="font-semibold" style="color: #1E3A8A;">Tabbed</span>
+                        </div>
+                        <div x-show="layout === 'default'" class="mt-4">
+                            @include('dashboard.hotel_repository.hotel-tables', ['hotelId' => $hotelId])
+                        </div>
+                        <div x-show="layout === 'tabs'" class="mt-4">
+                            @include('dashboard.hotel_repository.hotel-tables-tabs', ['hotelId' => $hotelId])
                         </div>
                     </div>
 
-                    <div class="mt-8">
-                        <div class="flex flex-col xl:flex-row gap-8">
-                            <div class="flex-1">
-                                <h2 class="text-xl font-semibold">Website Search Generation</h2>
-                                @livewire('hotels.hotel-web-finder-table', ['hotelId' => $hotelId])
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-8">
-                        <h2 class="text-xl font-semibold">Contact Information</h2>
-                        @livewire('hotels.hotel-contact-information-table', ['hotelId' => $hotelId])
-                    </div>
-
-                    <div class="mt-8">
-                        <h2 class="text-xl font-semibold">Rooms</h2>
-                        @livewire('hotels.hotel-room-table', ['hotelId' => $hotelId])
-                    </div>
-
-                    <div class="mt-8">
-                        <h2 class="text-xl font-semibold">Promotions</h2>
-                        @livewire('hotels.hotel-promotion-table', ['hotelId' => $hotelId])
-                    </div>
-
-                    <div class="mt-8">
-                        <div class="flex flex-col xl:flex-row gap-8">
-                            <div class="flex-1">
-                                <h2 class="text-xl font-semibold">Attributes</h2>
-                                @livewire('hotels.hotel-attributes-table', ['hotelId' => $hotelId])
-                            </div>
-                            <div class="flex-1">
-                                <h2 class="text-xl font-semibold">Informational Service</h2>
-                                @livewire('hotels.hotel-informative-services-table', ['hotelId' => $hotelId])
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-8">
-                        <div class="flex flex-col xl:flex-row gap-8">
-                            <div class="flex-1">
-                                <h2 class="text-xl font-semibold">Age Restrictions</h2>
-                                @livewire('hotels.hotel-age-restriction-table', ['hotelId' => $hotelId])
-                            </div>
-                            <div class="flex-1">
-                                <h2 class="text-xl font-semibold">Affiliations</h2>
-                                @livewire('hotels.hotel-affiliations-table', ['hotelId' => $hotelId])
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-8">
-                        <h2 class="text-xl font-semibold">Fee and Tax</h2>
-                        @livewire('hotels.hotel-fee-tax-table', ['hotelId' => $hotelId])
-                    </div>
-
-                    <div class="mt-8">
-                        <h2 class="text-xl font-semibold">Descriptive Content Section</h2>
-                        @livewire('hotels.hotel-descriptive-content-section-table', ['hotelId' => $hotelId])
-                    </div>
                 </div>
             </div>
         </div>

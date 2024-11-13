@@ -6,6 +6,7 @@ class HotelDTO
 {
     public $id;
     public $name;
+    public $weight;
     public $type;
     public $verified;
     public $address;
@@ -36,6 +37,7 @@ class HotelDTO
     {
         $this->id = $hotel->id;
         $this->name = $hotel->name;
+        $this->weight = $hotel->weight;
         $this->type = $hotel->type;
         $this->verified = (bool) $hotel->verified;
         $this->address = $hotel->address;

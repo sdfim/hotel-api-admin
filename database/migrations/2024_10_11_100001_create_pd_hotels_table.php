@@ -19,6 +19,7 @@ return new class extends Migration
             ]);
             $table->json('address')->nullable();
             $table->integer('star_rating');
+            $table->integer('weight')->nullable();
             $table->string('website', 255)->nullable();
             $table->integer('num_rooms');
             $table->json('location')->nullable();

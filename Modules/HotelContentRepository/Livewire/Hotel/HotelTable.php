@@ -7,6 +7,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Tables;
+use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -45,12 +46,20 @@ class HotelTable extends Component implements HasForms, HasTable
                 'contactInformation'
             ]))
             ->columns([
+                BooleanColumn::make('verified')
+                    ->label('Verified')
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('name')
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable()
                     ->wrap(),
                 CustomTextColumn::make('type')
+                    ->searchable(isIndividual: true)
+                    ->toggleable()
+                    ->sortable(),
+                CustomTextColumn::make('weight')
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),

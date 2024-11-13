@@ -317,7 +317,7 @@
                         <a href="{{ Route('hotel_repository.index') }}"
                            class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                             <i class="dripicons-graduation"></i>
-                            <span data-key="t-property-mapping">Content Repository</span>
+                            <span data-key="t-property-mapping">Supplier Repository</span>
                         </a>
                     </li>
                 @endif

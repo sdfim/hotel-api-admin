@@ -37,8 +37,8 @@ class HotelForm extends Component implements HasForms
     use InteractsWithForms;
 
     public ?array $data = [];
-
     public Hotel $record;
+    public $verified;
 
     public function __construct()
     {
@@ -48,6 +48,7 @@ class HotelForm extends Component implements HasForms
     public function mount(Hotel $hotel): void
     {
         $this->record = $hotel;
+        $this->verified = $hotel->verified;
 
         $data = $this->record->toArray();
 
@@ -70,6 +71,12 @@ class HotelForm extends Component implements HasForms
         $this->form->fill($data);
     }
 
+    public function toggleVerified()
+    {
+        $this->verified = !$this->verified;
+        $this->record->update(['verified' => $this->verified]);
+    }
+
     public function form(Form $form): Form
     {
         return $form->schema($this->schemeForm())
@@ -81,16 +88,14 @@ class HotelForm extends Component implements HasForms
     public function schemeForm(): array
     {
         return [
-            Section::make('Verification Section')
-                ->schema([
-                    Toggle::make('verified')
-                        ->label('Verified')
-                        ->onColor('success')
-                        ->offColor('danger')
-                        ->extraAttributes(['style' => 'display: flex; justify-content: flex-end;'])
-                        ->required(),
-                ])
-                ->hidden(fn () => !$this->record->exists),
+
+            Toggle::make('verified')
+                ->label('Verified')
+                ->onColor('success')
+                ->offColor('danger')
+                ->columnSpan('full')
+                ->required()
+                ->hidden(),
 
             Tabs::make('Hotel Details')
                 ->columns(1)
@@ -188,29 +193,6 @@ class HotelForm extends Component implements HasForms
                                 ])
                                 ->columns(2),
 
-
-//                            CustomRepeater::make('location')
-//                                ->schema([
-//                                    Select::make('field')
-//                                        ->label('')
-//                                        ->options([
-//                                        'latitude' => 'Latitude',
-//                                        'longitude' => 'Longitude',
-//                                    ])->required(),
-//                                    TextInput::make('value')
-//                                        ->label('')
-//                                        ->numeric('decimal'),
-//                                ])
-//                                ->defaultItems(1)
-//                                ->required()
-//                                ->afterStateHydrated(function ($component, $state) {
-//                                    $component->state($state ?? []);
-//                                })
-//                                ->beforeStateDehydrated(function ($state) {
-//                                    return json_encode($state);
-//                                })
-//                                ->columns(2),
-
                             Select::make('galleries')
                                 ->label('Galleries')
                                 ->multiple()
@@ -240,6 +222,10 @@ class HotelForm extends Component implements HasForms
                                     TextInput::make('channel_management')->required(),
                                     TextInput::make('website')->url()->maxLength(191),
                                     TextInput::make('hotel_board_basis'),
+                                ]),
+                            Grid::make(3)
+                                ->schema([
+                                    TextInput::make('weight')->integer(),
                                 ]),
                         ])
                         ->columns(2),
@@ -294,6 +280,7 @@ class HotelForm extends Component implements HasForms
 
         $hotel->update(Arr::only($data, [
             'name',
+            'weight',
             'location',
             'type',
             'verified',

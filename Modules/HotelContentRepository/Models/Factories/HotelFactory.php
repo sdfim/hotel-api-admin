@@ -14,6 +14,7 @@ class HotelFactory extends Factory
     {
         return [
             'name' => $this->faker->company,
+            'weight' => $this->faker->numberBetween(1, 100),
             'verified' => $this->faker->boolean,
             'type' => $this->faker->randomElement([
                 'Direct connection',
