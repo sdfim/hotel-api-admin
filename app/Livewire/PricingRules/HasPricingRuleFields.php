@@ -191,21 +191,20 @@ trait HasPricingRuleFields
                                             ->searchable()
                                             ->getSearchResultsUsing(function (string $search): ?array {
                                                 $search = trim($search);
-                                                $orderLike = explode(" ", $search);
-                                                $orderLike = array_map(fn (string $part) => "'$part'", $orderLike);
-                                                $orderLike = implode(', ', $orderLike);
-                                                $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
 
                                                 $result = Property::select(
-                                                        DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code'/*, DB::raw("MATCH(name) AGAINST ('$search' IN NATURAL LANGUAGE MODE) AS name_relevance")*/)
-                                                            ->whereRaw("MATCH(name) AGAINST('$search' IN NATURAL LANGUAGE MODE)")
-                                                            //->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
-                                                            ->orderByRaw("LOWER(name) = LOWER('$search') desc")
-                                                            ->orderByRaw("(city IN ($orderLike)) desc")
-                                                            ->orderByRaw("LOCATE(LOWER(name),LOWER('$search'), 1) > 0 desc")
-                                                            //->orderBy('name_relevance', 'desc')
+                                                        DB::raw('CONCAT(name, ", ", city, " (", locale, ")") AS full_name'), 'code', DB::raw("MATCH(full_name) AGAINST ('$search' IN NATURAL LANGUAGE MODE) AS relevance_score"))
+                                                            ->whereRaw("MATCH(full_name) AGAINST('$search' IN NATURAL LANGUAGE MODE)")
+                                                            ->orderByRaw("
+                                                                CASE
+                                                                    WHEN name LIKE '$search%' THEN 1
+                                                                    WHEN LOCATE(name, '$search') = 1 THEN 2
+                                                                    ELSE 3
+                                                                END
+                                                            ")
+                                                            ->orderBy('relevance_score', 'DESC')
                                                             ->limit(30);
-//dd($result->get());
+
                                                 return $result->pluck('full_name', 'code')->toArray() ?? [];
                                             })
                                             ->required(),
