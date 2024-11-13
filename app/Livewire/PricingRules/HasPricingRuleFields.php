@@ -189,40 +189,15 @@ trait HasPricingRuleFields
                                         Select::make('value_from')
                                             ->label('Property')
                                             ->searchable()
-                                            ->getSearchResultsUsing(function (string $query): ?array {
-                                                $query = trim($query);
-                                                $fields = ['name', 'city', 'locale'];
-                                                $searchTerms = Strings::prepareSearchForBooleanMode($query);
-
-                                                $builder = Property::query();
-
-                                                $builder->where(function ($builder) use ($fields, $searchTerms, $query) {
-                                                    $builder->whereFullText($fields, $searchTerms, ['mode' => 'boolean'])->orWhere('name', 'like', "$query%");
-                                                });
-
-                                                $fieldsString = implode(',', $fields);
-
-                                                $allWordsWithoutSignals = Strings::cleanStringFromBooleanSearchSignals($searchTerms);
-
-                                                $allWordsWithoutSignals = str_replace(' ', ',', $allWordsWithoutSignals);
-
-                                                $builder->selectRaw("CONCAT(name, ', ', city, ' (', locale, ')') AS full_name, code,
-                                                    (
-                                                        MATCH({$fieldsString}) AGAINST(? IN BOOLEAN MODE)
-                                                        + (CASE
-                                                            WHEN name LIKE '$query%' THEN 50
-                                                            WHEN check_all_words(name, ?) THEN 30
-                                                            WHEN check_all_words(city, ?) THEN 10
-                                                            WHEN check_all_words(locale, ?) THEN 10
-                                                            END)
-
-                                                    ) AS search_relevance_by_all_keys", [$searchTerms, $allWordsWithoutSignals, $allWordsWithoutSignals, $allWordsWithoutSignals])
-                                                    ->orderBy('search_relevance_by_all_keys', 'desc')
+                                            ->getSearchResultsUsing(function (string $search): ?array {
+                                                $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
+                                                $result = Property::select(
+                                                    DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name'), 'code')
+                                                    ->whereRaw("MATCH(name,city,locale) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
+                                                    ->orderByRaw("name LIKE '$search%' DESC")
                                                     ->limit(30);
 
-
-
-                                                return $builder->pluck('full_name', 'code')->toArray() ?? [];
+                                                return $result->pluck('full_name', 'code')->toArray() ?? [];
                                             })
                                             ->required(),
                                     ],
