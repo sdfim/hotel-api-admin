@@ -311,6 +311,7 @@ trait HasPricingRuleFields
                                     })
                                     ->required()
                                     ->disabled(fn(Get $get) => $this->isSrCreator)
+                                    ->dehydrated()
                                     ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
                             ],
                             'destination' => [
