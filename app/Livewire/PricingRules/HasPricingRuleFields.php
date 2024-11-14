@@ -25,11 +25,16 @@ use Modules\HotelContentRepository\Models\HotelRoom;
 
 trait HasPricingRuleFields
 {
-    public function pricingRuleFields(): array
+    public function pricingRuleFields(string $type): array
     {
         $currentYear = date('Y');
 
         return [
+            Placeholder::make('is_sr_creator')
+                ->label($type === 'create'
+                    ? 'The rule is being created from the Supplier Repository.'
+                    : 'The rule was created from the Supplier Repository.')
+                ->visible($this->isSrCreator),
             Fieldset::make('General settings')
                 ->schema([
                     TextInput::make('name')
@@ -179,25 +184,33 @@ trait HasPricingRuleFields
             ->addActionLabel($customButtonLabel ?? 'Add condition')
             ->schema([
                     Select::make('field')
-                        ->options([
-                            'supplier_id' => 'Supplier ID',
-                            'channel_id' => 'Channel ID',
-                            'property' => 'Property',
-                            'destination' => 'Destination',
-                            'travel_date' => 'Travel date',
-                            'booking_date' => 'Booking date',
-                            'total_guests' => 'Total guests',
-                            'days_until_departure' => 'Days until departure',
-                            'nights' => 'Nights',
-                            'rating' => 'Rating',
-                            'number_of_rooms' => 'Number of rooms',
-                            'rate_code' => 'Rate code',
-                            'room_type' => 'Room type',
-                            'room_type_cr' => 'Room type (SR)',
-                            'room_code' => 'Room code',
-                            'room_name' => 'Room name',
-                            'meal_plan' => 'Meal plan / Board basis',
-                        ])
+                        ->options(function () {
+                            dump($this->isSrCreator);
+                            $options = [
+                                'supplier_id' => 'Supplier ID',
+                                'channel_id' => 'Channel ID',
+                                'property' => 'Property',
+                                'destination' => 'Destination',
+                                'travel_date' => 'Travel date',
+                                'booking_date' => 'Booking date',
+                                'total_guests' => 'Total guests',
+                                'days_until_departure' => 'Days until departure',
+                                'nights' => 'Nights',
+                                'rating' => 'Rating',
+                                'number_of_rooms' => 'Number of rooms',
+                                'meal_plan' => 'Meal plan / Board basis',
+                                'rate_code' => 'Rate code',
+                                'room_code' => 'Room code',
+                                'room_name' => 'Room name',
+                            ];
+
+                            if ($this->isSrCreator) {
+                                $options['room_type_cr'] = 'Room type';
+                            } else {
+                                $options['room_type'] = 'Room type';
+                            }
+                            return $options;
+                        })
                         ->live()
                         ->required()
                         ->afterStateUpdated(fn(Select $component) => $component
@@ -298,6 +311,7 @@ trait HasPricingRuleFields
                                         return $property ? $property->full_name : null;
                                     })
                                     ->required()
+                                    ->disabled(fn(Get $get) => $this->isSrCreator)
                                     ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
                             ],
                             'destination' => [

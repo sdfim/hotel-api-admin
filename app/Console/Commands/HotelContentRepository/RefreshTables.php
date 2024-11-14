@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
 class RefreshTables extends Command
 {
     protected $signature = 'db:refresh-pd-tables {prefix?}';
-    protected $description = 'Refreshes the tables in the hotel content repository';
+    protected $description = 'Refreshes the tables in the hotel content repository / supplier repository';
 
     public function handle()
     {

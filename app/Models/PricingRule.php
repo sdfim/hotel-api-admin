@@ -16,6 +16,7 @@ class PricingRule extends Model
      */
     protected $fillable = [
         'name',
+        'is_sr_creator',
         'manipulable_price_type',
         'price_value_target',
         'price_value',
@@ -34,6 +35,7 @@ class PricingRule extends Model
         return [
             'rule_start_date' => 'datetime',
             'rule_expiration_date' => 'datetime',
+            'is_sr_creator' => 'boolean',
         ];
     }
 

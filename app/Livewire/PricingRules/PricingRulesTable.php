@@ -2,12 +2,15 @@
 
 namespace App\Livewire\PricingRules;
 
+use App\Helpers\ClassHelper;
 use App\Models\PricingRule;
 use App\Models\Property;
 use Carbon\Carbon;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
@@ -27,10 +30,12 @@ class PricingRulesTable extends Component implements HasForms, HasTable
 
     public ?int $hotelId = null;
     public array $giataKeyIds = [];
+    public bool $isSrCreator = false;
 
-    public function mount(?int $hotelId = null)
+    public function mount(?int $hotelId = null, bool $isSrCreator = false): void
     {
         $this->hotelId = $hotelId;
+        $this->isSrCreator = $isSrCreator;
         if ($this->hotelId) {
             $this->giataKeyIds = Hotel::with(['keyMappings' => function ($query) {
                 $query->whereHas('keyMappingOwner', function ($query) {
@@ -133,6 +138,17 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                         ->action(fn (PricingRule $record) => $record->delete())
                         ->visible(fn (PricingRule $record): bool => Gate::allows('delete', $record)),
                 ]),
+            ])
+            ->headerActions([
+                CreateAction::make()
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->icon('heroicon-o-plus')
+                    ->iconButton()
+                    ->url(route('pricing-rules.create', [
+                        'sr' => $this->isSrCreator,
+                        'gc' => $this->giataKeyIds[0] ?? null,
+                    ]))
+                    ->visible(fn (): bool => Gate::allows('create', PricingRule::class)),
             ]);
     }
 

@@ -55,23 +55,23 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->sortable()
                     ->wrap(),
-                CustomTextColumn::make('type')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('weight')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
+//                CustomTextColumn::make('type')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
+//                CustomTextColumn::make('weight')
+//                    ->searchable(isIndividual: true)
+//                    ->toggleable()
+//                    ->sortable(),
                 CustomTextColumn::make('address')
                     ->searchable(isIndividual: true)
                     ->getStateUsing(function ($record) {
                         $string = '';
-                        foreach ($record->address as $key => $item)    {
+                        foreach ($record->address as $item) {
                             if (is_array($item)) continue;
-                            $string .= $key .  ': ' . $item . ', ';
+                            $string .= $item . ', ';
                         }
-                        return $string;
+                        return rtrim($string, ', ');
                     })
                     ->toggleable()
                     ->sortable(),
@@ -87,18 +87,18 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
-                CustomTextColumn::make('location')
-                    ->searchable(isIndividual: true)
-                    ->getStateUsing(function ($record) {
-                        $string = '';
-                        foreach ($record->location as $key => $item)    {
-                            if (is_array($item)) continue;
-                            $string .= $key .  ': ' . $item . ', ';
-                        }
-                        return $string;
-                    })
-                    ->toggleable()
-                    ->sortable(),
+//                CustomTextColumn::make('location')
+//                    ->searchable(isIndividual: true)
+//                    ->getStateUsing(function ($record) {
+//                        $string = '';
+//                        foreach ($record->location as $key => $item)    {
+//                            if (is_array($item)) continue;
+//                            $string .= $key .  ': ' . $item . ', ';
+//                        }
+//                        return $string;
+//                    })
+//                    ->toggleable()
+//                    ->sortable(),
                 CustomTextColumn::make('combined_sources')
                     ->label('Combined Sources')
                     ->searchable(isIndividual: true)
@@ -107,25 +107,25 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->default(function ($record) {
                         return $record->contentSource->name . ' ' . $record->roomImagesSource->name . ' ' . $record->propertyImagesSource->name;
                     }),
-                TextColumn::make('galleries')
-                    ->label('Galleries')
-                    ->searchable(isIndividual: true)
-                    ->formatStateUsing(function ($state) {
-                        $items = explode(', ', $state);
-                        $string = '';
-                        foreach ($items as $item) {
-                            $dataItem = json_decode($item, true);
-                            if (is_null($dataItem)) {
-                                continue;
-                            }
-                            $string .= $dataItem['gallery_name'] . '</b><br>';
-                        }
-                        return $string;
-                    })
-                    ->html()
-                    ->wrap()
-                    ->toggleable()
-                    ->sortable(),
+//                TextColumn::make('galleries')
+//                    ->label('Galleries')
+//                    ->searchable(isIndividual: true)
+//                    ->formatStateUsing(function ($state) {
+//                        $items = explode(', ', $state);
+//                        $string = '';
+//                        foreach ($items as $item) {
+//                            $dataItem = json_decode($item, true);
+//                            if (is_null($dataItem)) {
+//                                continue;
+//                            }
+//                            $string .= $dataItem['gallery_name'] . '</b><br>';
+//                        }
+//                        return $string;
+//                    })
+//                    ->html()
+//                    ->wrap()
+//                    ->toggleable()
+//                    ->sortable(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make()

@@ -22,23 +22,10 @@
                         @livewire('hotels.hotel-form', compact('hotel'))
                     </div>
 
-                    <div class="mt-5 ml-1 mr-1 col-span-9 xl:col-span-6" x-data="{ layout: 'grouped' }">
-                        <div class="flex items-center justify-end space-x-2">
-                            <select @change="layout = $event.target.value" class="ml-2 border rounded dark:bg-zinc-800 dark:border-zinc-600 dark:text-white">
-                                <option value="grouped" :selected="layout === 'grouped'">Grouped</option>
-                                <option value="list" :selected="layout === 'list'">Listed</option>
-                                <option value="tabs" :selected="layout === 'tabs'">Tabbed</option>
-                            </select>
-                        </div>
-                        <div x-show="layout === 'grouped'" class="mt-4">
-                            @include('dashboard.hotel_repository.hotel-tables-tabs', ['hotelId' => $hotelId])
-                        </div>
-                        <div x-show="layout === 'list'" class="mt-4">
-                            @include('dashboard.hotel_repository.hotel-tables', ['hotelId' => $hotelId])
-                        </div>
-                        <div x-show="layout === 'tabs'" class="mt-4">
-                            @include('dashboard.hotel_repository.hotel-tables-tabs-v1', ['hotelId' => $hotelId])
-                        </div>
+                    <hr class="mt-8 mb-8">
+
+                    <div x-show="layout === 'grouped'">
+                        @include('dashboard.hotel_repository.hotel-tables-tabs', ['hotelId' => $hotelId])
                     </div>
 
                 </div>
