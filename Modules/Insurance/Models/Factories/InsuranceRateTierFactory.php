@@ -12,15 +12,13 @@ class InsuranceRateTierFactory extends Factory
 
     public function definition(): array
     {
-        $minPrice = $this->faker->numberBetween(1000, 15000); // Random minimum price
-        $maxPrice = $minPrice + $this->faker->numberBetween(1000, 15000); // Ensure max price is greater than min price
-
         return [
             'insurance_provider_id' => InsuranceProvider::factory(),
-            'min_price' => $minPrice,
-            'max_price' => $maxPrice,
-            'rate_type' => $this->faker->randomElement(['fixed', 'percentage']),
-            'rate_value' => rand(20, 100) // Random insurance rate between 1% and 20%
+            'min_trip_cost' => $this->faker->randomFloat(2, 0, 10000),
+            'max_trip_cost' => $this->faker->randomFloat(2, 10001, 20000),
+            'consumer_plan_cost' => $this->faker->randomFloat(2, 10, 1000),
+            'uiv_retention' => $this->faker->randomFloat(2, 1, 100),
+            'net_to_trip_mate' => $this->faker->randomFloat(2, 1, 1000),
         ];
     }
 }

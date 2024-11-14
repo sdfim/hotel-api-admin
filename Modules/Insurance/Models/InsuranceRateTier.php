@@ -11,10 +11,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int $id
  * @property int $insurance_provider_id
- * @property float $min_price
- * @property float $max_price
- * @property string $rate_type
- * @property float $rate_value
+ * @property float $min_trip_cost
+ * @property float $max_trip_cost
+ * @property float $consumer_plan_cost
+ * @property float $uiv_retention
+ * @property float $net_to_trip_mate
  *
  * @property InsuranceProvider $provider
  */
@@ -26,10 +27,11 @@ class InsuranceRateTier extends Model
 
     protected $fillable = [
         'insurance_provider_id',
-        'min_price',
-        'max_price',
-        'rate_type',
-        'rate_value',
+        'min_trip_cost',
+        'max_trip_cost',
+        'consumer_plan_cost',
+        'uiv_retention',
+        'net_to_trip_mate',
     ];
 
     public function provider(): BelongsTo

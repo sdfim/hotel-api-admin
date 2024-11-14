@@ -21,6 +21,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Modules\Insurance\Models\InsuranceRestriction;
@@ -69,7 +70,10 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                         ->label('Compare')
                         ->options(fn(Get $get): array => match (array_search($get('restriction_type_id'), $this->restrictionTypes)) {
                             'customer_location', 'travel_location' => [
-                                '=' => '=',
+                                '!=' => '!=',
+                            ],
+                            'age' => [
+                                '>' => '>',
                             ],
                             default => [
                                 '=' => '=',
@@ -80,7 +84,14 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                         ->required(),
                     Grid::make(1)
                         ->schema(fn(Get $get): array => match (array_search($get('restriction_type_id'), $this->restrictionTypes)) {
-                            'age', 'insurance_return_period_days', 'trip_duration_days' => [
+                            'age' => [
+                                TextInput::make('value')
+                                    ->label('Value')
+                                    ->maxValue(21)
+                                    ->integer()
+                                    ->required(),
+                            ],
+                            'insurance_return_period_days', 'trip_duration_days' => [
                                 TextInput::make('value')
                                     ->label('Value')
                                     ->integer()

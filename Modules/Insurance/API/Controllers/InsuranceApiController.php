@@ -3,8 +3,7 @@
 namespace Modules\Insurance\API\Controllers;
 
 use App\Jobs\SaveBookingInspector;
-use App\Models\Supplier;
-use App\Repositories\ApiBookingInspectorRepository;
+use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiSearchInspectorRepository;
@@ -20,75 +19,86 @@ use Modules\Insurance\Models\InsuranceApplication;
 use Modules\Insurance\Models\InsurancePlan;
 use Modules\Insurance\Models\InsuranceProvider;
 use Modules\Insurance\Models\InsuranceRateTier;
+use Modules\Insurance\Models\InsuranceRestriction;
 
 class InsuranceApiController extends BaseController
 {
     public function add(InsuranceAddRequest $request): JsonResponse
     {
-        // Define $bookingInspector before the try block to avoid undefined variable warning
         $bookingInspector = null;
-        // Initialize $originalRQ as well to ensure it's accessible in catch
         $originalRQ = null;
-
         $bookingItem = $request->input('booking_item');
 
-        // Check if the InsurancePlan with the same booking_item already exists
+        $insuranceProvider = InsuranceProvider::where('name', $request['insurance_provider'])->first();
+
+        if (!$insuranceProvider) {
+            return $this->sendError('The selected insurance provider is invalid or unavailable', 404);
+        }
+
+        // Validate the booking item
+        $notValid = $this->validateBookingItem($bookingItem, $insuranceProvider->id);
+        if (!empty($notValid)) {
+            $errData = [
+                'message' => 'The booking item does not meet the required conditions.',
+                'condition' => $notValid,
+            ];
+            return $this->sendError('The booking item does not meet the required conditions.' , '', 400, $errData);
+        }
+
+        [$bookingId, $filters, $supplierId, $apiBookingInspectorItem] = BookingRepository::getParams($request);
+        if (empty($bookingId) || empty($filters) || empty($supplierId) || empty($apiBookingInspectorItem)) {
+            return $this->sendError('The specified booking item is not valid or not found in the booking inspector', 404);
+        }
+
+        $searchId = $apiBookingInspectorItem->search_id;
+
+        $itemPricing = ApiBookingItemRepository::getItemPricingData($bookingItem);
+        if (empty($itemPricing)) {
+            return $this->sendError('Unable to retrieve pricing data for the specified booking item', 500);
+        }
+
+        $apiSearchInspectorItem = ApiSearchInspectorRepository::getRequest($searchId);
+
         $existingInsurancePlan = InsurancePlan::where('booking_item', $bookingItem)->first();
 
         if ($existingInsurancePlan) {
-            // If the InsurancePlan already exists, return it with its applications
             $insurancePlanDTO = new InsurancePlanDTO($existingInsurancePlan);
             return $this->sendResponse($insurancePlanDTO->data, 'Insurance plan already exists with the specified booking item.', 201);
         }
 
-        // Start a database transaction to ensure atomic operations
+        $bookingInspector = BookingRepository::newBookingInspector([
+            $bookingId, $filters, $supplierId, 'add_insurance', '', 'hotel',
+        ]);
+
         DB::beginTransaction();
 
         try {
-            // Create a new InsurancePlan
             $insurancePlan = new InsurancePlan();
             $insurancePlan->booking_item = $bookingItem;
 
-            [$bookingId, $filters, $supplierId, $apiBookingInspectorItem] = BookingRepository::getParams($request);
+            // Determine the number of passengers
+            $totalPassengersNumber = ApiSearchInspectorRepository::getTotalOccupancy($apiSearchInspectorItem['occupancy']);
 
-            if (!$apiBookingInspectorItem) {
-                return $this->sendError('The specified booking item is not valid or not found in the booking inspector', 404);
-            }
-
-            $insuranceProvider = InsuranceProvider::where('name', $request['insurance_provider'])->first();
-
-            if (!$insuranceProvider) {
-                return $this->sendError('The selected insurance provider is invalid or unavailable', 404);
-            }
-
-            $searchId = $apiBookingInspectorItem->search_id;
-
-            $itemPricing = ApiBookingItemRepository::getItemPricingData($bookingItem);
-
-            if (empty($itemPricing)) {
-                return $this->sendError('Unable to retrieve pricing data for the specified booking item', 500);
-            }
-
-            $apiSearchInspectorItem = ApiSearchInspectorRepository::getRequest($searchId);
-
+            // Determine the cost per passenger
             $bookingItemTotalPrice = (float)Arr::get($itemPricing, 'total_price', 0);
+            $costPerPassenger = $totalPassengersNumber > 0 ? $bookingItemTotalPrice / $totalPassengersNumber : 0;
 
+            // Select the appropriate InsuranceRateTier
             $insuranceRateTier = InsuranceRateTier::where('insurance_provider_id', $insuranceProvider->id)
-                ->where('min_price', '<=', $bookingItemTotalPrice)
-                ->where('max_price', '>=', $bookingItemTotalPrice)
+                ->where('min_trip_cost', '<=', $costPerPassenger)
+                ->where('max_trip_cost', '>=', $costPerPassenger)
                 ->first();
 
             if (!$insuranceRateTier) {
                 return $this->sendError('No applicable insurance rate tier found.', 400);
             }
 
-            // Calculate the insurance provider fee
-            $insuranceProviderFee = $insuranceProvider->rate_type === 'fixed' ?
-                $insuranceProvider->rate_value : ($bookingItemTotalPrice / 100) * $insuranceRateTier->rate_value;
+            // Calculate cost
+            $totalPlanCost = $insuranceRateTier->net_to_trip_mate * $totalPassengersNumber;
+            $commissionUjv = $insuranceRateTier->uiv_retention * $totalPassengersNumber;
+            $insuranceProviderFee = $insuranceRateTier->consumer_plan_cost * $totalPassengersNumber;
 
-            $commissionUjv = (float)($bookingItemTotalPrice / 100) * (float)env('INSURANCE_COMMISSION', 5);
-
-            $insurancePlan->total_insurance_cost = $insuranceProviderFee + $commissionUjv;
+            $insurancePlan->total_insurance_cost = $totalPlanCost;
             $insurancePlan->insurance_provider_fee = $insuranceProviderFee;
             $insurancePlan->commission_ujv = $commissionUjv;
             $insurancePlan->insurance_provider_id = $insuranceProvider->id;
@@ -100,7 +110,6 @@ class InsuranceApiController extends BaseController
             }
 
             // Populate insurance applications
-            $totalPassengersNumber = ApiSearchInspectorRepository::getTotalOccupancy($apiSearchInspectorItem['occupancy']);
             $totalInsuranceCostPerPerson = $totalPassengersNumber > 0 ? $insurancePlan->total_insurance_cost / $totalPassengersNumber : 0;
 
             $insuranceApplications = [];
@@ -133,10 +142,6 @@ class InsuranceApiController extends BaseController
                 DB::rollBack();
                 return $this->sendError('Failed to create insurance applications. Please try again later.', 500);
             }
-
-            $bookingInspector = BookingRepository::newBookingInspector([
-                $bookingId, $filters, $supplierId, 'add_insurance', '', 'hotel',
-            ]);
 
             // Prepare request and response data for logging
             $originalRQ = [
@@ -178,7 +183,7 @@ class InsuranceApiController extends BaseController
 
             SaveBookingInspector::dispatch($bookingInspector, $content, [], 'error', ['side' => 'supplier', 'message' => $message]);
 
-            return $this->sendError('An error occurred while processing the insurance plan.', 500);
+            return $this->sendError('An error occurred while processing the insurance plan.', '', 500);
         }
     }
 
@@ -215,5 +220,95 @@ class InsuranceApiController extends BaseController
         SaveBookingInspector::dispatch($bookingInspector, ['original' => ['request' => $originalRQ]], $responseData);
 
         return $this->sendResponse([], $message,  204);
+    }
+
+    private function validateBookingItem($bookingItem, $providerId): array
+    {
+        $validationRules = InsuranceRestriction::with('restrictionType')
+            ->where('provider_id', $providerId)
+            ->get()
+            ->map(function ($restriction) {
+                return [
+                    'provider' => $restriction->provider->name,
+                    'restriction_type' => $restriction->restrictionType->name,
+                    'compare_sign' => $restriction->compare,
+                    'restriction_value' => $restriction->value,
+                ];
+            });
+
+        $log = [];
+        foreach ($validationRules as $rule) {
+            $type = $rule['restriction_type'];
+            if ($type === 'customer_location'
+                || $type === 'insurance_return_period_days')
+            {
+                continue;
+            }
+            $restrictionType = $type;
+            $compareSign = $rule['compare_sign'];
+            $restrictionValue = $rule['restriction_value'];
+
+            // Retrieve the actual value from the booking item
+            $actualValue = $this->getBookingItemValue($bookingItem, $restrictionType);
+
+            $comparisonResult = $this->compareValues($actualValue, $compareSign, $restrictionValue);
+            $log[] = [
+                'restrictionType' => $restrictionType,
+                'actualValue' => $actualValue,
+                'compareSign' => $compareSign,
+                'restrictionValue' => $restrictionValue,
+                'result' => $comparisonResult,
+            ];
+
+            if (!$comparisonResult) {
+                return $rule;
+            }
+        }
+
+        Log::info('Comparison result', $log);
+
+        return [];
+    }
+
+    private function getBookingItemValue(string $bookingItem, string $restrictionType)
+    {
+        $bookingItemModel = ApiBookingItem::where('booking_item', $bookingItem)->first();
+        $search = ApiSearchInspectorRepository::getRequest($bookingItemModel->search_id);
+        if ($restrictionType === 'age') {
+            $occupancy = Arr::get($search, 'occupancy');
+            $ages = collect($occupancy)->flatMap(function ($room) {
+                return Arr::get($room, 'children_ages', []);
+            });
+            return $ages->isNotEmpty() ? $ages->min() : 33;
+        }
+        if ($restrictionType === 'travel_location') {
+            return Arr::get($search, 'destination');
+        }
+        if ($restrictionType === 'trip_duration_days') {
+            $checkIn = Arr::get($search, 'check_in');
+            $checkOut = Arr::get($search, 'check_out');
+            return $checkIn && $checkOut ? $checkIn->diffInDays($checkOut) : null;
+        }
+        if ($restrictionType === 'trip_cost') {
+            $pricingData = ApiBookingItemRepository::getItemPricingData($bookingItem);
+            return Arr::get($pricingData, 'total_price');
+        }
+        return null;
+    }
+
+    private function compareValues(mixed $actualValue, string $compareSign, mixed $restrictionValue): bool
+    {
+        switch ($compareSign) {
+            case '<':
+                return $actualValue < $restrictionValue;
+            case '>':
+                return $actualValue > $restrictionValue;
+            case '=':
+                return $actualValue == $restrictionValue;
+            case '!=':
+                return $actualValue != $restrictionValue;
+            default:
+                return false;
+        }
     }
 }

@@ -10,10 +10,11 @@ return new class extends Migration {
         Schema::create('insurance_rate_tiers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('insurance_provider_id')->constrained('insurance_providers')->onDelete('cascade');
-            $table->decimal('min_price', 10); // Minimum price in the range
-            $table->decimal('max_price', 10); // Maximum price in the range
-            $table->string('rate_type', 20);
-            $table->decimal('rate_value'); // Insurance rate in percentage
+            $table->float('min_trip_cost');
+            $table->float('max_trip_cost');
+            $table->float('consumer_plan_cost');
+            $table->float('uiv_retention');
+            $table->float('net_to_trip_mate');
             $table->timestamps();
         });
     }

@@ -3,6 +3,7 @@
 namespace Modules\Insurance\Livewire\RateTiers;
 
 use App\Helpers\ClassHelper;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -11,14 +12,17 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Notifications\Notification;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Artisan;
 use Livewire\Component;
 use Modules\Insurance\Models\InsuranceRateTier;
 
@@ -26,6 +30,9 @@ class RateTiersTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
+
+    public $provider_id;
+    public $file;
 
     public function form(Form $form): Form
     {
@@ -42,39 +49,34 @@ class RateTiersTable extends Component implements HasForms, HasTable
                         ->relationship(name: 'provider', titleAttribute: 'name')
                         ->preload()
                         ->required(),
-                    TextInput::make('min_price')
-                        ->label('Min Price')
+                    TextInput::make('min_trip_cost')
+                        ->label('Min Trip Cost')
                         ->numeric()
                         ->inputMode('decimal')
                         ->required()
                         ->unique(ignorable: $record),
-                    TextInput::make('max_price')
-                        ->label('Max Price')
+                    TextInput::make('max_trip_cost')
+                        ->label('Max Trip Cost')
                         ->numeric()
                         ->inputMode('decimal')
                         ->required()
                         ->unique(ignorable: $record),
-                ]),
-            Grid::make()
-                ->schema([
-                    Select::make('rate_type')
-                        ->options([
-                            'fixed' => 'Fixed price',
-                            'percentage' => 'Percentage',
-                        ])
-                        ->live()
+                    TextInput::make('consumer_plan_cost')
+                        ->label('Consumer Plan Cost')
+                        ->numeric()
+                        ->inputMode('decimal')
                         ->required(),
-                    TextInput::make('rate_value')
+                    TextInput::make('uiv_retention')
+                        ->label('UIV Retention')
                         ->numeric()
-                        ->required()
-                        ->suffixIcon(function (Get $get) {
-                            return match ($get('rate_type')) {
-                                null, '' => false,
-                                'fixed' => 'heroicon-o-banknotes',
-                                'percentage' => 'heroicon-o-receipt-percent',
-                            };
-                        }),
-                ])
+                        ->inputMode('decimal')
+                        ->required(),
+                    TextInput::make('net_to_trip_mate')
+                        ->label('Net to Trip Mate')
+                        ->numeric()
+                        ->inputMode('decimal')
+                        ->required(),
+                ]),
         ];
     }
 
@@ -86,25 +88,25 @@ class RateTiersTable extends Component implements HasForms, HasTable
                 TextColumn::make('provider.name')
                     ->label('Insurance Provider')
                     ->sortable()
-                    ->searchable(),
-                TextColumn::make('min_price')
-                    ->label('Min Price')
+                    ->searchable(isIndividual: true),
+                TextColumn::make('min_trip_cost')
+                    ->label('Min Trip Cost')
+                    ->sortable()
+                    ->searchable(isIndividual: true),
+                TextColumn::make('max_trip_cost')
+                    ->label('Max Trip Cost')
+                    ->sortable()
+                    ->searchable(isIndividual: true),
+                TextColumn::make('consumer_plan_cost')
+                    ->label('Consumer Plan Cost')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('max_price')
-                    ->label('Max Price')
+                TextColumn::make('uiv_retention')
+                    ->label('UIV Retention')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('rate_type')
-                    ->label('Rate Type')
-                    ->sortable()
-                    ->searchable()
-                    ->formatStateUsing(fn($state) => match ($state) {
-                        'fixed' => 'Fixed price',
-                        'percentage' => 'Percentage',
-                    }),
-                TextColumn::make('rate_value')
-                    ->label('Rate Value')
+                TextColumn::make('net_to_trip_mate')
+                    ->label('Net to Trip Mate')
                     ->sortable()
                     ->searchable(),
             ])
@@ -156,6 +158,44 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->iconButton(),
+                CreateAction::make('importInsuranceRateTiers')
+                    ->label('Import Insurance Rate Tiers')
+                    ->form([
+                        Select::make('provider_id')
+                            ->label('Provider')
+                            ->relationship(name: 'provider', titleAttribute: 'name')
+                            ->preload()
+                            ->required(),
+                        FileUpload::make('file')
+                            ->label('Upload CSV File')
+                            ->disk('public')
+                            ->directory('rate-tiers')
+                            ->visibility('private')
+                            ->downloadable(),
+                    ])
+                    ->requiresConfirmation()
+                    ->modalHeading('Are you sure?')
+                    ->modalDescription('All existing records for this provider will be deleted and replaced with new data from the file.')
+                    ->modalSubmitActionLabel('Yes, proceed')
+                    ->modalCancelActionLabel('Cancel')
+                    ->disableCreateAnother()
+                    ->action(function (array $data) {
+                        Artisan::call('import:insurance-rate-tiers', [
+                            'provider_id' => $data['provider_id'],
+                            'file' => storage_path('app/public/' . $data['file']),
+                        ]);
+                        Notification::make()
+                            ->title('Insurance rate tiers imported successfully')
+                            ->success()
+                            ->send();
+                    })
+                    ->tooltip('Import Insurance Rate Tiers')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton(),
+            ])
+            ->bulkActions([
+                DeleteBulkAction::make(),
             ]);
     }
 
