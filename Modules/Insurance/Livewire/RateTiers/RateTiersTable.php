@@ -169,6 +169,8 @@ class RateTiersTable extends Component implements HasForms, HasTable
                         FileUpload::make('file')
                             ->label('Upload CSV File')
                             ->disk('public')
+                            ->acceptedFileTypes(['text/csv'])
+                            ->moveFiles()
                             ->directory('rate-tiers')
                             ->visibility('private')
                             ->downloadable(),
