@@ -54,7 +54,10 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                 if (!empty($this->giataKeyIds)) {
                     $query->whereHas('conditions', function ($query) {
                         $query->where('field', 'property')
-                            ->whereJsonContains('value', $this->giataKeyIds);
+                            ->where(function ($query) {
+                                $query->whereJsonContains('value', $this->giataKeyIds)
+                                    ->orWhere('value_from', $this->giataKeyIds[0]);
+                            });
                     });
                 }
                 return $query;
@@ -88,7 +91,10 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                         query: function ($query, $search) {
                             return $query->whereHas('conditions', function ($query) use ($search) {
                                 $query->where('field', 'property')
-                                    ->where('value', 'like', "%$search%");
+                                    ->where(function ($query) use ($search) {
+                                        $query->where('value', 'like', "%$search%")
+                                            ->orWhere('value_from', 'like', "%$search%");
+                                    });
                             });
                         }
                     )
