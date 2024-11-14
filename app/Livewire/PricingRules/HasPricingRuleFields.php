@@ -185,7 +185,6 @@ trait HasPricingRuleFields
             ->schema([
                     Select::make('field')
                         ->options(function () {
-                            dump($this->isSrCreator);
                             $options = [
                                 'supplier_id' => 'Supplier ID',
                                 'channel_id' => 'Channel ID',
