@@ -102,7 +102,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('ujv_retention')
-                    ->label('UIV Retention')
+                    ->label('UJV Retention')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('net_to_trip_mate')
