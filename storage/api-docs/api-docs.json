@@ -802,6 +802,19 @@
                             "type": "integer",
                             "example": 98736411
                         }
+                    },
+                    {
+                        "name": "room_type_codes[]",
+                        "in": "query",
+                        "description": "Array of room type codes. (e.g., ['ODK', 'ODD'])",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "example": "ODK"
+                            }
+                        }
                     }
                 ],
                 "responses": {

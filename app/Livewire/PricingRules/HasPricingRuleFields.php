@@ -282,7 +282,8 @@ trait HasPricingRuleFields
                                         $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
                                         $result = Property::select(
                                             DB::raw('CONCAT(name, " (", city, ", ", locale, ", ", code, ")") AS full_name'), 'code')
-                                            ->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
+                                            ->whereRaw("MATCH(name,city,locale) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
+                                                    ->orderByRaw("name LIKE '$search%' DESC")
                                             ->orWhere('code', 'like', "%$search%")
                                             ->limit(100);
 
