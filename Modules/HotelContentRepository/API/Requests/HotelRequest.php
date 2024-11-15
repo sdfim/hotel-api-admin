@@ -602,6 +602,7 @@ class HotelRequest extends ApiRequest
             'channel_management' => 'required|boolean',
             'hotel_board_basis' => 'required|string|max:255',
             'default_currency' => 'required|string|max:10',
+            'weight' => 'integer',
         ];
     }
 }

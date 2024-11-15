@@ -84,6 +84,7 @@ class PricingRulesDataGenerationTools
 
         return [
             'name' => "Pricing rule $name",
+            'is_sr_creator' => false,
             'rule_start_date' => $this->today->copy()->toDateString(),
             'rule_expiration_date' => $this->today->copy()->addDays(rand(30, 60))->toDateString(),
             'manipulable_price_type' => $this->faker->randomElement($this->getManipulablePriceTypeKeys()),

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\ApiBookingItem;
 use App\Models\InformationalService;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -12,12 +13,9 @@ class InformationalServiceFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->word,
-            'description' => $this->faker->sentence,
+            'booking_item' => ApiBookingItem::factory(), // Create a valid booking item reference
+            'service_id' => $this->faker->randomNumber(),
             'cost' => $this->faker->randomFloat(2, 10, 1000),
-            'date' => $this->faker->date,
-            'time' => $this->faker->time,
-            'type' => $this->faker->randomElement(['type1', 'type2']),
         ];
     }
 }
