@@ -69,11 +69,11 @@ class InsurancePlanTable extends Component implements HasForms, HasTable
                 TextColumn::make('provider.name')
                     ->label('Provider Name')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(isIndividual: true),
                 TextColumn::make('booking_item')
                     ->label('Booking Item')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable(isIndividual: true),
                 TextColumn::make('total_insurance_cost')
                     ->label('Total Insurance Cost')
                     ->sortable()
