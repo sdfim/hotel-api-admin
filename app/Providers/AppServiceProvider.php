@@ -80,8 +80,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->registerContentRepositoryComponents();
-
         $currentUrl = URL::current();
         if (!str_contains($currentUrl, 'localhost') && !str_contains($currentUrl, '127.0.0.1')) {
             URL::forceScheme('https');
@@ -97,33 +95,5 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
-    }
-
-    protected function registerContentRepositoryComponents(): void
-    {
-        Livewire::component('commissions.travel-agency-commission-table', TravelAgencyCommissionTable::class);
-        Livewire::component('hotels.hotel-form', HotelForm::class);
-        Livewire::component('hotels.hotel-table', HotelTable::class);
-        Livewire::component('hotels.key-mapping-table', KeyMappingTable::class);
-        Livewire::component('hotels.hotel-room-table', HotelRoomTable::class);
-        Livewire::component('hotels.hotel-affiliations-table', HotelAffiliationsTable::class);
-        Livewire::component('hotels.hotel-attributes-table', HotelAttributesTable::class);
-        Livewire::component('hotels.hotel-informative-services-table', HotelInformativeServicesTable::class);
-        Livewire::component('hotels.hotel-age-restriction-table', HotelAgeRestrictionTable::class);
-        Livewire::component('hotels.hotel-fee-tax-table', HotelFeeTaxTable::class);
-        Livewire::component('hotels.hotel-descriptive-content-section-table', HotelDescriptiveContentSectionTable::class);
-        Livewire::component('hotels.hotel-promotion-table', HotelPromotionTable::class);
-        Livewire::component('hotels.hotel-deposit-information-table', HotelDepositInformationTable::class);
-        Livewire::component('hotels.hotel-contact-information-table', HotelContactInformationTable::class);
-        Livewire::component('image-galleries.image-galleries-table', ImageGalleriesTable::class);
-        Livewire::component('image-galleries.image-galleries-form', ImageGalleriesForm::class);
-        Livewire::component('hotel-images.hotel-images-table', HotelImagesTable::class);
-        Livewire::component('hotel-images.hotel-images-form', HotelImagesForm::class);
-        Livewire::component('hotels.hotel-web-finder-table', HotelWebFinderTable::class);
-        Livewire::component('insurance.providers-table', ProvidersTable::class);
-        Livewire::component('insurance.providers-documentation-table', ProvidersDocumentationTable::class);
-        Livewire::component('insurance.restrictions-table', RestrictionsTable::class);
-        Livewire::component('insurance.rate-tiers-table', RateTiersTable::class);
-        Livewire::component('insurance.insurance-plans-table', InsurancePlanTable::class);
     }
 }
