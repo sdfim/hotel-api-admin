@@ -15,6 +15,11 @@ class PricingRulesTools
      */
     public function rules(array $query): array
     {
+        // standalone driver do must not apply prices rules
+        if(isset($query["query_package"]) && $query["query_package"] === "standalone" &&  $query["supplier"] === 'Expedia')
+        {
+            return [];
+        }
         $token = ChannelRenository::getTokenId(request()->bearerToken());
         $channelId = Channel::where('token_id', $token)->first()->id;
 
