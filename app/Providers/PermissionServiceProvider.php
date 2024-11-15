@@ -24,6 +24,7 @@ use App\Policies\InsuranceProviderDocumentationPolicy;
 use App\Policies\InsuranceProviderPolicy;
 use App\Policies\InsuranceRateTierPolicy;
 use App\Policies\InsuranceRestrictionPolicy;
+use App\Policies\InsurancePlanPolicy;
 use App\Policies\TeamPolicy;
 use App\Policies\TravelAgencyCommissionPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -32,6 +33,7 @@ use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelImage;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
+use Modules\Insurance\Models\InsurancePlan;
 use Modules\Insurance\Models\InsuranceProvider;
 use Modules\Insurance\Models\InsuranceProviderDocumentation;
 use Modules\Insurance\Models\InsuranceRateTier;
@@ -52,6 +54,7 @@ class PermissionServiceProvider extends ServiceProvider
         InsuranceProviderDocumentation::class       => InsuranceProviderDocumentationPolicy::class,
         InsuranceRestriction::class                 => InsuranceRestrictionPolicy::class,
         InsuranceRateTier::class                    => InsuranceRateTierPolicy::class,
+        InsurancePlan::class                        => InsurancePlanPolicy::class,
         ConfigAttribute::class                      => ConfigAttributePolicy::class,
         ConfigConsortium::class                     => ConfigConsortiumPolicy::class,
         ConfigDescriptiveType::class                => ConfigDescriptiveTypePolicy::class,

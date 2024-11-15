@@ -31,6 +31,7 @@ use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesTable;
 use Modules\HotelContentRepository\Livewire\KeyMappings\KeyMappingTable;
 use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyCommissionTable;
+use Modules\Insurance\Livewire\Plans\InsurancePlanTable;
 use Modules\Insurance\Livewire\Providers\ProvidersDocumentationTable;
 use Modules\Insurance\Livewire\Providers\ProvidersTable;
 use Modules\Insurance\Livewire\RateTiers\RateTiersTable;
@@ -123,5 +124,6 @@ class AppServiceProvider extends ServiceProvider
         Livewire::component('insurance.providers-documentation-table', ProvidersDocumentationTable::class);
         Livewire::component('insurance.restrictions-table', RestrictionsTable::class);
         Livewire::component('insurance.rate-tiers-table', RateTiersTable::class);
+        Livewire::component('insurance.insurance-plans-table', InsurancePlanTable::class);
     }
 }

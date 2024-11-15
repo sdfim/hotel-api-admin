@@ -21,6 +21,7 @@
     use Modules\Insurance\Models\InsuranceProviderDocumentation;
     use Modules\Insurance\Models\InsuranceRestriction;
     use Modules\Insurance\Models\InsuranceRateTier;
+    use Modules\Insurance\Models\InsurancePlan;
     use App\Models\Configurations\ConfigAttribute;
     use App\Models\Configurations\ConfigConsortium;
     use App\Models\Configurations\ConfigDescriptiveType;
@@ -339,7 +340,12 @@
                         </a>
                     </li>
                 @endif
-                @if($canView(InsuranceProvider::class) || $canView(InsuranceProviderDocumentation::class) || $canView(InsuranceRestriction::class) || $canView(InsuranceRateTier::class))
+                @if($canView(InsuranceProvider::class)
+                    || $canView(InsuranceProviderDocumentation::class)
+                    || $canView(InsuranceRestriction::class)
+                    || $canView(InsuranceRateTier::class)
+                    || $canView(InsurancePlan::class)
+                    )
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
                            class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
@@ -347,6 +353,13 @@
                             <span data-key="t-configuration">Insurance</span>
                         </a>
                         <ul>
+                            @if($canView(InsurancePlan::class))
+                                <li>
+                                    <a href="{{ Route('insurance-plans.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                                        Plans</a>
+                                </li>
+                            @endif
                             @if($canView(InsuranceProvider::class))
                                 <li>
                                     <a href="{{ Route('insurance-providers.index') }}"
