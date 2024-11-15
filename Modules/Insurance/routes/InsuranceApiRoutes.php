@@ -12,6 +12,7 @@ class InsuranceApiRoutes
         Route::middleware('auth:sanctum')->prefix('insurance')->group(function () {
             Route::post('add', [InsuranceApiController::class, 'add'])->name('addInsurance');
             Route::delete('delete', [InsuranceApiController::class, 'delete'])->name('deleteInsurance');
+            Route::get('retrieve', [InsuranceApiController::class, 'retrieve'])->name('retrieveInsurance');
         });
     }
 }
