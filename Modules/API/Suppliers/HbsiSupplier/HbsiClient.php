@@ -659,7 +659,7 @@ class HbsiClient
 
     private function processRoomStaysArr(array $response, array $bookingItemData, array $filters, array $guests): array
     {
-        $res = [];
+        $roomStayUnit = [];
         $RPH = 1;
 
         $ratesBookingItemData = explode(';', $bookingItemData['rate_ordinal']);
@@ -708,10 +708,14 @@ class HbsiClient
                 $RPH++;
             }
 
-            $res[$keyRate] = $roomStaysArr;
+            if (isset($roomStaysArr['RoomTypes']['RoomType']['@attributes']['NumberOfUnits'])) {
+                $roomStaysArr['RoomTypes']['RoomType']['@attributes']['NumberOfUnits'] = '1';
+            }
+
+            $roomStayUnit[$keyRate] = $roomStaysArr;
         }
 
-        return $res;
+        return $roomStayUnit;
     }
 
     private function processResGuestsArr(array $guests, array $filters): array
