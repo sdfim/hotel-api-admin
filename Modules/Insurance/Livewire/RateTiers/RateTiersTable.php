@@ -66,8 +66,8 @@ class RateTiersTable extends Component implements HasForms, HasTable
                         ->numeric()
                         ->inputMode('decimal')
                         ->required(),
-                    TextInput::make('uiv_retention')
-                        ->label('UIV Retention')
+                    TextInput::make('ujv_retention')
+                        ->label('UJV Retention')
                         ->numeric()
                         ->inputMode('decimal')
                         ->required(),
@@ -101,7 +101,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     ->label('Consumer Plan Cost')
                     ->sortable()
                     ->searchable(),
-                TextColumn::make('uiv_retention')
+                TextColumn::make('ujv_retention')
                     ->label('UIV Retention')
                     ->sortable()
                     ->searchable(),

@@ -75,7 +75,7 @@ class TestSeederExpediaContentToHotels extends Command
             'manual_contract' => true,
             'commission_tracking' => true,
             'featured' => false,
-            'channel_management' => true,
+            'travel_agent_commission' => 15,
 
             'address' => $address,
             'location' => Arr::get($expediaContent?->location, 'coordinates'),

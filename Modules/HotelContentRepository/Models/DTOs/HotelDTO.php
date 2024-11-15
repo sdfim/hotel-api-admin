@@ -18,7 +18,7 @@ class HotelDTO
     public $content_source;
     public $room_images_source;
     public $property_images_source;
-    public $channel_management;
+    public $travel_agent_commission;
     public $hotel_board_basis;
     public $default_currency;
     public $affiliations;
@@ -49,7 +49,7 @@ class HotelDTO
         $this->content_source = $hotel->contentSource->name;
         $this->room_images_source = $hotel->roomImagesSource->name;
         $this->property_images_source = $hotel->propertyImagesSource->name;
-        $this->channel_management = (bool) $hotel->channel_management;
+        $this->travel_agent_commission = $hotel->travel_agent_commission;
         $this->hotel_board_basis = $hotel->hotel_board_basis;
         $this->default_currency = $hotel->default_currency;
         $this->website_search_generation = $hotel->webFinders->map(function ($webFinder) {

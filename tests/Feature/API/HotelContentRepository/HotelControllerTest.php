@@ -23,7 +23,7 @@ class HotelControllerTest extends TestCase
                 '*' => [
                     'id', 'name', 'weight', 'type', 'verified',
                     'address', 'star_rating', 'website', 'num_rooms', 'location',
-                    'channel_management', 'hotel_board_basis',
+                    'travel_agent_commission', 'hotel_board_basis',
                     'default_currency'
                 ]
             ],
@@ -42,7 +42,7 @@ class HotelControllerTest extends TestCase
             'data' => [
                 'id', 'name', 'weight', 'type', 'verified',
                 'address', 'star_rating', 'website', 'num_rooms', 'location',
-                'channel_management', 'hotel_board_basis',
+                'travel_agent_commission', 'hotel_board_basis',
                 'default_currency'
             ],
             'message'
@@ -62,7 +62,7 @@ class HotelControllerTest extends TestCase
                 '*' => [
                     'id', 'name', 'weight', 'type', 'verified',
                     'address', 'star_rating', 'website', 'num_rooms', 'location',
-                    'channel_management', 'hotel_board_basis', 'default_currency'
+                    'travel_agent_commission', 'hotel_board_basis', 'default_currency'
                 ]
             ],
             'message'
@@ -81,7 +81,7 @@ class HotelControllerTest extends TestCase
             'data' => [
                 'id', 'name', 'weight', 'type', 'verified',
                 'address', 'star_rating', 'website', 'num_rooms', 'location',
-                'channel_management', 'hotel_board_basis', 'default_currency'
+                'travel_agent_commission', 'hotel_board_basis', 'default_currency'
             ],
             'message'
         ]);

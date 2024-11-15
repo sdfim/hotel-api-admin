@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property float $min_trip_cost
  * @property float $max_trip_cost
  * @property float $consumer_plan_cost
- * @property float $uiv_retention
+ * @property float $ujv_retention
  * @property float $net_to_trip_mate
  *
  * @property InsuranceProvider $provider
@@ -30,7 +30,7 @@ class InsuranceRateTier extends Model
         'min_trip_cost',
         'max_trip_cost',
         'consumer_plan_cost',
-        'uiv_retention',
+        'ujv_retention',
         'net_to_trip_mate',
     ];
 

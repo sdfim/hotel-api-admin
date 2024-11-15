@@ -29,7 +29,7 @@ class HotelFactory extends Factory
             'content_source_id' => ContentSource::factory(),
             'room_images_source_id' => ContentSource::factory(),
             'property_images_source_id' => ContentSource::factory(),
-            'channel_management' => $this->faker->boolean,
+            'travel_agent_commission' => $this->faker->numberBetween(1, 5),
             'hotel_board_basis' => $this->faker->word,
             'default_currency' => $this->faker->currencyCode,
         ];

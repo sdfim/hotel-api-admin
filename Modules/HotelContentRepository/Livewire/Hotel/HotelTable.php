@@ -50,20 +50,14 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->label('Verified')
                     ->sortable()
                     ->toggleable(),
+
                 TextColumn::make('name')
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable()
                     ->wrap(),
-//                CustomTextColumn::make('type')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-//                CustomTextColumn::make('weight')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-                CustomTextColumn::make('address')
+
+                TextColumn::make('address')
                     ->searchable(isIndividual: true)
                     ->getStateUsing(function ($record) {
                         $string = '';
@@ -75,30 +69,17 @@ class HotelTable extends Component implements HasForms, HasTable
                     })
                     ->toggleable()
                     ->sortable(),
-                CustomTextColumn::make('star_rating')
+
+                TextColumn::make('star_rating')
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
-//                CustomTextColumn::make('website')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-                CustomTextColumn::make('num_rooms')
+
+                TextColumn::make('num_rooms')
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->sortable(),
-//                CustomTextColumn::make('location')
-//                    ->searchable(isIndividual: true)
-//                    ->getStateUsing(function ($record) {
-//                        $string = '';
-//                        foreach ($record->location as $key => $item)    {
-//                            if (is_array($item)) continue;
-//                            $string .= $key .  ': ' . $item . ', ';
-//                        }
-//                        return $string;
-//                    })
-//                    ->toggleable()
-//                    ->sortable(),
+
                 CustomTextColumn::make('combined_sources')
                     ->label('Combined Sources')
                     ->searchable(isIndividual: true)
@@ -107,25 +88,7 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->default(function ($record) {
                         return $record->contentSource->name . ' ' . $record->roomImagesSource->name . ' ' . $record->propertyImagesSource->name;
                     }),
-//                TextColumn::make('galleries')
-//                    ->label('Galleries')
-//                    ->searchable(isIndividual: true)
-//                    ->formatStateUsing(function ($state) {
-//                        $items = explode(', ', $state);
-//                        $string = '';
-//                        foreach ($items as $item) {
-//                            $dataItem = json_decode($item, true);
-//                            if (is_null($dataItem)) {
-//                                continue;
-//                            }
-//                            $string .= $dataItem['gallery_name'] . '</b><br>';
-//                        }
-//                        return $string;
-//                    })
-//                    ->html()
-//                    ->wrap()
-//                    ->toggleable()
-//                    ->sortable(),
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
@@ -191,7 +154,7 @@ class HotelTable extends Component implements HasForms, HasTable
             'content_source_id',
             'room_images_source_id',
             'property_images_source_id',
-            'channel_management',
+            'travel_agent_commission',
             'hotel_board_basis',
             'default_currency'
         ]));

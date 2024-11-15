@@ -24,10 +24,11 @@ return new class extends Migration
             $table->integer('num_rooms');
             $table->json('location')->nullable();
             $table->decimal('lat', 10, 7)->nullable();
-            $table->decimal('lng', 10, 7)->nullable();            $table->unsignedBigInteger('content_source_id');
+            $table->decimal('lng', 10, 7)->nullable();
+            $table->unsignedBigInteger('content_source_id');
             $table->unsignedBigInteger('room_images_source_id');
             $table->unsignedBigInteger('property_images_source_id');
-            $table->boolean('channel_management');
+            $table->decimal('travel_agent_commission', 10, 2)->nullable();
             $table->string('hotel_board_basis', 255)->nullable();
             $table->string('default_currency', 10);
             $table->timestamps();

@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->float('min_trip_cost');
             $table->float('max_trip_cost');
             $table->float('consumer_plan_cost');
-            $table->float('uiv_retention');
+            $table->float('ujv_retention');
             $table->float('net_to_trip_mate');
             $table->timestamps();
         });

@@ -33,7 +33,7 @@ class Hotel extends Model
         'content_source_id',
         'room_images_source_id',
         'property_images_source_id',
-        'channel_management',
+        'travel_agent_commission',
         'hotel_board_basis',
         'default_currency',
         'location_gm',

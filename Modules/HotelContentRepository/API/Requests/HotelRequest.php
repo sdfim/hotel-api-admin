@@ -116,12 +116,12 @@ class HotelRequest extends ApiRequest
      *     )
      *   ),
      *   @OA\Parameter(
-     *     name="channel_management",
+     *     name="travel_agent_commission",
      *     in="query",
      *     required=false,
-     *     description="Filter by channel management",
+     *     description="Filter by travel_agent_commission",
      *     @OA\Schema(
-     *       type="boolean"
+     *       type="float"
      *     )
      *   ),
      *   @OA\Parameter(
@@ -178,7 +178,7 @@ class HotelRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"name", "type", "verified", "address", "star_rating", "website", "num_rooms", "location", "content_source_id", "room_images_source_id", "property_images_source_id", "channel_management", "hotel_board_basis", "default_currency"},
+     *       required={"name", "type", "verified", "address", "star_rating", "website", "num_rooms", "location", "content_source_id", "room_images_source_id", "property_images_source_id", "travel_agent_commission", "hotel_board_basis", "default_currency"},
      *       @OA\Property(property="name", type="string", example="Example Hotel"),
      *       @OA\Property(property="type", type="string", enum={"Direct connection", "Manual contract", "Commission tracking"}, example="Direct connection"),
      *       @OA\Property(property="verified", type="boolean", example=true),
@@ -190,7 +190,7 @@ class HotelRequest extends ApiRequest
      *       @OA\Property(property="content_source_id", type="integer", example=1),
      *       @OA\Property(property="room_images_source_id", type="integer", example=1),
      *       @OA\Property(property="property_images_source_id", type="integer", example=1),
-     *       @OA\Property(property="channel_management", type="boolean", example=true),
+     *       @OA\Property(property="travel_agent_commission", type="float", example=true),
      *       @OA\Property(property="hotel_board_basis", type="string", example="All Inclusive"),
      *       @OA\Property(property="default_currency", type="string", example="USD")
      *     )
@@ -283,7 +283,7 @@ class HotelRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"name", "type", "verified", "address", "star_rating", "website", "num_rooms", "location", "content_source_id", "room_images_source_id", "property_images_source_id", "channel_management", "hotel_board_basis", "default_currency"},
+     *       required={"name", "type", "verified", "address", "star_rating", "website", "num_rooms", "location", "content_source_id", "room_images_source_id", "property_images_source_id", "travel_agent_commission", "hotel_board_basis", "default_currency"},
      *       @OA\Property(property="name", type="string", example="Example Hotel"),
      *       @OA\Property(property="type", type="string", enum={"Direct connection", "Manual contract", "Commission tracking"}, example="Direct connection"),
      *       @OA\Property(property="verified", type="boolean", example=true),
@@ -295,7 +295,7 @@ class HotelRequest extends ApiRequest
      *       @OA\Property(property="content_source_id", type="integer", example=1),
      *       @OA\Property(property="room_images_source_id", type="integer", example=1),
      *       @OA\Property(property="property_images_source_id", type="integer", example=1),
-     *       @OA\Property(property="channel_management", type="boolean", example=true),
+     *       @OA\Property(property="travel_agent_commission", type="float", example=true),
      *       @OA\Property(property="hotel_board_basis", type="string", example="All Inclusive"),
      *       @OA\Property(property="default_currency", type="string", example="USD")
      *     )
@@ -599,7 +599,7 @@ class HotelRequest extends ApiRequest
             'content_source_id' => 'required|exists:pd_content_sources,id',
             'room_images_source_id' => 'required|exists:pd_content_sources,id',
             'property_images_source_id' => 'required|exists:pd_content_sources,id',
-            'channel_management' => 'required|boolean',
+            'travel_agent_commission' => 'required|numeric',
             'hotel_board_basis' => 'required|string|max:255',
             'default_currency' => 'required|string|max:10',
             'weight' => 'integer',

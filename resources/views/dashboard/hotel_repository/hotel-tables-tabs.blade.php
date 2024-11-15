@@ -1,15 +1,16 @@
 @php
     $tabGroups = [
         'Additional Info' => [
-            ['title' => 'Deposit Information', 'component' => 'hotels.hotel-deposit-information-table'],
             ['title' => 'Attributes', 'component' => 'hotels.hotel-attributes-table'],
-            ['title' => 'Informational Service', 'component' => 'hotels.hotel-informative-services-table'],
             ['title' => 'Age Restrictions', 'component' => 'hotels.hotel-age-restriction-table'],
             ['title' => 'Affiliations', 'component' => 'hotels.hotel-affiliations-table'],
-        ],
-        'Search' => [
-            ['title' => 'Website Search Generation', 'component' => 'hotels.hotel-web-finder-table'],
             ['title' => 'Contact Information', 'component' => 'hotels.hotel-contact-information-table'],
+        ],
+        'Informational Service' => [
+            ['title' => 'Informational Service', 'component' => 'hotels.hotel-informative-services-table'],
+        ],
+        'Website' => [
+            ['title' => 'Website Search Generation', 'component' => 'hotels.hotel-web-finder-table'],
         ],
         'Rooms' => [
             ['title' => 'Rooms', 'component' => 'hotels.hotel-room-table'],
@@ -20,6 +21,7 @@
         'Pricing Rules' => [
             ['title' => 'Key & Owner', 'component' => 'hotels.key-mapping-table'],
             ['title' => 'Pricing Rules', 'component' => 'pricing-rules.pricing-rules-table'],
+            ['title' => 'Deposit Information', 'component' => 'hotels.hotel-deposit-information-table'],
         ],
         'Fee and Tax' => [
             ['title' => 'Fee and Tax', 'component' => 'hotels.hotel-fee-tax-table'],
@@ -28,6 +30,11 @@
             ['title' => 'Descriptive Content Section', 'component' => 'hotels.hotel-descriptive-content-section-table'],
         ],
     ];
+
+    foreach ($tabGroups as &$tabs) {
+        array_multisort(array_column($tabs, 'title'), SORT_ASC, $tabs);
+    }
+    unset($tabs);
 @endphp
 
 <div x-data="{ activeTab: '{{ Str::slug(array_key_first($tabGroups)) }}' }" class="sr_tab-container">

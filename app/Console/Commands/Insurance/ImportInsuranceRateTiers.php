@@ -38,7 +38,7 @@ class ImportInsuranceRateTiers extends Command
                     'min_trip_cost' => $record['min_trip_cost'],
                     'max_trip_cost' => $record['max_trip_cost'],
                     'consumer_plan_cost' => $record['consumer_plan_cost'],
-                    'uiv_retention' => $record['uiv_retention'],
+                    'ujv_retention' => $record['ujv_retention'],
                     'net_to_trip_mate' => $record['net_to_trip_mate'],
                     'created_at' => now(),
                     'updated_at' => now(),

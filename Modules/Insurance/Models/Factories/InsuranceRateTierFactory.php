@@ -17,7 +17,7 @@ class InsuranceRateTierFactory extends Factory
             'min_trip_cost' => $this->faker->randomFloat(2, 0, 10000),
             'max_trip_cost' => $this->faker->randomFloat(2, 10001, 20000),
             'consumer_plan_cost' => $this->faker->randomFloat(2, 10, 1000),
-            'uiv_retention' => $this->faker->randomFloat(2, 1, 100),
+            'ujv_retention' => $this->faker->randomFloat(2, 1, 100),
             'net_to_trip_mate' => $this->faker->randomFloat(2, 1, 1000),
         ];
     }

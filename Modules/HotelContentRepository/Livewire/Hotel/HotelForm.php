@@ -199,6 +199,13 @@ class HotelForm extends Component implements HasForms
                                 ->options(function () {
                                     return ImageGallery::pluck('gallery_name', 'id');
                                 }),
+
+                            Grid::make(3)
+                                ->schema([
+                                    TextInput::make('star_rating')->required()->numeric(),
+                                    TextInput::make('num_rooms')->required()->numeric(),
+                                    TextInput::make('hotel_board_basis'),
+                                ]),
                         ])
                         ->columns(2),
 
@@ -214,19 +221,16 @@ class HotelForm extends Component implements HasForms
                             Grid::make(3)
                                 ->schema([
                                     TextInput::make('default_currency')->required()->maxLength(3),
-                                    TextInput::make('star_rating')->required()->numeric(),
-                                    TextInput::make('num_rooms')->required()->numeric(),
-                                ]),
-                            Grid::make(3)
-                                ->schema([
-                                    TextInput::make('channel_management')->required(),
-                                    TextInput::make('website')->url()->maxLength(191),
-                                    TextInput::make('hotel_board_basis'),
-                                ]),
-                            Grid::make(3)
-                                ->schema([
+                                    TextInput::make('travel_agent_commission')
+                                        ->numeric('decimal')
+                                        ->required(),
                                     TextInput::make('weight')->integer(),
                                 ]),
+//                            Grid::make(3)
+//                                ->schema([
+//                                    TextInput::make('website')->url()->maxLength(191),
+//                                ]),
+
                         ])
                         ->columns(2),
                 ]),
@@ -294,7 +298,7 @@ class HotelForm extends Component implements HasForms
             'content_source_id',
             'room_images_source_id',
             'property_images_source_id',
-            'channel_management',
+            'travel_agent_commission',
             'hotel_board_basis',
             'default_currency'
         ]));

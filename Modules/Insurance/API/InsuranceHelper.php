@@ -65,7 +65,7 @@ trait InsuranceHelper
         }
 
         $totalPlanCost = $insuranceRateTier->net_to_trip_mate * $totalPassengersNumber;
-        $commissionUjv = $insuranceRateTier->uiv_retention * $totalPassengersNumber;
+        $commissionUjv = $insuranceRateTier->ujv_retention * $totalPassengersNumber;
         $insuranceProviderFee = $insuranceRateTier->consumer_plan_cost * $totalPassengersNumber;
 
         $insurancePlan->total_insurance_cost = $totalPlanCost;
