@@ -304,9 +304,9 @@ class ApiBookingInspectorRepository
         return false;
     }
 
-    public static function getParams($request): array
+    public static function getParams($request, $bookingItem = null): array
     {
-        $bookingItem = $request->input('booking_item');
+        $bookingItem = $bookingItem ?? $request->input('booking_item');
         $apiBookingInspectorItem = ApiBookingInspectorRepository::isBookingItemInCart($bookingItem);
 
         if (!$apiBookingInspectorItem) {

@@ -17,7 +17,8 @@ class InsuranceAddRequest extends ApiRequest
         // we can use 'booking_item' => 'required|size:36|unique:insurance_plans,booking_item', if we want to check if
         // InsurancePlan for required booking_item is already created
         return [
-            'booking_item' => 'required|size:36|exists:api_booking_items,booking_item',
+            'booking_id' => 'required_without:booking_item|size:36|exists:api_booking_inspector,booking_id',
+            'booking_item' => 'required_without:booking_id|size:36|exists:api_booking_items,booking_item',
             'insurance_provider' => 'required|exists:insurance_providers,name',
         ];
     }
