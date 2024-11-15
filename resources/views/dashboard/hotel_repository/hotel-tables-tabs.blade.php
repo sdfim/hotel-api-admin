@@ -31,10 +31,8 @@
         ],
     ];
 
-    foreach ($tabGroups as &$tabs) {
-        array_multisort(array_column($tabs, 'title'), SORT_ASC, $tabs);
-    }
-    unset($tabs);
+    ksort($tabGroups);
+
 @endphp
 
 <div x-data="{ activeTab: '{{ Str::slug(array_key_first($tabGroups)) }}' }" class="sr_tab-container">
