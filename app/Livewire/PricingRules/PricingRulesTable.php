@@ -17,6 +17,7 @@ use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Filters\Filter;
@@ -69,6 +70,9 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                 TextColumn::make('name')
                     ->searchable()
                     ->toggleable(),
+                TextInputColumn::make('weight')
+                    ->searchable()
+                    ->toggleable(),
                 TextColumn::make('conditions')
                     ->label('Property')
                     ->html()
@@ -96,11 +100,13 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     )
                     ->toggleable(),
                 TextColumn::make('rule_start_date')
+                    ->label('Start Date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()
                     ->date(),
                 TextColumn::make('rule_expiration_date')
+                    ->label('Expiration Date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()
@@ -110,15 +116,17 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                         return $date === 'Feb 2, 2112' ? '' : $date;
                     }),
                 TextColumn::make('manipulable_price_type')
+                    ->label('Price Type')
                     ->toggleable(),
                 TextColumn::make('price_value_type')
+                    ->label('Value Type')
                     ->toggleable(),
                 TextColumn::make('price_value')
+                    ->label('Value')
                     ->toggleable(),
                 TextColumn::make('price_value_target')
+                    ->label('Value Target')
                     ->toggleable(),
-                //                TextColumn::make('rules')
-                //                    ->toggleable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

@@ -42,6 +42,12 @@ trait HasPricingRuleFields
                         ->maxLength(191)
                         ->unique(ignoreRecord: true)
                         ->required(),
+                    TextInput::make('weight')
+                        ->label('Weight')
+                        ->numeric()
+                        ->maxLength(191)
+                        ->unique(ignoreRecord: true)
+                        ->required(),
                     TextInput::make('rule_start_date')
                         ->label('Rule Start Date')
                         ->type('date')
@@ -69,7 +75,7 @@ trait HasPricingRuleFields
                         }),
                     Placeholder::make('travel_dates_explanation')
                         ->label('')
-                        ->columnSpan(3)
+                        ->columnSpan(4)
                         ->content(fn() => new HtmlString(<<<HTML
         <button type="button" onclick="toggleCollapse()">
             <span id="toggleIcon">▼</span> IMPORTANT: Rules dates explanation
@@ -127,7 +133,7 @@ trait HasPricingRuleFields
     HTML
                         ))
                 ])
-                ->columns(3),
+                ->columns(4),
             Fieldset::make('Price settings')
                 ->schema([
                     Select::make('manipulable_price_type')

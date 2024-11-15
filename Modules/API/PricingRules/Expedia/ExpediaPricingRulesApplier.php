@@ -38,11 +38,18 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
             $this->updateTotals($roomTotals);
         }
 
+        $validPricingRules = [];
+
         foreach ($this->pricingRules as $pricingRule) {
             $params = [$giataId, $pricingRule['conditions'], $roomName, $roomCode, $roomType, ['supplier_id', 'property', 'room_name', 'room_code', 'room_type']];
             if ($this->validPricingRule(...$params)) {
-                $this->applyPricingRulesLogic($pricingRule);
+                $validPricingRules[] = $pricingRule;
             }
+        }
+
+        if (!empty($validPricingRules)) {
+            usort($validPricingRules, fn($a, $b) => $b['weight'] <=> $a['weight']);
+            $this->applyPricingRulesLogic($validPricingRules[0]);
         }
 
         return $this->totals($b2b);

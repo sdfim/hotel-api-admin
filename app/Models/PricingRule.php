@@ -23,6 +23,7 @@ class PricingRule extends Model
         'price_value_type',
         'rule_expiration_date',
         'rule_start_date',
+        'weight',
     ];
 
     /**
