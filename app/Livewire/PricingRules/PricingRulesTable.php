@@ -67,7 +67,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
             })
             ->columns([
                 TextColumn::make('name')
-                    ->searchable(isIndividual: true)
+                    ->searchable()
                     ->toggleable(),
                 TextColumn::make('conditions')
                     ->label('Property')
@@ -90,7 +90,6 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                         return implode('<br>', array_values($result));
                     })
                     ->searchable(
-                        isIndividual: true,
                         query: function ($query, $search) {
                             $this->applyPropertyConditions($query, $search);
                         }
