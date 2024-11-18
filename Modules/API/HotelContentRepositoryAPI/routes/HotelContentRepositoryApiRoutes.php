@@ -40,6 +40,21 @@ class HotelContentRepositoryApiRoutes
             Route::post('hotels/{id}/attach-web-finder', [HotelController::class, 'attachWebFinder']);
             Route::post('hotels/{id}/detach-web-finder', [HotelController::class, 'detachWebFinder']);
 
+            Route::resource('hotel-images', HotelImageController::class);
+            Route::resource('hotel-image-sections', HotelImageSectionController::class);
+
+            Route::resource('image-galleries', ImageGalleryController::class);
+            Route::post('image-galleries/{id}/attach-image', [ImageGalleryController::class, 'attachImage']);
+            Route::post('image-galleries/{id}/detach-image', [ImageGalleryController::class, 'detachImage']);
+
+            Route::resource('hotel-promotions', HotelPromotionController::class);
+            Route::post('hotel-promotions/{id}/attach-gallery', [HotelPromotionController::class, 'attachGallery']);
+            Route::post('hotel-promotions/{id}/detach-gallery', [HotelPromotionController::class, 'detachGallery']);
+
+            Route::resource('hotel-rooms', HotelRoomController::class);
+            Route::post('hotel-rooms/{id}/attach-gallery', [HotelRoomController::class, 'attachGallery']);
+            Route::post('hotel-rooms/{id}/detach-gallery', [HotelRoomController::class, 'detachGallery']);
+
             Route::resource('hotel-affiliations', HotelAffiliationController::class);
 
             Route::resource('hotel-attributes', HotelAttributeController::class);
@@ -59,32 +74,15 @@ class HotelContentRepositoryApiRoutes
             Route::resource('hotel-web-finders', HotelWebFinderController::class);
             Route::resource('hotel-web-finder-units', HotelWebFinderUnitController::class);
 
-            Route::resource('hotel-promotions', HotelPromotionController::class);
-            Route::post('hotel-promotions/{id}/attach-gallery', [HotelPromotionController::class, 'attachGallery']);
-            Route::post('hotel-promotions/{id}/detach-gallery', [HotelPromotionController::class, 'detachGallery']);
-
-            Route::resource('hotel-rooms', HotelRoomController::class);
-            Route::post('hotel-rooms/{id}/attach-gallery', [HotelRoomController::class, 'attachGallery']);
-            Route::post('hotel-rooms/{id}/detach-gallery', [HotelRoomController::class, 'detachGallery']);
-
             Route::resource('key-mappings', KeyMappingController::class);
+            Route::resource('key-mapping-owners', KeyMappingOwnerController::class);
 
-            Route::resource('age-restriction-types', HotelAgeRestrictionTypeController::class);
             Route::resource('age-restrictions', HotelAgeRestrictionController::class);
+            Route::resource('age-restriction-types', HotelAgeRestrictionTypeController::class);
 
             Route::resource('travel-agency-commissions', TravelAgencyCommissionController::class);
 
-            Route::resource('hotel-images', HotelImageController::class);
-
-            Route::resource('image-galleries', ImageGalleryController::class);
-            Route::post('image-galleries/{id}/attach-image', [ImageGalleryController::class, 'attachImage']);
-            Route::post('image-galleries/{id}/detach-image', [ImageGalleryController::class, 'detachImage']);
-
             Route::resource('content-sources', ContentSourceController::class);
-
-            Route::resource('hotel-image-sections', HotelImageSectionController::class);
-
-            Route::resource('key-mapping-owners', KeyMappingOwnerController::class);
         });
     }
 }

@@ -82,6 +82,10 @@ use Modules\API\BaseController as MainController;
  *          description="API Endpoints for Age Restrictions"
  *      ),
  * @OA\Tag(
+ *     name="Travel Agency Commissions",
+ *     description="API Endpoints for Travel Agency Commissions"
+ * )
+ * @OA\Tag(
  *     name="Insurance API",
  *     description="API Endpoints for Insurance"
  * )
