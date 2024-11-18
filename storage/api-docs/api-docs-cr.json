@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Contenr Repository API Documentation",
+        "title": "Supplier Repository API Documentation",
         "version": "1.0.0"
     },
     "paths": {
@@ -388,6 +388,664 @@
                 ]
             }
         },
+        "/api/repo/age-restrictions": {
+            "get": {
+                "tags": [
+                    "Age Restrictions"
+                ],
+                "summary": "Get all hotel age restrictions",
+                "description": "Retrieve all hotel age restriction records with optional filters.",
+                "operationId": "aab4e4f2fa9a4e1183bd1b626ec8ef6c",
+                "parameters": [
+                    {
+                        "name": "hotel_id",
+                        "in": "query",
+                        "description": "Filter by hotel ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "restriction_type_id",
+                        "in": "query",
+                        "description": "Filter by restriction type ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "value",
+                        "in": "query",
+                        "description": "Filter by value",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 18
+                        }
+                    },
+                    {
+                        "name": "active",
+                        "in": "query",
+                        "description": "Filter by active status",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "example": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Age Restrictions"
+                ],
+                "summary": "Create a new hotel age restriction",
+                "description": "Create a new hotel age restriction entry.",
+                "operationId": "e9451823e67f82fb631de42e50d94854",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "restriction_type_id",
+                                    "value",
+                                    "active"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "restriction_type_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "value": {
+                                        "type": "integer",
+                                        "example": 18
+                                    },
+                                    "active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/age-restrictions/{id}": {
+            "get": {
+                "tags": [
+                    "Age Restrictions"
+                ],
+                "summary": "Get hotel age restriction details",
+                "description": "Retrieve details of a specific hotel age restriction.",
+                "operationId": "39ff1e26d3ff4cf065d9b7c2b3a451fc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel age restriction",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Age Restrictions"
+                ],
+                "summary": "Update hotel age restriction details",
+                "description": "Update details of a specific hotel age restriction.",
+                "operationId": "3a27daaa8082f47cae62b80916bff07c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel age restriction",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "restriction_type_id",
+                                    "value",
+                                    "active"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "restriction_type_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "value": {
+                                        "type": "integer",
+                                        "example": 18
+                                    },
+                                    "active": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Age Restrictions"
+                ],
+                "summary": "Delete a hotel age restriction",
+                "description": "Delete a specific hotel age restriction.",
+                "operationId": "1a6610118aae21e075b92f7e674b4f11",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel age restriction",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/age-restriction-types": {
+            "get": {
+                "tags": [
+                    "Age Restrictions"
+                ],
+                "summary": "Get all hotel age restriction types",
+                "description": "Retrieve all hotel age restriction type records with optional filters.",
+                "operationId": "795f3c6c8092d5dd4fb5d4ec038e484e",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Filter by name",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Adults Only"
+                        }
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "description": "Filter by description",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Only adults are allowed"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Age Restrictions"
+                ],
+                "summary": "Create a new hotel age restriction type",
+                "description": "Create a new hotel age restriction type entry.",
+                "operationId": "7796a3125b09c57fc50781f25300a434",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Adults Only"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Only adults are allowed"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/age-restriction-types/{id}": {
+            "get": {
+                "tags": [
+                    "Age Restrictions"
+                ],
+                "summary": "Get hotel age restriction type details",
+                "description": "Retrieve details of a specific hotel age restriction type.",
+                "operationId": "b05ed4c66b08009da2d74d7a19d40109",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel age restriction type",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Age Restrictions"
+                ],
+                "summary": "Update hotel age restriction type details",
+                "description": "Update details of a specific hotel age restriction type.",
+                "operationId": "63682df8a5205ab62554a8566d5f51dc",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel age restriction type",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Adults Only"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Only adults are allowed"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Age Restrictions"
+                ],
+                "summary": "Delete a hotel age restriction type",
+                "description": "Delete a specific hotel age restriction type.",
+                "operationId": "b6e25cb5a341ed306c9858007e20eaa0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel age restriction type",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/repo/hotel-attributes": {
             "get": {
                 "tags": [
@@ -741,6 +1399,742 @@
                                     "NotFoundResponse": {
                                         "$ref": "#/components/examples/NotFoundResponse"
                                     }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-contact-information": {
+            "get": {
+                "tags": [
+                    "Contact Information"
+                ],
+                "summary": "Get all hotel contact information",
+                "description": "Retrieve all hotel contact information records with optional filters.",
+                "operationId": "b529353fc9795efe48888b65dc21edb4",
+                "parameters": [
+                    {
+                        "name": "hotel_id",
+                        "in": "query",
+                        "description": "Filter by hotel ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "first_name",
+                        "in": "query",
+                        "description": "Filter by first name",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "John"
+                        }
+                    },
+                    {
+                        "name": "last_name",
+                        "in": "query",
+                        "description": "Filter by last name",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Doe"
+                        }
+                    },
+                    {
+                        "name": "email",
+                        "in": "query",
+                        "description": "Filter by email",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "john.doe@example.com"
+                        }
+                    },
+                    {
+                        "name": "phone",
+                        "in": "query",
+                        "description": "Filter by phone",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "+1234567890"
+                        }
+                    },
+                    {
+                        "name": "contactInformations",
+                        "in": "query",
+                        "description": "Filter by contact information IDs",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer",
+                                "example": 1
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Contact Information"
+                ],
+                "summary": "Create a new hotel contact information",
+                "description": "Create a new hotel contact information entry.",
+                "operationId": "822a0d51e357d33a7eb92ff683837a4d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "first_name",
+                                    "last_name",
+                                    "email",
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "first_name": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-contact-information/{id}": {
+            "get": {
+                "tags": [
+                    "Contact Information"
+                ],
+                "summary": "Get hotel contact information details",
+                "description": "Retrieve details of a specific hotel contact information.",
+                "operationId": "6c4828ebb974192dced7eebdd3c3ef84",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel contact information",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Contact Information"
+                ],
+                "summary": "Update hotel contact information details",
+                "description": "Update details of a specific hotel contact information.",
+                "operationId": "8772934b00015e762cf730be27cb0cd4",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel contact information",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "first_name",
+                                    "last_name",
+                                    "email",
+                                    "phone"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "first_name": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "last_name": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+1234567890"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Contact Information"
+                ],
+                "summary": "Delete a hotel contact information",
+                "description": "Delete a specific hotel contact information.",
+                "operationId": "6dccccfe96a58e5a34be2c40b996ebb6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel contact information",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-deposit-information": {
+            "get": {
+                "tags": [
+                    "Deposit Information"
+                ],
+                "summary": "Get all hotel deposit information",
+                "description": "Retrieve all hotel deposit information records with optional filters.",
+                "operationId": "3694998c8588ea136d2cc175278f75c2",
+                "parameters": [
+                    {
+                        "name": "hotel_id",
+                        "in": "query",
+                        "description": "Filter by hotel ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "deposit_amount",
+                        "in": "query",
+                        "description": "Filter by deposit amount",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 100
+                        }
+                    },
+                    {
+                        "name": "currency",
+                        "in": "query",
+                        "description": "Filter by currency",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "USD"
+                        }
+                    },
+                    {
+                        "name": "deposit_type",
+                        "in": "query",
+                        "description": "Filter by deposit type",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Refundable"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Deposit Information"
+                ],
+                "summary": "Create a new hotel deposit information",
+                "description": "Create a new hotel deposit information entry.",
+                "operationId": "c9fe649dac3e20504c248f4382019ac6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "deposit_amount",
+                                    "currency",
+                                    "deposit_type"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "deposit_amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "USD"
+                                    },
+                                    "deposit_type": {
+                                        "type": "string",
+                                        "example": "Refundable"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-deposit-information/{id}": {
+            "get": {
+                "tags": [
+                    "Deposit Information"
+                ],
+                "summary": "Get hotel deposit information details",
+                "description": "Retrieve details of a specific hotel deposit information.",
+                "operationId": "293834516c113343a2d7620f433ae0e2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel deposit information",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Deposit Information"
+                ],
+                "summary": "Update hotel deposit information details",
+                "description": "Update details of a specific hotel deposit information.",
+                "operationId": "5c897610dd554b22fab3199e79bc91b5",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel deposit information",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "deposit_amount",
+                                    "currency",
+                                    "deposit_type"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "deposit_amount": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "USD"
+                                    },
+                                    "deposit_type": {
+                                        "type": "string",
+                                        "example": "Refundable"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Deposit Information"
+                ],
+                "summary": "Delete a hotel deposit information",
+                "description": "Delete a specific hotel deposit information.",
+                "operationId": "c42ec7f376d2b68b63870b2b98ccf868",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel deposit information",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
                                 }
                             }
                         }
@@ -1906,6 +3300,778 @@
                 ]
             }
         },
+        "/api/repo/hotel-informative-services": {
+            "get": {
+                "tags": [
+                    "Informational Service"
+                ],
+                "summary": "Get all hotel informative services",
+                "description": "Retrieve all hotel informative service records with optional filters.",
+                "operationId": "8a9e8ae2ed4c7a4b7568af7d1299f217",
+                "parameters": [
+                    {
+                        "name": "hotel_id",
+                        "in": "query",
+                        "description": "Filter by hotel ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "service_id",
+                        "in": "query",
+                        "description": "Filter by service ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Informational Service"
+                ],
+                "summary": "Create a new hotel informative service",
+                "description": "Create a new hotel informative service entry.",
+                "operationId": "87f1ac7b3d2d66d37b8e30906824e03e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "service_id"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "service_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-informative-services/{id}": {
+            "get": {
+                "tags": [
+                    "Informational Service"
+                ],
+                "summary": "Get hotel informative service details",
+                "description": "Retrieve details of a specific hotel informative service.",
+                "operationId": "3cff5879da6734e8b3c776ea4eae6f18",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel informative service",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Informational Service"
+                ],
+                "summary": "Update hotel informative service details",
+                "description": "Update details of a specific hotel informative service.",
+                "operationId": "0f7fe66ba2e1d985dcc42d34ba66f14a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel informative service",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "service_id"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "service_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Informational Service"
+                ],
+                "summary": "Delete a hotel informative service",
+                "description": "Delete a specific hotel informative service.",
+                "operationId": "5b10085eb70dc7acda78f3a5800f99db",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel informative service",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-promotions": {
+            "get": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Get all hotel promotions",
+                "description": "Retrieve all hotel promotion records with optional filters.",
+                "operationId": "f5528fdae55ec083abc53d598a7933a7",
+                "parameters": [
+                    {
+                        "name": "hotel_id",
+                        "in": "query",
+                        "description": "Filter by hotel ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "promotion_name",
+                        "in": "query",
+                        "description": "Filter by promotion name",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Summer Sale"
+                        }
+                    },
+                    {
+                        "name": "description",
+                        "in": "query",
+                        "description": "Filter by description",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Discount on summer bookings"
+                        }
+                    },
+                    {
+                        "name": "validity_start",
+                        "in": "query",
+                        "description": "Filter by validity start date",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2024-06-01"
+                        }
+                    },
+                    {
+                        "name": "validity_end",
+                        "in": "query",
+                        "description": "Filter by validity end date",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2024-08-31"
+                        }
+                    },
+                    {
+                        "name": "booking_start",
+                        "in": "query",
+                        "description": "Filter by booking start date",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2024-05-01"
+                        }
+                    },
+                    {
+                        "name": "booking_end",
+                        "in": "query",
+                        "description": "Filter by booking end date",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2024-07-31"
+                        }
+                    },
+                    {
+                        "name": "terms_conditions",
+                        "in": "query",
+                        "description": "Filter by terms and conditions",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Terms and conditions apply"
+                        }
+                    },
+                    {
+                        "name": "exclusions",
+                        "in": "query",
+                        "description": "Filter by exclusions",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "Excludes public holidays"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Create a new hotel promotion",
+                "description": "Create a new hotel promotion entry.",
+                "operationId": "93bad74add4fee4438c3c9717643e38f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "promotion_name",
+                                    "description",
+                                    "validity_start",
+                                    "validity_end",
+                                    "booking_start",
+                                    "booking_end",
+                                    "terms_conditions",
+                                    "exclusions"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "promotion_name": {
+                                        "type": "string",
+                                        "example": "Summer Sale"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Discount on summer bookings"
+                                    },
+                                    "validity_start": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-06-01"
+                                    },
+                                    "validity_end": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-08-31"
+                                    },
+                                    "booking_start": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-05-01"
+                                    },
+                                    "booking_end": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-07-31"
+                                    },
+                                    "terms_conditions": {
+                                        "type": "string",
+                                        "example": "Terms and conditions apply"
+                                    },
+                                    "exclusions": {
+                                        "type": "string",
+                                        "example": "Excludes public holidays"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/hotel-promotions/{id}": {
+            "get": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Get hotel promotion details",
+                "description": "Retrieve details of a specific hotel promotion.",
+                "operationId": "35237740d020f912793a7b00430f9181",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel promotion",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Update hotel promotion details",
+                "description": "Update details of a specific hotel promotion.",
+                "operationId": "41f91e4fd91fea14cd555196c0a76879",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel promotion",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hotel_id",
+                                    "promotion_name",
+                                    "description",
+                                    "validity_start",
+                                    "validity_end",
+                                    "booking_start",
+                                    "booking_end",
+                                    "terms_conditions",
+                                    "exclusions"
+                                ],
+                                "properties": {
+                                    "hotel_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "promotion_name": {
+                                        "type": "string",
+                                        "example": "Summer Sale"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Discount on summer bookings"
+                                    },
+                                    "validity_start": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-06-01"
+                                    },
+                                    "validity_end": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-08-31"
+                                    },
+                                    "booking_start": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-05-01"
+                                    },
+                                    "booking_end": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-07-31"
+                                    },
+                                    "terms_conditions": {
+                                        "type": "string",
+                                        "example": "Terms and conditions apply"
+                                    },
+                                    "exclusions": {
+                                        "type": "string",
+                                        "example": "Excludes public holidays"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Delete a hotel promotion",
+                "description": "Delete a specific hotel promotion.",
+                "operationId": "1fcbc49d9055b1bd2e2e6b34ecb3ceef",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the hotel promotion",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/repo/hotels": {
             "get": {
                 "tags": [
@@ -2022,12 +4188,12 @@
                         }
                     },
                     {
-                        "name": "channel_management",
+                        "name": "travel_agent_commission",
                         "in": "query",
-                        "description": "Filter by channel management",
+                        "description": "Filter by travel_agent_commission",
                         "required": false,
                         "schema": {
-                            "type": "boolean"
+                            "type": "float"
                         }
                     },
                     {
@@ -2114,7 +4280,7 @@
                                     "content_source_id",
                                     "room_images_source_id",
                                     "property_images_source_id",
-                                    "channel_management",
+                                    "travel_agent_commission",
                                     "hotel_board_basis",
                                     "default_currency"
                                 ],
@@ -2168,8 +4334,9 @@
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "channel_management": {
-                                        "type": "boolean",
+                                    "travel_agent_commission": {
+                                        "type": "number",
+                                        "format": "float",
                                         "example": true
                                     },
                                     "hotel_board_basis": {
@@ -2325,7 +4492,7 @@
                                     "content_source_id",
                                     "room_images_source_id",
                                     "property_images_source_id",
-                                    "channel_management",
+                                    "travel_agent_commission",
                                     "hotel_board_basis",
                                     "default_currency"
                                 ],
@@ -2379,8 +4546,9 @@
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "channel_management": {
-                                        "type": "boolean",
+                                    "travel_agent_commission": {
+                                        "type": "number",
+                                        "format": "float",
                                         "example": true
                                     },
                                     "hotel_board_basis": {
@@ -4905,6 +7073,26 @@
         {
             "name": "Website Search Generation",
             "description": "API Endpoints for Website Search Generation"
+        },
+        {
+            "name": "Informational Service",
+            "description": "API Endpoints for Informational Service"
+        },
+        {
+            "name": "Promotions",
+            "description": "API Endpoints for Promotions"
+        },
+        {
+            "name": "Deposit Information",
+            "description": "API Endpoints for Deposit Information"
+        },
+        {
+            "name": "Contact Information",
+            "description": "API Endpoints for Contact Information"
+        },
+        {
+            "name": "Age Restrictions",
+            "description": "API Endpoints for Age Restrictions"
         }
     ]
 }

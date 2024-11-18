@@ -7,7 +7,7 @@ use Modules\API\BaseController as MainController;
 
 /**
  * @OA\Info(
- *    title="Contenr Repository API Documentation",
+ *    title="Supplier Repository API Documentation",
  *    version="1.0.0"
  * )
  *
@@ -61,6 +61,26 @@ use Modules\API\BaseController as MainController;
  *        name="Website Search Generation",
  *        description="API Endpoints for Website Search Generation"
  *    ),
+ * @OA\Tag(
+ *         name="Informational Service",
+ *         description="API Endpoints for Informational Service"
+ *     ),
+ * @OA\Tag(
+ *          name="Promotions",
+ *          description="API Endpoints for Promotions"
+ *      ),
+ * @OA\Tag(
+ *          name="Deposit Information",
+ *          description="API Endpoints for Deposit Information"
+ *      ),
+ * @OA\Tag(
+ *          name="Contact Information",
+ *          description="API Endpoints for Contact Information"
+ *      ),
+ * @OA\Tag(
+ *          name="Age Restrictions",
+ *          description="API Endpoints for Age Restrictions"
+ *      ),
  * @OA\Tag(
  *     name="Insurance API",
  *     description="API Endpoints for Insurance"
