@@ -23,37 +23,6 @@ class HotelDepositInformationRequest extends ApiRequest
      *       example=1
      *     )
      *   ),
-     *   @OA\Parameter(
-     *     name="deposit_amount",
-     *     in="query",
-     *     required=false,
-     *     description="Filter by deposit amount",
-     *     @OA\Schema(
-     *       type="number",
-     *       format="float",
-     *       example=100.00
-     *     )
-     *   ),
-     *   @OA\Parameter(
-     *     name="currency",
-     *     in="query",
-     *     required=false,
-     *     description="Filter by currency",
-     *     @OA\Schema(
-     *       type="string",
-     *       example="USD"
-     *     )
-     *   ),
-     *   @OA\Parameter(
-     *     name="deposit_type",
-     *     in="query",
-     *     required=false,
-     *     description="Filter by deposit type",
-     *     @OA\Schema(
-     *       type="string",
-     *       example="Refundable"
-     *     )
-     *   ),
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -84,11 +53,11 @@ class HotelDepositInformationRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"hotel_id", "deposit_amount", "currency", "deposit_type"},
+     *       required={"hotel_id", "days_departure", "pricing_parameters", "pricing_value"},
      *       @OA\Property(property="hotel_id", type="integer", example=1),
-     *       @OA\Property(property="deposit_amount", type="number", format="float", example=100.00),
-     *       @OA\Property(property="currency", type="string", example="USD"),
-     *       @OA\Property(property="deposit_type", type="string", example="Refundable")
+     *       @OA\Property(property="days_departure", type="integer", example=10),
+     *       @OA\Property(property="pricing_parameters", type="string", enum={"per_channel", "per_room", "per_rate"}, example="per_channel"),
+     *       @OA\Property(property="pricing_value", type="number", format="float", example=100.00)
      *     )
      *   ),
      *   @OA\Response(
@@ -167,11 +136,11 @@ class HotelDepositInformationRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"hotel_id", "deposit_amount", "currency", "deposit_type"},
+     *       required={"hotel_id", "days_departure", "pricing_parameters", "pricing_value"},
      *       @OA\Property(property="hotel_id", type="integer", example=1),
-     *       @OA\Property(property="deposit_amount", type="number", format="float", example=100.00),
-     *       @OA\Property(property="currency", type="string", example="USD"),
-     *       @OA\Property(property="deposit_type", type="string", example="Refundable")
+     *       @OA\Property(property="days_departure", type="integer", example=10),
+     *       @OA\Property(property="pricing_parameters", type="string", enum={"per_channel", "per_room", "per_rate"}, example="per_channel"),
+     *       @OA\Property(property="pricing_value", type="number", format="float", example=100.00)
      *     )
      *   ),
      *   @OA\Response(
@@ -247,10 +216,10 @@ class HotelDepositInformationRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'hotel_id' => 'required|integer',
-            'deposit_amount' => 'required|numeric',
-            'currency' => 'required|string|max:3',
-            'deposit_type' => 'required|string|max:255',
+            'hotel_id' => 'required|exists:pd_hotels,id',
+            'days_departure' => 'required|integer',
+            'pricing_parameters' => 'required|string|in:per_channel,per_room,per_rate',
+            'pricing_value' => 'required|numeric',
         ];
     }
 }
