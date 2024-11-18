@@ -34,37 +34,13 @@ use Illuminate\Http\JsonResponse;
  *   description="API Endpoints of Cart (pre-reservation)"
  * ),
  * @OA\Tag(
+ *       name="Booking API | Insurance and Informational Services",
+ *       description="API Endpoints for Insurance and Informational Services"
+ *  ),
+ * @OA\Tag(
  *   name="Booking API | Booking Endpoints",
  *   description="API Endpoints of Booking (reservation)"
  * ),
- * @OA\Tag(
- *      name="Content Repository | Hotels",
- *      description="API Endpoints for Content Repository Hotels"
- * ),
- * @OA\Tag(
- *      name="Content Repository | Rooms",
- *      description="API Endpoints for Content Repository Rooms"
- *  ),
- * @OA\Tag(
- *       name="Content Repository | Key Mapping Owners",
- *       description="API Endpoints for Content Repository Key Mapping Owners"
- *   ),
- * @OA\Tag(
- *       name="Content Repository | Key Mappings",
- *       description="API Endpoints for Content Repository Key Mappings"
- *   ),
- * @OA\Tag(
- *       name="Content Repository | Affiliations",
- *       description="API Endpoints for Content Repository Affiliations"
- *   ),
- * @OA\Tag(
- *        name="Content Repository | Attributes",
- *        description="API Endpoints for Content Repository Attributes"
- *    ),
- * @OA\Tag(
- *     name="Insurance API",
- *     description="API Endpoints for Insurance"
- * )
  */
 class BaseController extends Controller
 {

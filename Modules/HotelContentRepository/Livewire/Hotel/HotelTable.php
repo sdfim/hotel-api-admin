@@ -18,7 +18,6 @@ use Livewire\Features\SupportRedirects\Redirector;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
-use Modules\HotelContentRepository\Filament\CustomTextColumn;
 use Modules\HotelContentRepository\Models\Hotel;
 
 class HotelTable extends Component implements HasForms, HasTable
@@ -80,7 +79,7 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->sortable(),
 
-                CustomTextColumn::make('combined_sources')
+                TextColumn::make('combined_sources')
                     ->label('Combined Sources')
                     ->searchable(isIndividual: true)
                     ->toggleable()

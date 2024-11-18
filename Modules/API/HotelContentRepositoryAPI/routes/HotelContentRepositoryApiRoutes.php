@@ -16,7 +16,7 @@ use Modules\HotelContentRepository\API\Controllers\HotelDescriptiveContentSectio
 use Modules\HotelContentRepository\API\Controllers\HotelFeeTaxController;
 use Modules\HotelContentRepository\API\Controllers\HotelAttributeController;
 use Modules\HotelContentRepository\API\Controllers\HotelDescriptiveContentController;
-use Modules\HotelContentRepository\API\Controllers\HotelImageController;
+use Modules\HotelContentRepository\API\Controllers\ImageController;
 use Modules\HotelContentRepository\API\Controllers\ImageSectionController;
 use Modules\HotelContentRepository\API\Controllers\HotelInformativeServiceController;
 use Modules\HotelContentRepository\API\Controllers\HotelPromotionController;
@@ -40,7 +40,7 @@ class HotelContentRepositoryApiRoutes
             Route::post('hotels/{id}/attach-web-finder', [HotelController::class, 'attachWebFinder']);
             Route::post('hotels/{id}/detach-web-finder', [HotelController::class, 'detachWebFinder']);
 
-            Route::resource('images', HotelImageController::class);
+            Route::resource('images', ImageController::class);
             Route::resource('image-sections', ImageSectionController::class);
 
             Route::resource('image-galleries', ImageGalleryController::class);

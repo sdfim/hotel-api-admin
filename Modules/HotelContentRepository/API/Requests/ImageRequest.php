@@ -5,54 +5,22 @@ namespace Modules\HotelContentRepository\API\Requests;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
-class HotelDescriptiveContentSectionRequest extends ApiRequest
+class ImageRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Descriptive Content"},
-     *   path="/api/repo/hotel-descriptive-content-sections",
-     *   summary="Get all hotel descriptive content sections",
-     *   description="Retrieve all hotel descriptive content section records with optional filters.",
+     *   tags={"Images"},
+     *   path="/api/repo/images",
+     *   summary="Get all images",
+     *   description="Retrieve all image records with optional filters.",
      *   @OA\Parameter(
-     *     name="hotel_id",
+     *     name="tag",
      *     in="query",
      *     required=false,
-     *     description="Filter by hotel ID",
-     *     @OA\Schema(
-     *       type="integer",
-     *       example=1
-     *     )
-     *   ),
-     *   @OA\Parameter(
-     *     name="section_name",
-     *     in="query",
-     *     required=false,
-     *     description="Filter by section name",
+     *     description="Filter by tag",
      *     @OA\Schema(
      *       type="string",
-     *       example="General Information"
-     *     )
-     *   ),
-     *   @OA\Parameter(
-     *     name="start_date",
-     *     in="query",
-     *     required=false,
-     *     description="Filter by start date",
-     *     @OA\Schema(
-     *       type="string",
-     *       format="date",
-     *       example="2023-01-01"
-     *     )
-     *   ),
-     *   @OA\Parameter(
-     *     name="end_date",
-     *     in="query",
-     *     required=false,
-     *     description="Filter by end date",
-     *     @OA\Schema(
-     *       type="string",
-     *       format="date",
-     *       example="2023-12-31"
+     *       example="Lobby"
      *     )
      *   ),
      *   @OA\Response(
@@ -75,21 +43,21 @@ class HotelDescriptiveContentSectionRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-     *
+
      * @OA\Post(
-     *   tags={"Descriptive Content"},
-     *   path="/api/repo/hotel-descriptive-content-sections",
-     *   summary="Create a new hotel descriptive content section",
-     *   description="Create a new hotel descriptive content section entry.",
+     *   tags={"Images"},
+     *   path="/api/repo/images",
+     *   summary="Create a new image",
+     *   description="Create a new image entry.",
      *   @OA\RequestBody(
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"hotel_id", "section_name", "start_date"},
-     *       @OA\Property(property="hotel_id", type="integer", example=1),
-     *       @OA\Property(property="section_name", type="string", example="General Information"),
-     *       @OA\Property(property="start_date", type="string", format="date", example="2023-01-01"),
-     *       @OA\Property(property="end_date", type="string", format="date", example="2023-12-31")
+     *       required={"image_url", "tag", "weight", "section_id"},
+     *       @OA\Property(property="image_url", type="string", example="http://example.com/image.jpg"),
+     *       @OA\Property(property="tag", type="string", example="Lobby"),
+     *       @OA\Property(property="weight", type="integer", example=1),
+     *       @OA\Property(property="section_id", type="integer", example=1)
      *     )
      *   ),
      *   @OA\Response(
@@ -112,17 +80,17 @@ class HotelDescriptiveContentSectionRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-     *
+
      * @OA\Get(
-     *   tags={"Descriptive Content"},
-     *   path="/api/repo/hotel-descriptive-content-sections/{id}",
-     *   summary="Get hotel descriptive content section details",
-     *   description="Retrieve details of a specific hotel descriptive content section.",
+     *   tags={"Images"},
+     *   path="/api/repo/images/{id}",
+     *   summary="Get image details",
+     *   description="Retrieve details of a specific image.",
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
-     *     description="ID of the hotel descriptive content section",
+     *     description="ID of the image",
      *     @OA\Schema(
      *       type="integer",
      *       example=1
@@ -148,17 +116,17 @@ class HotelDescriptiveContentSectionRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-     *
+
      * @OA\Put(
-     *   tags={"Descriptive Content"},
-     *   path="/api/repo/hotel-descriptive-content-sections/{id}",
-     *   summary="Update hotel descriptive content section details",
-     *   description="Update details of a specific hotel descriptive content section.",
+     *   tags={"Images"},
+     *   path="/api/repo/images/{id}",
+     *   summary="Update image details",
+     *   description="Update details of a specific image.",
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
-     *     description="ID of the hotel descriptive content section",
+     *     description="ID of the image",
      *     @OA\Schema(
      *       type="integer",
      *       example=1
@@ -168,11 +136,11 @@ class HotelDescriptiveContentSectionRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"hotel_id", "section_name", "start_date"},
-     *       @OA\Property(property="hotel_id", type="integer", example=1),
-     *       @OA\Property(property="section_name", type="string", example="General Information"),
-     *       @OA\Property(property="start_date", type="string", format="date", example="2023-01-01"),
-     *       @OA\Property(property="end_date", type="string", format="date", example="2023-12-31")
+     *       required={"image_url", "tag", "weight", "section_id"},
+     *       @OA\Property(property="image_url", type="string", example="http://example.com/image.jpg"),
+     *       @OA\Property(property="tag", type="string", example="Lobby"),
+     *       @OA\Property(property="weight", type="integer", example=1),
+     *       @OA\Property(property="section_id", type="integer", example=1)
      *     )
      *   ),
      *   @OA\Response(
@@ -202,17 +170,17 @@ class HotelDescriptiveContentSectionRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-     *
+
      * @OA\Delete(
-     *   tags={"Descriptive Content"},
-     *   path="/api/repo/hotel-descriptive-content-sections/{id}",
-     *   summary="Delete a hotel descriptive content section",
-     *   description="Delete a specific hotel descriptive content section.",
+     *   tags={"Images"},
+     *   path="/api/repo/images/{id}",
+     *   summary="Delete an image",
+     *   description="Delete a specific image.",
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
-     *     description="ID of the hotel descriptive content section",
+     *     description="ID of the image",
      *     @OA\Schema(
      *       type="integer",
      *       example=1
@@ -248,10 +216,10 @@ class HotelDescriptiveContentSectionRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'hotel_id' => 'required|exists:pd_hotels,id',
-            'section_name' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date',
+            'image_url' => 'required|string|max:255',
+            'tag' => 'required|string|max:100',
+            'weight' => 'required|integer',
+            'section_id' => 'required|exists:pd_image_sections,id',
         ];
     }
 }

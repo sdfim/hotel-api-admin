@@ -19,6 +19,8 @@ return [
                 'format_to_use_for_docs' => env('L5_FORMAT_TO_USE_FOR_DOCS', 'json'),
                 'annotations' => [
                     base_path('Modules/API'),
+                    base_path('Modules/Addons/API'),
+                    base_path('Modules/Insurance/API'),
                 ],
             ],
         ],

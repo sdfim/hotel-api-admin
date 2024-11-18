@@ -6,7 +6,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\HotelContentRepository\Models\Image;
 use PHPUnit\Framework\Attributes\Test;
 
-class HotelImageControllerTest extends TestCase
+class ImageControllerTest extends TestCase
 {
     use RefreshDatabase;
 

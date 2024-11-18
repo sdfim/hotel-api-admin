@@ -3,7 +3,7 @@
 namespace Modules\API\HotelContentRepositoryAPI\routes;
 
 use Illuminate\Support\Facades\Route;
-use Modules\HotelContentRepository\API\Controllers\InformativeServiceController;
+use Modules\Addons\API\Controllers\InformativeServiceController;
 
 class InformativeServicesApiRoutes
 {

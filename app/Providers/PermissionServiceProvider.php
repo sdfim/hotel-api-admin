@@ -16,7 +16,7 @@ use App\Policies\Configurations\ConfigConsortiumPolicy;
 use App\Policies\Configurations\ConfigDescriptiveTypePolicy;
 use App\Policies\Configurations\ConfigJobDescriptionPolicy;
 use App\Policies\Configurations\ConfigServiceTypePolicy;
-use App\Policies\HotelImagePolicy;
+use App\Policies\ImagePolicy;
 use App\Policies\HotelPolicy;
 use App\Policies\ImageGalleryPolicy;
 use App\Policies\InformationalServicePolicy;
@@ -64,7 +64,7 @@ class PermissionServiceProvider extends ServiceProvider
         InformationalService::class                 => InformationalServicePolicy::class,
         TravelAgencyCommission::class               => TravelAgencyCommissionPolicy::class,
         ImageGallery::class                         => ImageGalleryPolicy::class,
-        Image::class                           => HotelImagePolicy::class,
+        Image::class                           => ImagePolicy::class,
     ];
 
     /**

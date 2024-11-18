@@ -30,10 +30,6 @@ use Modules\API\BaseController as MainController;
  *      description="API Endpoints for Rooms"
  *  ),
  * @OA\Tag(
- *       name="Key Mapping Owners",
- *       description="API Endpoints for Key Mapping Owners"
- *   ),
- * @OA\Tag(
  *       name="Key Mappings",
  *       description="API Endpoints for Key Mappings"
  *   ),
@@ -48,10 +44,6 @@ use Modules\API\BaseController as MainController;
  * @OA\Tag(
  *        name="Fee and Tax",
  *        description="API Endpoints for Fee and Tax"
- *    ),
- * @OA\Tag(
- *        name="Descriptive Content Section",
- *        description="API Endpoints for Descriptive Content Section"
  *    ),
  * @OA\Tag(
  *        name="Descriptive Content",
@@ -84,11 +76,15 @@ use Modules\API\BaseController as MainController;
  * @OA\Tag(
  *     name="Travel Agency Commissions",
  *     description="API Endpoints for Travel Agency Commissions"
- * )
+ *      ),
  * @OA\Tag(
- *     name="Insurance API",
- *     description="API Endpoints for Insurance"
- * )
+ *     name="Images",
+ *     description="API Endpoints for Images"
+ *      ),
+ * @OA\Tag(
+ *     name="Image Galleries",
+ *     description="API Endpoints for Image Galleries"
+ *      ),
  */
 class BaseController extends MainController
 {}

@@ -1,12 +1,12 @@
 <?php
 
-namespace Modules\HotelContentRepository\API\Controllers;
+namespace Modules\Addons\API\Controllers;
 
 use App\Jobs\SaveBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\Configurations\ConfigServiceType;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
-use Modules\HotelContentRepository\API\Requests\InformativeServiceRequest;
+use Modules\Addons\API\Requests\InformativeServiceRequest;
 use Modules\HotelContentRepository\API\Requests\InformativeServiceRetrieveRequest;
 use Modules\HotelContentRepository\API\Controllers\BaseController;
 

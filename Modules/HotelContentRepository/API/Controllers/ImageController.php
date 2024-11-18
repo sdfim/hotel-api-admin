@@ -5,10 +5,10 @@ namespace Modules\HotelContentRepository\API\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Models\Image;
-use Modules\HotelContentRepository\API\Requests\HotelImageRequest;
+use Modules\HotelContentRepository\API\Requests\ImageRequest;
 use Modules\HotelContentRepository\API\Controllers\BaseController;
 
-class HotelImageController extends BaseController
+class ImageController extends BaseController
 {
     public function index()
     {
@@ -19,7 +19,7 @@ class HotelImageController extends BaseController
         return $this->sendResponse($hotelImages->toArray(), 'index success', Response::HTTP_OK);
     }
 
-    public function store(HotelImageRequest $request)
+    public function store(ImageRequest $request)
     {
         $hotelImage = Image::create($request->validated());
         return $this->sendResponse($hotelImage->toArray(), 'create success', Response::HTTP_CREATED);
@@ -31,7 +31,7 @@ class HotelImageController extends BaseController
         return $this->sendResponse($hotelImage->toArray(), 'show success', Response::HTTP_OK);
     }
 
-    public function update(HotelImageRequest $request, $id)
+    public function update(ImageRequest $request, $id)
     {
         $hotelImage = Image::findOrFail($id);
         $hotelImage->update($request->validated());
