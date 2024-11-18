@@ -10,9 +10,9 @@ class InformativeServicesApiRoutes
     public static function routes(): void
     {
         Route::middleware('auth:sanctum')->prefix('services')->group(function () {
-            Route::post('/attach', [InformativeServiceController::class, 'attach']);
-            Route::post('/detach', [InformativeServiceController::class, 'detach']);
-            Route::get('/retrieve', [InformativeServiceController::class, 'retrieve']);
+            Route::post('/attach', [InformativeServiceController::class, 'attach'])->name('attachService');
+            Route::post('/detach', [InformativeServiceController::class, 'detach'])->name('detachService');
+            Route::get('/retrieve', [InformativeServiceController::class, 'retrieve'])->name('retrieveService');
         });
     }
 }

@@ -7,7 +7,7 @@ use Modules\API\Controllers\ApiHandlers\PricingSuppliers\HbsiHotelController;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\API\Tools\Geography;
 
-trait SearchMockTrait
+trait BookFlowTrait
 {
     public function searchMock(): void
     {
