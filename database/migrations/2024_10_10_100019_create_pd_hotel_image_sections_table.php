@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('pd_hotel_image_sections', function (Blueprint $table) {
+        Schema::create('pd_image_sections', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->timestamps();
@@ -17,5 +17,5 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('pd_hotel_image_sections');
+        Schema::dropIfExists('pd_image_sections');
     }};

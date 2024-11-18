@@ -4,7 +4,7 @@ namespace Modules\HotelContentRepository\Livewire\HotelImages;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Modules\HotelContentRepository\Models\HotelImage;
+use Modules\HotelContentRepository\Models\Image;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -14,7 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
-use Modules\HotelContentRepository\Models\HotelImageSection;
+use Modules\HotelContentRepository\Models\ImageSection;
 
 class HotelImagesForm extends Component implements HasForms
 {
@@ -22,9 +22,9 @@ class HotelImagesForm extends Component implements HasForms
 
     public ?array $data = [];
 
-    public HotelImage $record;
+    public Image $record;
 
-    public function mount(HotelImage $hotelImage): void
+    public function mount(Image $hotelImage): void
     {
         $this->record = $hotelImage;
 
@@ -40,14 +40,14 @@ class HotelImagesForm extends Component implements HasForms
                     ->maxLength(191),
                 Select::make('section_id')
                     ->required()
-                    ->options(HotelImageSection::pluck('name', 'id')),
+                    ->options(ImageSection::pluck('name', 'id')),
                 Select::make('galleries')
                     ->multiple()
                     ->searchable()
                     ->preload()
                     ->relationship('galleries', 'gallery_name'),
                 TextInput::make('weight')
-                    ->formatStateUsing(fn (HotelImage $record) => $this->record->exists ? $record->weight : '500'),
+                    ->formatStateUsing(fn (Image $record) => $this->record->exists ? $record->weight : '500'),
                 FileUpload::make('image_url')
                     ->image()
                     ->imageEditor()

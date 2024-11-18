@@ -3,11 +3,11 @@
 namespace Modules\HotelContentRepository\Models\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Modules\HotelContentRepository\Models\HotelImageSection;
+use Modules\HotelContentRepository\Models\ImageSection;
 
-class HotelImageSectionFactory extends Factory
+class ImageSectionFactory extends Factory
 {
-    protected $model = HotelImageSection::class;
+    protected $model = ImageSection::class;
 
     public function definition()
     {

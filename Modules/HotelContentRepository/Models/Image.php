@@ -4,20 +4,20 @@ namespace Modules\HotelContentRepository\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Modules\HotelContentRepository\Models\Factories\HotelImageFactory;
+use Modules\HotelContentRepository\Models\Factories\ImageFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 
-class HotelImage extends Model
+class Image extends Model
 {
     use Filterable;
     use HasFactory;
 
     protected static function newFactory()
     {
-        return HotelImageFactory::new();
+        return ImageFactory::new();
     }
 
-    protected $table = 'pd_hotel_images';
+    protected $table = 'pd_images';
 
     protected $fillable = [
         'image_url',
@@ -34,7 +34,7 @@ class HotelImage extends Model
 
     public function section()
     {
-        return $this->belongsTo(HotelImageSection::class, 'section_id');
+        return $this->belongsTo(ImageSection::class, 'section_id');
     }
 
     public function galleries()

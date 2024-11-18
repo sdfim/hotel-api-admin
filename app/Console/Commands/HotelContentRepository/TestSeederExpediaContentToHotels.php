@@ -15,8 +15,8 @@ use Modules\HotelContentRepository\Models\HotelAttribute;
 use Modules\HotelContentRepository\Models\HotelDescriptiveContent;
 use Modules\HotelContentRepository\Models\HotelDescriptiveContentSection;
 use Modules\HotelContentRepository\Models\HotelFeeTax;
-use Modules\HotelContentRepository\Models\HotelImage;
-use Modules\HotelContentRepository\Models\HotelImageSection;
+use Modules\HotelContentRepository\Models\Image;
+use Modules\HotelContentRepository\Models\ImageSection;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\KeyMapping;
@@ -245,7 +245,7 @@ class TestSeederExpediaContentToHotels extends Command
     }
     private function updateOrRooms(ExpediaContent $expediaContent, Hotel $hotel): void
     {
-        $sectionId = HotelImageSection::where('name', 'room')->value('id');
+        $sectionId = ImageSection::where('name', 'room')->value('id');
 
         $rooms = $expediaContent->expediaSlave->rooms;
         foreach ($rooms as $room) {
@@ -280,7 +280,7 @@ class TestSeederExpediaContentToHotels extends Command
             foreach (Arr::get($room, 'images', []) as $image) {
                 $tag = Arr::get($image, 'caption', 'No caption');
                 foreach ($image['links'] as $size => $link) {
-                    $hotelImage = HotelImage::firstOrNew(['image_url' => $link['href']]);
+                    $hotelImage = Image::firstOrNew(['image_url' => $link['href']]);
                     $hotelImage->tag = $tag;
                     $hotelImage->weight = $size;
                     $hotelImage->section_id = $sectionId;
@@ -341,13 +341,13 @@ class TestSeederExpediaContentToHotels extends Command
             ['description' => 'Gallery for Expedia images for hotel ' . $hotel->name]
         );
 
-        $sectionId = HotelImageSection::where('name', 'hotel')->value('id');
+        $sectionId = ImageSection::where('name', 'hotel')->value('id');
 
         $upsertedImages = [];
         foreach ($expediaContent->expediaSlave->images as $image) {
             $tag = Arr::get($image, 'caption', 'No caption');
             foreach ($image['links'] as $weight => $data) {
-                $hotelImage = HotelImage::firstOrNew(['image_url' => $data['href'], 'section_id' => $sectionId]);
+                $hotelImage = Image::firstOrNew(['image_url' => $data['href'], 'section_id' => $sectionId]);
                 $hotelImage->tag = $tag;
                 $hotelImage->weight = $weight;
                 $hotelImage->section_id = $sectionId;

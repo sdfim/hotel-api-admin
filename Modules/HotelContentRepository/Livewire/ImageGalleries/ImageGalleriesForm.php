@@ -17,8 +17,8 @@ use Filament\Tables\Table;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Storage;
-use Modules\HotelContentRepository\Models\HotelImage;
-use Modules\HotelContentRepository\Models\HotelImageSection;
+use Modules\HotelContentRepository\Models\Image;
+use Modules\HotelContentRepository\Models\ImageSection;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -72,7 +72,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
             ->heading('Images')
             ->paginated([25, 50, 100])
             ->query(
-                HotelImage::query()
+                Image::query()
                     ->when($this->record->exists, function ($query) {
                         return $query->whereHas('galleries', fn ($query) => $query->where('gallery_id', $this->record->id));
                     })
@@ -113,7 +113,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                         Select::make('section_id')
                             ->required()
                             ->label('Section')
-                            ->options(HotelImageSection::pluck('name', 'id')),
+                            ->options(ImageSection::pluck('name', 'id')),
                         TextInput::make('weight'),
                         FileUpload::make('image')
                             ->required()
@@ -124,7 +124,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                             ->disk('public'),
                     ])
                     ->action(function($data) {
-                        $image = HotelImage::create([
+                        $image = Image::create([
                             'image_url'  => $data['image'],
                             'tag'        => $data['tag'],
                             'section_id' => $data['section_id'],
@@ -169,7 +169,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                     ->form([
                         TextInput::make('tag'),
                         Select::make('section_id')
-                            ->options(HotelImageSection::pluck('name', 'id')),
+                            ->options(ImageSection::pluck('name', 'id')),
                         FileUpload::make('image_url')
                             ->image()
                             ->imageEditor()
@@ -180,7 +180,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                     ]),
                 DeleteAction::make()
                     ->iconButton()
-                    ->action(function (HotelImage $record) {
+                    ->action(function (Image $record) {
                         if ($this->record->exists) {
                             $this->record->images()->detach($record->id);
                         } else {
@@ -225,7 +225,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
 
     private function getSelectImages(?string $search = null): Collection
     {
-        return HotelImage::with('section')
+        return Image::with('section')
             ->when($search, fn ($query) => $query->where('tag', 'LIKE', "%{$search}%"))
             ->whereDoesntHave(
                 'galleries',

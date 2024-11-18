@@ -2,13 +2,13 @@
 
 namespace Modules\HotelContentRepository\Http\Controllers;
 
-use Modules\HotelContentRepository\Models\HotelImage;
+use Modules\HotelContentRepository\Models\Image;
 use Illuminate\View\View;
 use Modules\AdministrationSuite\Http\Controllers\BaseWithPolicyController;
 
-class HotelImageController extends BaseWithPolicyController
+class ImageController extends BaseWithPolicyController
 {
-    protected static string $model = HotelImage::class;
+    protected static string $model = Image::class;
 
     private array $message = ['edit' => 'Edit Hotel Image', 'create' => 'Create Hotel Image'];
 
@@ -17,7 +17,7 @@ class HotelImageController extends BaseWithPolicyController
      */
     public function index(): View
     {
-        return view('dashboard.hotel-images.index');
+        return view('dashboard.images.index');
     }
 
     /**
@@ -25,10 +25,10 @@ class HotelImageController extends BaseWithPolicyController
      */
     public function edit(string $id): View
     {
-        $hotelImage = HotelImage::findOrFail($id);
+        $repositoryImage = Image::findOrFail($id);
         $text = $this->message;
 
-        return view('dashboard.hotel-images.form', compact('hotelImage', 'text'));
+        return view('dashboard.images.form', compact('repositoryImage', 'text'));
     }
 
     /**
@@ -36,9 +36,9 @@ class HotelImageController extends BaseWithPolicyController
      */
     public function create(): View
     {
-        $hotelImage = new HotelImage();
+        $repositoryImage = new Image();
         $text = $this->message;
 
-        return view('dashboard.hotel-images.form', compact('hotelImage', 'text'));
+        return view('dashboard.images.form', compact('repositoryImage', 'text'));
     }
 }

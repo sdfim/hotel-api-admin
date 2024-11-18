@@ -3,7 +3,7 @@
 namespace Tests\Feature\API\HotelContentRepository;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\HotelContentRepository\Models\HotelImage;
+use Modules\HotelContentRepository\Models\Image;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -79,7 +79,7 @@ class ImageGalleryControllerTest extends TestCase
     public function test_attach_image()
     {
         $gallery = ImageGallery::factory()->create();
-        $image = HotelImage::factory()->create();
+        $image = Image::factory()->create();
 
         $response = $this->request()->postJson("api/repo/image-galleries/{$gallery->id}/attach-image", [
             'image_id' => $image->id,
@@ -104,7 +104,7 @@ class ImageGalleryControllerTest extends TestCase
     public function test_detach_image()
     {
         $gallery = ImageGallery::factory()->create();
-        $image = HotelImage::factory()->create(); // Assuming you have an Image factory
+        $image = Image::factory()->create(); // Assuming you have an Image factory
         $gallery->images()->attach($image->id);
 
         $response = $this->request()->postJson("api/repo/image-galleries/{$gallery->id}/detach-image", [

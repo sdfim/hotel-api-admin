@@ -18,7 +18,7 @@ class HotelImageRequest extends ApiRequest
             'image_url' => 'required|string|max:255',
             'tag' => 'required|string|max:100',
             'weight' => 'required|integer',
-            'section_id' => 'required|exists:pd_hotel_image_sections,id',
+            'section_id' => 'required|exists:pd_image_sections,id',
             ];
     }
 }

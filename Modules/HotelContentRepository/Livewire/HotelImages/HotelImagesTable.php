@@ -5,7 +5,7 @@ namespace Modules\HotelContentRepository\Livewire\HotelImages;
 use App\Helpers\ClassHelper;
 use Filament\Tables\Columns\ImageColumn;
 use Illuminate\Support\Facades\Storage;
-use Modules\HotelContentRepository\Models\HotelImage;
+use Modules\HotelContentRepository\Models\Image;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\CreateAction;
@@ -28,7 +28,7 @@ class HotelImagesTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([25, 50, 100])
-            ->query(HotelImage::with(['section', 'galleries']))
+            ->query(Image::with(['section', 'galleries']))
             ->defaultSort('created_at', 'desc')
             ->columns([
                 ImageColumn::make('image_url')
@@ -45,14 +45,14 @@ class HotelImagesTable extends Component implements HasForms, HasTable
             ->actions([
                 EditAction::make('edit')
                     ->iconButton()
-                    ->url(fn (HotelImage $record): string => route('images.edit', $record))
-                    ->visible(fn (HotelImage $record) => Gate::allows('update', $record)),
+                    ->url(fn (Image $record): string => route('images.edit', $record))
+                    ->visible(fn (Image $record) => Gate::allows('update', $record)),
                 DeleteAction::make()
                     ->iconButton()
                     ->requiresConfirmation()
-                    ->action(fn (HotelImage $record) => $record->delete())
-                    ->visible(fn (HotelImage $record) => Gate::allows('delete', $record))
-                    ->after(fn (HotelImage $record) => Storage::disk('public')->delete($record->image_url)),
+                    ->action(fn (Image $record) => $record->delete())
+                    ->visible(fn (Image $record) => Gate::allows('delete', $record))
+                    ->after(fn (Image $record) => Storage::disk('public')->delete($record->image_url)),
             ])
             ->headerActions([
                 CreateAction::make()
@@ -60,7 +60,7 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-o-plus')
                     ->iconButton()
                     ->url(fn (): string => route('images.create'))
-                    ->visible(fn () => Gate::allows('create', HotelImage::class)),
+                    ->visible(fn () => Gate::allows('create', Image::class)),
             ]);
     }
 

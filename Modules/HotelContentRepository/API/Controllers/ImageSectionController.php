@@ -4,16 +4,16 @@ namespace Modules\HotelContentRepository\API\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
-use Modules\HotelContentRepository\Models\HotelImageSection;
+use Modules\HotelContentRepository\Models\ImageSection;
 use Modules\HotelContentRepository\API\Requests\HotelImageSectionRequest;
 use Modules\HotelContentRepository\API\Controllers\BaseController;
 
-class HotelImageSectionController extends BaseController
+class ImageSectionController extends BaseController
 {
     public function index()
     {
-        $query = HotelImageSection::query();
-        $query = $this->filter($query, HotelImageSection::class);
+        $query = ImageSection::query();
+        $query = $this->filter($query, ImageSection::class);
         $hotelImageSections = $query->get();
 
         return $this->sendResponse($hotelImageSections->toArray(), 'index success', Response::HTTP_OK);
@@ -21,26 +21,26 @@ class HotelImageSectionController extends BaseController
 
     public function store(HotelImageSectionRequest $request)
     {
-        $hotelImageSection = HotelImageSection::create($request->validated());
+        $hotelImageSection = ImageSection::create($request->validated());
         return $this->sendResponse($hotelImageSection->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
-        $hotelImageSection = HotelImageSection::findOrFail($id);
+        $hotelImageSection = ImageSection::findOrFail($id);
         return $this->sendResponse($hotelImageSection->toArray(), 'show success', Response::HTTP_OK);
     }
 
     public function update(HotelImageSectionRequest $request, $id)
     {
-        $hotelImageSection = HotelImageSection::findOrFail($id);
+        $hotelImageSection = ImageSection::findOrFail($id);
         $hotelImageSection->update($request->validated());
         return $this->sendResponse($hotelImageSection->toArray(), 'update success', Response::HTTP_OK);
     }
 
     public function destroy($id)
     {
-        $hotelImageSection = HotelImageSection::findOrFail($id);
+        $hotelImageSection = ImageSection::findOrFail($id);
         $hotelImageSection->delete();
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }

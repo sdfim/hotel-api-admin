@@ -32,7 +32,7 @@ class ImageGallery extends Model
 
     public function images()
     {
-        return $this->belongsToMany(HotelImage::class, 'pd_gallery_images', 'gallery_id', 'image_id');
+        return $this->belongsToMany(Image::class, 'pd_gallery_images', 'gallery_id', 'image_id');
     }
     public function hotels()
     {

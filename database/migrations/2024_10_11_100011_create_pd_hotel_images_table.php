@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('pd_hotel_images', function (Blueprint $table) {
+        Schema::create('pd_images', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('image_url')->index();
             $table->string('tag', 100);
@@ -16,12 +16,12 @@ return new class extends Migration
             $table->unsignedBigInteger('section_id');
             $table->timestamps();
 
-            $table->foreign('section_id')->references('id')->on('pd_hotel_image_sections');
+            $table->foreign('section_id')->references('id')->on('pd_image_sections');
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('pd_hotel_images');
+        Schema::dropIfExists('pd_images');
     }
 };

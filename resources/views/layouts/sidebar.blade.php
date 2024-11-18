@@ -29,7 +29,7 @@
     use App\Models\Configurations\ConfigServiceType;
     use App\Models\Configurations\ConfigChain;
     use Modules\HotelContentRepository\Models\ImageGallery;
-    use Modules\HotelContentRepository\Models\HotelImage;
+    use Modules\HotelContentRepository\Models\Image;
 
     $canView = fn (string $model): bool => Auth::user()->can('view', $model);
     $canConfigurationGroup = fn (): bool =>
@@ -65,21 +65,21 @@
                                 <li>
                                     <a href="{{ Route('general_configuration') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">General
-                                        </a>
+                                    </a>
                                 </li>
                             @endif
                             @if($canView(Channel::class))
                                 <li>
                                     <a href="{{ Route('channels.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Channels
-                                        </a>
+                                    </a>
                                 </li>
                             @endif
                             @if($canView(Supplier::class))
                                 <li>
                                     <a href="{{ Route('suppliers.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Suppliers
-                                        </a>
+                                    </a>
                                 </li>
                             @endif
                             @if($canView(ConfigAttribute::class))
@@ -266,7 +266,7 @@
                         </ul>
                     </li>
                 @endif
-                @if($canView(ImageGallery::class) || $canView(HotelImage::class))
+                @if($canView(ImageGallery::class) || $canView(Image::class))
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
                            class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium
@@ -278,28 +278,28 @@
                         </a>
                         <ul>
                             @if($canView(ImageGallery::class))
-                            <li>
-                                <a href="{{ Route('image-galleries.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
+                                <li>
+                                    <a href="{{ Route('image-galleries.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
                                    text-gray-700 transition-all duration-150 ease-linear
                                    hover:text-violet-500 dark:text-gray-300 dark:active:text-white
                                    dark:hover:text-white">
-                                    <i class="dripicons-view-thumb"></i>
-                                    <span>Galleries</span>
-                                </a>
-                            </li>
+                                        <i class="dripicons-view-thumb"></i>
+                                        <span>Galleries</span>
+                                    </a>
+                                </li>
                             @endif
-                            @if($canView(HotelImage::class))
-                            <li>
-                                <a href="{{ Route('images.index') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
+                            @if($canView(Image::class))
+                                <li>
+                                    <a href="{{ Route('images.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
                                    text-gray-700 transition-all duration-150 ease-linear
                                    hover:text-violet-500 dark:text-gray-300 dark:active:text-white
                                    dark:hover:text-white">
-                                    <i class="dripicons-photo"></i>
-                                    <span>Images</span>
-                                </a>
-                            </li>
+                                        <i class="dripicons-photo"></i>
+                                        <span>Images</span>
+                                    </a>
+                                </li>
                             @endif
                         </ul>
                     </li>
@@ -373,7 +373,7 @@
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
                                         Providers Documentation</a>
                                 </li>
-                           @endif
+                            @endif
                             @if($canView(InsuranceRestriction::class))
                                 <li>
                                     <a href="{{ Route('insurance-restrictions.index') }}"

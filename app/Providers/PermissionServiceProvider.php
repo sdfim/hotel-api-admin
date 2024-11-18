@@ -30,7 +30,7 @@ use App\Policies\TravelAgencyCommissionPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Models\HotelImage;
+use Modules\HotelContentRepository\Models\Image;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 use Modules\Insurance\Models\InsurancePlan;
@@ -64,7 +64,7 @@ class PermissionServiceProvider extends ServiceProvider
         InformationalService::class                 => InformationalServicePolicy::class,
         TravelAgencyCommission::class               => TravelAgencyCommissionPolicy::class,
         ImageGallery::class                         => ImageGalleryPolicy::class,
-        HotelImage::class                           => HotelImagePolicy::class,
+        Image::class                           => HotelImagePolicy::class,
     ];
 
     /**

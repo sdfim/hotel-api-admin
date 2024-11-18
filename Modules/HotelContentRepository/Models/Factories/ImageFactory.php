@@ -3,12 +3,12 @@
 namespace Modules\HotelContentRepository\Models\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Modules\HotelContentRepository\Models\HotelImage;
-use Modules\HotelContentRepository\Models\HotelImageSection;
+use Modules\HotelContentRepository\Models\Image;
+use Modules\HotelContentRepository\Models\ImageSection;
 
-class HotelImageFactory extends Factory
+class ImageFactory extends Factory
 {
-    protected $model = HotelImage::class;
+    protected $model = Image::class;
 
     public function definition()
     {
@@ -16,7 +16,7 @@ class HotelImageFactory extends Factory
             'image_url' => $this->faker->imageUrl,
             'tag' => $this->faker->word,
             'weight' => $this->faker->numberBetween(1, 100),
-            'section_id' => HotelImageSection::factory(),
+            'section_id' => ImageSection::factory(),
         ];
     }
 }

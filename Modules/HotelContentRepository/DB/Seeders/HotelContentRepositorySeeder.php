@@ -5,7 +5,7 @@ namespace Modules\HotelContentRepository\DB\Seeders;
 use Illuminate\Database\Seeder;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\HotelAgeRestrictionType;
-use Modules\HotelContentRepository\Models\HotelImageSection;
+use Modules\HotelContentRepository\Models\ImageSection;
 use Modules\HotelContentRepository\Models\KeyMappingOwner;
 
 class HotelContentRepositorySeeder extends Seeder
@@ -21,7 +21,7 @@ class HotelContentRepositorySeeder extends Seeder
         // Seed HotelImageSection
         $hotelImageSections = ['hotel', 'room', 'exterior', 'amenities', 'gallery'];
         foreach ($hotelImageSections as $section) {
-            HotelImageSection::firstOrCreate(['name' => $section]);
+            ImageSection::firstOrCreate(['name' => $section]);
         }
 
         // Seed KeyMappingOwner

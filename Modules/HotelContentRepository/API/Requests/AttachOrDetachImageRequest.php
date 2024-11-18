@@ -15,7 +15,7 @@ class AttachOrDetachImageRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'image_id' => 'required|exists:pd_hotel_images,id',
+            'image_id' => 'required|exists:pd_images,id',
         ];
     }
 }

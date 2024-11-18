@@ -35,7 +35,7 @@ use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
-use Modules\HotelContentRepository\Http\Controllers\HotelImageController;
+use Modules\HotelContentRepository\Http\Controllers\ImageController;
 use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
 use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
 use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
@@ -115,7 +115,7 @@ Route::prefix('admin')->group(function () {
         });
 
         Route::resource('image-galleries', ImageGalleryController::class)->only(['index', 'create', 'edit']);
-        Route::resource('images', HotelImageController::class)->only(['index', 'create', 'edit']);
+        Route::resource('images', ImageController::class)->only(['index', 'create', 'edit']);
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
