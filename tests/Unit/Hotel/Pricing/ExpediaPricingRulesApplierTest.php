@@ -104,9 +104,6 @@ class ExpediaPricingRulesApplierTest extends TestCase
                 'conditions' => [
                     ['field' => 'destination', 'compare' => '=', 'value_from' => 961, 'value_to' => null],
                 ],
-                'conditions_o_r' => [
-                    [],
-                ],
             ],
         ];
     }
