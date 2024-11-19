@@ -9,11 +9,6 @@ use Modules\API\Validate\ApiRequest;
 class BookingAddItemHotelRequest extends ApiRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
-     */
-
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, ValidationRule|array<mixed>|string>

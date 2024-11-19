@@ -9,9 +9,6 @@ use Modules\API\Validate\ApiRequest;
 class BookingBookRequest extends ApiRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
-     */
-    /**
      * @OA\Post(
      *   tags={"Booking API | Booking Endpoints"},
      *   path="/api/booking/book",
@@ -79,12 +76,6 @@ class BookingBookRequest extends ApiRequest
      * )
      */
 
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         // List of country telephone codes

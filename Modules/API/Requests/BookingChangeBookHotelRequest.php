@@ -9,9 +9,6 @@ use Modules\API\Validate\ApiRequest;
 class BookingChangeBookHotelRequest extends ApiRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
-     */
-    /**
      * @OA\Put(
      *   tags={"Booking API | Booking Endpoints"},
      *   path="/api/booking/change-booking",
@@ -84,12 +81,6 @@ class BookingChangeBookHotelRequest extends ApiRequest
      * )
      */
 
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
-     */
     public function rules(): array
     {
         return [
