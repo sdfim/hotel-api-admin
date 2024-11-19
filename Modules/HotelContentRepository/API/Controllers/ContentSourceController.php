@@ -16,7 +16,7 @@ class ContentSourceController extends BaseController
         $query = $this->filter($query, ContentSource::class);
         $contentSources = $query->get();
 
-        return $this->sendResponse($contentSources->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($contentSources->toArray(), 'index success');
     }
 
     public function store(ContentSourceRequest $request)
@@ -28,14 +28,14 @@ class ContentSourceController extends BaseController
     public function show($id)
     {
         $contentSource = ContentSource::findOrFail($id);
-        return $this->sendResponse($contentSource->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($contentSource->toArray(), 'show success');
     }
 
     public function update(ContentSourceRequest $request, $id)
     {
         $contentSource = ContentSource::findOrFail($id);
         $contentSource->update($request->validated());
-        return $this->sendResponse($contentSource->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($contentSource->toArray(), 'update success');
     }
 
     public function destroy($id)

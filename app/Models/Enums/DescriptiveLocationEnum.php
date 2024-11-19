@@ -2,7 +2,7 @@
 
 namespace App\Models\Enums;
 
-enum DescriptiveLocation: string
+enum DescriptiveLocationEnum: string
 {
     case ALL = 'all';
     case INTERNAL = 'internal';

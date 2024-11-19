@@ -312,10 +312,7 @@ class HotelFeeTaxRequest extends ApiRequest
      * )
      */
 
-    public function authorize(): bool
-    {
-        return Auth::check();
-    }
+
 
     public function rules(): array
     {

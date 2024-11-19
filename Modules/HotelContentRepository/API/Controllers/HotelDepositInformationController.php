@@ -16,7 +16,7 @@ class HotelDepositInformationController extends BaseController
         $query = $this->filter($query, HotelDepositInformation::class);
         $hotelDepositInformations = $query->get();
 
-        return $this->sendResponse($hotelDepositInformations->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($hotelDepositInformations->toArray(), 'index success');
     }
 
     public function store(HotelDepositInformationRequest $request)
@@ -28,14 +28,14 @@ class HotelDepositInformationController extends BaseController
     public function show($id)
     {
         $hotelDepositInformation = HotelDepositInformation::findOrFail($id);
-        return $this->sendResponse($hotelDepositInformation->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($hotelDepositInformation->toArray(), 'show success');
     }
 
     public function update(HotelDepositInformationRequest $request, $id)
     {
         $hotelDepositInformation = HotelDepositInformation::findOrFail($id);
         $hotelDepositInformation->update($request->validated());
-        return $this->sendResponse($hotelDepositInformation->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($hotelDepositInformation->toArray(), 'update success');
     }
 
     public function destroy($id)

@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Models\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Modules\Enums\HotelTypeEnum;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
 
@@ -17,9 +18,9 @@ class HotelFactory extends Factory
             'weight' => $this->faker->numberBetween(1, 100),
             'verified' => $this->faker->boolean,
             'type' => $this->faker->randomElement([
-                'Direct connection',
-                'Manual contract',
-                'Commission tracking',
+                HotelTypeEnum::DIRECT_CONNECTION->value,
+                HotelTypeEnum::MANUAL_CONTRACT->value,
+                HotelTypeEnum::COMMISSION_TRACKING->value,
             ]),
             'address' => $this->faker->address,
             'star_rating' => $this->faker->numberBetween(1, 5),

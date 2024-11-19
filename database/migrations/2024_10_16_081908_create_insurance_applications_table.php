@@ -21,10 +21,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::table('insurance_applications', function (Blueprint $table) {
-            $table->dropForeign(['insurance_plan_id']);
-        });
-
         Schema::dropIfExists('insurance_applications');
     }
 };

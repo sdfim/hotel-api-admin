@@ -17,7 +17,7 @@ class HotelAffiliationController extends BaseController
         $query = $this->filter($query, HotelAffiliation::class);
         $hotelAffiliations = $query->get();
 
-        return $this->sendResponse($hotelAffiliations->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($hotelAffiliations->toArray(), 'index success');
     }
 
     public function store(HotelAffiliationRequest $request)
@@ -29,14 +29,14 @@ class HotelAffiliationController extends BaseController
     public function show($id)
     {
         $hotelAffiliation = HotelAffiliation::findOrFail($id);
-        return $this->sendResponse($hotelAffiliation->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($hotelAffiliation->toArray(), 'show success');
     }
 
     public function update(HotelAffiliationRequest $request, $id)
     {
         $hotelAffiliation = HotelAffiliation::findOrFail($id);
         $hotelAffiliation->update($request->validated());
-        return $this->sendResponse($hotelAffiliation->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($hotelAffiliation->toArray(), 'update success');
     }
 
     public function destroy($id)

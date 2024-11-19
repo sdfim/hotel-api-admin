@@ -10,17 +10,13 @@ return new class extends Migration
     {
         Schema::create('pd_hotels', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name', 255);
+            $table->string('name');
             $table->boolean('verified');
-            $table->enum('type', [
-                'Direct connection',
-                'Manual contract',
-                'Commission tracking',
-            ]);
+            $table->string('type', 50);
             $table->json('address')->nullable();
             $table->integer('star_rating');
             $table->integer('weight')->nullable();
-            $table->string('website', 255)->nullable();
+            $table->string('website')->nullable();
             $table->integer('num_rooms');
             $table->json('location')->nullable();
             $table->decimal('lat', 10, 7)->nullable();
@@ -29,7 +25,7 @@ return new class extends Migration
             $table->unsignedBigInteger('room_images_source_id');
             $table->unsignedBigInteger('property_images_source_id');
             $table->decimal('travel_agent_commission', 10, 2)->nullable();
-            $table->string('hotel_board_basis', 255)->nullable();
+            $table->string('hotel_board_basis')->nullable();
             $table->string('default_currency', 10);
             $table->timestamps();
 

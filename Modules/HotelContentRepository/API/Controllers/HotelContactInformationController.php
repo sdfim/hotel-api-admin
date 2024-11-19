@@ -17,7 +17,7 @@ class HotelContactInformationController extends BaseController
         $query = $this->filter($query, HotelContactInformation::class);
         $hotelContactInformations = $query->get();
 
-        return $this->sendResponse($hotelContactInformations->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($hotelContactInformations->toArray(), 'index success');
     }
 
     public function store(HotelContactInformationRequest $request)
@@ -29,14 +29,14 @@ class HotelContactInformationController extends BaseController
     public function show($id)
     {
         $hotelContactInformation = HotelContactInformation::findOrFail($id);
-        return $this->sendResponse($hotelContactInformation->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($hotelContactInformation->toArray(), 'show success');
     }
 
     public function update(HotelContactInformationRequest $request, $id)
     {
         $hotelContactInformation = HotelContactInformation::findOrFail($id);
         $hotelContactInformation->update($request->validated());
-        return $this->sendResponse($hotelContactInformation->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($hotelContactInformation->toArray(), 'update success');
     }
 
     public function destroy($id)

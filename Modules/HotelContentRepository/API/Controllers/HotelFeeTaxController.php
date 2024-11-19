@@ -17,7 +17,7 @@ class HotelFeeTaxController extends BaseController
         $query = $this->filter($query, HotelFeeTax::class);
         $hotelFeeTaxes = $query->get();
 
-        return $this->sendResponse($hotelFeeTaxes->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($hotelFeeTaxes->toArray(), 'index success');
     }
 
     public function store(HotelFeeTaxRequest $request)
@@ -29,14 +29,14 @@ class HotelFeeTaxController extends BaseController
     public function show($id)
     {
         $hotelFeeTax = HotelFeeTax::findOrFail($id);
-        return $this->sendResponse($hotelFeeTax->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($hotelFeeTax->toArray(), 'show success');
     }
 
     public function update(HotelFeeTaxRequest $request, $id)
     {
         $hotelFeeTax = HotelFeeTax::findOrFail($id);
         $hotelFeeTax->update($request->validated());
-        return $this->sendResponse($hotelFeeTax->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($hotelFeeTax->toArray(), 'update success');
     }
 
     public function destroy($id)

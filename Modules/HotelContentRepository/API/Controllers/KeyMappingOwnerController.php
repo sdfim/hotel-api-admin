@@ -16,7 +16,7 @@ class KeyMappingOwnerController extends BaseController
         $query = $this->filter($query, KeyMappingOwner::class);
         $keyMappingOwners = $query->get();
 
-        return $this->sendResponse($keyMappingOwners->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($keyMappingOwners->toArray(), 'index success');
     }
 
     public function store(KeyMappingOwnerRequest $request)
@@ -28,14 +28,14 @@ class KeyMappingOwnerController extends BaseController
     public function show($id)
     {
         $keyMappingOwner = KeyMappingOwner::findOrFail($id);
-        return $this->sendResponse($keyMappingOwner->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($keyMappingOwner->toArray(), 'show success');
     }
 
     public function update(KeyMappingOwnerRequest $request, $id)
     {
         $keyMappingOwner = KeyMappingOwner::findOrFail($id);
         $keyMappingOwner->update($request->validated());
-        return $this->sendResponse($keyMappingOwner->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($keyMappingOwner->toArray(), 'update success');
     }
 
     public function destroy($id)

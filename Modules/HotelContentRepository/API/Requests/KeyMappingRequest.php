@@ -227,13 +227,7 @@ use Modules\API\Validate\ApiRequest;
  * )
  */
 class KeyMappingRequest extends ApiRequest
-{
-    public function authorize(): bool
-    {
-        return Auth::check();
-    }
-
-    public function rules(): array
+{    public function rules(): array
     {
         return [
             'hotel_id' => 'required|integer|exists:pd_hotels,id',

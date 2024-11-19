@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('locale', 191)->default('');
             $table->integer('locale_id')->nullable();
             $table->json('address');
-            $table->string('mapper_address', 255)->nullable()->index();
+            $table->string('mapper_address')->nullable()->index();
             $table->string('mapper_postal_code', 50)->nullable()->index();
             $table->string('mapper_phone_number', 50)->nullable()->index();
             $table->json('phone')->nullable();

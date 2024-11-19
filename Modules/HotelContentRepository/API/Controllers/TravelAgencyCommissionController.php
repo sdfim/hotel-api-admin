@@ -16,7 +16,7 @@ class TravelAgencyCommissionController extends BaseController
         $query = $this->filter($query, TravelAgencyCommission::class);
         $commissions = $query->get();
 
-        return $this->sendResponse($commissions->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($commissions->toArray(), 'index success');
     }
 
     public function store(TravelAgencyCommissionRequest $request)
@@ -28,14 +28,14 @@ class TravelAgencyCommissionController extends BaseController
     public function show($id)
     {
         $commission = TravelAgencyCommission::findOrFail($id);
-        return $this->sendResponse($commission->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($commission->toArray(), 'show success');
     }
 
     public function update(TravelAgencyCommissionRequest $request, $id)
     {
         $commission = TravelAgencyCommission::findOrFail($id);
         $commission->update($request->validated());
-        return $this->sendResponse($commission->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($commission->toArray(), 'update success');
     }
 
     public function destroy($id)

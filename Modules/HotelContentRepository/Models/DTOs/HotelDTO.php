@@ -11,7 +11,6 @@ class HotelDTO
     public $verified;
     public $address;
     public $star_rating;
-    public $website;
     public $num_rooms;
     public $featured;
     public $location;
@@ -42,7 +41,6 @@ class HotelDTO
         $this->verified = (bool) $hotel->verified;
         $this->address = $hotel->address;
         $this->star_rating = $hotel->star_rating;
-        $this->website = $hotel->website;
         $this->num_rooms = $hotel->num_rooms;
         $this->featured = (bool) $hotel->featured;
         $this->location = $hotel->location;

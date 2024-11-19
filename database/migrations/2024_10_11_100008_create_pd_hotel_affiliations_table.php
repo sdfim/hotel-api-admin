@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('pd_hotel_affiliations', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('hotel_id');
-            $table->string('affiliation_name', 255);
+            $table->string('affiliation_name');
             $table->boolean('combinable');
             $table->timestamps();
 

@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void {
         Schema::create('pd_image_galleries', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('gallery_name', 255);
+            $table->string('gallery_name');
             $table->text('description')->nullable();
             $table->timestamps();
         });

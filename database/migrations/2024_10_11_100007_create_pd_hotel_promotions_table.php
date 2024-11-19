@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('pd_hotel_promotions', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('hotel_id');
-            $table->string('promotion_name', 255);
+            $table->string('promotion_name');
             $table->text('description')->nullable();
             $table->date('validity_start');
             $table->date('validity_end');

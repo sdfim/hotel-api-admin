@@ -71,10 +71,7 @@ class ListBookingsRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
-    public function authorize(): bool
-    {
-        return Auth::check();
-    }
+
 
     public function rules(): array
     {

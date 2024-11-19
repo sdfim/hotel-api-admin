@@ -17,7 +17,7 @@ class HotelPromotionController extends BaseController
         $query = $this->filter($query, HotelPromotion::class);
         $hotelPromotions = $query->with(['galleries.images'])->get();
 
-        return $this->sendResponse($hotelPromotions->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($hotelPromotions->toArray(), 'index success');
     }
 
     public function store(HotelPromotionRequest $request)
@@ -29,14 +29,14 @@ class HotelPromotionController extends BaseController
     public function show($id)
     {
         $hotelPromotion = HotelPromotion::with(['galleries.images'])->findOrFail($id);
-        return $this->sendResponse($hotelPromotion->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($hotelPromotion->toArray(), 'show success');
     }
 
     public function update(HotelPromotionRequest $request, $id)
     {
         $hotelPromotion = HotelPromotion::findOrFail($id);
         $hotelPromotion->update($request->validated());
-        return $this->sendResponse($hotelPromotion->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($hotelPromotion->toArray(), 'update success');
     }
 
     public function destroy($id)
@@ -50,13 +50,13 @@ class HotelPromotionController extends BaseController
     {
         $hotelPromotion = HotelPromotion::findOrFail($id);
         $hotelPromotion->galleries()->attach($request->gallery_id);
-        return $this->sendResponse($hotelPromotion->galleries->toArray(), 'Gallery attached successfully', Response::HTTP_OK);
+        return $this->sendResponse($hotelPromotion->galleries->toArray(), 'Gallery attached successfully');
     }
 
     public function detachGallery(AttachOrDetachGalleryRequest $request, $id)
     {
         $hotelPromotion = HotelPromotion::findOrFail($id);
         $hotelPromotion->galleries()->detach($request->gallery_id);
-        return $this->sendResponse($hotelPromotion->galleries->toArray(), 'Gallery detached successfully', Response::HTTP_OK);
+        return $this->sendResponse($hotelPromotion->galleries->toArray(), 'Gallery detached successfully');
     }
 }

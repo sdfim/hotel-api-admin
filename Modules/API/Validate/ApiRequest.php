@@ -5,6 +5,7 @@ namespace Modules\API\Validate;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest as LaravelFormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,7 +19,10 @@ abstract class ApiRequest extends LaravelFormRequest
     /**
      * Determine if the user is authorized to make this request.
      */
-    abstract public function authorize(): bool;
+    public function authorize(): bool
+    {
+        return Auth::check();
+    }
 
     /**
      * Handle a failed validation attempt.

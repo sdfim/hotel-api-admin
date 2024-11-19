@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
-            $table->decimal('cost', 8, 2);
+            $table->decimal('cost', 10, 2);
             $table->date('date');
             $table->time('time');
             $table->string('type');

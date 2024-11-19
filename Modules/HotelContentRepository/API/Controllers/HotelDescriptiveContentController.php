@@ -17,7 +17,7 @@ class HotelDescriptiveContentController extends BaseController
         $query = $this->filter($query, HotelDescriptiveContent::class);
         $hotelDescriptiveContents = $query->get();
 
-        return $this->sendResponse($hotelDescriptiveContents->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($hotelDescriptiveContents->toArray(), 'index success');
     }
 
     public function store(HotelDescriptiveContentRequest $request)
@@ -29,14 +29,14 @@ class HotelDescriptiveContentController extends BaseController
     public function show($id)
     {
         $hotelDescriptiveContent = HotelDescriptiveContent::findOrFail($id);
-        return $this->sendResponse($hotelDescriptiveContent->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($hotelDescriptiveContent->toArray(), 'show success');
     }
 
     public function update(HotelDescriptiveContentRequest $request, $id)
     {
         $hotelDescriptiveContent = HotelDescriptiveContent::findOrFail($id);
         $hotelDescriptiveContent->update($request->validated());
-        return $this->sendResponse($hotelDescriptiveContent->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($hotelDescriptiveContent->toArray(), 'update success');
     }
 
     public function destroy($id)

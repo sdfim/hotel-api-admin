@@ -17,7 +17,7 @@ class HotelAttributeController extends BaseController
         $query = $this->filter($query, HotelAttribute::class);
         $hotelAttributes = $query->get();
 
-        return $this->sendResponse($hotelAttributes->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($hotelAttributes->toArray(), 'index success');
     }
 
     public function store(HotelAttributeRequest $request)
@@ -29,14 +29,14 @@ class HotelAttributeController extends BaseController
     public function show($id)
     {
         $hotelAttribute = HotelAttribute::findOrFail($id);
-        return $this->sendResponse($hotelAttribute->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($hotelAttribute->toArray(), 'show success');
     }
 
     public function update(HotelAttributeRequest $request, $id)
     {
         $hotelAttribute = HotelAttribute::findOrFail($id);
         $hotelAttribute->update($request->validated());
-        return $this->sendResponse($hotelAttribute->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($hotelAttribute->toArray(), 'update success');
     }
 
     public function destroy($id)

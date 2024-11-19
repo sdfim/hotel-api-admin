@@ -16,7 +16,7 @@ class HotelInformativeServiceController extends BaseController
         $query = $this->filter($query, HotelInformativeService::class);
         $hotelInformativeServices = $query->get();
 
-        return $this->sendResponse($hotelInformativeServices->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($hotelInformativeServices->toArray(), 'index success');
     }
 
     public function store(HotelInformativeServiceRequest $request)
@@ -28,14 +28,14 @@ class HotelInformativeServiceController extends BaseController
     public function show($id)
     {
         $hotelInformativeService = HotelInformativeService::findOrFail($id);
-        return $this->sendResponse($hotelInformativeService->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($hotelInformativeService->toArray(), 'show success');
     }
 
     public function update(HotelInformativeServiceRequest $request, $id)
     {
         $hotelInformativeService = HotelInformativeService::findOrFail($id);
         $hotelInformativeService->update($request->validated());
-        return $this->sendResponse($hotelInformativeService->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($hotelInformativeService->toArray(), 'update success');
     }
 
     public function destroy($id)

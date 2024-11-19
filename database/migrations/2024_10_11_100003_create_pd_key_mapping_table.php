@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('pd_key_mapping', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('hotel_id');
-            $table->string('key_id', 255);
+            $table->string('key_id');
             $table->unsignedBigInteger('key_mapping_owner_id');
             $table->timestamps();
 

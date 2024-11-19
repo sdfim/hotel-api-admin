@@ -17,7 +17,7 @@ class ImageGalleryController extends BaseController
         $query = $this->filter($query, ImageGallery::class);
         $galleries = $query->with(['images'])->get();
 
-        return $this->sendResponse($galleries->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($galleries->toArray(), 'index success');
     }
 
     public function store(ImageGalleryRequest $request)
@@ -29,14 +29,14 @@ class ImageGalleryController extends BaseController
     public function show($id)
     {
         $gallery = ImageGallery::with('images')->findOrFail($id);
-        return $this->sendResponse($gallery->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($gallery->toArray(), 'show success');
     }
 
     public function update(ImageGalleryRequest $request, $id)
     {
         $gallery = ImageGallery::findOrFail($id);
         $gallery->update($request->validated());
-        return $this->sendResponse($gallery->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($gallery->toArray(), 'update success');
     }
 
     public function destroy($id)
@@ -52,7 +52,7 @@ class ImageGalleryController extends BaseController
         $imageId = $request->input('image_id');
         $gallery->images()->attach($imageId);
 
-        return $this->sendResponse($gallery->load('images')->toArray(), 'Image attached successfully', Response::HTTP_OK);
+        return $this->sendResponse($gallery->load('images')->toArray(), 'Image attached successfully');
     }
 
     public function detachImage(AttachOrDetachImageRequest $request, $id)
@@ -61,6 +61,6 @@ class ImageGalleryController extends BaseController
         $imageId = $request->input('image_id');
         $gallery->images()->detach($imageId);
 
-        return $this->sendResponse($gallery->load('images')->toArray(), 'Image detached successfully', Response::HTTP_OK);
+        return $this->sendResponse($gallery->load('images')->toArray(), 'Image detached successfully');
     }
 }

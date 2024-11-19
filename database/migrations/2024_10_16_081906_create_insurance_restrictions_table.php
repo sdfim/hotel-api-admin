@@ -25,13 +25,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::table('insurance_restrictions', function (Blueprint $table) {
-            // Drop foreign key constraints
-            $table->dropForeign(['provider_id']);
-            $table->dropForeign(['restriction_type_id']);
-        });
-
-        // Drop the table
         Schema::dropIfExists('insurance_restrictions');
     }
 };

@@ -15,6 +15,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Livewire\Component;
+use Modules\Enums\HotelTypeEnum;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
 use Filament\Forms\Components\TextInput;
@@ -107,9 +108,9 @@ class HotelForm extends Component implements HasForms
                             Select::make('type')
                                 ->label('Type')
                                 ->options([
-                                    'Direct connection' => 'Direct connection',
-                                    'Manual contract' => 'Manual contract',
-                                    'Commission tracking' => 'Commission tracking',
+                                    HotelTypeEnum::DIRECT_CONNECTION->value => HotelTypeEnum::DIRECT_CONNECTION->value,
+                                    HotelTypeEnum::MANUAL_CONTRACT->value => HotelTypeEnum::MANUAL_CONTRACT->value,
+                                    HotelTypeEnum::COMMISSION_TRACKING->value => HotelTypeEnum::COMMISSION_TRACKING->value,
                                 ])->required(),
 
                             Grid::make()

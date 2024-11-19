@@ -16,7 +16,7 @@ class ImageController extends BaseController
         $query = $this->filter($query, Image::class);
         $hotelImages = $query->with(['section'])->get();
 
-        return $this->sendResponse($hotelImages->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($hotelImages->toArray(), 'index success');
     }
 
     public function store(ImageRequest $request)
@@ -28,14 +28,14 @@ class ImageController extends BaseController
     public function show($id)
     {
         $hotelImage = Image::with(['section'])->findOrFail($id);
-        return $this->sendResponse($hotelImage->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($hotelImage->toArray(), 'show success');
     }
 
     public function update(ImageRequest $request, $id)
     {
         $hotelImage = Image::findOrFail($id);
         $hotelImage->update($request->validated());
-        return $this->sendResponse($hotelImage->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($hotelImage->toArray(), 'update success');
     }
 
     public function destroy($id)

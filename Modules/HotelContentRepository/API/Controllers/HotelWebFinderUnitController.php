@@ -16,7 +16,7 @@ class HotelWebFinderUnitController extends BaseController
         $query = $this->filter($query, HotelWebFinderUnit::class);
         $webFinderUnits = $query->get();
 
-        return $this->sendResponse($webFinderUnits->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($webFinderUnits->toArray(), 'index success');
     }
 
     public function store(HotelWebFinderUnitRequest $request)
@@ -28,14 +28,14 @@ class HotelWebFinderUnitController extends BaseController
     public function show($id)
     {
         $webFinderUnit = HotelWebFinderUnit::findOrFail($id);
-        return $this->sendResponse($webFinderUnit->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($webFinderUnit->toArray(), 'show success');
     }
 
     public function update(HotelWebFinderUnitRequest $request, $id)
     {
         $webFinderUnit = HotelWebFinderUnit::findOrFail($id);
         $webFinderUnit->update($request->validated());
-        return $this->sendResponse($webFinderUnit->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($webFinderUnit->toArray(), 'update success');
     }
 
     public function destroy($id)

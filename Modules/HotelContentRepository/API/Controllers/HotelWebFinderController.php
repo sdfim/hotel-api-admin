@@ -16,7 +16,7 @@ class HotelWebFinderController extends BaseController
         $query = $this->filter($query, HotelWebFinder::class);
         $webFinders = $query->get();
 
-        return $this->sendResponse($webFinders->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($webFinders->toArray(), 'index success');
     }
 
     public function store(HotelWebFinderRequest $request)
@@ -28,14 +28,14 @@ class HotelWebFinderController extends BaseController
     public function show($id)
     {
         $webFinder = HotelWebFinder::findOrFail($id);
-        return $this->sendResponse($webFinder->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($webFinder->toArray(), 'show success');
     }
 
     public function update(HotelWebFinderRequest $request, $id)
     {
         $webFinder = HotelWebFinder::findOrFail($id);
         $webFinder->update($request->validated());
-        return $this->sendResponse($webFinder->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($webFinder->toArray(), 'update success');
     }
 
     public function destroy($id)

@@ -15,7 +15,7 @@ class HotelAgeRestrictionTypeController extends BaseController
         $query = $this->filter($query, HotelAgeRestrictionType::class);
         $types = $query->get();
 
-        return $this->sendResponse($types->toArray(), 'index success', Response::HTTP_OK);
+        return $this->sendResponse($types->toArray(), 'index success');
     }
 
     public function store(HotelAgeRestrictionTypeRequest $request)
@@ -27,14 +27,14 @@ class HotelAgeRestrictionTypeController extends BaseController
     public function show($id)
     {
         $type = HotelAgeRestrictionType::findOrFail($id);
-        return $this->sendResponse($type->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($type->toArray(), 'show success');
     }
 
     public function update(HotelAgeRestrictionTypeRequest $request, $id)
     {
         $type = HotelAgeRestrictionType::findOrFail($id);
         $type->update($request->validated());
-        return $this->sendResponse($type->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($type->toArray(), 'update success');
     }
 
     public function destroy($id)

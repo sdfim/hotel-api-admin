@@ -2,8 +2,8 @@
 
 namespace Modules\HotelContentRepository\API\Requests;
 
-use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
+use Modules\Enums\HotelTypeEnum;
 
 class HotelRequest extends ApiRequest
 {
@@ -580,16 +580,11 @@ class HotelRequest extends ApiRequest
      * )
      */
 
-    public function authorize(): bool
-    {
-        return Auth::check();
-    }
-
     public function rules(): array
     {
         return [
             'name' => 'required|string|max:255',
-            'type' => 'required|string|in:Direct connection,Manual contract,Commission tracking',
+            'type' => 'required|string|in:' . implode(',', array_column(HotelTypeEnum::cases(), 'value')),
             'verified' => 'required|boolean',
             'address' => 'required|string',
             'star_rating' => 'required|integer|min:1|max:5',
