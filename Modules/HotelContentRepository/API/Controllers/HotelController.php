@@ -4,6 +4,9 @@ namespace Modules\HotelContentRepository\API\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
+use Modules\HotelContentRepository\Actions\Hotel\AddHotel;
+use Modules\HotelContentRepository\Actions\Hotel\DeleteHotel;
+use Modules\HotelContentRepository\Actions\Hotel\EditHotel;
 use Modules\HotelContentRepository\API\Requests\AttachOrDetachGalleryRequest;
 use Modules\HotelContentRepository\API\Requests\AttachOrDetachWebFinderRequest;
 use Modules\HotelContentRepository\API\Requests\HotelRequest;
@@ -16,6 +19,12 @@ use Spatie\Fractal\Fractal;
 
 class HotelController extends BaseController
 {
+    public function __construct(
+        protected AddHotel $addHotel,
+        protected EditHotel $editHotel,
+        protected DeleteHotel $deleteHotel
+    ) {}
+
     public function index()
     {
         $query = Hotel::query();
@@ -39,7 +48,7 @@ class HotelController extends BaseController
 
     public function store(HotelRequest $request)
     {
-        $hotel = Hotel::create($request->validated());
+        $hotel = $this->addHotel->handle($request);
         return $this->sendResponse($hotel->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
@@ -64,14 +73,14 @@ class HotelController extends BaseController
     public function update(HotelRequest $request, $id)
     {
         $hotel = Hotel::findOrFail($id);
-        $hotel->update($request->validated());
+        $hotel = $this->editHotel->handle($hotel, $request);
         return $this->sendResponse($hotel->toArray(), 'update success');
     }
 
     public function destroy($id)
     {
         $hotel = Hotel::findOrFail($id);
-        $hotel->delete();
+        $this->deleteHotel->handle($hotel);
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 

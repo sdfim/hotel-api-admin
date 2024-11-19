@@ -22,7 +22,7 @@ class HotelControllerTest extends TestCase
             'data' => [
                 '*' => [
                     'id', 'name', 'weight', 'type', 'verified',
-                    'address', 'star_rating', 'website', 'num_rooms', 'location',
+                    'address', 'star_rating', 'num_rooms', 'location',
                     'travel_agent_commission', 'hotel_board_basis',
                     'default_currency'
                 ]
@@ -41,7 +41,7 @@ class HotelControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 'id', 'name', 'weight', 'type', 'verified',
-                'address', 'star_rating', 'website', 'num_rooms', 'location',
+                'address', 'star_rating', 'num_rooms', 'location',
                 'travel_agent_commission', 'hotel_board_basis',
                 'default_currency'
             ],
@@ -61,7 +61,7 @@ class HotelControllerTest extends TestCase
             'data' => [
                 '*' => [
                     'id', 'name', 'weight', 'type', 'verified',
-                    'address', 'star_rating', 'website', 'num_rooms', 'location',
+                    'address', 'star_rating', 'num_rooms', 'location',
                     'travel_agent_commission', 'hotel_board_basis', 'default_currency'
                 ]
             ],
@@ -80,7 +80,7 @@ class HotelControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 'id', 'name', 'weight', 'type', 'verified',
-                'address', 'star_rating', 'website', 'num_rooms', 'location',
+                'address', 'star_rating', 'num_rooms', 'location',
                 'travel_agent_commission', 'hotel_board_basis', 'default_currency'
             ],
             'message'

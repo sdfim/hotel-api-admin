@@ -215,8 +215,6 @@ class HotelAgeRestrictionTypeRequest extends ApiRequest
      * )
      */
 
-
-
     public function rules(): array
     {
         return [

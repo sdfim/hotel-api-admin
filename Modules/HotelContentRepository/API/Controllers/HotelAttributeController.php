@@ -3,6 +3,9 @@
 namespace Modules\HotelContentRepository\API\Controllers;
 
 use App\Http\Controllers\Controller;
+use Modules\HotelContentRepository\Actions\HotelAttribute\AddHotelAttribute;
+use Modules\HotelContentRepository\Actions\HotelAttribute\DeleteHotelAttribute;
+use Modules\HotelContentRepository\Actions\HotelAttribute\EditHotelAttribute;
 use Modules\HotelContentRepository\Models\HotelAttribute;
 use Modules\HotelContentRepository\API\Requests\HotelAttributeRequest;
 use Illuminate\Http\Request;
@@ -11,6 +14,12 @@ use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class HotelAttributeController extends BaseController
 {
+    public function __construct(
+        protected AddHotelAttribute $addHotelAttribute,
+        protected EditHotelAttribute $editHotelAttribute,
+        protected DeleteHotelAttribute $deleteHotelAttribute
+    ) {}
+
     public function index()
     {
         $query = HotelAttribute::query();
@@ -22,7 +31,7 @@ class HotelAttributeController extends BaseController
 
     public function store(HotelAttributeRequest $request)
     {
-        $hotelAttribute = HotelAttribute::create($request->validated());
+        $hotelAttribute = $this->addHotelAttribute->handle($request);
         return $this->sendResponse($hotelAttribute->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
@@ -35,14 +44,14 @@ class HotelAttributeController extends BaseController
     public function update(HotelAttributeRequest $request, $id)
     {
         $hotelAttribute = HotelAttribute::findOrFail($id);
-        $hotelAttribute->update($request->validated());
+        $hotelAttribute = $this->editHotelAttribute->handle($hotelAttribute, $request);
         return $this->sendResponse($hotelAttribute->toArray(), 'update success');
     }
 
     public function destroy($id)
     {
         $hotelAttribute = HotelAttribute::findOrFail($id);
-        $hotelAttribute->delete();
+        $this->deleteHotelAttribute->handle($hotelAttribute);
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 }

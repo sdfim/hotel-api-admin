@@ -4,12 +4,21 @@ namespace Modules\HotelContentRepository\API\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
+use Modules\HotelContentRepository\Actions\ContentSource\AddContentSource;
+use Modules\HotelContentRepository\Actions\ContentSource\DeleteContentSource;
+use Modules\HotelContentRepository\Actions\ContentSource\EditContentSource;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\API\Requests\ContentSourceRequest;
 use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class ContentSourceController extends BaseController
 {
+    public function __construct(
+        protected AddContentSource $addContentSource,
+        protected EditContentSource $editContentSource,
+        protected DeleteContentSource $deleteContentSource
+    ) {}
+
     public function index()
     {
         $query = ContentSource::query();
@@ -21,7 +30,7 @@ class ContentSourceController extends BaseController
 
     public function store(ContentSourceRequest $request)
     {
-        $contentSource = ContentSource::create($request->validated());
+        $contentSource = $this->addContentSource->handle($request);
         return $this->sendResponse($contentSource->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
@@ -34,14 +43,14 @@ class ContentSourceController extends BaseController
     public function update(ContentSourceRequest $request, $id)
     {
         $contentSource = ContentSource::findOrFail($id);
-        $contentSource->update($request->validated());
+        $contentSource = $this->editContentSource->handle($contentSource, $request);
         return $this->sendResponse($contentSource->toArray(), 'update success');
     }
 
     public function destroy($id)
     {
         $contentSource = ContentSource::findOrFail($id);
-        $contentSource->delete();
+        $this->deleteContentSource->handle($contentSource);
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 }
