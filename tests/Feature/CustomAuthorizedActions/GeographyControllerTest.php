@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
+use PHPUnit\Framework\Attributes\Test;
+
 class GeographyControllerTest extends CustomAuthorizedActionsTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_admin_geography_index_is_opening(): void
     {
         $response = $this->get('/admin/geography');

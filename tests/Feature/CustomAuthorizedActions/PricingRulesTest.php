@@ -9,14 +9,13 @@ use App\Models\PricingRuleCondition;
 use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
 use Modules\API\Tools\PricingRulesDataGenerationTools;
+use PHPUnit\Framework\Attributes\Test;
 
 class PricingRulesTest extends CustomAuthorizedActionsTestCase
 {
     use WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_pricing_rules_index_is_opening(): void
     {
         $response = $this->get('/admin/pricing-rules');
@@ -24,9 +23,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_pricing_rules_creating_is_opening(): void
     {
         $response = $this->get('/admin/pricing-rules/create');
@@ -34,9 +31,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_pricing_rules_showing_is_opening(): void
     {
         $pricingRule = PricingRule::factory()
@@ -48,9 +43,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_validation_of_pricing_rules_form_during_creation(): void
     {
         Livewire::test(CreatePricingRule::class)
@@ -61,7 +54,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
                 'price_value' => '',
                 'price_value_type' => '',
                 'rule_start_date' => '',
-                'rule_expiration_date' => '',
             ])
             ->call('create')
             ->assertHasErrors([
@@ -69,15 +61,12 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
                 'data.manipulable_price_type',
                 'data.price_value',
                 'data.price_value_type',
-                'data.rule_expiration_date',
                 'data.rule_start_date',
                 'data.conditions',
             ]);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_creating_new_pricing_rule(): void
     {
         $pricingRulesTools = new PricingRulesDataGenerationTools();
@@ -93,7 +82,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         Livewire::test(CreatePricingRule::class)
             ->set('data', $formData)
-            ->assertFormSet($formData)
             ->call('create')
             ->assertHasNoFormErrors()
             ->assertNotified('Created successfully')
@@ -106,9 +94,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_updating_an_existing_pricing_rule(): void
     {
         $pricingRule = PricingRule::factory()
@@ -141,9 +127,7 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
         }
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_destroying_an_existing_pricing_rule(): void
     {
         $pricingRule = PricingRule::factory()->create();

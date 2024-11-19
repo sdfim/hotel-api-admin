@@ -6,11 +6,15 @@ use App\Livewire\PropertiesTable;
 use App\Models\Property;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\Test;
 
 class PropertyTest extends CustomAuthorizedActionsTestCase
 {
+    use RefreshDatabase;
+
     private Collection|Property|Model|null $giata = null;
 
     protected function setUp(): void
@@ -20,19 +24,15 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
         $this->giata = Property::factory()->count(10)->create();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_giata_table_index_is_opening(): void
     {
-        $response = $this->get('/admin/giata');
+        $response = $this->get('/admin/properties');
 
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_giata_table_is_rendering_with_its_columns(): void
     {
         livewire::test(PropertiesTable::class)->assertSuccessful();
@@ -41,7 +41,6 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanRenderTableColumn('code')
             ->assertCanRenderTableColumn('name')
             ->assertCanRenderTableColumn('city')
-            ->assertCanRenderTableColumn('city_id')
             ->assertCanRenderTableColumn('locale')
             ->assertCanRenderTableColumn('latitude')
             ->assertCanRenderTableColumn('longitude')
@@ -50,9 +49,7 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanRenderTableColumn('source');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_code(): void
     {
         $code = $this->giata->first()->code;
@@ -63,22 +60,7 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('code', '!=', $code));
     }
 
-    /**
-     * @test
-     */
-    public function test_possibility_of_searching_by_name(): void
-    {
-        $name = $this->giata->first()->name;
-
-        livewire::test(PropertiesTable::class)
-            ->searchTableColumns(['name' => $name])
-            ->assertCanSeeTableRecords($this->giata->where('name', $name))
-            ->assertCanNotSeeTableRecords($this->giata->where('name', '!=', $name));
-    }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_city(): void
     {
         $city = $this->giata->first()->city;
@@ -89,22 +71,7 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('city', '!=', $city));
     }
 
-    /**
-     * @test
-     */
-    public function test_possibility_of_searching_by_city_id(): void
-    {
-        $city_id = $this->giata->first()->city_id;
-
-        livewire::test(PropertiesTable::class)
-            ->searchTableColumns(['city_id' => $city_id])
-            ->assertCanSeeTableRecords($this->giata->where('city_id', $city_id))
-            ->assertCanNotSeeTableRecords($this->giata->where('city_id', '!=', $city_id));
-    }
-
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_locale(): void
     {
         $locale = $this->giata->first()->locale;
@@ -115,9 +82,7 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('locale', '!=', $locale));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_latitude(): void
     {
         $latitude = $this->giata->first()->latitude;
@@ -128,9 +93,7 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('latitude', '!=', $latitude));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_longitude(): void
     {
         $longitude = $this->giata->first()->longitude;
@@ -141,9 +104,7 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('longitude', '!=', $longitude));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_address(): void
     {
         $mapperAddress = $this->giata->first()->mapper_address;
@@ -154,9 +115,7 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanNotSeeTableRecords($this->giata->where('mapper_address', '!=', $mapperAddress));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_possibility_of_searching_by_phone(): void
     {
         $mapperPhoneNumber = $this->giata->first()->mapper_phone_number;

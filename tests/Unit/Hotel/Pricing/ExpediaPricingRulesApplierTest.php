@@ -31,7 +31,9 @@ class ExpediaPricingRulesApplierTest extends TestCase
         $giataId = 1;
         $roomsPricingArray = $this->getRoomsPricingArray();
 
-        $result = $this->expediaPricingRulesApplier->apply($giataId, $roomsPricingArray);
+        // int $giataId, array $roomsPricingArray, string $roomName, string|int $roomCode, string|int $roomType
+
+        $result = $this->expediaPricingRulesApplier->apply($giataId, $roomsPricingArray, '', '', '');
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('total_price', $result);

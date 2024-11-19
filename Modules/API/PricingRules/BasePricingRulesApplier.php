@@ -60,45 +60,73 @@ class BasePricingRulesApplier
 
     protected function updateTotals(array $roomTotals): void
     {
-        $this->totalPrice += (float) $roomTotals['total_price'];
+        $this->totalPrice += (float)$roomTotals['total_price'];
 
-        $this->totalTax += (float) $roomTotals['total_tax'];
+        $this->totalTax += (float)$roomTotals['total_tax'];
 
-        $this->totalFees += (float) $roomTotals['total_fees'];
+        $this->totalFees += (float)$roomTotals['total_fees'];
 
-        $this->totalNet += (float) $roomTotals['total_net'];
+        $this->totalNet += (float)$roomTotals['total_net'];
     }
 
     protected function validPricingRule(
-        int $giataId,
-        array $conditions,
+        int        $giataId,
+        array      $conditions,
+        string     $roomName,
+        string|int $roomCode,
+        string|int $roomType,
         array $conditionsFieldsToVerify = ['supplier_id', 'property']
-    ): bool {
-        $validPricingRule = [];
-
-        $conditionsCollection = collect($conditions);
+    ): bool
+    {
+        $validPricingRule = [
+            'supplier_id' => true,
+            'property' => true,
+            'room_name' => true,
+            'room_code' => true,
+            'room_type' => true,
+        ];
 
         foreach ($conditionsFieldsToVerify as $field) {
-            $filtered = $conditionsCollection->where('field', $field);
-
-            $validPricingRule[$field] = match ($field) {
-                'supplier_id' => $filtered->isEmpty() || in_array($this->supplierId, $filtered->pluck('value_from')->all()),
-                'property' => $filtered->isEmpty() || in_array($giataId, $filtered->pluck('value_from')->all()),
-                'default' => false
-            };
+            foreach ($conditions as $condition) {
+                if ($condition['field'] !== $field) continue;
+                $validPricingRule[$field] = match ($field) {
+                    'supplier_id' => $this->evaluateCondition($condition, $this->supplierId),
+                    'property' => $this->evaluateCondition($condition, $giataId),
+                    'room_name' => $this->evaluateCondition($condition, $roomName),
+                    'room_code' => $this->evaluateCondition($condition, $roomCode),
+                    'room_type' => $this->evaluateCondition($condition, $roomType),
+                    default => true
+                };
+            }
         }
 
-        return array_reduce($validPricingRule, function ($carry, $item) {
-            return $carry && ($item === true);
-        }, true);
+        if (array_filter($validPricingRule) === []) return true;
+
+        return array_reduce($validPricingRule, fn($carry, $item) => $carry && $item, true);
+    }
+
+    private function evaluateCondition(array $condition, $value): bool
+    {
+        $compare = $condition['compare'];
+        $valueFrom = $condition['value_from'];
+        $valueArr = $condition['value'];
+//        $valueArr = is_array($valueArr) ? $valueArr : preg_split('/,\s*/', $valueArr);
+        $valueArr = is_array($valueArr) ? $valueArr : preg_split('/;\s*/', $valueArr);
+        return match ($compare) {
+            '=' => (string)$valueFrom === (string)$value,
+            '!=' => (string)$valueFrom !== (string)$value,
+            'in' => in_array($value, $valueArr),
+            'not_in' => !in_array($value, $valueArr),
+            default => false
+        };
     }
 
     protected function applyPricingRulesLogic(array $pricingRule): void
     {
-        $priceValueType = (string) $pricingRule['price_value_type'];
-        $fixedValue = (float) $pricingRule['price_value'];
-        $manipulablePriceType = (string) $pricingRule['manipulable_price_type'];
-        $priceValueTarget = (string) $pricingRule['price_value_target'];
+        $priceValueType = (string)$pricingRule['price_value_type'];
+        $fixedValue = (float)$pricingRule['price_value'];
+        $manipulablePriceType = (string)$pricingRule['manipulable_price_type'];
+        $priceValueTarget = (string)$pricingRule['price_value_target'];
         $totalPropertyName = match ($manipulablePriceType) {
             'net_price' => 'totalNet',
             default => 'totalPrice',
@@ -129,7 +157,7 @@ class BasePricingRulesApplier
 
     protected function totalNumberOfGuestsInRoom(array $room): int
     {
-        return (int) $room['adults'] + (isset($room['children_ages']) ? count($room['children_ages']) : 0);
+        return (int)$room['adults'] + (isset($room['children_ages']) ? count($room['children_ages']) : 0);
     }
 
     protected function totals(bool $b2b = true): array
