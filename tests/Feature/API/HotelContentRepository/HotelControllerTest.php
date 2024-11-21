@@ -54,7 +54,8 @@ class HotelControllerTest extends TestCase
             'success',
             'data' => [
                 '*' => [
-                    'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis'
+                    'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms',
+                    'room_images_source_id', 'hotel_board_basis', 'travel_agent_commission'
                 ]
             ],
             'message'

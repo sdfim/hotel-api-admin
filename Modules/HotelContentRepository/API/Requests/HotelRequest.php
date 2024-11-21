@@ -359,6 +359,7 @@ class HotelRequest extends ApiRequest
             'room_images_source_id' => 'required|exists:pd_content_sources,id',
             'hotel_board_basis' => 'required|string|max:255',
             'weight' => 'integer',
+            'travel_agent_commission' => 'numeric',
         ];
     }
 }

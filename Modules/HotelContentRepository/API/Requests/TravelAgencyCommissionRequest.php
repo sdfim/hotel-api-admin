@@ -4,6 +4,7 @@ namespace Modules\HotelContentRepository\API\Requests;
 
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
+use Modules\Enums\CommissionValueTypeEnum;
 
 class TravelAgencyCommissionRequest extends ApiRequest
 {
@@ -86,9 +87,10 @@ class TravelAgencyCommissionRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"name", "commission_value", "date_range_start", "date_range_end"},
+     *       required={"name", "commission_value", "commission_value_type", "date_range_start", "date_range_end"},
      *       @OA\Property(property="name", type="string", example="Summer Promotion"),
      *       @OA\Property(property="commission_value", type="number", format="float", example=10.5),
+     *       @OA\Property(property="commission_value_type", type="string", example="Amount"),
      *       @OA\Property(property="date_range_start", type="string", format="date", example="2023-01-01"),
      *       @OA\Property(property="date_range_end", type="string", format="date", example="2023-12-31")
      *     )
@@ -169,9 +171,10 @@ class TravelAgencyCommissionRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"name", "commission_value", "date_range_start", "date_range_end"},
+     *       required={"name", "commission_value", "commission_value_type", "date_range_start", "date_range_end"},
      *       @OA\Property(property="name", type="string", example="Summer Promotion"),
      *       @OA\Property(property="commission_value", type="number", format="float", example=10.5),
+     *       @OA\Property(property="commission_value_type", type="string", example="AMOUNT"),
      *       @OA\Property(property="date_range_start", type="string", format="date", example="2023-01-01"),
      *       @OA\Property(property="date_range_end", type="string", format="date", example="2023-12-31")
      *     )
@@ -241,13 +244,14 @@ class TravelAgencyCommissionRequest extends ApiRequest
      * )
      */
 
-
-
     public function rules(): array
     {
+        $commissionValueTypes = implode(',', CommissionValueTypeEnum::values());
+
         return [
             'name' => 'required|string',
             'commission_value' => 'required|numeric',
+            'commission_value_type' => 'required|in:' . $commissionValueTypes,
             'date_range_start' => 'required|date',
             'date_range_end' => 'required|date',
         ];

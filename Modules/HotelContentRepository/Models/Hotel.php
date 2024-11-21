@@ -31,11 +31,13 @@ class Hotel extends Model
         'num_rooms',
         'room_images_source_id',
         'hotel_board_basis',
+        'travel_agent_commission'
     ];
 
     protected $casts = [
         'address' => 'array',
         'location' => 'array',
+        'travel_agent_commission' => 'float'
     ];
 
     protected $hidden = [
@@ -62,5 +64,10 @@ class Hotel extends Model
     public function product(): MorphOne
     {
         return $this->morphOne(Product::class, 'related');
+    }
+
+    public function contentSource(): BelongsTo
+    {
+        return $this->belongsTo(ContentSource::class);
     }
 }

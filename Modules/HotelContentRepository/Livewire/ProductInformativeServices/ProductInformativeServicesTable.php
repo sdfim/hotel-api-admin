@@ -17,7 +17,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
-use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductInformativeService;
 
 class ProductInformativeServicesTable extends Component implements HasForms, HasTable
@@ -41,9 +41,9 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
     public function schemeForm(): array
     {
         return [
-            Select::make('hotel_id')
-                ->label('Hotel')
-                ->options(Hotel::pluck('name', 'id'))
+            Select::make('product_id')
+                ->label('Product')
+                ->options(Product::pluck('name', 'id'))
                 ->disabled(fn () => $this->productId)
                 ->required(),
             Select::make('service_id')
@@ -60,7 +60,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
     {
         return $table
             ->query(
-                ProductInformativeService::with('service')->where('hotel_id', $this->productId)
+                ProductInformativeService::with('service')->where('product_id', $this->productId)
             )
             ->columns([
                 TextColumn::make('service.name')->label('Service Type')->searchable(),
@@ -80,10 +80,10 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                 CreateAction::make()
                     ->form($this->schemeForm())
                     ->fillForm(function () {
-                        return $this->productId ? ['hotel_id' => $this->productId] : [];
+                        return $this->productId ? ['product_id' => $this->productId] : [];
                     })
                     ->action(function ($data) {
-                        if ($this->productId) $data['hotel_id'] = $this->productId;
+                        if ($this->productId) $data['product_id'] = $this->productId;
                         ProductInformativeService::create($data);
                     })
                     ->tooltip('Add New Service')

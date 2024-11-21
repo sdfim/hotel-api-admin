@@ -28,6 +28,7 @@ class ProductForRelationDTO
     public $key_mappings;
     public $galleries;
     public $contact_information;
+    public $travel_agent_commission;
 
     public function __construct(Product $product)
     {
@@ -43,6 +44,7 @@ class ProductForRelationDTO
         $this->location = $product->location;
         $this->lat = $product->lat;
         $this->lng = $product->lng;
+        $this->travel_agent_commission = $product->travel_agent_commission;
         $this->affiliations = $product->affiliations->map(function ($affiliation) {
             return new ProductAffiliationDTO($affiliation);
         });

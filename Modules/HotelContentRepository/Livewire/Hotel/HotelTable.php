@@ -30,37 +30,28 @@ class HotelTable extends Component implements HasForms, HasTable
         return $table
             ->paginated([5, 10, 25, 50])
             ->query(Hotel::with([
-                'affiliations',
-                'attributes',
-                'contentSource',
-                'propertyImagesSource',
-                'descriptiveContentsSection',
-                'feeTaxes',
-                'informativeServices',
-                'promotions',
-
-                'keyMappings',
-                'galleries',
-                'webFinders',
-
+                'product',
                 'rooms',
                 'roomImagesSource',
-                'contactInformation'
+                'webFinders',
+                'contentSource'
             ]))
             ->columns([
-                BooleanColumn::make('verified')
+                BooleanColumn::make('product.verified')
                     ->label('Verified')
                     ->sortable()
                     ->toggleable(),
 
-                TextColumn::make('name')
-                    ->searchable(isIndividual: true)
+                TextColumn::make('product.name')
+                    ->label('Name')
+                    ->searchable()
                     ->toggleable()
                     ->sortable()
                     ->wrap(),
 
-                TextColumn::make('address')
-                    ->searchable(isIndividual: true)
+                TextColumn::make('product.address')
+                    ->label('Address')
+                    ->searchable()
                     ->getStateUsing(function ($record) {
                         $string = '';
                         foreach ($record->address as $item) {
@@ -73,22 +64,24 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->sortable(),
 
                 TextColumn::make('star_rating')
-                    ->searchable(isIndividual: true)
+                    ->searchable()
                     ->toggleable()
                     ->sortable(),
 
                 TextColumn::make('num_rooms')
-                    ->searchable(isIndividual: true)
+                    ->searchable()
                     ->toggleable()
                     ->sortable(),
 
                 TextColumn::make('combined_sources')
                     ->label('Combined Sources')
-                    ->searchable(isIndividual: true)
+                    ->searchable()
                     ->toggleable()
                     ->sortable()
                     ->default(function ($record) {
-                        return $record->contentSource->name . ' ' . $record->roomImagesSource->name . ' ' . $record->propertyImagesSource->name;
+                        return $record->product->contentSource->name . ' '
+                            . $record->roomImagesSource->name . ' '
+                            . $record->product->propertyImagesSource->name;
                     }),
 
             ])

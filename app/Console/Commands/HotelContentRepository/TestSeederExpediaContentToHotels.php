@@ -86,12 +86,13 @@ class TestSeederExpediaContentToHotels extends Command
 
         $hotelData = [
             'weight' =>  rand(1, 100),
-            'sale_type' => 'Direct Connection',
+            'sale_type' => 'Direct connection',
             'address' => $address,
             'star_rating' => $expediaContent?->rating,
             'num_rooms' => Arr::get($expediaContent->expediaSlave->statistics, '52.value'),
             'room_images_source_id' => $expediaId,
             'product_board_basis' => '',
+            'travel_agent_commission' => 10,
         ];
 
         $hotel = Hotel::updateOrCreate(
@@ -110,7 +111,6 @@ class TestSeederExpediaContentToHotels extends Command
             'lng' => Arr::get($expediaContent?->location, 'coordinates.longitude'),
             'default_currency' => Arr::get($expediaContent->expediaSlave->onsite_payments, 'currency', 'USD'),
             'website' => '',
-            'location_gm' => Arr::get($expediaContent?->location, 'coordinates'),
             'related_id' => $hotel->id,
             'related_type' => Hotel::class,
         ];

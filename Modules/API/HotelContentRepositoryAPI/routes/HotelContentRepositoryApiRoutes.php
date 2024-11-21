@@ -27,27 +27,13 @@ use Modules\HotelContentRepository\API\Controllers\ImageGalleryController;
 use Modules\HotelContentRepository\API\Controllers\KeyMappingController;
 use Modules\HotelContentRepository\API\Controllers\KeyMappingOwnerController;
 use Modules\HotelContentRepository\API\Controllers\TravelAgencyCommissionController;
+use Modules\HotelContentRepository\API\Controllers\VendorController;
 
 class HotelContentRepositoryApiRoutes
 {
     public static function routes(): void
     {
         Route::middleware('auth:sanctum')->prefix('repo')->group(function () {
-
-//            Route::prefix('hotel')->group(function () {
-//                Route::resource('hotels', HotelController::class);
-//                Route::post('hotels/{id}/attach-gallery', [HotelController::class, 'attachGallery']);
-//                Route::post('hotels/{id}/detach-gallery', [HotelController::class, 'detachGallery']);
-//                Route::post('hotels/{id}/attach-web-finder', [HotelController::class, 'attachWebFinder']);
-//                Route::post('hotels/{id}/detach-web-finder', [HotelController::class, 'detachWebFinder']);
-//
-//                Route::resource('rooms', HotelRoomController::class);
-//                Route::post('rooms/{id}/attach-gallery', [HotelRoomController::class, 'attachGallery']);
-//                Route::post('rooms/{id}/detach-gallery', [HotelRoomController::class, 'detachGallery']);
-//
-//                Route::resource('web-finders', HotelWebFinderController::class);
-//                Route::resource('web-finder-units', HotelWebFinderUnitController::class);
-//            });
 
             // Group HOTEL
             Route::resource('hotels', HotelController::class);
@@ -67,6 +53,9 @@ class HotelContentRepositoryApiRoutes
             Route::resource('image-galleries', ImageGalleryController::class);
             Route::post('image-galleries/{id}/attach-image', [ImageGalleryController::class, 'attachImage']);
             Route::post('image-galleries/{id}/detach-image', [ImageGalleryController::class, 'detachImage']);
+
+            // Group VENDOR
+            Route::resource('vendors', VendorController::class);
 
             // Group PRODUCT
             Route::resource('products', ProductController::class);

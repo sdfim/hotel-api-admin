@@ -26,6 +26,7 @@ class HotelFactory extends Factory
             'num_rooms' => $this->faker->numberBetween(1, 500),
             'room_images_source_id' => ContentSource::factory(),
             'hotel_board_basis' => $this->faker->word,
+            'travel_agent_commission' => $this->faker->randomFloat(2, 0, 20),
         ];
     }
 }

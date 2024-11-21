@@ -24,17 +24,18 @@ class ProductTransformer extends TransformerAbstract
     {
         return [
             'id' => $product->id,
-            'name' => $product->name,
+            'vendor_id' => $product->vendor_id,
             'product_type' => $product->product_type,
-            'verified' => (bool) $product->verified,
+            'name' => $product->name,
+            'verified' => $product->verified,
             'content_source_id' => $product->content_source_id,
             'property_images_source_id' => $product->property_images_source_id,
             'lat' => $product->lat,
             'lng' => $product->lng,
             'default_currency' => $product->default_currency,
             'website' => $product->website,
-            'created_at' => $product->created_at,
-            'updated_at' => $product->updated_at,
+            'related_id' => $product->related_id,
+            'related_type' => $product->related_type,
         ];
     }
 

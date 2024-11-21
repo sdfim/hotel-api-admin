@@ -24,6 +24,7 @@ class HotelTransformer extends TransformerAbstract
             'num_rooms' => $hotel->num_rooms,
             'room_images_source_id' => $hotel->room_images_source_id,
             'hotel_board_basis' => $hotel->hotel_board_basis,
+            'travel_agent_commission' => $hotel->travel_agent_commission,
         ];
     }
 

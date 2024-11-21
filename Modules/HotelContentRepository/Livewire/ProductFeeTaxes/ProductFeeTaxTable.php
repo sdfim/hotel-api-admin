@@ -6,6 +6,7 @@ use App\Helpers\ClassHelper;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -13,14 +14,20 @@ use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextInputColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Livewire\Component;
+use Modules\Enums\FeeTaxCollectedByEnum;
+use Modules\Enums\FeeTaxTypeEnum;
+use Modules\Enums\FeeTaxValueTypeEnum;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductFeeTax;
 
 class ProductFeeTaxTable extends Component implements HasForms, HasTable
@@ -43,7 +50,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
     public function schemeForm(): array
     {
         return [
-            Select::make('hotel_id')
+            Select::make('product_id')
                 ->label('Product')
                 ->options(Product::pluck('name', 'id'))
                 ->disabled(fn () => $this->productId)
@@ -54,18 +61,15 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     Select::make('type')
                         ->label('Type')
                         ->options([
-                            'per person' => 'per person',
-                            'per day' => 'per day',
-                            'per night' => 'per night',
-                            'per accommodation' => 'per accommodation',
-                            'per stay' => 'per stay',
+                            FeeTaxTypeEnum::TAX->value => 'Tax',
+                            FeeTaxTypeEnum::FEE->value => 'Fee',
                         ])
                         ->required(),
-                    Select::make('fee_category')
-                        ->label('Fee Category')
+                    Select::make('value_type')
+                        ->label('Value Type')
                         ->options([
-                            'mandatory' => 'mandatory',
-                            'optional' => 'optional',
+                            FeeTaxValueTypeEnum::PERCENTAGE->value => 'Percentage',
+                            FeeTaxValueTypeEnum::AMOUNT->value => 'Amount',
                         ])
                         ->required(),
                 ]),
@@ -84,6 +88,26 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->numeric(2)
                         ->required(),
                 ]),
+            Grid::make(2)
+                ->schema([
+                    Select::make('collected_by')
+                        ->label('Collected By')
+                        ->options([
+                            FeeTaxCollectedByEnum::DIRECT->value => 'Direct',
+                            FeeTaxCollectedByEnum::VENDOR->value => 'Vendor',
+                        ])
+                        ->required(),
+                    Select::make('fee_category')
+                        ->label('Fee Category')
+                        ->options([
+                            'mandatory' => 'Mandatory',
+                            'optional' => 'Optional',
+                        ])
+                        ->required(),
+                ]),
+            Toggle::make('commissionable')
+                ->label('Commissionable')
+                ->required(),
         ];
     }
 
@@ -91,7 +115,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
     {
         return $table
             ->query(
-                ProductFeeTax::query()->where('hotel_id', $this->productId)
+                ProductFeeTax::query()->where('product_id', $this->productId)
             )
             ->columns([
                 TextInputColumn::make('name')->label('Name')->searchable(),
@@ -114,19 +138,33 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                 SelectColumn::make('type')
                     ->label('Type')
                     ->options([
-                        'per person' => 'per person',
-                        'per day' => 'per day',
-                        'per night' => 'per night',
-                        'per accommodation' => 'per accommodation',
-                        'per stay' => 'per stay',
+                        FeeTaxTypeEnum::TAX->value => 'Tax',
+                        FeeTaxTypeEnum::FEE->value => 'Fee',
+                    ])
+                    ->sortable(),
+                SelectColumn::make('value_type')
+                    ->label('Value Type')
+                    ->options([
+                        FeeTaxValueTypeEnum::PERCENTAGE->value => 'Percentage',
+                        FeeTaxValueTypeEnum::AMOUNT->value => 'Amount',
+                    ])
+                    ->sortable(),
+                SelectColumn::make('collected_by')
+                    ->label('Collected By')
+                    ->options([
+                        FeeTaxCollectedByEnum::DIRECT->value => 'Direct',
+                        FeeTaxCollectedByEnum::VENDOR->value => 'Vendor',
                     ])
                     ->sortable(),
                 SelectColumn::make('fee_category')
                     ->label('Fee Category')
                     ->options([
-                        'mandatory' => 'mandatory',
-                        'optional' => 'optional',
+                        'mandatory' => 'Mandatory',
+                        'optional' => 'Optional',
                     ])
+                    ->sortable(),
+                ToggleColumn::make('commissionable')
+                    ->label('Commissionable')
                     ->sortable(),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
@@ -143,10 +181,10 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                 CreateAction::make()
                     ->form($this->schemeForm())
                     ->fillForm(function () {
-                        return $this->productId ? ['hotel_id' => $this->productId] : [];
+                        return $this->productId ? ['product_id' => $this->productId] : [];
                     })
                     ->action(function ($data) {
-                        if ($this->productId) $data['hotel_id'] = $this->productId;
+                        if ($this->productId) $data['product_id'] = $this->productId;
                         ProductFeeTax::create($data);
                     })
                     ->tooltip('Add New Fee')
@@ -171,7 +209,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
 
         $record->update($this->getValidatedData());
 
-        session()->flash('message', 'Данные успешно сохранены.');
+        session()->flash('message', 'Data saved successfully.');
     }
 
     protected function getValidatedData(): array

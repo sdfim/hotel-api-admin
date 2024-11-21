@@ -19,6 +19,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductAttribute;
 
 class ProductAttributesTable extends Component implements HasForms, HasTable

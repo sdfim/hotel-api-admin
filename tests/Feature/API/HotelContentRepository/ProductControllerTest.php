@@ -56,9 +56,11 @@ class ProductControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'vendor_id', 'product_type', 'name', 'verified',
-                'content_source_id', 'property_images_source_id', 'default_currency',
-                'website', 'lat', 'lng', 'related_id', 'related_type'
+                '*' => [
+                    'id', 'vendor_id', 'product_type', 'name', 'verified',
+                    'content_source_id', 'property_images_source_id', 'default_currency',
+                    'website', 'lat', 'lng', 'related_id', 'related_type'
+                ]
             ],
             'message'
         ]);

@@ -119,7 +119,6 @@ class Product extends Model
         return $this->hasMany(ProductContactInformation::class);
     }
 
-
     protected $appends = [
         'location',
     ];

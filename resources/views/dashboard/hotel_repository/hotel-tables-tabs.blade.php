@@ -31,6 +31,8 @@
         ],
     ];
 
+    $hotelTitle = ['Rooms', 'Website Search Generation'];
+
     ksort($tabGroups);
 
 @endphp
@@ -51,25 +53,16 @@
     <div class="sr_tab-content w-full">
         @foreach ($tabGroups as $group => $tabs)
             <div x-show="activeTab === '{{ Str::slug($group) }}'" class="sr_tab-panel">
-                @if ($group === 'Additional Info')
-                    <div class="grid grid-cols-2 gap-6">
-                        @foreach ($tabs as $tab)
-                            <div>
-                                <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4">{{ $tab['title'] }}</h3>
-                                @livewire($tab['component'], ['hotelId' => $hotelId])
-                            </div>
-                        @endforeach
-                    </div>
-                @else
-                    @foreach ($tabs as $tab)
-                        <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4">{{ $tab['title'] }}</h3>
-                        @if ($tab['title'] === 'Pricing Rules')
-                            @livewire($tab['component'], ['hotelId' => $hotelId, 'isSrCreator' => true])
-                        @else
-                            @livewire($tab['component'], ['hotelId' => $hotelId])
-                        @endif
-                    @endforeach
-                @endif
+                @foreach ($tabs as $tab)
+                    <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4">{{ $tab['title'] }}</h3>
+                    @if ($tab['title'] === 'Pricing Rules')
+                        @livewire($tab['component'], ['hotelId' => $hotelId, 'isSrCreator' => true])
+                    @elseif (in_array($tab['title'], $hotelTitle))
+                        @livewire($tab['component'], ['hotelId' => $hotelId])
+                    @else
+                        @livewire($tab['component'], ['productId' => $productId])
+                    @endif
+                @endforeach
             </div>
         @endforeach
     </div>

@@ -15,6 +15,7 @@ return new class extends Migration
             $table->integer('star_rating');
             $table->integer('weight')->nullable();
             $table->integer('num_rooms');
+            $table->decimal('travel_agent_commission',8,2)->nullable();
             $table->unsignedBigInteger('room_images_source_id');
             $table->string('hotel_board_basis')->nullable();
             $table->timestamps();

@@ -35,6 +35,11 @@ use Modules\API\BaseController as MainController;
  *  ),
  *
  * @OA\Tag(
+ *        name="Vendor | Vendors",
+ *        description="API Endpoints for Vendors"
+ *   ),
+ *
+ * @OA\Tag(
  *       name="Product | Products",
  *       description="API Endpoints for Products"
  *  ),

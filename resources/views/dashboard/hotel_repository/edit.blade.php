@@ -25,7 +25,7 @@
                     <hr class="mt-8 mb-8">
 
                     <div x-show="layout === 'grouped'">
-                        @include('dashboard.hotel_repository.hotel-tables-tabs', ['hotelId' => $hotelId])
+                        @include('dashboard.hotel_repository.hotel-tables-tabs', ['hotelId' => $hotelId, 'productId' => $productId])
                     </div>
 
                 </div>

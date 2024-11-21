@@ -42,7 +42,7 @@ class ProductContactInformationTable extends Component implements HasForms, HasT
     public function schemeForm(): array
     {
         return [
-            Select::make('hotel_id')
+            Select::make('product_id')
                 ->label('Product')
                 ->options(Product::pluck('name', 'id'))
                 ->disabled(fn () => $this->productId)
@@ -75,7 +75,7 @@ class ProductContactInformationTable extends Component implements HasForms, HasT
     {
         return $table
             ->query(
-                ProductContactInformation::with('contactInformations')->where('hotel_id', $this->productId)
+                ProductContactInformation::with('contactInformations')->where('product_id', $this->productId)
             )
             ->columns([
                 TextColumn::make('first_name')->label('First Name')->searchable(),
@@ -113,10 +113,10 @@ class ProductContactInformationTable extends Component implements HasForms, HasT
                 CreateAction::make()
                     ->form($this->schemeForm())
                     ->fillForm(function () {
-                        return $this->productId ? ['hotel_id' => $this->productId] : [];
+                        return $this->productId ? ['product_id' => $this->productId] : [];
                     })
                     ->action(function ($data) {
-                        if ($this->productId) $data['hotel_id'] = $this->productId;
+                        if ($this->productId) $data['product_id'] = $this->productId;
                         $contactInformations = $data['contactInformations'] ?? [];
                         unset($data['contactInformations']);
 

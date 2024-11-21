@@ -32,20 +32,20 @@ class PricingRulesTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public ?int $hotelId = null;
+    public ?int $productId = null;
     public array $giataKeyIds = [];
     public bool $isSrCreator = false;
 
-    public function mount(?int $hotelId = null, bool $isSrCreator = false): void
+    public function mount(?int $productId = null, bool $isSrCreator = false): void
     {
-        $this->hotelId = $hotelId;
+        $this->productId = $productId;
         $this->isSrCreator = $isSrCreator;
-        if ($this->hotelId) {
+        if ($this->productId) {
             $this->giataKeyIds = Hotel::with(['keyMappings' => function ($query) {
                 $query->whereHas('keyMappingOwner', function ($query) {
                     $query->where('name', 'GIATA');
                 });
-            }])->where('id', $this->hotelId)->get()->pluck('keyMappings.*.key_id')->flatten()->toArray();
+            }])->where('id', $this->productId)->get()->pluck('keyMappings.*.key_id')->flatten()->toArray();
         }
     }
 

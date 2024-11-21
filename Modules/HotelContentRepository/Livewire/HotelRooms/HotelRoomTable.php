@@ -45,7 +45,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
         return [
             Select::make('hotel_id')
                 ->label('Hotel')
-                ->options(Hotel::pluck('name', 'id'))
+                ->options(Hotel::with('product')->get()->pluck('product.name', 'id'))
                 ->disabled(fn () => $this->hotelId)
                 ->required(),
             TextInput::make('hbsi_data_mapped_name')->label('HBSI Data Mapped Name'),

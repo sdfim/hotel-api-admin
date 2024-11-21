@@ -6,6 +6,7 @@ use Modules\HotelContentRepository\Models\Hotel;
 
 class HotelForProductDTO
 {
+    public $vendor_id;
     public $weight;
     public $sale_type;
     public $address;
@@ -18,6 +19,7 @@ class HotelForProductDTO
 
     public function __construct(Hotel $hotel)
     {
+        $this->vendor_id = $hotel->vendor_id;
         $this->weight = $hotel->weight;
         $this->sale_type = $hotel->sale_type;
         $this->address = $hotel->address;

@@ -48,8 +48,9 @@ class HotelForm extends Component implements HasForms
 
     public function mount(Hotel $hotel): void
     {
-        $this->record = $hotel;
-        $this->verified = $hotel->verified;
+        $this->record = $hotel->load('product');
+
+        $this->verified = $hotel->product->verified;
 
         $data = $this->record->toArray();
 
@@ -60,14 +61,8 @@ class HotelForm extends Component implements HasForms
                 'value' => $value
             ];
         }
-        $data['location'] = [];
-        foreach ($this->record->location as $key => $value) {
-            $data['location'][] = [
-                'field' => $key,
-                'value' => $value
-            ];
-        }
-        $data['galleries'] = $this->record->galleries->pluck('id')->toArray();
+
+        $data['galleries'] = $this->record->product->galleries->pluck('id')->toArray();
 
         $this->form->fill($data);
     }
@@ -75,7 +70,7 @@ class HotelForm extends Component implements HasForms
     public function toggleVerified()
     {
         $this->verified = !$this->verified;
-        $this->record->update(['verified' => $this->verified]);
+        $this->record->product->update(['verified' => $this->verified]);
     }
 
     public function form(Form $form): Form
@@ -104,8 +99,8 @@ class HotelForm extends Component implements HasForms
                     // Tab 1
                     Tabs\Tab::make('General Information')
                         ->schema([
-                            TextInput::make('name')->required()->maxLength(191),
-                            Select::make('type')
+                            TextInput::make('product.name')->required()->maxLength(191),
+                            Select::make('sale_type')
                                 ->label('Type')
                                 ->options([
                                     HotelTypeEnum::DIRECT_CONNECTION->value => HotelTypeEnum::DIRECT_CONNECTION->value,
@@ -123,11 +118,11 @@ class HotelForm extends Component implements HasForms
 
                                             Grid::make()
                                                 ->schema([
-                                                    TextInput::make('lat')
+                                                    TextInput::make('product.lat')
                                                         ->label('Latitude')
                                                         ->required()
                                                         ->numeric(),
-                                                    TextInput::make('lng')
+                                                    TextInput::make('product.lng')
                                                         ->label('Longitude')
                                                         ->required()
                                                         ->numeric(),
@@ -167,12 +162,12 @@ class HotelForm extends Component implements HasForms
                                         ->columns(1)
                                         ->columnSpan(1),
 
-                                    Map::make('location_gm')
+                                    Map::make('product.location')
                                         ->label('Location')
                                         ->reactive()
                                         ->afterStateUpdated(function ($state, callable $get, callable $set) {
-                                            $set('lat', $state['lat']);
-                                            $set('lng', $state['lng']);
+                                            $set('product.lat', $state['lat']);
+                                            $set('product.lng', $state['lng']);
                                         })
                                         ->height(fn () => '400px')
                                         ->defaultZoom(17)
@@ -184,7 +179,7 @@ class HotelForm extends Component implements HasForms
                                             'state' => '%A1',
                                             'zip' => '%z',
                                         ])
-                                        ->defaultLocation(fn () => [$this->data['lat'] ?? 39.526610, $this->data['lng'] ?? -107.727261])
+                                        ->defaultLocation(fn () => [$this->data['product']['lat'] ?? 39.526610, $this->data['product']['lng'] ?? -107.727261])
                                         ->draggable()
                                         ->clickable(false)
                                         ->geolocate()
@@ -215,44 +210,28 @@ class HotelForm extends Component implements HasForms
                         ->schema([
                             Grid::make(3)
                                 ->schema([
-                                Select::make('content_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
+                                Select::make('product.content_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
                                 Select::make('room_images_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
-                                Select::make('property_images_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
+                                Select::make('product.property_images_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
                             ]),
                             Grid::make(3)
                                 ->schema([
-                                    TextInput::make('default_currency')->required()->maxLength(3),
+                                    TextInput::make('product.default_currency')->required()->maxLength(3),
                                     TextInput::make('travel_agent_commission')
                                         ->numeric('decimal')
                                         ->required(),
                                     TextInput::make('weight')->integer(),
                                 ]),
-//                            Grid::make(3)
-//                                ->schema([
-//                                    TextInput::make('website')->url()->maxLength(191),
-//                                ]),
+                            Grid::make(3)
+                                ->schema([
+                                    TextInput::make('product.website')
+                                        ->url()
+                                        ->maxLength(191),
+                                ]),
 
                         ])
                         ->columns(2),
                 ]),
-//            Actions::make([
-//                Actions\Action::make('Fill Location from Property')
-//                    ->label('Fill Location from Property')
-//                    ->action(function (Get $get, Set $set) {
-//                        $keyMappings = $this->record->keyMappings->toArray();
-//                        $filteredKeyMappings = array_filter($keyMappings, function ($mapping) {
-//                            return $mapping['key_mapping_owner_id'] === 1;
-//                        });
-//                        $keyIds = array_column($filteredKeyMappings, 'key_id');
-//                        $property = Property::find($keyIds)->first();
-//                        if ($property) {
-//                            $set('location', [
-//                                ['field' => 'latitude', 'value' => $property->latitude],
-//                                ['field' => 'longitude', 'value' => $property->longitude],
-//                            ]);
-//                        }
-//                    }),
-//            ]),
         ];
     }
 
@@ -260,7 +239,7 @@ class HotelForm extends Component implements HasForms
     {
         $data = $this->form->getState();
 
-        if (!isset($data['verified'])) {
+        if (!isset($data['product']['verified'])) {
             $data['verified'] = false;
         }
 
@@ -269,43 +248,32 @@ class HotelForm extends Component implements HasForms
             return $result;
         }, []);
 
-        if (isset($data['location'])) {
-            $data['location'] = array_reduce($data['location'], function ($result, $item) {
-                $result[$item['field']] = $item['value'];
-                return $result;
-            }, []);
-        } else {
-            $data['location'] = [
-                'latitude' => $data['lat'] ?? 0,
-                'longitude' => $data['lng'] ?? 0,
-            ];
-        }
-
         $hotel = Hotel::find($this->record->id);
 
-        $hotel->update(Arr::only($data, [
+        $hotel->product->update(Arr::only($data['product'], [
             'name',
-            'weight',
-            'location',
-            'type',
             'verified',
             'lat',
             'lng',
+            'content_source_id',
+            'property_images_source_id',
+            'default_currency',
+            'website'
+        ]));
+
+        $hotel->update(Arr::only($data, [
+            'weight',
+            'sale_type',
             'address',
             'star_rating',
-            'website',
             'num_rooms',
-            'featured',
-            'content_source_id',
             'room_images_source_id',
-            'property_images_source_id',
-            'travel_agent_commission',
             'hotel_board_basis',
-            'default_currency'
+            'travel_agent_commission'
         ]));
 
         if (isset($data['galleries'])) {
-            $hotel->galleries()->sync($data['galleries']);
+            $hotel->product->galleries()->sync($data['galleries']);
         }
 
         Notification::make()

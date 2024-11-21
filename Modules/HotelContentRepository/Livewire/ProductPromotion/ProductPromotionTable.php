@@ -19,11 +19,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
 use Livewire\Component;
-use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductPromotion;
 use Filament\Tables\Contracts\HasTable;
 use Modules\HotelContentRepository\Models\ImageGallery;
-
 
 class ProductPromotionTable extends Component implements HasForms, HasTable
 {
@@ -46,9 +45,9 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
     public function schemeForm(): array
     {
         return  [
-            Select::make('hotel_id')
-                ->label('Hotel')
-                ->options(Hotel::pluck('name', 'id'))
+            Select::make('product_id')
+                ->label('Product')
+                ->options(Product::pluck('name', 'id'))
                 ->disabled(fn () => $this->productId)
                 ->required(),
             TextInput::make('promotion_name')
@@ -95,7 +94,7 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
     {
         return $table
             ->query(
-                ProductPromotion::query()->where('hotel_id', $this->productId)
+                ProductPromotion::query()->where('product_id', $this->productId)
             )
             ->columns([
                 TextColumn::make('promotion_name')->label('Promotion Name')->searchable(),
@@ -120,10 +119,10 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                 CreateAction::make()
                     ->form($this->schemeForm())
                     ->fillForm(function () {
-                        return $this->productId ? ['hotel_id' => $this->productId] : [];
+                        return $this->productId ? ['product_id' => $this->productId] : [];
                     })
                     ->action(function ($data) {
-                        if ($this->productId) $data['hotel_id'] = $this->productId;
+                        if ($this->productId) $data['product_id'] = $this->productId;
                         ProductPromotion::create($data);
                     })
                     ->tooltip('Add New Promotion')

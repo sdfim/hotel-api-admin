@@ -8002,6 +8002,7 @@
                                 "required": [
                                     "name",
                                     "commission_value",
+                                    "commission_value_type",
                                     "date_range_start",
                                     "date_range_end"
                                 ],
@@ -8014,6 +8015,10 @@
                                         "type": "number",
                                         "format": "float",
                                         "example": 10.5
+                                    },
+                                    "commission_value_type": {
+                                        "type": "string",
+                                        "example": "Amount"
                                     },
                                     "date_range_start": {
                                         "type": "string",
@@ -8141,6 +8146,7 @@
                                 "required": [
                                     "name",
                                     "commission_value",
+                                    "commission_value_type",
                                     "date_range_start",
                                     "date_range_end"
                                 ],
@@ -8153,6 +8159,10 @@
                                         "type": "number",
                                         "format": "float",
                                         "example": 10.5
+                                    },
+                                    "commission_value_type": {
+                                        "type": "string",
+                                        "example": "AMOUNT"
                                     },
                                     "date_range_start": {
                                         "type": "string",
@@ -8233,6 +8243,337 @@
                 "responses": {
                     "204": {
                         "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/vendors": {
+            "get": {
+                "tags": [
+                    "Vendor | Vendors"
+                ],
+                "summary": "Get all vendors",
+                "description": "Retrieve all vendor records with optional filters.",
+                "operationId": "3d2b9721bf39965a483e24173fdc8806",
+                "parameters": [
+                    {
+                        "name": "name",
+                        "in": "query",
+                        "description": "Filter by vendor name",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Vendor | Vendors"
+                ],
+                "summary": "Create a new vendor",
+                "description": "Create a new vendor entry.",
+                "operationId": "5a99f4ab54b59303116dfb28fa5b30a9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "address",
+                                    "lat",
+                                    "lng"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Example Vendor"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Main St"
+                                    },
+                                    "lat": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 12.345678
+                                    },
+                                    "lng": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 98.765432
+                                    },
+                                    "website": {
+                                        "type": "string",
+                                        "example": "https://examplevendor.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/vendors/{id}": {
+            "get": {
+                "tags": [
+                    "Vendor | Vendors"
+                ],
+                "summary": "Get vendor details",
+                "description": "Retrieve details of a specific vendor.",
+                "operationId": "2de061b371e917bd0d843da81dee84ef",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the vendor",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Vendor | Vendors"
+                ],
+                "summary": "Update vendor details",
+                "description": "Update details of a specific vendor.",
+                "operationId": "071ecd126ba24e20e57a4138d4a32d42",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the vendor",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "address",
+                                    "lat",
+                                    "lng"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Example Vendor"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 Main St"
+                                    },
+                                    "lat": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 12.345678
+                                    },
+                                    "lng": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 98.765432
+                                    },
+                                    "website": {
+                                        "type": "string",
+                                        "example": "https://examplevendor.com"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Vendor | Vendors"
+                ],
+                "summary": "Delete a vendor",
+                "description": "Delete a specific vendor.",
+                "operationId": "af4b27c00e121fcdef280f41b25f07bd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the vendor",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
                     },
                     "401": {
                         "description": "Unauthenticated",
@@ -8358,6 +8699,10 @@
         {
             "name": "Hotel | Website Search Generation",
             "description": "API Endpoints for Website Search Generation"
+        },
+        {
+            "name": "Vendor | Vendors",
+            "description": "API Endpoints for Vendors"
         },
         {
             "name": "Product | Products",
