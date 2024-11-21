@@ -10,29 +10,18 @@ return new class extends Migration
     {
         Schema::create('pd_hotels', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('name');
-            $table->boolean('verified');
-            $table->string('type', 50);
+            $table->unsignedBigInteger('product_id');
+            $table->string('sale_type', 50);
             $table->json('address')->nullable();
             $table->integer('star_rating');
             $table->integer('weight')->nullable();
-            $table->string('website')->nullable();
             $table->integer('num_rooms');
-            $table->json('location')->nullable();
-            $table->decimal('lat', 10, 7)->nullable();
-            $table->decimal('lng', 10, 7)->nullable();
-            $table->unsignedBigInteger('content_source_id');
             $table->unsignedBigInteger('room_images_source_id');
-            $table->unsignedBigInteger('property_images_source_id');
-            $table->decimal('travel_agent_commission', 10, 2)->nullable();
             $table->string('hotel_board_basis')->nullable();
-            $table->string('default_currency', 10);
             $table->timestamps();
 
-            $table->foreign('content_source_id')->references('id')->on('pd_content_sources');
+            $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');
             $table->foreign('room_images_source_id')->references('id')->on('pd_content_sources');
-            $table->foreign('property_images_source_id')->references('id')->on('pd_content_sources');
-
         });
     }
 

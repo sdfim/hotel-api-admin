@@ -47,8 +47,8 @@ use Modules\API\Validate\ApiRequest;
  *     required=true,
  *     @OA\JsonContent(
  *       type="object",
- *       required={"hotel_id", "key_id", "key_mapping_owner_id"},
- *       @OA\Property(property="hotel_id", type="integer", example=1),
+ *       required={"product_id", "key_id", "key_mapping_owner_id"},
+ *       @OA\Property(property="product_id", type="integer", example=1),
  *       @OA\Property(property="key_id", type="string", example="Key123"),
  *       @OA\Property(property="key_mapping_owner_id", type="integer", example=1)
  *     )
@@ -141,8 +141,8 @@ use Modules\API\Validate\ApiRequest;
  *     required=true,
  *     @OA\JsonContent(
  *       type="object",
- *       required={"hotel_id", "key_id", "key_mapping_owner_id"},
- *       @OA\Property(property="hotel_id", type="integer", example=1),
+ *       required={"product_id", "key_id", "key_mapping_owner_id"},
+ *       @OA\Property(property="product_id", type="integer", example=1),
  *       @OA\Property(property="key_id", type="string", example="Key123"),
  *       @OA\Property(property="key_mapping_owner_id", type="integer", example=1)
  *     )
@@ -230,7 +230,7 @@ class KeyMappingRequest extends ApiRequest
 {    public function rules(): array
     {
         return [
-            'hotel_id' => 'required|integer|exists:pd_hotels,id',
+            'product_id' => 'required|integer|exists:pd_products,id',
             'key_id' => 'required|string|max:255',
             'key_mapping_owner_id' => 'required|exists:pd_key_mapping_owners,id',
         ];

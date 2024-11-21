@@ -3,11 +3,11 @@
 namespace Modules\HotelContentRepository\Models\Transformers;
 
 use League\Fractal\TransformerAbstract;
-use Modules\HotelContentRepository\Models\HotelPromotion;
+use Modules\HotelContentRepository\Models\ProductPromotion;
 
 class PromotionTransformer extends TransformerAbstract
 {
-    public function transform(HotelPromotion $promotion)
+    public function transform(ProductPromotion $promotion)
     {
         return [
             'promotion_name' => $promotion->promotion_name,

@@ -4,6 +4,7 @@ namespace Modules\HotelContentRepository\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\HotelContentRepository\Models\Factories\KeyMappingFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 
@@ -20,7 +21,7 @@ class KeyMapping extends Model
     protected $table = 'pd_key_mapping';
 
     protected $fillable = [
-        'hotel_id',
+        'product_id',
         'key_id',
         'key_mapping_owner_id',
     ];
@@ -31,12 +32,12 @@ class KeyMapping extends Model
         'pivot'
     ];
 
-    public function hotel()
+    public function product(): BelongsTo
     {
-        return $this->belongsTo(Hotel::class);
+        return $this->belongsTo(Product::class);
     }
 
-    public function keyMappingOwner()
+    public function keyMappingOwner(): BelongsTo
     {
         return $this->belongsTo(KeyMappingOwner::class, 'key_mapping_owner_id');
     }

@@ -8,34 +8,9 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
-use Livewire\Livewire;
 use Modules\API\Suppliers\ExpediaSupplier\ExpediaService;
 use Modules\API\Suppliers\ExpediaSupplier\PropertyCallFactory;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
-use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
-use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
-use Modules\HotelContentRepository\Livewire\HotelAffiliations\HotelAffiliationsTable;
-use Modules\HotelContentRepository\Livewire\HotelAgeRestriction\HotelAgeRestrictionTable;
-use Modules\HotelContentRepository\Livewire\HotelAttributes\HotelAttributesTable;
-use Modules\HotelContentRepository\Livewire\HotelContactInformation\HotelContactInformationTable;
-use Modules\HotelContentRepository\Livewire\HotelDepositInformation\HotelDepositInformationTable;
-use Modules\HotelContentRepository\Livewire\HotelDescriptiveContentSection\HotelDescriptiveContentSectionTable;
-use Modules\HotelContentRepository\Livewire\HotelFeeTaxes\HotelFeeTaxTable;
-use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
-use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesTable;
-use Modules\HotelContentRepository\Livewire\HotelInformativeServices\HotelInformativeServicesTable;
-use Modules\HotelContentRepository\Livewire\HotelPromotion\HotelPromotionTable;
-use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
-use Modules\HotelContentRepository\Livewire\HotelWebFinder\HotelWebFinderTable;
-use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
-use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesTable;
-use Modules\HotelContentRepository\Livewire\KeyMappings\KeyMappingTable;
-use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyCommissionTable;
-use Modules\Insurance\Livewire\Plans\InsurancePlanTable;
-use Modules\Insurance\Livewire\Providers\ProvidersDocumentationTable;
-use Modules\Insurance\Livewire\Providers\ProvidersTable;
-use Modules\Insurance\Livewire\RateTiers\RateTiersTable;
-use Modules\Insurance\Livewire\Restrictions\RestrictionsTable;
 
 class AppServiceProvider extends ServiceProvider
 {

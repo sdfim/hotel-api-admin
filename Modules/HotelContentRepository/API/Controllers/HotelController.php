@@ -115,19 +115,20 @@ class HotelController extends BaseController
     protected function getIncludes(): array
     {
         return [
-            'affiliations',
-            'attributes',
-            'contentSource',
+            'product.affiliations',
+            'product.attributes',
+            'product.contentSource',
+            'product.propertyImagesSource',
+            'product.descriptiveContentsSection.content',
+            'product.feeTaxes',
+            'product.informativeServices.service',
+            'product.promotions.galleries.images',
+            'product.keyMappings',
+            'product.galleries.images',
+            'product.contactInformation',
+
             'roomImagesSource',
-            'propertyImagesSource',
-            'descriptiveContentsSection.content',
-            'feeTaxes',
-            'informativeServices.service',
-            'promotions.galleries.images',
             'rooms.galleries.images',
-            'keyMappings',
-            'galleries.images',
-            'contactInformation',
             'webFinders',
         ];
     }}

@@ -3,11 +3,11 @@
 namespace Modules\HotelContentRepository\Models\Transformers;
 
 use League\Fractal\TransformerAbstract;
-use Modules\HotelContentRepository\Models\HotelContactInformation;
+use Modules\HotelContentRepository\Models\ProductContactInformation;
 
 class ContactInformationTransformer extends TransformerAbstract
 {
-    public function transform(HotelContactInformation $contactInformation)
+    public function transform(ProductContactInformation $contactInformation)
     {
         return [
             'first_name' => $contactInformation->first_name,

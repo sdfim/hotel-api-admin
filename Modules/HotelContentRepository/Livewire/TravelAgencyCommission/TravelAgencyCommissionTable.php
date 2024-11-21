@@ -22,6 +22,7 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\Enums\CommissionValueTypeEnum;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 use Modules\HotelContentRepository\Models\TravelAgencyCommissionCondition;
 
@@ -44,6 +45,10 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
             TextInput::make('commission_value')
                 ->label('Commission Value')
                 ->numeric('decimal')
+                ->required(),
+            Select::make('commission_value_type')
+                ->label('Commission Value Type')
+                ->options(array_column(CommissionValueTypeEnum::cases(), 'value', 'value'))
                 ->required(),
             Grid::make()->schema([
                 DatePicker::make('date_range_start')
@@ -129,7 +134,11 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     ->html()
                     ->searchable(),
                 TextColumn::make('commission_value')
-                    ->label('Commission Value')
+                    ->label('Value')
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('commission_value_type')
+                    ->label('Value Type')
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('date_range_start')

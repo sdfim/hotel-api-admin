@@ -3,11 +3,11 @@
 namespace Modules\HotelContentRepository\Models\Transformers;
 
 use League\Fractal\TransformerAbstract;
-use Modules\HotelContentRepository\Models\HotelAttribute;
+use Modules\HotelContentRepository\Models\ProductAttribute;
 
 class AttributeTransformer extends TransformerAbstract
 {
-    public function transform(HotelAttribute $attribute)
+    public function transform(ProductAttribute $attribute)
     {
         return [
             'name' => $attribute->name,

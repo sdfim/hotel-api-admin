@@ -33,15 +33,18 @@ class HotelTable extends Component implements HasForms, HasTable
                 'affiliations',
                 'attributes',
                 'contentSource',
-                'roomImagesSource',
                 'propertyImagesSource',
                 'descriptiveContentsSection',
                 'feeTaxes',
                 'informativeServices',
                 'promotions',
-                'rooms',
+
                 'keyMappings',
                 'galleries',
+                'webFinders',
+
+                'rooms',
+                'roomImagesSource',
                 'contactInformation'
             ]))
             ->columns([
@@ -141,7 +144,7 @@ class HotelTable extends Component implements HasForms, HasTable
         $hotel = Hotel::create(Arr::only($data, [
             'name',
             'location',
-            'type',
+            'sale_type',
             'verified',
             'lat',
             'lng',

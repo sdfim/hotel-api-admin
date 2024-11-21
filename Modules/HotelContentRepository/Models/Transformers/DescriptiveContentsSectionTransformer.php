@@ -3,11 +3,11 @@
 namespace Modules\HotelContentRepository\Models\Transformers;
 
 use League\Fractal\TransformerAbstract;
-use Modules\HotelContentRepository\Models\HotelDescriptiveContentSection;
+use Modules\HotelContentRepository\Models\ProductDescriptiveContentSection;
 
 class DescriptiveContentsSectionTransformer extends TransformerAbstract
 {
-    public function transform(HotelDescriptiveContentSection $section)
+    public function transform(ProductDescriptiveContentSection $section)
     {
         return [
             'start_date' => $section->start_date,

@@ -3,11 +3,11 @@
 namespace Modules\HotelContentRepository\Models\Transformers;
 
 use League\Fractal\TransformerAbstract;
-use Modules\HotelContentRepository\Models\HotelAffiliation;
+use Modules\HotelContentRepository\Models\ProductAffiliation;
 
 class AffiliationTransformer extends TransformerAbstract
 {
-    public function transform(HotelAffiliation $affiliation)
+    public function transform(ProductAffiliation $affiliation)
     {
         return [
             'affiliation_name' => $affiliation->affiliation_name,

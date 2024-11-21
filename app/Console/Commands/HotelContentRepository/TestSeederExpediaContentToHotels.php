@@ -7,20 +7,26 @@ use App\Models\ExpediaContent;
 use App\Models\Mapping;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
+use Faker\Factory as Faker;
+use Modules\Enums\FeeTaxCollectedByEnum;
+use Modules\Enums\FeeTaxTypeEnum;
+use Modules\Enums\FeeTaxValueTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Models\HotelAffiliation;
-use Modules\HotelContentRepository\Models\HotelAttribute;
-use Modules\HotelContentRepository\Models\HotelDescriptiveContent;
-use Modules\HotelContentRepository\Models\HotelDescriptiveContentSection;
-use Modules\HotelContentRepository\Models\HotelFeeTax;
+use Modules\HotelContentRepository\Models\Product;
+use Modules\HotelContentRepository\Models\ProductAffiliation;
+use Modules\HotelContentRepository\Models\ProductAttribute;
+use Modules\HotelContentRepository\Models\ProductDescriptiveContent;
+use Modules\HotelContentRepository\Models\ProductDescriptiveContentSection;
+use Modules\HotelContentRepository\Models\ProductFeeTax;
 use Modules\HotelContentRepository\Models\Image;
 use Modules\HotelContentRepository\Models\ImageSection;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\KeyMapping;
 use Modules\HotelContentRepository\Models\KeyMappingOwner;
+use Modules\HotelContentRepository\Models\Vendor;
 
 class TestSeederExpediaContentToHotels extends Command
 {
@@ -28,6 +34,14 @@ class TestSeederExpediaContentToHotels extends Command
 
     protected $signature = 'transform:expedia-to-hotels';
     protected $description = 'Transform ExpediaContent records to Hotel related models';
+
+    protected $faker;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->faker = Faker::create();
+    }
 
     public function handle()
     {
@@ -44,6 +58,11 @@ class TestSeederExpediaContentToHotels extends Command
             ->cursor();
 
         $this->st = microtime(true);
+
+        if (Vendor::count() === 0) {
+            // Create vendors using VendorFactory
+            Vendor::factory()->count(10)->create();
+        }
 
         foreach ($expediaContents as $k => $expediaContent) {
             $this->warn('Start '. $k . ' Transform ExpediaContent ' . $expediaContent->property_id . ' to Hotel.');
@@ -65,80 +84,57 @@ class TestSeederExpediaContentToHotels extends Command
         $address = $expediaContent->address;
         unset($address['localized']);
 
-        $hotelData = [
+
+
+        $productData = [
+            'vendor_id' => Vendor::inRandomOrder()->value('id'),
+            'product_type' => 'hotel',
             'name' => $expediaContent->name,
-            // Direct Connection, Manual Contract, Commission Tracking (No Rules Apply)
-            'type' => 'Direct Connection',
-
             'verified' => true,
-            'direct_connection' => true,
-            'manual_contract' => true,
-            'commission_tracking' => true,
-            'featured' => false,
-            'travel_agent_commission' => 15,
-
-            'address' => $address,
-            'location' => Arr::get($expediaContent?->location, 'coordinates'),
+            'content_source_id' => $expediaId,
+            'property_images_source_id' => $expediaId,
             'lat' => Arr::get($expediaContent?->location, 'coordinates.latitude'),
             'lng' => Arr::get($expediaContent?->location, 'coordinates.longitude'),
-            'star_rating' => $expediaContent?->rating,
-
+            'default_currency' => Arr::get($expediaContent->expediaSlave->onsite_payments, 'currency', 'USD'),
             'website' => '',
+            'location_gm' => Arr::get($expediaContent?->location, 'coordinates'),
+        ];
+
+        $product = Product::updateOrCreate(
+            ['name' => $expediaContent->name],
+            $productData
+        );
+
+        $hotelData = [
+            'product_id' => $product->id,
+            'weight' =>  rand(1, 100),
+            'sale_type' => 'Direct Connection',
+            'address' => $address,
+            'star_rating' => $expediaContent?->rating,
             'num_rooms' => Arr::get($expediaContent->expediaSlave->statistics, '52.value'),
-
-            'content_source_id' => $expediaId,
             'room_images_source_id' => $expediaId,
-            'property_images_source_id' => $expediaId,
-
-            'hotel_board_basis' => '',
-            'default_currency' => Arr::get($expediaContent->expediaSlave->onsite_payments, 'currency'),
+            'product_board_basis' => '',
         ];
 
         $hotel = Hotel::updateOrCreate(
-            ['name' => $expediaContent->name],
-            $hotelData);
+            ['product_id' => $product->id],
+            $hotelData
+        );
 
-        $this->updateOrCreateHotelAffiliation($hotel);
-//        $this->updateOrCreateHotelAttributes($expediaContent, $hotel);
-        $this->updateOrCreateHotelImages($expediaContent, $hotel);
-        $this->updateOrCreateKey($expediaContent, $hotel);
+        $this->updateOrCreateProductAffiliation($product);
+        $this->updateOrCreateHotelImages($expediaContent, $product);
+        $this->updateOrCreateKey($expediaContent, $product);
+        $this->updateOrFeeTaxs($expediaContent, $product);
+
         $this->updateOrRooms($expediaContent, $hotel);
-        $this->updateOrFeeTaxs($expediaContent, $hotel);
-//        $this->updateOrDescriptiveContent($expediaContent, $hotel);
-
-        // HotelDescriptiveContent::create([...]);
-        // HotelDescriptiveContentSection::create([...]);
-
-        // TODO: Promotions
-        //Name
-        //Description
-        //Imagery
-        //Validity Range
-        //Booking Range
-        //Terms and Conditions
-        //Any reasons for exclusion
-        // HotelPromotion::create([...]);
-
-        // TODO: Informative Services Section (Add on Module)
-        //Section to specify the services that can be booked at the hotel by the concierge
-        //This will be selected from Informational Services module
-        //Ability to change the cost of the Service at this level will be available
-        //Returned in the Hotel Content call
-        // HotelInformativeService::create([...]);
-
-        // TODO: This will be rule based and is a new area for the system to be able to create on the OBE
-        //Consortia
-        //Room Type
-        //Date Range option
-        // TravelAgencyCommission::create([...]);
     }
 
-    private function updateOrCreateHotelAffiliation(Hotel $hotel): void
+    private function updateOrCreateProductAffiliation(Product $product): void
     {
-        HotelAffiliation::updateOrCreate(
-            ['hotel_id' => $hotel->id],
+        ProductAffiliation::updateOrCreate(
+            ['product_id' => $product->id],
             [
-                'hotel_id' => $hotel->id,
+                'product_id' => $product->id,
                 'affiliation_name' => 'UJV Exclusive Amenities',
                 'combinable' => true,
             ]
@@ -178,9 +174,9 @@ class TestSeederExpediaContentToHotels extends Command
         return $fees;
     }
 
-    private function updateOrFeeTaxs(ExpediaContent $expediaContent, Hotel $hotel): void
+    private function updateOrFeeTaxs(ExpediaContent $expediaContent, Product $product): void
     {
-        $hotelId = $hotel->id;
+        $hotelId = $product->id;
         $data = $expediaContent->expediaSlave->fees;
 
         $optional = Arr::get($data, 'optional', '');
@@ -191,29 +187,39 @@ class TestSeederExpediaContentToHotels extends Command
         $fees = array_merge($optionalFees, $mandatoryFees);
 
         foreach ($fees as $fee) {
-            HotelFeeTax::updateOrCreate(
-                ['hotel_id' => $hotelId, 'name' => $fee['name']],
+            ProductFeeTax::updateOrCreate(
+                ['product_id' => $hotelId, 'name' => $fee['name']],
                 [
-                    'hotel_id' => $hotelId,
+                    'product_id' => $hotelId,
                     'name' => $fee['name'],
                     'fee_category' => $fee['fee_category'],
                     'net_value' => $fee['net_value'],
                     'rack_value' => $fee['rack_value'],
-                    'tax' => $fee['tax'],
-                    'type' => $fee['type'],
-                ]
+                    'commissionable' => false,
+                    'type' => $this->faker->randomElement([
+                        FeeTaxTypeEnum::TAX->value,
+                        FeeTaxTypeEnum::FEE->value
+                    ]),
+                    'value_type' => $this->faker->randomElement([
+                        FeeTaxValueTypeEnum::PERCENTAGE->value,
+                        FeeTaxValueTypeEnum::AMOUNT->value
+                    ]),
+                    'collected_by' => $this->faker->randomElement([
+                        FeeTaxCollectedByEnum::DIRECT->value,
+                        FeeTaxCollectedByEnum::VENDOR->value
+                    ]),                ]
             );
         }
     }
 
-    private function updateOrDescriptiveContent(ExpediaContent $expediaContent, Hotel $hotel): void
+    private function updateOrDescriptiveContent(ExpediaContent $expediaContent, Product $product): void
     {
         $descriptions = $expediaContent->expediaSlave->descriptions;
 
         foreach ($descriptions as $sectionName => $description) {
-            $section = HotelDescriptiveContentSection::updateOrCreate(
+            $section = ProductDescriptiveContentSection::updateOrCreate(
                 [
-                    'hotel_id' => $hotel->id,
+                    'product_id' => $product->id,
                     'section_name' => $sectionName,
                 ],
                 [
@@ -224,7 +230,7 @@ class TestSeederExpediaContentToHotels extends Command
 
             $sectionId = $section->id;
 
-            HotelDescriptiveContent::updateOrCreate(
+            ProductDescriptiveContent::updateOrCreate(
                 [
                     'content_sections_id' => $sectionId,
                     'section_name' => $sectionName,
@@ -295,7 +301,7 @@ class TestSeederExpediaContentToHotels extends Command
         }
     }
 
-    private function updateOrCreateKey(ExpediaContent $expediaContent, Hotel $hotel): void
+    private function updateOrCreateKey(ExpediaContent $expediaContent, Product $product): void
     {
         $key_id = Mapping::where('supplier_id', $expediaContent->property_id)
             ->where('supplier', SupplierNameEnum::EXPEDIA->value)
@@ -304,41 +310,41 @@ class TestSeederExpediaContentToHotels extends Command
         if (!$key_id) return;
 
         $keyMapping = [
-            'hotel_id' => $hotel->id,
+            'product_id' => $product->id,
             'key_id' => $key_id,
             'key_mapping_owner_id' => KeyMappingOwner::where('name', 'GIATA')->value('id'),
         ];
         KeyMapping::updateOrCreate(
-            ['hotel_id' => $hotel->id],
+            ['product_id' => $product->id],
             $keyMapping
         );
     }
 
-    private function updateOrCreateHotelAttributes(ExpediaContent $expediaContent, Hotel $hotel): void
+    private function updateOrCreateHotelAttributes(ExpediaContent $expediaContent, Product $product): void
     {
         $flattenedAttributes = [];
         foreach ($expediaContent->expediaSlave->attributes as $category => $items) {
             foreach ($items as $item) {
                 $flattenedAttributes[] = [
-                    'hotel_id' => $hotel->id,
+                    'product_id' => $product->id,
                     'name' => $category,
                     'attribute_value' => $item['name'],
                 ];
             }
         }
         foreach ($flattenedAttributes as $attribute) {
-            HotelAttribute::updateOrCreate(
-                ['hotel_id' => $attribute['hotel_id'], 'attribute_value' => $attribute['name']],
+            ProductAttribute::updateOrCreate(
+                ['product_id' => $attribute['product_id'], 'attribute_value' => $attribute['name']],
                 $attribute
             );
         }
     }
 
-    private function updateOrCreateHotelImages(ExpediaContent $expediaContent, Hotel $hotel): void
+    private function updateOrCreateHotelImages(ExpediaContent $expediaContent, Product $product): void
     {
         $imageGallery = ImageGallery::firstOrCreate(
-            ['gallery_name' => 'Expedia Gallery Hotel ' . $hotel->name],
-            ['description' => 'Gallery for Expedia images for hotel ' . $hotel->name]
+            ['gallery_name' => 'Expedia Gallery Hotel ' . $product->name],
+            ['description' => 'Gallery for Expedia images for hotel ' . $product->name]
         );
 
         $sectionId = ImageSection::where('name', 'hotel')->value('id');
@@ -358,6 +364,6 @@ class TestSeederExpediaContentToHotels extends Command
 
         $imageGallery->images()->syncWithoutDetaching($upsertedImages);
         // Step 5: Attach the ImageGallery to the Hotel
-        $hotel->galleries()->syncWithoutDetaching([$imageGallery->id]);
+        $product->galleries()->syncWithoutDetaching([$imageGallery->id]);
     }
 }

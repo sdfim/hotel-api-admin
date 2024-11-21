@@ -3,11 +3,11 @@
 namespace Modules\HotelContentRepository\Models\Transformers;
 
 use League\Fractal\TransformerAbstract;
-use Modules\HotelContentRepository\Models\HotelFeeTax;
+use Modules\HotelContentRepository\Models\ProductFeeTax;
 
 class FeeTaxTransformer extends TransformerAbstract
 {
-    public function transform(HotelFeeTax $tax)
+    public function transform(ProductFeeTax $tax)
     {
         return [
             'name' => $tax->name,

@@ -22,6 +22,7 @@ class TravelAgencyCommission extends Model
     protected $fillable = [
         'name',
         'commission_value',
+        'commission_value_type',
         'date_range_start',
         'date_range_end',
     ];

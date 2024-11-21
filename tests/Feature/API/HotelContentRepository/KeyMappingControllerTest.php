@@ -18,7 +18,7 @@ class KeyMappingControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'hotel_id', 'key_id', 'key_mapping_owner_id']
+                '*' => ['id', 'product_id', 'key_id', 'key_mapping_owner_id']
             ],
             'message'
         ]);
@@ -32,7 +32,7 @@ class KeyMappingControllerTest extends TestCase
         $response = $this->request()->postJson('api/repo/key-mappings', $data);
         $response->assertStatus(201);
         $response->assertJsonStructure([
-            'data' => ['id', 'hotel_id', 'key_id', 'key_mapping_owner_id'],
+            'data' => ['id', 'product_id', 'key_id', 'key_mapping_owner_id'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_key_mapping', $data);
@@ -45,7 +45,7 @@ class KeyMappingControllerTest extends TestCase
         $response = $this->request()->getJson("api/repo/key-mappings/{$keyMapping->id}");
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'hotel_id', 'key_id', 'key_mapping_owner_id'],
+            'data' => ['id', 'product_id', 'key_id', 'key_mapping_owner_id'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_key_mapping', $keyMapping->toArray());
@@ -59,7 +59,7 @@ class KeyMappingControllerTest extends TestCase
         $response = $this->request()->putJson("api/repo/key-mappings/{$keyMapping->id}", $data);
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'hotel_id', 'key_id', 'key_mapping_owner_id'],
+            'data' => ['id', 'product_id', 'key_id', 'key_mapping_owner_id'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_key_mapping', $data);

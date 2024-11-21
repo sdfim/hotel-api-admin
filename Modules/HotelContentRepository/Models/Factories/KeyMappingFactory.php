@@ -3,9 +3,9 @@
 namespace Modules\HotelContentRepository\Models\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\KeyMapping;
 use Modules\HotelContentRepository\Models\KeyMappingOwner;
+use Modules\HotelContentRepository\Models\Product;
 
 class KeyMappingFactory extends Factory
 {
@@ -14,7 +14,7 @@ class KeyMappingFactory extends Factory
     public function definition()
     {
         return [
-            'hotel_id' => Hotel::factory(),
+            'product_id' => Product::factory(),
             'key_id' => $this->faker->uuid,
             'key_mapping_owner_id' => KeyMappingOwner::factory(),
         ];

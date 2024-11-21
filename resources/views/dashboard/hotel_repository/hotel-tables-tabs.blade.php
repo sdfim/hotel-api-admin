@@ -1,13 +1,13 @@
 @php
     $tabGroups = [
         'Additional Info' => [
-            ['title' => 'Attributes', 'component' => 'hotels.hotel-attributes-table'],
+            ['title' => 'Attributes', 'component' => 'hotels.product-attributes-table'],
             ['title' => 'Age Restrictions', 'component' => 'hotels.hotel-age-restriction-table'],
-            ['title' => 'Affiliations', 'component' => 'hotels.hotel-affiliations-table'],
-            ['title' => 'Contact Information', 'component' => 'hotels.hotel-contact-information-table'],
+            ['title' => 'Affiliations', 'component' => 'hotels.product-affiliations-table'],
+            ['title' => 'Contact Information', 'component' => 'hotels.product-contact-information-table'],
         ],
         'Informational Service' => [
-            ['title' => 'Informational Service', 'component' => 'hotels.hotel-informative-services-table'],
+            ['title' => 'Informational Service', 'component' => 'hotels.product-informative-services-table'],
         ],
         'Website' => [
             ['title' => 'Website Search Generation', 'component' => 'hotels.hotel-web-finder-table'],
@@ -21,7 +21,7 @@
         'Pricing Rules' => [
             ['title' => 'Key & Owner', 'component' => 'hotels.key-mapping-table'],
             ['title' => 'Pricing Rules', 'component' => 'pricing-rules.pricing-rules-table'],
-            ['title' => 'Deposit Information', 'component' => 'hotels.hotel-deposit-information-table'],
+            ['title' => 'Deposit Information', 'component' => 'hotels.product-deposit-information-table'],
         ],
         'Fee and Tax' => [
             ['title' => 'Fee and Tax', 'component' => 'hotels.hotel-fee-tax-table'],

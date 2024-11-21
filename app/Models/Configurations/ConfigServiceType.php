@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Database\Factories\ConfigServiceTypeFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Modules\HotelContentRepository\Models\HotelInformativeService;
+use Modules\HotelContentRepository\Models\ProductInformativeService;
 
 class ConfigServiceType extends Model
 {
@@ -27,7 +27,7 @@ class ConfigServiceType extends Model
 
     public function hotelInformativeServices(): HasMany
     {
-        return $this->hasMany(HotelInformativeService::class);
+        return $this->hasMany(ProductInformativeService::class);
     }
 
     public function bookingItems(): BelongsToMany
