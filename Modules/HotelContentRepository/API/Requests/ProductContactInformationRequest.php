@@ -8,7 +8,7 @@ class ProductContactInformationRequest extends FormRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Contact Information"},
+     *   tags={"Product | Contact Information"},
      *   path="/api/repo/product-contact-information",
      *   summary="Get all product contact information",
      *   description="Retrieve all product contact information records with optional filters.",
@@ -94,7 +94,7 @@ class ProductContactInformationRequest extends FormRequest
      * )
 
      * @OA\Post(
-     *   tags={"Contact Information"},
+     *   tags={"Product | Contact Information"},
      *   path="/api/repo/product-contact-information",
      *   summary="Create a new product contact information",
      *   description="Create a new product contact information entry.",
@@ -132,7 +132,7 @@ class ProductContactInformationRequest extends FormRequest
      * )
 
      * @OA\Get(
-     *   tags={"Contact Information"},
+     *   tags={"Product | Contact Information"},
      *   path="/api/repo/product-contact-information/{id}",
      *   summary="Get product contact information details",
      *   description="Retrieve details of a specific product contact information.",
@@ -168,7 +168,7 @@ class ProductContactInformationRequest extends FormRequest
      * )
 
      * @OA\Put(
-     *   tags={"Contact Information"},
+     *   tags={"Product | Contact Information"},
      *   path="/api/repo/product-contact-information/{id}",
      *   summary="Update product contact information details",
      *   description="Update details of a specific product contact information.",
@@ -223,7 +223,7 @@ class ProductContactInformationRequest extends FormRequest
      * )
 
      * @OA\Delete(
-     *   tags={"Contact Information"},
+     *   tags={"Product | Contact Information"},
      *   path="/api/repo/product-contact-information/{id}",
      *   summary="Delete a product contact information",
      *   description="Delete a specific product contact information.",

@@ -9,7 +9,7 @@ class ProductAttributeRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Attributes"},
+     *   tags={"Product | Attributes"},
      *   path="/api/repo/product-attributes",
      *   summary="Get all hotel attributes",
      *   description="Retrieve all hotel attribute records with optional filters.",
@@ -61,7 +61,7 @@ class ProductAttributeRequest extends ApiRequest
      * )
      *
      * @OA\Post(
-     *   tags={"Attributes"},
+     *   tags={"Product | Attributes"},
      *   path="/api/repo/product-attributes",
      *   summary="Create a new hotel attribute",
      *   description="Create a new hotel attribute entry.",
@@ -102,7 +102,7 @@ class ProductAttributeRequest extends ApiRequest
      * )
      *
      * @OA\Get(
-     *   tags={"Attributes"},
+     *   tags={"Product | Attributes"},
      *   path="/api/repo/product-attributes/{id}",
      *   summary="Get hotel attribute details",
      *   description="Retrieve details of a specific hotel attribute.",
@@ -144,7 +144,7 @@ class ProductAttributeRequest extends ApiRequest
      * )
      *
      * @OA\Put(
-     *   tags={"Attributes"},
+     *   tags={"Product | Attributes"},
      *   path="/api/repo/product-attributes/{id}",
      *   summary="Update hotel attribute details",
      *   description="Update details of a specific hotel attribute.",
@@ -205,7 +205,7 @@ class ProductAttributeRequest extends ApiRequest
      * )
      *
      * @OA\Delete(
-     *   tags={"Attributes"},
+     *   tags={"Product | Attributes"},
      *   path="/api/repo/product-attributes/{id}",
      *   summary="Delete a hotel attribute",
      *   description="Delete a specific hotel attribute.",

@@ -20,6 +20,8 @@ return new class extends Migration
             $table->decimal('lng', 10, 7)->nullable();
             $table->string('default_currency', 10);
             $table->string('website')->nullable();
+            $table->unsignedBigInteger('related_id')->nullable();
+            $table->string('related_type')->nullable();
             $table->timestamps();
 
             $table->foreign('vendor_id')->references('id')->on('pd_vendors');

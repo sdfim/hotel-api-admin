@@ -21,10 +21,7 @@ class HotelControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'name', 'weight', 'type', 'verified',
-                    'address', 'star_rating', 'num_rooms', 'location',
-                    'travel_agent_commission', 'hotel_board_basis',
-                    'default_currency'
+                    'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis'
                 ]
             ],
             'message'
@@ -40,10 +37,7 @@ class HotelControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'name', 'weight', 'type', 'verified',
-                'address', 'star_rating', 'num_rooms', 'location',
-                'travel_agent_commission', 'hotel_board_basis',
-                'default_currency'
+                'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis'
             ],
             'message'
         ]);
@@ -60,9 +54,7 @@ class HotelControllerTest extends TestCase
             'success',
             'data' => [
                 '*' => [
-                    'id', 'name', 'weight', 'type', 'verified',
-                    'address', 'star_rating', 'num_rooms', 'location',
-                    'travel_agent_commission', 'hotel_board_basis', 'default_currency'
+                    'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis'
                 ]
             ],
             'message'
@@ -79,9 +71,7 @@ class HotelControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'name', 'weight', 'type', 'verified',
-                'address', 'star_rating', 'num_rooms', 'location',
-                'travel_agent_commission', 'hotel_board_basis', 'default_currency'
+                'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis'
             ],
             'message'
         ]);
@@ -95,52 +85,6 @@ class HotelControllerTest extends TestCase
         $response = $this->request()->deleteJson("api/repo/hotels/{$hotel->id}");
         $response->assertStatus(204);
         $this->assertDatabaseMissing('pd_hotels', ['id' => $hotel->id]);
-    }
-
-    #[Test]
-    public function test_can_attach_gallery_to_hotel()
-    {
-        $hotel = Hotel::factory()->create();
-        $gallery = ImageGallery::factory()->create();
-
-        $response = $this->request()->postJson("api/repo/hotels/{$hotel->id}/attach-gallery", [
-            'gallery_id' => $gallery->id,
-        ]);
-
-        $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'data' => [
-                '*' => ['id', 'gallery_name', 'description']
-            ],
-            'message'
-        ]);
-        $this->assertDatabaseHas('pd_hotel_gallery', [
-            'hotel_id' => $hotel->id,
-            'gallery_id' => $gallery->id,
-        ]);
-    }
-
-    #[Test]
-    public function test_can_detach_gallery_from_hotel()
-    {
-        $hotel = Hotel::factory()->create();
-        $gallery = ImageGallery::factory()->create();
-        $hotel->galleries()->attach($gallery->id);
-
-        $response = $this->request()->postJson("api/repo/hotels/{$hotel->id}/detach-gallery", [
-            'gallery_id' => $gallery->id,
-        ]);
-
-        $response->assertStatus(200);
-        $response->assertJsonStructure([
-            'success',
-            'message'
-        ]);
-
-        $this->assertDatabaseMissing('pd_hotel_gallery', [
-            'hotel_id' => $hotel->id,
-            'gallery_id' => $gallery->id,
-        ]);
     }
 
     #[Test]

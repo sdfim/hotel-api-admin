@@ -9,7 +9,7 @@ class ProductDescriptiveContentRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Descriptive Content"},
+     *   tags={"Product | Descriptive Content"},
      *   path="/api/repo/product-descriptive-contents",
      *   summary="Get all product descriptive contents",
      *   description="Retrieve all product descriptive content records with optional filters.",
@@ -45,7 +45,7 @@ class ProductDescriptiveContentRequest extends ApiRequest
      * )
      *
      * @OA\Post(
-     *   tags={"Descriptive Content"},
+     *   tags={"Product | Descriptive Content"},
      *   path="/api/repo/product-descriptive-contents",
      *   summary="Create a new product descriptive content",
      *   description="Create a new product descriptive content entry.",
@@ -81,7 +81,7 @@ class ProductDescriptiveContentRequest extends ApiRequest
      * )
      *
      * @OA\Get(
-     *   tags={"Descriptive Content"},
+     *   tags={"Product | Descriptive Content"},
      *   path="/api/repo/product-descriptive-contents/{id}",
      *   summary="Get product descriptive content details",
      *   description="Retrieve details of a specific product descriptive content.",
@@ -117,7 +117,7 @@ class ProductDescriptiveContentRequest extends ApiRequest
      * )
      *
      * @OA\Put(
-     *   tags={"Descriptive Content"},
+     *   tags={"Product | Descriptive Content"},
      *   path="/api/repo/product-descriptive-contents/{id}",
      *   summary="Update product descriptive content details",
      *   description="Update details of a specific product descriptive content.",
@@ -170,7 +170,7 @@ class ProductDescriptiveContentRequest extends ApiRequest
      * )
      *
      * @OA\Delete(
-     *   tags={"Descriptive Content"},
+     *   tags={"Product | Descriptive Content"},
      *   path="/api/repo/product-descriptive-contents/{id}",
      *   summary="Delete a product descriptive content",
      *   description="Delete a specific product descriptive content.",

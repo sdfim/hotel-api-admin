@@ -9,7 +9,7 @@ class HotelRoomRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Rooms"},
+     *   tags={"Hotel | Rooms"},
      *   path="/api/repo/hotel-rooms",
      *   summary="Get all hotel rooms",
      *   description="Retrieve all hotel room records with optional filters.",
@@ -82,7 +82,7 @@ class HotelRoomRequest extends ApiRequest
 
      *
      * @OA\Post(
-     *   tags={"Rooms"},
+     *   tags={"Hotel | Rooms"},
      *   path="/api/repo/hotel-rooms",
      *   summary="Create a new hotel room",
      *   description="Create a new hotel room entry.",
@@ -125,7 +125,7 @@ class HotelRoomRequest extends ApiRequest
      * )
      *
      * @OA\Get(
-     *   tags={"Rooms"},
+     *   tags={"Hotel | Rooms"},
      *   path="/api/repo/hotel-rooms/{id}",
      *   summary="Get hotel room details",
      *   description="Retrieve details of a specific hotel room.",
@@ -167,7 +167,7 @@ class HotelRoomRequest extends ApiRequest
      * )
      *
      * @OA\Put(
-     *   tags={"Rooms"},
+     *   tags={"Hotel | Rooms"},
      *   path="/api/repo/hotel-rooms/{id}",
      *   summary="Update hotel room details",
      *   description="Update details of a specific hotel room.",
@@ -230,7 +230,7 @@ class HotelRoomRequest extends ApiRequest
      * )
      *
      * @OA\Delete(
-     *   tags={"Rooms"},
+     *   tags={"Hotel | Rooms"},
      *   path="/api/repo/hotel-rooms/{id}",
      *   summary="Delete a hotel room",
      *   description="Delete a specific hotel room.",
@@ -272,7 +272,7 @@ class HotelRoomRequest extends ApiRequest
      * )
      *
      * @OA\Post(
-     *   tags={"Rooms"},
+     *   tags={"Hotel | Rooms"},
      *   path="/api/repo/hotel-rooms/{id}/attach-gallery",
      *   summary="Attach a gallery to a hotel room",
      *   description="Attach a gallery to a specific hotel room.",
@@ -322,7 +322,7 @@ class HotelRoomRequest extends ApiRequest
      * )
      *
      * @OA\Post(
-     *   tags={"Rooms"},
+     *   tags={"Hotel | Rooms"},
      *   path="/api/repo/hotel-rooms/{id}/detach-gallery",
      *   summary="Detach a gallery from a hotel room",
      *   description="Detach a gallery from a specific hotel room.",

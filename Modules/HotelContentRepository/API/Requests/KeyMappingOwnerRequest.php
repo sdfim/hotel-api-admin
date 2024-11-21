@@ -9,7 +9,7 @@ class KeyMappingOwnerRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Key Mappings"},
+     *   tags={"Product | Key Mappings"},
      *   path="/api/repo/key-mapping-owners",
      *   summary="Get all key mapping owners",
      *   description="Retrieve all key mapping owner records with optional filters.",
@@ -51,7 +51,7 @@ class KeyMappingOwnerRequest extends ApiRequest
      * )
      *
      * @OA\Post(
-     *   tags={"Key Mappings"},
+     *   tags={"Product | Key Mappings"},
      *   path="/api/repo/key-mapping-owners",
      *   summary="Create a new key mapping owner",
      *   description="Create a new key mapping owner.",
@@ -91,7 +91,7 @@ class KeyMappingOwnerRequest extends ApiRequest
      * )
      *
      * @OA\Get(
-     *   tags={"Key Mappings"},
+     *   tags={"Product | Key Mappings"},
      *   path="/api/repo/key-mapping-owners/{id}",
      *   summary="Get key mapping owner details",
      *   description="Retrieve details of a specific key mapping owner.",
@@ -133,7 +133,7 @@ class KeyMappingOwnerRequest extends ApiRequest
      * )
      *
      * @OA\Put(
-     *   tags={"Key Mappings"},
+     *   tags={"Product | Key Mappings"},
      *   path="/api/repo/key-mapping-owners/{id}",
      *   summary="Update key mapping owner details",
      *   description="Update details of a specific key mapping owner.",
@@ -193,7 +193,7 @@ class KeyMappingOwnerRequest extends ApiRequest
      * )
      *
      * @OA\Delete(
-     *   tags={"Key Mappings"},
+     *   tags={"Product | Key Mappings"},
      *   path="/api/repo/key-mapping-owners/{id}",
      *   summary="Delete a key mapping owner",
      *   description="Delete a specific key mapping owner.",

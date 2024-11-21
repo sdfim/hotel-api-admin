@@ -84,7 +84,20 @@ class TestSeederExpediaContentToHotels extends Command
         $address = $expediaContent->address;
         unset($address['localized']);
 
+        $hotelData = [
+            'weight' =>  rand(1, 100),
+            'sale_type' => 'Direct Connection',
+            'address' => $address,
+            'star_rating' => $expediaContent?->rating,
+            'num_rooms' => Arr::get($expediaContent->expediaSlave->statistics, '52.value'),
+            'room_images_source_id' => $expediaId,
+            'product_board_basis' => '',
+        ];
 
+        $hotel = Hotel::updateOrCreate(
+            ['address' => $address],
+            $hotelData
+        );
 
         $productData = [
             'vendor_id' => Vendor::inRandomOrder()->value('id'),
@@ -98,27 +111,13 @@ class TestSeederExpediaContentToHotels extends Command
             'default_currency' => Arr::get($expediaContent->expediaSlave->onsite_payments, 'currency', 'USD'),
             'website' => '',
             'location_gm' => Arr::get($expediaContent?->location, 'coordinates'),
+            'related_id' => $hotel->id,
+            'related_type' => Hotel::class,
         ];
 
         $product = Product::updateOrCreate(
-            ['name' => $expediaContent->name],
+            ['name' => $expediaContent->name, 'related_id' => $hotel->id],
             $productData
-        );
-
-        $hotelData = [
-            'product_id' => $product->id,
-            'weight' =>  rand(1, 100),
-            'sale_type' => 'Direct Connection',
-            'address' => $address,
-            'star_rating' => $expediaContent?->rating,
-            'num_rooms' => Arr::get($expediaContent->expediaSlave->statistics, '52.value'),
-            'room_images_source_id' => $expediaId,
-            'product_board_basis' => '',
-        ];
-
-        $hotel = Hotel::updateOrCreate(
-            ['product_id' => $product->id],
-            $hotelData
         );
 
         $this->updateOrCreateProductAffiliation($product);

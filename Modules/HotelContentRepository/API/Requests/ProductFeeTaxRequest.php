@@ -12,7 +12,7 @@ class ProductFeeTaxRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Fee and Tax"},
+     *   tags={"Product | Fee and Tax"},
      *   path="/api/repo/product-fee-taxes",
      *   summary="Get all product fee taxes",
      *   description="Retrieve all product fee tax records with optional filters.",
@@ -130,7 +130,7 @@ class ProductFeeTaxRequest extends ApiRequest
 
      *
      * @OA\Post(
-     *   tags={"Fee and Tax"},
+     *   tags={"Product | Fee and Tax"},
      *   path="/api/repo/product-fee-taxes",
      *   summary="Create a new product fee tax",
      *   description="Create a new product fee tax entry.",
@@ -178,7 +178,7 @@ class ProductFeeTaxRequest extends ApiRequest
      * )
      *
      * @OA\Get(
-     *   tags={"Fee and Tax"},
+     *   tags={"Product | Fee and Tax"},
      *   path="/api/repo/product-fee-taxes/{id}",
      *   summary="Get product fee tax details",
      *   description="Retrieve details of a specific product fee tax.",
@@ -220,7 +220,7 @@ class ProductFeeTaxRequest extends ApiRequest
      * )
      *
      * @OA\Put(
-     *   tags={"Fee and Tax"},
+     *   tags={"Product | Fee and Tax"},
      *   path="/api/repo/product-fee-taxes/{id}",
      *   summary="Update product fee tax details",
      *   description="Update details of a specific product fee tax.",
@@ -288,7 +288,7 @@ class ProductFeeTaxRequest extends ApiRequest
      * )
      *
      * @OA\Delete(
-     *   tags={"Fee and Tax"},
+     *   tags={"Product | Fee and Tax"},
      *   path="/api/repo/product-fee-taxes/{id}",
      *   summary="Delete a product fee tax",
      *   description="Delete a specific product fee tax.",

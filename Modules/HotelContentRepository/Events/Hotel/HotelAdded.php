@@ -8,7 +8,8 @@ use Modules\HotelContentRepository\Models\Hotel;
 
 class HotelAdded
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable;
+    use SerializesModels;
 
     public $hotel;
 

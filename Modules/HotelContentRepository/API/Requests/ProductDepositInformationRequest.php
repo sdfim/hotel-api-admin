@@ -9,7 +9,7 @@ class ProductDepositInformationRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Deposit Information"},
+     *   tags={"Product | Deposit Information"},
      *   path="/api/repo/product-deposit-information",
      *   summary="Get all product deposit information",
      *   description="Retrieve all product deposit information records with optional filters.",
@@ -45,7 +45,7 @@ class ProductDepositInformationRequest extends ApiRequest
      * )
 
      * @OA\Post(
-     *   tags={"Deposit Information"},
+     *   tags={"Product | Deposit Information"},
      *   path="/api/repo/product-deposit-information",
      *   summary="Create a new product deposit information",
      *   description="Create a new product deposit information entry.",
@@ -82,7 +82,7 @@ class ProductDepositInformationRequest extends ApiRequest
      * )
 
      * @OA\Get(
-     *   tags={"Deposit Information"},
+     *   tags={"Product | Deposit Information"},
      *   path="/api/repo/product-deposit-information/{id}",
      *   summary="Get product deposit information details",
      *   description="Retrieve details of a specific product deposit information.",
@@ -118,7 +118,7 @@ class ProductDepositInformationRequest extends ApiRequest
      * )
 
      * @OA\Put(
-     *   tags={"Deposit Information"},
+     *   tags={"Product | Deposit Information"},
      *   path="/api/repo/product-deposit-information/{id}",
      *   summary="Update product deposit information details",
      *   description="Update details of a specific product deposit information.",
@@ -172,7 +172,7 @@ class ProductDepositInformationRequest extends ApiRequest
      * )
 
      * @OA\Delete(
-     *   tags={"Deposit Information"},
+     *   tags={"Product | Deposit Information"},
      *   path="/api/repo/product-deposit-information/{id}",
      *   summary="Delete a product deposit information",
      *   description="Delete a specific product deposit information.",

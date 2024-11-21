@@ -7,7 +7,7 @@ use Modules\API\Validate\ApiRequest;
 
 /**
  * @OA\Get(
- *   tags={"Key Mappings"},
+ *   tags={"Product | Key Mappings"},
  *   path="/api/repo/key-mappings",
  *   summary="Get all key mappings",
  *   description="Retrieve all key mapping records with optional filters.",
@@ -39,7 +39,7 @@ use Modules\API\Validate\ApiRequest;
  * )
  *
  * @OA\Post(
- *   tags={"Key Mappings"},
+ *   tags={"Product | Key Mappings"},
  *   path="/api/repo/key-mappings",
  *   summary="Create a new key mapping",
  *   description="Create a new key mapping.",
@@ -81,7 +81,7 @@ use Modules\API\Validate\ApiRequest;
  * )
  *
  * @OA\Get(
- *   tags={"Key Mappings"},
+ *   tags={"Product | Key Mappings"},
  *   path="/api/repo/key-mappings/{id}",
  *   summary="Get key mapping details",
  *   description="Retrieve details of a specific key mapping.",
@@ -123,7 +123,7 @@ use Modules\API\Validate\ApiRequest;
  * )
  *
  * @OA\Put(
- *   tags={"Key Mappings"},
+ *   tags={"Product | Key Mappings"},
  *   path="/api/repo/key-mappings/{id}",
  *   summary="Update key mapping details",
  *   description="Update details of a specific key mapping.",
@@ -185,7 +185,7 @@ use Modules\API\Validate\ApiRequest;
  * )
  *
  * @OA\Delete(
- *   tags={"Key Mappings"},
+ *   tags={"Product | Key Mappings"},
  *   path="/api/repo/key-mappings/{id}",
  *   summary="Delete a key mapping",
  *   description="Delete a specific key mapping.",

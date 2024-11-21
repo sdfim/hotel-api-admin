@@ -22,55 +22,60 @@ use Modules\API\BaseController as MainController;
  * )
  *
  * @OA\Tag(
- *      name="Hotels",
+ *      name="Hotel | Hotels",
  *      description="API Endpoints for Hotels"
  * ),
  * @OA\Tag(
- *      name="Rooms",
+ *      name="Hotel | Rooms",
  *      description="API Endpoints for Rooms"
  *  ),
  * @OA\Tag(
- *       name="Key Mappings",
+ *      name="Hotel | Website Search Generation",
+ *      description="API Endpoints for Website Search Generation"
+ *  ),
+ *
+ * @OA\Tag(
+ *       name="Product | Products",
+ *       description="API Endpoints for Products"
+ *  ),
+ * @OA\Tag(
+ *       name="Product | Key Mappings",
  *       description="API Endpoints for Key Mappings"
  *   ),
  * @OA\Tag(
- *       name="Attributes",
+ *       name="Product | Attributes",
  *       description="API Endpoints for Attributes"
  *   ),
  * @OA\Tag(
- *       name="Affiliations",
+ *       name="Product | Affiliations",
  *       description="API Endpoints for Affiliations"
  *   ),
  * @OA\Tag(
- *        name="Fee and Tax",
+ *        name="Product | Fee and Tax",
  *        description="API Endpoints for Fee and Tax"
  *    ),
  * @OA\Tag(
- *        name="Descriptive Content",
+ *        name="Product | Descriptive Content",
  *        description="API Endpoints for Descriptive Content"
  *    ),
  * @OA\Tag(
- *        name="Website Search Generation",
- *        description="API Endpoints for Website Search Generation"
- *    ),
- * @OA\Tag(
- *         name="Informational Service",
+ *         name="Product | Informational Service",
  *         description="API Endpoints for Informational Service"
  *     ),
  * @OA\Tag(
- *          name="Promotions",
+ *          name="Product | Promotions",
  *          description="API Endpoints for Promotions"
  *      ),
  * @OA\Tag(
- *          name="Deposit Information",
+ *          name="Product | Deposit Information",
  *          description="API Endpoints for Deposit Information"
  *      ),
  * @OA\Tag(
- *          name="Contact Information",
+ *          name="Product | Contact Information",
  *          description="API Endpoints for Contact Information"
  *      ),
  * @OA\Tag(
- *          name="Age Restrictions",
+ *          name="Product | Age Restrictions",
  *          description="API Endpoints for Age Restrictions"
  *      ),
  * @OA\Tag(

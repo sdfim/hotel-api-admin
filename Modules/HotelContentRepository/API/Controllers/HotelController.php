@@ -84,20 +84,6 @@ class HotelController extends BaseController
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 
-    public function attachGallery(AttachOrDetachGalleryRequest $request, $id)
-    {
-        $hotel = Hotel::findOrFail($id);
-        $hotel->galleries()->attach($request->gallery_id);
-        return $this->sendResponse($hotel->galleries->toArray(), 'Gallery attached successfully');
-    }
-
-    public function detachGallery(AttachOrDetachGalleryRequest $request, $id)
-    {
-        $hotel = Hotel::findOrFail($id);
-        $hotel->galleries()->detach($request->gallery_id);
-        return $this->sendResponse($hotel->galleries->toArray(), 'Gallery detached successfully');
-    }
-
     public function attachWebFinder(AttachOrDetachWebFinderRequest $request, $id)
     {
         $hotel = Hotel::findOrFail($id);

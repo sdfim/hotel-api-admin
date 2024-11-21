@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Modules\HotelContentRepository\Models\Factories\HotelFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 
@@ -23,7 +24,6 @@ class Hotel extends Model
     protected $table = 'pd_hotels';
 
     protected $fillable = [
-        'product_id',
         'weight',
         'sale_type',
         'address',
@@ -59,8 +59,8 @@ class Hotel extends Model
         return $this->belongsToMany(HotelWebFinder::class, 'pd_hotel_web_finder_hotel', 'hotel_id', 'web_finder_id');
     }
 
-    public function product(): BelongsTo
+    public function product(): MorphOne
     {
-        return $this->belongsTo(Product::class);
+        return $this->morphOne(Product::class, 'related');
     }
 }

@@ -23,7 +23,7 @@ class VendorDTO
         $this->lng = $vendor->lng;
         $this->website = $vendor->website;
         $this->products = $vendor->products->map(function ($product) {
-            return new ProductDTO($product);
+            return new ProductForRelationDTO($product);
         });
     }
 }

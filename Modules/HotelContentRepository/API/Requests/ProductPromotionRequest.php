@@ -9,7 +9,7 @@ class ProductPromotionRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Promotions"},
+     *   tags={"Product | Promotions"},
      *   path="/api/repo/product-promotions",
      *   summary="Get all product promotions",
      *   description="Retrieve all product promotion records with optional filters.",
@@ -129,7 +129,7 @@ class ProductPromotionRequest extends ApiRequest
      * )
 
      * @OA\Post(
-     *   tags={"Promotions"},
+     *   tags={"Product | Promotions"},
      *   path="/api/repo/product-promotions",
      *   summary="Create a new product promotion",
      *   description="Create a new product promotion entry.",
@@ -171,7 +171,7 @@ class ProductPromotionRequest extends ApiRequest
      * )
 
      * @OA\Get(
-     *   tags={"Promotions"},
+     *   tags={"Product | Promotions"},
      *   path="/api/repo/product-promotions/{id}",
      *   summary="Get product promotion details",
      *   description="Retrieve details of a specific product promotion.",
@@ -207,7 +207,7 @@ class ProductPromotionRequest extends ApiRequest
      * )
 
      * @OA\Put(
-     *   tags={"Promotions"},
+     *   tags={"Product | Promotions"},
      *   path="/api/repo/product-promotions/{id}",
      *   summary="Update product promotion details",
      *   description="Update details of a specific product promotion.",
@@ -266,7 +266,7 @@ class ProductPromotionRequest extends ApiRequest
      * )
 
      * @OA\Delete(
-     *   tags={"Promotions"},
+     *   tags={"Product | Promotions"},
      *   path="/api/repo/product-promotions/{id}",
      *   summary="Delete a product promotion",
      *   description="Delete a specific product promotion.",

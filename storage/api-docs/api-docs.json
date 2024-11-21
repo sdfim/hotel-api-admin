@@ -2190,7 +2190,7 @@
                                         "example": "Sheraton New York Times Square Hotel (60295986)"
                                     },
                                     "rooms": {
-                                        "description": "Rooms",
+                                        "description": "Hotel | Rooms",
                                         "properties": {
                                             "room_name": {
                                                 "description": "Room Name (e.g., 'Superior Room, 2 Double Beds, Non Smoking (High Floor)').",

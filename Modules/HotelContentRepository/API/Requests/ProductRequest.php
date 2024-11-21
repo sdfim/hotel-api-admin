@@ -2,58 +2,49 @@
 
 namespace Modules\HotelContentRepository\API\Requests;
 
+use Illuminate\Foundation\Http\FormRequest;
 use Modules\API\Validate\ApiRequest;
-use Modules\Enums\HotelTypeEnum;
 
-class HotelRequest extends ApiRequest
+class ProductRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Hotel | Hotels"},
-     *   path="/api/repo/hotels",
-     *   summary="Get all hotels",
-     *   description="Retrieve all hotel records with optional filters.",
+     *   tags={"Product | Products"},
+     *   path="/api/repo/products",
+     *   summary="Get all products",
+     *   description="Retrieve all product records with optional filters.",
      *   @OA\Parameter(
-     *     name="sale_type",
+     *     name="name",
      *     in="query",
      *     required=false,
-     *     description="Filter by sale type",
+     *     description="Filter by product name",
      *     @OA\Schema(
      *       type="string"
      *     )
      *   ),
      *   @OA\Parameter(
-     *     name="address",
+     *     name="product_type",
      *     in="query",
      *     required=false,
-     *     description="Filter by address",
+     *     description="Filter by product type",
      *     @OA\Schema(
      *       type="string"
      *     )
      *   ),
      *   @OA\Parameter(
-     *     name="star_rating",
+     *     name="verified",
      *     in="query",
      *     required=false,
-     *     description="Filter by star rating",
+     *     description="Filter by verification status",
      *     @OA\Schema(
-     *       type="integer"
+     *       type="boolean"
      *     )
      *   ),
      *   @OA\Parameter(
-     *     name="num_rooms",
+     *     name="default_currency",
      *     in="query",
      *     required=false,
-     *     description="Filter by number of rooms",
-     *     @OA\Schema(
-     *       type="integer"
-     *     )
-     *   ),
-     *   @OA\Parameter(
-     *     name="hotel_board_basis",
-     *     in="query",
-     *     required=false,
-     *     description="Filter by hotel board basis",
+     *     description="Filter by default currency",
      *     @OA\Schema(
      *       type="string"
      *     )
@@ -80,22 +71,27 @@ class HotelRequest extends ApiRequest
      * )
      *
      * @OA\Post(
-     *   tags={"Hotel | Hotels"},
-     *   path="/api/repo/hotels",
-     *   summary="Create a new hotel",
-     *   description="Create a new hotel entry.",
+     *   tags={"Product | Products"},
+     *   path="/api/repo/products",
+     *   summary="Create a new product",
+     *   description="Create a new product entry.",
      *   @OA\RequestBody(
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"sale_type", "address", "star_rating", "num_rooms", "room_images_source_id", "hotel_board_basis"},
-     *       @OA\Property(property="sale_type", type="string", example="sale"),
-     *       @OA\Property(property="address", type="string", example="123 Main St"),
-     *       @OA\Property(property="star_rating", type="integer", example=5),
-     *       @OA\Property(property="num_rooms", type="integer", example=100),
-     *       @OA\Property(property="room_images_source_id", type="integer", example=1),
-     *       @OA\Property(property="hotel_board_basis", type="string", example="All Inclusive"),
-     *       @OA\Property(property="weight", type="integer", example=10)
+     *       required={"vendor_id", "product_type", "name", "verified", "content_source_id", "property_images_source_id", "default_currency", "related_id", "related_type"},
+     *       @OA\Property(property="vendor_id", type="integer", example=1),
+     *       @OA\Property(property="product_type", type="string", example="hotel"),
+     *       @OA\Property(property="name", type="string", example="Example Product"),
+     *       @OA\Property(property="verified", type="boolean", example=true),
+     *       @OA\Property(property="content_source_id", type="integer", example=1),
+     *       @OA\Property(property="property_images_source_id", type="integer", example=1),
+     *       @OA\Property(property="default_currency", type="string", example="USD"),
+     *       @OA\Property(property="website", type="string", example="https://exampleproduct.com"),
+     *       @OA\Property(property="lat", type="number", format="float", example=12.345678),
+     *       @OA\Property(property="lng", type="number", format="float", example=98.765432),
+     *       @OA\Property(property="related_id", type="integer", example=1),
+     *       @OA\Property(property="related_type", type="string", example="Modules\\HotelContentRepository\\Models\\Hotel")
      *     )
      *   ),
      *   @OA\Response(
@@ -120,15 +116,15 @@ class HotelRequest extends ApiRequest
      * )
      *
      * @OA\Get(
-     *   tags={"Hotel | Hotels"},
-     *   path="/api/repo/hotels/{id}",
-     *   summary="Get hotel details",
-     *   description="Retrieve details of a specific hotel.",
+     *   tags={"Product | Products"},
+     *   path="/api/repo/products/{id}",
+     *   summary="Get product details",
+     *   description="Retrieve details of a specific product.",
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
-     *     description="ID of the hotel",
+     *     description="ID of the product",
      *     @OA\Schema(
      *       type="integer",
      *       example=1
@@ -156,15 +152,15 @@ class HotelRequest extends ApiRequest
      * )
      *
      * @OA\Put(
-     *   tags={"Hotel | Hotels"},
-     *   path="/api/repo/hotels/{id}",
-     *   summary="Update hotel details",
-     *   description="Update details of a specific hotel.",
+     *   tags={"Product | Products"},
+     *   path="/api/repo/products/{id}",
+     *   summary="Update product details",
+     *   description="Update details of a specific product.",
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
-     *     description="ID of the hotel",
+     *     description="ID of the product",
      *     @OA\Schema(
      *       type="integer",
      *       example=1
@@ -174,14 +170,19 @@ class HotelRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"sale_type", "address", "star_rating", "num_rooms", "room_images_source_id", "hotel_board_basis"},
-     *       @OA\Property(property="sale_type", type="string", example="sale"),
-     *       @OA\Property(property="address", type="string", example="123 Main St"),
-     *       @OA\Property(property="star_rating", type="integer", example=5),
-     *       @OA\Property(property="num_rooms", type="integer", example=100),
-     *       @OA\Property(property="room_images_source_id", type="integer", example=1),
-     *       @OA\Property(property="hotel_board_basis", type="string", example="All Inclusive"),
-     *       @OA\Property(property="weight", type="integer", example=10)
+     *       required={"vendor_id", "product_type", "name", "verified", "content_source_id", "property_images_source_id", "default_currency", "related_id", "related_type"},
+     *       @OA\Property(property="vendor_id", type="integer", example=1),
+     *       @OA\Property(property="product_type", type="string", example="hotel"),
+     *       @OA\Property(property="name", type="string", example="Example Product"),
+     *       @OA\Property(property="verified", type="boolean", example=true),
+     *       @OA\Property(property="content_source_id", type="integer", example=1),
+     *       @OA\Property(property="property_images_source_id", type="integer", example=1),
+     *       @OA\Property(property="default_currency", type="string", example="USD"),
+     *       @OA\Property(property="website", type="string", example="https://exampleproduct.com"),
+     *       @OA\Property(property="lat", type="number", format="float", example=12.345678),
+     *       @OA\Property(property="lng", type="number", format="float", example=98.765432),
+     *       @OA\Property(property="related_id", type="integer", example=1),
+     *       @OA\Property(property="related_type", type="string", example="Modules\\HotelContentRepository\\Models\\Hotel")
      *     )
      *   ),
      *   @OA\Response(
@@ -213,15 +214,15 @@ class HotelRequest extends ApiRequest
      * )
      *
      * @OA\Delete(
-     *   tags={"Hotel | Hotels"},
-     *   path="/api/repo/hotels/{id}",
-     *   summary="Delete a hotel",
-     *   description="Delete a specific hotel.",
+     *   tags={"Product | Products"},
+     *   path="/api/repo/products/{id}",
+     *   summary="Delete a product",
+     *   description="Delete a specific product.",
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
-     *     description="ID of the hotel",
+     *     description="ID of the product",
      *     @OA\Schema(
      *       type="integer",
      *       example=1
@@ -247,17 +248,17 @@ class HotelRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Post(
-     *   tags={"Hotel | Hotels"},
-     *   path="/api/repo/hotels/{id}/attach-web-finder",
-     *   summary="Attach a web finder to a hotel",
-     *   description="Attach a web finder to a specific hotel.",
+     *   tags={"Product | Products"},
+     *   path="/api/repo/products/{id}/attach-gallery",
+     *   summary="Attach a gallery to a product",
+     *   description="Attach a gallery to a specific product.",
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
-     *     description="ID of the hotel",
+     *     description="ID of the product",
      *     @OA\Schema(
      *       type="integer",
      *       example=1
@@ -267,8 +268,8 @@ class HotelRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"web_finder_id"},
-     *       @OA\Property(property="web_finder_id", type="integer", example=1)
+     *       required={"gallery_id"},
+     *       @OA\Property(property="gallery_id", type="integer", example=1)
      *     )
      *   ),
      *   @OA\Response(
@@ -279,35 +280,29 @@ class HotelRequest extends ApiRequest
      *     response=401,
      *     description="Unauthenticated",
      *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *         "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse")
-     *       }
+     *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
      *     @OA\JsonContent(
-     *       ref="#/components/schemas/BadRequestResponse",
-     *       examples={
-     *         "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse")
-     *       }
+     *       ref="#/components/schemas/BadRequestResponse"
      *     )
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Post(
-     *   tags={"Hotel | Hotels"},
-     *   path="/api/repo/hotels/{id}/detach-web-finder",
-     *   summary="Detach a web finder from a hotel",
-     *   description="Detach a web finder from a specific hotel.",
+     *   tags={"Product | Products"},
+     *   path="/api/repo/products/{id}/detach-gallery",
+     *   summary="Detach a gallery from a product",
+     *   description="Detach a gallery from a specific product.",
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
-     *     description="ID of the hotel",
+     *     description="ID of the product",
      *     @OA\Schema(
      *       type="integer",
      *       example=1
@@ -317,8 +312,8 @@ class HotelRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"web_finder_id"},
-     *       @OA\Property(property="web_finder_id", type="integer", example=1)
+     *       required={"gallery_id"},
+     *       @OA\Property(property="gallery_id", type="integer", example=1)
      *     )
      *   ),
      *   @OA\Response(
@@ -329,20 +324,14 @@ class HotelRequest extends ApiRequest
      *     response=401,
      *     description="Unauthenticated",
      *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *         "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse")
-     *       }
+     *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
      *     @OA\JsonContent(
-     *       ref="#/components/schemas/BadRequestResponse",
-     *       examples={
-     *         "example1": @OA\Schema(ref="#/components/examples/BadRequestResponse", example="BadRequestResponse")
-     *       }
+     *       ref="#/components/schemas/BadRequestResponse"
      *     )
      *   ),
      *   security={{ "apiAuth": {} }}
@@ -352,13 +341,18 @@ class HotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'sale_type' => 'required|string|in:' . implode(',', array_column(HotelTypeEnum::cases(), 'value')),
-            'address' => 'required|string',
-            'star_rating' => 'required|integer|min:1|max:5',
-            'num_rooms' => 'required|integer',
-            'room_images_source_id' => 'required|exists:pd_content_sources,id',
-            'hotel_board_basis' => 'required|string|max:255',
-            'weight' => 'integer',
+            'vendor_id' => 'required|exists:pd_vendors,id',
+            'product_type' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'verified' => 'required|boolean',
+            'content_source_id' => 'required|integer',
+            'property_images_source_id' => 'required|integer',
+            'default_currency' => 'required|string|max:3',
+            'website' => 'nullable|string|max:255',
+            'lat' => 'nullable|numeric',
+            'lng' => 'nullable|numeric',
+            'related_id' => 'required|integer',
+            'related_type' => 'required|string|max:255',
         ];
     }
 }

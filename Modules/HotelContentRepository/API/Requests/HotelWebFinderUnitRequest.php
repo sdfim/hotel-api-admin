@@ -8,7 +8,7 @@ class HotelWebFinderUnitRequest extends FormRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Website Search Generation"},
+     *   tags={"Hotel | Website Search Generation"},
      *   path="/api/repo/hotel-web-finder-units",
      *   summary="Get all hotel web finder units",
      *   description="Retrieve all hotel web finder unit records with optional filters.",
@@ -64,7 +64,7 @@ class HotelWebFinderUnitRequest extends FormRequest
      * )
 
      * @OA\Post(
-     *   tags={"Website Search Generation"},
+     *   tags={"Hotel | Website Search Generation"},
      *   path="/api/repo/hotel-web-finder-units",
      *   summary="Create a new hotel web finder unit",
      *   description="Create a new hotel web finder unit entry.",
@@ -100,7 +100,7 @@ class HotelWebFinderUnitRequest extends FormRequest
      * )
 
      * @OA\Get(
-     *   tags={"Website Search Generation"},
+     *   tags={"Hotel | Website Search Generation"},
      *   path="/api/repo/hotel-web-finder-units/{id}",
      *   summary="Get hotel web finder unit details",
      *   description="Retrieve details of a specific hotel web finder unit.",
@@ -136,7 +136,7 @@ class HotelWebFinderUnitRequest extends FormRequest
      * )
 
      * @OA\Put(
-     *   tags={"Website Search Generation"},
+     *   tags={"Hotel | Website Search Generation"},
      *   path="/api/repo/hotel-web-finder-units/{id}",
      *   summary="Update hotel web finder unit details",
      *   description="Update details of a specific hotel web finder unit.",
@@ -189,7 +189,7 @@ class HotelWebFinderUnitRequest extends FormRequest
      * )
 
      * @OA\Delete(
-     *   tags={"Website Search Generation"},
+     *   tags={"Hotel | Website Search Generation"},
      *   path="/api/repo/hotel-web-finder-units/{id}",
      *   summary="Delete a hotel web finder unit",
      *   description="Delete a specific hotel web finder unit.",

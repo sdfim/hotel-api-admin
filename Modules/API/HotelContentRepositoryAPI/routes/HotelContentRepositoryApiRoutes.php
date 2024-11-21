@@ -10,6 +10,7 @@ use Modules\HotelContentRepository\API\Controllers\ProductAffiliationController;
 use Modules\HotelContentRepository\API\Controllers\ProductAgeRestrictionController;
 use Modules\HotelContentRepository\API\Controllers\ProductContactInformationController;
 use Modules\HotelContentRepository\API\Controllers\HotelController;
+use Modules\HotelContentRepository\API\Controllers\ProductController;
 use Modules\HotelContentRepository\API\Controllers\ProductDepositInformationController;
 use Modules\HotelContentRepository\API\Controllers\ProductDescriptiveContentSectionController;
 use Modules\HotelContentRepository\API\Controllers\ProductFeeTaxController;
@@ -50,8 +51,6 @@ class HotelContentRepositoryApiRoutes
 
             // Group HOTEL
             Route::resource('hotels', HotelController::class);
-            Route::post('hotels/{id}/attach-gallery', [HotelController::class, 'attachGallery']);
-            Route::post('hotels/{id}/detach-gallery', [HotelController::class, 'detachGallery']);
             Route::post('hotels/{id}/attach-web-finder', [HotelController::class, 'attachWebFinder']);
             Route::post('hotels/{id}/detach-web-finder', [HotelController::class, 'detachWebFinder']);
 
@@ -70,6 +69,10 @@ class HotelContentRepositoryApiRoutes
             Route::post('image-galleries/{id}/detach-image', [ImageGalleryController::class, 'detachImage']);
 
             // Group PRODUCT
+            Route::resource('products', ProductController::class);
+            Route::post('products/{id}/attach-gallery', [ProductController::class, 'attachGallery']);
+            Route::post('products/{id}/detach-gallery', [ProductController::class, 'detachGallery']);
+
             Route::resource('product-promotions', ProductPromotionController::class);
             Route::post('product-promotions/{id}/attach-gallery', [ProductPromotionController::class, 'attachGallery']);
             Route::post('product-promotions/{id}/detach-gallery', [ProductPromotionController::class, 'detachGallery']);

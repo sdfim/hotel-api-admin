@@ -33,12 +33,20 @@ class Product extends Model
         'location',
         'lat',
         'lng',
+        'related_id',
+        'related_type'
     ];
 
     protected $casts = [
         'verified' => 'boolean',
         'lat' => 'float',
         'lng' => 'float',
+    ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'location'
     ];
 
     public function vendor(): BelongsTo

@@ -5,6 +5,7 @@ namespace Modules\HotelContentRepository\Models\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Enums\ProductTypeEnum;
 use Modules\HotelContentRepository\Models\ContentSource;
+use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\Vendor;
 
@@ -25,6 +26,8 @@ class ProductFactory extends Factory
             'lng' => $this->faker->longitude,
             'default_currency' => $this->faker->currencyCode,
             'website' => $this->faker->url,
+            'related_id' => Hotel::factory(),
+            'related_type' => Hotel::class,
         ];
     }
 }

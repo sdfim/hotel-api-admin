@@ -9,7 +9,7 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Descriptive Content"},
+     *   tags={"Product | Descriptive Content"},
      *   path="/api/repo/product-descriptive-content-sections",
      *   summary="Get all product descriptive content sections",
      *   description="Retrieve all product descriptive content section records with optional filters.",
@@ -77,7 +77,7 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      * )
      *
      * @OA\Post(
-     *   tags={"Descriptive Content"},
+     *   tags={"Product | Descriptive Content"},
      *   path="/api/repo/product-descriptive-content-sections",
      *   summary="Create a new product descriptive content section",
      *   description="Create a new product descriptive content section entry.",
@@ -114,7 +114,7 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      * )
      *
      * @OA\Get(
-     *   tags={"Descriptive Content"},
+     *   tags={"Product | Descriptive Content"},
      *   path="/api/repo/product-descriptive-content-sections/{id}",
      *   summary="Get product descriptive content section details",
      *   description="Retrieve details of a specific product descriptive content section.",
@@ -150,7 +150,7 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      * )
      *
      * @OA\Put(
-     *   tags={"Descriptive Content"},
+     *   tags={"Product | Descriptive Content"},
      *   path="/api/repo/product-descriptive-content-sections/{id}",
      *   summary="Update product descriptive content section details",
      *   description="Update details of a specific product descriptive content section.",
@@ -204,7 +204,7 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      * )
      *
      * @OA\Delete(
-     *   tags={"Descriptive Content"},
+     *   tags={"Product | Descriptive Content"},
      *   path="/api/repo/product-descriptive-content-sections/{id}",
      *   summary="Delete a product descriptive content section",
      *   description="Delete a specific product descriptive content section.",

@@ -9,7 +9,7 @@ class ProductAffiliationRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Affiliations"},
+     *   tags={"Product | Affiliations"},
      *   path="/api/repo/product-affiliations",
      *   summary="Get all hotel affiliations",
      *   description="Retrieve all hotel affiliation records with optional filters.",
@@ -62,7 +62,7 @@ class ProductAffiliationRequest extends ApiRequest
 
      *
      * @OA\Post(
-     *   tags={"Affiliations"},
+     *   tags={"Product | Affiliations"},
      *   path="/api/repo/product-affiliations",
      *   summary="Create a new hotel affiliation",
      *   description="Create a new hotel affiliation entry.",
@@ -104,7 +104,7 @@ class ProductAffiliationRequest extends ApiRequest
      * )
      *
      * @OA\Get(
-     *   tags={"Affiliations"},
+     *   tags={"Product | Affiliations"},
      *   path="/api/repo/product-affiliations/{id}",
      *   summary="Get hotel affiliation details",
      *   description="Retrieve details of a specific hotel affiliation.",
@@ -146,7 +146,7 @@ class ProductAffiliationRequest extends ApiRequest
      * )
      *
      * @OA\Put(
-     *   tags={"Affiliations"},
+     *   tags={"Product | Affiliations"},
      *   path="/api/repo/product-affiliations/{id}",
      *   summary="Update hotel affiliation details",
      *   description="Update details of a specific hotel affiliation.",
@@ -208,7 +208,7 @@ class ProductAffiliationRequest extends ApiRequest
      * )
      *
      * @OA\Delete(
-     *   tags={"Affiliations"},
+     *   tags={"Product | Affiliations"},
      *   path="/api/repo/product-affiliations/{id}",
      *   summary="Delete a hotel affiliation",
      *   description="Delete a specific hotel affiliation.",

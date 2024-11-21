@@ -10,7 +10,7 @@ class ProductAgeRestrictionRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Age Restrictions"},
+     *   tags={"Product | Age Restrictions"},
      *   path="/api/repo/age-restrictions",
      *   summary="Get all product age restrictions",
      *   description="Retrieve all product age restriction records with optional filters.",
@@ -76,7 +76,7 @@ class ProductAgeRestrictionRequest extends ApiRequest
      * )
 
      * @OA\Post(
-     *   tags={"Age Restrictions"},
+     *   tags={"Product | Age Restrictions"},
      *   path="/api/repo/age-restrictions",
      *   summary="Create a new product age restriction",
      *   description="Create a new product age restriction entry.",
@@ -113,7 +113,7 @@ class ProductAgeRestrictionRequest extends ApiRequest
      * )
 
      * @OA\Get(
-     *   tags={"Age Restrictions"},
+     *   tags={"Product | Age Restrictions"},
      *   path="/api/repo/age-restrictions/{id}",
      *   summary="Get product age restriction details",
      *   description="Retrieve details of a specific product age restriction.",
@@ -149,7 +149,7 @@ class ProductAgeRestrictionRequest extends ApiRequest
      * )
 
      * @OA\Put(
-     *   tags={"Age Restrictions"},
+     *   tags={"Product | Age Restrictions"},
      *   path="/api/repo/age-restrictions/{id}",
      *   summary="Update product age restriction details",
      *   description="Update details of a specific product age restriction.",
@@ -203,7 +203,7 @@ class ProductAgeRestrictionRequest extends ApiRequest
      * )
 
      * @OA\Delete(
-     *   tags={"Age Restrictions"},
+     *   tags={"Product | Age Restrictions"},
      *   path="/api/repo/age-restrictions/{id}",
      *   summary="Delete a product age restriction",
      *   description="Delete a specific product age restriction.",

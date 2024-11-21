@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('pd_hotels', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('product_id');
             $table->string('sale_type', 50);
             $table->json('address')->nullable();
             $table->integer('star_rating');
@@ -20,7 +19,6 @@ return new class extends Migration
             $table->string('hotel_board_basis')->nullable();
             $table->timestamps();
 
-            $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');
             $table->foreign('room_images_source_id')->references('id')->on('pd_content_sources');
         });
     }

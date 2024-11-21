@@ -15,7 +15,6 @@ class HotelFactory extends Factory
     public function definition()
     {
         return [
-            'product_id' => Product::factory(),
             'weight' => $this->faker->numberBetween(1, 100),
             'sale_type' => $this->faker->randomElement([
                 HotelTypeEnum::DIRECT_CONNECTION->value,

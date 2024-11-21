@@ -8,7 +8,7 @@ class ProductInformativeServiceRequest extends FormRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Informational Service"},
+     *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services",
      *   summary="Get all product informative services",
      *   description="Retrieve all product informative service records with optional filters.",
@@ -54,7 +54,7 @@ class ProductInformativeServiceRequest extends FormRequest
      * )
 
      * @OA\Post(
-     *   tags={"Informational Service"},
+     *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services",
      *   summary="Create a new product informative service",
      *   description="Create a new product informative service entry.",
@@ -89,7 +89,7 @@ class ProductInformativeServiceRequest extends FormRequest
      * )
 
      * @OA\Get(
-     *   tags={"Informational Service"},
+     *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services/{id}",
      *   summary="Get product informative service details",
      *   description="Retrieve details of a specific product informative service.",
@@ -125,7 +125,7 @@ class ProductInformativeServiceRequest extends FormRequest
      * )
 
      * @OA\Put(
-     *   tags={"Informational Service"},
+     *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services/{id}",
      *   summary="Update product informative service details",
      *   description="Update details of a specific product informative service.",
@@ -177,7 +177,7 @@ class ProductInformativeServiceRequest extends FormRequest
      * )
 
      * @OA\Delete(
-     *   tags={"Informational Service"},
+     *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services/{id}",
      *   summary="Delete a product informative service",
      *   description="Delete a specific product informative service.",
