@@ -41,7 +41,7 @@ class HotelForm extends Component implements HasForms
 
     public ?array $data = [];
     public Hotel $record;
-    public $verified;
+    public bool $verified;
 
     public function __construct()
     {
@@ -56,14 +56,6 @@ class HotelForm extends Component implements HasForms
 
         $data = $this->record->toArray();
 
-//        $data['address'] = [];
-//        foreach ($this->record->address as $key => $value) {
-//            $data['address'][] = [
-//                'field' => $key,
-//                'value' => $value
-//            ];
-//        }
-
         foreach ($this->record->address as $key => $value) {
             $data['addressArr'][$key] = $value;
         }
@@ -71,6 +63,8 @@ class HotelForm extends Component implements HasForms
         $data['galleries'] = $this->record->product->galleries->pluck('id')->toArray();
 
         $this->form->fill($data);
+
+//        dd($hotel, $hotel->product, $hotel->product->verified, $data);
     }
 
     public function toggleVerified()
@@ -94,8 +88,8 @@ class HotelForm extends Component implements HasForms
                 ->columns(1)
                 ->tabs([
                     // Tab 1: Product
-//                    Tabs\Tab::make('Product')
                     CustomTab::make('Product')
+                        ->id('product')
                         ->schema([
                             Select::make('product.vendor_id')
                                 ->label('Vendor Name')
@@ -123,6 +117,7 @@ class HotelForm extends Component implements HasForms
 
                     // Tab 2: Location
                     CustomTab::make('Location')
+                        ->id('location')
                         ->schema([
                             Grid::make(2)
                                 ->schema([
@@ -181,6 +176,7 @@ class HotelForm extends Component implements HasForms
 
                     // Tab 3: Data Sources
                     CustomTab::make('Data Sources')
+                        ->id('data-sources')
                         ->schema([
                             Select::make('product.content_source_id')->label('Content Source')->options(ContentSource::pluck('name', 'id'))->required(),
                             Select::make('room_images_source_id')->label('Room Images Source')->options(ContentSource::pluck('name', 'id'))->required(),
@@ -193,6 +189,7 @@ class HotelForm extends Component implements HasForms
                 ]),
         ];
     }
+
     public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();

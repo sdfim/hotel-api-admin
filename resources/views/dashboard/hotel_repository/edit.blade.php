@@ -33,7 +33,13 @@
 
     $hotelTitle = ['Rooms', 'Website Search Generation'];
 
-    ksort($tabGroups);
+    $formTabs = [
+        '-product-tab' => 'Product',
+        '-location-tab' => 'Location',
+        '-data-sources-tab' => 'Data Sources',
+    ];
+
+//    ksort($tabGroups);
 @endphp
 @extends('layouts.master')
 @section('title')
@@ -59,8 +65,22 @@
                         </div>
                     </div>
 
-                    <div x-data="{ activeTab: '{{ Str::slug(array_key_first($tabGroups)) }}' }" class="sr_tab-container">
-                        <ul class="sr_tab-list flex justify-center">
+                    <div x-data="{
+                        activeTab: '{{ array_key_first($formTabs) }}' }"
+                         class="sr_tab-container">
+
+                        <ul class="sr_tab-list flex justify-between w-full">
+                            @foreach ($formTabs as $tabId => $tabName)
+                                <li class="sr_tab-item mr-1 flex items-end">
+                                    <a href="#"
+                                       class="sr_tab-link"
+                                       :class="{ 'sr_active': activeTab === '{{ $tabId }}' }"
+                                       @click.prevent="activeTab = '{{ $tabId }}'; $wire.set('activeTab', '{{ $tabId }}')">
+                                        <span>{{ $tabName }}</span>
+                                    </a>
+                                </li>
+                            @endforeach
+
                             @foreach ($tabGroups as $group => $tabs)
                                 <li class="sr_tab-item mr-1 flex items-end">
                                     <a href="#"
@@ -76,8 +96,6 @@
                         <div class="ml-1 mr-1 col-span-9 xl:col-span-6">
                             @livewire('hotels.hotel-form', compact('hotel'))
                         </div>
-
-                        <hr class="mt-8 mb-8">
 
                         <div class="sr_tab-content w-full">
                             @foreach ($tabGroups as $group => $tabs)

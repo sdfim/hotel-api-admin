@@ -7,7 +7,11 @@
         </label>
     </div>
 
-    <form wire:submit="edit">
+    <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4" x-show="activeTab.includes('-product-tab')">General Information</h3>
+    <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4" x-show="activeTab.includes('-location-tab')">Location Details</h3>
+    <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4" x-show="activeTab.includes('-data-sources-tab')">Data Sources</h3>
+
+    <form class="hotel-form-container" wire:submit="edit" x-show="activeTab.includes('tab')">
         {{ $this->form }}
 
         <x-button class="mt-4">

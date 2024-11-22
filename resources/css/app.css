@@ -4,6 +4,10 @@
     display: none !important;
 }
 
+.hotel-form-container .fi-tabs.flex {
+    display: none;
+}
+
 .large-button {
     font-size: 1.1rem;
     font-weight: bold;
@@ -17,9 +21,12 @@
 
 .sr_tab-list {
     display: flex;
-    gap: 0.5rem;
     overflow-x: auto;
     scrollbar-width: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.7rem;
+    margin: 5px 0;
 }
 .sr_tab-list::-webkit-scrollbar {
     display: none;
@@ -32,28 +39,30 @@
 
 .sr_tab-link {
     display: inline-block;
-    padding: 0.45rem 1rem;
+    padding: 0.75rem 0.8rem;
     border-radius: 8px;
+    border: #e5e7eb 1px solid;
     background-color: #f1f1f1;
     color: #333;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     transition: background-color 0.3s ease, color 0.3s ease;
     cursor: pointer;
+    text-transform: uppercase;
 }
 
 .sr_tab-link:hover {
-    background-color: #e0e0e0;
+    background-color: #e0e0e0; /* цвет при наведении */
 }
 
 .sr_tab-link.sr_active {
-    background-color: #000;
+    background-color: #a02dfd; /* фиолетовый цвет активного таба */
     color: #fff;
     font-weight: bold;
 }
 
 .sr_tab-content {
     width: 100%;
-    padding-top: 1rem;
+    /*padding-top: 1rem;*/
 }
 
 .sr_tab-panel[x-show="true"] {

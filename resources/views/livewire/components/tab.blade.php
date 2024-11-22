@@ -15,6 +15,9 @@
     x-bind:class="{
         @js($activeTabClasses): tab === @js($id),
         @js($inactiveTabClasses): tab !== @js($id),
+
+        @js($activeTabClasses): activeTab === @js($id),
+        @js($inactiveTabClasses): activeTab !== @js($id),
     }"
     x-on:expand="tab = @js($id)"
     {{
