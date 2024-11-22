@@ -15,6 +15,8 @@
     use App\Models\InformationalService;
     use App\Models\Property;
     use Modules\HotelContentRepository\Models\Hotel;
+    use Modules\HotelContentRepository\Models\Product;
+    use Modules\HotelContentRepository\Models\Vendor;
     use Modules\HotelContentRepository\Models\TravelAgencyCommission;
     use App\Models\GiataGeography;
     use Modules\Insurance\Models\InsuranceProvider;
@@ -313,13 +315,54 @@
                         </a>
                     </li>
                 @endif
-                @if($canView(Hotel::class))
+                @if($canView(Hotel::class) || $canView(Vendor::class) || $canView(Product::class))
                     <li>
-                        <a href="{{ Route('hotel_repository.index') }}"
-                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                        <a href="javascript: void(0);" aria-expanded="false"
+                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium
+                       text-gray-700 transition-all duration-150 ease-linear
+                       hover:text-violet-500 dark:text-gray-300 dark:active:text-white
+                       dark:hover:text-white">
                             <i class="dripicons-graduation"></i>
-                            <span data-key="t-property-mapping">Supplier Repository</span>
+                            <span>Supplier Repository</span>
                         </a>
+                        <ul>
+                            @if($canView(Vendor::class))
+                                <li>
+                                    <a href="{{ Route('vendor-repository.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
+                               text-gray-700 transition-all duration-150 ease-linear
+                               hover:text-violet-500 dark:text-gray-300 dark:active:text-white
+                               dark:hover:text-white">
+                                        <i class="dripicons-rocket"></i>
+                                        <span>Vendors</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if($canView(Product::class))
+                                <li>
+                                    <a href="{{ Route('product-repository.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
+                            text-gray-700 transition-all duration-150 ease-linear
+                            hover:text-violet-500 dark:text-gray-300 dark:active:text-white
+                            dark:hover:text-white">
+                                        <i class="dripicons-trophy"></i>
+                                        <span>Products</span>
+                                    </a>
+                                </li>
+                            @endif
+                            @if($canView(Hotel::class))
+                                <li>
+                                    <a href="{{ Route('hotel-repository.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
+                               text-gray-700 transition-all duration-150 ease-linear
+                               hover:text-violet-500 dark:text-gray-300 dark:active:text-white
+                               dark:hover:text-white">
+                                        <i class="dripicons-store"></i>
+                                        <span>Hotels</span>
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
                     </li>
                 @endif
                 @can('statistic-charts')

@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
+use Modules\HotelContentRepository\Livewire\Product\ProductTable;
 use Modules\HotelContentRepository\Livewire\ProductAffiliations\ProductAffiliationsTable;
 use Modules\HotelContentRepository\Livewire\ProductAgeRestriction\ProductAgeRestrictionTable;
 use Modules\HotelContentRepository\Livewire\ProductAttributes\ProductAttributesTable;
@@ -23,6 +24,8 @@ use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesTable;
 use Modules\HotelContentRepository\Livewire\KeyMappings\KeyMappingTable;
 use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyCommissionTable;
+use Modules\HotelContentRepository\Livewire\Vendor\VendorForm;
+use Modules\HotelContentRepository\Livewire\Vendor\VendorTable;
 use Modules\Insurance\Livewire\Plans\InsurancePlanTable;
 use Modules\Insurance\Livewire\Providers\ProvidersDocumentationTable;
 use Modules\Insurance\Livewire\Providers\ProvidersTable;
@@ -44,6 +47,9 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
     protected function registerContentRepositoryComponents(): void
     {
         Livewire::component('commissions.travel-agency-commission-table', TravelAgencyCommissionTable::class);
+        Livewire::component('products.product-table', ProductTable::class);
+        Livewire::component('vendors.vendor-table', VendorTable::class);
+        Livewire::component('vendors.vendor-form', VendorForm::class);
         Livewire::component('hotels.hotel-form', HotelForm::class);
         Livewire::component('hotels.hotel-table', HotelTable::class);
         Livewire::component('hotels.key-mapping-table', KeyMappingTable::class);

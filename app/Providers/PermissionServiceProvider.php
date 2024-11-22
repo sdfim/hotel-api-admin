@@ -25,14 +25,18 @@ use App\Policies\InsuranceProviderPolicy;
 use App\Policies\InsuranceRateTierPolicy;
 use App\Policies\InsuranceRestrictionPolicy;
 use App\Policies\InsurancePlanPolicy;
+use App\Policies\ProductPolicy;
 use App\Policies\TeamPolicy;
 use App\Policies\TravelAgencyCommissionPolicy;
+use App\Policies\VendorPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Image;
 use Modules\HotelContentRepository\Models\ImageGallery;
+use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
+use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsurancePlan;
 use Modules\Insurance\Models\InsuranceProvider;
 use Modules\Insurance\Models\InsuranceProviderDocumentation;
@@ -50,6 +54,8 @@ class PermissionServiceProvider extends ServiceProvider
 
     private static array $modelPolicies = [
         Hotel::class                                => HotelPolicy::class,
+        Vendor::class                               => VendorPolicy::class,
+        Product::class                              => ProductPolicy::class,
         InsuranceProvider::class                    => InsuranceProviderPolicy::class,
         InsuranceProviderDocumentation::class       => InsuranceProviderDocumentationPolicy::class,
         InsuranceRestriction::class                 => InsuranceRestrictionPolicy::class,
@@ -64,7 +70,7 @@ class PermissionServiceProvider extends ServiceProvider
         InformationalService::class                 => InformationalServicePolicy::class,
         TravelAgencyCommission::class               => TravelAgencyCommissionPolicy::class,
         ImageGallery::class                         => ImageGalleryPolicy::class,
-        Image::class                           => ImagePolicy::class,
+        Image::class                                => ImagePolicy::class,
     ];
 
     /**

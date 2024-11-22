@@ -29,6 +29,8 @@ class PermissionSeeder extends Seeder
         'role',
         'permission',
         'hotel',
+        'vendor',
+        'product',
         'insurance_provider',
         'insurance_provider_documentation',
         'insurance_restriction',

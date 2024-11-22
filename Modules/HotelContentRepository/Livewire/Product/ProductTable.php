@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\HotelContentRepository\Livewire\Hotel;
+namespace Modules\HotelContentRepository\Livewire\Product;
 
 use App\Helpers\ClassHelper;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -18,9 +18,11 @@ use Livewire\Features\SupportRedirects\Redirector;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\Product;
 
-class HotelTable extends Component implements HasForms, HasTable
+class ProductTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
@@ -29,46 +31,47 @@ class HotelTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(Hotel::with([
-                'product',
-                'rooms',
-                'roomImagesSource',
-                'webFinders',
-                'contentSource'
-            ]))
+            ->query(Product::query())
             ->columns([
-                BooleanColumn::make('product.verified')
+                BooleanColumn::make('verified')
                     ->label('Verified')
                     ->sortable()
                     ->toggleable(),
 
-                TextColumn::make('product.name')
+                TextColumn::make('name')
                     ->label('Name')
                     ->searchable()
                     ->toggleable()
                     ->sortable()
                     ->wrap(),
 
-                TextColumn::make('product.address')
+                TextColumn::make('vendor.name')
+                    ->label('Vendor')
+                    ->searchable()
+                    ->toggleable()
+                    ->sortable()
+                    ->wrap(),
+
+                TextColumn::make('product_type')
+                    ->label('Type')
+                    ->searchable()
+                    ->toggleable()
+                    ->sortable(),
+
+                TextColumn::make('related.address')
                     ->label('Address')
                     ->searchable()
-                    ->getStateUsing(function ($record) {
-                        $string = '';
-                        foreach ($record->address as $item) {
-                            if (is_array($item)) continue;
-                            $string .= $item . ', ';
-                        }
-                        return rtrim($string, ', ');
-                    })
                     ->toggleable()
-                    ->sortable(),
+                    ->sortable()
+                    ->wrap(),
 
-                TextColumn::make('star_rating')
+                TextColumn::make('location')
                     ->searchable()
                     ->toggleable()
                     ->sortable(),
 
-                TextColumn::make('num_rooms')
+                TextColumn::make('default_currency')
+                    ->label('Currency')
                     ->searchable()
                     ->toggleable()
                     ->sortable(),
@@ -79,9 +82,9 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->sortable()
                     ->default(function ($record) {
-                        return $record->product->contentSource->name . ' '
-                            . $record->roomImagesSource->name . ' '
-                            . $record->product->propertyImagesSource->name;
+                        return $record->contentSource->name . ' '
+                            . $record->related->roomImagesSource->name . ' '
+                            . $record->propertyImagesSource->name;
                     }),
 
             ])
@@ -89,13 +92,15 @@ class HotelTable extends Component implements HasForms, HasTable
                 Tables\Actions\EditAction::make()
                     ->label('')
                     ->tooltip('View')
-                    ->url(fn (Hotel $record): string => route('hotel-repository.edit', $record))
-                    ->visible(fn (Hotel $record) => Gate::allows('update', $record))
+                    ->url(fn ($record): string => $record->product_type === 'hotel'
+                        ? route('hotel-repository.edit', $record->related)
+                        : route('product-repository.edit', $record))
+                    ->visible(fn (Product $record) => Gate::allows('update', $record))
                 ,
                 Tables\Actions\DeleteAction::make()
                     ->label('')
                     ->tooltip('Delete')
-                    ->visible(fn (Hotel $record): bool => Gate::allows('delete', $record)),
+                    ->visible(fn (Product $record): bool => Gate::allows('delete', $record)),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
@@ -134,7 +139,7 @@ class HotelTable extends Component implements HasForms, HasTable
             ];
         }
 
-        $hotel = Hotel::create(Arr::only($data, [
+        $product = Product::create(Arr::only($data, [
             'name',
             'location',
             'sale_type',
@@ -155,7 +160,7 @@ class HotelTable extends Component implements HasForms, HasTable
         ]));
 
         if (isset($data['galleries'])) {
-            $hotel->galleries()->sync($data['galleries']);
+            $product->galleries()->sync($data['galleries']);
         }
 
         Notification::make()
@@ -163,11 +168,11 @@ class HotelTable extends Component implements HasForms, HasTable
             ->success()
             ->send();
 
-        return redirect()->route('hotel-repository.index');
+        return redirect()->route('product.index');
     }
 
     public function render(): View
     {
-        return view('livewire.hotels.hotel-table');
+        return view('livewire.products.product-table');
     }
 }

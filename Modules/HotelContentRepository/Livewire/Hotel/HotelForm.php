@@ -16,6 +16,7 @@ use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Livewire\Component;
 use Modules\Enums\HotelTypeEnum;
+use Modules\HotelContentRepository\Livewire\Components\CustomTab;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
 use Filament\Forms\Components\TextInput;
@@ -32,6 +33,7 @@ use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
+use Modules\HotelContentRepository\Models\Vendor;
 
 class HotelForm extends Component implements HasForms
 {
@@ -54,12 +56,16 @@ class HotelForm extends Component implements HasForms
 
         $data = $this->record->toArray();
 
-        $data['address'] = [];
+//        $data['address'] = [];
+//        foreach ($this->record->address as $key => $value) {
+//            $data['address'][] = [
+//                'field' => $key,
+//                'value' => $value
+//            ];
+//        }
+
         foreach ($this->record->address as $key => $value) {
-            $data['address'][] = [
-                'field' => $key,
-                'value' => $value
-            ];
+            $data['addressArr'][$key] = $value;
         }
 
         $data['galleries'] = $this->record->product->galleries->pluck('id')->toArray();
@@ -84,92 +90,75 @@ class HotelForm extends Component implements HasForms
     public function schemeForm(): array
     {
         return [
-
-            Toggle::make('verified')
-                ->label('Verified')
-                ->onColor('success')
-                ->offColor('danger')
-                ->columnSpan('full')
-                ->required()
-                ->hidden(),
-
             Tabs::make('Hotel Details')
                 ->columns(1)
                 ->tabs([
-                    // Tab 1
-                    Tabs\Tab::make('General Information')
+                    // Tab 1: Product
+//                    Tabs\Tab::make('Product')
+                    CustomTab::make('Product')
                         ->schema([
-                            TextInput::make('product.name')->required()->maxLength(191),
-                            Select::make('sale_type')
-                                ->label('Type')
-                                ->options([
-                                    HotelTypeEnum::DIRECT_CONNECTION->value => HotelTypeEnum::DIRECT_CONNECTION->value,
-                                    HotelTypeEnum::MANUAL_CONTRACT->value => HotelTypeEnum::MANUAL_CONTRACT->value,
-                                    HotelTypeEnum::COMMISSION_TRACKING->value => HotelTypeEnum::COMMISSION_TRACKING->value,
-                                ])->required(),
-
-                            Grid::make()
+                            Select::make('product.vendor_id')
+                                ->label('Vendor Name')
+                                ->options(Vendor::pluck('name', 'id')->toArray())
+                                ->disabled(fn () => $this->record->exists)
+                                ->dehydrated()
+                                ->required(),
+                            Grid::make(2)
                                 ->schema([
-                                    Grid::make()
+                                    TextInput::make('product.name')->required()->label('Product Name')->maxLength(191),
+                                    Select::make('sale_type')
+                                        ->label('Type')
+                                        ->options([
+                                            HotelTypeEnum::DIRECT_CONNECTION->value => HotelTypeEnum::DIRECT_CONNECTION->value,
+                                            HotelTypeEnum::MANUAL_CONTRACT->value => HotelTypeEnum::MANUAL_CONTRACT->value,
+                                            HotelTypeEnum::COMMISSION_TRACKING->value => HotelTypeEnum::COMMISSION_TRACKING->value,
+                                        ])->required(),
+                                    TextInput::make('star_rating')->required()->numeric()->label('Star Rating'),
+                                    TextInput::make('num_rooms')->required()->numeric()->label('Number of Rooms'),
+                                    TextInput::make('hotel_board_basis')->label('Hotel Board Basis'),
+                                    TextInput::make('product.website')->url()->label('Website')->maxLength(191),
+                                ])
+                        ])
+                        ->columns(1),
+
+                    // Tab 2: Location
+                    CustomTab::make('Location')
+                        ->schema([
+                            Grid::make(2)
+                                ->schema([
+                                    TextInput::make('addressArr.city')
+                                        ->label('City'),
+                                    TextInput::make('addressArr.line_1')
+                                        ->label('Line 1'),
+                                    TextInput::make('addressArr.postal_code')
+                                        ->label('Postal Code'),
+                                    TextInput::make('addressArr.country_code')
+                                        ->label('Country Code'),
+                                    TextInput::make('addressArr.state_province_code')
+                                        ->label('State Province Code'),
+                                    TextInput::make('addressArr.state_province_name')
+                                        ->label('State Province Name'),
+                                    Checkbox::make('addressArr.obfuscation_required')
+                                        ->label('Obfuscation Required'),
+                                ]),
+
+                            Grid::make(2)
+                                ->schema([
+                                    Grid::make(1)
                                         ->schema([
-                                            TextInput::make('full_address')
-                                                ->label('Get location by address')
-                                                ->columnSpan(1),
-
-                                            Grid::make()
-                                                ->schema([
-                                                    TextInput::make('product.lat')
-                                                        ->label('Latitude')
-                                                        ->required()
-                                                        ->numeric(),
-                                                    TextInput::make('product.lng')
-                                                        ->label('Longitude')
-                                                        ->required()
-                                                        ->numeric(),
-
-                                                ])
-                                                ->columns(2)
-                                                ->columnSpan(1),
-
-                                            CustomRepeater::make('address')
-                                                ->schema([
-                                                    Select::make('field')
-                                                        ->label('')
-                                                        ->options([
-                                                            'city' => 'City',
-                                                            'line_1' => 'Line 1',
-                                                            'postal_code' => 'Postal Code',
-                                                            'country_code' => 'Country Code',
-                                                            'state_province_code' => 'State Province Code',
-                                                            'state_province_name' => 'State Province Name',
-                                                            'obfuscation_required' => 'Obfuscation Required',
-                                                        ])->required(),
-                                                    TextInput::make('value')
-                                                        ->label(''),
-
-                                                ])
-                                                ->defaultItems(1)
-                                                ->required()
-                                                ->afterStateHydrated(function ($component, $state) {
-                                                    $component->state($state ?? []);
-                                                })
-                                                ->beforeStateDehydrated(function ($state) {
-                                                    return json_encode($state);
-                                                })
-                                                ->columns(2)
-                                                ->columnSpan(1),
-                                        ])
-                                        ->columns(1)
-                                        ->columnSpan(1),
-
+                                        TextInput::make('full_address')
+                                            ->label('Get location by address'),
+                                        TextInput::make('product.lat')->label('Latitude')->required()->numeric(),
+                                        TextInput::make('product.lng')->label('Longitude')->required()->numeric(),
+                                    ])->columnSpan(1),
                                     Map::make('product.location')
-                                        ->label('Location')
+                                        ->label('')
                                         ->reactive()
                                         ->afterStateUpdated(function ($state, callable $get, callable $set) {
                                             $set('product.lat', $state['lat']);
                                             $set('product.lng', $state['lng']);
                                         })
-                                        ->height(fn () => '400px')
+                                        ->height(fn () => '170px')
                                         ->defaultZoom(17)
                                         ->autocomplete('full_address')
                                         ->autocompleteReverse(true)
@@ -186,55 +175,24 @@ class HotelForm extends Component implements HasForms
                                         ->geolocateLabel('Get Location')
                                         ->geolocateOnLoad(true, false)
                                         ->columnSpan(1),
-                                ])
-                                ->columns(2),
-
-                            Select::make('galleries')
-                                ->label('Galleries')
-                                ->multiple()
-                                ->options(function () {
-                                    return ImageGallery::pluck('gallery_name', 'id');
-                                }),
-
-                            Grid::make(3)
-                                ->schema([
-                                    TextInput::make('star_rating')->required()->numeric(),
-                                    TextInput::make('num_rooms')->required()->numeric(),
-                                    TextInput::make('hotel_board_basis'),
                                 ]),
                         ])
-                        ->columns(2),
+                        ->columns(1),
 
-                    // Tab 2
-                    Tabs\Tab::make('Sources & Management')
+                    // Tab 3: Data Sources
+                    CustomTab::make('Data Sources')
                         ->schema([
-                            Grid::make(3)
-                                ->schema([
-                                Select::make('product.content_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
-                                Select::make('room_images_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
-                                Select::make('product.property_images_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
-                            ]),
-                            Grid::make(3)
-                                ->schema([
-                                    TextInput::make('product.default_currency')->required()->maxLength(3),
-                                    TextInput::make('travel_agent_commission')
-                                        ->numeric('decimal')
-                                        ->required(),
-                                    TextInput::make('weight')->integer(),
-                                ]),
-                            Grid::make(3)
-                                ->schema([
-                                    TextInput::make('product.website')
-                                        ->url()
-                                        ->maxLength(191),
-                                ]),
-
+                            Select::make('product.content_source_id')->label('Content Source')->options(ContentSource::pluck('name', 'id'))->required(),
+                            Select::make('room_images_source_id')->label('Room Images Source')->options(ContentSource::pluck('name', 'id'))->required(),
+                            Select::make('product.property_images_source_id')->label('Property Images Source')->options(ContentSource::pluck('name', 'id'))->required(),
+                            TextInput::make('travel_agent_commission')->label('Travel Agent Commission')->numeric('decimal')->required(),
+                            TextInput::make('product.default_currency')->label('Default Currency')->required()->maxLength(3),
+                            TextInput::make('weight')->label('Weight')->integer(),
                         ])
                         ->columns(2),
                 ]),
         ];
     }
-
     public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
@@ -243,10 +201,7 @@ class HotelForm extends Component implements HasForms
             $data['verified'] = false;
         }
 
-        $data['address'] = array_reduce($data['address'], function ($result, $item) {
-            $result[$item['field']] = $item['value'];
-            return $result;
-        }, []);
+        $data['address'] = $data['addressArr'];
 
         $hotel = Hotel::find($this->record->id);
 
@@ -281,7 +236,7 @@ class HotelForm extends Component implements HasForms
             ->success()
             ->send();
 
-        return redirect()->route('hotel_repository.index');
+        return redirect()->route('hotel-repository.index');
     }
 
     public function render()

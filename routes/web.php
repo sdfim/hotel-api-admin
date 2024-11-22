@@ -38,7 +38,9 @@ use Modules\HotelContentRepository\Http\Controllers\HotelController;
 use Modules\HotelContentRepository\Http\Controllers\ImageController;
 use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
 use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
+use Modules\HotelContentRepository\Http\Controllers\ProductController;
 use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
+use Modules\HotelContentRepository\Http\Controllers\VendorController;
 use Modules\Insurance\Http\Controllers\InsurancePlansController;
 use Modules\Insurance\Http\Controllers\InsuranceProvidersDocumentationController;
 use Modules\Insurance\Http\Controllers\InsuranceRateTiersController;
@@ -95,7 +97,9 @@ Route::prefix('admin')->group(function () {
         Route::resource('roles', RolesController::class)->only(['index', 'edit', 'create']);
         Route::get('permissions', PermissionsController::class)->name('permissions.index');
 
-        Route::resource('hotel_repository', HotelController::class);
+        Route::resource('hotel-repository', HotelController::class);
+        Route::resource('product-repository', ProductController::class);
+        Route::resource('vendor-repository', VendorController::class);
         Route::resource('hotel_rooms', HotelRoomController::class);
         Route::resource('travel-agency-commission', TravelAgencyCommissionController::class);
 
