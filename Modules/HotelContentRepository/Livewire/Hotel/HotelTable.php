@@ -95,7 +95,17 @@ class HotelTable extends Component implements HasForms, HasTable
                 Tables\Actions\DeleteAction::make()
                     ->label('')
                     ->tooltip('Delete')
-                    ->visible(fn (Hotel $record): bool => Gate::allows('delete', $record)),
+                    ->visible(fn (Hotel $record): bool => Gate::allows('delete', $record))
+                    ->action(function (Hotel $record) {
+                        \DB::transaction(function () use ($record) {
+                            $record->product->delete();
+                            $record->delete();
+                        });
+                        Notification::make()
+                            ->title('Hotel deleted successfully')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()

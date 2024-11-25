@@ -46,28 +46,33 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
 
     protected function registerContentRepositoryComponents(): void
     {
-        Livewire::component('commissions.travel-agency-commission-table', TravelAgencyCommissionTable::class);
-        Livewire::component('products.product-table', ProductTable::class);
         Livewire::component('vendors.vendor-table', VendorTable::class);
         Livewire::component('vendors.vendor-form', VendorForm::class);
+
+        Livewire::component('products.product-table', ProductTable::class);
+        Livewire::component('products.key-mapping-table', KeyMappingTable::class);
+        Livewire::component('products.product-affiliations-table', ProductAffiliationsTable::class);
+        Livewire::component('products.hotel-age-restriction-table', ProductAgeRestrictionTable::class);
+        Livewire::component('products.product-attributes-table', ProductAttributesTable::class);
+        Livewire::component('products.product-contact-information-table', ProductContactInformationTable::class);
+        Livewire::component('products.product-deposit-information-table', ProductDepositInformationTable::class);
+        Livewire::component('products.hotel-descriptive-content-section-table', ProductDescriptiveContentSectionTable::class);
+        Livewire::component('products.hotel-fee-tax-table', ProductFeeTaxTable::class);
+        Livewire::component('products.product-informative-services-table', ProductInformativeServicesTable::class);
+        Livewire::component('products.hotel-promotion-table', ProductPromotionTable::class);
+
         Livewire::component('hotels.hotel-form', HotelForm::class);
         Livewire::component('hotels.hotel-table', HotelTable::class);
-        Livewire::component('hotels.key-mapping-table', KeyMappingTable::class);
+        Livewire::component('hotels.hotel-web-finder-table', HotelWebFinderTable::class);
         Livewire::component('hotels.hotel-room-table', HotelRoomTable::class);
-        Livewire::component('hotels.product-affiliations-table', ProductAffiliationsTable::class);
-        Livewire::component('hotels.product-attributes-table', ProductAttributesTable::class);
-        Livewire::component('hotels.product-informative-services-table', ProductInformativeServicesTable::class);
-        Livewire::component('hotels.hotel-age-restriction-table', ProductAgeRestrictionTable::class);
-        Livewire::component('hotels.hotel-fee-tax-table', ProductFeeTaxTable::class);
-        Livewire::component('hotels.hotel-descriptive-content-section-table', ProductDescriptiveContentSectionTable::class);
-        Livewire::component('hotels.hotel-promotion-table', ProductPromotionTable::class);
-        Livewire::component('hotels.product-deposit-information-table', ProductDepositInformationTable::class);
-        Livewire::component('hotels.product-contact-information-table', ProductContactInformationTable::class);
+
+        Livewire::component('commissions.travel-agency-commission-table', TravelAgencyCommissionTable::class);
+
         Livewire::component('image-galleries.image-galleries-table', ImageGalleriesTable::class);
         Livewire::component('image-galleries.image-galleries-form', ImageGalleriesForm::class);
         Livewire::component('hotel-images.hotel-images-table', HotelImagesTable::class);
         Livewire::component('hotel-images.hotel-images-form', HotelImagesForm::class);
-        Livewire::component('hotels.hotel-web-finder-table', HotelWebFinderTable::class);
+
         Livewire::component('insurance.providers-table', ProvidersTable::class);
         Livewire::component('insurance.providers-documentation-table', ProvidersDocumentationTable::class);
         Livewire::component('insurance.restrictions-table', RestrictionsTable::class);

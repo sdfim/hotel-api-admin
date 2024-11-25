@@ -59,7 +59,7 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
     {
         return $table
             ->query(
-                ProductAttribute::with('attribute')->where('product_id', $this->productId)
+                ProductAttribute::where('product_id', $this->productId)
             )
             ->columns([
                 TextColumn::make('attribute.name')->label('Attribute Name')->searchable(),

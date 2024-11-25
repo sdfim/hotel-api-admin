@@ -42,6 +42,7 @@ class HotelForm extends Component implements HasForms
     public ?array $data = [];
     public Hotel $record;
     public bool $verified;
+    public $showDeleteConfirmation = false;
 
     public function __construct()
     {
@@ -63,14 +64,34 @@ class HotelForm extends Component implements HasForms
         $data['galleries'] = $this->record->product->galleries->pluck('id')->toArray();
 
         $this->form->fill($data);
-
-//        dd($hotel, $hotel->product, $hotel->product->verified, $data);
     }
 
     public function toggleVerified()
     {
         $this->verified = !$this->verified;
         $this->record->product->update(['verified' => $this->verified]);
+    }
+
+    public function confirmDeleteHotel()
+    {
+        $this->showDeleteConfirmation = true;
+    }
+
+    public function deleteHotel()
+    {
+        \DB::transaction(function () {
+            $this->record->product->delete();
+            $this->record->delete();
+        });
+
+        Notification::make()
+            ->title('Hotel deleted successfully')
+            ->success()
+            ->send();
+
+        $this->showDeleteConfirmation = false;
+
+        return redirect()->route('hotel-repository.index');
     }
 
     public function form(Form $form): Form
@@ -187,6 +208,14 @@ class HotelForm extends Component implements HasForms
                         ])
                         ->columns(2),
                 ]),
+            Actions::make([
+                Action::make('save')
+                    ->label(strtoupper($this->record->exists ? 'Update Changes' : 'Save Changes'))
+                    ->action('edit')
+                    ->extraAttributes([
+                        'class' => 'save-button',
+                    ]),
+            ]),
         ];
     }
 

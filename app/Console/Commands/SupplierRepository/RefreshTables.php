@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\HotelContentRepository;
+namespace App\Console\Commands\SupplierRepository;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;

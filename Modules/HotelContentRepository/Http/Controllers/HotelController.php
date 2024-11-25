@@ -11,7 +11,7 @@ class HotelController extends BaseWithPolicyController
     protected static string $model = Hotel::class;
     protected static ?string $parameterName = 'hotel_repository';
 
-    private array $message = ['edit' => 'Edit Hotel'];
+    private array $message = ['edit' => 'Edit'];
 
 
     public function index(): View

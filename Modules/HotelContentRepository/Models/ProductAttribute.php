@@ -39,6 +39,6 @@ class ProductAttribute extends Model
 
     public function attribute(): BelongsTo
     {
-        return $this->belongsTo(ConfigAttribute::class);
+        return $this->belongsTo(ConfigAttribute::class, 'config_attribute_id');
     }
 }

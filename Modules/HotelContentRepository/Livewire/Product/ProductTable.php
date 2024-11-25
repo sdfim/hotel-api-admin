@@ -100,6 +100,16 @@ class ProductTable extends Component implements HasForms, HasTable
                 Tables\Actions\DeleteAction::make()
                     ->label('')
                     ->tooltip('Delete')
+                    ->action(function (Product $record) {
+                        \DB::transaction(function () use ($record) {
+                            $record->related->delete();
+                            $record->delete();
+                        });
+                        Notification::make()
+                            ->title('Product deleted successfully')
+                            ->success()
+                            ->send();
+                    })
                     ->visible(fn (Product $record): bool => Gate::allows('delete', $record)),
             ])
             ->headerActions([

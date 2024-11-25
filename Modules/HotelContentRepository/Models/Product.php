@@ -5,6 +5,8 @@ namespace Modules\HotelContentRepository\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Modules\HotelContentRepository\Models\Factories\ProductFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
@@ -59,62 +61,62 @@ class Product extends Model
         return $this->morphTo();
     }
 
-    public function contentSource()
+    public function contentSource(): BelongsTo
     {
         return $this->belongsTo(ContentSource::class, 'content_source_id');
     }
 
-    public function propertyImagesSource()
+    public function propertyImagesSource(): BelongsTo
     {
         return $this->belongsTo(ContentSource::class, 'property_images_source_id');
     }
 
-    public function affiliations()
+    public function affiliations(): HasMany
     {
         return $this->hasMany(ProductAffiliation::class);
     }
 
-    public function ageRestrictions()
+    public function ageRestrictions(): HasMany
     {
         return $this->hasMany(ProductAgeRestriction::class);
     }
 
-    public function attributes()
+    public function attributes(): HasMany
     {
         return $this->hasMany(ProductAttribute::class);
     }
 
-    public function descriptiveContentsSection()
+    public function descriptiveContentsSection(): HasMany
     {
         return $this->hasMany(ProductDescriptiveContentSection::class);
     }
 
-    public function feeTaxes()
+    public function feeTaxes(): HasMany
     {
         return $this->hasMany(ProductFeeTax::class);
     }
 
-    public function informativeServices()
+    public function informativeServices(): HasMany
     {
         return $this->hasMany(ProductInformativeService::class);
     }
 
-    public function promotions()
+    public function promotions(): HasMany
     {
         return $this->hasMany(ProductPromotion::class);
     }
 
-    public function keyMappings()
+    public function keyMappings(): HasMany
     {
         return $this->hasMany(KeyMapping::class);
     }
 
-    public function galleries()
+    public function galleries(): BelongsToMany
     {
         return $this->belongsToMany(ImageGallery::class, 'pd_product_gallery', 'product_id', 'gallery_id');
     }
 
-    public function contactInformation()
+    public function contactInformation(): HasMany
     {
         return $this->hasMany(ProductContactInformation::class);
     }

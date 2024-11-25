@@ -3,16 +3,25 @@
     {{ __('Products') }}
 @endsection
 @section('content')
-    <x-page-title title="Products" pagetitle="index"/>
-
+    <div class="breadcrumb-container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="#">Admin</a></li>
+                {{--                        <li class="breadcrumb-item"><a href="{{ route('supplier-repository.index') }}">Supplier Repository</a></li>--}}
+{{--                <li class="breadcrumb-item"><a href="{{ route('vendor-repository.index') }}">Vendors</a></li>--}}
+                <li class="breadcrumb-item"><a href="{{ route('product-repository.index') }}">Products</a></li>
+            </ol>
+        </nav>
+    </div>
+    <h2 class="font-semibold">Products</h2>
+{{--    <x-page-title title="Products" pagetitle="index"/>--}}
     @php
         $tabs = [
             'Hotels' => route('hotel-repository.index'),
-            'Trips' => '#',
-            'Cruises' => '#',
+            'Tours' => '#',
+            'Transfers' => '#',
         ];
     @endphp
-
     <div x-data="{ activeTab: 'Hotels' }" class="sr_tab-container mb-8">
         <ul class="sr_tab-list flex justify-center">
             @foreach ($tabs as $tab => $link)
