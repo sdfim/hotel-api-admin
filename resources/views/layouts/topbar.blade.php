@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between w-full">
         <div class="topbar-brand flex items-center">
             <div
-                class="navbar-brand flex items-center justify-between shrink px-5 h-[70px] border-r bg-slate-50 border-r-gray-50 dark:border-zinc-700 dark:bg-zinc-800">
+                class="navbar-brand flex items-center justify-between shrink px-5 h-[50px] border-r bg-slate-50 border-r-gray-50 dark:border-zinc-700 dark:bg-zinc-800">
                 <a href="#" class="flex items-center font-bold text-lg  dark:text-white">
                     <img src="{{ URL::asset('build/images/logo-sm.svg') }}" alt=""
                          class="ltr:mr-2 rtl:ml-2 inline-block mt-1 h-6"/>
@@ -12,7 +12,7 @@
                 </a>
             </div>
             <button type="button"
-                    class="text-gray-600 dark:text-white h-[70px] ltr:-ml-10 ltr:mr-6 rtl:-mr-10 rtl:ml-10 vertical-menu-btn"
+                    class="text-gray-600 dark:text-white h-[50px] ltr:-ml-10 ltr:mr-6 rtl:-mr-10 rtl:ml-10 vertical-menu-btn"
                     id="vertical-menu-btn">
                 <i class="fa fa-fw fa-bars"></i>
             </button>
@@ -21,7 +21,7 @@
             <div>
                 <div class="dropdown relative sm:hidden block">
                     <button type="button"
-                            class="text-xl px-4 h-[70px] text-gray-600 dark:text-gray-100 dropdown-toggle"
+                            class="text-xl px-4 h-[50px] text-gray-600 dark:text-gray-100 dropdown-toggle"
                             data-dropdown-toggle="navNotifications">
                         <i data-feather="search" class="h-5 w-5"></i>
                     </button>
@@ -46,7 +46,7 @@
             </div>
 
             <div class="dropdown relative language hidden sm:block">
-                <button class="btn border-0 py-0 dropdown-toggle px-4 h-[70px]" type="button" aria-expanded="false"
+                <button class="btn border-0 py-0 dropdown-toggle px-4 h-[50px]" type="button" aria-expanded="false"
                         data-dropdown-toggle="navNotifications">
                     <img src="{{ URL::asset('build/images/flags/us.jpg') }}" alt="" class="h-4"
                          id="header-lang-img">
@@ -85,7 +85,7 @@
 
             <div>
                 <button type="button"
-                        class="light-dark-mode text-xl px-4 h-[70px] text-gray-600 dark:text-gray-100 hidden sm:block ">
+                        class="light-dark-mode text-xl px-4 h-[50px] text-gray-600 dark:text-gray-100 hidden sm:block ">
                     <i data-feather="moon" class="h-5 w-5 block dark:hidden"></i>
                     <i data-feather="sun" class="h-5 w-5 hidden dark:block"></i>
             </div>
