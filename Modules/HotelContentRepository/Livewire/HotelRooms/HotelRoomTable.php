@@ -76,22 +76,22 @@ class HotelRoomTable extends Component implements HasForms, HasTable
 //                TextColumn::make('id')->label('ID')->sortable(),
 //                TextColumn::make('hotel.name')
 //                    ->label('Hotel Name')
-//                    ->searchable(isIndividual: true)
+//                    ->searchable()
 //                    ->sortable()
 //                    ->wrap(),
                 TextInputColumn::make('hbsi_data_mapped_name')
                     ->label('HBSI Data Mapped Name')
-                    ->searchable(isIndividual: true)
+                    ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%']),
                 TextInputColumn::make('name')
                     ->label('Name')
-                    ->searchable(isIndividual: true)
+                    ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%']),
 //                TextColumn::make('description')
 //                    ->label('Description')
-//                    ->searchable(isIndividual: true)
+//                    ->searchable()
 //                    ->sortable()
 //                    ->wrap()
 //                    ->extraAttributes(['class' => 'scrollable-column']),

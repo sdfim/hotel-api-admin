@@ -68,11 +68,11 @@ class ProductAgeRestrictionTable extends Component implements HasForms, HasTable
                 ProductAgeRestriction::where('product_id', $this->productId)
             )
             ->columns([
-                TextColumn::make('restriction_type')->label('Restriction Name')->searchable(),
-                TextColumn::make('value')->label('Value')->searchable(),
+                TextColumn::make('restriction_type')->label('Restriction Name'),
+                TextColumn::make('value')->label('Value'),
                 BooleanColumn::make('active')
-                    ->label('Is Active')
-                    ->searchable(),            ])
+                    ->label('Is Active'),
+                ])
             ->actions([
                 EditAction::make()
                     ->label('')

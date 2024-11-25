@@ -78,10 +78,10 @@ class ProductContactInformationTable extends Component implements HasForms, HasT
                 ProductContactInformation::with('contactInformations')->where('product_id', $this->productId)
             )
             ->columns([
-                TextColumn::make('first_name')->label('First Name')->searchable(),
-                TextColumn::make('last_name')->label('Last Name')->searchable(),
-                TextColumn::make('email')->label('Email')->searchable(),
-                TextColumn::make('phone')->label('Phone')->searchable(),
+                TextColumn::make('first_name')->label('First Name'),
+                TextColumn::make('last_name')->label('Last Name'),
+                TextColumn::make('email')->label('Email'),
+                TextColumn::make('phone')->label('Phone'),
                 TextColumn::make('contactInformations')
                     ->label('Job Descriptions')
                     ->formatStateUsing(function ($record) {

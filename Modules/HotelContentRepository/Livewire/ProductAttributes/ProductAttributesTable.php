@@ -62,8 +62,8 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
                 ProductAttribute::where('product_id', $this->productId)
             )
             ->columns([
-                TextColumn::make('attribute.name')->label('Attribute Name')->searchable(),
-//                TextColumn::make('attribute.default_value')->label('Value')->searchable(),
+                TextColumn::make('attribute.name')->label('Attribute Name'),
+//                TextColumn::make('attribute.default_value')->label('Value'),
             ])
             ->actions([
                 EditAction::make()

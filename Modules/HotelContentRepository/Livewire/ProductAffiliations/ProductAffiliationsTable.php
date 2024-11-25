@@ -72,7 +72,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                 ProductAffiliation::query()->where('product_id', $this->productId)
             )
             ->columns([
-                TextColumn::make('affiliation_name')->label('Affiliation Name')->searchable(),
+                TextColumn::make('affiliation_name')->label('Affiliation Name'),
                 IconColumn::make('combinable')
                     ->label('Combinable')
                     ->boolean(),

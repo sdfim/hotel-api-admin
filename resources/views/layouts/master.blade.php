@@ -15,6 +15,9 @@
     <!-- Styles -->
     @filamentStyles
     @vite(['resources/css/app.css'])
+    @if (request()->is('*-repository*'))
+        @vite(['resources/css/supplier-repository.css'])
+    @endif
     @include('layouts.head-css')
 </head>
 

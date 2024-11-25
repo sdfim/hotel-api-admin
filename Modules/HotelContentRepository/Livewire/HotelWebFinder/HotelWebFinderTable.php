@@ -113,16 +113,16 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
             })
             ->columns([
                 TextColumn::make('type')
-                    ->label('Search Type')
-                    ->sortable(),
+                    ->label('Search Type'),
                 TextColumn::make('finder')
                     ->label('Finder/Pattern')
                     ->wrap(),
                 TextColumn::make('example')
                     ->label('Example')
-                    ->url(fn($record) => $record->example)
-                    ->openUrlInNewTab()
-                    ->wrap(),
+                    ->wrap()
+                    ->limit(50)
+                    ->icon('heroicon-o-clipboard')
+                    ->copyable(),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([
