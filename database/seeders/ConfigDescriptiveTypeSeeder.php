@@ -21,16 +21,14 @@ class ConfigDescriptiveTypeSeeder extends Seeder
         $locations = ['internal', 'external', 'all'];
 
         foreach ($types as $type) {
-            foreach ($locations as $location) {
-                $name = $type . ' ' . $location;
-                if (!ConfigDescriptiveType::where('name', $name)->exists()) {
-                    ConfigDescriptiveType::create([
-                        'name' => $name,
-                        'location' => $location,
-                        'type' => $type,
-                        'description' => 'Description for ' . $name,
-                    ]);
-                }
+            $name = $type;
+            if (!ConfigDescriptiveType::where('name', $name)->exists()) {
+                ConfigDescriptiveType::create([
+                    'name' => $name,
+                    'location' => $locations[array_rand($locations)],
+                    'type' => $type,
+                    'description' => 'Description for ' . $name,
+                ]);
             }
         }
     }
