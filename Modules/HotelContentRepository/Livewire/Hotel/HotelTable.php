@@ -12,6 +12,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Livewire\Features\SupportRedirects\Redirector;
@@ -19,23 +20,33 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\Vendor;
 
 class HotelTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
 
+    private ?Vendor $vendor;
+
+    public function mount(Hotel $hotel, ?Vendor $vendor): void
+    {
+        $this->vendor = $vendor;
+    }
+
     public function table(Table $table): Table
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(Hotel::with([
-                'product',
-                'rooms',
-                'roomImagesSource',
-                'webFinders',
-                'contentSource'
-            ]))
+            ->query(function () {
+                $query = Hotel::query();
+                if ($this->vendor->exists) {
+                    $query->whereHas('product', function (Builder $query) {
+                        $query->where('vendor_id', $this->vendor->id);
+                    });
+                }
+                return $query;
+            })
             ->columns([
                 BooleanColumn::make('product.verified')
                     ->label('Verified')

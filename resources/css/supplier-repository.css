@@ -138,6 +138,8 @@ thead .bg-gray-50{
     border-radius: 8px;
     padding: 0.7rem;
     margin: 60px 0 5px;
+    justify-content: flex-start;
+    gap: 10px;
 }
 .sr_tab-list::-webkit-scrollbar {
     display: none;

@@ -146,12 +146,12 @@ class HotelForm extends Component implements HasForms
                                         ->label('City'),
                                     TextInput::make('addressArr.line_1')
                                         ->label('Line 1'),
-                                    TextInput::make('addressArr.postal_code')
-                                        ->label('Postal Code'),
+//                                    TextInput::make('addressArr.postal_code')
+//                                        ->label('Postal Code'),
                                     TextInput::make('addressArr.country_code')
                                         ->label('Country Code'),
-                                    TextInput::make('addressArr.state_province_code')
-                                        ->label('State Province Code'),
+//                                    TextInput::make('addressArr.state_province_code')
+//                                        ->label('State Province Code'),
                                     TextInput::make('addressArr.state_province_name')
                                         ->label('State Province Name'),
                                     Checkbox::make('addressArr.obfuscation_required')

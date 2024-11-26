@@ -21,17 +21,31 @@ use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Product;
+use Modules\HotelContentRepository\Models\Vendor;
 
 class ProductTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
 
+    private ?Vendor $vendor;
+
+    public function mount(Hotel $hotel, ?Vendor $vendor): void
+    {
+        $this->vendor = $vendor;
+    }
+
     public function table(Table $table): Table
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(Product::query())
+            ->query(function() {
+                $query = Product::query();
+                if(($this->vendor->exists)) {
+                    $query->where('vendor_id', $this->vendor->id);
+                }
+                return $query;
+            })
             ->columns([
                 BooleanColumn::make('verified')
                     ->label('Verified')

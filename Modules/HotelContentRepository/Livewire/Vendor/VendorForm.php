@@ -20,14 +20,45 @@ class VendorForm extends Component implements HasForms
     use InteractsWithForms;
 
     public ?array $data = [];
-
     public Vendor $record;
+    public bool $verified;
+    public $showDeleteConfirmation = false;
 
     public function mount(Vendor $vendor = null): void
     {
         $this->record = $vendor ?? new Vendor();
 
+        $this->verified = $vendor->verified;
+
         $this->form->fill($this->record->attributesToArray());
+    }
+
+    public function toggleVerified()
+    {
+        $this->verified = !$this->verified;
+        $this->record->update(['verified' => $this->verified]);
+    }
+
+    public function confirmDeleteVendor()
+    {
+        $this->showDeleteConfirmation = true;
+    }
+
+    public function deleteVendor()
+    {
+        \DB::transaction(function () {
+            $this->record->products->delete();
+            $this->record->delete();
+        });
+
+        Notification::make()
+            ->title('Vendor deleted successfully')
+            ->success()
+            ->send();
+
+        $this->showDeleteConfirmation = false;
+
+        return redirect()->route('vendor-repository.index');
     }
 
     public function form(Form $form): Form

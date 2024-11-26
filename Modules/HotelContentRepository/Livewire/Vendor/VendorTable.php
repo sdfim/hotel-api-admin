@@ -14,6 +14,7 @@ use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -29,31 +30,16 @@ class VendorTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public function form(Form $form): Form
-    {
-        return $form->schema($this->schemeForm());
-    }
-
-    public function schemeForm($record = null): array
-    {
-        return [
-            TextInput::make('name')->label('Name')->required(),
-            Textarea::make('address')
-                ->label('Address')
-                ->required()
-                ->rows(5),
-            TextInput::make('lat')->label('Latitude')->required(),
-            TextInput::make('lng')->label('Longitude')->required(),
-            TextInput::make('website')->label('Website')->required(),
-        ];
-    }
-
     public function table(Table $table): Table
     {
         return $table
             ->defaultPaginationPageOption(5)
             ->query(Vendor::query())
             ->columns([
+                BooleanColumn::make('verified')
+                    ->label('Verified')
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('name')
                     ->label('Name')
                     ->searchable()
@@ -64,16 +50,16 @@ class VendorTable extends Component implements HasForms, HasTable
                     ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%']),
-                TextInputColumn::make('lat')
-                    ->label('Latitude')
-                    ->searchable()
-                    ->sortable()
-                    ->extraAttributes(['style' => 'width: 100%']),
-                TextInputColumn::make('lng')
-                    ->label('Longitude')
-                    ->searchable()
-                    ->sortable()
-                    ->extraAttributes(['style' => 'width: 100%']),
+//                TextInputColumn::make('lat')
+//                    ->label('Latitude')
+//                    ->searchable()
+//                    ->sortable()
+//                    ->extraAttributes(['style' => 'width: 100%']),
+//                TextInputColumn::make('lng')
+//                    ->label('Longitude')
+//                    ->searchable()
+//                    ->sortable()
+//                    ->extraAttributes(['style' => 'width: 100%']),
                 TextInputColumn::make('website')
                     ->label('Website')
                     ->searchable()

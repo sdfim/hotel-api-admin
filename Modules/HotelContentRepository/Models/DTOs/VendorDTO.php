@@ -8,6 +8,7 @@ class VendorDTO
 {
     public $id;
     public $name;
+    public $verified;
     public $address;
     public $lat;
     public $lng;
@@ -18,6 +19,7 @@ class VendorDTO
     {
         $this->id = $vendor->id;
         $this->name = $vendor->name;
+        $this->verified = $vendor->verified;
         $this->address = $vendor->address;
         $this->lat = $vendor->lat;
         $this->lng = $vendor->lng;

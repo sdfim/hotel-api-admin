@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('pd_vendors', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name', 255);
+            $table->boolean('verified');
             $table->json('address')->nullable();
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lng', 10, 7)->nullable();

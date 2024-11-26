@@ -1,3 +1,28 @@
+@php
+    $tabGroups = [
+        'Vendors Detail' => [
+            'tab_name' => 'vendors-tab',
+            'related' => [
+                ['title' => 'General Information', 'component' => 'vendors.vendor-form'],
+                ['title' => 'Contact Information', 'component' => 'products.product-contact-information-table'],
+            ],
+        ],
+        'Products' => [
+            'tab_name' => 'products',
+            'related' => [
+                ['title' => 'Products', 'component' => 'products.product-table'],
+            ],
+        ],
+        'Hotels' => [
+            'tab_name' => 'hotels',
+            'related' => [
+                ['title' => 'Hotels', 'component' => 'hotels.hotel-table'],
+            ],
+        ],
+    ];
+
+    $vendorTitle = ['General Information'];
+@endphp
 @extends('layouts.master')
 @section('title')
     @if($vendor->exists)
@@ -21,39 +46,41 @@
     <h2 class="font-semibold" x-data="{ message: '{{ $vendor->exists ? $text['edit'] : $text['create'] }} {{ $vendor->name }}' }"
             x-text="message"></h2>
 
-    @php
-        $tabs = [
-            'Vendors Detail' => route('vendor-repository.index'),
-            'Hotels' => route('hotel-repository.index'),
-        ];
-    @endphp
-    <div x-data="{ activeTab: 'Vendors Detail' }" class="sr_tab-container mb-8">
-        <ul class="sr_tab-list flex">
-            @foreach ($tabs as $tab => $link)
-                <li class="sr_tab-item mr-1 flex items-end">
-                    <a href="{{ $link }}"
-                       class="sr_tab-link">
-                        <span>{{ $tab }}</span>
-                    </a>
-                </li>
-            @endforeach
-        </ul>
-    </div>
+    <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
+        <div class="relative overflow-x-auto">
 
-    <div class="col-span-12 xl:col-span-6">
-        <div class="card-body pb-0">
-            <h4 class="mb-1 text-gray-700 dark:text-gray-100">General Information</h4>
-        </div>
+            <div x-data="{activeTab: '{{ $tabGroups[array_key_first($tabGroups)]['tab_name'] }}' }"
+                 class="sr_tab-container">
 
-        <div class="hotel-form-container dark:bg-zinc-800 dark:border-zinc-600">
+                <ul class="sr_tab-list flex justify-between w-full">
+                    @foreach ($tabGroups as $group => $tabs)
+                        <li class="sr_tab-item mr-1 flex items-end">
+                            <a href="#"
+                               class="sr_tab-link"
+                               :class="{ 'sr_active': activeTab === '{{ $tabs['tab_name'] }}' }"
+                               @click.prevent="activeTab = '{{ $tabs['tab_name'] }}'; $wire.set('activeTab', '{{ $tabs['tab_name'] }}')">
+                                <span>{{ $group }}</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
 
-            <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
-                <div class="relative overflow-x-auto">
-                    <div class="ml-1 mr-1 col-span-9 xl:col-span-6">
-                        @livewire('vendors.vendor-form', compact('vendor'))
-                    </div>
+                <div class="sr_tab-content w-full">
+                    @foreach ($tabGroups as $group => $tabs)
+                        <div x-show="activeTab === '{{ $tabs['tab_name'] }}'" class="sr_tab-panel">
+                            @foreach ($tabs['related'] as $tab)
+                                <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4">{{ $tab['title'] }}</h3>
+                                @if (in_array($tab['title'], $vendorTitle))
+                                    @livewire($tab['component'], ['vendor' => $vendor])
+                                @else
+                                    @livewire($tab['component'], ['vendor' => $vendor, 'productId' => 1])
+                                @endif
+                            @endforeach
+                        </div>
+                    @endforeach
                 </div>
             </div>
+
         </div>
     </div>
 @endsection
