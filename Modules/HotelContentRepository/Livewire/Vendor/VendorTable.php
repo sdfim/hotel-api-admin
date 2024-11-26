@@ -50,6 +50,12 @@ class VendorTable extends Component implements HasForms, HasTable
                     ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%']),
+                TextColumn::make('products_count')
+                    ->label('Products')
+                    ->getStateUsing(function ($record) {
+                        return $record->products()->count();
+                    })
+                    ->sortable(),
 //                TextInputColumn::make('lat')
 //                    ->label('Latitude')
 //                    ->searchable()
