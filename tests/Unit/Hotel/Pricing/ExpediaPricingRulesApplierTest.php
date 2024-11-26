@@ -5,6 +5,7 @@ namespace Tests\Unit\Hotel\Pricing;
 use Illuminate\Foundation\Testing\WithFaker;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ExpediaPricingRulesApplierTest extends TestCase
 {
@@ -23,9 +24,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
         $this->expediaPricingRulesApplier = new ExpediaPricingRulesApplier($requestArray, $pricingRules);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_apply_pricing_rules_to_rooms(): void
     {
         $giataId = 1;

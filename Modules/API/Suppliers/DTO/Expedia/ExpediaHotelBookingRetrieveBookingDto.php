@@ -22,6 +22,10 @@ class ExpediaHotelBookingRetrieveBookingDto
         $bookData = ApiBookingInspectorRepository::getBookItemsByBookingItem($filters['booking_item']);
         $saveResponse = json_decode(Storage::get($bookData->client_response_path), true);
         $query = ApiSearchInspectorRepository::getRequest($filters['search_id']);
+
+        $passengersData = ApiBookingInspectorRepository::getPassengers($filters['booking_id'], $filters['booking_item']);
+        $guests = json_decode($passengersData->request, true)['rooms'];
+
         $itemPricingData = ApiBookingItemRepository::getItemPricingData($filters['booking_item']);
         $itemData = ApiBookingItemRepository::getItemData($filters['booking_item']);
         $status = ApiBookingInspectorRepository::isCancel($filters['booking_item']) ? 'cancelled' : 'booked';
@@ -30,9 +34,9 @@ class ExpediaHotelBookingRetrieveBookingDto
         $hotelName = $property ? $property->name : '';
 
         $cancellationTerms = [];
-        $rooms = [];
 
-        foreach ($dataResponse['rooms'] as $room) {
+        $rooms = [];
+        foreach ($dataResponse['rooms'] as $k => $room) {
             $rooms[] = [
                 'status' => $room['status'],
                 'checkin' => $room['checkin'],
@@ -42,6 +46,7 @@ class ExpediaHotelBookingRetrieveBookingDto
                 'family_name' => $room['family_name'],
                 'room_name' => $room['room_name'] ?? $saveResponse['rooms']['room_name'] ?? '',
                 'room_type' => $room['room_type'] ?? '',
+                'passengers' => $guests[$k] ?? [],
             ];
 
             foreach (Arr::get($room, 'rate.cancel_penalties', []) as $penalty)

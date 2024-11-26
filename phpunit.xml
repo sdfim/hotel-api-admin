@@ -5,12 +5,13 @@
          colors="true"
 >
     <testsuites>
-        <testsuite name="Unit">
-            <directory>tests/Unit</directory>
-        </testsuite>
+
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
-            <exclude>tests/Feature/API</exclude>
+            <exclude>tests/Feature/API/Local</exclude>
+        </testsuite>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
         </testsuite>
     </testsuites>
     <source>
@@ -22,6 +23,16 @@
         </include>
         <exclude>
             <directory>app/Livewire/Charts</directory>
+            <directory>app/Livewire/Inspectors</directory>
+            <file>Modules/AdministrationSuite/Http/Controllers/BookingInspectorController.php</file>
+            <file>Modules/AdministrationSuite/Http/Controllers/BookingItemsController.php</file>
+            <file>Modules/AdministrationSuite/Http/Controllers/ExceptionsReportChartController.php</file>
+            <file>Modules/AdministrationSuite/Http/Controllers/IceHbsiController.php</file>
+            <file>Modules/AdministrationSuite/Http/Controllers/MappingExpediaGiatasController.php</file>
+            <file>Modules/AdministrationSuite/Http/Controllers/PropertyMappingController.php</file>
+            <file>Modules/AdministrationSuite/Http/Controllers/StatisticChartsController.php</file>
+            <file>app/Actions/Fortify/CreateNewUser.php</file>
+            <file>app/Livewire/IceHbsiPropertyTable.php</file>
         </exclude>
     </source>
     <php>
@@ -29,8 +40,8 @@
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_STORE" value="array"/>
-        <!-- <env name="DB_CONNECTION" value="sqlite"/> -->
-        <!-- <env name="DB_DATABASE" value=":memory:"/> -->
+<!--        <env name="DB_DATABASE" value="tests_obe"/>-->
+<!--        <env name="SUPPLIER_CONTENT_DB_DATABASE" value="tests_obe_content"/>-->
         <env name="MAIL_MAILER" value="array"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>

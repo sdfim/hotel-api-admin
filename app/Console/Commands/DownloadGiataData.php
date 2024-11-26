@@ -3,14 +3,12 @@
 namespace App\Console\Commands;
 
 use App\Models\Property;
-use App\Models\Mapping;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\Enums\PropertiesSourceEnum;
 
 class DownloadGiataData extends Command

@@ -82,7 +82,7 @@ class HbsiHotelPricingDto
     ];
 
     public function __construct(
-        private readonly PricingDtoTools $pricingDtoTools = new PricingDtoTools(),
+        private readonly PricingDtoTools $pricingDtoTools,
         private array                    $bookingItems = [],
         private array                    $meal_plans_available = [],
         private array                    $roomCombinations = [],
@@ -358,6 +358,8 @@ class HbsiHotelPricingDto
                 'penalty_start_date' => $penaltyDate,
                 'percentage' => '100',
             ];
+
+            $nonRefundable = true;
         }
 
         $roomResponse = RoomResponseFactory::create();

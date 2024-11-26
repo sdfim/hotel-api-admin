@@ -15,6 +15,8 @@ use Modules\Enums\SupplierNameEnum;
 
 class HbsiService
 {
+    const TTL_CACHE_COMBINATION_ITEMS = 60*24;
+
     private int $supplier_id;
 
     private string $rate_type;
@@ -25,9 +27,9 @@ class HbsiService
         $this->rate_type = ItemTypeEnum::SINGLE->value;
     }
 
-    public function updateBookingItemsData(string $completeItem): void
+    public function updateBookingItemsData(string $completeItem, array $room_combinations = []): void
     {
-        $room_combinations = Cache::get('room_combinations:'.$completeItem);
+        if (empty($room_combinations)) $room_combinations = Cache::get('room_combinations:'.$completeItem);
         $completeBookingItem = [];
         foreach ($room_combinations as $key => $value) {
             $bookingItem = ApiBookingItem::where('booking_item', $value)->first();
@@ -116,11 +118,9 @@ class HbsiService
         $bookingParentItem->child_items = $room_combinations;
         $bookingParentItem->update();
 
-        foreach ($room_combinations as $key => $value) {
-            $bookingItem = ApiBookingItem::where('booking_item', $value)->first();
-            $bookingItem->complete_id = $completeItem;
-            $bookingItem->update();
-        }
+        $bookingParentItem = ApiBookingItem::where('booking_item', $completeItem)->first();
+        $bookingParentItem->child_items = $room_combinations;
+        $bookingParentItem->update();
     }
 
     public function getArrOccupancy(array $filters): array
@@ -195,7 +195,7 @@ class HbsiService
                 $input[$hk]['room_combinations'] = $finalResult;
                 foreach ($finalResult as $key => $value) {
                     $keyCache = 'room_combinations:'.$key;
-                    Cache::put($keyCache, $value, now()->addMinutes(120));
+                    Cache::put($keyCache, $value, now()->addMinutes(self::TTL_CACHE_COMBINATION_ITEMS));
                 }
             }
         }

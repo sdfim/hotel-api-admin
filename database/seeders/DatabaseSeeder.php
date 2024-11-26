@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             SuppliersSeeder::class,
             ChannelSeeder::class,
-            GeneralConfigurationSeeder::class,
+            GeneralConfigurationSeeder::class
         ]);
     }
 }

@@ -6,14 +6,13 @@ use App\Models\User;
 use App\Providers\AppServiceProvider;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_login_screen_can_be_rendered(): void
     {
         $response = $this->get('/admin/login');
@@ -21,9 +20,7 @@ class AuthenticationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_users_can_authenticate_using_the_login_screen(): void
     {
         $user = User::factory()->create();
@@ -37,9 +34,7 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect(AppServiceProvider::HOME);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
         $user = User::factory()->create();

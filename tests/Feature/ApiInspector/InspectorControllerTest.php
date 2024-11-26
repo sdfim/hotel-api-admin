@@ -3,18 +3,16 @@
 namespace Tests\Feature\ApiInspector;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Tests\RefreshDatabaseMany;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class InspectorControllerTest extends TestCase
 {
-    use RefreshDatabase;
-    use WithFaker;
+    use RefreshDatabaseMany, WithFaker;
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_search_index_is_opening(): void
     {
         $this->auth();

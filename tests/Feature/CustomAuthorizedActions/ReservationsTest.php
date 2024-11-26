@@ -4,6 +4,7 @@ namespace Tests\Feature\CustomAuthorizedActions;
 
 use App\Models\Channel;
 use App\Models\Reservation;
+use PHPUnit\Framework\Attributes\Test;
 
 class ReservationsTest extends CustomAuthorizedActionsTestCase
 {

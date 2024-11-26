@@ -53,6 +53,9 @@ class ApiBookingItem extends Model
         'room_id',
     ];
 
+    /**
+     * @var string[]
+     */
     protected $casts = [
         'child_items' => 'array',
     ];

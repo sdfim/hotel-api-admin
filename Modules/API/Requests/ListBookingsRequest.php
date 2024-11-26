@@ -12,7 +12,7 @@ class ListBookingsRequest extends ApiRequest
      */
     /**
      * @OA\Get(
-     *   tags={"Booking API | Booking Endpoints"},
+     *   tags={"Booking API | Booking"},
      *   path="/api/booking/list-bookings",
      *   summary="Retrieve a list of all your booking reservations. ",
      *   description="Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
