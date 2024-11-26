@@ -4,30 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Property extends Model
 {
     use HasFactory;
 
-    /**
-     * @var mixed
-     */
+    protected $table = 'properties';
+
     protected $connection;
 
-    /**
-     * @var bool
-     */
     public $incrementing = false;
 
-    /**
-     * @var string
-     */
     protected $primaryKey = 'code';
 
-    /**
-     * @var string[]
-     */
     protected $fillable = [
         'code',
         'last_updated',
@@ -53,7 +44,6 @@ class Property extends Model
         'content_auto_updates',
     ];
 
-    protected $table = 'properties';
 
     public function __construct(array $attributes = [])
     {
@@ -63,11 +53,6 @@ class Property extends Model
         $this->connection = config('database.active_connections.mysql_cache');
     }
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -81,7 +66,7 @@ class Property extends Model
         ];
     }
 
-    public function mappings()
+    public function mappings(): HasMany
     {
         return $this->hasMany(Mapping::class, 'giata_id', 'code');
     }

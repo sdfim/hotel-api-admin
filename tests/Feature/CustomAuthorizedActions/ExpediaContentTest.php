@@ -8,6 +8,7 @@ use App\Models\ExpediaContent;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\Test;
 
 class ExpediaContentTest extends CustomAuthorizedActionsTestCase
 {

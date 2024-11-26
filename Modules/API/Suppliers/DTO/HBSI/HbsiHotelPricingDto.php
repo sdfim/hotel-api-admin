@@ -13,9 +13,9 @@ use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
 use Modules\API\PricingRules\HBSI\HbsiPricingRulesApplier;
 use Modules\API\Suppliers\Enums\CancellationPolicyTypesEnum;
-use Modules\API\Tools\PricingDtoTools;
 use Modules\API\Suppliers\Enums\HBSI\PolicyCode;
 use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
+use Modules\API\Tools\PricingDtoTools;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 
@@ -92,7 +92,9 @@ class HbsiHotelPricingDto
         private string                   $search_id = '',
         private string                   $currency = '',
         private int                      $supplier_id = 0,
-    ) {}
+    )
+    {
+    }
 
     public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules): array
     {
@@ -203,7 +205,7 @@ class HbsiHotelPricingDto
         $rooms = [];
         $priceRoomData = [];
         foreach ($roomGroup['rates'] as $key => $room) {
-            $roomData = $this->setRoomResponse((array) $room, $propertyGroup, $giataId, $supplierHotelId);
+            $roomData = $this->setRoomResponse((array)$room, $propertyGroup, $giataId, $supplierHotelId);
             $roomResponse = $roomData['roomResponse'];
             $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
             $rooms[] = $roomResponse;
@@ -250,8 +252,7 @@ class HbsiHotelPricingDto
         $childrenAges = [];
 
         foreach ($counts as $age => $count) {
-            if ($age < 0)
-            {
+            if ($age < 0) {
                 $adults += $count;
                 $unknown += $count;
             } elseif ($age < HbsiClient::AGE_INFANT) {
@@ -272,9 +273,11 @@ class HbsiHotelPricingDto
          * Adding $unknown causes room_combinations generation conflicts for multi-room search
          */
 //        $rateOccupancy = $adults.'-'.$children.'-'.$infants.'-'.$unknown;
-        $rateOccupancy = $adults.'-'.$children.'-'.$infants;
+        $rateOccupancy = $adults . '-' . $children . '-' . $infants;
 
         $rateOrdinal = $rate['rate_ordinal'] ?? 0;
+
+        $roomType = $rate['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '';
 
         // enrichment Pricing Rules / Application of Pricing Rules
         $pricingRulesApplier['total_price'] = 0.0;
@@ -285,13 +288,17 @@ class HbsiHotelPricingDto
         try {
             $rateToApply['Rates'] = $rate['RoomRates']['RoomRate']['Rates'];
             $rateToApply['rateOccupancy'] = $rateOccupancy;
-            $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $rateToApply);
+            $pricingRulesApplier = $this->pricingRulesApplier->apply(
+                $giataId,
+                $rateToApply,
+                $rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '',
+                $rateOccupancy,
+                $roomType,
+            );
         } catch (Exception $e) {
             Log::error('HbsiHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
         }
-
-        $roomType = $rate['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '';
 
         $cancellationPolicies = [];
         $cancellationPoliciesInput = [];
@@ -346,10 +353,10 @@ class HbsiHotelPricingDto
             $penaltyDate = date('Y-m-d');
 
             $cancellationPolicies[] = [
-                'description'        => PolicyCode::CXP->value,
-                'type'               => CancellationPolicyTypesEnum::General->value,
+                'description' => PolicyCode::CXP->value,
+                'type' => CancellationPolicyTypesEnum::General->value,
                 'penalty_start_date' => $penaltyDate,
-                'percentage'         => '100',
+                'percentage' => '100',
             ];
 
             $nonRefundable = true;
@@ -363,9 +370,9 @@ class HbsiHotelPricingDto
         $roomResponse->setSupplierRoomName($rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
         $roomResponse->setSupplierRoomCode($rateOccupancy);
         $roomResponse->setCapacity([
-            'adults'    => $adults - $unknown,
-            'children'  => $childrenAges,
-            'unknown'   => $unknown,
+            'adults' => $adults - $unknown,
+            'children' => $childrenAges,
+            'unknown' => $unknown,
         ]);
 
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
@@ -392,7 +399,7 @@ class HbsiHotelPricingDto
         $mealPlanName = self::MEAL_PLAN[$mealPlanCode] ?? '';
         $roomResponse->setMealPlans($mealPlanName);
 
-        if (! in_array($mealPlanName, $this->meal_plans_available)) {
+        if (!in_array($mealPlanName, $this->meal_plans_available)) {
             $this->meal_plans_available[] = $mealPlanName;
         }
 
@@ -474,10 +481,10 @@ class HbsiHotelPricingDto
                             $type = 'tax';
                         }
                         $taxesFeesRate[] = [
-                            'type' => $type ?? 'tax'.' '.$name,
+                            'type' => $type ?? 'tax' . ' ' . $name,
                             'amount' => $_tax['@attributes']['Amount'],
                             'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
-                                ? $_tax['@attributes']['Percent'].' % '.$_tax['@attributes']['Code']
+                                ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
                                 : $_tax['@attributes']['Code']),
                         ];
 
