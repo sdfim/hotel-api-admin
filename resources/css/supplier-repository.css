@@ -69,7 +69,6 @@ thead .bg-gray-50{
     border: none; /* Reset the border */
 }
 
-
 .hotel-form-container .fi-tabs.flex {
     display: none;
 }
@@ -120,6 +119,14 @@ thead .bg-gray-50{
     padding: 1.5rem;
     border: 1px solid #e5e7eb;
     border-radius: 5px;
+}
+
+.hotel-form-container .choices__list--multiple .choices__item {
+    font-size: .85rem;
+    font-weight: 500;
+    gap: .35rem;
+    line-height: 1rem;
+    padding: .7rem .8rem;
 }
 
 .large-button {
