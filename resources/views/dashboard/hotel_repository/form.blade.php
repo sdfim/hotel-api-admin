@@ -65,10 +65,11 @@
     ];
 
     $hotelTitle = ['Rooms', 'Website Search Generation'];
+    $createTabs = ['Product', 'Location', 'Data Sources'];
 @endphp
 @extends('layouts.master')
 @section('title')
-    {{ __('Edit Hotel') }}
+    {{ $hotel->exists ? __('Edit Hotel') : __('Create Hotel') }} {{ $hotel?->product?->name }}
 @endsection
 @section('content')
     <div class="col-span-12 xl:col-span-6">
@@ -81,12 +82,12 @@
 {{--                        <li class="breadcrumb-item"><a href="{{ route('vendor-repository.index') }}">Vendors</a></li>--}}
                         <li class="breadcrumb-item"><a href="{{ route('product-repository.index') }}">Products</a></li>
                         <li class="breadcrumb-item"><a href="{{ route('hotel-repository.index') }}">Hotels</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ $hotel->product->name }}</li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ $hotel?->product?->name }}</li>
                     </ol>
                 </nav>
             </div>
             <div class="card-body pb-0">
-                <h2 class="font-semibold" x-data="{ message: '{{ $text['edit'] }} {{ $hotel->product->name }}' }"
+                <h2 class="font-semibold" x-data="{ message: '{{ $hotel->exists ? $text['edit'] : $text['create'] }} {{ $hotel?->product?->name }}' }"
                     x-text="message"></h2>
             </div>
 
@@ -98,6 +99,9 @@
 
                         <ul class="sr_tab-list flex justify-between w-full">
                             @foreach ($tabGroups as $group => $tabs)
+                                @if (!$hotel->exists && !in_array($group, $createTabs))
+                                    @continue
+                                @endif
                                 <li class="sr_tab-item mr-1 flex items-end">
                                     <a href="#"
                                        class="sr_tab-link"
@@ -113,22 +117,24 @@
                             @livewire('hotels.hotel-form', compact('hotel'))
                         </div>
 
-                        <div class="sr_tab-content w-full">
-                            @foreach ($tabGroups as $group => $tabs)
-                                <div x-show="activeTab === '{{ $tabs['tab_name'] }}'" class="sr_tab-panel">
-                                    @foreach ($tabs['related'] as $tab)
-                                        <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4">{{ $tab['title'] }}</h3>
-                                        @if ($tab['title'] === 'Pricing Rules')
-                                            @livewire($tab['component'], ['hotelId' => $hotelId, 'isSrCreator' => true])
-                                        @elseif (in_array($tab['title'], $hotelTitle))
-                                            @livewire($tab['component'], ['hotelId' => $hotelId])
-                                        @else
-                                            @livewire($tab['component'], ['productId' => $productId])
-                                        @endif
-                                    @endforeach
-                                </div>
-                            @endforeach
-                        </div>
+                        @if ($hotel->exists)
+                            <div class="sr_tab-content w-full">
+                                @foreach ($tabGroups as $group => $tabs)
+                                    <div x-show="activeTab === '{{ $tabs['tab_name'] }}'" class="sr_tab-panel">
+                                        @foreach ($tabs['related'] as $tab)
+                                            <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4">{{ $tab['title'] }}</h3>
+                                            @if ($tab['title'] === 'Pricing Rules')
+                                                @livewire($tab['component'], ['hotelId' => $hotelId, 'isSrCreator' => true])
+                                            @elseif (in_array($tab['title'], $hotelTitle))
+                                                @livewire($tab['component'], ['hotelId' => $hotelId])
+                                            @else
+                                                @livewire($tab['component'], ['productId' => $productId])
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
 
                 </div>

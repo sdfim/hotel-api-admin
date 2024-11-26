@@ -28,7 +28,7 @@ class ProductTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    private ?Vendor $vendor;
+    private ?Vendor $vendor = null;
 
     public function mount(Hotel $hotel, ?Vendor $vendor): void
     {
@@ -41,7 +41,7 @@ class ProductTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(function() {
                 $query = Product::query();
-                if(($this->vendor->exists)) {
+                if(($this->vendor->exists ?? false)) {
                     $query->where('vendor_id', $this->vendor->id);
                 }
                 return $query;
@@ -95,7 +95,7 @@ class ProductTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->default(function ($record) {
                         return $record->contentSource->name . ' '
-                            . $record->related->roomImagesSource->name . ' '
+                            . $record->related?->roomImagesSource->name . ' '
                             . $record->propertyImagesSource->name;
                     }),
 
@@ -104,9 +104,12 @@ class ProductTable extends Component implements HasForms, HasTable
                 Tables\Actions\EditAction::make()
                     ->label('')
                     ->tooltip('View')
-                    ->url(fn ($record): string => $record->product_type === 'hotel'
-                        ? route('hotel-repository.edit', $record->related)
-                        : route('product-repository.edit', $record))
+                    ->url(function ($record): string {
+//                        dump($record->product_type);
+                        return $record->product_type === 'hotel'
+                            ? route('hotel-repository.edit', $record->related)
+                            : route('product-repository.edit', $record);
+                    })
                     ->visible(fn (Product $record) => Gate::allows('update', $record))
                 ,
                 Tables\Actions\DeleteAction::make()
@@ -123,19 +126,19 @@ class ProductTable extends Component implements HasForms, HasTable
                             ->send();
                     })
                     ->visible(fn (Product $record): bool => Gate::allows('delete', $record)),
-            ])
-            ->headerActions([
-                Tables\Actions\CreateAction::make()
-                    ->form((new HotelForm())->schemeForm())
-                    ->visible(Gate::allows('create', Hotel::class))
-                    ->tooltip('Add New Hotel')
-                    ->icon('heroicon-o-plus')
-                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton()
-                    ->action(function ($data) {
-                        return $this->create($data);
-                    }),
             ]);
+//            ->headerActions([
+//                Tables\Actions\CreateAction::make()
+//                    ->form((new HotelForm())->schemeForm())
+//                    ->visible(Gate::allows('create', Hotel::class))
+//                    ->tooltip('Add New Hotel')
+//                    ->icon('heroicon-o-plus')
+//                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+//                    ->iconButton()
+//                    ->action(function ($data) {
+//                        return $this->create($data);
+//                    }),
+//            ]);
     }
 
     private function create($data): Redirector|RedirectResponse

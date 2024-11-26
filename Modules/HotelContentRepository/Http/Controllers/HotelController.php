@@ -11,7 +11,7 @@ class HotelController extends BaseWithPolicyController
     protected static string $model = Hotel::class;
     protected static ?string $parameterName = 'hotel_repository';
 
-    private array $message = ['edit' => 'Edit'];
+    private array $message = ['edit' => 'Edit', 'create' => 'Create new Hotel'];
 
 
     public function index(): View
@@ -33,13 +33,16 @@ class HotelController extends BaseWithPolicyController
         $hotelId = $hotel->id;
         $productId = $hotel->product->id;
 
-        return view('dashboard.hotel_repository.edit', compact('hotel', 'text', 'hotelId', 'productId'));
+        return view('dashboard.hotel_repository.form', compact('hotel', 'text', 'hotelId', 'productId'));
     }
 
     public function create(): View
     {
         $text = $this->message;
+        $hotel = new Hotel();
+        $hotelId = 0;
+        $productId = 0;
 
-        return view('dashboard.hotel_repository.create', compact('text'));
+        return view('dashboard.hotel_repository.form', compact('hotel','text', 'hotelId', 'productId'));
     }
 }

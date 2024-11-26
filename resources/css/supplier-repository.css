@@ -332,6 +332,7 @@ thead .bg-gray-50{
 }
 
 /* Basic Modal Styles */
+/* Общий стиль модального окна */
 .hotel-modal {
     position: fixed;
     top: 0;
@@ -357,28 +358,31 @@ thead .bg-gray-50{
 
 /* Modal Title */
 .hotel-modal-header h4 {
-    font-size: 24px;
-    margin-bottom: 10px;
+    font-size: 18px; /* Размер шрифта */
+    font-weight: 600; /* Полужирный шрифт */
+    color: #333333; /* Темно-серый цвет */
+    margin-bottom: 8px; /* Отступ снизу */
 }
 
-/* Modal Paragraph */
+/* Описание модального окна */
 .hotel-modal-header p {
-    font-size: 16px;
-    margin-bottom: 20px;
+    font-size: 14px; /* Размер текста */
+    color: #555555; /* Средне-серый цвет */
+    margin-bottom: 16px; /* Отступ снизу */
 }
 
 /* Buttons */
 .hotel-modal-header button {
-    padding: 10px 20px;
-    font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 5px;
+    padding: 10px 16px; /* Отступы */
+    font-size: 14px; /* Размер текста */
+    font-weight: 500; /* Полужирный шрифт */
+    border-radius: 8px; /* Закругленные углы */
+    cursor: pointer; /* Указатель при наведении */
+    transition: all 0.2s ease-in-out; /* Плавный переход */
 }
 
 /* Confirm Button Style */
-.hotel-modal-header button:first-child {
+.hotel-modal-header .confirm-button {
     background-color: var(--red-color);
     color: white;
 }
@@ -386,19 +390,20 @@ thead .bg-gray-50{
 /* Cancel Button Style */
 .hotel-modal-header button:last-child {
     background-color: var(--background-main-color);
-    color: white;
+    margin-left: 10px;
 }
 
-/* Animation (optional) */
-.hotel-modal {
-    animation: fadeIn 0.3s ease;
+.hotel-modal-header button:last-child:hover {
+    background-color: #e5e7eb; /* Темнее при наведении */
 }
 
 @keyframes fadeIn {
     from {
         opacity: 0;
+        transform: translateY(-10px);
     }
     to {
         opacity: 1;
+        transform: translateY(0);
     }
 }

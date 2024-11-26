@@ -53,15 +53,19 @@ class HotelForm extends Component implements HasForms
     {
         $this->record = $hotel->load('product');
 
-        $this->verified = $hotel->product->verified;
+        $this->verified = $hotel->product->verified ?? false;
 
         $data = $this->record->toArray();
 
-        foreach ($this->record->address as $key => $value) {
-            $data['addressArr'][$key] = $value;
+        if ($this->record->address) {
+            foreach ($this->record->address as $key => $value) {
+                $data['addressArr'][$key] = $value;
+            }
+        } else {
+            $data['addressArr'] = [];
         }
 
-        $data['galleries'] = $this->record->product->galleries->pluck('id')->toArray();
+        $data['galleries'] = $this->record->product ? $this->record->product->galleries->pluck('id')->toArray() : [];
 
         $this->form->fill($data);
     }
@@ -210,13 +214,58 @@ class HotelForm extends Component implements HasForms
                 ]),
             Actions::make([
                 Action::make('save')
-                    ->label(strtoupper($this->record->exists ? 'Update Changes' : 'Save Changes'))
-                    ->action('edit')
+                    ->label(strtoupper($this->record->product ? 'Update Changes' : 'Save Changes'))
+                    ->action($this->record->product ? 'edit' : 'create')
                     ->extraAttributes([
                         'class' => 'save-button',
                     ]),
             ]),
         ];
+    }
+
+    public function create(): Redirector|RedirectResponse
+    {
+        $data = $this->form->getState();
+
+        $data['address'] = $data['addressArr'];
+
+        $hotel = Hotel::create(Arr::only($data, [
+            'weight',
+            'sale_type',
+            'address',
+            'star_rating',
+            'num_rooms',
+            'room_images_source_id',
+            'hotel_board_basis',
+            'travel_agent_commission'
+        ]));
+
+        $data['product']['product_type'] = 'hotel';
+        $data['product']['verified'] = false;
+
+        $hotel->product()->create(Arr::only($data['product'], [
+            'vendor_id',
+            'product_type',
+            'name',
+            'verified',
+            'lat',
+            'lng',
+            'content_source_id',
+            'property_images_source_id',
+            'default_currency',
+            'website'
+        ]));
+
+        if (isset($data['galleries'])) {
+            $hotel->product->galleries()->sync($data['galleries']);
+        }
+
+        Notification::make()
+            ->title('Created successfully')
+            ->success()
+            ->send();
+
+        return redirect()->route('hotel-repository.index');
     }
 
     public function edit(): Redirector|RedirectResponse

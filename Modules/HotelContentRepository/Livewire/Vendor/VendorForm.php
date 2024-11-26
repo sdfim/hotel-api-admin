@@ -24,7 +24,7 @@ class VendorForm extends Component implements HasForms
     public bool $verified;
     public $showDeleteConfirmation = false;
 
-    public function mount(Vendor $vendor = null): void
+    public function mount(?Vendor $vendor): void
     {
         $this->record = $vendor ?? new Vendor();
 
@@ -47,7 +47,10 @@ class VendorForm extends Component implements HasForms
     public function deleteVendor()
     {
         \DB::transaction(function () {
-            $this->record->products->delete();
+            foreach ($this->record->products as $product) {
+                $product->related->delete();
+                $product->delete();
+            }
             $this->record->delete();
         });
 
