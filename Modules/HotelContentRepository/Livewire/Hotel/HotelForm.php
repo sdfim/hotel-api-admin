@@ -231,8 +231,7 @@ class HotelForm extends Component implements HasForms
                                     'CNY' => 'CNY',
                                     'SEK' => 'SEK',
                                     'NZD' => 'NZD',
-                                ])
-                                ->searchable(),
+                                ]),
                             TextInput::make('weight')->label('Weight')
                                 ->integer(),
                             TextInput::make('travel_agent_commission')

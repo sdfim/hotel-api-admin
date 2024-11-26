@@ -103,6 +103,11 @@ thead .bg-gray-50{
     line-height: 2.5rem !important; /* Для высоты строки */
 }
 
+.hotel-form-container .choices__inner {
+    min-height: 55px !important;
+    border-radius: 2px !important;
+}
+
 .hotel-form-container .fi-select-input:focus {
     outline: 2px solid var(--font-color) !important;
     border-radius: 2px !important;

@@ -160,21 +160,6 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                         'gc' => $this->giataKeyIds[0] ?? null,
                     ]))
                     ->visible(fn (): bool => Gate::allows('create', PricingRule::class)),
-            ])
-            ->filters([
-                Filter::make('property_filter')
-                    ->label('Property Filter')
-                    ->query(function ($query, array $data) {
-                        $value = $data['property'] ?? null;
-                        if (!empty($value)) {
-                            $this->applyPropertyConditions($query, $value);
-                        }
-                    })
-                    ->form([
-                        TextInput::make('property')
-                            ->label('Property Code/Name')
-                            ->placeholder('Enter property code or name'),
-                    ]),
             ]);
     }
 
