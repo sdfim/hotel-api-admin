@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\Vendor;
 
 use App\Helpers\ClassHelper;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -33,14 +34,16 @@ class VendorForm extends Component implements HasForms
     {
         return $form
             ->schema([
-                TextInput::make('name')->label('Name')->required(),
-                Textarea::make('address')
-                    ->label('Address')
-                    ->required()
-                    ->rows(5),
-                TextInput::make('lat')->label('Latitude')->required(),
-                TextInput::make('lng')->label('Longitude')->required(),
-                TextInput::make('website')->label('Website')->required(),
+                Grid::make(2)->schema([
+                    TextInput::make('name')->label('Name')->required(),
+                    Textarea::make('address')
+                        ->label('Address')
+                        ->required()
+                        ->rows(5),
+                    TextInput::make('lat')->label('Latitude')->required(),
+                    TextInput::make('lng')->label('Longitude')->required(),
+                    TextInput::make('website')->label('Website')->required(),
+                ]),
             ])
             ->statePath('data')
             ->model($this->record);

@@ -23,7 +23,7 @@
         ];
     @endphp
     <div x-data="{ activeTab: 'Hotels' }" class="sr_tab-container mb-8">
-        <ul class="sr_tab-list flex justify-center">
+        <ul class="sr_tab-list flex">
             @foreach ($tabs as $tab => $link)
                 <li class="sr_tab-item mr-1 flex items-end">
                     <a href="{{ $link }}"

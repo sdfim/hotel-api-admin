@@ -66,7 +66,6 @@ class ProductTable extends Component implements HasForms, HasTable
                     ->wrap(),
 
                 TextColumn::make('location')
-                    ->searchable()
                     ->toggleable()
                     ->sortable(),
 
@@ -78,7 +77,6 @@ class ProductTable extends Component implements HasForms, HasTable
 
                 TextColumn::make('combined_sources')
                     ->label('Combined Sources')
-                    ->searchable()
                     ->toggleable()
                     ->sortable()
                     ->default(function ($record) {

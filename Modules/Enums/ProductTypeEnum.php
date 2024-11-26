@@ -5,6 +5,6 @@ namespace Modules\Enums;
 enum ProductTypeEnum: string
 {
     case HOTEL = 'hotel';
-    case TOURS = 'tours';
-    case TRANSFERS = 'transfers';
+    case TOURS = 'tour';
+    case TRANSFERS = 'transfer';
 }

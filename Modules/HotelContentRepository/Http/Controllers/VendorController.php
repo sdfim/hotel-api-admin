@@ -11,7 +11,7 @@ class VendorController extends Controller
     protected static string $model = Vendor::class;
     protected static ?string $parameterName = 'vendor';
 
-    private array $message = ['edit' => 'Edit Vendor', 'create' => 'Create Vendor'];
+    private array $message = ['edit' => 'Edit', 'create' => 'Create'];
 
     public function index(): View
     {
