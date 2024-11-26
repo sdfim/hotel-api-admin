@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Channel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -61,6 +62,11 @@ class Product extends Model
         return $this->morphTo();
     }
 
+    public function channels(): BelongsToMany
+    {
+        return $this->belongsToMany(Channel::class, 'pd_product_channel');
+    }
+
     public function contentSource(): BelongsTo
     {
         return $this->belongsTo(ContentSource::class, 'content_source_id');
@@ -116,9 +122,9 @@ class Product extends Model
         return $this->belongsToMany(ImageGallery::class, 'pd_product_gallery', 'product_id', 'gallery_id');
     }
 
-    public function contactInformation(): HasMany
+    public function contactInformation()
     {
-        return $this->hasMany(ProductContactInformation::class);
+        return $this->morphOne(ContactInformation::class, 'contactable');
     }
 
     protected $appends = [

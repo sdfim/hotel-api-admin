@@ -7,36 +7,37 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Modules\HotelContentRepository\Models\Factories\ProductContactInformationFactory;
+use Modules\HotelContentRepository\Models\Factories\ContactInformationFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 
-class ProductContactInformation extends Model
+class ContactInformation extends Model
 {
     use Filterable;
     use HasFactory;
 
     protected static function newFactory()
     {
-        return ProductContactInformationFactory::new();
+        return ContactInformationFactory::new();
     }
 
-    protected $table = 'pd_product_contact_information';
+    protected $table = 'pd_contact_information';
 
     protected $fillable = [
-        'product_id',
         'first_name',
         'last_name',
         'email',
         'phone',
+        'contactable_id',
+        'contactable_type',
     ];
 
-    public function product(): BelongsTo
+    public function contactable()
     {
-        return $this->belongsTo(Product::class);
+        return $this->morphTo();
     }
 
     public function contactInformations(): BelongsToMany
     {
-        return $this->belongsToMany(ConfigJobDescription::class, 'pd_product_contact_information_job_descriptions', 'contact_information_id', 'job_descriptions_id');
+        return $this->belongsToMany(ConfigJobDescription::class, 'pd_contact_information_job_descriptions', 'contact_information_id', 'job_descriptions_id');
     }
 }

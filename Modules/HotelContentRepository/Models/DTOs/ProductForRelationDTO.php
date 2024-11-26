@@ -73,7 +73,7 @@ class ProductForRelationDTO
             return new ImageGalleryDTO($gallery);
         });
         $this->contact_information = $product->contactInformation->map(function ($contact) {
-            return new ProductContactInformationDTO($contact);
+            return new ContactInformationDTO($contact);
         });
     }
 }

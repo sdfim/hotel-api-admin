@@ -1,10 +1,11 @@
 <?php
 
-namespace Modules\HotelContentRepository\Livewire\ProductContactInformation;
+namespace Modules\HotelContentRepository\Livewire\ContactInformation;
 
 use App\Helpers\ClassHelper;
 use App\Models\Configurations\ConfigJobDescription;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -19,18 +20,21 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Livewire\Component;
 use Modules\HotelContentRepository\Models\Product;
-use Modules\HotelContentRepository\Models\ProductContactInformation;
+use Modules\HotelContentRepository\Models\ContactInformation;
+use Modules\HotelContentRepository\Models\Vendor;
 
-class ProductContactInformationTable extends Component implements HasForms, HasTable
+class ContactInformationTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public int $productId;
+    public int $contactableId;
+    public string $contactableType;
 
-    public function mount(int $productId)
+    public function mount(int $contactableId, string $contactableType)
     {
-        $this->productId = $productId;
+        $this->contactableId = $contactableId;
+        $this->contactableType = $contactableType;
     }
 
     public function form(Form $form): Form
@@ -42,10 +46,17 @@ class ProductContactInformationTable extends Component implements HasForms, HasT
     public function schemeForm(): array
     {
         return [
-            Select::make('product_id')
-                ->label('Product')
-                ->options(Product::pluck('name', 'id'))
-                ->disabled(fn () => $this->productId)
+            Select::make('contactable_id')
+                ->label($this->contactableType)
+                ->options(function () {
+                    if ($this->contactableType === 'Product') {
+                        return Product::pluck('name', 'id');
+                    } elseif ($this->contactableType === 'Vendor') {
+                        return Vendor::pluck('name', 'id');
+                    }
+                    return [];
+                })
+                ->disabled(fn () => $this->contactableId)
                 ->required(),
             Grid::make(2)
                 ->schema([
@@ -75,7 +86,9 @@ class ProductContactInformationTable extends Component implements HasForms, HasT
     {
         return $table
             ->query(
-                ProductContactInformation::with('contactInformations')->where('product_id', $this->productId)
+                ContactInformation::with('contactInformations')
+                    ->where('contactable_id', $this->contactableId)
+                    ->where('contactable_type', __NAMESPACE__ . '\\Models\\' . $this->contactableType)
             )
             ->columns([
                 TextColumn::make('first_name')->label('First Name'),
@@ -99,12 +112,12 @@ class ProductContactInformationTable extends Component implements HasForms, HasT
                         return $data;
                     })
                     ->action(function ($data, $record) {
+                        $data['contactable_type'] = __NAMESPACE__ . '\\Models\\' . $this->contactableType;
                         $contactInformations = $data['contactInformations'] ?? [];
                         unset($data['contactInformations']);
-
                         $record->update($data);
                         $record->contactInformations()->sync($contactInformations);
-                    }),
+                    })
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),
@@ -113,14 +126,14 @@ class ProductContactInformationTable extends Component implements HasForms, HasT
                 CreateAction::make()
                     ->form($this->schemeForm())
                     ->fillForm(function () {
-                        return $this->productId ? ['product_id' => $this->productId] : [];
+                        return $this->contactableId ? ['contactable_id' => $this->contactableId] : [];
                     })
                     ->action(function ($data) {
-                        if ($this->productId) $data['product_id'] = $this->productId;
+                        if ($this->contactableId) $data['contactable_id'] = $this->contactableId;
+                        $data['contactable_type'] = __NAMESPACE__ . '\\Models\\' . $this->contactableType;
                         $contactInformations = $data['contactInformations'] ?? [];
                         unset($data['contactInformations']);
-
-                        $hotelContactInformation = ProductContactInformation::create($data);
+                        $hotelContactInformation = ContactInformation::create($data);
                         $hotelContactInformation->contactInformations()->sync($contactInformations);
                     })
                     ->tooltip('Add New Contact Information')
@@ -132,6 +145,6 @@ class ProductContactInformationTable extends Component implements HasForms, HasT
 
     public function render()
     {
-        return view('livewire.products.product-contact-information-table');
+        return view('livewire.products.contact-information-table');
     }
 }

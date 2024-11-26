@@ -8,7 +8,7 @@ use Modules\API\Controllers\RouteApiController;
 use Modules\HotelContentRepository\API\Controllers\ContentSourceController;
 use Modules\HotelContentRepository\API\Controllers\ProductAffiliationController;
 use Modules\HotelContentRepository\API\Controllers\ProductAgeRestrictionController;
-use Modules\HotelContentRepository\API\Controllers\ProductContactInformationController;
+use Modules\HotelContentRepository\API\Controllers\ContactInformationController;
 use Modules\HotelContentRepository\API\Controllers\HotelController;
 use Modules\HotelContentRepository\API\Controllers\ProductController;
 use Modules\HotelContentRepository\API\Controllers\ProductDepositInformationController;
@@ -78,7 +78,7 @@ class HotelContentRepositoryApiRoutes
 
             Route::resource('product-informative-services', ProductInformativeServiceController::class);
 
-            Route::resource('product-contact-information', ProductContactInformationController::class);
+            Route::resource('contact-information', ContactInformationController::class);
 
             Route::resource('product-deposit-information', ProductDepositInformationController::class);
 

@@ -39,4 +39,9 @@ class Vendor extends Model
     {
         return $this->hasMany(Product::class, 'vendor_id');
     }
+
+    public function contactInformation()
+    {
+        return $this->morphOne(ContactInformation::class, 'contactable');
+    }
 }

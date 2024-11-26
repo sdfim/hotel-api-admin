@@ -10,7 +10,7 @@ use Modules\HotelContentRepository\Livewire\Product\ProductTable;
 use Modules\HotelContentRepository\Livewire\ProductAffiliations\ProductAffiliationsTable;
 use Modules\HotelContentRepository\Livewire\ProductAgeRestriction\ProductAgeRestrictionTable;
 use Modules\HotelContentRepository\Livewire\ProductAttributes\ProductAttributesTable;
-use Modules\HotelContentRepository\Livewire\ProductContactInformation\ProductContactInformationTable;
+use Modules\HotelContentRepository\Livewire\ContactInformation\ContactInformationTable;
 use Modules\HotelContentRepository\Livewire\ProductDepositInformation\ProductDepositInformationTable;
 use Modules\HotelContentRepository\Livewire\ProductDescriptiveContentSection\ProductDescriptiveContentSectionTable;
 use Modules\HotelContentRepository\Livewire\ProductFeeTaxes\ProductFeeTaxTable;
@@ -54,7 +54,7 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('products.product-affiliations-table', ProductAffiliationsTable::class);
         Livewire::component('products.hotel-age-restriction-table', ProductAgeRestrictionTable::class);
         Livewire::component('products.product-attributes-table', ProductAttributesTable::class);
-        Livewire::component('products.product-contact-information-table', ProductContactInformationTable::class);
+        Livewire::component('products.contact-information-table', ContactInformationTable::class);
         Livewire::component('products.product-deposit-information-table', ProductDepositInformationTable::class);
         Livewire::component('products.hotel-descriptive-content-section-table', ProductDescriptiveContentSectionTable::class);
         Livewire::component('products.hotel-fee-tax-table', ProductFeeTaxTable::class);

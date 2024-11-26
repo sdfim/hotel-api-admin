@@ -8,13 +8,13 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('pd_product_contact_information_job_descriptions', function (Blueprint $table) {
+        Schema::create('pd_contact_information_job_descriptions', function (Blueprint $table) {
             $table->foreignId('job_descriptions_id')
                 ->constrained('config_job_descriptions')
                 ->onDelete('cascade')
                 ->name('fk_job_desc_id');
             $table->foreignId('contact_information_id')
-                ->constrained('pd_product_contact_information')
+                ->constrained('pd_contact_information')
                 ->onDelete('cascade')
                 ->name('fk_contact_info_id');
 
@@ -25,6 +25,6 @@ return new class extends Migration
 
     public function down()
     {
-        Schema::dropIfExists('pd_product_contact_information_job_descriptions');
+        Schema::dropIfExists('pd_contact_information_job_descriptions');
     }
 };

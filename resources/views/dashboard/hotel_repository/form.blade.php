@@ -3,7 +3,7 @@
         'Product' => [
             'tab_name' => '-product-tab',
             'related' => [
-                ['title' => 'Contact Information', 'component' => 'products.product-contact-information-table'],
+                ['title' => 'Contact Information', 'component' => 'products.contact-information-table'],
                 ['title' => 'Age Restrictions', 'component' => 'products.hotel-age-restriction-table'],
                 ['title' => 'Affiliations', 'component' => 'products.product-affiliations-table'],
             ],
@@ -125,6 +125,8 @@
                                             <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4">{{ $tab['title'] }}</h3>
                                             @if ($tab['title'] === 'Pricing Rules')
                                                 @livewire($tab['component'], ['hotelId' => $hotelId, 'isSrCreator' => true])
+                                            @elseif ($tab['title'] === 'Contact Information')
+                                                @livewire($tab['component'], ['contactableId' => $productId, 'contactableType' => 'Product'])
                                             @elseif (in_array($tab['title'], $hotelTitle))
                                                 @livewire($tab['component'], ['hotelId' => $hotelId])
                                             @else

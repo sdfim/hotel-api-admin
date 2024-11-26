@@ -8,21 +8,20 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('pd_product_contact_information', function (Blueprint $table) {
+        Schema::create('pd_contact_information', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('contactable_id');
+            $table->string('contactable_type');
             $table->string('first_name');
             $table->string('last_name')->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->timestamps();
-
-            $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('pd_product_contact_information');
+        Schema::dropIfExists('pd_contact_information');
     }
 };

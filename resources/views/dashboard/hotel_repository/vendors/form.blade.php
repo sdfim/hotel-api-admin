@@ -4,7 +4,7 @@
             'tab_name' => 'vendors-tab',
             'related' => [
                 ['title' => 'General Information', 'component' => 'vendors.vendor-form'],
-                ['title' => 'Contact Information', 'component' => 'products.product-contact-information-table'],
+                ['title' => 'Contact Information', 'component' => 'products.contact-information-table'],
             ],
         ],
         'Products' => [
@@ -72,8 +72,10 @@
                                 <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4">{{ $tab['title'] }}</h3>
                                 @if (in_array($tab['title'], $vendorTitle))
                                     @livewire($tab['component'], ['vendor' => $vendor])
+                                @elseif ($tab['title'] === 'Contact Information')
+                                    @livewire($tab['component'], ['contactableId' => $vendor->id, 'contactableType' => 'Vendor'])
                                 @else
-                                    @livewire($tab['component'], ['vendor' => $vendor, 'productId' => 1])
+                                    @livewire($tab['component'], ['vendor' => $vendor])
                                 @endif
                             @endforeach
                         </div>

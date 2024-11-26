@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Livewire\Hotel;
 
+use App\Models\Channel;
 use App\Models\Configurations\ConfigJobDescription;
 use App\Models\Property;
 use Filament\Forms\Components\Actions;
@@ -66,6 +67,7 @@ class HotelForm extends Component implements HasForms
         }
 
         $data['galleries'] = $this->record->product ? $this->record->product->galleries->pluck('id')->toArray() : [];
+        $data['channels'] = $this->record->product ? $this->record->product->channels->pluck('id')->toArray() : [];
 
         $this->form->fill($data);
     }
@@ -203,12 +205,48 @@ class HotelForm extends Component implements HasForms
                     CustomTab::make('Data Sources')
                         ->id('data-sources')
                         ->schema([
-                            Select::make('product.content_source_id')->label('Content Source')->options(ContentSource::pluck('name', 'id'))->required(),
-                            Select::make('room_images_source_id')->label('Room Images Source')->options(ContentSource::pluck('name', 'id'))->required(),
-                            Select::make('product.property_images_source_id')->label('Property Images Source')->options(ContentSource::pluck('name', 'id'))->required(),
-                            TextInput::make('travel_agent_commission')->label('Travel Agent Commission')->numeric('decimal')->required(),
-                            TextInput::make('product.default_currency')->label('Default Currency')->required()->maxLength(3),
-                            TextInput::make('weight')->label('Weight')->integer(),
+                            Select::make('product.content_source_id')
+                                ->label('Content Source')
+                                ->options(ContentSource::pluck('name', 'id'))
+                                ->required(),
+                            Select::make('room_images_source_id')
+                                ->label('Room Images Source')
+                                ->options(ContentSource::pluck('name', 'id'))
+                                ->required(),
+                            Select::make('product.property_images_source_id')
+                                ->label('Property Images Source')
+                                ->options(ContentSource::pluck('name', 'id'))
+                                ->required(),
+                            Select::make('product.default_currency')
+                                ->label('Default Currency')
+                                ->required()
+                                ->options([
+                                    'USD' => 'USD',
+                                    'EUR' => 'EUR',
+                                    'GBP' => 'GBP',
+                                    'JPY' => 'JPY',
+                                    'AUD' => 'AUD',
+                                    'CAD' => 'CAD',
+                                    'CHF' => 'CHF',
+                                    'CNY' => 'CNY',
+                                    'SEK' => 'SEK',
+                                    'NZD' => 'NZD',
+                                ])
+                                ->searchable(),
+                            TextInput::make('weight')->label('Weight')
+                                ->integer(),
+                            TextInput::make('travel_agent_commission')
+                                ->label('Travel Agent Commission')
+                                ->numeric('decimal'),
+                            Select::make('channels')
+                                ->label('Channels')
+                                ->multiple()
+                                ->options(Channel::pluck('name', 'id')),
+                            Select::make('galleries')
+                                ->label('Galleries')
+                                ->multiple()
+                                ->options(ImageGallery::pluck('gallery_name', 'id')),
+
                         ])
                         ->columns(2),
                 ]),
@@ -260,6 +298,10 @@ class HotelForm extends Component implements HasForms
             $hotel->product->galleries()->sync($data['galleries']);
         }
 
+        if (isset($data['channels'])) {
+            $hotel->product->channels()->sync($data['channels']);
+        }
+
         Notification::make()
             ->title('Created successfully')
             ->success()
@@ -304,6 +346,10 @@ class HotelForm extends Component implements HasForms
 
         if (isset($data['galleries'])) {
             $hotel->product->galleries()->sync($data['galleries']);
+        }
+
+        if (isset($data['channels'])) {
+            $hotel->product->channels()->sync($data['channels']);
         }
 
         Notification::make()

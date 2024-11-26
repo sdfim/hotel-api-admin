@@ -127,18 +127,6 @@ class ProductTable extends Component implements HasForms, HasTable
                     })
                     ->visible(fn (Product $record): bool => Gate::allows('delete', $record)),
             ]);
-//            ->headerActions([
-//                Tables\Actions\CreateAction::make()
-//                    ->form((new HotelForm())->schemeForm())
-//                    ->visible(Gate::allows('create', Hotel::class))
-//                    ->tooltip('Add New Hotel')
-//                    ->icon('heroicon-o-plus')
-//                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-//                    ->iconButton()
-//                    ->action(function ($data) {
-//                        return $this->create($data);
-//                    }),
-//            ]);
     }
 
     private function create($data): Redirector|RedirectResponse

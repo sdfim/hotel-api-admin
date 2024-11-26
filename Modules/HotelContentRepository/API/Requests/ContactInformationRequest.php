@@ -4,22 +4,32 @@ namespace Modules\HotelContentRepository\API\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ProductContactInformationRequest extends FormRequest
+class ContactInformationRequest extends FormRequest
 {
     /**
      * @OA\Get(
      *   tags={"Product | Contact Information"},
-     *   path="/api/repo/product-contact-information",
-     *   summary="Get all product contact information",
-     *   description="Retrieve all product contact information records with optional filters.",
+     *   path="/api/repo/contact-information",
+     *   summary="Get all contact information",
+     *   description="Retrieve all contact information records with optional filters.",
      *   @OA\Parameter(
-     *     name="product_id",
+     *     name="contactable_id",
      *     in="query",
      *     required=false,
-     *     description="Filter by product ID",
+     *     description="Filter by contactable ID",
      *     @OA\Schema(
      *       type="integer",
      *       example=1
+     *     )
+     *   ),
+     *   @OA\Parameter(
+     *     name="contactable_type",
+     *     in="query",
+     *     required=false,
+     *     description="Filter by contactable type",
+     *     @OA\Schema(
+     *       type="string",
+     *       example="App\\Models\\Product"
      *     )
      *   ),
      *   @OA\Parameter(
@@ -95,15 +105,16 @@ class ProductContactInformationRequest extends FormRequest
 
      * @OA\Post(
      *   tags={"Product | Contact Information"},
-     *   path="/api/repo/product-contact-information",
-     *   summary="Create a new product contact information",
-     *   description="Create a new product contact information entry.",
+     *   path="/api/repo/contact-information",
+     *   summary="Create a new contact information",
+     *   description="Create a new contact information entry.",
      *   @OA\RequestBody(
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"product_id", "first_name", "last_name", "email", "phone"},
-     *       @OA\Property(property="product_id", type="integer", example=1),
+     *       required={"contactable_id", "contactable_type", "first_name", "last_name", "email", "phone"},
+     *       @OA\Property(property="contactable_id", type="integer", example=1),
+     *       @OA\Property(property="contactable_type", type="string", example="App\\Models\\Product"),
      *       @OA\Property(property="first_name", type="string", example="John"),
      *       @OA\Property(property="last_name", type="string", example="Doe"),
      *       @OA\Property(property="email", type="string", example="john.doe@example.com"),
@@ -133,14 +144,14 @@ class ProductContactInformationRequest extends FormRequest
 
      * @OA\Get(
      *   tags={"Product | Contact Information"},
-     *   path="/api/repo/product-contact-information/{id}",
-     *   summary="Get product contact information details",
-     *   description="Retrieve details of a specific product contact information.",
+     *   path="/api/repo/contact-information/{id}",
+     *   summary="Get contact information details",
+     *   description="Retrieve details of a specific contact information.",
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
-     *     description="ID of the product contact information",
+     *     description="ID of the contact information",
      *     @OA\Schema(
      *       type="integer",
      *       example=1
@@ -169,14 +180,14 @@ class ProductContactInformationRequest extends FormRequest
 
      * @OA\Put(
      *   tags={"Product | Contact Information"},
-     *   path="/api/repo/product-contact-information/{id}",
-     *   summary="Update product contact information details",
-     *   description="Update details of a specific product contact information.",
+     *   path="/api/repo/contact-information/{id}",
+     *   summary="Update contact information details",
+     *   description="Update details of a specific contact information.",
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
-     *     description="ID of the product contact information",
+     *     description="ID of the contact information",
      *     @OA\Schema(
      *       type="integer",
      *       example=1
@@ -186,8 +197,9 @@ class ProductContactInformationRequest extends FormRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"product_id", "first_name", "last_name", "email", "phone"},
-     *       @OA\Property(property="product_id", type="integer", example=1),
+     *       required={"contactable_id", "contactable_type", "first_name", "last_name", "email", "phone"},
+     *       @OA\Property(property="contactable_id", type="integer", example=1),
+     *       @OA\Property(property="contactable_type", type="string", example="App\\Models\\Product"),
      *       @OA\Property(property="first_name", type="string", example="John"),
      *       @OA\Property(property="last_name", type="string", example="Doe"),
      *       @OA\Property(property="email", type="string", example="john.doe@example.com"),
@@ -224,14 +236,14 @@ class ProductContactInformationRequest extends FormRequest
 
      * @OA\Delete(
      *   tags={"Product | Contact Information"},
-     *   path="/api/repo/product-contact-information/{id}",
-     *   summary="Delete a product contact information",
-     *   description="Delete a specific product contact information.",
+     *   path="/api/repo/contact-information/{id}",
+     *   summary="Delete a contact information",
+     *   description="Delete a specific contact information.",
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
-     *     description="ID of the product contact information",
+     *     description="ID of the contact information",
      *     @OA\Schema(
      *       type="integer",
      *       example=1
@@ -267,7 +279,8 @@ class ProductContactInformationRequest extends FormRequest
     public function rules()
     {
         return [
-            'product_id' => 'required|integer|exists:pd_products,id',
+            'contactable_id' => 'required|integer',
+            'contactable_type' => 'required|string|max:255',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|max:255',
