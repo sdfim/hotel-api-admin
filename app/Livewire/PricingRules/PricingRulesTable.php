@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\Product;
 
 class PricingRulesTable extends Component implements HasForms, HasTable
 {
@@ -41,7 +42,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
         $this->productId = $productId;
         $this->isSrCreator = $isSrCreator;
         if ($this->productId) {
-            $this->giataKeyIds = Hotel::with(['keyMappings' => function ($query) {
+            $this->giataKeyIds = Product::with(['keyMappings' => function ($query) {
                 $query->whereHas('keyMappingOwner', function ($query) {
                     $query->where('name', 'GIATA');
                 });
