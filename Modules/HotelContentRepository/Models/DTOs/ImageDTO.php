@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\DTOs;
 
+use Illuminate\Database\Eloquent\Collection;
 use Modules\HotelContentRepository\Models\Image;
 
 class ImageDTO
@@ -12,12 +13,23 @@ class ImageDTO
     public $weight;
     public $section_id;
 
-    public function __construct(Image $image)
+    public function __construct() {}
+
+    public function transform(Collection $images)
     {
-        $this->id = $image->id;
-        $this->image_url = $image->image_url;
-        $this->tag = $image->tag;
-        $this->weight = $image->weight;
-        $this->section_id = $image->section_id;
+        return $images->map(function ($image) {
+            return $this->transformImage($image);
+        })->all();
+    }
+
+    public function transformImage(Image $image)
+    {
+        return [
+            'id' => $image->id,
+            'image_url' => $image->image_url,
+            'tag' => $image->tag,
+            'weight' => $image->weight,
+            'section_id' => $image->section_id,
+        ];
     }
 }

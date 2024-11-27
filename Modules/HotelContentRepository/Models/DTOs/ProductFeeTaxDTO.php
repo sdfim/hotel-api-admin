@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\DTOs;
 
+use Illuminate\Database\Eloquent\Collection;
 use Modules\HotelContentRepository\Models\ProductFeeTax;
 
 class ProductFeeTaxDTO
@@ -17,17 +18,28 @@ class ProductFeeTaxDTO
     public $collected_by;
     public $fee_category;
 
-    public function __construct(ProductFeeTax $productFeeTax)
+    public function __construct() {}
+
+    public function transform(Collection $productFeeTaxes)
     {
-        $this->id = $productFeeTax->id;
-        $this->name = $productFeeTax->name;
-        $this->product_id = $productFeeTax->product_id;
-        $this->net_value = $productFeeTax->net_value;
-        $this->rack_value = $productFeeTax->rack_value;
-        $this->type = $productFeeTax->type;
-        $this->value_type = $productFeeTax->value_type;
-        $this->commissionable = $productFeeTax->commissionable;
-        $this->collected_by = $productFeeTax->collected_by;
-        $this->fee_category = $productFeeTax->fee_category;
+        return $productFeeTaxes->map(function ($productFeeTax) {
+            return $this->transformProductFeeTax($productFeeTax);
+        })->all();
+    }
+
+    public function transformProductFeeTax(ProductFeeTax $productFeeTax)
+    {
+        return [
+            'id' => $productFeeTax->id,
+            'name' => $productFeeTax->name,
+            'product_id' => $productFeeTax->product_id,
+            'net_value' => $productFeeTax->net_value,
+            'rack_value' => $productFeeTax->rack_value,
+            'type' => $productFeeTax->type,
+            'value_type' => $productFeeTax->value_type,
+            'commissionable' => $productFeeTax->commissionable,
+            'collected_by' => $productFeeTax->collected_by,
+            'fee_category' => $productFeeTax->fee_category,
+        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\DTOs;
 
+use Illuminate\Database\Eloquent\Collection;
 use Modules\HotelContentRepository\Models\ProductDescriptiveContent;
 
 class ProductDescriptiveContentDTO
@@ -11,11 +12,22 @@ class ProductDescriptiveContentDTO
     public $descriptive_type_id;
     public $value;
 
-    public function __construct(ProductDescriptiveContent $content)
+    public function __construct() {}
+
+    public function transform(Collection $productDescriptiveContents)
     {
-        $this->id = $content->id;
-        $this->content_sections_id = $content->content_sections_id;
-        $this->descriptive_type_id = $content->descriptive_type_id;
-        $this->value = $content->value;
+        return $productDescriptiveContents->map(function ($productDescriptiveContent) {
+            return $this->transformContent($productDescriptiveContent);
+        })->all();
+    }
+
+    public function transformContent(ProductDescriptiveContent $productDescriptiveContent)
+    {
+        return [
+            'id' => $productDescriptiveContent->id,
+            'content_sections_id' => $productDescriptiveContent->content_sections_id,
+            'descriptive_type_id' => $productDescriptiveContent->descriptive_type_id,
+            'value' => $productDescriptiveContent->value,
+        ];
     }
 }

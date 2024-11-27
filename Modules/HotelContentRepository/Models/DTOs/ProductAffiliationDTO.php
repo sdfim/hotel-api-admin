@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\DTOs;
 
+use Illuminate\Database\Eloquent\Collection;
 use Modules\HotelContentRepository\Models\ProductAffiliation;
 
 class ProductAffiliationDTO
@@ -11,11 +12,22 @@ class ProductAffiliationDTO
     public $affiliation_name;
     public $combinable;
 
-    public function __construct(ProductAffiliation $productAffiliation)
+    public function __construct() {}
+
+    public function transform(Collection $productAffiliations)
     {
-        $this->id = $productAffiliation->id;
-        $this->product_id = $productAffiliation->product_id;
-        $this->affiliation_name = $productAffiliation->affiliation_name;
-        $this->combinable = $productAffiliation->combinable;
+        return $productAffiliations->map(function ($productAffiliation) {
+            return $this->transformAffiliation($productAffiliation);
+        })->all();
+    }
+
+    public function transformAffiliation(ProductAffiliation $productAffiliation)
+    {
+        return [
+            'id' => $productAffiliation->id,
+            'product_id' => $productAffiliation->product_id,
+            'affiliation_name' => $productAffiliation->affiliation_name,
+            'combinable' => $productAffiliation->combinable,
+        ];
     }
 }

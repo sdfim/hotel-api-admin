@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\DTOs;
 
+use Illuminate\Database\Eloquent\Collection;
 use Modules\HotelContentRepository\Models\ContactInformation;
 
 class ContactInformationDTO
@@ -14,14 +15,25 @@ class ContactInformationDTO
     public $phone;
     public $contact_informations;
 
-    public function __construct(ContactInformation $contactInformation)
+    public function __construct() {}
+
+    public function transform(Collection $contactInformations)
     {
-        $this->id = $contactInformation->id;
-        $this->contactable_id = $contactInformation->contactable_id;
-        $this->first_name = $contactInformation->first_name;
-        $this->last_name = $contactInformation->last_name;
-        $this->email = $contactInformation->email;
-        $this->phone = $contactInformation->phone;
-        $this->contact_informations = $contactInformation->contactInformations;
+        return $contactInformations->map(function ($contactInformation) {
+            return $this->transformContactInformation($contactInformation);
+        })->all();
+    }
+
+    public function transformContactInformation(ContactInformation $contactInformation)
+    {
+        return [
+            'id' => $contactInformation->id,
+            'contactable_id' => $contactInformation->contactable_id,
+            'first_name' => $contactInformation->first_name,
+            'last_name' => $contactInformation->last_name,
+            'email' => $contactInformation->email,
+            'phone' => $contactInformation->phone,
+            'contact_informations' => $contactInformation->contactInformations,
+        ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\DTOs;
 
+use Illuminate\Database\Eloquent\Collection;
 use Modules\HotelContentRepository\Models\ProductPromotion;
 
 class ProductPromotionDTO
@@ -19,21 +20,32 @@ class ProductPromotionDTO
     public $deposit_info;
     public $galleries;
 
-    public function __construct(ProductPromotion $promotion)
+    public function __construct(
+        private readonly ImageGalleryDTO $imageGalleryDTO
+    ) {}
+
+    public function transform(Collection $promotions)
     {
-        $this->id = $promotion->id;
-        $this->product_id = $promotion->product_id;
-        $this->promotion_name = $promotion->promotion_name;
-        $this->description = $promotion->description;
-        $this->validity_start = $promotion->validity_start;
-        $this->validity_end = $promotion->validity_end;
-        $this->booking_start = $promotion->booking_start;
-        $this->booking_end = $promotion->booking_end;
-        $this->terms_conditions = $promotion->terms_conditions;
-        $this->exclusions = $promotion->exclusions;
-        $this->deposit_info = $promotion->deposit_info;
-        $this->galleries = $promotion->galleries->map(function ($gallery) {
-            return new ImageGalleryDTO($gallery);
-        });
+        return $promotions->map(function ($promotion) {
+            return $this->transformProductPromotion($promotion);
+        })->all();
+    }
+
+    public function transformProductPromotion(ProductPromotion $promotion)
+    {
+        return [
+            'id' => $promotion->id,
+            'product_id' => $promotion->product_id,
+            'promotion_name' => $promotion->promotion_name,
+            'description' => $promotion->description,
+            'validity_start' => $promotion->validity_start,
+            'validity_end' => $promotion->validity_end,
+            'booking_start' => $promotion->booking_start,
+            'booking_end' => $promotion->booking_end,
+            'terms_conditions' => $promotion->terms_conditions,
+            'exclusions' => $promotion->exclusions,
+            'deposit_info' => $promotion->deposit_info,
+            'galleries' => $this->imageGalleryDTO->transform($promotion->galleries),
+        ];
     }
 }

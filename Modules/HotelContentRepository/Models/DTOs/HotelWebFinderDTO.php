@@ -3,29 +3,27 @@
 namespace Modules\HotelContentRepository\Models\DTOs;
 
 use Modules\HotelContentRepository\Models\HotelWebFinder;
+use Illuminate\Support\Collection;
 
 class HotelWebFinderDTO
 {
     public $id;
-    public $base_url;
-    public $finder;
-    public $type;
-    public $example;
-    public $hotels;
-    public $units;
+    public $name;
+    public $url;
 
-    public function __construct(HotelWebFinder $hotelWebFinder)
+    public function transform(Collection $hotelWebFinders)
     {
-        $this->id = $hotelWebFinder->id;
-        $this->base_url = $hotelWebFinder->base_url;
-        $this->finder = $hotelWebFinder->finder;
-        $this->type = $hotelWebFinder->type;
-        $this->example = $hotelWebFinder->example;
-        $this->hotels = $hotelWebFinder->hotels->map(function ($hotel) {
-            return new HotelDTO($hotel);
-        });
-        $this->units = $hotelWebFinder->units->map(function ($unit) {
-            return new HotelWebFinderUnitDTO($unit);
-        });
+        return $hotelWebFinders->map(function ($webFinder) {
+            return $this->transformWebFinder($webFinder);
+        })->all();
+    }
+
+    private function transformWebFinder(HotelWebFinder $hotelWebFinder)
+    {
+        return [
+            'id' => $hotelWebFinder->id,
+            'name' => $hotelWebFinder->name,
+            'url' => $hotelWebFinder->url,
+        ];
     }
 }
