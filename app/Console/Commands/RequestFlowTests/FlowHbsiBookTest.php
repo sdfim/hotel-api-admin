@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\RequestFlowTests;
 
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
@@ -14,19 +14,16 @@ class FlowHbsiBookTest extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'hbsi-book-test {step} {destination} {supplier} {type}';
+    protected $signature = 'flow:hbsi-book-test {step?} {destination?} {supplier?} {type?}';
 
     protected PendingRequest $client;
 
     protected string $url;
 
-    private string $destination;
-
-    private string $supplier;
-
-    private array $query;
-
-    private string $type;
+    private ?string $destination;
+    private ?string $supplier;
+    private ?array $query;
+    private ?string $type;
 
     public function __construct()
     {
@@ -42,6 +39,11 @@ class FlowHbsiBookTest extends Command
         $this->supplier = $this->argument('supplier');
         $this->type = $this->argument('type');
 
+        $this->destination = !$this->destination ? '508' : $this->destination;
+        $this->supplier = !$this->supplier ? 'HBSI' : $this->supplier;
+        $step = !$step ? 1 : $step;
+        $this->type = $this->type ?? 'test';
+
         foreach (range(1, $step) as $index) {
             $this->warn('STEP '.$index.' of '.$step);
             $this->flow();
@@ -56,6 +58,7 @@ class FlowHbsiBookTest extends Command
         while ($retryCount < 7 && $bookingItem === null) {
             $responseData = $this->makeSearchRequest($s);
             if (! isset($responseData['data']['query']['occupancy'])) {
+                $retryCount++;
                 continue;
             }
 
@@ -117,11 +120,27 @@ class FlowHbsiBookTest extends Command
         $flattened = Arr::dot($responseData);
 
         $countRooms = count($responseData['data']['query']['occupancy']);
+
         $bookingItems = [];
         if ($countRooms === 1) {
-            foreach ($flattened as $key => $value) {
-                if (str_contains($key, 'booking_item')) {
-                    $bookingItems[$key] = $value;
+//            foreach ($flattened as $key => $value) {
+//                if (str_contains($key, 'booking_item')) {
+//                    $bookingItems[$key] = $value;
+//                }
+//            }
+            $hotels = $responseData['data']['results'];
+
+            foreach ($hotels as $hotel) {
+                $ro = 1;
+                foreach ($hotel['room_groups'] as $room_groups) {
+                    foreach ($room_groups['rooms'] as $room) {
+                        if (!$room['non_refundable']) {
+                            $booking_item = $room['booking_item'];
+                            $rate_ordinal = $ro;
+                            $ro++;
+                            break 3;
+                        }
+                    }
                 }
             }
         } else {
@@ -131,15 +150,19 @@ class FlowHbsiBookTest extends Command
                 }
             }
         }
-        if (empty($bookingItems)) {
-            return null;
+
+        if ($countRooms !== 1) {
+            if (empty($bookingItems)) {
+                return null;
+            }
+            $randomKey = array_rand($bookingItems);
+            $booking_item = $bookingItems[$randomKey];
+            $rate_ordinal = $flattened[str_replace('room_combinations', 'rate_ordinal', $randomKey)] ?? null;
         }
 
-        $randomKey = array_rand($bookingItems);
-
         return [
-            'booking_item' => $bookingItems[$randomKey],
-            'rate_ordinal' => $flattened[str_replace('booking_item', 'supplier_room_id', $randomKey)] ?? null,
+            'booking_item' => $booking_item,
+            'rate_ordinal' => $rate_ordinal,
         ];
     }
 
@@ -153,8 +176,8 @@ class FlowHbsiBookTest extends Command
             $checkin = Carbon::now()->addDays(240)->toDateString();
             $checkout = Carbon::now()->addDays(241 + rand(2, 5))->toDateString();
         } else {
-            $checkin = Carbon::now()->addDays(10)->toDateString();
-            $checkout = Carbon::now()->addDays(12 + rand(2, 5))->toDateString();
+            $checkin = Carbon::now()->addDays(60)->toDateString();
+            $checkout = Carbon::now()->addDays(60 + rand(2, 5))->toDateString();
         }
 
         $occupancy = [];
@@ -182,6 +205,7 @@ class FlowHbsiBookTest extends Command
             'checkin' => $checkin,
             'checkout' => $checkout,
             'occupancy' => $occupancy,
+            'results_per_page' => 100,
         ];
 
         $response = $this->client->post($this->url.'/api/pricing/search', $requestData);
@@ -198,7 +222,7 @@ class FlowHbsiBookTest extends Command
 
         $response = $this->client->post($this->url.'/api/booking/add-item', $requestData);
 
-        dump($response->json());
+        $this->info('addBookingItem: '.json_encode($response->json()));
         $bookingId = $response->json()['data']['booking_id'];
         $this->info('booking_id = '.$bookingId);
 

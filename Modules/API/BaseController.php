@@ -30,7 +30,7 @@ use Illuminate\Http\JsonResponse;
  *   description="API Endpoints of Price"
  * ),
  * @OA\Tag(
- *   name="Booking API | Cart Endpoints",
+ *   name="Booking API | Basket",
  *   description="API Endpoints of Cart (pre-reservation)"
  * ),
  * @OA\Tag(
@@ -38,9 +38,13 @@ use Illuminate\Http\JsonResponse;
  *       description="API Endpoints for Insurance and Informational Services"
  *  ),
  * @OA\Tag(
- *   name="Booking API | Booking Endpoints",
+ *   name="Booking API | Booking",
  *   description="API Endpoints of Booking (reservation)"
  * ),
+ * @OA\Tag(
+ *   name="Booking API | Change Booking",
+ *   description="API Endpoints of Booking Changes (modification)"
+ *  )
  */
 class BaseController extends Controller
 {

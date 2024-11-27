@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
+use PHPUnit\Framework\Attributes\Test;
 use App\Livewire\ExpediaTable;
 use App\Models\ExpediaContent;
 use Illuminate\Database\Eloquent\Collection;

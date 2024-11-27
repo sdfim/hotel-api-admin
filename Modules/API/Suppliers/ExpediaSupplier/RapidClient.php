@@ -30,19 +30,12 @@ class RapidClient
 
     public function get(string $path, array $queryParameters, array $addHeaders = []): mixed
     {
-        $queryParams = [];
-        $queryParamsEncoded = '';
-
-        foreach ($queryParameters as $key => $value) {
-            $queryParams[$key] = $value;
+        foreach (range(0, 250) as $i) {
+            $arrayReplace[] = '%5B' . $i . '%5D';
         }
-
-        if (! empty($queryParams))
-        {
-            $queryParamsEncoded = '?'.http_build_query($queryParams);
-        }
-
-        $url = $this->credentials->rapidBaseUrl.'/'.$path . $queryParamsEncoded;
+        $http_build_query = http_build_query($queryParameters);
+        $http_query = str_replace($arrayReplace, '', $http_build_query);
+        $url = $this->credentials->rapidBaseUrl . '/' . $path . '?' . $http_query;
 
         $headers = [
             'Authorization' => $this->generateAuthHeader(),

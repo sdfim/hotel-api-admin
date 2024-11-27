@@ -19,6 +19,22 @@ class BaseBookApiController extends BaseController
         $booking_item_data = json_decode($apiBookingItem->booking_item_data, true);
         $booking_pricing_data = json_decode($apiBookingItem->booking_pricing_data, true);
 
+        // Retrieve all child booking items
+        if ($childBookingItems = $apiBookingItem?->child_items) {
+            $childBookingItemPricingData = [];
+            foreach ($childBookingItems as $childBookingItem) {
+                $apiChildBookingItem = ApiBookingItem::where('booking_item', $childBookingItem)->first();
+                $childBookingItemPricingData[] = json_decode($apiChildBookingItem->booking_pricing_data, true);
+            }
+
+            foreach ($booking_pricing_data['breakdown'] as $k => $pricing_data) {
+                $bookingPricingData[] = array_merge($pricing_data, $childBookingItemPricingData[$k]);
+            }
+            $booking_pricing_data['breakdown'] = $bookingPricingData;
+        } else {
+            $booking_pricing_data['breakdown'] = [$booking_pricing_data];
+        }
+
         $searchInspector = ApiSearchInspector::where('search_id', $bookingInspector->search_id)->first();
 
         $passengers = BookingRepository::getPassengers($bookingInspector->booking_id, $bookingInspector->booking_item);
@@ -82,7 +98,9 @@ class BaseBookApiController extends BaseController
         $type = ApiSearchInspector::where('search_id', $filters['search_id'])->first()->search_type;
         if (TypeRequestEnum::from($type) === TypeRequestEnum::HOTEL) {
             for ($i = 1; $i <= $countRooms; $i++) {
-                $filters['rooms'][] = $passengersData['rooms'][$i]['passengers'];
+                if (array_key_exists($i, $passengersData['rooms'])) {
+                    $filters['rooms'][] = $passengersData['rooms'][$i]['passengers'];
+                }
             }
         }
 

@@ -12,7 +12,6 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Support\Enums\FontFamily;
-use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
@@ -111,9 +110,6 @@ class BookingInspectorTable extends Component implements HasForms, HasTable
                 //                        ->label('View response')
                 //                        ->color('info')
                 //                ])
-            ])
-            ->bulkActions([
-                DeleteBulkAction::make(),
             ])
             ->filters([
                 Filter::make('created_at')

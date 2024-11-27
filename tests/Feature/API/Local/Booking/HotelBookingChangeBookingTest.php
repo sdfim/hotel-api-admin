@@ -4,6 +4,7 @@ namespace Tests\Feature\API\Local\Booking;
 
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelBookingChangeBookingTest extends HotelBookingApiTestCase
 {

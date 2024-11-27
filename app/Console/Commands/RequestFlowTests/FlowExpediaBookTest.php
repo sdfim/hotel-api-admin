@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Console\Commands\RequestFlowTests;
 
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
@@ -14,17 +14,14 @@ class FlowExpediaBookTest extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'expedia-book-test {step} {destination} {supplier}';
-
+    protected $signature = 'flow:expedia-book-test {step?} {destination?} {supplier?}';
     protected $description = 'Command description';
 
     protected PendingRequest $client;
-
     protected string $url;
 
-    protected string $destination;
-
-    protected string $supplier;
+    protected ?string $destination;
+    protected ?string $supplier;
 
     public function __construct()
     {
@@ -38,6 +35,10 @@ class FlowExpediaBookTest extends Command
         $step = $this->argument('step');
         $this->destination = $this->argument('destination');
         $this->supplier = $this->argument('supplier');
+
+        $this->destination = !$this->destination ? '508' : $this->destination;
+        $this->supplier = !$this->supplier ? 'Expedia' : $this->supplier;
+        $step = !$step ? 1 : $step;
 
         foreach (range(1, $step) as $index) {
             $this->warn('STEP '.$index.' of '.$step);
@@ -59,6 +60,33 @@ class FlowExpediaBookTest extends Command
         return $bookingItems[array_rand($bookingItems)];
     }
 
+    /**
+     * @param array $responseData
+     * @return string
+     */
+    private function getBookingItemTest(array $responseData): string
+    {
+        $filteredItems = [];
+        foreach ($responseData['data']['results'] as $room_groups) {
+            foreach ($room_groups['room_groups'] as $room_group) {
+                foreach ($room_group['rooms'] as $room) {
+                    foreach ($room['cancellation_policies'] as $policy) {
+                        if (isset($policy['nights']) && $policy['nights'] === '1') {
+                            $filteredItems[] = $room['booking_item'];
+                        }
+                    }
+                }
+            }
+        }
+
+//        dd($filteredItems[array_rand($filteredItems)], $filteredItems);
+
+        return $filteredItems[array_rand($filteredItems)];
+    }
+
+    /**
+     * @return void
+     */
     public function strategy1(): void
     {
         $this->warn('SEARCH 1');
@@ -121,8 +149,8 @@ class FlowExpediaBookTest extends Command
     private function makeSearchRequest(int $count = 1): array
     {
         $faker = Faker::create();
-        $checkin = Carbon::now()->addDays(240)->toDateString();
-        $checkout = Carbon::now()->addDays(241 + rand(2, 5))->toDateString();
+        $checkin = Carbon::now()->addDays(100)->toDateString();
+        $checkout = Carbon::now()->addDays(100 + rand(2, 5))->toDateString();
 
         $occupancy = [];
         foreach (range(1, $count) as $index) {

@@ -5,14 +5,14 @@
         "version": "1.0.0"
     },
     "paths": {
-        "/api/repo/product-contact-information": {
+        "/api/repo/contact-information": {
             "get": {
                 "tags": [
                     "Product | Contact Information"
                 ],
                 "summary": "Get all contact information",
                 "description": "Retrieve all contact information records with optional filters.",
-                "operationId": "079f0b4dc496bafda4596cc7e3a51993",
+                "operationId": "c108ff5ec6bcee8068da6aa961ed1dc9",
                 "parameters": [
                     {
                         "name": "contactable_id",
@@ -125,7 +125,7 @@
                 ],
                 "summary": "Create a new contact information",
                 "description": "Create a new contact information entry.",
-                "operationId": "332093960f4d58c419abe6b824deeee0",
+                "operationId": "06dcc874f8b875d754fcc9e4ec8b4e56",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -202,14 +202,14 @@
                 ]
             }
         },
-        "/api/repo/product-contact-information/{id}": {
+        "/api/repo/contact-information/{id}": {
             "get": {
                 "tags": [
                     "Product | Contact Information"
                 ],
                 "summary": "Get contact information details",
                 "description": "Retrieve details of a specific contact information.",
-                "operationId": "df156952c60754c0a2b3ceeef0972ebc",
+                "operationId": "d54c84ea83f9d76adbbc8787059d0e62",
                 "parameters": [
                     {
                         "name": "id",
@@ -259,7 +259,7 @@
                 ],
                 "summary": "Update contact information details",
                 "description": "Update details of a specific contact information.",
-                "operationId": "dcde7f0b851e271134236816e9e88fb6",
+                "operationId": "96140978ba4781973effff6133d6eeb5",
                 "parameters": [
                     {
                         "name": "id",
@@ -363,7 +363,7 @@
                 ],
                 "summary": "Delete a contact information",
                 "description": "Delete a specific contact information.",
-                "operationId": "47207b0277df23a13b9d30441c1b8955",
+                "operationId": "12558be0c3080b3407de7546a1addc85",
                 "parameters": [
                     {
                         "name": "id",

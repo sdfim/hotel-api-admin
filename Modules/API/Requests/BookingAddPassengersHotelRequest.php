@@ -10,7 +10,7 @@ class BookingAddPassengersHotelRequest extends ApiRequest
 {
     /**
      * @OA\Post(
-     *   tags={"Booking API | Cart Endpoints"},
+     *   tags={"Booking API | Basket"},
      *   path="/api/booking/add-passengers",
      *   summary="Add passengers to a booking.",
      *   description="Add passengers to a booking. This endpoint is used to add passenger information to a booking.",

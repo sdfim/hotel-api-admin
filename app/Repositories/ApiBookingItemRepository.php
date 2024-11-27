@@ -29,19 +29,35 @@ class ApiBookingItemRepository
     {
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
 
-        return json_decode($bookingItem->booking_item_data, true);
+        return json_decode($bookingItem?->booking_item_data, true);
     }
 
     public static function getItemPricingData(string $booking_item): ?array
     {
         $bookingItem = ApiBookingItem::where('booking_item', $booking_item)->first();
 
-        return json_decode($bookingItem->booking_pricing_data, true);
+        return json_decode($bookingItem?->booking_pricing_data, true);
+    }
+
+    public static function isNonRefundable(string $booking_item): bool
+    {
+        $res = false;
+        $childList = self::getChildrenBookingItems($booking_item);
+        if (!$childList) $childList = [$booking_item];
+        foreach ($childList as $child)  {
+            $item = self::getItemPricingData($child);
+            $currentRes = Arr::get($item, 'non_refundable', false);
+            if ($currentRes) {
+                $res = true;
+                break;
+            }
+        }
+        return $res;
     }
 
     public static function getRateOccupancy(string $booking_item): ?string
     {
-        return self::getItemData($booking_item)['rate_occupancy'];
+        return self::getItemData($booking_item)['rate_occupancy'] ?? null;
     }
 
     public static function getRateType(string $booking_item): ?string
@@ -83,5 +99,10 @@ class ApiBookingItemRepository
         }
 
         return $parentBookingItem;
+    }
+
+    public static function getChildrenBookingItems(string $bookingItem): ?array
+    {
+        return ApiBookingItem::where('booking_item', $bookingItem)->first()?->child_items;
     }
 }

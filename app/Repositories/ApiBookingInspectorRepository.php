@@ -4,6 +4,8 @@ namespace App\Repositories;
 
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
+use App\Models\Supplier;
+use Illuminate\Database\Eloquent\Collection;
 use App\Models\ApiBookingsMetadata;
 use App\Models\Supplier;
 use Carbon\Carbon;
@@ -14,6 +16,59 @@ use Modules\Enums\ItemTypeEnum;
 
 class ApiBookingInspectorRepository
 {
+    public static function getLastBooked()
+    {
+        return ApiBookingInspector::where('type', 'book')
+            ->where('sub_type', 'create')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->latest()
+            ->first();
+    }
+
+    public static function getAllBookTestForCancel(string $supplierName): ?Collection
+    {
+        $supplierId = Supplier::where('name', $supplierName)->first()->id;
+
+        $cancelledBookings = ApiBookingInspector::select('booking_id', 'booking_item')
+            ->where('type', 'cancel_booking')
+            ->where('sub_type', 'true')
+            ->where(function ($query) {
+                $query->where('status', '!=', 'error')
+                    ->orWhere('status_describe', 'like', '%was not found%')
+                    ->orWhere('status_describe', 'like', '%already cancelled%');
+            })
+            ->where('supplier_id', $supplierId)
+            ->get();
+
+        $pairs = [];
+        foreach ($cancelledBookings as $cancelledBooking) {
+            $pairs[] = ['booking_id' => $cancelledBooking->booking_id, 'booking_item' => $cancelledBooking->booking_item];
+        }
+
+        $bookedBookings = ApiBookingInspector::where('type', 'book')
+            ->where('sub_type', 'create')
+            ->where('status', '!=', 'error')
+            ->where('supplier_id', $supplierId)
+            ->where(function($query) use ($pairs) {
+                foreach ($pairs as $pair) {
+                    $query->where(function($subQuery) use ($pair) {
+                        $subQuery->where('booking_id', '!=', $pair['booking_id'])
+                            ->orWhere('booking_item', '!=', $pair['booking_item']);
+                    });
+                }
+            })
+            ->get();
+
+        $bookedItems = ApiBookingsMetadataRepository::bookedItemsByBookingIds($bookedBookings->pluck('booking_id')->toArray())
+            ->pluck('booking_id')->toArray();
+
+        $bookedBookings = $bookedBookings->filter(function ($bookedBooking) use ($bookedItems) {
+            return in_array($bookedBooking->booking_id, $bookedItems);
+        });
+
+        return $bookedBookings;
+    }
+
     public static function getLinkDeleteItem(string $booking_id, string $booking_item, int $room_id): array
     {
         $inspector = ApiBookingInspector::where('type', 'book')
@@ -40,11 +95,12 @@ class ApiBookingInspectorRepository
         return $linkDeleteItems;
     }
 
-    public static function getLinkPutMethod(string $booking_id, int $room_id): ?string
+    public static function getLinkPutMethod(string $booking_id, string $booking_item, int $room_id): string|null
     {
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve'.'%')
             ->where('booking_id', $booking_id)
+            ->where('booking_item', $booking_item)
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
@@ -80,10 +136,13 @@ class ApiBookingInspectorRepository
     public static function getSearchId($filters): ?string
     {
         $booking_id = $filters['booking_id'];
+        $booking_item = $filters['booking_item'];
 
         $inspector = ApiBookingInspector::where('type', 'book')
             ->where('sub_type', 'like', 'retrieve'.'%')
+            ->where('sub_type', 'create')
             ->where('booking_id', $booking_id)
+            ->where('booking_item', $booking_item)
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
 
@@ -129,6 +188,27 @@ class ApiBookingInspectorRepository
         return $list;
     }
 
+    public static function getBookedBookingIdsByChannel(int $supplier_id = 2): ?array
+    {
+        $token_id = ChannelRenository::getTokenId(request()->bearerToken());
+
+        $inspectors = ApiBookingInspector::where('token_id', $token_id)
+            ->where(function ($query) use ($supplier_id) {
+                $query->where(function ($query) use ($supplier_id) {
+                    $query->where('type', 'book')
+                        ->where('sub_type', 'create')
+                        ->where('supplier_id', $supplier_id)
+                        ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+                        ->whereDate('created_at', '>=', now()->subDays(60));
+                });
+            })
+            ->pluck('booking_id')
+            ->unique()
+            ->toArray();
+
+        return $inspectors;
+    }
+
     public static function geTypeSupplierByBookingId(string $booking_id): array
     {
         $search = ApiBookingInspector::where('booking_id', $booking_id)->first();
@@ -156,6 +236,13 @@ class ApiBookingInspectorRepository
             ->where('type', 'book')
             ->where('sub_type', 'create')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->exists();
+    }
+
+    public static function exists(string $booking_id, string $booking_item): bool
+    {
+        return ApiBookingInspector::where('booking_id', $booking_id)
+            ->where('booking_item', $booking_item)
             ->exists();
     }
 
@@ -227,6 +314,20 @@ class ApiBookingInspectorRepository
             ->where('type', 'add_passengers')
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
             ->first();
+    }
+
+    public static function getChangePassengers(string $bookingId, string $bookingItem): ApiBookingInspector
+    {
+        $changeQb = ApiBookingInspector::where('booking_id', $bookingId)
+            ->where('booking_item', $bookingItem)
+            ->where('type', 'change_passengers')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value);
+
+        if ($changeQb->exists()) {
+            return $changeQb->orderByDesc('created_at')->first();
+        }
+
+        return self::getPassengers($bookingId, $bookingItem);
     }
 
     public static function getItemsInCart(string $booking_id): ?object

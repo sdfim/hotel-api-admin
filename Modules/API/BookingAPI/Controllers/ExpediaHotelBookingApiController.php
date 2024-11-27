@@ -19,7 +19,7 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
     ) {
     }
 
-    public function addItem(array $filters): ?array
+    public function addItem(array $filters, string $type = 'add_item', array $headers = []): ?array
     {
         // step 1 Read Inspector, Get link 'price_check'
         $linkPriceCheck = SearchRepository::getLinkPriceCheck($filters);
@@ -30,13 +30,14 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
 
         $booking_id = $filters['booking_id'] ?? (string) Str::uuid();
 
+        if ($type === 'change') $filters['search_id'] = $filters['change_search_id'];
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
-            $booking_id, $filters, $supplierId, 'add_item', 'price_check', 'hotel',
+            $booking_id, $filters, $supplierId, $type, 'price_check', 'hotel',
         ]);
 
         try {
-            $response = $this->rapidClient->get($props['path'], $props['paramToken']);
+            $response = $this->rapidClient->get($props['path'], $props['paramToken'], $headers);
             $content = json_decode($response->getBody()->getContents(), true);
             $content['original']['response'] = $content;
             $content['original']['request']['params'] = $props['paramToken'];
@@ -44,7 +45,7 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
 
             SaveBookingInspector::dispatch($bookingInspector, $content, []);
         } catch (RequestException $e) {
-            Log::error('ExpediaHotelBookingApiHandler | addItem | price_check '.$e->getResponse()->getBody());
+            Log::error('ExpediaHotelBookingApiHandler | ' . $type . ' | price_check ' . $e->getResponse()->getBody());
             Log::error($e->getTraceAsString());
             $content = json_decode(''.$e->getResponse()->getBody());
 

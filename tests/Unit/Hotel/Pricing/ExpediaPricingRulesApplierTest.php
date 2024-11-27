@@ -6,6 +6,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Modules\API\PricingRules\Expedia\ExpediaPricingRulesApplier;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ExpediaPricingRulesApplierTest extends TestCase
 {
@@ -100,9 +101,6 @@ class ExpediaPricingRulesApplierTest extends TestCase
                 'price_value_target' => 'per_room',
                 'conditions' => [
                     ['field' => 'destination', 'compare' => '=', 'value_from' => 961, 'value_to' => null],
-                ],
-                'conditions_o_r' => [
-                    [],
                 ],
             ],
         ];

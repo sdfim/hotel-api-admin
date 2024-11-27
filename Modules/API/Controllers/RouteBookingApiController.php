@@ -18,6 +18,7 @@ use Modules\API\BookingAPI\BookingApiHandlers\FlightBookingApiHandler;
 use Modules\API\BookingAPI\BookingApiHandlers\HotelBookingApiHandler;
 use Modules\API\Requests\BookingAddItemHotelRequest;
 use Modules\API\Requests\BookingRemoveItemHotelRequest;
+use Modules\API\Suppliers\HbsiSupplier\HbsiService;
 use Modules\Enums\RouteBookingEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\Enums\TypeRequestEnum;
@@ -25,10 +26,14 @@ use Modules\Enums\TypeRequestEnum;
 class RouteBookingApiController extends Controller
 {
     private ?string $type;
-
     private ?string $supplier;
-
     private ?string $route;
+
+    public function __construct(
+        private readonly HotelBookingApiHandler  $hotelBookingApiHandler,
+        private readonly FlightBookingApiHandler $flightBookingApiHandler,
+        private readonly ComboBookingApiHandler $comboBookingApiHandler,
+    ) {}
 
     public function handle(Request $request): mixed
     {
@@ -47,9 +52,9 @@ class RouteBookingApiController extends Controller
         }
 
         $dataHandler = match (TypeRequestEnum::from($this->type)) {
-            TypeRequestEnum::HOTEL => new HotelBookingApiHandler(),
-            TypeRequestEnum::FLIGHT => new FlightBookingApiHandler(),
-            TypeRequestEnum::COMBO => new ComboBookingApiHandler(),
+            TypeRequestEnum::HOTEL => $this->hotelBookingApiHandler,
+            TypeRequestEnum::FLIGHT => $this->flightBookingApiHandler,
+            TypeRequestEnum::COMBO => $this->comboBookingApiHandler,
         };
 
         return match ($this->route) {

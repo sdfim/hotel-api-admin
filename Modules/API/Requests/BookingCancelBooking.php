@@ -10,7 +10,7 @@ class BookingCancelBooking extends ApiRequest
 {
     /**
      * @OA\Delete(
-     *   tags={"Booking API | Booking Endpoints"},
+     *   tags={"Booking API | Booking"},
      *   path="/api/booking/cancel-booking",
      *   summary="Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
      *   description="Cancel Booking",
