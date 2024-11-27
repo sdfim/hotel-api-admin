@@ -7,141 +7,116 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Tables;
+use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
 use Livewire\Features\SupportRedirects\Redirector;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
-use Modules\HotelContentRepository\Filament\CustomTextColumn;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\Vendor;
 
 class HotelTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
 
+    private ?Vendor $vendor = null;
+
+    public function mount(Hotel $hotel, ?Vendor $vendor): void
+    {
+        $this->vendor = $vendor;
+    }
+
     public function table(Table $table): Table
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(Hotel::with([
-                'affiliations',
-                'attributes',
-                'contentSource',
-                'roomImagesSource',
-                'propertyImagesSource',
-                'descriptiveContentsSection',
-                'feeTaxes',
-                'informativeServices',
-                'promotions',
-                'rooms',
-                'keyMappings',
-                'galleries',
-                'jobDescriptions',
-            ]))
+            ->query(function () {
+                $query = Hotel::query();
+                if ($this->vendor->exists ?? false) {
+                    $query->whereHas('product', function (Builder $query) {
+                        $query->where('vendor_id', $this->vendor->id);
+                    });
+                }
+                return $query;
+            })
             ->columns([
-                TextColumn::make('name')
-                    ->searchable(isIndividual: true)
+                BooleanColumn::make('product.verified')
+                    ->label('Verified')
+                    ->sortable()
+                    ->toggleable(),
+
+                TextColumn::make('product.name')
+                    ->label('Name')
+                    ->searchable()
                     ->toggleable()
                     ->sortable()
-                    ->wrap()
-                    ->tooltip(function ($record) {
-                        return implode("\n", [
-                            'Verified: ' . ($record->verified ? 'Yes' : 'No'),
-                            'Direct Connection: ' . ($record->direct_connection ? 'Yes' : 'No'),
-                            'Manual Contract: ' . ($record->manual_contract ? 'Yes' : 'No'),
-                            'Commission Tracking: ' . ($record->commission_tracking ? 'Yes' : 'No'),
-                            'Channel Management: ' . ($record->channel_management ? 'Yes' : 'No'),
-                        ]);
-                    }),
-                CustomTextColumn::make('type')
-                    ->searchable(isIndividual: true)
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('address')
-                    ->searchable(isIndividual: true)
+                    ->wrap(),
+
+                TextColumn::make('product.address')
+                    ->label('Address')
+                    ->searchable()
                     ->getStateUsing(function ($record) {
                         $string = '';
-                        foreach ($record->address as $key => $item)    {
+                        foreach ($record->address as $item) {
                             if (is_array($item)) continue;
-                            $string .= $key .  ': ' . $item . ', ';
+                            $string .= $item . ', ';
                         }
-                        return $string;
+                        return rtrim($string, ', ');
                     })
                     ->toggleable()
                     ->sortable(),
-                CustomTextColumn::make('star_rating')
-                    ->searchable(isIndividual: true)
+
+                TextColumn::make('star_rating')
+                    ->searchable()
                     ->toggleable()
                     ->sortable(),
-//                CustomTextColumn::make('website')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-                CustomTextColumn::make('num_rooms')
-                    ->searchable(isIndividual: true)
+
+                TextColumn::make('num_rooms')
+                    ->searchable()
                     ->toggleable()
                     ->sortable(),
-//                CustomTextColumn::make('featured')
-//                    ->searchable(isIndividual: true)
-//                    ->toggleable()
-//                    ->sortable(),
-                CustomTextColumn::make('location')
-                    ->searchable(isIndividual: true)
-                    ->getStateUsing(function ($record) {
-                        $string = '';
-                        foreach ($record->location as $key => $item)    {
-                            if (is_array($item)) continue;
-                            $string .= $key .  ': ' . $item . ', ';
-                        }
-                        return $string;
-                    })
-                    ->toggleable()
-                    ->sortable(),
-                CustomTextColumn::make('combined_sources')
+
+                TextColumn::make('combined_sources')
                     ->label('Combined Sources')
-                    ->searchable(isIndividual: true)
+                    ->searchable()
                     ->toggleable()
                     ->sortable()
                     ->default(function ($record) {
-                        return $record->contentSource->name . ' ' . $record->roomImagesSource->name . ' ' . $record->propertyImagesSource->name;
+                        return $record->product?->contentSource->name . ' '
+                            . $record->roomImagesSource->name . ' '
+                            . $record->product?->propertyImagesSource->name;
                     }),
-                TextColumn::make('galleries')
-                    ->label('Galleries')
-                    ->searchable(isIndividual: true)
-                    ->formatStateUsing(function ($state) {
-                        $items = explode(', ', $state);
-                        $string = '';
-                        foreach ($items as $item) {
-                            $dataItem = json_decode($item, true);
-                            if (is_null($dataItem)) {
-                                continue;
-                            }
-                            $string .= $dataItem['gallery_name'] . '</b><br>';
-                        }
-                        return $string;
-                    })
-                    ->html()
-                    ->wrap()
-                    ->toggleable()
-                    ->sortable(),
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->label('')
                     ->tooltip('View')
-                    ->url(fn (Hotel $record): string => route('hotel_repository.edit', $record))
-//                    ->visible(fn (Hotel $record) => Gate::allows('update', $record))
+                    ->url(fn (Hotel $record): string => route('hotel-repository.edit', $record))
+                    ->visible(fn (Hotel $record) => Gate::allows('update', $record))
                 ,
                 Tables\Actions\DeleteAction::make()
                     ->label('')
                     ->tooltip('Delete')
-                    ->visible(fn (Hotel $record): bool => Gate::allows('delete', $record)),
+                    ->visible(fn (Hotel $record): bool => Gate::allows('delete', $record))
+                    ->action(function (Hotel $record) {
+                        \DB::transaction(function () use ($record) {
+                            $record->product->delete();
+                            $record->delete();
+                        });
+                        Notification::make()
+                            ->title('Hotel deleted successfully')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
@@ -151,42 +126,8 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->iconButton()
-                    ->action(function ($data) {
-                        return $this->create($data);
-                    }),
+                    ->url(route('hotel-repository.create')),
             ]);
-    }
-
-    private function create($data): Redirector|RedirectResponse
-    {
-        $data['address'] = array_reduce($data['address'], function ($result, $item) {
-            $result[$item['field']] = $item['value'];
-            return $result;
-        }, []);
-
-        $data['location'] = array_reduce($data['location'], function ($result, $item) {
-            $result[$item['field']] = $item['value'];
-            return $result;
-        }, []);
-
-        $hotel = Hotel::create(Arr::only($data, [
-            'name', 'location', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking', 'address', 'star_rating', 'website', 'num_rooms', 'featured', 'content_source_id', 'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis', 'default_currency'
-        ]));
-
-        if (isset($data['jobDescriptions'])) {
-            $hotel->jobDescriptions()->sync($data['jobDescriptions']);
-        }
-
-        if (isset($data['galleries'])) {
-            $hotel->galleries()->sync($data['galleries']);
-        }
-
-        Notification::make()
-            ->title('Created successfully')
-            ->success()
-            ->send();
-
-        return redirect()->route('hotel_repository.index');
     }
 
     public function render(): View

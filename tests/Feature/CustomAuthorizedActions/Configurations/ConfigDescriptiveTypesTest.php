@@ -5,7 +5,7 @@ namespace Tests\Feature\CustomAuthorizedActions\Configurations;
 use App\Livewire\Configurations\DescriptiveTypes\DescriptiveTypesForm;
 use App\Livewire\Configurations\DescriptiveTypes\DescriptiveTypesTable;
 use App\Models\Configurations\ConfigDescriptiveType;
-use App\Models\Enums\DescriptiveLocation;
+use App\Models\Enums\DescriptiveLocationEnum;
 use Illuminate\Foundation\Testing\WithFaker;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\Test;
@@ -54,7 +54,7 @@ class ConfigDescriptiveTypesTest extends CustomAuthorizedActionsTestCase
         ]);
 
         $name = $this->faker->name;
-        $location = $this->faker->randomElement(DescriptiveLocation::cases());
+        $location = $this->faker->randomElement(DescriptiveLocationEnum::cases());
         $type = $this->faker->word;
         $description = $this->faker->sentence;
 
@@ -90,7 +90,7 @@ class ConfigDescriptiveTypesTest extends CustomAuthorizedActionsTestCase
         ]);
 
         $name = $this->faker->name;
-        $location = $this->faker->randomElement(DescriptiveLocation::cases());
+        $location = $this->faker->randomElement(DescriptiveLocationEnum::cases());
         $type = $this->faker->word;
         $description = $this->faker->sentence;
 

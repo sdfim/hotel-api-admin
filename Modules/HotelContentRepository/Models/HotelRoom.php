@@ -5,9 +5,11 @@ namespace Modules\HotelContentRepository\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelRoomFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class HotelRoom extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected static function newFactory()
@@ -19,7 +21,7 @@ class HotelRoom extends Model
 
     protected $fillable = [
         'hotel_id',
-        'hbs_data_mapped_name',
+        'hbsi_data_mapped_name',
         'name',
         'description',
     ];

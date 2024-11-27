@@ -6,14 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Models\KeyMappingOwner;
 use Modules\HotelContentRepository\API\Requests\KeyMappingOwnerRequest;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class KeyMappingOwnerController extends BaseController
 {
     public function index()
     {
-        $keyMappingOwners = KeyMappingOwner::all();
-        return $this->sendResponse($keyMappingOwners->toArray(), 'index success', Response::HTTP_OK);
+        $query = KeyMappingOwner::query();
+        $query = $this->filter($query, KeyMappingOwner::class);
+        $keyMappingOwners = $query->get();
+
+        return $this->sendResponse($keyMappingOwners->toArray(), 'index success');
     }
 
     public function store(KeyMappingOwnerRequest $request)
@@ -25,14 +28,14 @@ class KeyMappingOwnerController extends BaseController
     public function show($id)
     {
         $keyMappingOwner = KeyMappingOwner::findOrFail($id);
-        return $this->sendResponse($keyMappingOwner->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($keyMappingOwner->toArray(), 'show success');
     }
 
     public function update(KeyMappingOwnerRequest $request, $id)
     {
         $keyMappingOwner = KeyMappingOwner::findOrFail($id);
         $keyMappingOwner->update($request->validated());
-        return $this->sendResponse($keyMappingOwner->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($keyMappingOwner->toArray(), 'update success');
     }
 
     public function destroy($id)

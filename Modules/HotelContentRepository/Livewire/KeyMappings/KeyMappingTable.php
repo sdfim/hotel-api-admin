@@ -20,17 +20,18 @@ use Livewire\Component;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\KeyMapping;
 use Modules\HotelContentRepository\Models\KeyMappingOwner;
+use Modules\HotelContentRepository\Models\Product;
 
 class KeyMappingTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public int $hotelId;
+    public int $productId;
 
-    public function mount(int $hotelId)
+    public function mount(int $productId)
     {
-        $this->hotelId = $hotelId;
+        $this->productId = $productId;
     }
 
     public function form(Form $form): Form
@@ -41,11 +42,11 @@ class KeyMappingTable extends Component implements HasForms, HasTable
     public function schemeForm(): array
     {
         return [
-            Select::make('hotel_id')
-                ->label('Hotel')
-                ->options(Hotel::pluck('name', 'id'))
+            Select::make('product_id')
+                ->label('Product')
+                ->options(Product::pluck('name', 'id'))
+                ->disabled(fn () => $this->productId)
                 ->required(),
-            TextInput::make('name')->label('Name')->required(),
             Select::make('key_mapping_owner_id')
                 ->label('Key Mapping Owner')
                 ->options(KeyMappingOwner::pluck('name', 'id'))
@@ -58,10 +59,9 @@ class KeyMappingTable extends Component implements HasForms, HasTable
     {
         return $table
             ->query(
-                KeyMapping::with('keyMappingOwner')->where('hotel_id', $this->hotelId)
+                KeyMapping::with('keyMappingOwner')->where('product_id', $this->productId)
             )
             ->columns([
-                TextInputColumn::make('name')->label('Name')->searchable(),
                 TextInputColumn::make('key_id')->label('Key id')->searchable(),
                 TextColumn::make('keyMappingOwner.name')->label('Owner'),
                 TextColumn::make('created_at')->label('Created At')->date(),
@@ -79,7 +79,11 @@ class KeyMappingTable extends Component implements HasForms, HasTable
                 CreateAction::make()
                     ->form($this->schemeForm())
                     ->fillForm(function () {
-                        return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
+                        return $this->productId ? ['product_id' => $this->productId] : [];
+                    })
+                    ->action(function ($data) {
+                        if ($this->productId) $data['product_id'] = $this->productId;
+                        KeyMapping::create($data);
                     })
                     ->tooltip('Add New Mapping')
                     ->icon('heroicon-o-plus')
@@ -90,6 +94,6 @@ class KeyMappingTable extends Component implements HasForms, HasTable
 
     public function render()
     {
-        return view('livewire.hotels.key-mapping-table');
+        return view('livewire.products.key-mapping-table');
     }
 }

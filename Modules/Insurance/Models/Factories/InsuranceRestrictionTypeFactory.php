@@ -3,7 +3,7 @@
 namespace Modules\Insurance\Models\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Modules\Insurance\Models\Constants\RestrictionTypeNames;
+use Modules\Insurance\Models\Enums\RestrictionTypeNames;
 use Modules\Insurance\Models\InsuranceRestrictionType;
 
 class InsuranceRestrictionTypeFactory extends Factory
@@ -12,8 +12,10 @@ class InsuranceRestrictionTypeFactory extends Factory
 
     public function definition(): array
     {
+        $case = $this->faker->randomElement(RestrictionTypeNames::cases());
         return [
-            'name' => $this->faker->randomElement(RestrictionTypeNames::LIST),
+            'name' => strtolower($case->name),
+            'label' => $case->value,
         ];
     }
 }

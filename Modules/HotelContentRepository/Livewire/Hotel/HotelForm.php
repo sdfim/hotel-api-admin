@@ -2,11 +2,22 @@
 
 namespace Modules\HotelContentRepository\Livewire\Hotel;
 
+use App\Models\Channel;
 use App\Models\Configurations\ConfigJobDescription;
+use App\Models\Property;
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Tabs;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Livewire\Component;
+use Modules\Enums\HotelTypeEnum;
+use Modules\HotelContentRepository\Livewire\Components\CustomTab;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
 use Filament\Forms\Components\TextInput;
@@ -21,39 +32,72 @@ use Illuminate\Http\RedirectResponse;
 use Livewire\Features\SupportRedirects\Redirector;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
+use Cheesegrits\FilamentGoogleMaps\Fields\Map;
+use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
+use Modules\HotelContentRepository\Models\Vendor;
 
 class HotelForm extends Component implements HasForms
 {
     use InteractsWithForms;
 
     public ?array $data = [];
-
     public Hotel $record;
+    public bool $verified;
+    public $showDeleteConfirmation = false;
+
+    public function __construct()
+    {
+        $this->record = new Hotel();
+    }
 
     public function mount(Hotel $hotel): void
     {
-        $this->record = $hotel;
+        $this->record = $hotel->load('product');
+
+        $this->verified = $hotel->product->verified ?? false;
 
         $data = $this->record->toArray();
 
-        $data['address'] = [];
-        foreach ($this->record->address as $key => $value) {
-            $data['address'][] = [
-                'field' => $key,
-                'value' => $value
-            ];
+        if ($this->record->address) {
+            foreach ($this->record->address as $key => $value) {
+                $data['addressArr'][$key] = $value;
+            }
+        } else {
+            $data['addressArr'] = [];
         }
-        $data['location'] = [];
-        foreach ($this->record->location as $key => $value) {
-            $data['location'][] = [
-                'field' => $key,
-                'value' => $value
-            ];
-        }
-        $data['galleries'] = $this->record->galleries->pluck('id')->toArray();
-        $data['jobDescriptions'] = $this->record->jobDescriptions->pluck('id')->toArray();
+
+        $data['galleries'] = $this->record->product ? $this->record->product->galleries->pluck('id')->toArray() : [];
+        $data['channels'] = $this->record->product ? $this->record->product->channels->pluck('id')->toArray() : [];
 
         $this->form->fill($data);
+    }
+
+    public function toggleVerified()
+    {
+        $this->verified = !$this->verified;
+        $this->record->product->update(['verified' => $this->verified]);
+    }
+
+    public function confirmDeleteHotel()
+    {
+        $this->showDeleteConfirmation = true;
+    }
+
+    public function deleteHotel()
+    {
+        \DB::transaction(function () {
+            $this->record->product->delete();
+            $this->record->delete();
+        });
+
+        Notification::make()
+            ->title('Hotel deleted successfully')
+            ->success()
+            ->send();
+
+        $this->showDeleteConfirmation = false;
+
+        return redirect()->route('hotel-repository.index');
     }
 
     public function form(Form $form): Form
@@ -70,128 +114,241 @@ class HotelForm extends Component implements HasForms
             Tabs::make('Hotel Details')
                 ->columns(1)
                 ->tabs([
-                    // Tab 1
-                    Tabs\Tab::make('General Information')
+                    // Tab 1: Product
+                    CustomTab::make('Product')
+                        ->id('product')
                         ->schema([
-                            TextInput::make('name')->required()->maxLength(191),
-                            TextInput::make('type')->required()->maxLength(191),
-                            CustomRepeater::make('address')
+                            Select::make('product.vendor_id')
+                                ->label('Vendor Name')
+                                ->options(Vendor::pluck('name', 'id')->toArray())
+                                ->disabled(fn () => $this->record->exists)
+                                ->dehydrated()
+                                ->required(),
+                            Grid::make(2)
                                 ->schema([
-                                    Select::make('field')
-                                        ->label('')
+                                    TextInput::make('product.name')->required()->label('Product Name')->maxLength(191),
+                                    Select::make('sale_type')
+                                        ->label('Type')
                                         ->options([
-                                        'city' => 'City',
-                                        'line_1' => 'Line 1',
-                                        'postal_code' => 'Postal Code',
-                                        'country_code' => 'Country Code',
-                                        'state_province_code' => 'State Province Code',
-                                        'state_province_name' => 'State Province Name',
-                                        'obfuscation_required' => 'Obfuscation Required',
-                                    ])->required(),
-                                    TextInput::make('value')
-                                        ->label(''),
+                                            HotelTypeEnum::DIRECT_CONNECTION->value => HotelTypeEnum::DIRECT_CONNECTION->value,
+                                            HotelTypeEnum::MANUAL_CONTRACT->value => HotelTypeEnum::MANUAL_CONTRACT->value,
+                                            HotelTypeEnum::COMMISSION_TRACKING->value => HotelTypeEnum::COMMISSION_TRACKING->value,
+                                        ])->required(),
+                                    TextInput::make('star_rating')->required()->numeric()->label('Star Rating'),
+                                    TextInput::make('num_rooms')->required()->numeric()->label('Number of Rooms'),
+                                    TextInput::make('hotel_board_basis')->label('Hotel Board Basis'),
+                                    TextInput::make('product.website')->url()->label('Website')->maxLength(191),
+                                ])
+                        ])
+                        ->columns(1),
 
-                                ])
-                                ->defaultItems(1)
-                                ->required()
-                                ->afterStateHydrated(function ($component, $state) {
-                                    $component->state($state ?? []);
-                                })
-                                ->beforeStateDehydrated(function ($state) {
-                                    return json_encode($state);
-                                })->columns(2),
-                            CustomRepeater::make('location')
+                    // Tab 2: Location
+                    CustomTab::make('Location')
+                        ->id('location')
+                        ->schema([
+                            Grid::make(2)
                                 ->schema([
-                                    Select::make('field')
+                                    TextInput::make('addressArr.city')
+                                        ->label('City'),
+                                    TextInput::make('addressArr.line_1')
+                                        ->label('Line 1'),
+//                                    TextInput::make('addressArr.postal_code')
+//                                        ->label('Postal Code'),
+                                    TextInput::make('addressArr.country_code')
+                                        ->label('Country Code'),
+//                                    TextInput::make('addressArr.state_province_code')
+//                                        ->label('State Province Code'),
+                                    TextInput::make('addressArr.state_province_name')
+                                        ->label('State Province Name'),
+                                    Checkbox::make('addressArr.obfuscation_required')
+                                        ->label('Obfuscation Required'),
+                                ]),
+
+                            Grid::make(2)
+                                ->schema([
+                                    Grid::make(1)
+                                        ->schema([
+                                        TextInput::make('full_address')
+                                            ->label('Get location by address'),
+                                        TextInput::make('product.lat')->label('Latitude')->required()->numeric(),
+                                        TextInput::make('product.lng')->label('Longitude')->required()->numeric(),
+                                    ])->columnSpan(1),
+                                    Map::make('product.location')
                                         ->label('')
-                                        ->options([
-                                        'latitude' => 'Latitude',
-                                        'longitude' => 'Longitude',
-                                    ])->required(),
-                                    TextInput::make('value')
-                                        ->label('')
-                                        ->numeric('decimal'),
-                                ])
-                                ->defaultItems(1)
+                                        ->reactive()
+                                        ->afterStateUpdated(function ($state, callable $get, callable $set) {
+                                            $set('product.lat', $state['lat']);
+                                            $set('product.lng', $state['lng']);
+                                        })
+                                        ->height(fn () => '170px')
+                                        ->defaultZoom(17)
+                                        ->autocomplete('full_address')
+                                        ->autocompleteReverse(true)
+                                        ->reverseGeocode([
+                                            'street' => '%n %S',
+                                            'city' => '%L',
+                                            'state' => '%A1',
+                                            'zip' => '%z',
+                                        ])
+                                        ->defaultLocation(fn () => [$this->data['product']['lat'] ?? 39.526610, $this->data['product']['lng'] ?? -107.727261])
+                                        ->draggable()
+                                        ->clickable(false)
+                                        ->geolocate()
+                                        ->geolocateLabel('Get Location')
+                                        ->geolocateOnLoad(true, false)
+                                        ->columnSpan(1),
+                                ]),
+                        ])
+                        ->columns(1),
+
+                    // Tab 3: Data Sources
+                    CustomTab::make('Data Sources')
+                        ->id('data-sources')
+                        ->schema([
+                            Select::make('product.content_source_id')
+                                ->label('Content Source')
+                                ->options(ContentSource::pluck('name', 'id'))
+                                ->required(),
+                            Select::make('room_images_source_id')
+                                ->label('Room Images Source')
+                                ->options(ContentSource::pluck('name', 'id'))
+                                ->required(),
+                            Select::make('product.property_images_source_id')
+                                ->label('Property Images Source')
+                                ->options(ContentSource::pluck('name', 'id'))
+                                ->required(),
+                            Select::make('product.default_currency')
+                                ->label('Default Currency')
                                 ->required()
-                                ->afterStateHydrated(function ($component, $state) {
-                                    $component->state($state ?? []);
-                                })
-                                ->beforeStateDehydrated(function ($state) {
-                                    return json_encode($state);
-                                })
-                                ->columns(2),
+                                ->options([
+                                    'USD' => 'USD',
+                                    'EUR' => 'EUR',
+                                    'GBP' => 'GBP',
+                                    'JPY' => 'JPY',
+                                    'AUD' => 'AUD',
+                                    'CAD' => 'CAD',
+                                    'CHF' => 'CHF',
+                                    'CNY' => 'CNY',
+                                    'SEK' => 'SEK',
+                                    'NZD' => 'NZD',
+                                ]),
+                            TextInput::make('weight')->label('Weight')
+                                ->integer(),
+                            TextInput::make('travel_agent_commission')
+                                ->label('Travel Agent Commission')
+                                ->numeric('decimal'),
+                            Select::make('channels')
+                                ->label('Channels')
+                                ->multiple()
+                                ->options(Channel::pluck('name', 'id')),
                             Select::make('galleries')
                                 ->label('Galleries')
                                 ->multiple()
-                                ->options(function () {
-                                    return isset($this->record)
-                                        ? ImageGallery::hasHotel($this->record->id)->pluck('gallery_name', 'id')
-                                        : ImageGallery::pluck('gallery_name', 'id');
-                                }),
-                            Select::make('jobDescriptions')
-                                ->label('Job Descriptions')
-                                ->multiple()
-                                ->options(ConfigJobDescription::pluck('name', 'id')),
+                                ->options(ImageGallery::pluck('gallery_name', 'id')),
+
                         ])
                         ->columns(2),
-
-
-                    // Tab 2
-                    Tabs\Tab::make('Verification & Sources')
-                        ->schema([
-                            Select::make('content_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
-                            Select::make('room_images_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
-                            Select::make('property_images_source_id')->options(ContentSource::pluck('name', 'id'))->required(),
-                            Checkbox::make('verified'),
-                            Checkbox::make('direct_connection'),
-                            Checkbox::make('manual_contract'),
-                            Checkbox::make('commission_tracking'),
-                            Checkbox::make('featured'),
-                        ])
-                        ->columns(3),
-
-                    // Tab 3
-                    Tabs\Tab::make('Details & Management')
-                        ->schema([
-                            TextInput::make('star_rating')->required()->numeric(),
-                            TextInput::make('website')->url()->maxLength(191),
-                            TextInput::make('num_rooms')->required()->numeric(),
-                            TextInput::make('channel_management')->required(),
-                            TextInput::make('hotel_board_basis'),
-                            TextInput::make('default_currency')->required()->maxLength(3),
-                        ])
-                        ->columns(2),
-                ])
+                ]),
+            Actions::make([
+                Action::make('save')
+                    ->label(strtoupper($this->record->product ? 'Update Changes' : 'Save Changes'))
+                    ->action($this->record->product ? 'edit' : 'create')
+                    ->extraAttributes([
+                        'class' => 'save-button',
+                    ]),
+            ]),
         ];
+    }
+
+    public function create(): Redirector|RedirectResponse
+    {
+        $data = $this->form->getState();
+
+        $data['address'] = $data['addressArr'];
+
+        $hotel = Hotel::create(Arr::only($data, [
+            'weight',
+            'sale_type',
+            'address',
+            'star_rating',
+            'num_rooms',
+            'room_images_source_id',
+            'hotel_board_basis',
+            'travel_agent_commission'
+        ]));
+
+        $data['product']['product_type'] = 'hotel';
+        $data['product']['verified'] = false;
+
+        $hotel->product()->create(Arr::only($data['product'], [
+            'vendor_id',
+            'product_type',
+            'name',
+            'verified',
+            'lat',
+            'lng',
+            'content_source_id',
+            'property_images_source_id',
+            'default_currency',
+            'website'
+        ]));
+
+        if (isset($data['galleries'])) {
+            $hotel->product->galleries()->sync($data['galleries']);
+        }
+
+        if (isset($data['channels'])) {
+            $hotel->product->channels()->sync($data['channels']);
+        }
+
+        Notification::make()
+            ->title('Created successfully')
+            ->success()
+            ->send();
+
+        return redirect()->route('hotel-repository.index');
     }
 
     public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
 
-        $data['address'] = array_reduce($data['address'], function ($result, $item) {
-            $result[$item['field']] = $item['value'];
-            return $result;
-        }, []);
+        if (!isset($data['product']['verified'])) {
+            $data['verified'] = false;
+        }
 
-        $data['location'] = array_reduce($data['location'], function ($result, $item) {
-            $result[$item['field']] = $item['value'];
-            return $result;
-        }, []);
+        $data['address'] = $data['addressArr'];
 
         $hotel = Hotel::find($this->record->id);
 
-        $hotel->update(Arr::only($data, [
-            'name', 'location', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking', 'address', 'star_rating', 'website', 'num_rooms', 'featured', 'content_source_id', 'room_images_source_id', 'property_images_source_id', 'channel_management', 'hotel_board_basis', 'default_currency'
+        $hotel->product->update(Arr::only($data['product'], [
+            'name',
+            'verified',
+            'lat',
+            'lng',
+            'content_source_id',
+            'property_images_source_id',
+            'default_currency',
+            'website'
         ]));
 
-        if (isset($data['jobDescriptions'])) {
-            $hotel->jobDescriptions()->sync($data['jobDescriptions']);
-        }
+        $hotel->update(Arr::only($data, [
+            'weight',
+            'sale_type',
+            'address',
+            'star_rating',
+            'num_rooms',
+            'room_images_source_id',
+            'hotel_board_basis',
+            'travel_agent_commission'
+        ]));
 
         if (isset($data['galleries'])) {
-            $hotel->galleries()->sync($data['galleries']);
+            $hotel->product->galleries()->sync($data['galleries']);
+        }
+
+        if (isset($data['channels'])) {
+            $hotel->product->channels()->sync($data['channels']);
         }
 
         Notification::make()
@@ -199,7 +356,7 @@ class HotelForm extends Component implements HasForms
             ->success()
             ->send();
 
-        return redirect()->route('hotel_repository.index');
+        return redirect()->route('hotel-repository.index');
     }
 
     public function render()

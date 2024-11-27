@@ -13,7 +13,7 @@ return new class extends Migration
             $table->id();
             $table->integer('giata_id');
             $table->enum('supplier', [MappingSuppliersEnum::Expedia->value, MappingSuppliersEnum::HBSI->value, MappingSuppliersEnum::IcePortal->value]);
-            $table->string('supplier_id', 255);
+            $table->string('supplier_id');
             $table->integer('match_percentage')->default(100); // Nuevo campo agregado
             $table->timestamps();
 

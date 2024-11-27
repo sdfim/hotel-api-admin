@@ -2,7 +2,7 @@
 
 namespace App\Policies\Configurations;
 
-use App\Policies\BasePolicy;
+use App\Policies\Base\BasePolicy;
 
 class ConfigServiceTypePolicy extends BasePolicy
 {

@@ -3,12 +3,15 @@
 namespace Tests\Feature\BaseAuthorizedActions;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use JsonException;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PasswordConfirmationTest extends TestCase
 {
+    use RefreshDatabase;
+
     #[Test]
     public function test_confirm_password_screen_can_be_rendered(): void
     {

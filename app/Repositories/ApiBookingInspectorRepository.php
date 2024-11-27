@@ -5,12 +5,12 @@ namespace App\Repositories;
 use App\Models\ApiBookingInspector;
 use App\Models\ApiBookingItem;
 use App\Models\ApiBookingsMetadata;
+use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\Controllers\ApiHandlers\HotelApiHandler;
 use Modules\Enums\InspectorStatusEnum;
 use Modules\Enums\ItemTypeEnum;
-use Modules\Enums\SupplierNameEnum;
 
 class ApiBookingInspectorRepository
 {
@@ -262,6 +262,70 @@ class ApiBookingInspectorRepository
             ->first();
     }
 
+    public static function hasAttachService(string $booking_item, array $service): bool
+    {
+        $inspector = ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'service_attach')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->get();
+
+        foreach ($inspector as $item) {
+            $addons_meta = $item->addons_meta;
+            if ($addons_meta['type'] === 'informational_services') {
+                foreach ($addons_meta['attributes'] as $attribute) {
+                    if ($attribute['id'] === $service['id'] && $attribute['message'] === 'The service is attached') {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static function hasDetachService(string $booking_item, array $service): bool
+    {
+        $inspector = ApiBookingInspector::where('booking_item', $booking_item)
+            ->where('type', 'service_detach')
+            ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->get();
+
+        foreach ($inspector as $item) {
+            $addons_meta = $item->addons_meta;
+            if ($addons_meta['type'] === 'informational_services') {
+                foreach ($addons_meta['attributes'] as $attribute) {
+                    if ($attribute['id'] === $service['id'] && $attribute['message'] === 'The service is detached') {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public static function getParams($request, $bookingItem = null): array
+    {
+        $bookingItem = $bookingItem ?? $request->input('booking_item');
+        $apiBookingInspectorItem = ApiBookingInspectorRepository::isBookingItemInCart($bookingItem);
+
+        if (!$apiBookingInspectorItem) {
+            return [];
+        }
+
+        $searchId = $apiBookingInspectorItem->search_id;
+        $apiSearchInspectorItem = ApiSearchInspectorRepository::getRequest($searchId);
+
+        $bookingId = $apiBookingInspectorItem->booking_id;
+
+        $filters = $request->all();
+        $filters['search_id'] = $apiBookingInspectorItem->search_id;
+
+        $supplierId = Supplier::where('name', (string)$apiSearchInspectorItem['supplier'])->first()->id;
+
+        return [$bookingId, $filters, $supplierId, $apiBookingInspectorItem];
+    }
+
     public static function newBookingInspector(array $input): array
     {
         /**
@@ -296,5 +360,13 @@ class ApiBookingInspectorRepository
         \Log::info('Created ApiBookingInspector:', ['inspector' => $inspector]);
 
         return $inspector->toArray();
+    }
+
+    public static function isBookingItemInCart(string $bookingItem): ?ApiBookingInspector
+    {
+       return ApiBookingInspector::where('type', 'add_item')
+            ->where('booking_item', $bookingItem)
+            ->where('status', 'success')
+            ->first();
     }
 }

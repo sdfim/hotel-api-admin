@@ -1,7 +1,7 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "UJV API Documentation",
+        "title": "UJV Main API Documentation",
         "version": "1.0.0"
     },
     "paths": {
@@ -92,7 +92,7 @@
                 ],
                 "summary": "Add passengers to a booking.",
                 "description": "Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
-                "operationId": "7bbd39b60ea42e577149dab75217975a",
+                "operationId": "816d80d69f1e966daa5c3d8d615d980e",
                 "parameters": [
                     {
                         "name": "booking_id",
@@ -181,7 +181,7 @@
                 ],
                 "summary": "Create a new booking for a service or event",
                 "description": "Create a new booking for a service or event. Use this endpoint to make reservations.",
-                "operationId": "0b05c32e851f2e355e72133b5aa5ea65",
+                "operationId": "3e18d455bd4fbc66bf6b9163e216e737",
                 "parameters": [
                     {
                         "name": "booking_id",
@@ -273,7 +273,7 @@
                 ],
                 "summary": "Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
                 "description": "Cancel Booking",
-                "operationId": "b41f95a559111d9d53b32317d34c8731",
+                "operationId": "296211f80976d5cd5344388f85dc5125",
                 "parameters": [
                     {
                         "name": "booking_id",
@@ -350,7 +350,7 @@
                 ],
                 "summary": "Modify an existing booking..",
                 "description": "Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
-                "operationId": "297d97dc1cc9f52514801a143a9f96dd",
+                "operationId": "a32322836d590521f2f70e850b014e37",
                 "parameters": [
                     {
                         "name": "booking_id",
@@ -442,7 +442,7 @@
                 ],
                 "summary": "Add an item to your shopping cart.",
                 "description": "Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
-                "operationId": "e78fc121d3a661be43695d11920bb43a",
+                "operationId": "d60b8ea3c1d2e6b278cf30c73a0c5721",
                 "parameters": [
                     {
                         "name": "booking_item",
@@ -519,7 +519,7 @@
                 ],
                 "summary": "Retrieve a list of items currently in your shopping cart.",
                 "description": "Retrieve a list of items currently in your shopping cart. This endpoint provides details about the items added to your cart.",
-                "operationId": "04fae9d9292f71e48fa23bc1951877bf",
+                "operationId": "a99f3ae37e5b798cb6b7daa34aa3192a",
                 "parameters": [
                     {
                         "name": "booking_id",
@@ -593,7 +593,7 @@
                 ],
                 "summary": "Retrieve detailed information about a specific booking reservation. ",
                 "description": "Retrieve detailed information about a specific booking reservation. This endpoint allows you to access all the information related to a particular reservation.",
-                "operationId": "e662656506f2253c8ac2dea57557580a",
+                "operationId": "94d7ccbcf920e1e24a335ae1170cd2b4",
                 "parameters": [
                     {
                         "name": "booking_id",
@@ -667,7 +667,7 @@
                 ],
                 "summary": "Get list of destinations",
                 "description": "Get list valid value of places/destinations by city name, can be used for autocomplete, min 3 characters<br> The Response results (places/destinations) can be used as valid values on endpoints:<br>     *      <b>api/pricing/search<br>\n     *      api/pricing/search</b>",
-                "operationId": "2ca225ec678afa1d3836278f1306ec0e",
+                "operationId": "b380644e3fdd809171c352854531ada5",
                 "parameters": [
                     {
                         "name": "q",
@@ -677,20 +677,6 @@
                         "schema": {
                             "type": "string",
                             "example": "Eiffel"
-                        }
-                    },
-                    {
-                        "name": "strategy",
-                        "in": "query",
-                        "description": "Select the strategy to get search suggestions.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "default": "Default",
-                            "enum": [
-                                "Default",
-                                "Google"
-                            ]
                         }
                     },
                     {
@@ -704,6 +690,20 @@
                             "enum": [
                                 0,
                                 1
+                            ]
+                        }
+                    },
+                    {
+                        "name": "strategy",
+                        "in": "query",
+                        "description": "Define strategy for the search suggestions.",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "Default",
+                            "enum": [
+                                "Default",
+                                "Google"
                             ]
                         }
                     }
@@ -781,7 +781,7 @@
                 ],
                 "summary": "Delail Hotels",
                 "description": "Get detailed information about a hotel.",
-                "operationId": "1ba0bb8432daf31169f55ab7caf62d90",
+                "operationId": "c7718dfc2635bfd6ebd1c9c9f93baf27",
                 "parameters": [
                     {
                         "name": "type",
@@ -865,7 +865,7 @@
                 ],
                 "summary": "Retrieve a list of all your booking reservations. ",
                 "description": "Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
-                "operationId": "ce9030874fb328ec0a24d2f89abe3d19",
+                "operationId": "88beee7f3ae11bff635fc9eb4810163f",
                 "parameters": [
                     {
                         "name": "type",
@@ -937,7 +937,7 @@
                 ],
                 "summary": "Search Price Hotels",
                 "description": "Pricing Search for hotels by places/destination or coordinates.<br> The '<b>place</b>' value should be used from the endpoint api/content/destinations",
-                "operationId": "6c2100979dfc6df04a75ba16922b7c26",
+                "operationId": "2f57ca4668baddabfd7af88dafa08917",
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
                     "required": true,
@@ -1033,7 +1033,7 @@
                 ],
                 "summary": "Search Hotels",
                 "description": "Content Search for hotels by places/destination or coordinates.<br> The '<b>place</b>' value should be used from the endpoint api/content/destinations",
-                "operationId": "60be1a957d2359e84e31d23f82da3c42",
+                "operationId": "6c198c76b706b834eb3a0182cc8b0af5",
                 "requestBody": {
                     "description": "JSON object containing the details of the reservation.",
                     "required": true,
@@ -1114,6 +1114,522 @@
                                     "UnAuthenticatedResponse": {
                                         "$ref": "#/components/examples/UnAuthenticatedResponse"
                                     }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/informative-service/attach": {
+            "post": {
+                "tags": [
+                    "Booking API | Insurance and Informational Services"
+                ],
+                "summary": "Attach informative services",
+                "description": "Attach informative services to a booking item.",
+                "operationId": "aad10ae233f67be9d7828e130484228e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "booking_item",
+                                    "services"
+                                ],
+                                "properties": {
+                                    "booking_item": {
+                                        "type": "string",
+                                        "example": "123e4567-e89b-12d3-a456-426614174001"
+                                    },
+                                    "services": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "service_id",
+                                                "cost"
+                                            ],
+                                            "properties": {
+                                                "service_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "cost": {
+                                                    "type": "number",
+                                                    "format": "float",
+                                                    "example": 100
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "examples": {
+                                "example1": {
+                                    "summary": "Example with service_id",
+                                    "value": {
+                                        "booking_item": "123e4567-e89b-12d3-a456-426614174001",
+                                        "services": [
+                                            {
+                                                "service_id": 1,
+                                                "cost": 100
+                                            }
+                                        ]
+                                    }
+                                },
+                                "example2": {
+                                    "summary": "Example with service_name",
+                                    "value": {
+                                        "booking_item": "123e4567-e89b-12d3-a456-426614174001",
+                                        "services": [
+                                            {
+                                                "service_name": "ServiceName",
+                                                "cost": 100
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Services attached successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/informative-service/detach": {
+            "delete": {
+                "tags": [
+                    "Booking API | Insurance and Informational Services"
+                ],
+                "summary": "Detach informative services",
+                "description": "Detach informative services from a booking item.",
+                "operationId": "b2a822bd7cf90521433cf1835fd1d2a3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "booking_item",
+                                    "services"
+                                ],
+                                "properties": {
+                                    "booking_item": {
+                                        "type": "string",
+                                        "example": "123e4567-e89b-12d3-a456-426614174001"
+                                    },
+                                    "services": {
+                                        "type": "array",
+                                        "items": {
+                                            "required": [
+                                                "service_id"
+                                            ],
+                                            "properties": {
+                                                "service_id": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "examples": {
+                                "example1": {
+                                    "summary": "Example with service_id",
+                                    "value": {
+                                        "booking_item": "123e4567-e89b-12d3-a456-426614174001",
+                                        "services": [
+                                            {
+                                                "service_id": 1
+                                            }
+                                        ]
+                                    }
+                                },
+                                "example2": {
+                                    "summary": "Example with service_name",
+                                    "value": {
+                                        "booking_item": "123e4567-e89b-12d3-a456-426614174001",
+                                        "services": [
+                                            {
+                                                "service_name": "ServiceName"
+                                            }
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Services detached successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/informative-service/retrieve": {
+            "get": {
+                "tags": [
+                    "Booking API | Insurance and Informational Services"
+                ],
+                "summary": "Retrieve informative services",
+                "description": "Retrieve informative services for a booking item.",
+                "operationId": "a60febc0bc2e92520544f5afdcccc416",
+                "parameters": [
+                    {
+                        "name": "booking_item",
+                        "in": "query",
+                        "description": "Booking Item",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "123e4567-e89b-12d3-a456-426614174001"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Services retrieved successfully"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/insurance/add": {
+            "post": {
+                "tags": [
+                    "Booking API | Insurance and Informational Services"
+                ],
+                "summary": "Add a new insurance plan",
+                "description": "Create a new insurance plan for a booking item.",
+                "operationId": "7cfdd5f3f630f65f4db6de15ca4faff4",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "insurance_provider"
+                                ],
+                                "properties": {
+                                    "booking_id": {
+                                        "type": "string",
+                                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                                    },
+                                    "booking_item": {
+                                        "type": "string",
+                                        "example": "123e4567-e89b-12d3-a456-426614174001"
+                                    },
+                                    "insurance_provider": {
+                                        "type": "string",
+                                        "example": "TripMate"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "examples": {
+                                "example1": {
+                                    "summary": "Example with booking_id",
+                                    "value": {
+                                        "booking_id": "123e4567-e89b-12d3-a456-426614174000",
+                                        "insurance_provider": "TripMate"
+                                    }
+                                },
+                                "example2": {
+                                    "summary": "Example with booking_item",
+                                    "value": {
+                                        "booking_item": "123e4567-e89b-12d3-a456-426614174001",
+                                        "insurance_provider": "TripMate"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/insurance/delete": {
+            "delete": {
+                "tags": [
+                    "Booking API | Insurance and Informational Services"
+                ],
+                "summary": "Delete an insurance plan",
+                "description": "Delete an existing insurance plan for a booking item.",
+                "operationId": "79b6046871a5048f044a0435291bf43b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "insurance_provider"
+                                ],
+                                "properties": {
+                                    "booking_id": {
+                                        "type": "string",
+                                        "example": "123e4567-e89b-12d3-a456-426614174000"
+                                    },
+                                    "booking_item": {
+                                        "type": "string",
+                                        "example": "123e4567-e89b-12d3-a456-426614174001"
+                                    },
+                                    "insurance_provider": {
+                                        "type": "string",
+                                        "example": "TripMate"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "examples": {
+                                "example1": {
+                                    "summary": "Example with booking_id",
+                                    "value": {
+                                        "booking_id": "123e4567-e89b-12d3-a456-426614174000",
+                                        "insurance_provider": "TripMate"
+                                    }
+                                },
+                                "example2": {
+                                    "summary": "Example with booking_item",
+                                    "value": {
+                                        "booking_item": "123e4567-e89b-12d3-a456-426614174001",
+                                        "insurance_provider": "TripMate"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/insurance/retrieve": {
+            "get": {
+                "tags": [
+                    "Booking API | Insurance and Informational Services"
+                ],
+                "summary": "Retrieve insurance plans",
+                "description": "Retrieve insurance plans for a booking item or booking ID.",
+                "operationId": "3e7a4cb80e4f64ef27334d8a0ba788ef",
+                "parameters": [
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "Booking ID",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    },
+                    {
+                        "name": "booking_item",
+                        "in": "query",
+                        "description": "Booking Item",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "123e4567-e89b-12d3-a456-426614174001"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
                                 }
                             }
                         }
@@ -1674,7 +2190,7 @@
                                         "example": "Sheraton New York Times Square Hotel (60295986)"
                                     },
                                     "rooms": {
-                                        "description": "Rooms",
+                                        "description": "Hotel | Rooms",
                                         "properties": {
                                             "room_name": {
                                                 "description": "Room Name (e.g., 'Superior Room, 2 Double Beds, Non Smoking (High Floor)').",
@@ -2450,6 +2966,18 @@
                         "description": "Message (e.g., 'success').",
                         "type": "string",
                         "example": "success"
+                    }
+                },
+                "type": "object"
+            },
+            "NotFoundResponse": {
+                "required": [
+                    "message"
+                ],
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "Resource not found"
                     }
                 },
                 "type": "object"
@@ -4183,6 +4711,12 @@
                         ]
                     },
                     "message": "success"
+                }
+            },
+            "NotFoundResponse": {
+                "summary": "Example of NotFoundResponse",
+                "value": {
+                    "message": "Resource not found"
                 }
             },
             "UnAuthenticatedResponse": {
@@ -6807,13 +7341,9 @@
                 "summary": "Pricing Search Cancun, country MX, airport CUN using Place",
                 "value": {
                     "type": "hotel",
-                    "checkin": "2025-03-11",
-                    "checkout": "2025-03-20",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
                     "place": "4b2afe6684dd81a6f73527468e05e7a6",
-                    "location": {
-                        "latitude": "21.035333192",
-                        "longitude": "-86.872829842"
-                    },
                     "rating": 4.5,
                     "occupancy": [
                         {
@@ -6823,7 +7353,6 @@
                             ]
                         }
                     ],
-                    "supplier": "HBSI",
                     "page": 1,
                     "results_per_page": 10
                 }
@@ -6832,20 +7361,15 @@
                 "summary": "Pricing Search Eiffel Tower (Paris) using Place",
                 "value": {
                     "type": "hotel",
-                    "checkin": "2025-03-11",
-                    "checkout": "2025-03-20",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
                     "place": "9bb07983384eb956ae88e154b99b51a1",
-                    "location": {
-                        "latitude": "21.035333192",
-                        "longitude": "-86.872829842"
-                    },
                     "rating": 4.5,
                     "occupancy": [
                         {
                             "adults": 2
                         }
                     ],
-                    "supplier": "HBSI",
                     "page": 1,
                     "results_per_page": 20
                 }
@@ -7573,6 +8097,10 @@
         {
             "name": "Booking API | Cart Endpoints",
             "description": "API Endpoints of Cart (pre-reservation)"
+        },
+        {
+            "name": "Booking API | Insurance and Informational Services",
+            "description": "API Endpoints for Insurance and Informational Services"
         },
         {
             "name": "Booking API | Booking Endpoints",

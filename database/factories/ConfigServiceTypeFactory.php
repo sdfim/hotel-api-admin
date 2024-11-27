@@ -12,9 +12,15 @@ class ConfigServiceTypeFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->word(),
+            'name' => $this->faker->randomElement([
+                'Room Service',
+                'Laundry Service',
+                'Concierge Service',
+                'Shuttle Service',
+                'Babysitting Service'
+            ]),
             'description' => $this->faker->sentence(),
-            'cost' => $this->faker->randomFloat(2, 0, 1000),
+            'cost' => $this->faker->randomFloat(2, 10, 100), // Adding cost attribute
         ];
     }
 }

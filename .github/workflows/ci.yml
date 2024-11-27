@@ -16,12 +16,15 @@ jobs:
       DB_ROOT_USER: root
       DB_ROOT_PASSWORD: mysqlpasswdroot
       DB_DATABASE_HOST: mysql
-      DB_DATABASE_1: ujv
-      DB_DATABASE_2: ujv_api
+      DB_DATABASE: tests_obe
+      SUPPLIER_CONTENT_DB_DATABASE: tests_obe_content
       DB_DATABASE_USER: admin
       BOOKING_SUPPLIER_HBSI_USERNAME: ${{ secrets.BOOKING_SUPPLIER_HBSI_USERNAME }}
       BOOKING_SUPPLIER_HBSI_PASSWORD: ${{ secrets.BOOKING_SUPPLIER_HBSI_PASSWORD }}
       BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID: ${{ secrets.BOOKING_SUPPLIER_HBSI_CHANNEL_IDENTIFIER_ID }}
+      BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL: ${{ secrets.BOOKING_SUPPLIER_HBSI_SEARCH_BOOK_URL }}
+      BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID: ${{ secrets.BOOKING_SUPPLIER_HBSI_COMPONENT_INFO_ID }}
+      BOOKING_SUPPLIER_HBSI_TARGET: ${{ secrets.BOOKING_SUPPLIER_HBSI_TARGET }}
       SUPPLIER_EXPEDIA_API_KEY: ${{ secrets.SUPPLIER_EXPEDIA_API_KEY }}
       SUPPLIER_EXPEDIA_SHARED_SECRET: ${{ secrets.SUPPLIER_EXPEDIA_SHARED_SECRET }}
       SUPPLIER_EXPEDIA_BASE_URL: ${{ secrets.SUPPLIER_EXPEDIA_BASE_URL }}
@@ -29,6 +32,7 @@ jobs:
       SUPPLIER_ICE_PORTAL_CLIENT_SECRET: ${{ secrets.SUPPLIER_ICE_PORTAL_CLIENT_SECRET }}
       SUPPLIER_ICE_PORTAL_BASE_URL: ${{ secrets.SUPPLIER_ICE_PORTAL_BASE_URL }}
       SUPPLIER_ICE_PORTAL_TOKEN_URL: ${{ secrets.SUPPLIER_ICE_PORTAL_TOKEN_URL }}
+      SUPPLIER_EXPEDIA_RATE_TYPE: ${{ secrets.SUPPLIER_EXPEDIA_RATE_TYPE }}
 
     services:
       mysql:
@@ -64,10 +68,10 @@ jobs:
 
       - name: Create Databases And Grant All Privileges
         run: |
-          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE_1 }};"
-          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE_2 }};"
-          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "GRANT ALL PRIVILEGES ON ${{ env.DB_DATABASE_1 }}.* TO '${{ env.DB_DATABASE_USER }}'@'%';"
-          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "GRANT ALL PRIVILEGES ON ${{ env.DB_DATABASE_2 }}.* TO '${{ env.DB_DATABASE_USER }}'@'%';"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.DB_DATABASE }};"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "CREATE DATABASE IF NOT EXISTS ${{ env.SUPPLIER_CONTENT_DB_DATABASE }};"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "GRANT ALL PRIVILEGES ON ${{ env.DB_DATABASE }}.* TO '${{ env.DB_DATABASE_USER }}'@'%';"
+          mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "GRANT ALL PRIVILEGES ON ${{ env.SUPPLIER_CONTENT_DB_DATABASE }}.* TO '${{ env.DB_DATABASE_USER }}'@'%';"
           mysql -u ${{ env.DB_ROOT_USER }} -p${{ env.DB_ROOT_PASSWORD }} -h ${{ env.DB_DATABASE_HOST }} -e "FLUSH PRIVILEGES;"
 
       - name: Run Database Migrations With Seeding

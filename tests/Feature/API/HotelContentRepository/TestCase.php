@@ -5,9 +5,11 @@ namespace Tests\Feature\API\HotelContentRepository;
 use App\Models\Channel;
 use App\Models\GeneralConfiguration;
 use App\Models\User;
+use Database\Seeders\ConfigServiceTypeSeeder;
 use Database\Seeders\GeneralConfigurationSeeder;
 use Database\Seeders\SuppliersSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Modules\Insurance\Seeders\InsuranceRateTierSeeder;
 use Tests\RefreshDatabaseMany;
 
 class TestCase extends BaseTestCase
@@ -34,6 +36,8 @@ class TestCase extends BaseTestCase
     protected function runSeeders(): void
     {
         $this->seed(SuppliersSeeder::class);
+        $this->seed(InsuranceRateTierSeeder::class);
+        $this->seed(ConfigServiceTypeSeeder::class);
         if (!GeneralConfiguration::exists()) {
             $this->seed(GeneralConfigurationSeeder::class);
         }

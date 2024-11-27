@@ -2,13 +2,18 @@
 
 namespace Modules\HotelContentRepository\Models;
 
-use App\Models\Configurations\ConfigJobDescription;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Modules\HotelContentRepository\Models\Factories\HotelFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class Hotel extends Model
 {
+    use Filterable;
     use HasFactory;
 
     protected static function newFactory()
@@ -19,34 +24,20 @@ class Hotel extends Model
     protected $table = 'pd_hotels';
 
     protected $fillable = [
-        'name',
-        'type',
-        'verified',
-        'direct_connection',
-        'manual_contract',
-        'commission_tracking',
+        'weight',
+        'sale_type',
         'address',
         'star_rating',
-        'website',
         'num_rooms',
-        'featured',
-        'location',
-        'content_source_id',
         'room_images_source_id',
-        'property_images_source_id',
-        'channel_management',
         'hotel_board_basis',
-        'default_currency',
+        'travel_agent_commission'
     ];
 
     protected $casts = [
-        'verified' => 'boolean',
-        'direct_connection' => 'boolean',
-        'manual_contract' => 'boolean',
-        'commission_tracking' => 'boolean',
-        'featured' => 'boolean',
         'address' => 'array',
         'location' => 'array',
+        'travel_agent_commission' => 'float'
     ];
 
     protected $hidden = [
@@ -55,68 +46,28 @@ class Hotel extends Model
         'pivot'
     ];
 
-    public function contentSource()
-    {
-        return $this->belongsTo(ContentSource::class, 'content_source_id');
-    }
-
-    public function roomImagesSource()
+    public function roomImagesSource(): BelongsTo
     {
         return $this->belongsTo(ContentSource::class, 'room_images_source_id');
     }
 
-    public function propertyImagesSource()
-    {
-        return $this->belongsTo(ContentSource::class, 'property_images_source_id');
-    }
-
-    public function affiliations()
-    {
-        return $this->hasMany(HotelAffiliation::class);
-    }
-
-    public function attributes()
-    {
-        return $this->hasMany(HotelAttribute::class);
-    }
-
-    public function descriptiveContentsSection()
-    {
-        return $this->hasMany(HotelDescriptiveContentSection::class);
-    }
-
-    public function feeTaxes()
-    {
-        return $this->hasMany(HotelFeeTax::class);
-    }
-
-    public function informativeServices()
-    {
-        return $this->hasMany(HotelInformativeService::class);
-    }
-
-    public function promotions()
-    {
-        return $this->hasMany(HotelPromotion::class);
-    }
-
-    public function rooms()
+    public function rooms(): HasMany
     {
         return $this->hasMany(HotelRoom::class);
     }
 
-    public function keyMappings()
+    public function webFinders(): BelongsToMany
     {
-        return $this->hasMany(KeyMapping::class);
+        return $this->belongsToMany(HotelWebFinder::class, 'pd_hotel_web_finder_hotel', 'hotel_id', 'web_finder_id');
     }
 
-    public function galleries()
+    public function product(): MorphOne
     {
-        return $this->belongsToMany(ImageGallery::class, 'pd_hotel_gallery', 'hotel_id', 'gallery_id');
+        return $this->morphOne(Product::class, 'related');
     }
 
-    public function jobDescriptions()
+    public function contentSource(): BelongsTo
     {
-        return $this->belongsToMany(ConfigJobDescription::class, 'pd_hotel_job_descriptions', 'hotel_id', 'job_description_id');
+        return $this->belongsTo(ContentSource::class);
     }
 }

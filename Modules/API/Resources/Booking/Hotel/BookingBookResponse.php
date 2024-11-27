@@ -63,7 +63,7 @@ namespace Modules\API\Resources\Booking\Hotel;
  *       @OA\Property(
  *         property="rooms",
  *         type="object",
- *         description="Rooms",
+ *         description="Hotel | Rooms",
  *         @OA\Property(
  *           property="room_name",
  *           type="string",

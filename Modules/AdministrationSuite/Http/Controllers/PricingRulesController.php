@@ -3,6 +3,7 @@
 namespace Modules\AdministrationSuite\Http\Controllers;
 
 use App\Models\PricingRule;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class PricingRulesController extends BaseWithPolicyController
@@ -22,11 +23,14 @@ class PricingRulesController extends BaseWithPolicyController
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View
+    public function create(Request $request): View
     {
         $text = $this->message;
+        $isSrCreator = $request->input('sr', false);
+        $giataCodeProperty = $request->input('gc', null);
+        if(!$giataCodeProperty) $isSrCreator = false;
 
-        return view('dashboard.pricing-rules.create', compact('text'));
+        return view('dashboard.pricing-rules.create', compact('text', 'isSrCreator', 'giataCodeProperty'));
     }
 
     /**

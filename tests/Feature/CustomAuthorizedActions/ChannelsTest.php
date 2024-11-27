@@ -135,17 +135,21 @@ class ChannelsTest extends CustomAuthorizedActionsTestCase
             ->call('create')
             ->assertHasErrors(['data.name', 'data.description']);
 
+        $data = [
+            'name' => $this->faker->name(),
+            'description' => $this->faker->sentence(),
+        ];
+
         Livewire::test(CreateChannelsForm::class)
-            ->set('data', [
-                'name' => 'Test Channel',
-                'description' => 'Test Description',
-            ])
+            ->set('data', $data)
             ->call('create')
             ->assertRedirect(route('channels.index'));
 
-        $this->assertDatabaseHas('channels', [
-            'name' => 'Test Channel',
-            'description' => 'Test Description',
-        ]);
+        $this->assertDatabaseHas('channels', $data);
+
+        Livewire::test(CreateChannelsForm::class)
+            ->set('data', $data)
+            ->call('create')
+            ->assertHasErrors(['data.name' => 'The name has already been taken.']);
     }
 }

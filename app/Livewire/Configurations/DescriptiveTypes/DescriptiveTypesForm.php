@@ -3,7 +3,7 @@
 namespace App\Livewire\Configurations\DescriptiveTypes;
 
 use App\Models\Configurations\ConfigDescriptiveType;
-use App\Models\Enums\DescriptiveLocation;
+use App\Models\Enums\DescriptiveLocationEnum;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -43,8 +43,8 @@ class DescriptiveTypesForm extends Component implements HasForms
                 TextInput::make('type')
                     ->required(),
                 Select::make('location')
-                    ->options(DescriptiveLocation::class)
-                    ->enum(DescriptiveLocation::class)
+                    ->options(DescriptiveLocationEnum::class)
+                    ->enum(DescriptiveLocationEnum::class)
                     ->required(),
             ])
             ->statePath('data')

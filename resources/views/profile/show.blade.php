@@ -31,13 +31,61 @@
                 @livewire('profile.logout-other-browser-sessions-form')
             </div>
 
-            @if (Laravel\Jetstream\Jetstream::hasAccountDeletionFeatures())
-                <x-section-border/>
+                <div class="space-y-8">
+                    <!-- Current Team Display -->
+                    {{--@if (Auth::user()->currentTeam)--}}
+                        <x-section-border/>
 
-                <div class="mt-10 sm:mt-0">
-                    @livewire('profile.delete-user-form')
+                        <div class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow">
+                            <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-300">Current
+                                Team: {{ Auth::user()->currentTeam?->name ?? 'Not selected' }}</h2>
+                        </div>
+
+                        <!-- Team Switcher -->
+                        <x-section-border/>
+
+                        <div class="mt-10">
+                            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Switch Teams</h3>
+                            <div class="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                                @foreach (Auth::user()->allTeams() as $team)
+                                    <form action="{{ route('teams.switch') }}" method="POST"
+                                          class="p-4 bg-white dark:bg-gray-900 rounded-lg shadow hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-150">
+                                        @csrf
+                                        <input type="hidden" name="team_id" value="{{ $team->id }}">
+                                        <button type="submit" class="text-gray-600 dark:text-gray-400 font-medium">{{ $team->name }}</button>
+                                    </form>
+                                @endforeach
+                            </div>
+                        </div>
+                    {{--@endif--}}
+
+                    <!-- Account Deletion Section -->
+                    @if (Laravel\Jetstream\Jetstream::hasAccountDeletionFeatures())
+                        <x-section-border/>
+
+                        <div class="mt-10 sm:mt-0 bg-white dark:bg-gray-900 p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Delete Account</h3>
+                            @livewire('profile.delete-user-form')
+                        </div>
+                    @endif
+
+                    <!-- Team Management Section -->
+                    @if (Laravel\Jetstream\Jetstream::hasTeamFeatures())
+                        <x-section-border/>
+
+                        <div class="mt-10 sm:mt-0 bg-white dark:bg-gray-900 p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Team Members</h3>
+                            @livewire('teams.team-member-manager', ['team' => Auth::user()->currentTeam])
+                        </div>
+
+                        <x-section-border/>
+
+                        <div class="mt-10 sm:mt-0 bg-white dark:bg-gray-900 p-6 rounded-lg shadow">
+                            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Create New Team</h3>
+                            @livewire('teams.create-team-form')
+                        </div>
+                    @endif
                 </div>
-            @endif
+
         </div>
-    </div>
 @endsection

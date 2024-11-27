@@ -7,4 +7,5 @@ return [
     App\Providers\JetstreamServiceProvider::class,
     App\Providers\PermissionServiceProvider::class,
     App\Providers\RolesServiceProvider::class,
+    App\Providers\SupplierRepositoryServiceProvider::class,
 ];

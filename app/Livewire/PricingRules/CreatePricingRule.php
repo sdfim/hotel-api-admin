@@ -15,13 +15,27 @@ use Livewire\Features\SupportRedirects\Redirector;
 
 class CreatePricingRule extends Component implements HasForms
 {
-    use HasPricingRuleFields, InteractsWithForms;
+    use HasPricingRuleFields;
+    use InteractsWithForms;
 
     public ?array $data = [];
+    public bool $isSrCreator = false;
+    public ?int $giataCodeProperty = null;
 
-    public function mount(): void
+    public function mount(bool $isSrCreator = false, ?int $giataCodeProperty = null): void
     {
         $this->form->fill();
+        $this->isSrCreator = $isSrCreator;
+        $this->giataCodeProperty = $giataCodeProperty;
+        if ($this->giataCodeProperty) {
+            $this->data['conditions'] = [
+                [
+                    'field' => 'property',
+                    'compare' => '=',
+                    'value_from' => $this->giataCodeProperty
+                ]
+            ];
+        }
     }
 
     public function form(Form $form): Form
@@ -33,7 +47,7 @@ class CreatePricingRule extends Component implements HasForms
                 'xl' => 3,
                 '2xl' => 3,
             ])
-            ->schema($this->pricingRuleFields())
+            ->schema($this->pricingRuleFields('create'))
             ->statePath('data')
             ->model(PricingRule::class);
     }
@@ -49,6 +63,7 @@ class CreatePricingRule extends Component implements HasForms
     public function create(): RedirectResponse|Redirector
     {
         $data = $this->form->getState();
+        $data['is_sr_creator'] = $this->isSrCreator;
 
         $record = PricingRule::create($data);
 

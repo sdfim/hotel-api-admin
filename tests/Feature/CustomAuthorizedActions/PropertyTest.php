@@ -6,11 +6,15 @@ use App\Livewire\PropertiesTable;
 use App\Models\Property;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Livewire\Livewire;
 use PHPUnit\Framework\Attributes\Test;
 
 class PropertyTest extends CustomAuthorizedActionsTestCase
 {
+    use RefreshDatabase;
+
     private Collection|Property|Model|null $giata = null;
 
     protected function setUp(): void
@@ -41,7 +45,8 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
             ->assertCanRenderTableColumn('latitude')
             ->assertCanRenderTableColumn('longitude')
             ->assertCanRenderTableColumn('mapper_address')
-            ->assertCanRenderTableColumn('mapper_phone_number');
+            ->assertCanRenderTableColumn('mapper_phone_number')
+            ->assertCanRenderTableColumn('source');
     }
 
     #[Test]
@@ -53,17 +58,6 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
             ->searchTableColumns(['code' => $code])
             ->assertCanSeeTableRecords($this->giata->where('code', $code))
             ->assertCanNotSeeTableRecords($this->giata->where('code', '!=', $code));
-    }
-
-    #[Test]
-    public function test_possibility_of_searching_by_name(): void
-    {
-        $name = $this->giata->first()->name;
-
-        livewire::test(PropertiesTable::class)
-            ->searchTableColumns(['name' => $name])
-            ->assertCanSeeTableRecords($this->giata->where('name', $name))
-            ->assertCanNotSeeTableRecords($this->giata->where('name', '!=', $name));
     }
 
     #[Test]

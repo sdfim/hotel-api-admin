@@ -19,7 +19,7 @@ class HotelRoomControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'hotel_id', 'name', 'hbs_data_mapped_name', 'description'
+                    'id', 'hotel_id', 'name', 'hbsi_data_mapped_name', 'description'
                 ]
             ],
             'message'
@@ -35,7 +35,7 @@ class HotelRoomControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'hotel_id', 'name', 'hbs_data_mapped_name', 'description'
+                'id', 'hotel_id', 'name', 'hbsi_data_mapped_name', 'description'
             ],
             'message'
         ]);
@@ -50,7 +50,7 @@ class HotelRoomControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'hotel_id', 'name', 'hbs_data_mapped_name', 'description'
+                'id', 'hotel_id', 'name', 'hbsi_data_mapped_name', 'description'
             ],
             'message'
         ]);
@@ -66,7 +66,7 @@ class HotelRoomControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'hotel_id', 'name', 'hbs_data_mapped_name', 'description'
+                'id', 'hotel_id', 'name', 'hbsi_data_mapped_name', 'description'
             ],
             'message'
         ]);

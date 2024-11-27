@@ -52,6 +52,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     private const PAGINATION_TO_RESULT = true;
 
     public function __construct(
+        private readonly HbsiHotelPricingDto            $HbsiHotelPricingDto,
+        private readonly HbsiHotelController            $hbsi,
         private readonly PricingDtoTools                $pricingDtoTools = new PricingDtoTools(),
         private readonly ExpediaHotelController         $expedia = new ExpediaHotelController(),
         private readonly IcePortalHotelController       $icePortal = new IcePortalHotelController(),
@@ -62,8 +64,6 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
         private readonly IcePortalHotelContentDetailDto $HbsiHotelContentDetailDto = new IcePortalHotelContentDetailDto(),
         private readonly ExpediaHotelContentDetailDto   $ExpediaHotelContentDetailDto = new ExpediaHotelContentDetailDto(),
         private readonly EnrichmentWeight               $propsWeight = new EnrichmentWeight(),
-        private readonly HbsiHotelController            $hbsi = new HbsiHotelController(),
-        private readonly HbsiHotelPricingDto            $HbsiHotelPricingDto = new HbsiHotelPricingDto(),
         private readonly PricingRulesTools              $pricingRulesService = new PricingRulesTools(),
         private readonly HbsiService                    $hbsiService = new HbsiService(),
 

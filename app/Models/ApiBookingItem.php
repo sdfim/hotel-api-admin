@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Configurations\ConfigServiceType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Storage;
 
 class ApiBookingItem extends Model
@@ -61,6 +63,12 @@ class ApiBookingItem extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function informationalServices(): BelongsToMany
+    {
+        return $this->belongsToMany(ConfigServiceType::class, 'booking_item_informative_service', 'booking_item', 'service_id')
+            ->withPivot(['cost', 'created_at', 'updated_at']);
     }
 
     /**

@@ -3,12 +3,16 @@
 namespace Tests\Feature\BaseAuthorizedActions;
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Jetstream\Http\Livewire\UpdateProfileInformationForm;
 use Livewire\Livewire;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class ProfileInformationTest extends TestCase
 {
+    use RefreshDatabase;
+
     #[Test]
     public function test_current_profile_information_is_available(): void
     {

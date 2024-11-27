@@ -4,6 +4,7 @@ namespace Tests\Feature\API\HotelContentRepository;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\HotelWebFinder;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -20,10 +21,7 @@ class HotelControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking',
-                    'address', 'star_rating', 'website', 'num_rooms', 'featured', 'location',
-                    'channel_management', 'hotel_board_basis',
-                    'default_currency'
+                    'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis'
                 ]
             ],
             'message'
@@ -39,10 +37,7 @@ class HotelControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking',
-                'address', 'star_rating', 'website', 'num_rooms', 'featured', 'location',
-                'channel_management', 'hotel_board_basis',
-                'default_currency'
+                'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis'
             ],
             'message'
         ]);
@@ -59,9 +54,8 @@ class HotelControllerTest extends TestCase
             'success',
             'data' => [
                 '*' => [
-                    'id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking',
-                    'address', 'star_rating', 'website', 'num_rooms', 'featured', 'location',
-                    'channel_management', 'hotel_board_basis', 'default_currency'
+                    'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms',
+                    'room_images_source_id', 'hotel_board_basis', 'travel_agent_commission'
                 ]
             ],
             'message'
@@ -78,9 +72,7 @@ class HotelControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'name', 'type', 'verified', 'direct_connection', 'manual_contract', 'commission_tracking',
-                'address', 'star_rating', 'website', 'num_rooms', 'featured', 'location',
-                'channel_management', 'hotel_board_basis', 'default_currency'
+                'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis'
             ],
             'message'
         ]);
@@ -97,37 +89,37 @@ class HotelControllerTest extends TestCase
     }
 
     #[Test]
-    public function test_can_attach_gallery_to_hotel()
+    public function test_can_attach_web_finder_to_hotel()
     {
         $hotel = Hotel::factory()->create();
-        $gallery = ImageGallery::factory()->create();
+        $webFinder = HotelWebFinder::factory()->create();
 
-        $response = $this->request()->postJson("api/repo/hotels/{$hotel->id}/attach-gallery", [
-            'gallery_id' => $gallery->id,
+        $response = $this->request()->postJson("api/repo/hotels/{$hotel->id}/attach-web-finder", [
+            'web_finder_id' => $webFinder->id,
         ]);
 
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'gallery_name', 'description']
+                '*' => ['id', 'base_url', 'finder', 'type', 'example']
             ],
             'message'
         ]);
-        $this->assertDatabaseHas('pd_hotel_gallery', [
+        $this->assertDatabaseHas('pd_hotel_web_finder_hotel', [
             'hotel_id' => $hotel->id,
-            'gallery_id' => $gallery->id,
+            'web_finder_id' => $webFinder->id,
         ]);
     }
 
     #[Test]
-    public function test_can_detach_gallery_from_hotel()
+    public function test_can_detach_web_finder_from_hotel()
     {
         $hotel = Hotel::factory()->create();
-        $gallery = ImageGallery::factory()->create();
-        $hotel->galleries()->attach($gallery->id);
+        $webFinder = HotelWebFinder::factory()->create();
+        $hotel->webFinders()->attach($webFinder->id);
 
-        $response = $this->request()->postJson("api/repo/hotels/{$hotel->id}/detach-gallery", [
-            'gallery_id' => $gallery->id,
+        $response = $this->request()->postJson("api/repo/hotels/{$hotel->id}/detach-web-finder", [
+            'web_finder_id' => $webFinder->id,
         ]);
 
         $response->assertStatus(200);
@@ -136,9 +128,9 @@ class HotelControllerTest extends TestCase
             'message'
         ]);
 
-        $this->assertDatabaseMissing('pd_hotel_gallery', [
+        $this->assertDatabaseMissing('pd_hotel_web_finder_hotel', [
             'hotel_id' => $hotel->id,
-            'gallery_id' => $gallery->id,
+            'web_finder_id' => $webFinder->id,
         ]);
     }
 }

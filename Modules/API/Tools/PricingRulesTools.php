@@ -42,7 +42,8 @@ class PricingRulesTools
         $numberOfRooms = count($query['occupancy']);
         $totalGuests = $generalTools->calcTotalNumberOfGuestsInAllRooms($query['occupancy']);
 
-        return PricingRule::with('conditions')
+        return  PricingRule::with(['conditions'])
+
             ->whereHas('conditions', function (Builder $q) use (
                 $channelId,
                 $destination,
@@ -64,7 +65,17 @@ class PricingRulesTools
                         ->orWhere(function (Builder $q) use ($channelId) {
                             $q->where('field', 'channel_id')
                                 ->where('compare', '!=')
-                                ->where('value_from', $channelId);
+                                ->whereNot('value_from', $channelId);
+                        })
+                        ->orWhere(function (Builder $q) use ($channelId) {
+                            $q->where('field', 'channel_id')
+                                ->where('compare', 'in')
+                                ->whereRaw('FIND_IN_SET(?, value)', [$channelId]);
+                        })
+                        ->orWhere(function (Builder $q) use ($channelId) {
+                            $q->where('field', 'channel_id')
+                                ->where('compare', 'not_in')
+                                ->whereRaw('NOT FIND_IN_SET(?, value)', [$channelId]);
                         });
                 });
 
@@ -78,7 +89,17 @@ class PricingRulesTools
                         ->orWhere(function (Builder $q) use ($destination) {
                             $q->where('field', 'destination')
                                 ->where('compare', '!=')
-                                ->where('value_from', $destination);
+                                ->whereNot('value_from', $destination);
+                        })
+                        ->orWhere(function (Builder $q) use ($destination) {
+                            $q->where('field', 'destination')
+                                ->where('compare', 'in')
+                                ->whereRaw('FIND_IN_SET(?, value)', [$destination]);
+                        })
+                        ->orWhere(function (Builder $q) use ($destination) {
+                            $q->where('field', 'destination')
+                                ->where('compare', 'not_in')
+                                ->whereRaw('NOT FIND_IN_SET(?, value)', [$destination]);
                         });
                 });
 
@@ -286,7 +307,10 @@ class PricingRulesTools
                                 ->where('value_from', '<=', $numberOfRooms);
                         });
                 });
-            })->where(function (Builder $q) use ($query) {
+
+            })
+
+            ->where(function (Builder $q) use ($query) {
                 $q->where('rule_start_date', '<=', $query['checkin'])
                     ->where('rule_expiration_date', '>=', $query['checkout']);
             })->get()->toArray();

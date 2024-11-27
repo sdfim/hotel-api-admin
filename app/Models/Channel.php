@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Laravel\Sanctum\Sanctum;
 
 class Channel extends Model
 {
@@ -18,4 +21,14 @@ class Channel extends Model
         'token_id',
         'access_token',
     ];
+
+    public function token(): BelongsTo
+    {
+        return $this->belongsTo(Sanctum::$personalAccessTokenModel);
+    }
+
+    public function products(): BelongsToMany
+    {
+        return $this->belongsToMany(Product::class, 'pd_product_channel');
+    }
 }

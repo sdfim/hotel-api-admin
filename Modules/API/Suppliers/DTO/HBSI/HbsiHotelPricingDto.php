@@ -82,7 +82,7 @@ class HbsiHotelPricingDto
     ];
 
     public function __construct(
-        private readonly PricingDtoTools $pricingDtoTools = new PricingDtoTools(),
+        private readonly PricingDtoTools $pricingDtoTools,
         private array                    $bookingItems = [],
         private array                    $meal_plans_available = [],
         private array                    $roomCombinations = [],
@@ -277,6 +277,8 @@ class HbsiHotelPricingDto
 
         $rateOrdinal = $rate['rate_ordinal'] ?? 0;
 
+        $roomType = $rate['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '';
+
         // enrichment Pricing Rules / Application of Pricing Rules
         $pricingRulesApplier['total_price'] = 0.0;
         $pricingRulesApplier['total_tax'] = 0.0;
@@ -286,13 +288,17 @@ class HbsiHotelPricingDto
         try {
             $rateToApply['Rates'] = $rate['RoomRates']['RoomRate']['Rates'];
             $rateToApply['rateOccupancy'] = $rateOccupancy;
-            $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $rateToApply, $rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '', $rateOccupancy);
+            $pricingRulesApplier = $this->pricingRulesApplier->apply(
+                $giataId,
+                $rateToApply,
+                $rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '',
+                $rateOccupancy,
+                $roomType,
+            );
         } catch (Exception $e) {
             Log::error('HbsiHotelPricingDto | setRoomGroupsResponse ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
         }
-
-        $roomType = $rate['RoomTypes']['RoomType']['@attributes']['RoomTypeCode'] ?? '';
 
         $cancellationPolicies = [];
         $cancellationPoliciesInput = [];

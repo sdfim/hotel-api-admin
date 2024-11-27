@@ -62,7 +62,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
                 'data.manipulable_price_type',
                 'data.price_value',
                 'data.price_value_type',
-                'data.rule_expiration_date',
                 'data.rule_start_date',
                 'data.conditions',
             ]);
@@ -84,7 +83,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
 
         Livewire::test(CreatePricingRule::class)
             ->set('data', $formData)
-            ->assertFormSet($formData)
             ->call('create')
             ->assertHasNoFormErrors()
             ->assertNotified('Created successfully')

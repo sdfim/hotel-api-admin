@@ -7,10 +7,10 @@ use Illuminate\Support\Facades\Log;
 
 class EnrichmentWeight
 {
-    protected float|string $current_time = 0.0;
-
-    public function __construct()
-    {
+    public function __construct(
+        protected PropertyWeightingRepository $propertyWeightingRepository,
+        protected float|string $current_time = 0.0
+    ) {
         $this->current_time = microtime(true);
     }
 
@@ -18,7 +18,7 @@ class EnrichmentWeight
     {
         $this->executionTime();
 
-        $weights = PropertyWeightingRepository::getWeights();
+        $weights = $this->propertyWeightingRepository->getWeights();
         $weightsProps = $weights->pluck('property')->toArray();
         $weightsVol = $weights->pluck('weight', 'property')->toArray();
 
@@ -42,12 +42,12 @@ class EnrichmentWeight
         $this->executionTime();
 
         // step1 !isset supplier_id
-        $s1Weights = PropertyWeightingRepository::getWeights();
+        $s1Weights = $this->propertyWeightingRepository->getWeights();
         $s1WeightsProps = $s1Weights->pluck('property')->toArray();
         $s1WeightsVol = $s1Weights->pluck('weight', 'property')->toArray();
 
         // step2 isset supplier_id
-        $s2Weights = PropertyWeightingRepository::getWeightsNot();
+        $s2Weights = $this->propertyWeightingRepository->getWeightsNot();
         $s2WeightsProps = $s2Weights->pluck('property')->toArray();
         $s2WeightsVol = $s2Weights->pluck('weight', 'property')->toArray();
 

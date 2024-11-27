@@ -12,8 +12,23 @@ class ConfigAttributeFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->word,
-            'default_value' => $this->faker->word,
+            'name' => $this->faker->randomElement([
+                'Board Basis',
+                'Adults Only',
+                'Swimming Pool',
+                'Spa Facilities',
+                'Gym',
+                'Free WiFi',
+                'Parking',
+                'Pet Friendly'
+            ]),
+            'default_value' => $this->faker->randomElement([
+                'All Inclusive',
+                'Yes',
+                'No',
+                'Available',
+                'Not Available'
+            ]),
         ];
     }
 }

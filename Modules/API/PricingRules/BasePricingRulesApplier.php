@@ -74,53 +74,51 @@ class BasePricingRulesApplier
         array      $conditions,
         string     $roomName,
         string|int $roomCode,
-        array $conditionsFieldsToVerify = ['supplier_id', 'property'],
-        bool  $useAndCondition = false  // Use AND condition if true, OR condition if false
+        string|int $roomType,
+        array $conditionsFieldsToVerify = ['supplier_id', 'property']
     ): bool
     {
-        // Initialize array to store results for each condition type
         $validPricingRule = [
-            'supplier_id' => [],
-            'property' => [],
-            'room_name' => [],
-            'room_code' => [],
+            'supplier_id' => true,
+            'property' => true,
+            'room_name' => true,
+            'room_code' => true,
+            'room_type' => true,
         ];
 
-        $conditionsCollection = collect($conditions);
-
-        // Evaluate each condition for the specified fields
         foreach ($conditionsFieldsToVerify as $field) {
-            $filtered = $conditionsCollection->where('field', $field);
-
-            foreach ($filtered as $condition) {
-                // Add results based on field-specific comparison
-                $validPricingRule[$field][] = match ($field) {
-                    'supplier_id' => $this->supplierId === $condition['value_from'],
-                    'property' => $giataId === $condition['value_from'],
-                    'room_name' => $roomName === $condition['value_from'],
-                    'room_code' => $roomCode === $condition['value_from'],
-                    default => false
+            foreach ($conditions as $condition) {
+                if ($condition['field'] !== $field) continue;
+                $validPricingRule[$field] = match ($field) {
+                    'supplier_id' => $this->evaluateCondition($condition, $this->supplierId),
+                    'property' => $this->evaluateCondition($condition, $giataId),
+                    'room_name' => $this->evaluateCondition($condition, $roomName),
+                    'room_code' => $this->evaluateCondition($condition, $roomCode),
+                    'room_type' => $this->evaluateCondition($condition, $roomType),
+                    default => true
                 };
             }
         }
 
-        if ($useAndCondition) {
-            // AND Condition: Each group must have at least one true value
-            foreach ($validPricingRule as $results) {
-                if (!in_array(true, $results, true)) {
-                    return false; // Return false if any group has no true values
-                }
-            }
-            return true; // All groups have at least one true value
-        } else {
-            // OR Condition: Return true if at least one true condition exists across all groups
-            foreach ($validPricingRule as $results) {
-                if (in_array(true, $results, true)) {
-                    return true; // Return true if any true condition is found
-                }
-            }
-            return false; // Return false if no true conditions were found in any group
-        }
+        if (array_filter($validPricingRule) === []) return true;
+
+        return array_reduce($validPricingRule, fn($carry, $item) => $carry && $item, true);
+    }
+
+    private function evaluateCondition(array $condition, $value): bool
+    {
+        $compare = $condition['compare'];
+        $valueFrom = $condition['value_from'];
+        $valueArr = $condition['value'];
+//        $valueArr = is_array($valueArr) ? $valueArr : preg_split('/,\s*/', $valueArr);
+        $valueArr = is_array($valueArr) ? $valueArr : preg_split('/;\s*/', $valueArr);
+        return match ($compare) {
+            '=' => (string)$valueFrom === (string)$value,
+            '!=' => (string)$valueFrom !== (string)$value,
+            'in' => in_array($value, $valueArr),
+            'not_in' => !in_array($value, $valueArr),
+            default => false
+        };
     }
 
     protected function applyPricingRulesLogic(array $pricingRule): void

@@ -10,18 +10,14 @@ return new class extends Migration {
         Schema::create('insurance_provider_documentations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('provider_id')->constrained('insurance_providers')->onDelete('cascade');
-            $table->string('type_document');
-            $table->string('uri');
+            $table->string('document_type');
+            $table->string('path');
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
-        Schema::table('insurance_provider_documentations', function (Blueprint $table) {
-            $table->dropForeign(['provider_id']);
-        });
-
         Schema::dropIfExists('insurance_provider_documentations');
     }
 };

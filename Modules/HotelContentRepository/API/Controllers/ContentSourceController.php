@@ -4,41 +4,53 @@ namespace Modules\HotelContentRepository\API\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
+use Modules\HotelContentRepository\Actions\ContentSource\AddContentSource;
+use Modules\HotelContentRepository\Actions\ContentSource\DeleteContentSource;
+use Modules\HotelContentRepository\Actions\ContentSource\EditContentSource;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\API\Requests\ContentSourceRequest;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class ContentSourceController extends BaseController
 {
+    public function __construct(
+        protected AddContentSource $addContentSource,
+        protected EditContentSource $editContentSource,
+        protected DeleteContentSource $deleteContentSource
+    ) {}
+
     public function index()
     {
-        $contentSources = ContentSource::all();
-        return $this->sendResponse($contentSources->toArray(), 'index success', Response::HTTP_OK);
+        $query = ContentSource::query();
+        $query = $this->filter($query, ContentSource::class);
+        $contentSources = $query->get();
+
+        return $this->sendResponse($contentSources->toArray(), 'index success');
     }
 
     public function store(ContentSourceRequest $request)
     {
-        $contentSource = ContentSource::create($request->validated());
+        $contentSource = $this->addContentSource->handle($request);
         return $this->sendResponse($contentSource->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
         $contentSource = ContentSource::findOrFail($id);
-        return $this->sendResponse($contentSource->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($contentSource->toArray(), 'show success');
     }
 
     public function update(ContentSourceRequest $request, $id)
     {
         $contentSource = ContentSource::findOrFail($id);
-        $contentSource->update($request->validated());
-        return $this->sendResponse($contentSource->toArray(), 'update success', Response::HTTP_OK);
+        $contentSource = $this->editContentSource->handle($contentSource, $request);
+        return $this->sendResponse($contentSource->toArray(), 'update success');
     }
 
     public function destroy($id)
     {
         $contentSource = ContentSource::findOrFail($id);
-        $contentSource->delete();
+        $this->deleteContentSource->handle($contentSource);
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 }

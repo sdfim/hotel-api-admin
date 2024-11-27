@@ -5,12 +5,14 @@ namespace Modules\HotelContentRepository\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\ImageGalleryFactory;
+use Modules\HotelContentRepository\Models\Traits\Filterable;
 
 class ImageGallery extends Model
 {
+    use Filterable;
     use HasFactory;
 
-    protected static function newFactory()
+    protected static function newFactory(): ImageGalleryFactory
     {
         return ImageGalleryFactory::new();
     }
@@ -30,17 +32,17 @@ class ImageGallery extends Model
 
     public function images()
     {
-        return $this->belongsToMany(HotelImage::class, 'pd_gallery_images', 'gallery_id', 'image_id');
+        return $this->belongsToMany(Image::class, 'pd_gallery_images', 'gallery_id', 'image_id');
     }
-    public function hotels()
+    public function products()
     {
-        return $this->belongsToMany(Hotel::class, 'pd_hotel_gallery', 'gallery_id', 'hotel_id');
+        return $this->belongsToMany(Hotel::class, 'pd_product_gallery', 'gallery_id', 'product_id');
     }
 
-    public function scopeHasHotel($query, $hotelId)
+    public function scopeHasProduct($query, $hotelId)
     {
-        return $query->whereHas('hotels', function ($q) use ($hotelId) {
-            $q->where('hotel_id', $hotelId);
+        return $query->whereHas('products', function ($q) use ($hotelId) {
+            $q->where('product_id', $hotelId);
         });
     }
 
@@ -56,8 +58,15 @@ class ImageGallery extends Model
         });
     }
 
-    public function hotelPromotions()
+    public function productPromotions()
     {
-        return $this->belongsToMany(HotelPromotion::class, 'pd_hotel_promotion_gallery', 'gallery_id', 'hotel_promotion_id');
+        return $this->belongsToMany(ProductPromotion::class, 'pd_product_promotion_gallery', 'gallery_id', 'product_promotion_id');
+    }
+
+    public function scopeHasProductPromotion($query, $productPromotionId)
+    {
+        return $query->whereHas('productPromotions', function ($q) use ($productPromotionId) {
+            $q->where('product_promotion_id', $productPromotionId);
+        });
     }
 }

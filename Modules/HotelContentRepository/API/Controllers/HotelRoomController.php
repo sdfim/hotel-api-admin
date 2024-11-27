@@ -7,14 +7,17 @@ use Illuminate\Http\Response;
 use Modules\HotelContentRepository\API\Requests\AttachOrDetachGalleryRequest;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\API\Requests\HotelRoomRequest;
-use Modules\API\BaseController;
+use Modules\HotelContentRepository\API\Controllers\BaseController;
 
 class HotelRoomController extends BaseController
 {
     public function index()
     {
-        $hotelRooms = HotelRoom::with(['galleries.images'])->get();
-        return $this->sendResponse($hotelRooms->toArray(), 'index success', Response::HTTP_OK);
+        $query = HotelRoom::query();
+        $query = $this->filter($query, HotelRoom::class);
+        $hotelRooms = $query->with(['galleries.images'])->get();
+
+        return $this->sendResponse($hotelRooms->toArray(), 'index success');
     }
 
     public function store(HotelRoomRequest $request)
@@ -26,14 +29,14 @@ class HotelRoomController extends BaseController
     public function show($id)
     {
         $hotelRoom = HotelRoom::with(['galleries.images'])->findOrFail($id);
-        return $this->sendResponse($hotelRoom->toArray(), 'show success', Response::HTTP_OK);
+        return $this->sendResponse($hotelRoom->toArray(), 'show success');
     }
 
     public function update(HotelRoomRequest $request, $id)
     {
         $hotelRoom = HotelRoom::findOrFail($id);
         $hotelRoom->update($request->validated());
-        return $this->sendResponse($hotelRoom->toArray(), 'update success', Response::HTTP_OK);
+        return $this->sendResponse($hotelRoom->toArray(), 'update success');
     }
 
     public function destroy($id)
@@ -47,13 +50,13 @@ class HotelRoomController extends BaseController
     {
         $hotelRoom = HotelRoom::findOrFail($id);
         $hotelRoom->galleries()->attach($request->gallery_id);
-        return $this->sendResponse($hotelRoom->galleries->toArray(), 'Gallery attached successfully', Response::HTTP_OK);
+        return $this->sendResponse($hotelRoom->galleries->toArray(), 'Gallery attached successfully');
     }
 
     public function detachGallery(AttachOrDetachGalleryRequest $request, $id)
     {
         $hotelRoom = HotelRoom::findOrFail($id);
         $hotelRoom->galleries()->detach($request->gallery_id);
-        return $this->sendResponse($hotelRoom->galleries->toArray(), 'Gallery detached successfully', Response::HTTP_OK);
+        return $this->sendResponse($hotelRoom->galleries->toArray(), 'Gallery detached successfully');
     }
 }

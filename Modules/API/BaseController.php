@@ -7,7 +7,7 @@ use Illuminate\Http\JsonResponse;
 
 /**
  * @OA\Info(
- *    title="UJV API Documentation",
+ *    title="UJV Main API Documentation",
  *    version="1.0.0"
  * )
  *
@@ -33,6 +33,10 @@ use Illuminate\Http\JsonResponse;
  *   name="Booking API | Cart Endpoints",
  *   description="API Endpoints of Cart (pre-reservation)"
  * ),
+ * @OA\Tag(
+ *       name="Booking API | Insurance and Informational Services",
+ *       description="API Endpoints for Insurance and Informational Services"
+ *  ),
  * @OA\Tag(
  *   name="Booking API | Booking Endpoints",
  *   description="API Endpoints of Booking (reservation)"
@@ -77,5 +81,18 @@ class BaseController extends Controller
         }
 
         return response()->json($response, $code);
+    }
+
+    protected function filter($query, $model)
+    {
+        $filterableFields = $model::getFilterableFields();
+
+        foreach ($filterableFields as $field) {
+            if (request()->has($field)) {
+                $query->where($field, 'like', '%' . request()->input($field) . '%');
+            }
+        }
+
+        return $query;
     }
 }

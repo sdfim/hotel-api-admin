@@ -11,6 +11,7 @@
         "php": "^8.2",
         "ext-libxml": "*",
         "ext-simplexml": "*",
+        "cheesegrits/filament-google-maps": "^3.0",
         "darkaonline/l5-swagger": "^8.5",
         "filament/actions": "^3.2",
         "filament/forms": "^3.2",
@@ -27,6 +28,7 @@
         "livewire/livewire": "^3.3",
         "opcodesio/log-viewer": "^3.4",
         "opensearch-project/opensearch-php": "^2.2",
+        "spatie/laravel-fractal": "^6.2",
         "spiral/roadrunner-cli": "^2.6",
         "spiral/roadrunner-http": "^3.5"
     },

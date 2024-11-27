@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\TeamController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
@@ -19,6 +20,7 @@ use Modules\AdministrationSuite\Http\Controllers\ExpediaController;
 use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
 use Modules\AdministrationSuite\Http\Controllers\GeographyController;
 use Modules\AdministrationSuite\Http\Controllers\IceHbsiController;
+use Modules\AdministrationSuite\Http\Controllers\InformationalServicesController;
 use Modules\AdministrationSuite\Http\Controllers\InsuranceProvidersController;
 use Modules\AdministrationSuite\Http\Controllers\InsuranceRestrictionsController;
 use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
@@ -33,8 +35,15 @@ use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
+use Modules\HotelContentRepository\Http\Controllers\ImageController;
 use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
+use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
+use Modules\HotelContentRepository\Http\Controllers\ProductController;
 use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
+use Modules\HotelContentRepository\Http\Controllers\VendorController;
+use Modules\Insurance\Http\Controllers\InsurancePlansController;
+use Modules\Insurance\Http\Controllers\InsuranceProvidersDocumentationController;
+use Modules\Insurance\Http\Controllers\InsuranceRateTiersController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +63,8 @@ Route::get('/admin/', function () {
         return redirect(config('app.url').'/admin/reservations');
     }
 })->name('root');
+
+Route::post('/teams/switch', [TeamController::class, 'switch'])->name('teams.switch');
 
 Route::prefix('admin')->group(function () {
     Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
@@ -80,16 +91,23 @@ Route::prefix('admin')->group(function () {
         Route::get('/statistic-charts', [StatisticChartsController::class, 'index'])->name('statistic-charts');
         Route::resource('mapping', MappingExpediaGiatasController::class)->only(['store', 'destroy']);
 
+        Route::resource('informational-services', InformationalServicesController::class)->only(['index', 'edit', 'create']);
+
         Route::resource('users', UsersController::class)->only(['index', 'edit', 'create']);
         Route::resource('roles', RolesController::class)->only(['index', 'edit', 'create']);
         Route::get('permissions', PermissionsController::class)->name('permissions.index');
 
-        Route::resource('hotel_repository', HotelController::class);
+        Route::resource('hotel-repository', HotelController::class);
+        Route::resource('product-repository', ProductController::class);
+        Route::resource('vendor-repository', VendorController::class);
         Route::resource('hotel_rooms', HotelRoomController::class);
         Route::resource('travel-agency-commission', TravelAgencyCommissionController::class);
 
-        Route::resource('/insurance-providers', InsuranceProvidersController::class)->only(['index', 'create', 'edit']);
-        Route::resource('/insurance-restrictions', InsuranceRestrictionsController::class)->only(['index', 'create', 'edit']);
+        Route::resource('/insurance-providers', InsuranceProvidersController::class)->only(['index']);
+        Route::resource('/insurance-providers-documentation', InsuranceProvidersDocumentationController::class)->only(['index']);
+        Route::resource('/insurance-restrictions', InsuranceRestrictionsController::class)->only(['index']);
+        Route::resource('/insurance-rate-tiers', InsuranceRateTiersController::class)->only(['index']);
+        Route::resource('/insurance-plans', InsurancePlansController::class)->only(['index']);
 
         Route::prefix('configurations')->name('configurations.')->group(function () {
             Route::resource('attributes', ConfigAttributeController::class)->only(['index', 'create', 'edit']);
@@ -98,8 +116,10 @@ Route::prefix('admin')->group(function () {
             Route::resource('job-descriptions', ConfigJobDescriptionController::class)->only(['index', 'create', 'edit']);
             Route::resource('service-types', ConfigServiceTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('chains', ConfigChainController::class)->only(['index', 'create', 'edit']);
-            Route::resource('config-group', GroupConfigController::class)->only(['index']);
         });
+
+        Route::resource('image-galleries', ImageGalleryController::class)->only(['index', 'create', 'edit']);
+        Route::resource('images', ImageController::class)->only(['index', 'create', 'edit']);
 
         Route::get('/index', [App\Http\Controllers\HomeController::class, 'root']);
         Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('Panel');
