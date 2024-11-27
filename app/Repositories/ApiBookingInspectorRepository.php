@@ -7,7 +7,6 @@ use App\Models\ApiBookingItem;
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Collection;
 use App\Models\ApiBookingsMetadata;
-use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Modules\API\Controllers\ApiHandlers\HotelApiHandler;

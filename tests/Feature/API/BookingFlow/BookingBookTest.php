@@ -8,6 +8,8 @@ use PHPUnit\Framework\Attributes\Depends;
 
 class BookingBookTest extends BaseBookingFlowTest
 {
+    public static int $stage = 2;
+
     #[Test]
     public function test_search(): void
     {
@@ -32,10 +34,7 @@ class BookingBookTest extends BaseBookingFlowTest
     #[Depends('test_add_passengers')]
     public function test_book()
     {
-        $response = $this->request()->json('POST', route('book'),
-                $this->requestBookData()
-            );
-
+        $response = $this->request()->json('POST', route('book'), $this->requestBookData());
         $response->assertStatus(200);
     }
 
@@ -46,7 +45,6 @@ class BookingBookTest extends BaseBookingFlowTest
         $response = $this->request()->json('DELETE', route('cancelBooking'),[
             'booking_id' => self::$bookingId
         ]);
-
         $response->assertStatus(200);
     }
 
@@ -54,21 +52,21 @@ class BookingBookTest extends BaseBookingFlowTest
     #[Depends('test_cancel')]
     public function test_search_again(): void
     {
-        $this->test_search();
+        parent::test_search();
     }
 
     #[Test]
     #[Depends('test_search_again')]
     public function test_add_booking_item_again(): void
     {
-        $this->test_add_booking_item();
+        parent::test_add_booking_item();
     }
 
     #[Test]
     #[Depends('test_add_booking_item_again')]
     public function test_add_passengers_again(): void
     {
-        $this->test_add_passengers();
+        parent::test_add_passengers();
     }
 
     #[Test]
@@ -77,7 +75,6 @@ class BookingBookTest extends BaseBookingFlowTest
     {
         $this->test_book();
     }
-
 
     private function requestBookData(): array
     {

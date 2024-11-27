@@ -34,9 +34,7 @@ class TwoFactorAuthenticationSettingsTest extends TestCase
         $this->assertCount(8, $user->recoveryCodes());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function test_recovery_codes_can_be_regenerated(): void
     {
         if (! Features::canManageTwoFactorAuthentication()) {

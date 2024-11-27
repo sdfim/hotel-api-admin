@@ -15,32 +15,19 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 
-class BookingChangeTest extends TestCase
+class BookingChangeTest extends BaseBookingFlowTest
 {
-    use WithFaker, SearchMockTrait;
-
-    private static string $bookingId;
-    private static string $bookingItem;
-    private static ?string $newBookingItem;
+    use SearchMockTrait;
+    use WithFaker;
 
     private static bool $availableEndpointsComplete = false;
 
     protected function setUpTestData(): void
     {
-        if (!isset(self::$user)) {
-            $bookingInspector = ApiBookingInspectorRepository::getLastBooked();
-            $this->assertTrue($bookingInspector != null);
-
-            $this->runSeeders();
-            $this->setAuth($bookingInspector->token_id);
-            self::$bookingId = $bookingInspector->booking_id;
-            self::$bookingItem = $bookingInspector->booking_item;
-        } elseif (!isset(self::$bookingId)) {
-            $bookingInspector = ApiBookingInspectorRepository::getLastBooked();
-            $this->assertTrue($bookingInspector != null);
-
-            self::$bookingId = $bookingInspector->booking_id;
-            self::$bookingItem = $bookingInspector->booking_item;
+        if  (!isset(self::$bookingId)) {
+            parent::test_search();
+            parent::test_add_booking_item();
+            parent::test_add_passengers();
         }
     }
 
