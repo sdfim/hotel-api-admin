@@ -5,6 +5,7 @@ namespace Modules\HotelContentRepository\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\ProductAffiliationFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 
@@ -35,5 +36,10 @@ class ProductAffiliation extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function details(): HasMany
+    {
+        return $this->hasMany(ProductAffiliationDetail::class, 'affiliation_id');
     }
 }

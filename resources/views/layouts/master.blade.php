@@ -15,7 +15,7 @@
     <!-- Styles -->
     @filamentStyles
     @vite(['resources/css/app.css'])
-    @if (request()->is('*-repository*'))
+    @if (request()->is('*-repository*') || request()->is('*-grid*'))
         @vite(['resources/css/supplier-repository.css'])
     @endif
     @include('layouts.head-css')
