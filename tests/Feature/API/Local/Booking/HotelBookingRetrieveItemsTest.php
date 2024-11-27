@@ -3,6 +3,7 @@
 namespace Tests\Feature\API\Local\Booking;
 
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelBookingRetrieveItemsTest extends HotelBookingApiTestCase
 {

@@ -19,6 +19,12 @@ class ApiBookingsMetadataRepository
             ->get();
     }
 
+    public static function bookedItemsByBookingIds(array $booking_ids): object
+    {
+        return ApiBookingsMetadata::whereIn('booking_id', $booking_ids)
+            ->get();
+    }
+
     public static function geTypeSupplierByBookingId(string $booking_id): array
     {
         $search = ApiBookingsMetadata::where('booking_id', $booking_id)->first();

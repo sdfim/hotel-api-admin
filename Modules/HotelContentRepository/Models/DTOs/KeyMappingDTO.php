@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\DTOs;
 
+use Illuminate\Database\Eloquent\Collection;
 use Modules\HotelContentRepository\Models\KeyMapping;
 
 class KeyMappingDTO
@@ -11,11 +12,22 @@ class KeyMappingDTO
     public $key_id;
     public $key_mapping_owner_id;
 
-    public function __construct(KeyMapping $keyMapping)
+    public function __construct() {}
+
+    public function transform(Collection $keyMappings)
     {
-        $this->id = $keyMapping->id;
-        $this->product_id = $keyMapping->product_id;
-        $this->key_id = $keyMapping->key_id;
-        $this->key_mapping_owner_id = $keyMapping->key_mapping_owner_id;
+        return $keyMappings->map(function ($keyMapping) {
+            return $this->transformKeyMapping($keyMapping);
+        })->all();
+    }
+
+    public function transformKeyMapping(KeyMapping $keyMapping)
+    {
+        return [
+            'id' => $keyMapping->id,
+            'product_id' => $keyMapping->product_id,
+            'key_id' => $keyMapping->key_id,
+            'key_mapping_owner_id' => $keyMapping->key_mapping_owner_id,
+        ];
     }
 }

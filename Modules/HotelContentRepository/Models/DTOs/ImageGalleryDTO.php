@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\DTOs;
 
+use Illuminate\Database\Eloquent\Collection;
 use Modules\HotelContentRepository\Models\ImageGallery;
 
 class ImageGalleryDTO
@@ -11,13 +12,24 @@ class ImageGalleryDTO
     public $description;
     public $images;
 
-    public function __construct(ImageGallery $gallery)
+    public function __construct(
+        private readonly ImageDTO $imageDTO
+    ) {}
+
+    public function transform(Collection $galleries)
     {
-        $this->id = $gallery->id;
-        $this->gallery_name = $gallery->gallery_name;
-        $this->description = $gallery->description;
-        $this->images = $gallery->images->map(function ($image) {
-            return new ImageDTO($image);
-        });
+        return $galleries->map(function ($gallery) {
+            return $this->transformGallery($gallery);
+        })->all();
+    }
+
+    public function transformGallery(ImageGallery $gallery)
+    {
+        return [
+            'id' => $gallery->id,
+            'gallery_name' => $gallery->gallery_name,
+            'description' => $gallery->description,
+            'images' => $this->imageDTO->transform($gallery->images),
+        ];
     }
 }

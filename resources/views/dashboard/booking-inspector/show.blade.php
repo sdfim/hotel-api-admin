@@ -70,7 +70,7 @@
                                         id="loadResponse">Download Response as JSON
                                 </button>
 
-                                @if ($inspector->sub_type == 'create')
+                                @if ($inspector->sub_type == 'create' || $inspector->sub_type == 'retrieve' || $inspector->sub_type == 'change-soft')
                                     <button type="button"
                                             class="text-white px-4 py-3 bg-gray-500 border-blue-500 btn hover:bg-gray-600 focus:ring ring-gray-200 focus:bg-gray-600"
                                             id="downLoadRawRequest">Download Raw Request

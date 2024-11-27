@@ -46,7 +46,10 @@ class ProductTransformer extends TransformerAbstract
 
     public function includeContactInformation(Product $product)
     {
-        return $this->collection($product->contactInformation, new ContactInformationTransformer());
+        if ($product->contactInformation !== null) {
+            return $this->collection($product->contactInformation, new ContactInformationTransformer());
+        }
+        return $this->null();
     }
 
     public function includeAffiliations(Product $product)

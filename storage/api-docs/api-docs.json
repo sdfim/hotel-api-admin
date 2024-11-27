@@ -10,7 +10,7 @@
         "/api/booking/remove-item": {
             "delete": {
                 "tags": [
-                    "Booking API | Cart Endpoints"
+                    "Booking API | Basket"
                 ],
                 "summary": "Remove a specific item from your shopping cart",
                 "description": "Description: Remove a specific item from your shopping cart. It allows you to modify the contents of your cart.",
@@ -88,7 +88,7 @@
         "/api/booking/add-passengers": {
             "post": {
                 "tags": [
-                    "Booking API | Cart Endpoints"
+                    "Booking API | Basket"
                 ],
                 "summary": "Add passengers to a booking.",
                 "description": "Add passengers to a booking. This endpoint is used to add passenger information to a booking.",
@@ -174,10 +174,217 @@
                 ]
             }
         },
+        "/api/booking/change/availabile-endpoints": {
+            "get": {
+                "tags": [
+                    "Booking API | Change Booking"
+                ],
+                "summary": "Retrieve available changes for modifying an existing booking.",
+                "description": "This endpoint provides information about available changes for modifying an existing booking.",
+                "operationId": "e9b281eaa97fe4257d384b857283a199",
+                "parameters": [
+                    {
+                        "name": "booking_item",
+                        "in": "query",
+                        "description": "The booking item identifier",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "format": "uuid",
+                            "example": "123e4567-e89b-12d3-a456-426614174000"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response with available endpoints for modifying the booking.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "booking_item": {
+                                                    "type": "string",
+                                                    "example": "290d6b20-aeb1-4e3b-85e5-b2d2816ecd30"
+                                                },
+                                                "non_refundable": {
+                                                    "type": "boolean",
+                                                    "example": false
+                                                },
+                                                "supplier": {
+                                                    "type": "string",
+                                                    "example": "HBSI"
+                                                },
+                                                "endpoints": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "name": {
+                                                                "type": "string",
+                                                                "example": "Soft Change"
+                                                            },
+                                                            "description": {
+                                                                "type": "string",
+                                                                "example": "Endpoint to handle soft changes in booking."
+                                                            },
+                                                            "url": {
+                                                                "type": "string",
+                                                                "example": "api/booking/change/soft-change"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/booking/change/availability": {
+            "post": {
+                "tags": [
+                    "Booking API | Change Booking"
+                ],
+                "summary": "Retrieve available changes for modifying an existing booking.",
+                "description": "This endpoint provides information about available changes for modifying an existing booking.",
+                "operationId": "d691c1333b0011a2194875d6b7d24b64",
+                "requestBody": {
+                    "description": "JSON object containing the details of the reservation.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AvailabilitySearchRequest"
+                            },
+                            "examples": {
+                                "AvailabilitySearchRequestPlace": {
+                                    "$ref": "#/components/examples/AvailabilitySearchRequestPlace"
+                                },
+                                "AvailabilitySearchRequestPlaceCancun": {
+                                    "$ref": "#/components/examples/AvailabilitySearchRequestPlaceCancun"
+                                },
+                                "AvailabilitySearchRequestNewYork": {
+                                    "$ref": "#/components/examples/AvailabilitySearchRequestNewYork"
+                                },
+                                "AvailabilitySearchRequestCancun": {
+                                    "$ref": "#/components/examples/AvailabilitySearchRequestCancun"
+                                },
+                                "AvailabilitySearchRequestCurrencySupplier": {
+                                    "$ref": "#/components/examples/AvailabilitySearchRequestCurrencySupplier"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AvailabilityChangeBookingResponse"
+                                },
+                                "examples": {
+                                    "AvailabilityChangeBookingResponse": {
+                                        "$ref": "#/components/examples/AvailabilityChangeBookingResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
+                                "examples": {
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                },
+                                "examples": {
+                                    "UnAuthenticatedResponse": {
+                                        "$ref": "#/components/examples/UnAuthenticatedResponse"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/booking/book": {
             "post": {
                 "tags": [
-                    "Booking API | Booking Endpoints"
+                    "Booking API | Booking"
                 ],
                 "summary": "Create a new booking for a service or event",
                 "description": "Create a new booking for a service or event. Use this endpoint to make reservations.",
@@ -269,7 +476,7 @@
         "/api/booking/cancel-booking": {
             "delete": {
                 "tags": [
-                    "Booking API | Booking Endpoints"
+                    "Booking API | Booking"
                 ],
                 "summary": "Cancel an existing booking reservation. Submit a request to cancel a reservation you no longer require. ",
                 "description": "Cancel Booking",
@@ -346,55 +553,612 @@
         "/api/booking/change-booking": {
             "put": {
                 "tags": [
-                    "Booking API | Booking Endpoints"
+                    "Booking API | Change Booking"
                 ],
-                "summary": "Modify an existing booking..",
+                "summary": "Modify an existing booking.",
                 "description": "Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
                 "operationId": "a32322836d590521f2f70e850b014e37",
-                "parameters": [
-                    {
-                        "name": "booking_id",
-                        "in": "query",
-                        "description": "Booking ID",
-                        "required": true,
-                        "example": "3333cee5-b4a3-4e51-bfb0-02d09370b585"
-                    },
-                    {
-                        "name": "booking_item",
-                        "in": "query",
-                        "description": "To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>\n     *      In the response object for each rate is a **booking_item** property.",
-                        "required": true,
-                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-                    }
-                ],
                 "requestBody": {
-                    "description": "JSON object containing the details of the reservation.",
+                    "description": "JSON object containing the details of the modification.",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/BookingChangeBookingRequest"
-                            },
-                            "examples": {
-                                "BookingChangeBookingRequest": {
-                                    "$ref": "#/components/examples/BookingChangeBookingRequest"
-                                }
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
+                        "description": "Booking successfully changed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "Booking changed."
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/booking/change/hard-change": {
+            "put": {
+                "tags": [
+                    "Booking API | Change Booking"
+                ],
+                "summary": "Hard Modify an existing booking.",
+                "description": "Hard modify an existing booking. This endpoint allows for significant changes to the booking, such as replacing the booking item.",
+                "operationId": "dcd6615cef28302dbe704e5e3a1166a5",
+                "requestBody": {
+                    "description": "JSON object containing the details of the modification.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "booking_id": {
+                                        "description": "UUID of the existing booking.",
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "booking_item": {
+                                        "description": "UUID of the existing booking item to be modified.",
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "new_booking_item": {
+                                        "description": "UUID of the new booking item to replace the existing one.",
+                                        "type": "string",
+                                        "format": "uuid"
+                                    },
+                                    "passengers": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "title": {
+                                                    "description": "Title of the passenger.",
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "mr",
+                                                        "Mr",
+                                                        "MR",
+                                                        "ms",
+                                                        "Ms",
+                                                        "MS",
+                                                        "Mrs",
+                                                        "MRS",
+                                                        "mrs",
+                                                        "Miss",
+                                                        "MISS",
+                                                        "miss",
+                                                        "Dr",
+                                                        "dr",
+                                                        "DR",
+                                                        "Prof",
+                                                        "prof",
+                                                        "PROF"
+                                                    ]
+                                                },
+                                                "given_name": {
+                                                    "description": "Given name of the passenger.",
+                                                    "type": "string",
+                                                    "maxLength": 255
+                                                },
+                                                "family_name": {
+                                                    "description": "Family name of the passenger.",
+                                                    "type": "string",
+                                                    "maxLength": 255
+                                                },
+                                                "date_of_birth": {
+                                                    "description": "Date of birth of the passenger.",
+                                                    "type": "string",
+                                                    "format": "date"
+                                                },
+                                                "room": {
+                                                    "description": "Room number or identifier for the passenger.",
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Booking successfully changed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "Booking changed."
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/booking/change/soft-change": {
+            "put": {
+                "tags": [
+                    "Booking API | Change Booking"
+                ],
+                "summary": "Soft Modify an existing booking.",
+                "description": "Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
+                "operationId": "ec12ac24fbc348d5a7b234cb9a29b9dc",
+                "requestBody": {
+                    "description": "JSON object containing the details of the reservation.",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "booking_id": {
+                                        "description": "ID of the booking",
+                                        "type": "string",
+                                        "example": "a7b8c9d0-e1f2-3456-7890-abcd1234efgh"
+                                    },
+                                    "booking_item": {
+                                        "description": "ID of the booking item",
+                                        "type": "string",
+                                        "example": "f1e2d3c4-b5a6-7890-cd12-ef34gh56ij78"
+                                    },
+                                    "passengers": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "title": {
+                                                    "description": "Title of the passenger",
+                                                    "type": "string",
+                                                    "example": "Mr"
+                                                },
+                                                "given_name": {
+                                                    "description": "Given name of the passenger",
+                                                    "type": "string",
+                                                    "example": "John"
+                                                },
+                                                "family_name": {
+                                                    "description": "Family name of the passenger",
+                                                    "type": "string",
+                                                    "example": "Doe"
+                                                },
+                                                "room": {
+                                                    "description": "Room number",
+                                                    "type": "integer",
+                                                    "example": 1
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "special_requests": {
+                                        "type": "array",
+                                        "items": {
+                                            "properties": {
+                                                "special_request": {
+                                                    "description": "Special request",
+                                                    "type": "string",
+                                                    "example": "Late check-in"
+                                                },
+                                                "room": {
+                                                    "description": "Room number for the special request",
+                                                    "type": "integer",
+                                                    "example": 101
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Booking successfully changed.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "Booking changed."
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/booking/change/price-check": {
+            "get": {
+                "tags": [
+                    "Booking API | Change Booking"
+                ],
+                "summary": "Retrieve Booking Price Check",
+                "description": "This endpoint provides information about the price check of a booking item.",
+                "operationId": "4f5aa7083de750de2d862574d789bf6f",
+                "parameters": [
+                    {
+                        "name": "new_booking_item",
+                        "in": "query",
+                        "description": "The new booking item ID.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "abcd1234-efgh5678-ijkl9012-mnop3456"
+                        }
+                    },
+                    {
+                        "name": "booking_id",
+                        "in": "query",
+                        "description": "The booking ID.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "abcd1234-efgh5678-ijkl9012-mnop3456"
+                        }
+                    },
+                    {
+                        "name": "booking_item",
+                        "in": "query",
+                        "description": "The booking item ID.",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "abcd1234-efgh5678-ijkl9012-mnop3456"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
                         "description": "OK",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BookingChangeBookingResponse"
-                                },
-                                "examples": {
-                                    "BookingChangeBookingResponse": {
-                                        "$ref": "#/components/examples/BookingChangeBookingResponse"
-                                    }
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "result": {
+                                                    "properties": {
+                                                        "incremental_total_price": {
+                                                            "type": "integer",
+                                                            "example": 200
+                                                        },
+                                                        "current_booking_item": {
+                                                            "properties": {
+                                                                "total_net": {
+                                                                    "type": "integer",
+                                                                    "example": 400
+                                                                },
+                                                                "total_tax": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                },
+                                                                "total_fees": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                },
+                                                                "total_price": {
+                                                                    "type": "integer",
+                                                                    "example": 400
+                                                                },
+                                                                "cancellation_policies": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "type": {
+                                                                                "type": "string",
+                                                                                "example": "General"
+                                                                            },
+                                                                            "percentage": {
+                                                                                "type": "string",
+                                                                                "example": "20"
+                                                                            },
+                                                                            "description": {
+                                                                                "type": "string",
+                                                                                "example": "General Cancellation Policy"
+                                                                            },
+                                                                            "penalty_start_date": {
+                                                                                "type": "string",
+                                                                                "format": "date",
+                                                                                "example": "2024-12-24"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    }
+                                                                },
+                                                                "breakdown": {
+                                                                    "properties": {
+                                                                        "fees": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "object"
+                                                                            }
+                                                                        },
+                                                                        "stay": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "object"
+                                                                            }
+                                                                        },
+                                                                        "nightly": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "properties": {
+                                                                                        "type": {
+                                                                                            "type": "string",
+                                                                                            "example": "base_rate"
+                                                                                        },
+                                                                                        "title": {
+                                                                                            "type": "string",
+                                                                                            "example": "Base Rate"
+                                                                                        },
+                                                                                        "amount": {
+                                                                                            "type": "number",
+                                                                                            "format": "float",
+                                                                                            "example": 181.82
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "rate_name": {
+                                                                    "type": "string",
+                                                                    "example": "Best"
+                                                                },
+                                                                "room_name": {
+                                                                    "type": "string",
+                                                                    "example": "Single"
+                                                                },
+                                                                "currency": {
+                                                                    "type": "string",
+                                                                    "example": "USD"
+                                                                },
+                                                                "booking_item": {
+                                                                    "type": "string",
+                                                                    "example": "290d6b20-aeb1-4e3b-85e5-b2d2816ecd30"
+                                                                },
+                                                                "hotelier_booking_reference": {
+                                                                    "type": "string",
+                                                                    "example": "721FlQnbUW"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "new_booking_item": {
+                                                            "properties": {
+                                                                "total_net": {
+                                                                    "type": "integer",
+                                                                    "example": 600
+                                                                },
+                                                                "total_tax": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                },
+                                                                "total_fees": {
+                                                                    "type": "integer",
+                                                                    "example": 0
+                                                                },
+                                                                "total_price": {
+                                                                    "type": "integer",
+                                                                    "example": 600
+                                                                },
+                                                                "cancellation_policies": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "type": {
+                                                                                "type": "string",
+                                                                                "example": "General"
+                                                                            },
+                                                                            "percentage": {
+                                                                                "type": "string",
+                                                                                "example": "100"
+                                                                            },
+                                                                            "description": {
+                                                                                "type": "string",
+                                                                                "example": "General Cancellation Policy"
+                                                                            },
+                                                                            "penalty_start_date": {
+                                                                                "type": "string",
+                                                                                "format": "date",
+                                                                                "example": "2024-08-07"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    }
+                                                                },
+                                                                "breakdown": {
+                                                                    "properties": {
+                                                                        "fees": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "object"
+                                                                            }
+                                                                        },
+                                                                        "stay": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "object"
+                                                                            }
+                                                                        },
+                                                                        "nightly": {
+                                                                            "type": "array",
+                                                                            "items": {
+                                                                                "type": "array",
+                                                                                "items": {
+                                                                                    "properties": {
+                                                                                        "type": {
+                                                                                            "type": "string",
+                                                                                            "example": "base_rate"
+                                                                                        },
+                                                                                        "title": {
+                                                                                            "type": "string",
+                                                                                            "example": "Base Rate"
+                                                                                        },
+                                                                                        "amount": {
+                                                                                            "type": "number",
+                                                                                            "format": "float",
+                                                                                            "example": 272.73
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "rate_name": {
+                                                                    "type": "string",
+                                                                    "example": "Promo"
+                                                                },
+                                                                "room_name": {
+                                                                    "type": "string",
+                                                                    "example": "Suite"
+                                                                },
+                                                                "currency": {
+                                                                    "type": "string",
+                                                                    "example": "USD"
+                                                                },
+                                                                "booking_item": {
+                                                                    "type": "string",
+                                                                    "example": "290d6b20-aeb1-4e3b-85e5-b2d2816ecd30"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "success"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
@@ -403,10 +1167,12 @@
                         "description": "Bad Request",
                         "content": {
                             "application/json": {
-                                "schema": {},
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                },
                                 "examples": {
-                                    "BookingChangeBookingResponseError": {
-                                        "$ref": "#/components/examples/BookingChangeBookingResponseError"
+                                    "BadRequestResponse": {
+                                        "$ref": "#/components/examples/BadRequestResponse"
                                     }
                                 }
                             }
@@ -438,7 +1204,7 @@
         "/api/booking/add-item": {
             "post": {
                 "tags": [
-                    "Booking API | Cart Endpoints"
+                    "Booking API | Basket"
                 ],
                 "summary": "Add an item to your shopping cart.",
                 "description": "Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",
@@ -515,7 +1281,7 @@
         "/api/booking/retrieve-items": {
             "get": {
                 "tags": [
-                    "Booking API | Cart Endpoints"
+                    "Booking API | Basket"
                 ],
                 "summary": "Retrieve a list of items currently in your shopping cart.",
                 "description": "Retrieve a list of items currently in your shopping cart. This endpoint provides details about the items added to your cart.",
@@ -589,7 +1355,7 @@
         "/api/booking/retrieve-booking": {
             "get": {
                 "tags": [
-                    "Booking API | Booking Endpoints"
+                    "Booking API | Booking"
                 ],
                 "summary": "Retrieve detailed information about a specific booking reservation. ",
                 "description": "Retrieve detailed information about a specific booking reservation. This endpoint allows you to access all the information related to a particular reservation.",
@@ -779,7 +1545,7 @@
                 "tags": [
                     "Content API"
                 ],
-                "summary": "Delail Hotels",
+                "summary": "Detail Hotels",
                 "description": "Get detailed information about a hotel.",
                 "operationId": "c7718dfc2635bfd6ebd1c9c9f93baf27",
                 "parameters": [
@@ -801,6 +1567,19 @@
                         "schema": {
                             "type": "integer",
                             "example": 98736411
+                        }
+                    },
+                    {
+                        "name": "room_type_codes",
+                        "in": "query",
+                        "description": "Array of room type codes. (e.g., ['ODK'])",
+                        "required": false,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "example": "ODK"
+                            }
                         }
                     }
                 ],
@@ -861,7 +1640,7 @@
         "/api/booking/list-bookings": {
             "get": {
                 "tags": [
-                    "Booking API | Booking Endpoints"
+                    "Booking API | Booking"
                 ],
                 "summary": "Retrieve a list of all your booking reservations. ",
                 "description": "Retrieve a list of all your booking reservations. This endpoint provides an overview of your booking history and their current statuses.",
@@ -1660,6 +2439,626 @@
                 },
                 "type": "object"
             },
+            "AvailabilityChangeBookingResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "properties": {
+                            "query": {
+                                "$ref": "#/components/schemas/AvailabilityQuery"
+                            },
+                            "result": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/AvailabilityResult"
+                                }
+                            },
+                            "change_search_id": {
+                                "type": "string",
+                                "example": "1f5f3275-abfa-4c9b-856d-feb79179e0fc"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "success"
+                    }
+                },
+                "type": "object"
+            },
+            "AvailabilityQuery": {
+                "properties": {
+                    "booking_id": {
+                        "type": "string",
+                        "example": "33b663b9-6b44-4698-9453-1cec19eb858f"
+                    },
+                    "booking_item": {
+                        "type": "string",
+                        "example": "290d6b20-aeb1-4e3b-85e5-b2d2816ecd30"
+                    },
+                    "page": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "results_per_page": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "checkin": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-01-03"
+                    },
+                    "checkout": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-01-05"
+                    },
+                    "occupancy": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Occupancy"
+                        }
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "hotel"
+                    },
+                    "rating": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "supplier": {
+                        "type": "string",
+                        "example": "HBSI"
+                    },
+                    "destination": {
+                        "type": "string",
+                        "example": "508"
+                    }
+                },
+                "type": "object"
+            },
+            "Occupancy": {
+                "properties": {
+                    "adults": {
+                        "type": "integer",
+                        "example": 2
+                    }
+                },
+                "type": "object"
+            },
+            "AvailabilityResult": {
+                "properties": {
+                    "distance": {
+                        "type": "integer",
+                        "example": 0
+                    },
+                    "giata_hotel_id": {
+                        "type": "integer",
+                        "example": 42851280
+                    },
+                    "rating": {
+                        "type": "string",
+                        "example": "0"
+                    },
+                    "hotel_name": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "board_basis": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "supplier": {
+                        "type": "string",
+                        "example": "HBSI"
+                    },
+                    "supplier_hotel_id": {
+                        "type": "string",
+                        "example": "51721"
+                    },
+                    "destination": {
+                        "type": "string",
+                        "example": "Cancun"
+                    },
+                    "meal_plans_available": {
+                        "type": "string",
+                        "example": "No Meal"
+                    },
+                    "lowest_priced_room_group": {
+                        "type": "string",
+                        "example": "500"
+                    },
+                    "pay_at_hotel_available": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "pay_now_available": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "non_refundable_rates": {
+                        "type": "string",
+                        "example": "2,4"
+                    },
+                    "refundable_rates": {
+                        "type": "string",
+                        "example": "6"
+                    },
+                    "room_groups": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RoomGroup"
+                        }
+                    },
+                    "room_combinations": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "RoomGroup": {
+                "properties": {
+                    "total_price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 600
+                    },
+                    "total_tax": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0
+                    },
+                    "total_fees": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0
+                    },
+                    "total_net": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 600
+                    },
+                    "markup": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "USD"
+                    },
+                    "pay_now": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "pay_at_hotel": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "non_refundable": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "meal_plan": {
+                        "type": "string",
+                        "example": "No Meal"
+                    },
+                    "rate_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "rate_description": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "cancellation_policies": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CancellationPolicy"
+                        }
+                    },
+                    "opaque": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "rooms": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Room"
+                        }
+                    },
+                    "package_deal": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "penalty_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-08-07"
+                    },
+                    "promotions": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "CancellationPolicy": {
+                "properties": {
+                    "description": {
+                        "type": "string",
+                        "example": "General Cancellation Policy"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "General"
+                    },
+                    "penalty_start_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-08-07"
+                    },
+                    "percentage": {
+                        "type": "string",
+                        "example": "100"
+                    },
+                    "amount": {
+                        "type": "string",
+                        "example": "100.00"
+                    }
+                },
+                "type": "object"
+            },
+            "Room": {
+                "properties": {
+                    "capacity": {
+                        "properties": {
+                            "unknown": {
+                                "type": "integer",
+                                "example": 0
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "giata_room_code": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "giata_room_name": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "supplier_room_name": {
+                        "type": "string",
+                        "example": "Suite"
+                    },
+                    "per_day_rate_breakdown": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "supplier_room_id": {
+                        "type": "string",
+                        "example": "2-0-0"
+                    },
+                    "query_package": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "room_type": {
+                        "type": "string",
+                        "example": "Suite"
+                    },
+                    "room_description": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "rate_id": {
+                        "type": "string",
+                        "example": "1"
+                    },
+                    "rate_plan_code": {
+                        "type": "string",
+                        "example": "Promo"
+                    },
+                    "rate_name": {
+                        "type": "string",
+                        "example": "Promo"
+                    },
+                    "rate_description": {
+                        "type": "string",
+                        "example": ""
+                    },
+                    "total_price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 600
+                    },
+                    "total_tax": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0
+                    },
+                    "total_fees": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0
+                    },
+                    "total_net": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 600
+                    },
+                    "markup": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 0
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "USD"
+                    },
+                    "booking_item": {
+                        "type": "string",
+                        "example": "c289a8c7-6f24-4920-86b3-aa65925444eb"
+                    },
+                    "cancellation_policies": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CancellationPolicy"
+                        }
+                    },
+                    "non_refundable": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "meal_plan": {
+                        "type": "string",
+                        "example": "No Meal"
+                    },
+                    "bed_configurations": {
+                        "type": "object"
+                    },
+                    "breakdown": {
+                        "properties": {
+                            "nightly": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/RateBreakdown"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "package_deal": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "penalty_date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-08-07"
+                    },
+                    "promotions": {
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "RateBreakdown": {
+                "properties": {
+                    "amount": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 272.73
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Base Rate"
+                    },
+                    "type": {
+                        "type": "string",
+                        "example": "base_rate"
+                    }
+                },
+                "type": "object"
+            },
+            "AvailabilitySuccessResponse": {
+                "properties": {
+                    "success": {
+                        "type": "boolean",
+                        "example": true
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/AvailabilityData"
+                    },
+                    "message": {
+                        "type": "string",
+                        "example": "success"
+                    }
+                },
+                "type": "object"
+            },
+            "AvailabilityData": {
+                "properties": {
+                    "query": {
+                        "$ref": "#/components/schemas/AvailabilityQuery"
+                    },
+                    "result": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AvailabilityResult"
+                        }
+                    },
+                    "change_search_id": {
+                        "type": "string",
+                        "example": "1f5f3275-abfa-4c9b-856d-feb79179e0fc"
+                    }
+                },
+                "type": "object"
+            },
+            "AvailabilitySearchRequest": {
+                "title": "Availability Search Request",
+                "description": "Availability Search Request",
+                "required": [
+                    "type",
+                    "checkin",
+                    "checkout",
+                    "destination",
+                    "occupancy"
+                ],
+                "properties": {
+                    "booking_id": {
+                        "description": "Booking ID",
+                        "type": "string",
+                        "example": "81a25d1e-d06d-4772-89be-b0132bdbbe48"
+                    },
+                    "booking_item": {
+                        "description": "Booking Item",
+                        "type": "string",
+                        "example": "08d528c6-f078-465b-bd29-a0ce210ee376"
+                    },
+                    "type": {
+                        "description": "Type of content to search (e.g., 'hotel', 'flight', 'combo').",
+                        "type": "string",
+                        "enum": [
+                            "hotel",
+                            "flight",
+                            "combo"
+                        ],
+                        "example": "hotel"
+                    },
+                    "currency": {
+                        "description": "Currency of the hotel/flight/combo (e.g., 'EUR').",
+                        "type": "string",
+                        "enum": [
+                            "AED",
+                            "ARS",
+                            "AUD",
+                            "BRL",
+                            "CAD",
+                            "CHF",
+                            "CNY",
+                            "COP",
+                            "DKK",
+                            "EGP",
+                            "EUR",
+                            "GBP",
+                            "HKD",
+                            "IDR",
+                            "ILS",
+                            "INR",
+                            "JPY",
+                            "KRW",
+                            "LBP",
+                            "MAD",
+                            "MXN",
+                            "MYR",
+                            "NOK",
+                            "NZD",
+                            "PHP",
+                            "PLN",
+                            "QAR",
+                            "RUB",
+                            "SAR",
+                            "SEK",
+                            "SGD",
+                            "THB",
+                            "TRY",
+                            "TWD",
+                            "USD",
+                            "VND",
+                            "ZAR"
+                        ],
+                        "example": "EUR"
+                    },
+                    "supplier": {
+                        "description": "Supplier of the hotel/flight/comb (e.g., 'Expedia').",
+                        "type": "string",
+                        "enum": [
+                            "Expedia",
+                            "Example"
+                        ],
+                        "example": "Expedia"
+                    },
+                    "hotel_name": {
+                        "description": "Name of the hotel (e.g., 'Sheraton').",
+                        "type": "string",
+                        "example": "Sheraton"
+                    },
+                    "checkin": {
+                        "description": "Checkin date in ISO 8601 format (e.g., '2024-11-11').",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-11-11"
+                    },
+                    "checkout": {
+                        "description": "Checkout date in ISO 8601 format (e.g., '2024-11-20').",
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-11-20"
+                    },
+                    "destination": {
+                        "description": "Destination ID (e.g., '961' is New York, referral code can be viewed '/api/content/destinations?city={name city}' ).",
+                        "type": "integer",
+                        "example": "961"
+                    },
+                    "rating": {
+                        "description": "Rating of the hotel (e.g., '4.5').",
+                        "type": "number",
+                        "enum": [
+                            1,
+                            1.5,
+                            2,
+                            2.5,
+                            3,
+                            3.5,
+                            4,
+                            4.5,
+                            5,
+                            5.5
+                        ]
+                    },
+                    "occupancy": {
+                        "description": "Occupancy of the hotel",
+                        "type": "array",
+                        "items": {
+                            "required": [
+                                "adults"
+                            ],
+                            "properties": {
+                                "adults": {
+                                    "description": "Number of adults (e.g., '2').",
+                                    "type": "integer",
+                                    "example": "2"
+                                },
+                                "children": {
+                                    "description": "Number of children (e.g., '2').",
+                                    "type": "integer",
+                                    "example": "2"
+                                },
+                                "children_ages": {
+                                    "description": "Ages of children (e.g., '2, 4').",
+                                    "type": "array",
+                                    "items": {
+                                        "type": "integer",
+                                        "example": "2"
+                                    }
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "BookingAddItemResponse": {
                 "title": "Booking Add Item Response",
                 "description": "Schema Booking Add Item Response",
@@ -2424,7 +3823,97 @@
                 },
                 "type": "object"
             },
-            "BookingChangeBookingResponse": {
+            "BookingChangeSoftBookingRequest": {
+                "title": "Booking Change Soft Request",
+                "description": "Soft schema for booking change requests",
+                "required": [
+                    "booking_id",
+                    "booking_item",
+                    "query"
+                ],
+                "properties": {
+                    "booking_id": {
+                        "description": "Booking ID",
+                        "type": "string",
+                        "example": "3333cee5-b4a3-4e51-bfb0-02d09370b585"
+                    },
+                    "booking_item": {
+                        "description": "Booking item",
+                        "type": "string",
+                        "example": "c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
+                    },
+                    "query": {
+                        "required": [
+                            "given_name",
+                            "family_name"
+                        ],
+                        "properties": {
+                            "given_name": {
+                                "description": "Given Name (e.g., 'John').",
+                                "type": "string",
+                                "example": "John"
+                            },
+                            "family_name": {
+                                "description": "Family Name (e.g., 'Smit').",
+                                "type": "string",
+                                "example": "Smit"
+                            },
+                            "smoking": {
+                                "description": "Smoking (e.g., 'false').",
+                                "type": "boolean",
+                                "example": "false"
+                            },
+                            "special_request": {
+                                "description": "Special Request (e.g., 'Top floor or away from street please').",
+                                "type": "string",
+                                "example": "Top floor or away from street please"
+                            },
+                            "loyalty_id": {
+                                "description": "Loyalty ID (e.g., 'ABC123').",
+                                "type": "string",
+                                "example": "ABC123"
+                            },
+                            "passengers": {
+                                "type": "array",
+                                "items": {
+                                    "required": [
+                                        "title",
+                                        "given_name",
+                                        "family_name",
+                                        "date_of_birth"
+                                    ],
+                                    "properties": {
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Mr"
+                                        },
+                                        "given_name": {
+                                            "type": "string",
+                                            "example": "John"
+                                        },
+                                        "family_name": {
+                                            "type": "string",
+                                            "example": "Doe"
+                                        },
+                                        "date_of_birth": {
+                                            "type": "string",
+                                            "example": "1990-01-01"
+                                        },
+                                        "room": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "BookingChangeSoftBookingResponse": {
                 "title": "Booking Change Booking Response",
                 "description": "Schema Booking Change Booking Response",
                 "required": [
@@ -4082,6 +5571,381 @@
                     "message": "Invalid type"
                 }
             },
+            "AvailabilityChangeBookingResponse": {
+                "summary": "Availability Response",
+                "value": {
+                    "success": true,
+                    "data": {
+                        "query": {
+                            "booking_id": "33b663b9-6b44-4698-9453-1cec19eb858f",
+                            "booking_item": "290d6b20-aeb1-4e3b-85e5-b2d2816ecd30",
+                            "page": 1,
+                            "results_per_page": 10,
+                            "checkin": "2025-01-03",
+                            "checkout": "2025-01-05",
+                            "occupancy": [
+                                {
+                                    "adults": 2
+                                }
+                            ],
+                            "type": "hotel",
+                            "rating": 2,
+                            "supplier": "HBSI",
+                            "destination": "508"
+                        },
+                        "result": [
+                            {
+                                "distance": 0,
+                                "giata_hotel_id": 42851280,
+                                "rating": "0",
+                                "hotel_name": "",
+                                "board_basis": "",
+                                "supplier": "HBSI",
+                                "supplier_hotel_id": "51721",
+                                "destination": "Cancun",
+                                "meal_plans_available": "No Meal",
+                                "lowest_priced_room_group": "500",
+                                "pay_at_hotel_available": "",
+                                "pay_now_available": "",
+                                "non_refundable_rates": "2,4",
+                                "refundable_rates": "6",
+                                "room_groups": [
+                                    {
+                                        "total_price": 600,
+                                        "total_tax": 0,
+                                        "total_fees": 0,
+                                        "total_net": 600,
+                                        "markup": 0,
+                                        "currency": "USD",
+                                        "pay_now": false,
+                                        "pay_at_hotel": false,
+                                        "non_refundable": true,
+                                        "meal_plan": "No Meal",
+                                        "rate_id": 1,
+                                        "rate_description": "",
+                                        "cancellation_policies": [
+                                            {
+                                                "description": "General Cancellation Policy",
+                                                "type": "General",
+                                                "penalty_start_date": "2024-08-07",
+                                                "percentage": "100"
+                                            }
+                                        ],
+                                        "opaque": false,
+                                        "rooms": [
+                                            {
+                                                "capacity": {
+                                                    "unknown": 0
+                                                },
+                                                "giata_room_code": "",
+                                                "giata_room_name": "",
+                                                "supplier_room_name": "Suite",
+                                                "per_day_rate_breakdown": "",
+                                                "supplier_room_id": "2-0-0",
+                                                "query_package": "",
+                                                "room_type": "Suite",
+                                                "room_description": "",
+                                                "rate_id": "1",
+                                                "rate_plan_code": "Promo",
+                                                "rate_name": "Promo",
+                                                "rate_description": "",
+                                                "total_price": 600,
+                                                "total_tax": 0,
+                                                "total_fees": 0,
+                                                "total_net": 600,
+                                                "markup": 0,
+                                                "currency": "USD",
+                                                "booking_item": "c289a8c7-6f24-4920-86b3-aa65925444eb",
+                                                "cancellation_policies": [
+                                                    {
+                                                        "description": "General Cancellation Policy",
+                                                        "type": "General",
+                                                        "penalty_start_date": "2024-08-07",
+                                                        "percentage": "100"
+                                                    }
+                                                ],
+                                                "non_refundable": true,
+                                                "meal_plan": "No Meal",
+                                                "bed_configurations": [],
+                                                "breakdown": {
+                                                    "nightly": [
+                                                        {
+                                                            "amount": 272.73,
+                                                            "title": "Base Rate",
+                                                            "type": "base_rate"
+                                                        },
+                                                        {
+                                                            "type": "tax",
+                                                            "amount": "27.27",
+                                                            "title": "Occupancy Tax"
+                                                        }
+                                                    ],
+                                                    "stay": [],
+                                                    "fees": []
+                                                },
+                                                "package_deal": false,
+                                                "penalty_date": "2024-08-07",
+                                                "promotions": []
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "total_price": 500,
+                                        "total_tax": 0,
+                                        "total_fees": 0,
+                                        "total_net": 500,
+                                        "markup": 0,
+                                        "currency": "USD",
+                                        "pay_now": false,
+                                        "pay_at_hotel": false,
+                                        "non_refundable": true,
+                                        "meal_plan": "No Meal",
+                                        "rate_id": 2,
+                                        "rate_description": "",
+                                        "cancellation_policies": [
+                                            {
+                                                "description": "Early check-out penalty.",
+                                                "type": "General",
+                                                "percentage": "20",
+                                                "amount": "100.00"
+                                            },
+                                            {
+                                                "description": "General Cancellation Policy",
+                                                "type": "General",
+                                                "penalty_start_date": "2024-08-07",
+                                                "percentage": "100"
+                                            }
+                                        ],
+                                        "opaque": false,
+                                        "rooms": [
+                                            {
+                                                "capacity": {
+                                                    "unknown": 0
+                                                },
+                                                "giata_room_code": "",
+                                                "giata_room_name": "",
+                                                "supplier_room_name": "Double",
+                                                "per_day_rate_breakdown": "",
+                                                "supplier_room_id": "2-0-0",
+                                                "query_package": "",
+                                                "room_type": "Double",
+                                                "room_description": "",
+                                                "rate_id": "2",
+                                                "rate_plan_code": "Promo",
+                                                "rate_name": "Promo",
+                                                "rate_description": "",
+                                                "total_price": 500,
+                                                "total_tax": 0,
+                                                "total_fees": 0,
+                                                "total_net": 500,
+                                                "markup": 0,
+                                                "currency": "USD",
+                                                "booking_item": "cc0866a7-9852-4157-9b13-fc4d8af91acc",
+                                                "cancellation_policies": [
+                                                    {
+                                                        "description": "Early check-out penalty.",
+                                                        "type": "General",
+                                                        "percentage": "20",
+                                                        "amount": "100.00"
+                                                    },
+                                                    {
+                                                        "description": "General Cancellation Policy",
+                                                        "type": "General",
+                                                        "penalty_start_date": "2024-08-07",
+                                                        "percentage": "100"
+                                                    }
+                                                ],
+                                                "non_refundable": true,
+                                                "meal_plan": "No Meal",
+                                                "bed_configurations": [],
+                                                "breakdown": {
+                                                    "nightly": [
+                                                        {
+                                                            "amount": 227.27,
+                                                            "title": "Base Rate",
+                                                            "type": "base_rate"
+                                                        },
+                                                        {
+                                                            "type": "tax",
+                                                            "amount": "22.73",
+                                                            "title": "Occupancy Tax"
+                                                        }
+                                                    ],
+                                                    "stay": [],
+                                                    "fees": []
+                                                },
+                                                "package_deal": false,
+                                                "penalty_date": "2024-08-07",
+                                                "promotions": []
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "room_combinations": {
+                                    "c289a8c7-6f24-4920-86b3-aa65925444eb": [
+                                        "c289a8c7-6f24-4920-86b3-aa65925444eb"
+                                    ],
+                                    "cd589fbd-6ef7-426e-989e-ddc0feebf6e1": [
+                                        "cd589fbd-6ef7-426e-989e-ddc0feebf6e1"
+                                    ],
+                                    "6545505b-b14e-40df-ba9f-b9c2c1c52259": [
+                                        "6545505b-b14e-40df-ba9f-b9c2c1c52259"
+                                    ],
+                                    "cc0866a7-9852-4157-9b13-fc4d8af91acc": [
+                                        "cc0866a7-9852-4157-9b13-fc4d8af91acc"
+                                    ],
+                                    "4698c3ac-1eae-49c8-a55f-07b8fc5172d6": [
+                                        "4698c3ac-1eae-49c8-a55f-07b8fc5172d6"
+                                    ],
+                                    "a8484402-1558-4662-9e6d-57b6de02c24d": [
+                                        "a8484402-1558-4662-9e6d-57b6de02c24d"
+                                    ],
+                                    "3edfc0a5-54e6-4e36-8c7b-2c5aef4d5e51": [
+                                        "3edfc0a5-54e6-4e36-8c7b-2c5aef4d5e51"
+                                    ],
+                                    "e0d827a7-32ae-44ff-bf6f-7ccfa40ab426": [
+                                        "e0d827a7-32ae-44ff-bf6f-7ccfa40ab426"
+                                    ],
+                                    "93d4fbf7-d724-45c8-af6d-0b3d6a7a3b24": [
+                                        "93d4fbf7-d724-45c8-af6d-0b3d6a7a3b24"
+                                    ]
+                                }
+                            }
+                        ],
+                        "change_search_id": "1f5f3275-abfa-4c9b-856d-feb79179e0fc"
+                    },
+                    "message": "success"
+                }
+            },
+            "AvailabilitySearchRequestPlaceCancun": {
+                "summary": "Availability Search Cancun, country MX, airport CUN using Place",
+                "value": {
+                    "booking_id": "81a25d1e-d06d-4772-89be-b0132bdbbe48",
+                    "booking_item": "08d528c6-f078-465b-bd29-a0ce210ee376",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "place": "4b2afe6684dd81a6f73527468e05e7a6",
+                    "occupancy": [
+                        {
+                            "adults": 2,
+                            "children_ages": [
+                                3
+                            ]
+                        }
+                    ],
+                    "page": 1,
+                    "results_per_page": 10
+                }
+            },
+            "AvailabilitySearchRequestPlace": {
+                "summary": "Availability Search Eiffel Tower (Paris) using Place",
+                "value": {
+                    "booking_id": "81a25d1e-d06d-4772-89be-b0132bdbbe48",
+                    "booking_item": "08d528c6-f078-465b-bd29-a0ce210ee376",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "place": "9bb07983384eb956ae88e154b99b51a1",
+                    "occupancy": [
+                        {
+                            "adults": 2
+                        }
+                    ],
+                    "page": 1,
+                    "results_per_page": 20
+                }
+            },
+            "AvailabilitySearchRequestLondon": {
+                "summary": "Availability Search London using Destination",
+                "value": {
+                    "booking_id": "81a25d1e-d06d-4772-89be-b0132bdbbe48",
+                    "booking_item": "08d528c6-f078-465b-bd29-a0ce210ee376",
+                    "checkin": "2024-05-01",
+                    "checkout": "2024-05-05",
+                    "destination": 302,
+                    "rating": 4,
+                    "occupancy": [
+                        {
+                            "adults": 2,
+                            "children_ages": [
+                                2,
+                                4
+                            ]
+                        },
+                        {
+                            "adults": 1
+                        }
+                    ],
+                    "page": 1,
+                    "results_per_page": 20
+                }
+            },
+            "AvailabilitySearchRequestNewYork": {
+                "summary": "Availability Search New York using Destination",
+                "value": {
+                    "booking_id": "81a25d1e-d06d-4772-89be-b0132bdbbe48",
+                    "booking_item": "08d528c6-f078-465b-bd29-a0ce210ee376",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "destination": 961,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2,
+                            "children_ages": [
+                                2
+                            ]
+                        },
+                        {
+                            "adults": 2
+                        }
+                    ],
+                    "page": 1,
+                    "results_per_page": 20
+                }
+            },
+            "AvailabilitySearchRequestCancun": {
+                "summary": "Availability Search Cancun using Destination",
+                "value": {
+                    "booking_id": "81a25d1e-d06d-4772-89be-b0132bdbbe48",
+                    "booking_item": "08d528c6-f078-465b-bd29-a0ce210ee376",
+                    "checkin": "2024-05-11",
+                    "checkout": "2024-05-20",
+                    "destination": 508,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2
+                        }
+                    ],
+                    "page": 1,
+                    "results_per_page": 10
+                }
+            },
+            "AvailabilitySearchRequestCurrencySupplier": {
+                "summary": "Availability Search set Supplier",
+                "value": {
+                    "booking_id": "81a25d1e-d06d-4772-89be-b0132bdbbe48",
+                    "booking_item": "08d528c6-f078-465b-bd29-a0ce210ee376",
+                    "currency": "USD",
+                    "checkin": "2024-06-19",
+                    "checkout": "2024-06-21",
+                    "destination": 951,
+                    "rating": 4.5,
+                    "occupancy": [
+                        {
+                            "adults": 2,
+                            "children_ages": [
+                                2
+                            ]
+                        },
+                        {
+                            "adults": 1
+                        }
+                    ],
+                    "page": 1,
+                    "results_per_page": 20
+                }
+            },
             "BookingAddItemResponse": {
                 "summary": "Example Booking Add Item Response",
                 "value": {
@@ -4422,14 +6286,14 @@
                     }
                 }
             },
-            "BookingChangeBookingResponse": {
+            "BookingChangeSoftBookingResponse": {
                 "summary": "Example Booking Change Booking Response",
                 "value": {
                     "success": true,
                     "message": "success"
                 }
             },
-            "BookingChangeBookingResponseError": {
+            "BookingChangeSoftBookingResponseError": {
                 "summary": "Example Booking Change Booking Response Error",
                 "value": {
                     "success": false,
@@ -8095,7 +9959,7 @@
             "description": "API Endpoints of Price"
         },
         {
-            "name": "Booking API | Cart Endpoints",
+            "name": "Booking API | Basket",
             "description": "API Endpoints of Cart (pre-reservation)"
         },
         {
@@ -8103,8 +9967,12 @@
             "description": "API Endpoints for Insurance and Informational Services"
         },
         {
-            "name": "Booking API | Booking Endpoints",
+            "name": "Booking API | Booking",
             "description": "API Endpoints of Booking (reservation)"
+        },
+        {
+            "name": "Booking API | Change Booking",
+            "description": "API Endpoints of Booking Changes (modification)"
         }
     ]
 }

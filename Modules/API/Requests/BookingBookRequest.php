@@ -10,7 +10,7 @@ class BookingBookRequest extends ApiRequest
 {
     /**
      * @OA\Post(
-     *   tags={"Booking API | Booking Endpoints"},
+     *   tags={"Booking API | Booking"},
      *   path="/api/booking/book",
      *   summary="Create a new booking for a service or event",
      *   description="Create a new booking for a service or event. Use this endpoint to make reservations.",

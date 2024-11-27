@@ -26,12 +26,23 @@ class ApiTestCase extends TestCase
 
     protected function seederSupplier(): void
     {
-        $supplier = Supplier::firstOrNew([
-            'id' => 1,
-            'name' => 'Expedia',
-            'description' => 'Expedia Description']);
+        $suppliers = [
+            [
+                'id' => 1,
+                'name' => 'Expedia',
+                'description' => 'Expedia Description'
+            ],
+            [
+                'id' => 2,
+                'name' => 'HBSI',
+                'description' => 'HBSI Description'
+            ]
+        ];
 
-        $supplier->save();
+        foreach ($suppliers as $supplierData) {
+            $supplier = Supplier::firstOrNew($supplierData);
+            $supplier->save();
+        }
     }
 
     /**

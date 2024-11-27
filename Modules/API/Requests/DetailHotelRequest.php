@@ -12,7 +12,7 @@ class DetailHotelRequest extends ApiRequest
      * @OA\Get(
      *   tags={"Content API"},
      *   path="/api/content/detail",
-     *   summary="Delail Hotels",
+     *   summary="Detail Hotels",
      *   description="Get detailed information about a hotel.",
      *
      *    @OA\Parameter(
@@ -20,29 +20,40 @@ class DetailHotelRequest extends ApiRequest
      *      in="query",
      *      required=true,
      *      description="Type of content to search (e.g., 'hotel').",
-     *
      *      @OA\Schema(
      *        type="string",
      *        example="hotel"
-     *        )
+     *      )
      *    ),
      *
      *    @OA\Parameter(
      *      name="property_id",
-     *    in="query",
-     *    required=true,
-     *    description="Giata ID of the property to get details for (e.g., 98736411).",
+     *      in="query",
+     *      required=true,
+     *      description="Giata ID of the property to get details for (e.g., 98736411).",
+     *      @OA\Schema(
+     *        type="integer",
+     *        example=98736411
+     *      )
+     *    ),
      *
-     *   	@OA\Schema(
-     *      type="integer",
-     *      example=98736411
-     *    )
-     *   ),
+     *    @OA\Parameter(
+     *      name="room_type_codes",
+     *      in="query",
+     *      required=false,
+     *      description="Array of room type codes. (e.g., ['ODK'])",
+     *      @OA\Schema(
+     *         type="array",
+     *         @OA\Items(
+     *             type="string",
+     *             example="ODK"
+     *         )
+     *      )
+     *    ),
      *
-     *   @OA\Response(
+     *    @OA\Response(
      *     response=200,
      *     description="OK",
-     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/ContentDetailResponse",
      *       examples={
@@ -54,7 +65,6 @@ class DetailHotelRequest extends ApiRequest
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
-     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse",
      *       examples={
@@ -66,7 +76,6 @@ class DetailHotelRequest extends ApiRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
-     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -84,6 +93,8 @@ class DetailHotelRequest extends ApiRequest
             'property_id' => 'required|int|digits_between:4,12',
             'type' => 'required|in:hotel,flight,combo',
             'supplier' => 'string',
+            'room_type_codes' => 'array',
+            'room_type_codes.*' => 'string',
         ];
     }
 

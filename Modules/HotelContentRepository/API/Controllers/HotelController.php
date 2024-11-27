@@ -15,6 +15,7 @@ use Modules\HotelContentRepository\Models\Hotel;
 use Illuminate\Http\Request;
 use Modules\HotelContentRepository\API\Controllers\BaseController;
 use Modules\HotelContentRepository\Models\Transformers\HotelTransformer;
+use mysql_xdevapi\Collection;
 use Spatie\Fractal\Fractal;
 
 class HotelController extends BaseController
@@ -22,7 +23,8 @@ class HotelController extends BaseController
     public function __construct(
         protected AddHotel $addHotel,
         protected EditHotel $editHotel,
-        protected DeleteHotel $deleteHotel
+        protected DeleteHotel $deleteHotel,
+        protected HotelDTO $hotelDTO
     ) {}
 
     public function index()
@@ -33,9 +35,7 @@ class HotelController extends BaseController
 
         $useFractal = env('USE_FRACTAL', true);
         if (!$useFractal){
-            $hotelDTOs = $hotels->map(function ($hotel) {
-                return new HotelDTO($hotel);
-            })->toArray();
+            $hotelDTOs = $this->hotelDTO->transform($hotels, true);
         } else {
             $hotelDTOs = Fractal::create()
                 ->collection($hotels)
@@ -58,7 +58,7 @@ class HotelController extends BaseController
 
         $useFractal = env('USE_FRACTAL', true);
         if (!$useFractal){
-            $hotelDTO = new HotelDTO($hotel);
+            $hotelDTO = $this->hotelDTO->transform($hotel->get(), true);
         } else {
             $hotelDTO = Fractal::create()
                 ->item($hotel)

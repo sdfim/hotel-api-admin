@@ -3,6 +3,7 @@
 namespace Tests\Feature\API\Local\Content;
 
 use Tests\Feature\API\Local\ApiTestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelContentDestinationsSearchTest extends ApiTestCase
 {

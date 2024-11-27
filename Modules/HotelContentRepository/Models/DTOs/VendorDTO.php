@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\DTOs;
 
+use Illuminate\Database\Eloquent\Collection;
 use Modules\HotelContentRepository\Models\Vendor;
 
 class VendorDTO
@@ -15,17 +16,28 @@ class VendorDTO
     public $website;
     public $products;
 
-    public function __construct(Vendor $vendor)
+    public function __construct(
+        private readonly ProductDTO $productDTO
+    ) {}
+
+    public function transform(Collection $vendors)
     {
-        $this->id = $vendor->id;
-        $this->name = $vendor->name;
-        $this->verified = $vendor->verified;
-        $this->address = $vendor->address;
-        $this->lat = $vendor->lat;
-        $this->lng = $vendor->lng;
-        $this->website = $vendor->website;
-        $this->products = $vendor->products->map(function ($product) {
-            return new ProductForRelationDTO($product);
-        });
+        return $vendors->map(function ($vendor) {
+            return $this->transformVendor($vendor);
+        })->all();
+    }
+
+    public function transformVendor(Vendor $vendor)
+    {
+        return [
+            'id' => $vendor->id,
+            'name' => $vendor->name,
+            'verified' => $vendor->verified,
+            'address' => $vendor->address,
+            'lat' => $vendor->lat,
+            'lng' => $vendor->lng,
+            'website' => $vendor->website,
+            'products' => $this->productDTO->transform($vendor->products, true),
+        ];
     }
 }

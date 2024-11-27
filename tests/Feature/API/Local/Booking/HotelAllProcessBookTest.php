@@ -4,14 +4,11 @@ namespace Tests\Feature\API\Local\Booking;
 
 use Faker\Factory as Faker;
 use Illuminate\Support\Carbon;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelAllProcessBookTest extends HotelBookingApiTestCase
 {
-    /**
-     * @test
-     *
-     * @coversNothing
-     */
+    #[Test]
     public function test_book_method_response(): void
     {
         //# SEARCH 1

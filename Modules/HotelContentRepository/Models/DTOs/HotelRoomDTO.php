@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Models\DTOs;
 
 use Modules\HotelContentRepository\Models\HotelRoom;
+use Illuminate\Support\Collection;
 
 class HotelRoomDTO
 {
@@ -16,18 +17,29 @@ class HotelRoomDTO
     public $bed_groups;
     public $galleries;
 
-    public function __construct(HotelRoom $hotelRoom)
+    public function __construct(
+        private readonly ImageGalleryDTO $imageGalleryDTO,
+    ) {}
+
+    public function transform(Collection $hotelRooms)
     {
-        $this->id = $hotelRoom->id;
-        $this->hotel_id = $hotelRoom->hotel_id;
-        $this->hbsi_data_mapped_name = $hotelRoom->hbsi_data_mapped_name;
-        $this->name = $hotelRoom->name;
-        $this->description = $hotelRoom->description;
-        $this->amenities = $hotelRoom->amenities;
-        $this->occupancy = $hotelRoom->occupancy;
-        $this->bed_groups = $hotelRoom->bed_groups;
-        $this->galleries = $hotelRoom->galleries->map(function ($gallery) {
-            return new ImageGalleryDTO($gallery);
-        });
+        return $hotelRooms->map(function ($room) {
+            return $this->transformRoom($room);
+        })->all();
+    }
+
+    private function transformRoom(HotelRoom $hotelRoom)
+    {
+        return [
+            'id' => $hotelRoom->id,
+            'hotel_id' => $hotelRoom->hotel_id,
+            'hbsi_data_mapped_name' => $hotelRoom->hbsi_data_mapped_name,
+            'name' => $hotelRoom->name,
+            'description' => $hotelRoom->description,
+            'amenities' => $hotelRoom->amenities,
+            'occupancy' => $hotelRoom->occupancy,
+            'bed_groups' => $hotelRoom->bed_groups,
+            'galleries' => $this->imageGalleryDTO->transform($hotelRoom->galleries),
+        ];
     }
 }

@@ -54,7 +54,6 @@ class PricingRulesTest extends CustomAuthorizedActionsTestCase
                 'price_value' => '',
                 'price_value_type' => '',
                 'rule_start_date' => '',
-                'rule_expiration_date' => '',
             ])
             ->call('create')
             ->assertHasErrors([

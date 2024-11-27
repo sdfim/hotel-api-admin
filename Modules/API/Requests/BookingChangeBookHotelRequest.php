@@ -10,71 +10,48 @@ class BookingChangeBookHotelRequest extends ApiRequest
 {
     /**
      * @OA\Put(
-     *   tags={"Booking API | Booking Endpoints"},
+     *   tags={"Booking API | Change Booking"},
      *   path="/api/booking/change-booking",
-     *   summary="Modify an existing booking..",
+     *   summary="Modify an existing booking.",
      *   description="Modify an existing booking. You can update booking details, change dates, or make other adjustments to your reservation.",
      *
-     *   @OA\Parameter(
-     *      name="booking_id",
-     *      in="query",
-     *      required=true,
-     *      description="Booking ID",
-     *      example="3333cee5-b4a3-4e51-bfb0-02d09370b585"
-     *    ),
-     *   @OA\Parameter(
-     *      name="booking_item",
-     *      in="query",
-     *      required=true,
-     *      description="To retrieve the **booking_item**, you need to execute a **'/api/pricing/search'** request. <br>
-     *      In the response object for each rate is a **booking_item** property.",
-     *      example="c7bb44c1-bfaa-4d05-b2f8-37541b454f8c"
-     *    ),
-     *
-     *     @OA\RequestBody(
-     *     description="JSON object containing the details of the reservation.",
+     *   @OA\RequestBody(
+     *     description="JSON object containing the details of the modification.",
      *     required=true,
-     *
      *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingChangeBookingRequest",
-     *       examples={
-     *           "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingRequest", example="BookingChangeBookingRequest"),
-     *       },
-     *     ),
-     *   ),
-     *
-     *   @OA\Response(
-     *     response=200,
-     *     description="OK",
-     *
-     *     @OA\JsonContent(
-     *       ref="#/components/schemas/BookingChangeBookingResponse",
-     *           examples={
-     *             "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingResponse", example="BookingChangeBookingResponse"),
-     *         },
+     *       ref="#/components/schemas/BookingChangeBookingRequest"
      *     )
      *   ),
-     *
      *   @OA\Response(
-     *     response=400,
-     *     description="Bad Request",
-     *
-     *     @OA\JsonContent(
-     *       examples={
-     *         "example1": @OA\Schema(ref="#/components/examples/BookingChangeBookingResponseError", example="BookingChangeBookingResponseError"),
-     *       },
-     *     )
-     *   ),
-     *
+     *      response=200,
+     *      description="Booking successfully changed.",
+     *      @OA\JsonContent(
+     *        @OA\Property(
+     *          property="success",
+     *          type="boolean",
+     *          example=true
+     *        ),
+     *        @OA\Property(
+     *          property="data",
+     *          type="object",
+     *          @OA\Property(
+     *            property="status",
+     *            type="string",
+     *            example="Booking changed."
+     *          )
+     *        ),
+     *        @OA\Property(
+     *          property="message",
+     *          type="string",
+     *          example="success"
+     *        )
+     *      )
+     *    ),
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
-     *
      *     @OA\JsonContent(
-     *       ref="#/components/schemas/UnAuthenticatedResponse",
-     *       examples={
-     *       "example1": @OA\Schema(ref="#/components/examples/UnAuthenticatedResponse", example="UnAuthenticatedResponse"),
-     *       }
+     *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
      *   security={{ "apiAuth": {} }}

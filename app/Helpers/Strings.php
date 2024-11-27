@@ -10,8 +10,10 @@ class Strings
 
         // Prepend + to each word, ensuring that each word is mandatory
         // Append * to each word, ensuring that pieces of words can be matched
-        return collect($words)->map(function ($word) {
+        $booleanSearch = collect($words)->map(function ($word) {
             return "+$word*";
         })->implode(' ');
+
+        return $booleanSearch;
     }
 }

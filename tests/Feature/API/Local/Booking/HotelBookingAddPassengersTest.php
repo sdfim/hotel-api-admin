@@ -5,6 +5,7 @@ namespace Tests\Feature\API\Local\Booking;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
+use PHPUnit\Framework\Attributes\Test;
 
 class HotelBookingAddPassengersTest extends HotelBookingApiTestCase
 {

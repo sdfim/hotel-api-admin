@@ -20,7 +20,8 @@ class ProductController extends BaseController
     public function __construct(
         protected AddProduct $addProduct,
         protected EditProduct $editProduct,
-        protected DeleteProduct $deleteProduct
+        protected DeleteProduct $deleteProduct,
+        protected ProductDTO $productDTO
     ) {}
 
     public function index()
@@ -31,17 +32,15 @@ class ProductController extends BaseController
 
         $useFractal = env('USE_FRACTAL', true);
         if (!$useFractal) {
-            $productDTOs = $products->map(function ($product) {
-                return new ProductDTO($product);
-            })->toArray();
+            $productDTO = $this->productDTO->transform($products, true);
         } else {
-            $productDTOs = Fractal::create()
+            $productDTO = Fractal::create()
                 ->collection($products)
                 ->transformWith(new ProductTransformer())
                 ->toArray()['data'];
         }
 
-        return $this->sendResponse($productDTOs, 'index success');
+        return $this->sendResponse($productDTO, 'index success');
     }
 
     public function store(ProductRequest $request)
@@ -56,7 +55,7 @@ class ProductController extends BaseController
 
         $useFractal = env('USE_FRACTAL', true);
         if (!$useFractal) {
-            $productDTO = new ProductDTO($product);
+            $productDTO = $this->productDTO->transform($product->get(), true);
         } else {
             $productDTO = Fractal::create()
                 ->item($product)
