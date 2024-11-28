@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\API\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Actions\Hotel\AddHotel;
 use Modules\HotelContentRepository\Actions\Hotel\DeleteHotel;
@@ -15,7 +16,6 @@ use Modules\HotelContentRepository\Models\Hotel;
 use Illuminate\Http\Request;
 use Modules\HotelContentRepository\API\Controllers\BaseController;
 use Modules\HotelContentRepository\Models\Transformers\HotelTransformer;
-use mysql_xdevapi\Collection;
 use Spatie\Fractal\Fractal;
 
 class HotelController extends BaseController
@@ -38,8 +38,7 @@ class HotelController extends BaseController
             $hotelDTOs = $this->hotelDTO->transform($hotels, true);
         } else {
             $hotelDTOs = Fractal::create()
-                ->collection($hotels)
-                ->transformWith(new HotelTransformer())
+                ->collection($hotels, new HotelTransformer())
                 ->toArray()['data'];
         }
 
@@ -57,13 +56,10 @@ class HotelController extends BaseController
         $hotel = Hotel::with($this->getIncludes())->findOrFail($id);
 
         $useFractal = env('USE_FRACTAL', true);
-        if (!$useFractal){
-            $hotelDTO = $this->hotelDTO->transform($hotel->get(), true);
+        if (!$useFractal) {
+            $hotelDTO = $this->hotelDTO->transform(new Collection([$hotel]), true);
         } else {
-            $hotelDTO = Fractal::create()
-                ->item($hotel)
-                ->transformWith(new HotelTransformer())
-                ->toArray()['data'];
+            $hotelDTO = Fractal::create()->item($hotel, new HotelTransformer());
         }
 
         return $this->sendResponse([$hotelDTO], 'show success');
