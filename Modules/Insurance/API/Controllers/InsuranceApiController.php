@@ -29,9 +29,9 @@ class InsuranceApiController extends BaseController
         $bookingId = $request->input('booking_id');
         $bookingItem = $request->input('booking_item');
 
-        $insuranceProvider = $this->getInsuranceProvider($request['insurance_provider']);
+        $insuranceProvider = $this->getInsuranceProvider($request['vendor']);
         if (!$insuranceProvider) {
-            return $this->sendError('The selected insurance provider is invalid or unavailable', 404);
+            return $this->sendError('The selected insurance vendor is invalid or unavailable', 404);
         }
 
         $bookingItems = $this->getBookingItems($bookingId, $bookingItem);

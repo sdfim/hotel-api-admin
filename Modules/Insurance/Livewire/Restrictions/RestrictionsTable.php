@@ -24,6 +24,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
+use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsuranceRestriction;
 use Modules\Insurance\Models\InsuranceRestrictionType;
 
@@ -33,9 +34,13 @@ class RestrictionsTable extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     public array $restrictionTypes = [];
+    public ?int $vendorId;
+    public bool $viewAll = false;
 
-    public function mount(): void
+    public function mount(?Vendor $vendor, bool $viewAll = false): void
     {
+        $this->vendorId = $vendor->id;
+        $this->viewAll = $viewAll;
         $this->restrictionTypes = InsuranceRestrictionType::pluck('id', 'name')->toArray();
     }
 
@@ -49,9 +54,9 @@ class RestrictionsTable extends Component implements HasForms, HasTable
         return [
             Grid::make(4)
                 ->schema([
-                    Select::make('provider_id')
-                        ->label('Provider')
-                        ->relationship(name: 'provider', titleAttribute: 'name')
+                    Select::make('vendor_id')
+                        ->label('Vendor')
+                        ->relationship(name: 'vendor', titleAttribute: 'name')
                         ->preload()
                         ->required(),
                     Select::make('restriction_type_id')
@@ -139,10 +144,12 @@ class RestrictionsTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(InsuranceRestriction::query())
+            ->query(fn () => $this->viewAll
+                ? InsuranceRestriction::query()
+                : InsuranceRestriction::query()->where('vendor_id', $this->vendorId))
             ->columns([
-                TextColumn::make('provider.name')
-                    ->label('Provider name')
+                TextColumn::make('vendor.name')
+                    ->label('Vendor name')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('restrictionType.label')

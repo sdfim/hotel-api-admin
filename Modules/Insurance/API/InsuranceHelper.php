@@ -11,6 +11,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
+use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsurancePlan;
 use Modules\Insurance\Models\InsuranceProvider;
 use Modules\Insurance\Models\InsuranceRateTier;
@@ -30,9 +31,9 @@ trait InsuranceHelper
         SaveBookingInspector::dispatch($bookingInspector, $content, $responseData);
     }
 
-    private function getInsuranceProvider(string $providerName): ?InsuranceProvider
+    private function getInsuranceProvider(string $providerName): ?Vendor
     {
-        return InsuranceProvider::where('name', $providerName)->first();
+        return Vendor::where('name', $providerName)->first();
     }
 
     private function getBookingItems(?string $bookingId, ?string $bookingItem): array
@@ -55,7 +56,7 @@ trait InsuranceHelper
         $bookingItemTotalPrice = (float)Arr::get($itemPricing, 'total_price', 0);
         $costPerPassenger = $totalPassengersNumber > 0 ? $bookingItemTotalPrice / $totalPassengersNumber : 0;
 
-        $insuranceRateTier = InsuranceRateTier::where('insurance_provider_id', $insuranceProvider->id)
+        $insuranceRateTier = InsuranceRateTier::where('vendor_id', $insuranceProvider->id)
             ->where('min_trip_cost', '<=', $costPerPassenger)
             ->where('max_trip_cost', '>=', $costPerPassenger)
             ->first();
@@ -66,12 +67,12 @@ trait InsuranceHelper
 
         $totalPlanCost = $insuranceRateTier->net_to_trip_mate * $totalPassengersNumber;
         $commissionUjv = $insuranceRateTier->ujv_retention * $totalPassengersNumber;
-        $insuranceProviderFee = $insuranceRateTier->consumer_plan_cost * $totalPassengersNumber;
+        $insuranceVendorFee = $insuranceRateTier->consumer_plan_cost * $totalPassengersNumber;
 
         $insurancePlan->total_insurance_cost = $totalPlanCost;
-        $insurancePlan->insurance_provider_fee = $insuranceProviderFee;
+        $insurancePlan->insurance_vendor_fee = $insuranceVendorFee;
         $insurancePlan->commission_ujv = $commissionUjv;
-        $insurancePlan->insurance_provider_id = $insuranceProvider->id;
+        $insurancePlan->vendor_id = $insuranceProvider->id;
         $insurancePlan->request = $request->all();
 
         if (!$insurancePlan->save()) {
@@ -146,14 +147,14 @@ trait InsuranceHelper
         }
     }
 
-    private function validateBookingItem($bookingItem, $providerId): array
+    private function validateBookingItem($bookingItem, $vendorId): array
     {
         $validationRules = InsuranceRestriction::with('restrictionType')
-            ->where('provider_id', $providerId)
+            ->where('vendor_id', $vendorId)
             ->get()
             ->map(function ($restriction) {
                 return [
-                    'provider' => $restriction->provider->name,
+                    'vendor' => $restriction->vendor->name,
                     'restriction_type' => $restriction->restrictionType->name,
                     'compare_sign' => $restriction->compare,
                     'restriction_value' => $restriction->value,

@@ -33,7 +33,7 @@ class InsuranceProvider extends Model
 
     public function restrictions(): HasMany
     {
-        return $this->hasMany(InsuranceRestriction::class, 'provider_id');
+        return $this->hasMany(InsuranceRestriction::class, 'vendor_id');
     }
 
     public function documentations(): HasMany

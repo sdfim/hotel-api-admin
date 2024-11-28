@@ -24,6 +24,7 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Artisan;
 use Livewire\Component;
+use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsuranceRateTier;
 
 class RateTiersTable extends Component implements HasForms, HasTable
@@ -31,8 +32,14 @@ class RateTiersTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public $provider_id;
-    public $file;
+    public ?int $vendorId;
+    public bool $viewAll = false;
+
+    public function mount(?Vendor $vendor, bool $viewAll = false): void
+    {
+        $this->vendorId = $vendor->id;
+        $this->viewAll = $viewAll;
+    }
 
     public function form(Form $form): Form
     {
@@ -44,9 +51,9 @@ class RateTiersTable extends Component implements HasForms, HasTable
         return [
             Grid::make(3)
                 ->schema([
-                    Select::make('insurance_provider_id')
-                        ->label('Provider')
-                        ->relationship(name: 'provider', titleAttribute: 'name')
+                    Select::make('vendor_id')
+                        ->label('Vendor')
+                        ->relationship(name: 'vendor', titleAttribute: 'name')
                         ->preload()
                         ->required(),
                     TextInput::make('min_trip_cost')
@@ -83,10 +90,12 @@ class RateTiersTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(InsuranceRateTier::query())
+            ->query(fn () => $this->viewAll
+                ? InsuranceRateTier::query()
+                : InsuranceRateTier::query()->where('vendor_id', $this->vendorId))
             ->columns([
-                TextColumn::make('provider.name')
-                    ->label('Insurance Provider')
+                TextColumn::make('vendor.name')
+                    ->label('Insurance Vendor')
                     ->sortable()
                     ->searchable(isIndividual: true),
                 TextColumn::make('min_trip_cost')
@@ -161,9 +170,9 @@ class RateTiersTable extends Component implements HasForms, HasTable
                 CreateAction::make('importInsuranceRateTiers')
                     ->label('Import Insurance Rate Tiers')
                     ->form([
-                        Select::make('provider_id')
-                            ->label('Provider')
-                            ->relationship(name: 'provider', titleAttribute: 'name')
+                        Select::make('vendor_id')
+                            ->label('Vendor')
+                            ->relationship(name: 'vendor', titleAttribute: 'name')
                             ->preload()
                             ->required(),
                         FileUpload::make('file')
@@ -183,7 +192,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     ->disableCreateAnother()
                     ->action(function (array $data) {
                         Artisan::call('import:insurance-rate-tiers', [
-                            'provider_id' => $data['provider_id'],
+                            'vendor_id' => $data['vendor_id'],
                             'file' => storage_path('app/public/' . $data['file']),
                         ]);
                         Notification::make()

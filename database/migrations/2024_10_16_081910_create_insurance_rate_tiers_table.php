@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('insurance_rate_tiers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('insurance_provider_id')->constrained('insurance_providers')->onDelete('cascade');
+            $table->foreignId('vendor_id')->constrained('pd_vendors')->onDelete('cascade');
             $table->float('min_trip_cost');
             $table->float('max_trip_cost');
             $table->float('consumer_plan_cost');

@@ -43,7 +43,7 @@ use Modules\HotelContentRepository\Http\Controllers\ProductController;
 use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
 use Modules\HotelContentRepository\Http\Controllers\VendorController;
 use Modules\Insurance\Http\Controllers\InsurancePlansController;
-use Modules\Insurance\Http\Controllers\InsuranceProvidersDocumentationController;
+use Modules\Insurance\Http\Controllers\InsuranceDocumentationsController;
 use Modules\Insurance\Http\Controllers\InsuranceRateTiersController;
 
 /*
@@ -106,8 +106,7 @@ Route::prefix('admin')->group(function () {
 
         Route::resource('pd-grid', PdGridController::class)->only(['index']);
 
-        Route::resource('/insurance-providers', InsuranceProvidersController::class)->only(['index']);
-        Route::resource('/insurance-providers-documentation', InsuranceProvidersDocumentationController::class)->only(['index']);
+        Route::resource('/insurance-providers-documentation', InsuranceDocumentationsController::class)->only(['index']);
         Route::resource('/insurance-restrictions', InsuranceRestrictionsController::class)->only(['index']);
         Route::resource('/insurance-rate-tiers', InsuranceRateTiersController::class)->only(['index']);
         Route::resource('/insurance-plans', InsurancePlansController::class)->only(['index']);

@@ -418,16 +418,9 @@
                             @endif
                             @if($canView(InsuranceProvider::class))
                                 <li>
-                                    <a href="{{ Route('insurance-providers.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                        Providers</a>
-                                </li>
-                            @endif
-                            @if($canView(InsuranceProvider::class))
-                                <li>
                                     <a href="{{ Route('insurance-providers-documentation.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                        Providers Documentation</a>
+                                        Documentations</a>
                                 </li>
                             @endif
                             @if($canView(InsuranceRestriction::class))

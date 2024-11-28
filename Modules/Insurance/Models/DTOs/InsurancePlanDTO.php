@@ -14,10 +14,10 @@ class InsurancePlanDTO
             'id' => $insurancePlan->id,
             'booking_item' => $insurancePlan->booking_item,
             'total_insurance_cost' => $insurancePlan->total_insurance_cost,
-            'insurance_provider_fee' => $insurancePlan->insurance_provider_fee,
+            'insurance_vendor_fee' => $insurancePlan->insurance_vendor_fee,
             'commission_ujv' => $insurancePlan->commission_ujv,
-            'insurance_provider_id' => $insurancePlan->insurance_provider_id,
-            'insurance_provider' => $insurancePlan->provider->name,
+            'vendor_id' => $insurancePlan->insurance_provider_id,
+            'vendor' => $insurancePlan->provider->name,
             'request' => $insurancePlan->request,
             'applications' => $insurancePlan->applications->map(function ($application) {
                 return [

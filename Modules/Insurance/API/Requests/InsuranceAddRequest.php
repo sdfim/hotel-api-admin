@@ -17,16 +17,16 @@ class InsuranceAddRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"insurance_provider"},
+     *       required={"vendor"},
      *       @OA\Property(property="booking_id", type="string", example="123e4567-e89b-12d3-a456-426614174000"),
      *       @OA\Property(property="booking_item", type="string", example="123e4567-e89b-12d3-a456-426614174001"),
-     *       @OA\Property(property="insurance_provider", type="string", example="TripMate"),
+     *       @OA\Property(property="vendor", type="string", example="TripMate"),
      *       @OA\Examples(
      *          example="example1",
      *          summary="Example with booking_id",
      *          value={
      *              "booking_id": "123e4567-e89b-12d3-a456-426614174000",
-     *              "insurance_provider": "TripMate"
+     *              "vendor": "TripMate"
      *          }
      *       ),
      *       @OA\Examples(
@@ -34,7 +34,7 @@ class InsuranceAddRequest extends ApiRequest
      *          summary="Example with booking_item",
      *          value={
      *              "booking_item": "123e4567-e89b-12d3-a456-426614174001",
-     *              "insurance_provider": "TripMate"
+     *              "vendor": "TripMate"
      *          }
      *       )
      *     )
@@ -75,16 +75,16 @@ class InsuranceAddRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"insurance_provider"},
+     *       required={"vendor"},
      *       @OA\Property(property="booking_id", type="string", example="123e4567-e89b-12d3-a456-426614174000"),
      *       @OA\Property(property="booking_item", type="string", example="123e4567-e89b-12d3-a456-426614174001"),
-     *       @OA\Property(property="insurance_provider", type="string", example="TripMate"),
+     *       @OA\Property(property="vendor", type="string", example="TripMate"),
      *       @OA\Examples(
      *          example="example1",
      *          summary="Example with booking_id",
      *          value={
      *              "booking_id": "123e4567-e89b-12d3-a456-426614174000",
-     *              "insurance_provider": "TripMate"
+     *              "vendor": "TripMate"
      *          }
      *       ),
      *       @OA\Examples(
@@ -92,7 +92,7 @@ class InsuranceAddRequest extends ApiRequest
      *          summary="Example with booking_item",
      *          value={
      *              "booking_item": "123e4567-e89b-12d3-a456-426614174001",
-     *              "insurance_provider": "TripMate"
+     *              "vendor": "TripMate"
      *          }
      *       )
      *     )
@@ -185,7 +185,7 @@ class InsuranceAddRequest extends ApiRequest
         return [
             'booking_id' => 'required_without:booking_item|size:36|exists:api_booking_inspector,booking_id',
             'booking_item' => 'required_without:booking_id|size:36|exists:api_booking_items,booking_item',
-            'insurance_provider' => 'required|exists:insurance_providers,name',
+            'vendor' => 'required|exists:pd_vendors,name',
         ];
     }
 }

@@ -10,17 +10,15 @@ return new class extends Migration {
     {
         Schema::create('insurance_restrictions', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('provider_id');
+            $table->unsignedBigInteger('vendor_id');
             $table->unsignedBigInteger('restriction_type_id');
             $table->string('compare')->nullable(); // Nullable if needed
             $table->string('value')->nullable(); // Nullable if needed
             $table->timestamps();
 
-            $table->foreign('provider_id')->references('id')->on('insurance_providers')->onDelete('cascade');
+            $table->foreign('vendor_id')->references('id')->on('pd_vendors')->onDelete('cascade');
             $table->foreign('restriction_type_id')->references('id')->on('insurance_restriction_types')->onDelete('cascade');
         });
-
-        (new TripMateDefaultRestrictions())->run();
     }
 
     public function down(): void

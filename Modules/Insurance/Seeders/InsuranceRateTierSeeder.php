@@ -15,7 +15,7 @@ class InsuranceRateTierSeeder extends Seeder
 
             $rateTiers = [
                 [
-                    'insurance_provider_id' => 1,
+                    'vendor_id' => 1,
                     'min_trip_cost' => 0,
                     'max_trip_cost' => 1000,
                     'consumer_plan_cost' => 43,
