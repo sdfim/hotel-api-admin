@@ -8,6 +8,6 @@ class CustomRepeater extends BaseRepeater
 {
     public function getDefaultView(): string
     {
-        return 'livewire.components.custom-cr-repeater-item';
+        return 'livewire.components.custom-repeater-item';
     }
 }
