@@ -16,8 +16,8 @@ class InsurancePlanDTO
             'total_insurance_cost' => $insurancePlan->total_insurance_cost,
             'insurance_vendor_fee' => $insurancePlan->insurance_vendor_fee,
             'commission_ujv' => $insurancePlan->commission_ujv,
-            'vendor_id' => $insurancePlan->insurance_provider_id,
-            'vendor' => $insurancePlan->provider->name,
+            'vendor_id' => $insurancePlan->vendor_id,
+            'vendor' => $insurancePlan->vendor->name,
             'request' => $insurancePlan->request,
             'applications' => $insurancePlan->applications->map(function ($application) {
                 return [
