@@ -28,7 +28,7 @@ class VendorForm extends Component implements HasForms
     {
         $this->record = $vendor ?? new Vendor();
 
-        $this->verified = $vendor->verified;
+        $this->verified = $vendor->verified ?? false;
 
         $this->form->fill($this->record->attributesToArray());
     }
@@ -74,8 +74,8 @@ class VendorForm extends Component implements HasForms
                         ->label('Address')
                         ->required()
                         ->rows(5),
-                    TextInput::make('lat')->label('Latitude')->required(),
-                    TextInput::make('lng')->label('Longitude')->required(),
+                    TextInput::make('lat')->label('Latitude')->required()->numeric(),
+                    TextInput::make('lng')->label('Longitude')->required()->numeric(),
                     TextInput::make('website')->label('Website')->required(),
                 ]),
             ])
@@ -86,27 +86,20 @@ class VendorForm extends Component implements HasForms
     public function edit(): Redirector|RedirectResponse
     {
         $this->validate();
+        $this->record->fill($this->data);
+        $this->record->verified = $this->verified ?? false;
+        $isNew = !$this->record->exists;
         $this->record->save();
 
-        Notification::make()
-            ->title('Vendor updated successfully.')
-            ->livewire($this);
-
-        session()->flash('message', 'Vendor updated successfully.');
-        return redirect()->route('vendor.index');
-    }
-
-    public function save(): Redirector|RedirectResponse
-    {
-        $this->validate();
-        $this->record->save();
+        $message = $isNew ? 'Vendor created successfully' : 'Vendor updated successfully';
 
         Notification::make()
-            ->title('Vendor saved successfully.')
-            ->livewire($this);
+            ->title($message)
+            ->success()
+            ->send();
 
-        session()->flash('message', 'Vendor saved successfully.');
-        return redirect()->route('vendor.index');
+        session()->flash('message', $message);
+        return redirect()->route('vendor-repository.index');
     }
 
     public function render()

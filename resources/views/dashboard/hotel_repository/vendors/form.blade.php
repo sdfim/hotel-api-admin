@@ -22,6 +22,7 @@
     ];
 
     $vendorTitle = ['General Information'];
+    $ignoreCreate = ['Products', 'Hotels'];
 @endphp
 @extends('layouts.master')
 @section('title')
@@ -54,6 +55,7 @@
 
                 <ul class="sr_tab-list flex justify-between w-full">
                     @foreach ($tabGroups as $group => $tabs)
+                        @php if (!$vendor->exists && in_array($group, $ignoreCreate)) continue; @endphp
                         <li class="sr_tab-item mr-1 flex items-end">
                             <a href="#"
                                class="sr_tab-link"
@@ -72,9 +74,9 @@
                                 <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4">{{ $tab['title'] }}</h3>
                                 @if (in_array($tab['title'], $vendorTitle))
                                     @livewire($tab['component'], ['vendor' => $vendor])
-                                @elseif ($tab['title'] === 'Contact Information')
-                                    @livewire($tab['component'], ['contactableId' => $vendor->id, 'contactableType' => 'Vendor'])
-                                @else
+                                @elseif ($tab['title'] === 'Contact Information' && $vendor->exists)
+                                    @livewire($tab['component'], ['contactableId' => $vendor->id ?? 0, 'contactableType' => 'Vendor'])
+                                @elseif ($vendor->exists)
                                     @livewire($tab['component'], ['vendor' => $vendor])
                                 @endif
                             @endforeach

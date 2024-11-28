@@ -113,6 +113,19 @@ thead .bg-gray-50{
     outline-offset: 0;
 }
 
+.fi-select-input option:first-child {
+    color: gray;
+}
+
+.fi-select-input option:disabled {
+    color: gray;
+}
+
+.choices .choices__input.choices__input--cloned {
+    padding-left: 10px!important;
+    padding-top: 10px !important;
+}
+
 .hotel-form-container {
     position: relative;
     background-color: var(--white-color);

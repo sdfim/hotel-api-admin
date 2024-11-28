@@ -211,6 +211,7 @@ class HotelForm extends Component implements HasForms
                                 ->required(),
                             Select::make('room_images_source_id')
                                 ->label('Room Images Source')
+                                ->placeholder('Select an option аааааааааааа')
                                 ->options(ContentSource::pluck('name', 'id'))
                                 ->required(),
                             Select::make('product.property_images_source_id')
