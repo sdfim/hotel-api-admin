@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\API\HotelContentRepository\TestCase;
 use Illuminate\Support\Facades\Artisan;
 
-class BaseBookingFlowTest extends TestCase
+class BaseBookingFlow extends TestCase
 {
     use BookFlowTrait;
     use WithFaker;
@@ -22,6 +22,7 @@ class BaseBookingFlowTest extends TestCase
     public static ?string $bookingItem = null;
     public static string $bookingId;
     public static bool $passengersAdded = false;
+    // 0 - 1 room, 1 - 1 room refundable, 2 - 2 rooms
     public static int $stage = 2;
     public static ?array $roomCombinations = [];
 
@@ -31,8 +32,7 @@ class BaseBookingFlowTest extends TestCase
         parent::setUp();
     }
 
-    #[Test]
-    public function test_search(): void
+    public function search(): void
     {
         self::$bookingItem = null;
         $this->searchMock();
@@ -59,7 +59,7 @@ class BaseBookingFlowTest extends TestCase
         $hotels = Arr::get($responseArray, 'data.results');
         $room_combinations = Arr::get($response->json(), 'data.results.0.room_combinations');
 
-        if (self::$stage === 2) {
+        if (self::$stage === 2 || self::$stage === 0) {
             foreach ($room_combinations as $booking_item => $room_combination) {
                 if (! self::$bookingItem) {
                     self::$bookingItem = $booking_item;
@@ -67,9 +67,11 @@ class BaseBookingFlowTest extends TestCase
                 self::$roomCombinations[$booking_item] = $room_combination;
             }
         } elseif (self::$stage === 1) {
+            \Log::debug('BaseBookingFlow hotels', $hotels);
             foreach ($hotels as $hotel) {
                 foreach ($hotel['room_groups'] as $room_groups) {
                     foreach ($room_groups['rooms'] as $room) {
+                        \Log::debug('BaseBookingFlow room', $room);
                         if (!$room['non_refundable']) {
                             self::$bookingItem = $room['booking_item'];
                             break 3;
@@ -84,9 +86,8 @@ class BaseBookingFlowTest extends TestCase
         Mockery::close();
     }
 
-    #[Test]
-    #[Depends('test_search')]
-    public function test_add_booking_item(): void
+
+    public function add_booking_item(): void
     {
         if (self::$stage === 2) {
             (new HbsiService())->updateBookingItemsData(self::$bookingItem, self::$roomCombinations[self::$bookingItem]);
@@ -101,9 +102,7 @@ class BaseBookingFlowTest extends TestCase
         $response->assertStatus(200);
     }
 
-    #[Test]
-    #[Depends('test_add_booking_item')]
-    public function test_add_passengers(): void
+    public function add_passengers(): void
     {
         $passengers = $this->getPassengers();
         $request = [
@@ -116,12 +115,11 @@ class BaseBookingFlowTest extends TestCase
 
         $response->assertStatus(200);
         self::$passengersAdded = true;
-        self::$stage = self::$stage === 1 ? 2 : 1;
     }
 
     private function getPassengers(): array
     {
-        if (self::$stage === 1) {
+        if (self::$stage === 1 || self::$stage === 0) {
             $passengers = [
                 [
                     'title' => 'mr',

@@ -15,7 +15,7 @@ use Illuminate\Testing\Fluent\AssertableJson;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\Attributes\Test;
 
-class BookingChangeTest extends BaseBookingFlowTest
+class BookingChangeTest extends BaseBookingFlow
 {
     use SearchMockTrait;
     use WithFaker;

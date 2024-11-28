@@ -38,6 +38,7 @@ use Modules\HotelContentRepository\Http\Controllers\HotelController;
 use Modules\HotelContentRepository\Http\Controllers\ImageController;
 use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
 use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
+use Modules\HotelContentRepository\Http\Controllers\PdGridController;
 use Modules\HotelContentRepository\Http\Controllers\ProductController;
 use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
 use Modules\HotelContentRepository\Http\Controllers\VendorController;
@@ -102,6 +103,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('vendor-repository', VendorController::class);
         Route::resource('hotel_rooms', HotelRoomController::class);
         Route::resource('travel-agency-commission', TravelAgencyCommissionController::class);
+
+        Route::resource('pd-grid', PdGridController::class)->only(['index']);
 
         Route::resource('/insurance-providers', InsuranceProvidersController::class)->only(['index']);
         Route::resource('/insurance-providers-documentation', InsuranceProvidersDocumentationController::class)->only(['index']);

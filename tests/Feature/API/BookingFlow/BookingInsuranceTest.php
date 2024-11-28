@@ -5,26 +5,27 @@ namespace Tests\Feature\API\BookingFlow;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\Depends;
 
-class BookingInsuranceTest extends BaseBookingFlowTest
+class BookingInsuranceTest extends BaseBookingFlow
 {
     #[Test]
     public function test_search(): void
     {
-        parent::test_search();
+        self::$stage = 0;
+        parent::search();
     }
 
     #[Test]
     #[Depends('test_search')]
     public function test_add_booking_item(): void
     {
-        parent::test_add_booking_item();
+        parent::add_booking_item();
     }
 
     #[Test]
     #[Depends('test_add_booking_item')]
     public function test_add_passengers(): void
     {
-        parent::test_add_passengers();
+        parent::add_passengers();
     }
 
     #[Test]
@@ -58,14 +59,15 @@ class BookingInsuranceTest extends BaseBookingFlowTest
     #[Depends('test_add_booking_item')]
     public function test_search_again(): void
     {
-        parent::test_search();
+        self::$stage = 0;
+        parent::search();
     }
 
     #[Test]
     #[Depends('test_search_again')]
     public function test_add_booking_item_again(): void
     {
-        parent::test_add_booking_item();
+        parent::add_booking_item();
     }
 
     #[Test]

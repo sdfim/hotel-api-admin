@@ -2,7 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\DTOs;
 
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection;;
 use Modules\HotelContentRepository\Models\Hotel;
 
 class HotelDTO
@@ -48,7 +48,7 @@ class HotelDTO
         ];
 
         if ($returnProduct) {
-            $data['product'] = $this->productDTO->transform($hotel->product->get());
+            $data['product'] = $this->productDTO->transform(new Collection([$hotel->product]));
         }
 
         return $data;

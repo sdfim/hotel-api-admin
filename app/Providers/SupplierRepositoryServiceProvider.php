@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
+use Modules\HotelContentRepository\Livewire\PdGrid\PdGridTable;
 use Modules\HotelContentRepository\Livewire\Product\ProductTable;
 use Modules\HotelContentRepository\Livewire\ProductAffiliations\ProductAffiliationsTable;
 use Modules\HotelContentRepository\Livewire\ProductAgeRestriction\ProductAgeRestrictionTable;
@@ -48,6 +49,8 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
     {
         Livewire::component('vendors.vendor-table', VendorTable::class);
         Livewire::component('vendors.vendor-form', VendorForm::class);
+
+        Livewire::component('products.pd-grid-table', PdGridTable::class);
 
         Livewire::component('products.product-table', ProductTable::class);
         Livewire::component('products.key-mapping-table', KeyMappingTable::class);

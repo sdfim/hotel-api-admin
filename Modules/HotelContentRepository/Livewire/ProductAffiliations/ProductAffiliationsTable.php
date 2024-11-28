@@ -3,7 +3,12 @@
 namespace Modules\HotelContentRepository\Livewire\ProductAffiliations;
 
 use App\Helpers\ClassHelper;
+use App\Livewire\Components\CustomRepeater;
+use App\Models\Configurations\ConfigConsortium;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -48,13 +53,42 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                 ->options(Product::pluck('name', 'id'))
                 ->disabled(fn () => $this->productId)
                 ->required(),
+
             Select::make('affiliation_name')
                 ->label('Affiliation Name')
                 ->options([
                     'UJV Exclusive Amenities' => 'UJV Exclusive Amenities',
                     'Consortia Inclusions' => 'Consortia Inclusions',
                 ])
-                ->required(),
+                ->required()
+                ->reactive(),
+
+            CustomRepeater::make('details')
+                ->label('Affiliation Details')
+                ->schema([
+                    Grid::make(3)->schema([
+                        Select::make('consortia_id')
+                            ->label('Consortia')
+                            ->options(ConfigConsortium::pluck('name', 'id'))
+                            ->required(),
+                        DatePicker::make('start_date')
+                            ->label('Start Date')
+                            ->native(false)
+                            ->required(),
+                        DatePicker::make('end_date')
+                            ->label('End Date')
+                            ->native(false)
+                            ->required(),
+                    ]),
+                    Grid::make(1)->schema([
+                        Textarea::make('description')
+                            ->label('Description')
+                            ->required(),
+                    ]),
+                ])
+                ->minItems(1)
+                ->visible(fn ($get) => $get('affiliation_name') === 'Consortia Inclusions'),
+
             Select::make('combinable')
                 ->label('Combinable')
                 ->options([
@@ -83,7 +117,34 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                     ->label('')
                     ->tooltip('Edit Affiliation')
                     ->form($this->schemeForm())
-                    ->modalHeading('Edit Affiliation'),
+                    ->modalHeading('Edit Affiliation')
+                    ->fillForm(function ($record) {
+                        return [
+                            'product_id' => $record->product_id,
+                            'affiliation_name' => $record->affiliation_name,
+                            'combinable' => $record->combinable,
+                            'details' => $record->details->map(function ($detail) {
+                                return [
+                                    'consortia_id' => $detail->consortia_id,
+                                    'start_date' => $detail->start_date,
+                                    'end_date' => $detail->end_date,
+                                    'description' => $detail->description,
+                                ];
+                            })->toArray(),
+                        ];
+                    })
+                    ->action(function ($data, $record) {
+                        $record->update($data);
+                        if ($record->details) {
+                            foreach ($record->details as $detail) {
+                                $detail->delete();
+                            }
+                        }
+                        if (!isset($data['details'])) return;
+                        foreach ($data['details'] as $detailData) {
+                            $record->details()->create($detailData);
+                        }
+                    }),
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),
@@ -96,7 +157,11 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                     })
                     ->action(function ($data) {
                         if ($this->productId) $data['product_id'] = $this->productId;
-                        ProductAffiliation::create($data);
+                        $affiliation = ProductAffiliation::create($data);
+                        if (!isset($data['details'])) return;
+                        foreach ($data['details'] as $detail) {
+                            $affiliation->details()->create($detail);
+                        }
                     })
                     ->tooltip('Add New Affiliation')
                     ->icon('heroicon-o-plus')

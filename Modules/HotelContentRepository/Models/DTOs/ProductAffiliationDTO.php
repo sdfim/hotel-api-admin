@@ -11,8 +11,11 @@ class ProductAffiliationDTO
     public $product_id;
     public $affiliation_name;
     public $combinable;
+    public $details;
 
-    public function __construct() {}
+    public function __construct(
+        private readonly ProductAffiliationDetailDTO $productAffiliationDetailDTO
+    ) {}
 
     public function transform(Collection $productAffiliations)
     {
@@ -28,6 +31,7 @@ class ProductAffiliationDTO
             'product_id' => $productAffiliation->product_id,
             'affiliation_name' => $productAffiliation->affiliation_name,
             'combinable' => $productAffiliation->combinable,
+            'details' => $this->productAffiliationDetailDTO->transform($productAffiliation->details),
         ];
     }
 }
