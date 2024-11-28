@@ -14,7 +14,7 @@ class InsuranceRateTierFactory extends Factory
     public function definition(): array
     {
         return [
-            'insurance_provider_id' => Vendor::factory(),
+            'vendor_id' => Vendor::factory(),
             'min_trip_cost' => $this->faker->randomFloat(2, 0, 10000),
             'max_trip_cost' => $this->faker->randomFloat(2, 10001, 20000),
             'consumer_plan_cost' => $this->faker->randomFloat(2, 10, 1000),

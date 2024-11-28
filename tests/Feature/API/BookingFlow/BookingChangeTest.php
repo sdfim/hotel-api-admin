@@ -20,6 +20,8 @@ class BookingChangeTest extends BaseBookingFlow
     use SearchMockTrait;
     use WithFaker;
 
+    private static ?string $newBookingItem = null;
+
     private static bool $availableEndpointsComplete = false;
 
     protected function setUpTestData(): void
@@ -35,10 +37,7 @@ class BookingChangeTest extends BaseBookingFlow
     public function test_available_endpoints(): void
     {
         $response = $this->request()
-            ->json('GET', route('availableEndpoints'), [
-                'booking_item' => self::$bookingItem,
-            ]);
-
+            ->json('GET', route('availableEndpoints'), ['booking_item' => self::$bookingItem]);
         $response->assertStatus(200);
         $response->assertJson(fn(AssertableJson $json) => $json->has('data.endpoints')->etc());
         self::$availableEndpointsComplete = true;
@@ -47,12 +46,8 @@ class BookingChangeTest extends BaseBookingFlow
     #[Test]
     public function test_soft_change(): void
     {
-        $response = $this->request()->json(
-            'PUT',
-            route('changeSoftBooking'),
-            $this->getSoftChangeData(),
-        );
-
+        $response = $this->request()
+            ->json('PUT', route('changeSoftBooking'), $this->getSoftChangeData());
         $response->assertStatus(200);
         $response->assertJson(
             fn(AssertableJson $json) => $json
@@ -85,10 +80,8 @@ class BookingChangeTest extends BaseBookingFlow
             ]);
         }
 
-        $response = $this->request()->json(
-            'POST',
-            route('availabilityChange'),
-            [
+        $response = $this->request()
+            ->json('POST', route('availabilityChange'), [
                 'booking_id' => self::$bookingId,
                 'booking_item' => self::$bookingItem,
                 'type' => 'hotel',
@@ -97,8 +90,7 @@ class BookingChangeTest extends BaseBookingFlow
                 'checkin' => $searchRequest['checkin'],
                 'checkout' => $searchRequest['checkout'],
                 'occupancy' => [['adults' => 1]],
-            ],
-        );
+            ]);
 
         $response->assertStatus(200);
         $response->assertJson(
@@ -126,7 +118,6 @@ class BookingChangeTest extends BaseBookingFlow
                 'booking_item' => self::$bookingItem,
                 'new_booking_item' => self::$newBookingItem,
             ]);
-
         $response->assertStatus(200);
         $response->assertJson(fn(AssertableJson $json) => $json
             ->has('data.result.incremental_total_price')
@@ -140,12 +131,8 @@ class BookingChangeTest extends BaseBookingFlow
     #[Depends('test_price_check')]
     public function test_hard_change(): void
     {
-        $response = $this->request()->json(
-            'PUT',
-            route('changeHardBooking'),
-            $this->getHardChangeData()
-        );
-
+        $response = $this->request()
+            ->json('PUT',  route('changeHardBooking'), $this->getHardChangeData());
         $response->assertStatus(200);
         $response->assertJson(
             fn(AssertableJson $json) => $json
@@ -157,12 +144,8 @@ class BookingChangeTest extends BaseBookingFlow
     #[Test]
     public function test_retrieve_booking(): void
     {
-        $response = $this->request()->json(
-            'GET',
-            route('retrieveBooking'),
-            ['booking_id' => self::$bookingId]
-        );
-
+        $response = $this->request()
+            ->json('GET', route('retrieveBooking'), ['booking_id' => self::$bookingId]);
         $response->assertStatus(200);
         $response->assertJson(fn(AssertableJson $json) => $json
             ->where('data.result.0.status', 'booked')
@@ -172,13 +155,11 @@ class BookingChangeTest extends BaseBookingFlow
     #[Test]
     public function test_cancel_booking(): void
     {
-        $response = $this->request()->json(
-            'DELETE',
-            route('cancelBooking'), [
+        $response = $this->request()
+            ->json('DELETE', route('cancelBooking'), [
                 'booking_id' => self::$bookingId,
-                'booking_item' => self::$bookingItem,
-                ]);
-
+                'booking_item' => self::$bookingItem
+            ]);
         $response->assertStatus(200);
         $response->assertJson(fn(AssertableJson $json) => $json
             ->where('data.result.0.status', 'Room canceled.')

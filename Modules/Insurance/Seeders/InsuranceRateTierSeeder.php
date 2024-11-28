@@ -25,7 +25,7 @@ class InsuranceRateTierSeeder extends Seeder
                     'updated_at' => $now,
                 ],
                 [
-                    'insurance_provider_id' => 1,
+                    'vendor_id' => 1,
                     'min_trip_cost' => 1001,
                     'max_trip_cost' => 2000,
                     'consumer_plan_cost' => 86,
@@ -35,7 +35,7 @@ class InsuranceRateTierSeeder extends Seeder
                     'updated_at' => $now,
                 ],
                 [
-                    'insurance_provider_id' => 1,
+                    'vendor_id' => 1,
                     'min_trip_cost' => 2001,
                     'max_trip_cost' => 3000,
                     'consumer_plan_cost' => 129,
@@ -45,7 +45,7 @@ class InsuranceRateTierSeeder extends Seeder
                     'updated_at' => $now,
                 ],
                 [
-                    'insurance_provider_id' => 1,
+                    'vendor_id' => 1,
                     'min_trip_cost' => 3001,
                     'max_trip_cost' => 4000,
                     'consumer_plan_cost' => 172,
@@ -55,7 +55,7 @@ class InsuranceRateTierSeeder extends Seeder
                     'updated_at' => $now,
                 ],
                 [
-                    'insurance_provider_id' => 1,
+                    'vendor_id' => 1,
                     'min_trip_cost' => 4001,
                     'max_trip_cost' => 5000,
                     'consumer_plan_cost' => 215,
@@ -65,7 +65,7 @@ class InsuranceRateTierSeeder extends Seeder
                     'updated_at' => $now,
                 ],
                 [
-                    'insurance_provider_id' => 1,
+                    'vendor_id' => 1,
                     'min_trip_cost' => 5001,
                     'max_trip_cost' => 6000,
                     'consumer_plan_cost' => 258,
