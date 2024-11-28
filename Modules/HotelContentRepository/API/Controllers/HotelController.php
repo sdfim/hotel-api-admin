@@ -59,7 +59,7 @@ class HotelController extends BaseController
         if (!$useFractal) {
             $hotelDTO = $this->hotelDTO->transform(new Collection([$hotel]), true);
         } else {
-            $hotelDTO = Fractal::create()->item($hotel, new HotelTransformer());
+            $hotelDTO = Fractal::create()->item($hotel, new HotelTransformer())->toArray()['data'];
         }
 
         return $this->sendResponse([$hotelDTO], 'show success');

@@ -6,28 +6,27 @@ use Illuminate\Foundation\Testing\WithFaker;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\Depends;
 
-class BookingBookTest extends BaseBookingFlowTest
+class BookingBookTest extends BaseBookingFlow
 {
-    public static int $stage = 2;
-
     #[Test]
     public function test_search(): void
     {
-        parent::test_search();
+        self::$stage = 2;
+        parent::search();
     }
 
     #[Test]
     #[Depends('test_search')]
     public function test_add_booking_item(): void
     {
-        parent::test_add_booking_item();
+        parent::add_booking_item();
     }
 
     #[Test]
     #[Depends('test_add_booking_item')]
     public function test_add_passengers(): void
     {
-        parent::test_add_passengers();
+        parent::add_passengers();
     }
 
     #[Test]
@@ -52,21 +51,22 @@ class BookingBookTest extends BaseBookingFlowTest
     #[Depends('test_cancel')]
     public function test_search_again(): void
     {
-        parent::test_search();
+        self::$stage = 1;
+        parent::search();
     }
 
     #[Test]
     #[Depends('test_search_again')]
     public function test_add_booking_item_again(): void
     {
-        parent::test_add_booking_item();
+        parent::add_booking_item();
     }
 
     #[Test]
     #[Depends('test_add_booking_item_again')]
     public function test_add_passengers_again(): void
     {
-        parent::test_add_passengers();
+        parent::add_passengers();
     }
 
     #[Test]
@@ -75,6 +75,7 @@ class BookingBookTest extends BaseBookingFlowTest
     {
         $this->test_book();
     }
+
 
     private function requestBookData(): array
     {

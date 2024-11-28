@@ -7,19 +7,20 @@ use Illuminate\Foundation\Testing\WithFaker;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\Depends;
 
-class BookingInformationalServicesTest extends BaseBookingFlowTest
+class BookingInformationalServicesTest extends BaseBookingFlow
 {
     #[Test]
     public function test_search(): void
     {
-        parent::test_search();
+        self::$stage = 0;
+        parent::search();
     }
 
     #[Test]
     #[Depends('test_search')]
     public function test_add_booking_item(): void
     {
-        parent::test_add_booking_item();
+        parent::add_booking_item();
     }
 
     #[Test]
