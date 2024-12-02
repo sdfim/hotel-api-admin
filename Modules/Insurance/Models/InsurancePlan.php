@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Modules\HotelContentRepository\Models\Vendor;
 
 /**
  * Class InsurancePlan
@@ -14,8 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $booking_item
  * @property float $total_insurance_cost
  * @property float $commission_ujv
- * @property float $insurance_provider_fee
- * @property int $insurance_provider_id
+ * @property float $insurance_vendor_fee
+ * @property int $vendor_id
  * @property string|null $request
  *
  * @property InsuranceProvider $provider
@@ -30,21 +31,21 @@ class InsurancePlan extends Model
         'booking_item',
         'total_insurance_cost',
         'commission_ujv',
-        'insurance_provider_fee',
-        'insurance_provider_id',
+        'insurance_vendor_fee',
+        'vendor_id',
         'request'
     ];
 
     protected $casts = [
         'total_insurance_cost' => 'float',
         'commission_ujv' => 'float',
-        'insurance_provider_fee' => 'float',
+        'insurance_vendor_fee' => 'float',
         'request' => 'array'
     ];
 
-    public function provider(): BelongsTo
+    public function vendor(): BelongsTo
     {
-        return $this->belongsTo(InsuranceProvider::class, 'insurance_provider_id');
+        return $this->belongsTo(Vendor::class, 'vendor_id');
     }
 
     public function restrictions(): HasMany

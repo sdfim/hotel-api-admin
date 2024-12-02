@@ -9,6 +9,6 @@ class InsuranceRateTiersController extends Controller
 {
     public function index(): View
     {
-        return view('dashboard.insurance.rate-tiers.index');
+        return view('dashboard.insurance.rate-tiers.index', ['viewAll' => true]);
     }
 }

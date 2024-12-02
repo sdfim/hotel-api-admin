@@ -9,13 +9,13 @@ use League\Csv\Reader;
 
 class ImportInsuranceRateTiers extends Command
 {
-    protected $signature = 'import:insurance-rate-tiers {provider_id} {file}';
+    protected $signature = 'import:insurance-rate-tiers {vendor_id} {file}';
     protected $description = 'Import insurance rate tiers from a CSV file';
 
     public function handle()
     {
         $file = $this->argument('file');
-        $provider_id = $this->argument('provider_id');
+        $vendor_id = $this->argument('vendor_id');
 
         if (!file_exists($file) || !is_readable($file)) {
             $this->error('File not found or is not readable.');
@@ -30,11 +30,11 @@ class ImportInsuranceRateTiers extends Command
         DB::beginTransaction();
 
         try {
-            DB::table('insurance_rate_tiers')->where('insurance_provider_id', $provider_id)->delete();
+            DB::table('insurance_rate_tiers')->where('vendor_id', $vendor_id)->delete();
 
             foreach ($records as $record) {
                 DB::table('insurance_rate_tiers')->insert([
-                    'insurance_provider_id' => $provider_id,
+                    'vendor_id' => $vendor_id,
                     'min_trip_cost' => $record['min_trip_cost'],
                     'max_trip_cost' => $record['max_trip_cost'],
                     'consumer_plan_cost' => $record['consumer_plan_cost'],

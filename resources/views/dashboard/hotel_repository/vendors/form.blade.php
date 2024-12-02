@@ -19,10 +19,21 @@
                 ['title' => 'Hotels', 'component' => 'hotels.hotel-table'],
             ],
         ],
+        'Insurances' => [
+            'tab_name' => 'insurances',
+            'related' => [
+                ['title' => 'Insurances', 'component' => 'insurance.insurance-plans-table'],
+                ['title' => 'Documents', 'component' => 'insurance.providers-documentation-table'],
+                ['title' => 'Restrictions', 'component' => 'insurance.restrictions-table'],
+                ['title' => 'Rate Tiers', 'component' => 'insurance.rate-tiers-table'],
+            ],
+        ],
     ];
 
     $vendorTitle = ['General Information'];
     $ignoreCreate = ['Products', 'Hotels'];
+    $nonProductTitle = ['Insurances'];
+    $nonInsuranceTitle = ['Products', 'Hotels'];
 @endphp
 @extends('layouts.master')
 @section('title')
@@ -56,6 +67,9 @@
                 <ul class="sr_tab-list flex justify-between w-full">
                     @foreach ($tabGroups as $group => $tabs)
                         @php if (!$vendor->exists && in_array($group, $ignoreCreate)) continue; @endphp
+                        @php if ($vendor->products->count() && in_array($group, $nonProductTitle)) continue; @endphp
+                        @php if ($vendor->insurances->count() && in_array($group, $nonInsuranceTitle)) continue; @endphp
+                        @php if (!$vendor->insurances->count() && !$vendor->products->count() && $group !== 'Vendors Detail') continue; @endphp
                         <li class="sr_tab-item mr-1 flex items-end">
                             <a href="#"
                                class="sr_tab-link"

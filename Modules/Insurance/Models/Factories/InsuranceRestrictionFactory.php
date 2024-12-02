@@ -14,7 +14,7 @@ class InsuranceRestrictionFactory extends Factory
     public function definition(): array
     {
         return [
-            'provider_id' => InsuranceProvider::factory(),
+            'vendor_id' => Vendor::factory(),
             'restriction_type_id' => InsuranceRestrictionType::factory(),
             'value' => $this->faker->word,
             'compare' => $this->faker->word,
