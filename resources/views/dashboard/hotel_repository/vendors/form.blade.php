@@ -19,10 +19,10 @@
                 ['title' => 'Hotels', 'component' => 'hotels.hotel-table'],
             ],
         ],
-        'Insurances' => [
+        'Insurance' => [
             'tab_name' => 'insurances',
             'related' => [
-                ['title' => 'Insurances', 'component' => 'insurance.insurance-plans-table'],
+                ['title' => 'Insurance', 'component' => 'insurance.insurance-plans-table'],
                 ['title' => 'Documents', 'component' => 'insurance.providers-documentation-table'],
                 ['title' => 'Restrictions', 'component' => 'insurance.restrictions-table'],
                 ['title' => 'Rate Tiers', 'component' => 'insurance.rate-tiers-table'],
@@ -32,7 +32,7 @@
 
     $vendorTitle = ['General Information'];
     $ignoreCreate = ['Products', 'Hotels'];
-    $nonProductTitle = ['Insurances'];
+    $nonProductTitle = ['Insurance'];
     $nonInsuranceTitle = ['Products', 'Hotels'];
 @endphp
 @extends('layouts.master')

@@ -389,7 +389,7 @@
                             hover:text-violet-500 dark:text-gray-300 dark:active:text-white
                             dark:hover:text-white">
                                         <i class="dripicons-pill"></i>
-                                        <span>Insurances</span>
+                                        <span>Insurance</span>
                                     </a>
                                 </li>
                             @endif

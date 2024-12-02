@@ -28,7 +28,7 @@
 @endphp
 @extends('layouts.master')
 @section('title')
-    {{ __('Insurances') }}
+    {{ __('Insurance') }}
 @endsection
 @section('content')
     <div class="breadcrumb-container">
@@ -36,12 +36,12 @@
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="#">Admin</a></li>
                 {{--                        <li class="breadcrumb-item"><a href="{{ route('supplier-repository.index') }}">Supplier Repository</a></li>--}}
-                <li class="breadcrumb-item"><a href="{{ route('insurance-plans.index') }}">Insurances</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('insurance-plans.index') }}">Insurance</a></li>
             </ol>
         </nav>
     </div>
 
-    <h2 class="font-semibold">Insurances</h2>
+    <h2 class="font-semibold">Insurance</h2>
 
     <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
         <div class="relative overflow-x-auto">
