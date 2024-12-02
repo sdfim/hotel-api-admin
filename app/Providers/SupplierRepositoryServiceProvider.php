@@ -76,7 +76,7 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('hotel-images.hotel-images-table', HotelImagesTable::class);
         Livewire::component('hotel-images.hotel-images-form', HotelImagesForm::class);
 
-        Livewire::component('insurance.providers-documentation-table', DocumentationsTable::class);
+        Livewire::component('insurance.documentation-table', DocumentationsTable::class);
         Livewire::component('insurance.restrictions-table', RestrictionsTable::class);
         Livewire::component('insurance.rate-tiers-table', RateTiersTable::class);
         Livewire::component('insurance.insurance-plans-table', InsurancePlanTable::class);
