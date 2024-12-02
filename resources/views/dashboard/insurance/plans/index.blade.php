@@ -1,6 +1,6 @@
 @php
     $tabGroups = [
-        'Insurances' => [
+        'Policies sold' => [
             'tab_name' => 'insurances',
             'related' => [
                 ['title' => 'Policies sold', 'component' => 'insurance.insurance-plans-table'],
