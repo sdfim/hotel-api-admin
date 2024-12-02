@@ -3,7 +3,7 @@
         'Insurances' => [
             'tab_name' => 'insurances',
             'related' => [
-                ['title' => 'Insurances', 'component' => 'insurance.insurance-plans-table'],
+                ['title' => 'Policies sold', 'component' => 'insurance.insurance-plans-table'],
             ],
         ],
         'Documentations' => [
@@ -49,7 +49,7 @@
             <div x-data="{activeTab: '{{ $tabGroups[array_key_first($tabGroups)]['tab_name'] }}' }"
                  class="sr_tab-container">
 
-                <ul class="sr_tab-list flex justify-between w-full">
+                <ul class="sr_tab-list flex justify-between w-full" style="margin-top: 0 !important;">
                     @foreach ($tabGroups as $group => $tabs)
                         <li class="sr_tab-item mr-1 flex items-end">
                             <a href="#"

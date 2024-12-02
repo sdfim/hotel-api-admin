@@ -37,40 +37,6 @@ class InsurancePlanTable extends Component implements HasForms, HasTable
         $this->viewAll = $viewAll;
     }
 
-    public function form(Form $form): Form
-    {
-        return $form->schema($this->schemeForm());
-    }
-
-    public function schemeForm(): array
-    {
-        return [
-            Grid::make(4)
-                ->schema([
-                    Select::make('vendor_id')
-                        ->label('Vendor')
-                        ->relationship(name: 'vendor', titleAttribute: 'name')
-                        ->preload()
-                        ->required(),
-                    TextInput::make('booking_item')
-                        ->label('Booking Item')
-                        ->required(),
-                    TextInput::make('total_insurance_cost')
-                        ->label('Total Insurance Cost')
-                        ->numeric()
-                        ->required(),
-                    TextInput::make('insurance_vendor_fee')
-                        ->label('Insurance Vendor Fee')
-                        ->numeric()
-                        ->required(),
-                    TextInput::make('commission_ujv')
-                        ->label('Commission UJV')
-                        ->numeric()
-                        ->required(),
-                ]),
-        ];
-    }
-
     public function table(Table $table): Table
     {
         return $table
