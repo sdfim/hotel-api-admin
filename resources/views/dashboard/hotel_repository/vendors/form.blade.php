@@ -23,7 +23,7 @@
             'tab_name' => 'insurances',
             'related' => [
                 ['title' => 'Insurance', 'component' => 'insurance.insurance-plans-table'],
-                ['title' => 'Documents', 'component' => 'insurance.providers-documentation-table'],
+                ['title' => 'Documents', 'component' => 'insurance.documentation-table'],
                 ['title' => 'Restrictions', 'component' => 'insurance.restrictions-table'],
                 ['title' => 'Rate Tiers', 'component' => 'insurance.rate-tiers-table'],
             ],
