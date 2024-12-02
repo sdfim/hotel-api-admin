@@ -55,7 +55,7 @@
                             <a href="#"
                                class="sr_tab-link"
                                :class="{ 'sr_active': activeTab === '{{ $tabs['tab_name'] }}' }"
-                               @click.prevent="activeTab = '{{ $tabs['tab_name'] }}'; $wire.set('activeTab', '{{ $tabs['tab_name'] }}')">
+                               @click.prevent="activeTab = '{{ $tabs['tab_name'] }}'">
                                 <span>{{ $group }}</span>
                             </a>
                         </li>
