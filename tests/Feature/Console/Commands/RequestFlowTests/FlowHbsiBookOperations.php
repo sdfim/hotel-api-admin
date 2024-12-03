@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\RequestFlowTests;
+namespace Tests\Feature\Console\Commands\RequestFlowTests;
 
 use App\Repositories\ApiBookingItemRepository;
 use Faker\Factory as Faker;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands\RequestFlowTests;
+namespace Tests\Feature\Console\Commands\RequestFlowTests;
 
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
@@ -135,7 +135,7 @@ class FlowExpediaBookTest extends Command
         $this->addPassengers($bookingId, $bookingItems2, $query2);
 
         sleep(3);
-		
+
         $this->warn('REMOVE ITEM');
         $this->removeBookingItem($bookingId, $bookingItem);
 
