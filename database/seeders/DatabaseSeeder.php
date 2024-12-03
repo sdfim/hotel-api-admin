@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Modules\HotelContentRepository\DB\Seeders\HotelContentRepositorySeeder;
-use Modules\Insurance\Seeders\InsuranceProviderSeeder;
+use Modules\Insurance\Seeders\InsuranceVendorSeeder;
 use Modules\Insurance\Seeders\InsuranceRestrictionTypeSeeder;
 use Modules\Insurance\Seeders\TripMateDefaultRestrictions;
 
@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             ChannelSeeder::class,
             GeneralConfigurationSeeder::class,
 
-            InsuranceProviderSeeder::class,
+            InsuranceVendorSeeder::class,
             InsuranceRestrictionTypeSeeder::class,
             TripMateDefaultRestrictions::class,
 

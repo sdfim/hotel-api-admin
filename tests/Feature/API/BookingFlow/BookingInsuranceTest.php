@@ -34,7 +34,7 @@ class BookingInsuranceTest extends BaseBookingFlow
     {
         $request = [
             'booking_item' => self::$bookingItem,
-            'insurance_provider' => 'TripMate'
+            'vendor' => 'TripMate'
         ];
         $response = $this->request()->post(route('addInsurance'), $request);
 
@@ -47,7 +47,7 @@ class BookingInsuranceTest extends BaseBookingFlow
     {
         $request = [
             'booking_item' => self::$bookingItem,
-            'insurance_provider' => 'TripMate'
+            'vendor' => 'TripMate'
         ];
 
         $response = $this->request()->delete(route('deleteInsurance'), $request);
@@ -76,7 +76,7 @@ class BookingInsuranceTest extends BaseBookingFlow
     {
         $request = [
             'booking_id' => self::$bookingId,
-            'insurance_provider' => 'TripMate'
+            'vendor' => 'TripMate'
         ];
         $response = $this->request()->post(route('addInsurance'), $request);
 
@@ -89,7 +89,7 @@ class BookingInsuranceTest extends BaseBookingFlow
     {
         $request = [
             'booking_id' => self::$bookingId,
-            'insurance_provider' => 'TripMate'
+            'vendor' => 'TripMate'
         ];
 
         $response = $this->request()->delete(route('deleteInsurance'), $request);

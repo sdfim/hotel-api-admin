@@ -228,7 +228,6 @@ thead .bg-gray-50{
 
 /* breadcrumbs */
 .breadcrumb-container {
-    margin-top: 40px;
     margin-bottom: 20px;
     font-size: 14px; /* Размер шрифта для хлебных крошек */
 }

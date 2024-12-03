@@ -316,7 +316,13 @@
                         </a>
                     </li>
                 @endif
-                @if($canView(Hotel::class) || $canView(Vendor::class) || $canView(Product::class))
+                @if($canView(Hotel::class)
+                    || $canView(Vendor::class)
+                    || $canView(Product::class)
+                    || $canView(InsuranceProviderDocumentation::class)
+                    || $canView(InsuranceRestriction::class)
+                    || $canView(InsuranceRateTier::class)
+                    || $canView(InsurancePlan::class))
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
                            class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium
@@ -363,7 +369,7 @@
                                     </a>
                                 </li>
                             @endif
-                                @if($canView(Product::class))
+                            @if($canView(Product::class))
                                     <li>
                                         <a href="{{ Route('pd-grid.index') }}"
                                            class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
@@ -374,7 +380,19 @@
                                             <span>PD Grid</span>
                                         </a>
                                     </li>
-                                @endif
+                            @endif
+                            @if($canView(InsurancePlan::class))
+                                <li>
+                                    <a href="{{ Route('insurance-plans.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
+                            text-gray-700 transition-all duration-150 ease-linear
+                            hover:text-violet-500 dark:text-gray-300 dark:active:text-white
+                            dark:hover:text-white">
+                                        <i class="dripicons-pill"></i>
+                                        <span>Insurance</span>
+                                    </a>
+                                </li>
+                            @endif
                         </ul>
                     </li>
                 @endif
@@ -394,57 +412,6 @@
                             <i class="dripicons-direction"></i>
                             <span data-key="t-geography"> Geography</span>
                         </a>
-                    </li>
-                @endif
-                @if($canView(InsuranceProvider::class)
-                    || $canView(InsuranceProviderDocumentation::class)
-                    || $canView(InsuranceRestriction::class)
-                    || $canView(InsuranceRateTier::class)
-                    || $canView(InsurancePlan::class)
-                    )
-                    <li>
-                        <a href="javascript: void(0);" aria-expanded="false"
-                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                            <i class="dripicons-pill"></i>
-                            <span data-key="t-configuration">Insurance</span>
-                        </a>
-                        <ul>
-                            @if($canView(InsurancePlan::class))
-                                <li>
-                                    <a href="{{ Route('insurance-plans.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                        Plans</a>
-                                </li>
-                            @endif
-                            @if($canView(InsuranceProvider::class))
-                                <li>
-                                    <a href="{{ Route('insurance-providers.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                        Providers</a>
-                                </li>
-                            @endif
-                            @if($canView(InsuranceProvider::class))
-                                <li>
-                                    <a href="{{ Route('insurance-providers-documentation.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                        Providers Documentation</a>
-                                </li>
-                            @endif
-                            @if($canView(InsuranceRestriction::class))
-                                <li>
-                                    <a href="{{ Route('insurance-restrictions.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                        Restrictions</a>
-                                </li>
-                            @endif
-                            @if($canView(InsuranceRateTier::class))
-                                <li>
-                                    <a href="{{ Route('insurance-rate-tiers.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                        Rate Tier</a>
-                                </li>
-                            @endif
-                        </ul>
                     </li>
                 @endif
                 @can('log-viewer')

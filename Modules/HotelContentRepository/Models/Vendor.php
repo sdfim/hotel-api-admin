@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\VendorFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Modules\Insurance\Models\InsurancePlan;
 
 class Vendor extends Model
 {
@@ -40,8 +41,22 @@ class Vendor extends Model
         return $this->hasMany(Product::class, 'vendor_id');
     }
 
+    public function insurances(): HasMany
+    {
+        return $this->hasMany(InsurancePlan::class, 'vendor_id');
+    }
     public function contactInformation()
     {
         return $this->morphOne(ContactInformation::class, 'contactable');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($vendor) {
+            $vendor->products()->delete();
+            $vendor->insurances()->delete();
+        });
     }
 }

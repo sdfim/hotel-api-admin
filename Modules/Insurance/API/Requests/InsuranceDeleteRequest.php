@@ -10,7 +10,7 @@ class InsuranceDeleteRequest extends ApiRequest
     {
         return [
             'booking_item' => 'required|size:36',
-            'insurance_provider' => 'required|exists:insurance_providers,name',
+            'vendor' => 'required|exists:pd_vendors,name',
         ];
     }
 }

@@ -21,16 +21,16 @@ trait BookFlowTrait
     {
         return [
             "data" =>  [
+                51721 => [
+                    "giata" => 42851280,
+                    "name" => "Nizuc Resort And Spa",
+                    "hbsi" => "51721"
+                ],
                 51722 => [
                     "giata" => 18774844,
                     "name" => "Moon Palace Nizuc",
                     "hbsi" => "51722"
                 ],
-                51721 => [
-                    "giata" => 42851280,
-                    "name" => "Nizuc Resort And Spa",
-                    "hbsi" => "51721"
-                ]
             ],
             "total_pages" => 1.0
         ];

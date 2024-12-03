@@ -9,7 +9,7 @@ class InsuranceRestrictionsController extends Controller
 {
     public function index(): View
     {
-        return view('dashboard.insurance.restrictions.index');
+        return view('dashboard.insurance.restrictions.index', ['viewAll' => true]);
     }
 }
 

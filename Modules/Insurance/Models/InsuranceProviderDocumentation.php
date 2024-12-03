@@ -5,6 +5,7 @@ namespace Modules\Insurance\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Modules\HotelContentRepository\Models\Vendor;
 
 /**
  * Class InsuranceProviderDocumentation
@@ -21,13 +22,13 @@ class InsuranceProviderDocumentation extends Model
     use HasFactory;
 
     protected $fillable = [
-        'provider_id',
+        'vendor_id',
         'document_type',
         'path',
     ];
 
-    public function provider(): BelongsTo
+    public function vendor(): BelongsTo
     {
-        return $this->belongsTo(InsuranceProvider::class, 'provider_id');
+        return $this->belongsTo(Vendor::class, 'vendor_id');
     }
 }

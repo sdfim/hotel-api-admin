@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Insurance\Livewire\Providers;
+namespace Modules\Insurance\Livewire\Vendors;
 
 use App\Helpers\ClassHelper;
 use Filament\Forms\Components\FileUpload;
@@ -21,17 +21,22 @@ use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
+use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsuranceProviderDocumentation;
 
-class ProvidersDocumentationTable extends Component implements HasForms, HasTable
+class DocumentationsTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
 
     public array $documentTypes = [];
+    public ?int $vendorId;
+    public bool $viewAll = false;
 
-    public function mount(): void
+    public function mount(?Vendor $vendor, bool $viewAll = false): void
     {
+        $this->vendorId = $vendor->id;
+        $this->viewAll = $viewAll;
         $this->documentTypes = [
             'privacy_policy' => 'Privacy Policy',
             'terms_and_condition' => 'Terms & Conditions'
@@ -48,9 +53,9 @@ class ProvidersDocumentationTable extends Component implements HasForms, HasTabl
         return [
             Grid::make()
                 ->schema([
-                    Select::make('provider_id')
+                    Select::make('vendor_id')
                         ->label('Provider Documentation')
-                        ->relationship(name: 'provider', titleAttribute: 'name')
+                        ->relationship(name: 'vendor', titleAttribute: 'name')
                         ->preload()
                         ->required(),
                     Select::make('document_type')
@@ -73,10 +78,12 @@ class ProvidersDocumentationTable extends Component implements HasForms, HasTabl
     public function table(Table $table): Table
     {
         return $table
-            ->query(InsuranceProviderDocumentation::query())
+            ->query(fn () => $this->viewAll
+                ? InsuranceProviderDocumentation::query()
+                : InsuranceProviderDocumentation::query()->where('vendor_id', $this->vendorId))
             ->columns([
-                TextColumn::make('provider.name')
-                    ->label('Provider name')
+                TextColumn::make('vendor.name')
+                    ->label('Vendor name')
                     ->sortable()
                     ->searchable(),
                 TextColumn::make('document_type')
@@ -170,6 +177,6 @@ class ProvidersDocumentationTable extends Component implements HasForms, HasTabl
 
     public function render(): View
     {
-        return view('livewire.insurance.providers.providers-documentation-table');
+        return view('livewire.insurance.vendors.documentations-table');
     }
 }

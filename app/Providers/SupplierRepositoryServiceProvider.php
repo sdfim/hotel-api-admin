@@ -28,8 +28,8 @@ use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyC
 use Modules\HotelContentRepository\Livewire\Vendor\VendorForm;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorTable;
 use Modules\Insurance\Livewire\Plans\InsurancePlanTable;
-use Modules\Insurance\Livewire\Providers\ProvidersDocumentationTable;
-use Modules\Insurance\Livewire\Providers\ProvidersTable;
+use Modules\Insurance\Livewire\Vendors\DocumentationsTable;
+use Modules\Insurance\Livewire\Vendors\ProvidersTable;
 use Modules\Insurance\Livewire\RateTiers\RateTiersTable;
 use Modules\Insurance\Livewire\Restrictions\RestrictionsTable;
 
@@ -76,8 +76,7 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('hotel-images.hotel-images-table', HotelImagesTable::class);
         Livewire::component('hotel-images.hotel-images-form', HotelImagesForm::class);
 
-        Livewire::component('insurance.providers-table', ProvidersTable::class);
-        Livewire::component('insurance.providers-documentation-table', ProvidersDocumentationTable::class);
+        Livewire::component('insurance.documentation-table', DocumentationsTable::class);
         Livewire::component('insurance.restrictions-table', RestrictionsTable::class);
         Livewire::component('insurance.rate-tiers-table', RateTiersTable::class);
         Livewire::component('insurance.insurance-plans-table', InsurancePlanTable::class);

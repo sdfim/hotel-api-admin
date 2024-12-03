@@ -36,17 +36,16 @@ class BaseBookingFlow extends TestCase
     {
         self::$bookingItem = null;
         $this->searchMock();
+        $diffDays = rand(20, 40);
 
-        $query = [
+        $response = $this->request()->post(route('price'), [
             'type' => 'hotel',
             'destination' => 508,
             'supplier' => 'HBSI',
-            'checkin' => Carbon::now()->addDays(60)->toDateString(),
-            'checkout' => Carbon::now()->addDays(60 + rand(2, 5))->toDateString(),
+            'checkin' => Carbon::now()->addDays($diffDays)->toDateString(),
+            'checkout' => Carbon::now()->addDays($diffDays + rand(2, 5))->toDateString(),
             'occupancy' => self::$stage === 2 ? [['adults' => 2], ['adults' => 1]] : [['adults' => 1]],
-        ];
-
-        $response = $this->request()->post(route('price'), $query);
+        ]);
 
         $response->assertStatus(200);
         $response->assertJson(
@@ -67,11 +66,9 @@ class BaseBookingFlow extends TestCase
                 self::$roomCombinations[$booking_item] = $room_combination;
             }
         } elseif (self::$stage === 1) {
-            \Log::debug('BaseBookingFlow hotels', $hotels);
             foreach ($hotels as $hotel) {
                 foreach ($hotel['room_groups'] as $room_groups) {
                     foreach ($room_groups['rooms'] as $room) {
-                        \Log::debug('BaseBookingFlow room', $room);
                         if (!$room['non_refundable']) {
                             self::$bookingItem = $room['booking_item'];
                             break 3;
@@ -90,7 +87,8 @@ class BaseBookingFlow extends TestCase
     public function add_booking_item(): void
     {
         if (self::$stage === 2) {
-            (new HbsiService())->updateBookingItemsData(self::$bookingItem, self::$roomCombinations[self::$bookingItem]);
+            (new HbsiService())
+                ->updateBookingItemsData(self::$bookingItem, self::$roomCombinations[self::$bookingItem]);
         }
 
         $response = $this->request()->post(route('addItem'), [
@@ -104,14 +102,10 @@ class BaseBookingFlow extends TestCase
 
     public function add_passengers(): void
     {
-        $passengers = $this->getPassengers();
-        $request = [
-            'passengers' => $passengers,
+        $response = $this->request()->post(route('addPassengers'), [
+            'passengers' => $this->getPassengers(),
             'booking_id' => self::$bookingId,
-        ];
-
-        $response = $this->request()
-            ->json('POST', route('addPassengers'), $request);
+        ]);
 
         $response->assertStatus(200);
         self::$passengersAdded = true;
@@ -177,5 +171,4 @@ class BaseBookingFlow extends TestCase
 
         return $passengers;
     }
-
 }
