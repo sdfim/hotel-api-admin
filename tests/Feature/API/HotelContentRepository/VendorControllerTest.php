@@ -25,7 +25,7 @@ class VendorControllerTest extends TestCase
             ],
             'message'
         ]);
-        $this->assertDatabaseCount('pd_vendors', 4);
+        $this->assertDatabaseCount('pd_vendors', 3);
     }
 
     #[Test]
