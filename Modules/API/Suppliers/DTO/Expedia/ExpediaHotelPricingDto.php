@@ -196,6 +196,7 @@ class ExpediaHotelPricingDto
         $pricingRulesApplier['total_fees'] = 0.0;
         $pricingRulesApplier['total_net'] = 0.0;
         $pricingRulesApplier['markup'] = 0.0;
+        $pricingRulesApplier['commission_amount'] = 0.0;
         $occupancy_pricing = $rate['occupancy_pricing'];
         try {
             $pricingRulesApplier = $this->pricingRulesApplier->apply($giataId, $occupancy_pricing);
@@ -285,6 +286,10 @@ class ExpediaHotelPricingDto
         $roomResponse->setPromotions($promotions);
         $roomResponse->setNonRefundable(!$rate['refundable']);
         $roomResponse->setAmenities($this->getAmenitiesFromRate($rate));
+
+        /** Commission tracking data */
+        $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() - $roomResponse->getTotalTax());
+        $roomResponse->setCommissionAmount($pricingRulesApplier['commission_amount']);
 
         $roomResponse->setCurrency($this->currency);
 
