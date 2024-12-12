@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Console\Commands\SupplierRepository;
+namespace Tests\Feature\Console\Commands\SupplierRepository;
 
 use App\Console\Commands\BaseTrait;
 use App\Models\ExpediaContent;
 use App\Models\Mapping;
+use Faker\Factory as Faker;
 use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
-use Faker\Factory as Faker;
 use Modules\Enums\FeeTaxCollectedByEnum;
 use Modules\Enums\ProductFeeTaxApplyTypeEnum;
 use Modules\Enums\ProductFeeTaxTypeEnum;
@@ -15,18 +15,18 @@ use Modules\Enums\ProductFeeTaxValueTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\HotelRoom;
+use Modules\HotelContentRepository\Models\Image;
+use Modules\HotelContentRepository\Models\ImageGallery;
+use Modules\HotelContentRepository\Models\ImageSection;
+use Modules\HotelContentRepository\Models\KeyMapping;
+use Modules\HotelContentRepository\Models\KeyMappingOwner;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductAffiliation;
 use Modules\HotelContentRepository\Models\ProductAttribute;
 use Modules\HotelContentRepository\Models\ProductDescriptiveContent;
 use Modules\HotelContentRepository\Models\ProductDescriptiveContentSection;
 use Modules\HotelContentRepository\Models\ProductFeeTax;
-use Modules\HotelContentRepository\Models\Image;
-use Modules\HotelContentRepository\Models\ImageSection;
-use Modules\HotelContentRepository\Models\HotelRoom;
-use Modules\HotelContentRepository\Models\ImageGallery;
-use Modules\HotelContentRepository\Models\KeyMapping;
-use Modules\HotelContentRepository\Models\KeyMappingOwner;
 use Modules\HotelContentRepository\Models\Vendor;
 
 class TestSeederExpediaContentToHotels extends Command
