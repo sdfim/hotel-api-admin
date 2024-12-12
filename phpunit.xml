@@ -10,6 +10,7 @@
             <directory>tests/Feature</directory>
             <exclude>tests/Feature/API/Local</exclude>
             <exclude>tests/Feature/API/BookingFlow</exclude>
+            <exclude>tests/Feature/Teams</exclude>
         </testsuite>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>

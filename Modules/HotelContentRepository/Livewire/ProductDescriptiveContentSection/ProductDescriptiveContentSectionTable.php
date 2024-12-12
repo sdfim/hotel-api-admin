@@ -4,8 +4,10 @@ namespace Modules\HotelContentRepository\Livewire\ProductDescriptiveContentSecti
 
 use App\Helpers\ClassHelper;
 use App\Models\Configurations\ConfigDescriptiveType;
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -19,8 +21,10 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
+use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductDescriptiveContentSection;
 
@@ -28,31 +32,27 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
 {
     use InteractsWithForms;
     use InteractsWithTable;
+    use HasProductActions;
 
     public int $productId;
+    public string $title;
 
     public function mount(int $productId)
     {
         $this->productId = $productId;
+        $product = Product::find($productId);
+        $this->title = 'Descriptive Content for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
     public function form(Form $form): Form
     {
-        return $form
-            ->schema($this->schemeForm());
+        return $form->schema($this->schemeForm());
     }
 
     public function schemeForm(): array
     {
         return [
-            Select::make('product_id')
-                ->label('Product')
-                ->options(Product::pluck('name', 'id'))
-                ->disabled(fn () => $this->productId)
-                ->required(),
-//            TextInput::make('section_name')
-//                ->label('Section Name')
-//                ->required(),
+            Hidden::make('product_id')->default($this->productId),
             Grid::make(2)
                 ->schema([
                     DatePicker::make('start_date')
@@ -64,72 +64,37 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                         ->native(false)
                         ->nullable(),
                 ]),
-            CustomRepeater::make('product_descriptive_contents')
-                ->label('Product Descriptive Contents')
+            Grid::make(2)
                 ->schema([
                     Select::make('descriptive_type_id')
-                        ->label('')
+                        ->label('Content')
                         ->options(ConfigDescriptiveType::pluck('name', 'id'))
                         ->required(),
                     Textarea::make('value')
-                        ->label(''),
-                ])
-            ->columns(2)
+                        ->label('Value')
+                        ->rows(3)
+                        ->required(),
+                ]),
         ];
     }
 
     public function table(Table $table): Table
     {
         return $table
-            ->query(ProductDescriptiveContentSection::with('content')->where('product_id', $this->productId))
+            ->query(ProductDescriptiveContentSection::where('product_id', $this->productId))
             ->columns([
                 TextColumn::make('start_date')->label('Start Date')->date(),
                 TextColumn::make('end_date')->label('End Date')->date(),
-                TextColumn::make('content')
+                TextColumn::make('end_date')->label('End Date')->date(),
+                TextColumn::make('descriptiveType.name')
                     ->label('Content Section')
-                    ->formatStateUsing(function ($state) {
-                        $items = explode(', ', $state);
-                        $string = '';
-                        foreach ($items as $item) {
-                            $dataItem = json_decode($item, true);
-                            $string .= ConfigDescriptiveType::where('id', $dataItem['descriptive_type_id'])->first()->name . ': <b>' . $dataItem['value'] . '</b><br>';
-                        }
-                        return $string;
-                    })
-                    ->html()
                     ->searchable(),
+                TextColumn::make('value')->label('Value'),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
-            ->actions([
-                EditAction::make()
-                    ->label('')
-                    ->tooltip('Edit Section')
-                    ->form($this->schemeForm())
-                    ->fillForm(function ($record) {
-                        return $this->getFillFormData($record->id);
-                    })
-                    ->modalHeading('Edit Section')
-                    ->action(function (array $data, ProductDescriptiveContentSection $record) {
-                        $this->saveOrUpdate($data, $record->id);
-                    }),
-            ])
-            ->bulkActions([
-                DeleteBulkAction::make(),
-            ])
-            ->headerActions([
-                CreateAction::make()
-                    ->form($this->schemeForm())
-                    ->fillForm(function () {
-                        return $this->productId ? ['product_id' => $this->productId] : [];
-                    })
-                    ->tooltip('Add New Section')
-                    ->icon('heroicon-o-plus')
-                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton()
-                    ->action(function (array $data) {
-                        $this->saveOrUpdate($data);
-                    }),
-            ]);
+            ->actions($this->getActions())
+            ->bulkActions($this->getBulkActions())
+            ->headerActions($this->getHeaderActions());
     }
 
     public function render()
@@ -144,18 +109,14 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
         ];
 
         if ($recordId) {
-            $section = ProductDescriptiveContentSection::where('id', $recordId)->with('content')->first();
+            $section = ProductDescriptiveContentSection::where('id', $recordId)->first();
 
             if ($section) {
                 $data['section_name'] = $section->section_name;
                 $data['start_date'] = $section->start_date;
                 $data['end_date'] = $section->end_date;
-                $data['product_descriptive_contents'] = $section->content->map(function ($content) {
-                    return [
-                        'descriptive_type_id' => $content->descriptive_type_id,
-                        'value' => $content->value,
-                    ];
-                })->toArray();
+                $data['descriptive_type_id'] = $section->descriptive_type_id;
+                $data['value'] = $section->value;
             }
         }
 
@@ -163,7 +124,7 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
     }
 
     protected function saveOrUpdate(array $data, ?int $recordId = null): void
-    {
+        {
         if ($this->productId) $data['product_id'] = $this->productId;
 
         $section = ProductDescriptiveContentSection::updateOrCreate(
@@ -174,13 +135,9 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
             [
                 'start_date' => $data['start_date'],
                 'end_date' => $data['end_date'],
+                'descriptive_type_id' => $data['descriptive_type_id'],
+                'value' => $data['value'],
             ]
         );
-
-        $section->content()->delete(); // Clear existing content
-
-        foreach ($data['product_descriptive_contents'] as $contentData) {
-            $section->content()->create($contentData);
-        }
     }
 }

@@ -20,7 +20,7 @@ class ProductDescriptiveContentSectionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'product_id', 'section_name', 'start_date', 'end_date']
+                '*' => ['id', 'product_id', 'section_name', 'start_date', 'end_date', 'descriptive_type_id', 'value']
             ],
             'message'
         ]);
@@ -34,7 +34,7 @@ class ProductDescriptiveContentSectionControllerTest extends TestCase
         $response = $this->request()->postJson('api/repo/product-descriptive-content-sections', $data);
         $response->assertStatus(201);
         $response->assertJsonStructure([
-            'data' => ['id', 'product_id', 'section_name', 'start_date', 'end_date'],
+            'data' => ['id', 'product_id', 'section_name', 'start_date', 'end_date', 'descriptive_type_id', 'value'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_product_descriptive_content_sections', $data);
@@ -47,7 +47,7 @@ class ProductDescriptiveContentSectionControllerTest extends TestCase
         $response = $this->request()->getJson("api/repo/product-descriptive-content-sections/{$content->id}");
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'product_id', 'section_name', 'start_date', 'end_date'],
+            'data' => ['id', 'product_id', 'section_name', 'start_date', 'end_date', 'descriptive_type_id', 'value'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_product_descriptive_content_sections', $content->toArray());
@@ -61,7 +61,7 @@ class ProductDescriptiveContentSectionControllerTest extends TestCase
         $response = $this->request()->putJson("api/repo/product-descriptive-content-sections/{$content->id}", $data);
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'product_id', 'section_name', 'start_date', 'end_date'],
+            'data' => ['id', 'product_id', 'section_name', 'start_date', 'end_date', 'descriptive_type_id', 'value'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_product_descriptive_content_sections', $data);

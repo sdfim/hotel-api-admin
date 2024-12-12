@@ -3,18 +3,13 @@
 namespace Modules\HotelContentRepository\Livewire\Vendor;
 
 use App\Helpers\ClassHelper;
+use App\Models\Enums\RoleSlug;
 use Filament\Tables\Actions\DeleteAction;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
-use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\BooleanColumn;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -22,7 +17,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
-use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\Vendor;
 
 class VendorTable extends Component implements HasForms, HasTable
@@ -34,12 +28,18 @@ class VendorTable extends Component implements HasForms, HasTable
     {
         return $table
             ->defaultPaginationPageOption(5)
-            ->query(Vendor::query())
+            ->query(Vendor::query()
+                ->when(
+                    auth()->user()->currentTeam && !auth()->user()->hasRole(RoleSlug::ADMIN->value),
+                    fn ($q) => $q->where('id', auth()->user()->currentTeam->vendor_id)
+                )
+            )
             ->columns([
-                BooleanColumn::make('verified')
+                IconColumn::make('verified')
                     ->label('Verified')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->boolean(),
                 TextColumn::make('name')
                     ->label('Name')
                     ->searchable()
@@ -92,6 +92,7 @@ class VendorTable extends Component implements HasForms, HasTable
                     ->tooltip('Add New Vendor')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->visible(fn () => Gate::allows('create', Vendor::class))
                     ->iconButton(),
             ]);
     }

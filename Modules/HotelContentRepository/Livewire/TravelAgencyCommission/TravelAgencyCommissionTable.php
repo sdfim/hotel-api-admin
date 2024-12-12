@@ -6,6 +6,7 @@ use App\Helpers\ClassHelper;
 use App\Models\Configurations\ConfigConsortium;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -15,14 +16,19 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\HtmlString;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Enums\CommissionValueTypeEnum;
+use Modules\HotelContentRepository\Livewire\HasProductActions;
+use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 use Modules\HotelContentRepository\Models\TravelAgencyCommissionCondition;
 
@@ -30,6 +36,17 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
 {
     use InteractsWithForms;
     use InteractsWithTable;
+    use HasProductActions;
+
+    public int $productId;
+    public string $title;
+
+    public function mount(int $productId)
+    {
+        $this->productId = $productId;
+        $product = Product::find($productId);
+        $this->title = 'Travel Agency Commission for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
+    }
 
     public function form(Form $form): Form
     {
@@ -39,6 +56,7 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
     public function schemeForm(): array
     {
         return [
+            Hidden::make('product_id')->default($this->productId),
             TextInput::make('name')
                 ->label('Commission Name')
                 ->required(),
@@ -110,7 +128,9 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(TravelAgencyCommission::with('conditions'))
+            ->query(
+                TravelAgencyCommission::query()->where('product_id', $this->productId)
+            )
             ->columns([
                 TextColumn::make('name')
                     ->label('Commission Name')
@@ -169,11 +189,13 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     ->label('')
                     ->tooltip('Edit Travel Agency Commission')
                     ->form($this->schemeForm())
+                    ->modalHeading(new HtmlString("Edit {$this->title}"))
                     ->fillForm(function (TravelAgencyCommission $record) {
                         $data = $record->toArray();
                         $data['conditions'] = $record->conditions->toArray();
                         return $data;
                     })
+                    ->visible(fn (TravelAgencyCommission $record): bool => Gate::allows('update', $record))
                     ->action(function (TravelAgencyCommission $record, array $data) {
                         $conditions = $data['conditions'] ?? [];
                         unset($data['conditions']);
@@ -184,18 +206,21 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                         }
                         return $data;
                     }),
-                DeleteAction::make()
-                    ->label('')
-                    ->tooltip('Delete Travel Agency Commission')
-                    ->requiresConfirmation()
-                    ->action(fn(TravelAgencyCommission $record) => $record->delete())
-//                    ->visible(fn (TravelAgencyCommission $record): bool => Gate::allows('delete', $record))
+            ])
+            ->bulkActions([
+                DeleteBulkAction::make()
+                    ->visible(fn (TravelAgencyCommission $record): bool => Gate::allows('delete', $record))
                 ,
             ])
             ->headerActions([
                 CreateAction::make()
+                    ->modalHeading(new HtmlString("Create {$this->title}"))
                     ->form($this->schemeForm())
-                    ->action(function (array $data) {
+                    ->fillForm(function () {
+                        return $this->productId ? ['product_id' => $this->productId] : [];
+                    })
+                    ->action(function ($data) {
+                        if ($this->productId) $data['product_id'] = $this->productId;
                         $conditions = $data['conditions'] ?? [];
                         unset($data['conditions']);
                         $travelAgencyCommission = TravelAgencyCommission::create($data);
@@ -207,7 +232,8 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     ->tooltip('Add New Travel Agency Commission')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->visible(fn (): bool => Gate::allows('create', TravelAgencyCommission::class)),
             ]);
     }
 

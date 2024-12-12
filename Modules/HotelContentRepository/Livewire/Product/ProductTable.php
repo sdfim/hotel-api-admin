@@ -2,12 +2,13 @@
 
 namespace Modules\HotelContentRepository\Livewire\Product;
 
-use App\Helpers\ClassHelper;
+use App\Models\Enums\RoleSlug;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Tables;
-use Filament\Tables\Columns\BooleanColumn;
+use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -18,8 +19,6 @@ use Livewire\Features\SupportRedirects\Redirector;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
-use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
-use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\Vendor;
 
@@ -28,9 +27,9 @@ class ProductTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    private ?Vendor $vendor = null;
+    public ?Vendor $vendor = null;
 
-    public function mount(Hotel $hotel, ?Vendor $vendor): void
+    public function mount(?Vendor $vendor = null)
     {
         $this->vendor = $vendor;
     }
@@ -39,18 +38,27 @@ class ProductTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(function() {
-                $query = Product::query();
-                if(($this->vendor->exists ?? false)) {
+            ->query(function () {
+                $query = Product::query()
+                ->when(
+                    auth()->user()->currentTeam && !auth()->user()->hasRole(RoleSlug::ADMIN->value),
+                    fn ($q) => $q->where('vendor_id', auth()->user()->currentTeam->vendor_id)
+                );
+
+                if ($this->vendor?->id) {
                     $query->where('vendor_id', $this->vendor->id);
                 }
                 return $query;
             })
             ->columns([
-                BooleanColumn::make('verified')
+                ImageColumn::make('hero_image_thumbnails')
+                    ->size('100px'),
+
+                IconColumn::make('verified')
                     ->label('Verified')
                     ->sortable()
-                    ->toggleable(),
+                    ->toggleable()
+                    ->boolean(),
 
                 TextColumn::make('name')
                     ->label('Name')
@@ -79,10 +87,6 @@ class ProductTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->wrap(),
 
-                TextColumn::make('location')
-                    ->toggleable()
-                    ->sortable(),
-
                 TextColumn::make('default_currency')
                     ->label('Currency')
                     ->searchable()
@@ -94,10 +98,16 @@ class ProductTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->sortable()
                     ->default(function ($record) {
-                        return $record->contentSource->name . ' '
-                            . $record->related?->roomImagesSource->name . ' '
-                            . $record->propertyImagesSource->name;
-                    }),
+                        return 'Content: ' . $record->contentSource->name . '<br>'
+                            . 'Room Images: ' . $record->related?->roomImagesSource->name . '<br>'
+                            . 'Property Images: ' . $record->propertyImagesSource->name;
+                    })
+                    ->html(),
+
+                TextColumn::make('updated_at')
+                    ->label('Last Updated')
+                    ->date()
+                    ->sortable(),
 
             ])
             ->actions([

@@ -11,7 +11,9 @@ return new class extends Migration
         Schema::create('pd_product_deposit_information', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
-            $table->integer('days_departure');
+            $table->string('days_prior_type');
+            $table->integer('days')->nullable();
+            $table->dateTime('date')->nullable();
             $table->string('pricing_parameters');
             $table->decimal('pricing_value', 8, 2)->nullable();
             $table->timestamps();

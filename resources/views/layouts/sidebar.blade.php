@@ -1,4 +1,5 @@
 @php
+    use Illuminate\Database\Eloquent\Model;
     use Illuminate\Support\Facades\Auth;
     use App\Models\GeneralConfiguration;
     use App\Models\Channel;
@@ -32,8 +33,10 @@
     use App\Models\Configurations\ConfigChain;
     use Modules\HotelContentRepository\Models\ImageGallery;
     use Modules\HotelContentRepository\Models\Image;
+    use App\Models\Team;
+    use App\Helpers\ClassHelper;
 
-    $canView = fn (string $model): bool => Auth::user()->can('view', $model);
+    $canView = fn (string|Model|null $model): bool => Auth::user()->can('view', $model);
     $canConfigurationGroup = fn (): bool =>
         $canView(GeneralConfiguration::class) ||
         $canView(Channel::class) ||
@@ -59,7 +62,7 @@
                 @if($canConfigurationGroup())
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
-                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarParrentClass() }}">
                             <i class="dripicons-gear"></i>
                             <span data-key="t-configuration">Configuration</span>
                         </a>
@@ -67,21 +70,21 @@
                             @if($canView(GeneralConfiguration::class))
                                 <li>
                                     <a href="{{ Route('general_configuration') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">General
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">General
                                     </a>
                                 </li>
                             @endif
                             @if($canView(Channel::class))
                                 <li>
                                     <a href="{{ Route('channels.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Channels
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">Channels
                                     </a>
                                 </li>
                             @endif
                             @if($canView(Supplier::class))
                                 <li>
                                     <a href="{{ Route('suppliers.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Suppliers
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">Suppliers
                                     </a>
                                 </li>
                             @endif
@@ -133,7 +136,7 @@
                 @if($canView(User::class) || $canView(Role::class) || $canView(Permission::class))
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
-                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarParrentClass() }}">
                             <i class="dripicons-user-group"></i>
                             <span data-key="t-configuration">Users and permissions</span>
                         </a>
@@ -174,7 +177,7 @@
                 @if($canView(Reservation::class))
                     <li>
                         <a href="{{ Route('reservations.index') }}"
-                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarPointClass() }}">
                             <i class="dripicons-pin"></i>
                             <span data-key="t-reservations"> Reservations</span>
                         </a>
@@ -183,7 +186,7 @@
                 @if($canView(PricingRule::class))
                     <li>
                         <a href="{{ Route('pricing-rules.index') }}"
-                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarPointClass() }}">
                             <i class="dripicons-network-3"></i>
                             <span data-key="t-pricing-rules"> Pricing Rules</span>
                         </a>
@@ -192,25 +195,25 @@
                 @if($canView(InformationalService::class))
                     <li>
                         <a href="{{ Route('informational-services.index') }}"
-                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarPointClass() }}">
                             <i class="dripicons-information"></i>
                             <span data-key="t-property-weighting">Informational Service</span>
                         </a>
                     </li>
                 @endif
-                @if($canView(TravelAgencyCommission::class))
-                    <li>
-                        <a href="{{ Route('travel-agency-commission.index') }}"
-                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                            <i class="dripicons-lifting"></i>
-                            <span data-key="t-property-weighting">Agency Commissions</span>
-                        </a>
-                    </li>
-                @endif
+{{--                @if($canView(TravelAgencyCommission::class))--}}
+{{--                    <li>--}}
+{{--                        <a href="{{ Route('travel-agency-commission.index') }}"--}}
+{{--                           class="{{ ClassHelper::sidebarPointClass() }}">--}}
+{{--                            <i class="dripicons-lifting"></i>--}}
+{{--                            <span data-key="t-property-weighting">Agency Commissions</span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                @endif--}}
                 @if($canView(PropertyWeighting::class))
                     <li>
                         <a href="{{ Route('property-weighting.index') }}"
-                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarPointClass() }}">
                             <i class="dripicons-weight"></i>
                             <span data-key="t-property-weighting"> Property Weighting</span>
                         </a>
@@ -219,7 +222,7 @@
                 @if($canView(ApiSearchInspector::class) || $canView(ApiBookingInspector::class) || $canView(ApiBookingItem::class))
                     <li class="@if(Route::currentRouteName() == 'booking-inspector.show' || Route::currentRouteName() == 'search-inspector.show' || Route::currentRouteName() == 'booking-items.show') mm-active @endif">
                         <a href="javascript: void(0);" aria-expanded="false"
-                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarParrentClass() }}">
                             <i class="dripicons-archive"></i>
                             <span data-key="t-inspector">Inspectors</span>
                         </a>
@@ -251,7 +254,7 @@
                 @if($canView(ApiExceptionReport::class))
                     <li class="@if(Route::currentRouteName() == 'exceptions-report.show') mm-active @endif">
                         <a href="javascript: void(0);" aria-expanded="false"
-                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarParrentClass() }}">
                             <i class="dripicons-graph-line"></i>
                             <span data-key="t-inspector">Exceptions Report</span>
                         </a>
@@ -272,10 +275,7 @@
                 @if($canView(ImageGallery::class) || $canView(Image::class))
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
-                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium
-                           text-gray-700 transition-all duration-150 ease-linear
-                           hover:text-violet-500 dark:text-gray-300 dark:active:text-white
-                           dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarParrentClass() }}">
                             <i class="dripicons-photo-group"></i>
                             <span>Image Galleries</span>
                         </a>
@@ -283,10 +283,7 @@
                             @if($canView(ImageGallery::class))
                                 <li>
                                     <a href="{{ Route('image-galleries.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
-                                   text-gray-700 transition-all duration-150 ease-linear
-                                   hover:text-violet-500 dark:text-gray-300 dark:active:text-white
-                                   dark:hover:text-white">
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
                                         <i class="dripicons-view-thumb"></i>
                                         <span>Galleries</span>
                                     </a>
@@ -295,10 +292,7 @@
                             @if($canView(Image::class))
                                 <li>
                                     <a href="{{ Route('images.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
-                                   text-gray-700 transition-all duration-150 ease-linear
-                                   hover:text-violet-500 dark:text-gray-300 dark:active:text-white
-                                   dark:hover:text-white">
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
                                         <i class="dripicons-photo"></i>
                                         <span>Images</span>
                                     </a>
@@ -310,14 +304,13 @@
                 @if($canView(Property::class))
                     <li>
                         <a href="{{ Route('properties.index') }}"
-                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarPointClass() }}">
                             <i class="dripicons-map"></i>
                             <span data-key="t-property-mapping">Properties</span>
                         </a>
                     </li>
                 @endif
-                @if($canView(Hotel::class)
-                    || $canView(Vendor::class)
+                @if($canView(Vendor::class)
                     || $canView(Product::class)
                     || $canView(InsuranceProviderDocumentation::class)
                     || $canView(InsuranceRestriction::class)
@@ -325,10 +318,7 @@
                     || $canView(InsurancePlan::class))
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
-                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium
-                       text-gray-700 transition-all duration-150 ease-linear
-                       hover:text-violet-500 dark:text-gray-300 dark:active:text-white
-                       dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarParrentClass() }}">
                             <i class="dripicons-graduation"></i>
                             <span>Supplier Repository</span>
                         </a>
@@ -336,47 +326,49 @@
                             @if($canView(Vendor::class))
                                 <li>
                                     <a href="{{ Route('vendor-repository.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
-                               text-gray-700 transition-all duration-150 ease-linear
-                               hover:text-violet-500 dark:text-gray-300 dark:active:text-white
-                               dark:hover:text-white">
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
                                         <i class="dripicons-rocket"></i>
                                         <span>Vendors</span>
                                     </a>
                                 </li>
                             @endif
                             @if($canView(Product::class))
-                                <li>
-                                    <a href="{{ Route('product-repository.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
-                            text-gray-700 transition-all duration-150 ease-linear
-                            hover:text-violet-500 dark:text-gray-300 dark:active:text-white
-                            dark:hover:text-white">
-                                        <i class="dripicons-trophy"></i>
-                                        <span>Products</span>
-                                    </a>
-                                </li>
-                            @endif
-                            @if($canView(Hotel::class))
-                                <li>
-                                    <a href="{{ Route('hotel-repository.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
-                               text-gray-700 transition-all duration-150 ease-linear
-                               hover:text-violet-500 dark:text-gray-300 dark:active:text-white
-                               dark:hover:text-white">
-                                        <i class="dripicons-store"></i>
-                                        <span>Hotels</span>
-                                    </a>
-                                </li>
+                               <li>
+                                   <a href="javascript: void(0);" aria-expanded="false"
+                                      class="{{ ClassHelper::sidebarCildrenP2Class() }}">
+                                       <i class="dripicons-trophy"></i>
+                                       <span data-key="t-products">Products</span>
+                                   </a>
+                                   <ul>
+                                       <li>
+                                           <a href="{{ Route('hotel-repository.index') }}"
+                                              class="{{ ClassHelper::sidebarCildrenL2Class()}}">
+                                               <i class="dripicons-store"></i>
+                                               <span>Hotels</span>
+                                           </a>
+                                       </li>
+                                       <li>
+                                           <a href="#"
+                                              class="{{ ClassHelper::sidebarCildrenL2Class()}}">
+                                               <i class="dripicons-web"></i>
+                                               <span>Tours</span>
+                                           </a>
+                                       </li>
+                                       <li>
+                                           <a href="#"
+                                              class="{{ ClassHelper::sidebarCildrenL2Class()}}">
+                                               <i class="dripicons-suitcase"></i>
+                                               <span>Transfers</span>
+                                           </a>
+                                       </li>
+                                   </ul>
+                               </li>
                             @endif
                             @if($canView(Product::class))
                                     <li>
                                         <a href="{{ Route('pd-grid.index') }}"
-                                           class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
-                            text-gray-700 transition-all duration-150 ease-linear
-                            hover:text-violet-500 dark:text-gray-300 dark:active:text-white
-                            dark:hover:text-white">
-                                            <i class="dripicons-trophy"></i>
+                                           class="{{ ClassHelper::sidebarCildrenClass() }}">
+                                            <i class="dripicons-to-do"></i>
                                             <span>PD Grid</span>
                                         </a>
                                     </li>
@@ -384,10 +376,7 @@
                             @if($canView(InsurancePlan::class))
                                 <li>
                                     <a href="{{ Route('insurance-plans.index') }}"
-                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium
-                            text-gray-700 transition-all duration-150 ease-linear
-                            hover:text-violet-500 dark:text-gray-300 dark:active:text-white
-                            dark:hover:text-white">
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
                                         <i class="dripicons-pill"></i>
                                         <span>Insurance</span>
                                     </a>
@@ -399,7 +388,7 @@
                 @can('statistic-charts')
                     <li>
                         <a href="{{ Route('statistic-charts') }}"
-                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarPointClass() }}">
                             <i class="dripicons-graph-pie"></i>
                             <span data-key="t-statistic-charts"> Statistic charts</span>
                         </a>
@@ -408,123 +397,56 @@
                 @if($canView(GiataGeography::class))
                     <li>
                         <a href="{{ Route('geography') }}"
-                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
+                           class="{{ ClassHelper::sidebarPointClass() }}">
                             <i class="dripicons-direction"></i>
                             <span data-key="t-geography"> Geography</span>
                         </a>
                     </li>
                 @endif
-                @can('log-viewer')
-                    <li>
-                        <a href="{{ url('admin/log-viewer') }}"
-                           class="pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                            <i class="dripicons-document-remove"></i>
-                            <span data-key="t-log-viewer"> Log Viewer</span>
-                        </a>
-                    </li>
-                @endcan
-                @can('swagger-docs')
+                    @canany(['log-viewer', 'swagger-docs', 'activities'])
                     <li>
                         <a href="javascript: void(0);" aria-expanded="false"
-                           class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                            <i class="dripicons-document-edit"></i>
-                            <span data-key="t-api-documentation">Swagger</span>
+                           class="{{ ClassHelper::sidebarParrentClass() }}">
+                            <i class="dripicons-warning"></i>
+                            <span data-key="t-tools">Tools</span>
                         </a>
                         <ul>
-                            <li>
-                                <a href="{{ url(config('app.url').'/admin/api/documentation') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                    Main Documentation
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ url(config('app.url').'/admin/api/doc-content-repository') }}"
-                                   class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                                    Supplier Repository
-                                </a>
-                            </li>
+                            @can('log-viewer')
+                                <li>
+                                    <a href="{{ url('admin/log-viewer') }}"
+                                       class="{{ ClassHelper::sidebarCildrenClass() }}">
+                                        <i class="dripicons-document-remove"></i>
+                                        <span data-key="t-log-viewer">Log Viewer</span>
+                                    </a>
+                                </li>
+                            @endcan
+                            @can('swagger-docs')
+                                <li>
+                                    <a href="javascript: void(0);" aria-expanded="false"
+                                       class="{{ ClassHelper::sidebarCildrenP2Class() }}">
+                                        <i class="dripicons-document-edit"></i>
+                                        <span data-key="t-api-documentation">Swagger</span>
+                                    </a>
+                                    <ul>
+                                        <li>
+                                            <a href="{{ url(config('app.url').'/admin/api/documentation') }}"
+                                               class="{{ ClassHelper::sidebarCildrenL2Class() }}">
+                                                Main Documentation
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ url(config('app.url').'/admin/api/doc-content-repository') }}"
+                                               class="{{ ClassHelper::sidebarCildrenL2Class() }}">
+                                                Supplier Repository
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            @endcan
                         </ul>
                     </li>
-                @endcan
-
-                <!--
-
-                <li>
-                    <a href="javascript: void(0);" aria-expanded="false"  class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i data-feather="users"></i>
-                        <span data-key="t-auth">Authentication</span>
-                    </a>
-                    <ul>
-                        <li>
-                            <a href="{{ url('login') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Login</a>
-                        </li>
-                         <li>
-                            <a href="{{ url('recoverpw') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Recover Password</a>
-                        </li>
-                        <li>
-                            <a href="{{ url('lock-screen') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Lock Screen</a>
-                        </li>
-                        <li>
-                            <a href="{{ url('logout') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Log Out</a>
-                        </li>
-                        <li>
-                            <a href="{{ url('confirm-mail') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Confirm Mail</a>
-                        </li>
-                        <li>
-                            <a href="{{ url('email-verification') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Email Verification</a>
-                        </li>
-                        <li>
-                            <a href="{{ url('two-step-verification') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Two Step Verification</a>
-                        </li>
-                    </ul>
-                </li> -->
-
-                <!-- <li>
-                    <a href="javascript: void(0);" aria-expanded="false" class="nav-menu pl-6 pr-4 py-3 block text-sm font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">
-                        <i data-feather="briefcase"></i><span data-key="t-pages">Pages</span>
-                    </a>
-                    <ul>
-                        <li>
-                            <a href="{{ url('starter') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Starter Page</a>
-                        </li>
-                        <li>
-                            <a href="{{ url('maintenance') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Maintenance</a>
-                        </li>
-                         <li>
-                            <a href="{{ url('coming-soon') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Coming Soon</a>
-                        </li>
-                        <li>
-                            <a href="{{ url('timeline') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Timeline</a>
-                        </li>
-                        <li>
-                            <a href="{{ url('faqs') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">FAQs</a>
-                        </li>
-                        <li>
-                            <a href="{{ url('pricing') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Pricing</a>
-                        </li>
-                        <li>
-                            <a href="{{ url('404') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Error 404</a>
-                        </li>
-                        <li>
-                            <a href="{{ url('500') }}" class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white">Error 500</a>
-                        </li>
-                    </ul>
-                </li> -->
-
+                @endcanany
             </ul>
-
-            <!-- <div class="sidebar-alert text-center mx-5 my-12">
-                <div class="card-body bg-primary rounded bg-violet-50/50 dark:bg-zinc-700/60">
-                    <img src="{{ URL::asset('build/images/giftbox.png') }}" alt="" class="block mx-auto">
-                    <div class="mt-4">
-                        <h5 class="text-violet-500 mb-3 font-medium">Unlimited Access</h5>
-                        <p class="text-slate-600 text-13 dark:text-gray-50">Upgrade your plan from a Free trial, to select ‘Business Plan’.</p>
-                        <a href="#!" class="btn bg-violet-500 text-white border-transparent mt-6">Upgrade Now</a>
-                    </div>
-                </div>
-            </div> -->
         </div>
-        <!-- Sidebar -->
     </div>
 </div>
-<!-- Left Sidebar End -->

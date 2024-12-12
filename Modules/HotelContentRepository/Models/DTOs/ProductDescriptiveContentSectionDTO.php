@@ -31,9 +31,8 @@ class ProductDescriptiveContentSectionDTO
             'section_name' => $section->section_name,
             'start_date' => $section->start_date,
             'end_date' => $section->end_date,
-            'content' => $section->content->map(function ($content) {
-                return (new ProductDescriptiveContentDTO())->transformContent($content);
-            }),
+            'descriptive_type_id' => $section->descriptive_type_id,
+            'value' => $section->value,
         ];
     }
 }

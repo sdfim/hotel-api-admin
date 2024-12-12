@@ -7,6 +7,7 @@ use App\Models\Configurations\ConfigJobDescription;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -18,6 +19,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ContactInformation;
@@ -30,17 +32,18 @@ class ContactInformationTable extends Component implements HasForms, HasTable
 
     public int $contactableId;
     public string $contactableType;
+    public string $title;
 
     public function mount(int $contactableId, string $contactableType)
     {
         $this->contactableId = $contactableId;
         $this->contactableType = $contactableType;
+        $this->title = 'Contact Information';
     }
 
     public function form(Form $form): Form
     {
-        return $form
-            ->schema($this->schemeForm());
+        return $form->schema($this->schemeForm());
     }
 
     public function schemeForm(): array
@@ -69,9 +72,13 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                 ]),
             Grid::make(2)
                 ->schema([
-                    TextInput::make('email')
-                        ->label('Email')
-                        ->email(),
+                    TagsInput::make('email')
+                        ->label('Emails')
+                        ->placeholder('Add email')
+                        ->separator(', ')
+                        ->nestedRecursiveRules([
+                            'email',
+                        ]),
                     TextInput::make('phone')
                         ->label('Phone'),
                 ]),
@@ -104,6 +111,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
             ->actions([
                 EditAction::make()
                     ->label('')
+                    ->modalHeading(new HtmlString("Edit {$this->title}"))
                     ->tooltip('Edit Contact Information')
                     ->form($this->schemeForm())
                     ->fillForm(function ($record) {
@@ -124,6 +132,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
             ])
             ->headerActions([
                 CreateAction::make()
+                    ->modalHeading(new HtmlString("Create {$this->title}"))
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->contactableId ? ['contactable_id' => $this->contactableId] : [];

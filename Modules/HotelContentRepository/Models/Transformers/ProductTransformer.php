@@ -18,6 +18,7 @@ class ProductTransformer extends TransformerAbstract
         'informativeServices',
         'promotions',
         'keyMappings',
+        'related',
     ];
 
     public function transform(Product $product)
@@ -25,6 +26,7 @@ class ProductTransformer extends TransformerAbstract
         return [
             'id' => $product->id,
             'vendor_id' => $product->vendor_id,
+            'vendor' => $product->vendor->name,
             'product_type' => $product->product_type,
             'name' => $product->name,
             'verified' => $product->verified,
@@ -37,6 +39,18 @@ class ProductTransformer extends TransformerAbstract
             'related_id' => $product->related_id,
             'related_type' => $product->related_type,
         ];
+    }
+
+    public function includeRelated(Product $product)
+    {
+        {
+            if ($product->related !== null) {
+                if ($product->product_type === 'hotel') {
+                    return $this->item($product->related, new HotelWithoutProductTransformer());
+                }
+            }
+            return $this->null();
+        }
     }
 
     public function includeContentSource(Product $product)

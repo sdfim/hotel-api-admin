@@ -11,12 +11,14 @@ return new class extends Migration
         Schema::create('pd_hotels', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('sale_type', 50);
+            $table->integer('giata_code');
+            $table->boolean('featured_flag')->nullable();
             $table->json('address')->nullable();
             $table->integer('star_rating');
             $table->integer('weight')->nullable();
             $table->integer('num_rooms');
             $table->decimal('travel_agent_commission',8,2)->nullable();
-            $table->unsignedBigInteger('room_images_source_id');
+            $table->unsignedBigInteger('room_images_source_id')->nullable();
             $table->string('hotel_board_basis')->nullable();
             $table->timestamps();
 

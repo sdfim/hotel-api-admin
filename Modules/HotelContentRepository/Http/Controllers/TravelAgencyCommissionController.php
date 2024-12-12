@@ -3,12 +3,10 @@
 namespace Modules\HotelContentRepository\Http\Controllers;
 
 use Modules\AdministrationSuite\Http\Controllers\BaseWithPolicyController;
-use Modules\AdministrationSuite\Http\Controllers\Controller;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 use Illuminate\Contracts\View\View;
 
-//class TravelAgencyCommissionController extends BaseWithPolicyController
-class TravelAgencyCommissionController extends Controller
+class TravelAgencyCommissionController extends BaseWithPolicyController
 {
     protected static string $model = TravelAgencyCommission::class;
 

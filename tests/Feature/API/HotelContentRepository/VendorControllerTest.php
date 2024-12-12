@@ -8,12 +8,10 @@ use PHPUnit\Framework\Attributes\Test;
 
 class VendorControllerTest extends TestCase
 {
-    use RefreshDatabase;
-
     #[Test]
     public function test_can_list_vendors()
     {
-        // One Vendor is created by the RefreshDatabase trait
+        $initialCount = Vendor::count();
         Vendor::factory()->count(3)->create();
         $response = $this->request()->getJson('api/repo/vendors');
         $response->assertStatus(200);
@@ -25,7 +23,7 @@ class VendorControllerTest extends TestCase
             ],
             'message'
         ]);
-        $this->assertDatabaseCount('pd_vendors', 3);
+        $this->assertDatabaseCount('pd_vendors', $initialCount + 3);
     }
 
     #[Test]

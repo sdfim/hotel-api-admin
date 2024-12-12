@@ -24,9 +24,9 @@ class HotelImagesForm extends Component implements HasForms
 
     public Image $record;
 
-    public function mount(Image $hotelImage): void
+    public function mount(Image $repositoryImage): void
     {
-        $this->record = $hotelImage;
+        $this->record = $repositoryImage;
 
         $this->form->fill($this->record->attributesToArray());
     }

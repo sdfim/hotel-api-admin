@@ -16,6 +16,7 @@ class ProductInformativeServiceFactory extends Factory
         return [
             'product_id' => Product::factory(),
             'service_id' => ConfigServiceType::factory(),
+            'cost' => $this->faker->randomFloat(2, 0, 1000),
         ];
     }
 }

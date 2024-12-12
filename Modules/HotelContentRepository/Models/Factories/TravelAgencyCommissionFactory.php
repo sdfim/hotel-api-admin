@@ -5,6 +5,7 @@ namespace Modules\HotelContentRepository\Models\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Enums\CommissionValueTypeEnum;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 
 class TravelAgencyCommissionFactory extends Factory
@@ -15,6 +16,7 @@ class TravelAgencyCommissionFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
+            'product_id' => Product::factory(),
             'commission_value' => $this->faker->randomFloat(2, 0, 100),
             'commission_value_type' => $this->faker->randomElement([
                 CommissionValueTypeEnum::AMOUNT->value,

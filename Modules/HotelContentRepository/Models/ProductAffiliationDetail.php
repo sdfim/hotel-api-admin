@@ -24,6 +24,7 @@ class ProductAffiliationDetail extends Model
         'description',
         'start_date',
         'end_date',
+        'combinable',
     ];
 
     protected $hidden = [

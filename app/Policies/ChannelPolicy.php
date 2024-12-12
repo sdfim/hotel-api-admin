@@ -3,6 +3,7 @@
 namespace App\Policies;
 
 use App\Models\Channel;
+use App\Models\Enums\RoleSlug;
 use App\Models\User;
 use App\Policies\Base\BasePolicy;
 
@@ -31,6 +32,6 @@ class ChannelPolicy extends BasePolicy
             return $this->can('update', $user);
         }
 
-        return $this->can('update', $user) && ($channel->token?->tokenable_id == $user->id || $user->hasRole('admin'));
+        return $this->can('update', $user) && ($channel->token?->tokenable_id == $user->id || $user->hasRole(RoleSlug::ADMIN->value));
     }
 }

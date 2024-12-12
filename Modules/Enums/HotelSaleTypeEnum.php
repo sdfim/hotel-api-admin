@@ -2,7 +2,7 @@
 
 namespace Modules\Enums;
 
-enum HotelTypeEnum: string
+enum HotelSaleTypeEnum: string
 {
     case DIRECT_CONNECTION = 'Direct connection';
     case MANUAL_CONTRACT = 'Manual contract';

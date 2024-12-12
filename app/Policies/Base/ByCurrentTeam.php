@@ -2,9 +2,13 @@
 
 namespace App\Policies\Base;
 
+use App\Models\Enums\RoleSlug;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property string|null $withRelation
+ */
 trait ByCurrentTeam
 {
     public function update(User $user, ?Model $model = null): bool
@@ -23,6 +27,20 @@ trait ByCurrentTeam
             return $this->can($name, $user);
         }
 
-        return $this->can($name, $user) && $model->team_id == $user->current_team_id;
+        if ($user->hasRole(RoleSlug::ADMIN->value)) return true;
+
+        if ($this->withTeam($name, $user)) {
+            if (!empty($this->withRelation)) {
+                return $model->{$this->withRelation}()
+                    ->where('vendor_id', $user->currentTeam->vendor_id)
+                    ->exists();
+            }
+
+            return $model->vendor_id == $user->currentTeam->vendor_id;
+        }
+
+        $permission = $this->getPrefix().'.'.$name;
+
+        return $user->hasPermission($permission);
     }
 }

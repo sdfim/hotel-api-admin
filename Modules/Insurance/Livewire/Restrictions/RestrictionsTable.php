@@ -3,6 +3,7 @@
 namespace Modules\Insurance\Livewire\Restrictions;
 
 use App\Helpers\ClassHelper;
+use App\Models\Enums\RoleSlug;
 use App\Models\Property;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -21,10 +22,9 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
-use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsuranceRestriction;
 use Modules\Insurance\Models\InsuranceRestrictionType;
 
@@ -34,13 +34,9 @@ class RestrictionsTable extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     public array $restrictionTypes = [];
-    public ?int $vendorId;
-    public bool $viewAll = false;
 
-    public function mount(?Vendor $vendor, bool $viewAll = false): void
+    public function mount(): void
     {
-        $this->vendorId = $vendor->id;
-        $this->viewAll = $viewAll;
         $this->restrictionTypes = InsuranceRestrictionType::pluck('id', 'name')->toArray();
     }
 
@@ -144,9 +140,13 @@ class RestrictionsTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn () => $this->viewAll
-                ? InsuranceRestriction::query()
-                : InsuranceRestriction::query()->where('vendor_id', $this->vendorId))
+            ->query(
+                InsuranceRestriction::query()
+                    ->when(
+                        auth()->user()->currentTeam && !auth()->user()->hasRole(RoleSlug::ADMIN->value),
+                        fn ($q) => $q->where('vendor_id', auth()->user()->currentTeam->vendor_id),
+                    )
+            )
             ->columns([
                 TextColumn::make('vendor.name')
                     ->label('Vendor name')
@@ -183,6 +183,7 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                     ->fillForm(function (InsuranceRestriction $record) {
                         return $record->toArray();
                     })
+                    ->visible(fn (InsuranceRestriction $record): bool => Gate::allows('update', $record))
                     ->action(function (InsuranceRestriction $record, array $data) {
                         $record->update($data);
 
@@ -197,6 +198,7 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                     ->label('')
                     ->tooltip('Delete Restriction')
                     ->requiresConfirmation()
+                    ->visible(fn (InsuranceRestriction $record): bool => Gate::allows('delete', $record))
                     ->action(function (InsuranceRestriction $record) {
                         $record->delete();
 
@@ -222,7 +224,8 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                     ->tooltip('Add New Restriction')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->visible(fn (): bool => Gate::allows('create', InsuranceRestriction::class)),
             ]);
     }
 

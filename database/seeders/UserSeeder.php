@@ -59,22 +59,22 @@ class UserSeeder extends Seeder
             $user->permissions()->attach($createUserPermission);
         }
 
-        // Проверяем, есть ли у администратора личная команда
+        // Check if the administrator has a private command
         $adminTeam = $admin->ownedTeams()->where('personal_team', true)->first();
 
         if (!$adminTeam) {
-            // Если команды нет, создаем новую
+            // If there is no command, create a new one
             $adminTeam = Team::create([
                 'user_id' => $admin->id,
                 'name' => $admin->name . "'s Team",
                 'personal_team' => true,
             ]);
 
-            // Сохраняем новую команду для администратора и переключаем его на нее
+            // Save the new command for the administrator and switch the administrator to it
             $admin->ownedTeams()->save($adminTeam);
             $admin->switchTeam($adminTeam);
         } else {
-            // Переключаем администратора на уже существующую команду
+            // Switch the administrator to an existing command
             $admin->switchTeam($adminTeam);
         }
 

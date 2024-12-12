@@ -42,11 +42,14 @@ class PricingRulesTable extends Component implements HasForms, HasTable
         $this->productId = $productId;
         $this->isSrCreator = $isSrCreator;
         if ($this->productId) {
-            $this->giataKeyIds = Product::with(['keyMappings' => function ($query) {
-                $query->whereHas('keyMappingOwner', function ($query) {
-                    $query->where('name', 'GIATA');
-                });
-            }])->where('id', $this->productId)->get()->pluck('keyMappings.*.key_id')->flatten()->toArray();
+            $this->giataKeyIds = Product::with(['related' => function ($query) {
+                $query->select('id', 'giata_code');
+            }])
+                ->where('id', $this->productId)
+                ->get()
+                ->pluck('related.giata_code')
+                ->flatten()
+                ->toArray();
         }
     }
 
@@ -64,6 +67,8 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                                     ->orWhere('value_from', $this->giataKeyIds[0]);
                             });
                     });
+                } elseif ($this->isSrCreator) {
+                    return PricingRule::query()->whereRaw('1 = 0');
                 }
                 return $query;
             })

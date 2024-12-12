@@ -43,11 +43,13 @@ class PermissionSeeder extends Seeder
         'config_chain',
         'image_gallery',
         'hotel_image',
+        'hotel_room',
     ];
 
     private static array $permissions = [
         'statistic-charts',
         'swagger-docs',
+        'activities',
         'log-viewer',
         'config-group',
     ];

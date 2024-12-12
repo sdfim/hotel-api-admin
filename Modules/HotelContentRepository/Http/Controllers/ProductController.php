@@ -2,14 +2,14 @@
 
 namespace Modules\HotelContentRepository\Http\Controllers;
 
+use Modules\AdministrationSuite\Http\Controllers\BaseWithPolicyController;
 use Modules\HotelContentRepository\Models\Product;
 use Illuminate\Contracts\View\View;
-use Modules\AdministrationSuite\Http\Controllers\Controller;
 
-class ProductController extends Controller
+class ProductController extends BaseWithPolicyController
 {
     protected static string $model = Product::class;
-    protected static ?string $parameterName = 'product';
+    protected static ?string $parameterName = 'product-repository';
 
     private array $message = ['edit' => 'Edit Product', 'create' => 'Create Product'];
 

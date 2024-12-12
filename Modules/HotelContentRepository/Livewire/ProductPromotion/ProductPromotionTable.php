@@ -4,6 +4,7 @@ namespace Modules\HotelContentRepository\Livewire\ProductPromotion;
 
 use App\Helpers\ClassHelper;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -18,7 +19,9 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
+use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductPromotion;
 use Filament\Tables\Contracts\HasTable;
@@ -28,12 +31,16 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
+    use HasProductActions;
 
     public int $productId;
+    public string $title;
 
     public function mount(int $productId)
     {
         $this->productId = $productId;
+        $product = Product::find($productId);
+        $this->title = 'Promotions for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
     public function form(Form $form): Form
@@ -45,11 +52,7 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
     public function schemeForm(): array
     {
         return  [
-            Select::make('product_id')
-                ->label('Product')
-                ->options(Product::pluck('name', 'id'))
-                ->disabled(fn () => $this->productId)
-                ->required(),
+            Hidden::make('product_id')->default($this->productId),
             TextInput::make('promotion_name')
                 ->label('Promotion Name')
                 ->required(),
@@ -64,6 +67,17 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                     DatePicker::make('validity_end')
                         ->label('Validity End')
                         ->native(false)
+                        ->required(),
+                ]),
+            Grid::make()
+                ->schema([
+                    TextInput::make('min_night_stay')
+                        ->label('Min Night Stay')
+                        ->numeric()
+                        ->required(),
+                    TextInput::make('max_night_stay')
+                        ->label('Max Night Stay')
+                        ->numeric()
                         ->required(),
                 ]),
             Grid::make()
@@ -85,8 +99,7 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                 ->label('Galleries')
                 ->multiple()
                 ->searchable()
-                ->options(ImageGallery::hasProductPromotion($this->productId)->pluck('gallery_name', 'id')),
-
+                ->options(ImageGallery::pluck('gallery_name', 'id')),
         ];
     }
 
@@ -105,31 +118,9 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                 TextColumn::make('booking_end')->label('Booking End')->date(),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
-            ->actions([
-                EditAction::make()
-                    ->label('')
-                    ->tooltip('Edit Promotion')
-                    ->form($this->schemeForm())
-                    ->modalHeading('Edit Promotion'),
-            ])
-            ->bulkActions([
-                DeleteBulkAction::make(),
-            ])
-            ->headerActions([
-                CreateAction::make()
-                    ->form($this->schemeForm())
-                    ->fillForm(function () {
-                        return $this->productId ? ['product_id' => $this->productId] : [];
-                    })
-                    ->action(function ($data) {
-                        if ($this->productId) $data['product_id'] = $this->productId;
-                        ProductPromotion::create($data);
-                    })
-                    ->tooltip('Add New Promotion')
-                    ->icon('heroicon-o-plus')
-                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
-            ]);
+            ->actions($this->getActions())
+            ->bulkActions($this->getBulkActions())
+            ->headerActions($this->getHeaderActions());
     }
 
     public function render()

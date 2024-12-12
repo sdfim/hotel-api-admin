@@ -41,7 +41,7 @@ class HotelTransformer extends TransformerAbstract
     public function includeProduct(Hotel $hotel)
     {
         if ($hotel->product) {
-            return $this->item($hotel->product, new ProductTransformer());
+            return $this->item($hotel->product, new ProductWithoutRelationTransformer());
         }
         return null;
     }

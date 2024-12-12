@@ -2,7 +2,7 @@
 
 namespace Modules\Enums;
 
-enum FeeTaxTypeEnum: string
+enum ProductFeeTaxTypeEnum: string
 {
     case TAX = 'Tax';
     case FEE = 'Fee';

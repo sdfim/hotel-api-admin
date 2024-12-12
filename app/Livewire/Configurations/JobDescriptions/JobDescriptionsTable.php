@@ -4,6 +4,7 @@ namespace App\Livewire\Configurations\JobDescriptions;
 
 use App\Helpers\ClassHelper;
 use App\Models\Configurations\ConfigJobDescription;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
@@ -51,7 +52,15 @@ class JobDescriptionsTable extends Component implements HasForms, HasTable
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->icon('heroicon-o-plus')
                     ->iconButton()
-                    ->url(fn (): string => route('configurations.job-descriptions.create'))
+                    ->form([
+                        TextInput::make('name')
+                            ->required()
+                            ->maxLength(191),
+                        TextInput::make('description')
+                            ->required()
+                            ->maxLength(191),
+                    ])
+//                    ->url(fn (): string => route('configurations.job-descriptions.create'))
                     ->visible(fn () => Gate::allows('create', ConfigJobDescription::class)),
             ]);
     }

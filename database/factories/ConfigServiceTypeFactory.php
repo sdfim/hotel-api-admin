@@ -20,7 +20,7 @@ class ConfigServiceTypeFactory extends Factory
                 'Babysitting Service'
             ]),
             'description' => $this->faker->sentence(),
-            'cost' => $this->faker->randomFloat(2, 10, 100), // Adding cost attribute
+            'cost' => 0,
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace Modules\HotelContentRepository\Livewire\ProductAgeRestriction;
 
 use App\Helpers\ClassHelper;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -17,8 +18,11 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Modules\Enums\AgeRestrictionTypeEnum;
+use Modules\HotelContentRepository\Livewire\HasProductActions;
+use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductAgeRestriction;
 
@@ -26,12 +30,16 @@ class ProductAgeRestrictionTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
+    use HasProductActions;
 
     public int $productId;
+    public string $title;
 
     public function mount(int $productId)
     {
         $this->productId = $productId;
+        $product = Product::find($productId);
+        $this->title = 'Age Restriction for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
     public function form(Form $form): Form
@@ -42,14 +50,18 @@ class ProductAgeRestrictionTable extends Component implements HasForms, HasTable
     public function schemeForm(): array
     {
         return [
-            Select::make('product_id')
-                ->label('Product')
-                ->options(Product::pluck('name', 'id'))
-                ->disabled(fn () => $this->productId)
-                ->required(),
+            Hidden::make('product_id')->default($this->productId),
             Select::make('restriction_type')
                 ->label('Age Restriction')
-                ->options(collect(AgeRestrictionTypeEnum::cases())->pluck('value', 'value'))
+                ->options(function () {
+                    $existingRestrictions = ProductAgeRestriction::where('product_id', $this->productId)
+                        ->pluck('restriction_type')
+                        ->toArray();
+
+                    return collect(AgeRestrictionTypeEnum::cases())
+                        ->pluck('value', 'value')
+                        ->filter(fn($value) => !in_array($value, $existingRestrictions));
+                })
                 ->required(),
             TextInput::make('value')
                 ->numeric()
@@ -73,46 +85,9 @@ class ProductAgeRestrictionTable extends Component implements HasForms, HasTable
                 BooleanColumn::make('active')
                     ->label('Is Active'),
                 ])
-            ->actions([
-                EditAction::make()
-                    ->label('')
-                    ->tooltip('Edit Restriction')
-                    ->form($this->schemeForm())
-                    ->fillForm(function ($record) {
-                        return [
-                            'product_id' => $record->product_id,
-                            'restriction_type' => $record->restriction_type,
-                            'value' => $record->value,
-                            'active' => $record->active,
-                        ];
-                    }),
-            ])
-            ->bulkActions([
-                DeleteBulkAction::make(),
-            ])
-            ->headerActions([
-                CreateAction::make()
-                    ->form($this->schemeForm())
-                    ->fillForm(function () {
-                        return $this->productId ? ['product_id' => $this->productId] : [];
-                    })
-                    ->tooltip('Add New Restriction')
-                    ->icon('heroicon-o-plus')
-                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton()
-                    ->action(function ($data) {
-                        if ($this->productId) $data['product_id'] = $this->productId;
-                        ProductAgeRestriction::create([
-                            'product_id' => $data['product_id'],
-                            'restriction_type' => $data['restriction_type'],
-                            'value' => $data['value'],
-                            'active' => $data['active'],
-                        ]);
-
-                        // Optionally, return a success message or perform additional operations
-                        session()->flash('success', 'New restriction added successfully.');
-                    }),
-            ]);
+            ->actions($this->getActions())
+            ->bulkActions($this->getBulkActions())
+            ->headerActions($this->getHeaderActions());
     }
 
     public function render()

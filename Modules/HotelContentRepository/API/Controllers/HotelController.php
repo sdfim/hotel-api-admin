@@ -4,7 +4,10 @@ namespace Modules\HotelContentRepository\API\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use League\Fractal\Resource\Collection as FractalCollection;
 use Illuminate\Http\Response;
+use League\Fractal\Manager;
 use Modules\HotelContentRepository\Actions\Hotel\AddHotel;
 use Modules\HotelContentRepository\Actions\Hotel\DeleteHotel;
 use Modules\HotelContentRepository\Actions\Hotel\EditHotel;
@@ -15,17 +18,23 @@ use Modules\HotelContentRepository\Models\DTOs\HotelDTO;
 use Modules\HotelContentRepository\Models\Hotel;
 use Illuminate\Http\Request;
 use Modules\HotelContentRepository\API\Controllers\BaseController;
+use Modules\HotelContentRepository\Models\Transformers\CustomFractalSerializer;
 use Modules\HotelContentRepository\Models\Transformers\HotelTransformer;
 use Spatie\Fractal\Fractal;
 
 class HotelController extends BaseController
 {
+    protected Manager $fractal;
+
     public function __construct(
         protected AddHotel $addHotel,
         protected EditHotel $editHotel,
         protected DeleteHotel $deleteHotel,
         protected HotelDTO $hotelDTO
-    ) {}
+    ) {
+        $this->fractal = new Manager();
+        $this->fractal->setSerializer(new CustomFractalSerializer());
+    }
 
     public function index()
     {
@@ -33,13 +42,12 @@ class HotelController extends BaseController
         $query = $this->filter($query, Hotel::class);
         $hotels = $query->with($this->getIncludes())->get();
 
-        $useFractal = env('USE_FRACTAL', true);
+        $useFractal = config('packages.use_fractal', true);
         if (!$useFractal){
             $hotelDTOs = $this->hotelDTO->transform($hotels, true);
         } else {
-            $hotelDTOs = Fractal::create()
-                ->collection($hotels, new HotelTransformer())
-                ->toArray()['data'];
+            $resource = new FractalCollection($hotels, new HotelTransformer());
+            $hotelDTOs = $this->fractal->createData($resource)->toArray();
         }
 
         return $this->sendResponse($hotelDTOs, 'index success');
@@ -53,13 +61,18 @@ class HotelController extends BaseController
 
     public function show($id)
     {
-        $hotel = Hotel::with($this->getIncludes())->findOrFail($id);
+        try {
+            $hotel = Hotel::with($this->getIncludes())->findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Hotel not found', Response::HTTP_NOT_FOUND);
+        }
 
-        $useFractal = env('USE_FRACTAL', true);
+        $useFractal = config('packages.use_fractal', true);
         if (!$useFractal) {
             $hotelDTO = $this->hotelDTO->transform(new Collection([$hotel]), true);
         } else {
-            $hotelDTO = Fractal::create()->item($hotel, new HotelTransformer())->toArray()['data'];
+            $resource = new FractalCollection([$hotel], new HotelTransformer());
+            $hotelDTO = $this->fractal->createData($resource)->toArray()[0];
         }
 
         return $this->sendResponse([$hotelDTO], 'show success');
@@ -101,7 +114,7 @@ class HotelController extends BaseController
             'product.attributes',
             'product.contentSource',
             'product.propertyImagesSource',
-            'product.descriptiveContentsSection.content',
+            'product.descriptiveContentsSection',
             'product.feeTaxes',
             'product.informativeServices.service',
             'product.promotions.galleries.images',

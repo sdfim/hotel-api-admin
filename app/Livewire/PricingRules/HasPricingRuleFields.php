@@ -205,7 +205,7 @@ trait HasPricingRuleFields
                                 'number_of_rooms' => 'Number of rooms',
                                 'meal_plan' => 'Meal plan / Board basis',
                                 'rate_code' => 'Rate code',
-                                'room_code' => 'Room code',
+//                                'room_code' => 'Room code',
                                 'room_name' => 'Room name',
                             ];
 

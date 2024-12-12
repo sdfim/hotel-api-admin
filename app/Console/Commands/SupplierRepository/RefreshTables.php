@@ -19,6 +19,7 @@ class RefreshTables extends Command
         // Clear the tables LIKE 'pd_%'
         $this->clearTables('pd_');
         if (isset($prefix) && $prefix === 'config') $this->clearTables('config_');
+        if (isset($prefix) && $prefix === 'insurance') $this->clearTables('insurance_');
 
         // Run the migrate command
         Artisan::call('migrate');
@@ -28,8 +29,10 @@ class RefreshTables extends Command
         Artisan::call('db:seed');
         $this->info('Seeding completed.');
 
-        Artisan::call('transform:expedia-to-hotels');
-        $this->info('Seeding expedia-to-hotels');
+        if (isset($prefix) && $prefix === 'seed') {
+            Artisan::call('transform:expedia-to-hotels');
+            $this->info('Seeding expedia-to-hotels');
+        }
     }
 
     protected function clearTables($prefix)
@@ -37,39 +40,39 @@ class RefreshTables extends Command
         $this->info('Clearing tables with prefix '.$prefix);
         $connection = DB::connection(env('DB_CONNECTION', 'mysql'));
 
-        // Получаем все таблицы с префиксом
+        // Get all tables with the prefix
         $tables = $connection->select("SHOW TABLES LIKE '".$prefix."%'");
 
-        // Сохраняем имена таблиц в обратном порядке
+        // Save table names in reverse order
         $tableNames = array_reverse(array_map(function($table) {
             return array_values((array)$table)[0];
         }, $tables));
 
         if (!empty($tableNames)) {
 
-            // Отключаем проверку внешних ключей
+            // Disable foreign key checking
             $connection->statement('SET FOREIGN_KEY_CHECKS=0');
 
-            // Удаляем записи о миграциях, связанных с таблицами префиксом
+            // Delete migration records associated with tables with the prefix
             $migrationsDeleted = DB::table('migrations')
                 ->where('migration', 'LIKE', '%'.$prefix.'%')
                 ->whereNot('migration', 'LIKE', '%general_configurations%')
                 ->delete();
 
-            $this->info("Удалено записей о миграциях: $migrationsDeleted");
+            $this->info("Deleted migration records: $migrationsDeleted");
 
-            // Удаляем таблицы в обратном порядке
+            // Delete tables in reverse order
             foreach ($tableNames as $tableName) {
                 Schema::connection(env('DB_CONNECTION', 'mysql'))->dropIfExists($tableName);
                 $this->info("Table $tableName has been dropped.");
             }
 
-            // Включаем проверку внешних ключей обратно
+            // Enable foreign key checking back
             $connection->statement('SET FOREIGN_KEY_CHECKS=1');
 
-            $this->info('Все таблицы с префиксом '.$prefix.' были успешно удалены.');
+            $this->info('All tables with the prefix '.$prefix.' have been successfully deleted.');
         } else {
-            $this->info('Таблиц с префиксом '.$prefix.' не найдено.');
+            $this->info('No tables with prefix '.$prefix.' were found.');
         }
     }
 }

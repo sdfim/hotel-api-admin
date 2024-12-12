@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
+use Modules\HotelContentRepository\Livewire\Activity\ActivityTable;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
 use Modules\HotelContentRepository\Livewire\PdGrid\PdGridTable;
@@ -80,5 +81,7 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('insurance.restrictions-table', RestrictionsTable::class);
         Livewire::component('insurance.rate-tiers-table', RateTiersTable::class);
         Livewire::component('insurance.insurance-plans-table', InsurancePlanTable::class);
+
+        Livewire::component('activity.activity-table', ActivityTable::class);
     }
 }

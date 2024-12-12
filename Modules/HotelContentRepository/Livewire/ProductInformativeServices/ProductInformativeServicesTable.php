@@ -5,7 +5,9 @@ namespace Modules\HotelContentRepository\Livewire\ProductInformativeServices;
 
 use App\Helpers\ClassHelper;
 use App\Models\Configurations\ConfigServiceType;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -16,7 +18,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
+use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductInformativeService;
 
@@ -24,34 +28,33 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
 {
     use InteractsWithForms;
     use InteractsWithTable;
+    use HasProductActions;
 
     public int $productId;
+    public string $title;
 
     public function mount(int $productId)
     {
         $this->productId = $productId;
+        $product = Product::find($productId);
+        $this->title = 'Informational Service for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
     public function form(Form $form): Form
     {
-        return $form
-            ->schema($this->schemeForm());
+        return $form->schema($this->schemeForm());
     }
 
     public function schemeForm(): array
     {
         return [
-            Select::make('product_id')
-                ->label('Product')
-                ->options(Product::pluck('name', 'id'))
-                ->disabled(fn () => $this->productId)
-                ->required(),
+            Hidden::make('product_id')->default($this->productId),
             Select::make('service_id')
                 ->label('Service Type')
-                ->options(ConfigServiceType::all()->pluck('name', 'id')->map(function ($name, $id) {
-                    $serviceType = ConfigServiceType::find($id);
-                    return $name . ' (' . $serviceType->cost . ')';
-                }))
+                ->options(ConfigServiceType::all()->pluck('name', 'id')->toArray())
+                ->required(),
+            TextInput::make('cost')
+                ->label('Cost')
                 ->required(),
         ];
     }
@@ -65,32 +68,11 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
             ->columns([
                 TextColumn::make('service.name')->label('Service Type')->searchable(),
                 TextColumn::make('service.description')->label('Description')->searchable(),
-                TextColumn::make('service.cost')->label('Cost')->searchable(),
+                TextColumn::make('cost')->label('Cost')->searchable(),
             ])
-            ->actions([
-                EditAction::make()
-                    ->label('')
-                    ->tooltip('Edit Service')
-                    ->form($this->schemeForm()),
-            ])
-            ->bulkActions([
-                DeleteBulkAction::make(),
-            ])
-            ->headerActions([
-                CreateAction::make()
-                    ->form($this->schemeForm())
-                    ->fillForm(function () {
-                        return $this->productId ? ['product_id' => $this->productId] : [];
-                    })
-                    ->action(function ($data) {
-                        if ($this->productId) $data['product_id'] = $this->productId;
-                        ProductInformativeService::create($data);
-                    })
-                    ->tooltip('Add New Service')
-                    ->icon('heroicon-o-plus')
-                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
-            ]);
+            ->actions($this->getActions())
+            ->bulkActions($this->getBulkActions())
+            ->headerActions($this->getHeaderActions());
     }
 
     public function render()

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('rack_value', 12, 4);
             $table->string('type');
             $table->string('value_type');
+            $table->string('apply_type');
             $table->boolean('commissionable');
             $table->string('collected_by');
             $table->timestamps();

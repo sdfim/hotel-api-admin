@@ -10,6 +10,8 @@ return new class extends Migration
     {
         Schema::create('pd_products', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('hero_image')->nullable();
+            $table->string('hero_image_thumbnails')->nullable();
             $table->unsignedBigInteger('vendor_id');
             $table->string('product_type');
             $table->string('name');

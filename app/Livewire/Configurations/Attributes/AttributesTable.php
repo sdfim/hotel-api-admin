@@ -32,7 +32,6 @@ class AttributesTable extends Component implements HasForms, HasTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('default_value'),
             ])
             ->actions([
                 ActionGroup::make([

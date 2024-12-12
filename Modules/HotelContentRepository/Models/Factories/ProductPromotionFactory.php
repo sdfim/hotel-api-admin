@@ -22,6 +22,8 @@ class ProductPromotionFactory extends Factory
             'booking_end' => $this->faker->date,
             'terms_conditions' => $this->faker->paragraph,
             'exclusions' => $this->faker->paragraph,
+            'min_night_stay' => $this->faker->numberBetween(1, 5),
+            'max_night_stay' => $this->faker->numberBetween(6, 10),
             ];
     }
 }

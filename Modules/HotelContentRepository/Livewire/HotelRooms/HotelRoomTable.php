@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\HotelRooms;
 
 use App\Helpers\ClassHelper;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
@@ -18,21 +19,28 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
+use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\ImageGallery;
+use Modules\HotelContentRepository\Models\Product;
 
 class HotelRoomTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
+    use HasProductActions;
 
     public ?int $hotelId = null;
+    public string $title;
 
     public function mount(?int $hotelId = null, ?HotelRoom $record = null)
     {
         $this->hotelId = $hotelId;
+        $hotel = Hotel::find($hotelId);
+        $this->title = 'Website Search Generation for <h4>' . ($hotel ? $hotel->product->name : 'Unknown Hotel') . '</h4>';
     }
 
     public function form(Form $form): Form
@@ -43,12 +51,8 @@ class HotelRoomTable extends Component implements HasForms, HasTable
     public function schemeForm($record = null): array
     {
         return [
-            Select::make('hotel_id')
-                ->label('Hotel')
-                ->options(Hotel::with('product')->get()->pluck('product.name', 'id'))
-                ->disabled(fn () => $this->hotelId)
-                ->required(),
-            TextInput::make('hbsi_data_mapped_name')->label('HBSI Data Mapped Name'),
+            Hidden::make('hotel_id')->default($this->hotelId),
+            TextInput::make('hbsi_data_mapped_name')->label('External Code'),
             TextInput::make('name')->label('Name')->required(),
             Textarea::make('description')
                 ->label('Description')
@@ -57,8 +61,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
             Select::make('galleries')
                 ->label('Galleries')
                 ->multiple()
-                ->options(ImageGallery::hasHotelRoom($this->hotelId)->pluck('gallery_name', 'id')),
-        ];
+                ->options(ImageGallery::pluck('gallery_name', 'id')),        ];
     }
 
     public function table(Table $table): Table
@@ -80,15 +83,17 @@ class HotelRoomTable extends Component implements HasForms, HasTable
 //                    ->sortable()
 //                    ->wrap(),
                 TextInputColumn::make('hbsi_data_mapped_name')
-                    ->label('HBSI Data Mapped Name')
+                    ->label('External Code')
                     ->searchable()
                     ->sortable()
-                    ->extraAttributes(['style' => 'width: 100%']),
+                    ->extraAttributes(['style' => 'width: 100%'])
+                    ->disabled(fn () => !Gate::allows('create', Hotel::class)),
                 TextInputColumn::make('name')
                     ->label('Name')
                     ->searchable()
                     ->sortable()
-                    ->extraAttributes(['style' => 'width: 100%']),
+                    ->extraAttributes(['style' => 'width: 100%'])
+                    ->disabled(fn () => !Gate::allows('create', Hotel::class)),
 //                TextColumn::make('description')
 //                    ->label('Description')
 //                    ->searchable()
@@ -103,36 +108,9 @@ class HotelRoomTable extends Component implements HasForms, HasTable
 //                    })
 //                    ->wrap(),
             ])
-            ->actions([
-                EditAction::make()
-                    ->label('')
-                    ->tooltip('Edit Hotel Room')
-                    ->form($this->schemeForm())
-                    ->fillForm(function ($record) {
-                        $data = $record->toArray();
-                        $data['galleries'] = $record->galleries->pluck('gallery_name')->toArray();
-                        $data['hotel_id'] = $record->hotel->id;
-                        return $data;
-                    }),
-            ])
-            ->bulkActions([
-                DeleteBulkAction::make(),
-            ])
-            ->headerActions([
-                CreateAction::make()
-                    ->form($this->schemeForm())
-                    ->fillForm(function () {
-                        return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
-                    })
-                    ->action(function ($data) {
-                        if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
-                        HotelRoom::create($data);
-                    })
-                    ->tooltip('Add New Room')
-                    ->icon('heroicon-o-plus')
-                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
-            ]);
+            ->actions($this->getActions())
+            ->bulkActions($this->getBulkActions())
+            ->headerActions($this->getHeaderActions());
     }
 
     public function render()

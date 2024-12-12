@@ -17,6 +17,8 @@ return new class extends Migration
             $table->date('validity_end');
             $table->date('booking_start');
             $table->date('booking_end');
+            $table->integer('min_night_stay')->nullable();
+            $table->integer('max_night_stay')->nullable();
             $table->text('terms_conditions')->nullable();
             $table->text('exclusions')->nullable();
             $table->timestamps();

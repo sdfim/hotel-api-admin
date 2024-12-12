@@ -4,6 +4,7 @@ namespace Modules\HotelContentRepository\API\Requests;
 
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
+use Modules\Enums\DaysPriorTypeEnum;
 
 class ProductDepositInformationRequest extends ApiRequest
 {
@@ -53,9 +54,10 @@ class ProductDepositInformationRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"product_id", "days_departure", "pricing_parameters", "pricing_value"},
+     *       required={"product_id", "days_prior_type", "days", "pricing_parameters", "pricing_value"},
      *       @OA\Property(property="product_id", type="integer", example=1),
-     *       @OA\Property(property="days_departure", type="integer", example=10),
+     *       @OA\Property(property="days_prior_type", type="string", enum={"Departure", "Date"}, example="Departure"),
+     *       @OA\Property(property="days", type="integer", example=10),
      *       @OA\Property(property="pricing_parameters", type="string", enum={"per_channel", "per_room", "per_rate"}, example="per_channel"),
      *       @OA\Property(property="pricing_value", type="number", format="float", example=100.00)
      *     )
@@ -136,9 +138,10 @@ class ProductDepositInformationRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"product_id", "days_departure", "pricing_parameters", "pricing_value"},
+     *       required={"product_id", "days_prior_type", "days", "pricing_parameters", "pricing_value"},
      *       @OA\Property(property="product_id", type="integer", example=1),
-     *       @OA\Property(property="days_departure", type="integer", example=10),
+     *       @OA\Property(property="days_prior_type", type="string", enum={"Departure", "Date"}, example="Departure"),
+     *       @OA\Property(property="days", type="integer", example=10),
      *       @OA\Property(property="pricing_parameters", type="string", enum={"per_channel", "per_room", "per_rate"}, example="per_channel"),
      *       @OA\Property(property="pricing_value", type="number", format="float", example=100.00)
      *     )
@@ -208,13 +211,12 @@ class ProductDepositInformationRequest extends ApiRequest
      * )
      */
 
-
-
     public function rules(): array
     {
         return [
             'product_id' => 'required|exists:pd_products,id',
-            'days_departure' => 'required|integer',
+            'days_prior_type' => 'required|string|in:' . implode(',', DaysPriorTypeEnum::values()),
+            'days' => 'required|integer',
             'pricing_parameters' => 'required|string|in:per_channel,per_room,per_rate',
             'pricing_value' => 'required|numeric',
         ];

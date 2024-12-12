@@ -9,7 +9,7 @@ use Modules\AdministrationSuite\Http\Controllers\Controller;
 class PdGridController extends Controller
 {
     protected static string $model = Product::class;
-    protected static ?string $parameterName = 'product';
+    protected static ?string $parameterName = 'pd-grid';
 
     public function index(): View
     {

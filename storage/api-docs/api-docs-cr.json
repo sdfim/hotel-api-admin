@@ -5117,7 +5117,8 @@
                             "schema": {
                                 "required": [
                                     "product_id",
-                                    "days_departure",
+                                    "days_prior_type",
+                                    "days",
                                     "pricing_parameters",
                                     "pricing_value"
                                 ],
@@ -5126,7 +5127,15 @@
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "days_departure": {
+                                    "days_prior_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Departure",
+                                            "Date"
+                                        ],
+                                        "example": "Departure"
+                                    },
+                                    "days": {
                                         "type": "integer",
                                         "example": 10
                                     },
@@ -5259,7 +5268,8 @@
                             "schema": {
                                 "required": [
                                     "product_id",
-                                    "days_departure",
+                                    "days_prior_type",
+                                    "days",
                                     "pricing_parameters",
                                     "pricing_value"
                                 ],
@@ -5268,7 +5278,15 @@
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "days_departure": {
+                                    "days_prior_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Departure",
+                                            "Date"
+                                        ],
+                                        "example": "Departure"
+                                    },
+                                    "days": {
                                         "type": "integer",
                                         "example": 10
                                     },
@@ -5345,316 +5363,6 @@
                         "name": "id",
                         "in": "path",
                         "description": "ID of the product deposit information",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NotFoundResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/repo/product-descriptive-contents": {
-            "get": {
-                "tags": [
-                    "Product | Descriptive Content"
-                ],
-                "summary": "Get all product descriptive contents",
-                "description": "Retrieve all product descriptive content records with optional filters.",
-                "operationId": "f103b38b27662f1dadb8531952d09af7",
-                "parameters": [
-                    {
-                        "name": "content_sections_id",
-                        "in": "query",
-                        "description": "Filter by content sections ID",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Product | Descriptive Content"
-                ],
-                "summary": "Create a new product descriptive content",
-                "description": "Create a new product descriptive content entry.",
-                "operationId": "bb7fff569366145a5f02b01424e2c058",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "content_sections_id",
-                                    "descriptive_type_id",
-                                    "value"
-                                ],
-                                "properties": {
-                                    "content_sections_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "descriptive_type_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "value": {
-                                        "type": "string",
-                                        "example": "Description text"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/repo/product-descriptive-contents/{id}": {
-            "get": {
-                "tags": [
-                    "Product | Descriptive Content"
-                ],
-                "summary": "Get product descriptive content details",
-                "description": "Retrieve details of a specific product descriptive content.",
-                "operationId": "a8e21da7499638d87b8bbe4774667c98",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID of the product descriptive content",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NotFoundResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Product | Descriptive Content"
-                ],
-                "summary": "Update product descriptive content details",
-                "description": "Update details of a specific product descriptive content.",
-                "operationId": "eb2728263e707152086752be09a9087c",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID of the product descriptive content",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "content_sections_id",
-                                    "descriptive_type_id",
-                                    "value"
-                                ],
-                                "properties": {
-                                    "content_sections_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "descriptive_type_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "value": {
-                                        "type": "string",
-                                        "example": "Updated description text"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NotFoundResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Product | Descriptive Content"
-                ],
-                "summary": "Delete a product descriptive content",
-                "description": "Delete a specific product descriptive content.",
-                "operationId": "813dd047fe54a81daba5cee1be8862f9",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID of the product descriptive content",
                         "required": true,
                         "schema": {
                             "type": "integer",
@@ -5792,7 +5500,9 @@
                                 "required": [
                                     "product_id",
                                     "section_name",
-                                    "start_date"
+                                    "start_date",
+                                    "descriptive_type_id",
+                                    "value"
                                 ],
                                 "properties": {
                                     "product_id": {
@@ -5812,6 +5522,14 @@
                                         "type": "string",
                                         "format": "date",
                                         "example": "2023-12-31"
+                                    },
+                                    "descriptive_type_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "value": {
+                                        "type": "string",
+                                        "example": "Some descriptive content"
                                     }
                                 },
                                 "type": "object"
@@ -5929,7 +5647,9 @@
                                 "required": [
                                     "product_id",
                                     "section_name",
-                                    "start_date"
+                                    "start_date",
+                                    "descriptive_type_id",
+                                    "value"
                                 ],
                                 "properties": {
                                     "product_id": {
@@ -5949,6 +5669,14 @@
                                         "type": "string",
                                         "format": "date",
                                         "example": "2023-12-31"
+                                    },
+                                    "descriptive_type_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "value": {
+                                        "type": "string",
+                                        "example": "Some descriptive content"
                                     }
                                 },
                                 "type": "object"
@@ -6051,7 +5779,7 @@
         "/api/repo/product-fee-taxes": {
             "get": {
                 "tags": [
-                    "Product | Fee and Tax"
+                    "Product | Fees and Taxes"
                 ],
                 "summary": "Get all product fee taxes",
                 "description": "Retrieve all product fee tax records with optional filters.",
@@ -6195,7 +5923,7 @@
             },
             "post": {
                 "tags": [
-                    "Product | Fee and Tax"
+                    "Product | Fees and Taxes"
                 ],
                 "summary": "Create a new product fee tax",
                 "description": "Create a new product fee tax entry.",
@@ -6214,7 +5942,8 @@
                                     "value_type",
                                     "collected_by",
                                     "commissionable",
-                                    "fee_category"
+                                    "fee_category",
+                                    "apply_type"
                                 ],
                                 "properties": {
                                     "product_id": {
@@ -6266,6 +5995,14 @@
                                     "fee_category": {
                                         "type": "string",
                                         "example": "optional"
+                                    },
+                                    "apply_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Per Night",
+                                            "Per Person"
+                                        ],
+                                        "example": "Per Night"
                                     }
                                 },
                                 "type": "object"
@@ -6318,7 +6055,7 @@
         "/api/repo/product-fee-taxes/{id}": {
             "get": {
                 "tags": [
-                    "Product | Fee and Tax"
+                    "Product | Fees and Taxes"
                 ],
                 "summary": "Get product fee tax details",
                 "description": "Retrieve details of a specific product fee tax.",
@@ -6378,7 +6115,7 @@
             },
             "put": {
                 "tags": [
-                    "Product | Fee and Tax"
+                    "Product | Fees and Taxes"
                 ],
                 "summary": "Update product fee tax details",
                 "description": "Update details of a specific product fee tax.",
@@ -6409,7 +6146,8 @@
                                     "value_type",
                                     "collected_by",
                                     "commissionable",
-                                    "fee_category"
+                                    "fee_category",
+                                    "apply_type"
                                 ],
                                 "properties": {
                                     "product_id": {
@@ -6461,6 +6199,14 @@
                                     "fee_category": {
                                         "type": "string",
                                         "example": "optional"
+                                    },
+                                    "apply_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "Per Night",
+                                            "Per Person"
+                                        ],
+                                        "example": "Per Night"
                                     }
                                 },
                                 "type": "object"
@@ -6526,7 +6272,7 @@
             },
             "delete": {
                 "tags": [
-                    "Product | Fee and Tax"
+                    "Product | Fees and Taxes"
                 ],
                 "summary": "Delete a product fee tax",
                 "description": "Delete a specific product fee tax.",
@@ -6670,6 +6416,11 @@
                                     "service_id": {
                                         "type": "integer",
                                         "example": 1
+                                    },
+                                    "cost": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100
                                     }
                                 },
                                 "type": "object"
@@ -6796,6 +6547,11 @@
                                     "service_id": {
                                         "type": "integer",
                                         "example": 1
+                                    },
+                                    "cost": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100
                                     }
                                 },
                                 "type": "object"
@@ -6896,140 +6652,6 @@
             }
         },
         "/api/repo/product-promotions": {
-            "get": {
-                "tags": [
-                    "Product | Promotions"
-                ],
-                "summary": "Get all product promotions",
-                "description": "Retrieve all product promotion records with optional filters.",
-                "operationId": "ab61a527905e9a79cedb074ebb8636d8",
-                "parameters": [
-                    {
-                        "name": "product_id",
-                        "in": "query",
-                        "description": "Filter by product ID",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    },
-                    {
-                        "name": "promotion_name",
-                        "in": "query",
-                        "description": "Filter by promotion name",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Summer Sale"
-                        }
-                    },
-                    {
-                        "name": "description",
-                        "in": "query",
-                        "description": "Filter by description",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Discount on summer bookings"
-                        }
-                    },
-                    {
-                        "name": "validity_start",
-                        "in": "query",
-                        "description": "Filter by validity start date",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "format": "date",
-                            "example": "2024-06-01"
-                        }
-                    },
-                    {
-                        "name": "validity_end",
-                        "in": "query",
-                        "description": "Filter by validity end date",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "format": "date",
-                            "example": "2024-08-31"
-                        }
-                    },
-                    {
-                        "name": "booking_start",
-                        "in": "query",
-                        "description": "Filter by booking start date",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "format": "date",
-                            "example": "2024-05-01"
-                        }
-                    },
-                    {
-                        "name": "booking_end",
-                        "in": "query",
-                        "description": "Filter by booking end date",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "format": "date",
-                            "example": "2024-07-31"
-                        }
-                    },
-                    {
-                        "name": "terms_conditions",
-                        "in": "query",
-                        "description": "Filter by terms and conditions",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Terms and conditions apply"
-                        }
-                    },
-                    {
-                        "name": "exclusions",
-                        "in": "query",
-                        "description": "Filter by exclusions",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Excludes public holidays"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            },
             "post": {
                 "tags": [
                     "Product | Promotions"
@@ -7051,7 +6673,9 @@
                                     "booking_start",
                                     "booking_end",
                                     "terms_conditions",
-                                    "exclusions"
+                                    "exclusions",
+                                    "min_night_stay",
+                                    "max_night_stay"
                                 ],
                                 "properties": {
                                     "product_id": {
@@ -7093,6 +6717,14 @@
                                     "exclusions": {
                                         "type": "string",
                                         "example": "Excludes public holidays"
+                                    },
+                                    "min_night_stay": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "max_night_stay": {
+                                        "type": "integer",
+                                        "example": 10
                                     }
                                 },
                                 "type": "object"
@@ -7133,56 +6765,6 @@
             }
         },
         "/api/repo/product-promotions/{id}": {
-            "get": {
-                "tags": [
-                    "Product | Promotions"
-                ],
-                "summary": "Get product promotion details",
-                "description": "Retrieve details of a specific product promotion.",
-                "operationId": "994042513a390bed693eb576efa4c1c2",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID of the product promotion",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NotFoundResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            },
             "put": {
                 "tags": [
                     "Product | Promotions"
@@ -7216,7 +6798,9 @@
                                     "booking_start",
                                     "booking_end",
                                     "terms_conditions",
-                                    "exclusions"
+                                    "exclusions",
+                                    "min_night_stay",
+                                    "max_night_stay"
                                 ],
                                 "properties": {
                                     "product_id": {
@@ -7258,6 +6842,14 @@
                                     "exclusions": {
                                         "type": "string",
                                         "example": "Excludes public holidays"
+                                    },
+                                    "min_night_stay": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "max_night_stay": {
+                                        "type": "integer",
+                                        "example": 10
                                     }
                                 },
                                 "type": "object"
@@ -7285,56 +6877,6 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/BadRequestResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NotFoundResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Product | Promotions"
-                ],
-                "summary": "Delete a product promotion",
-                "description": "Delete a specific product promotion.",
-                "operationId": "14464f61ef7d404c9cdfc6f565eda359",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID of the product promotion",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
                                 }
                             }
                         }
@@ -7926,7 +7468,7 @@
         "/api/repo/travel-agency-commissions": {
             "get": {
                 "tags": [
-                    "Travel Agency Commissions"
+                    "Product | Travel Agency Commissions"
                 ],
                 "summary": "Get all travel agency commissions",
                 "description": "Retrieve all travel agency commission records with optional filters.",
@@ -8009,7 +7551,7 @@
             },
             "post": {
                 "tags": [
-                    "Travel Agency Commissions"
+                    "Product | Travel Agency Commissions"
                 ],
                 "summary": "Create a new travel agency commission",
                 "description": "Create a new travel agency commission entry.",
@@ -8021,6 +7563,7 @@
                             "schema": {
                                 "required": [
                                     "name",
+                                    "product_id",
                                     "commission_value",
                                     "commission_value_type",
                                     "date_range_start",
@@ -8031,6 +7574,10 @@
                                         "type": "string",
                                         "example": "Summer Promotion"
                                     },
+                                    "product_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
                                     "commission_value": {
                                         "type": "number",
                                         "format": "float",
@@ -8038,7 +7585,11 @@
                                     },
                                     "commission_value_type": {
                                         "type": "string",
-                                        "example": "Amount"
+                                        "enum": [
+                                            "AMOUNT",
+                                            "PERCENTAGE"
+                                        ],
+                                        "example": "AMOUNT"
                                     },
                                     "date_range_start": {
                                         "type": "string",
@@ -8091,7 +7642,7 @@
         "/api/repo/travel-agency-commissions/{id}": {
             "get": {
                 "tags": [
-                    "Travel Agency Commissions"
+                    "Product | Travel Agency Commissions"
                 ],
                 "summary": "Get travel agency commission details",
                 "description": "Retrieve details of a specific travel agency commission.",
@@ -8141,7 +7692,7 @@
             },
             "put": {
                 "tags": [
-                    "Travel Agency Commissions"
+                    "Product | Travel Agency Commissions"
                 ],
                 "summary": "Update travel agency commission details",
                 "description": "Update details of a specific travel agency commission.",
@@ -8165,6 +7716,7 @@
                             "schema": {
                                 "required": [
                                     "name",
+                                    "product_id",
                                     "commission_value",
                                     "commission_value_type",
                                     "date_range_start",
@@ -8175,6 +7727,10 @@
                                         "type": "string",
                                         "example": "Summer Promotion"
                                     },
+                                    "product_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
                                     "commission_value": {
                                         "type": "number",
                                         "format": "float",
@@ -8182,6 +7738,10 @@
                                     },
                                     "commission_value_type": {
                                         "type": "string",
+                                        "enum": [
+                                            "AMOUNT",
+                                            "PERCENTAGE"
+                                        ],
                                         "example": "AMOUNT"
                                     },
                                     "date_range_start": {
@@ -8243,7 +7803,7 @@
             },
             "delete": {
                 "tags": [
-                    "Travel Agency Commissions"
+                    "Product | Travel Agency Commissions"
                 ],
                 "summary": "Delete a travel agency commission",
                 "description": "Delete a specific travel agency commission.",
@@ -8602,8 +8162,8 @@
             "description": "API Endpoints for Affiliations"
         },
         {
-            "name": "Product | Fee and Tax",
-            "description": "API Endpoints for Fee and Tax"
+            "name": "Product | Fees and Taxes",
+            "description": "API Endpoints for Fees and Taxes"
         },
         {
             "name": "Product | Descriptive Content",
@@ -8630,7 +8190,7 @@
             "description": "API Endpoints for Age Restrictions"
         },
         {
-            "name": "Travel Agency Commissions",
+            "name": "Product | Travel Agency Commissions",
             "description": "API Endpoints for Travel Agency Commissions"
         },
         {

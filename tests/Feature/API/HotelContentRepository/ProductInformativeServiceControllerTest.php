@@ -18,7 +18,7 @@ class ProductInformativeServiceControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'product_id', 'service_id']
+                '*' => ['id', 'product_id', 'service_id', 'cost']
             ],
             'message'
         ]);
@@ -32,7 +32,7 @@ class ProductInformativeServiceControllerTest extends TestCase
         $response = $this->request()->postJson('api/repo/product-informative-services', $data);
         $response->assertStatus(201);
         $response->assertJsonStructure([
-            'data' => ['id', 'product_id', 'service_id'],
+            'data' => ['id', 'product_id', 'service_id', 'cost'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_product_informative_services', $data);
@@ -45,7 +45,7 @@ class ProductInformativeServiceControllerTest extends TestCase
         $response = $this->request()->getJson("api/repo/product-informative-services/{$service->id}");
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'product_id', 'service_id'],
+            'data' => ['id', 'product_id', 'service_id', 'cost'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_product_informative_services', $service->toArray());
@@ -59,7 +59,7 @@ class ProductInformativeServiceControllerTest extends TestCase
         $response = $this->request()->putJson("api/repo/product-informative-services/{$service->id}", $data);
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'product_id', 'service_id'],
+            'data' => ['id', 'product_id', 'service_id', 'cost'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_product_informative_services', $data);

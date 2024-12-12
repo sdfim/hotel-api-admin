@@ -3,8 +3,9 @@
         'Product' => [
             'tab_name' => '-product-tab',
             'related' => [
+                ['title' => 'Key & Owner', 'component' => 'products.key-mapping-table'],
                 ['title' => 'Contact Information', 'component' => 'products.contact-information-table'],
-                ['title' => 'Age Restrictions', 'component' => 'products.hotel-age-restriction-table'],
+//                ['title' => 'Age Restrictions', 'component' => 'products.hotel-age-restriction-table'],
                 ['title' => 'Affiliations', 'component' => 'products.product-affiliations-table'],
             ],
         ],
@@ -30,13 +31,13 @@
                 ['title' => 'Rooms', 'component' => 'hotels.hotel-room-table'],
              ],
         ],
-        'Fee and Tax' => [
+        'Fees and Taxes' => [
             'tab_name' => 'fee-and-tax',
             'related' => [
-                ['title' => 'Fee and Tax', 'component' => 'products.hotel-fee-tax-table'],
+                ['title' => 'Fees and Taxes', 'component' => 'products.hotel-fee-tax-table'],
             ],
         ],
-        'Service' => [
+        'Hotel Service' => [
             'tab_name' => 'service',
             'related' => [
                 ['title' => 'Informational Service', 'component' => 'products.product-informative-services-table'],
@@ -57,9 +58,14 @@
         'Pricing Rules' => [
             'tab_name' => 'pricing-rules',
             'related' => [
-                ['title' => 'Key & Owner', 'component' => 'products.key-mapping-table'],
                 ['title' => 'Pricing Rules', 'component' => 'pricing-rules.pricing-rules-table'],
                 ['title' => 'Deposit Information', 'component' => 'products.product-deposit-information-table'],
+            ],
+        ],
+        'Travel Agency Commission' => [
+            'tab_name' => 'travel-agency-commission',
+            'related' => [
+                ['title' => 'Travel Agency Commission', 'component' => 'commissions.travel-agency-commission-table'],
             ],
         ],
     ];

@@ -18,6 +18,7 @@ class ProductAffiliationDetailFactory extends Factory
             'description' => $this->faker->sentence,
             'start_date' => $this->faker->date,
             'end_date' => $this->faker->date,
+            'combinable' => $this->faker->boolean,
         ];
     }
 }

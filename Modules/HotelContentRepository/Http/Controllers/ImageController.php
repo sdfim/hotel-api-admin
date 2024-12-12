@@ -10,7 +10,7 @@ class ImageController extends BaseWithPolicyController
 {
     protected static string $model = Image::class;
 
-    private array $message = ['edit' => 'Edit Hotel Image', 'create' => 'Create Hotel Image'];
+    private array $message = ['edit' => 'Edit Image', 'create' => 'Create Image'];
 
     /**
      * Display a listing of the resource.

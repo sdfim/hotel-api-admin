@@ -3,6 +3,7 @@
 namespace App\Livewire\Roles;
 
 use App\Helpers\ClassHelper;
+use App\Models\Enums\RoleSlug;
 use App\Models\Role;
 use Filament\Tables\Actions\CreateAction;;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -36,22 +37,25 @@ class RolesTable extends Component implements HasForms, HasTable
                     ->searchable(),
             ])
             ->actions([
-                ActionGroup::make([
-                    EditAction::make()
-                        ->url(fn (Role $record): string => route('roles.edit', $record))
-                        ->visible(fn (Role $record) => Gate::allows('update', $record)),
-                    DeleteAction::make()
-                        ->requiresConfirmation()
-                        ->action(fn (Role $record) => $record->delete())
-                        ->visible(fn (Role $record) => Gate::allows('delete', $record)),
-                ])->hidden(fn (Role $record) => $record->slug == 'admin'),
+                EditAction::make()
+                    ->iconButton()
+                    ->url(fn (Role $record): string => route('roles.edit', $record))
+                    ->visible(fn (Role $record) => Gate::allows('update', $record))
+                    ->hidden(fn (Role $record) => $record->slug == RoleSlug::ADMIN->value),
+                DeleteAction::make()
+                    ->iconButton()
+                    ->requiresConfirmation()
+                    ->action(fn (Role $record) => $record->delete())
+                    ->visible(fn (Role $record) => Gate::allows('delete', $record))
+                    ->hidden(),
             ])->headerActions([
                 CreateAction::make()
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->icon('heroicon-o-plus')
                     ->iconButton()
                     ->url(fn (): string => route('roles.create'))
-                    ->visible(fn () => Gate::allows('create', Role::class)),
+                    ->visible(fn () => Gate::allows('create', Role::class))
+                    ->hidden(),
             ]);
     }
 

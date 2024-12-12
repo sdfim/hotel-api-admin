@@ -22,7 +22,9 @@ class ProductDepositInformation extends Model
 
     protected $fillable = [
         'product_id',
-        'days_departure',
+        'days_prior_type',
+        'days',
+        'date',
         'pricing_parameters',
         'pricing_value',
     ];

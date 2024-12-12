@@ -2177,7 +2177,7 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "insurance_provider"
+                                    "vendor"
                                 ],
                                 "properties": {
                                     "booking_id": {
@@ -2188,7 +2188,7 @@
                                         "type": "string",
                                         "example": "123e4567-e89b-12d3-a456-426614174001"
                                     },
-                                    "insurance_provider": {
+                                    "vendor": {
                                         "type": "string",
                                         "example": "TripMate"
                                     }
@@ -2200,14 +2200,14 @@
                                     "summary": "Example with booking_id",
                                     "value": {
                                         "booking_id": "123e4567-e89b-12d3-a456-426614174000",
-                                        "insurance_provider": "TripMate"
+                                        "vendor": "TripMate"
                                     }
                                 },
                                 "example2": {
                                     "summary": "Example with booking_item",
                                     "value": {
                                         "booking_item": "123e4567-e89b-12d3-a456-426614174001",
-                                        "insurance_provider": "TripMate"
+                                        "vendor": "TripMate"
                                     }
                                 }
                             }
@@ -2270,7 +2270,7 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "insurance_provider"
+                                    "vendor"
                                 ],
                                 "properties": {
                                     "booking_id": {
@@ -2281,7 +2281,7 @@
                                         "type": "string",
                                         "example": "123e4567-e89b-12d3-a456-426614174001"
                                     },
-                                    "insurance_provider": {
+                                    "vendor": {
                                         "type": "string",
                                         "example": "TripMate"
                                     }
@@ -2293,14 +2293,14 @@
                                     "summary": "Example with booking_id",
                                     "value": {
                                         "booking_id": "123e4567-e89b-12d3-a456-426614174000",
-                                        "insurance_provider": "TripMate"
+                                        "vendor": "TripMate"
                                     }
                                 },
                                 "example2": {
                                     "summary": "Example with booking_item",
                                     "value": {
                                         "booking_item": "123e4567-e89b-12d3-a456-426614174001",
-                                        "insurance_provider": "TripMate"
+                                        "vendor": "TripMate"
                                     }
                                 }
                             }

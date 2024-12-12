@@ -10,7 +10,7 @@ class TravelAgencyCommissionRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Travel Agency Commissions"},
+     *   tags={"Product | Travel Agency Commissions"},
      *   path="/api/repo/travel-agency-commissions",
      *   summary="Get all travel agency commissions",
      *   description="Retrieve all travel agency commission records with optional filters.",
@@ -77,9 +77,9 @@ class TravelAgencyCommissionRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Post(
-     *   tags={"Travel Agency Commissions"},
+     *   tags={"Product | Travel Agency Commissions"},
      *   path="/api/repo/travel-agency-commissions",
      *   summary="Create a new travel agency commission",
      *   description="Create a new travel agency commission entry.",
@@ -87,10 +87,11 @@ class TravelAgencyCommissionRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"name", "commission_value", "commission_value_type", "date_range_start", "date_range_end"},
+     *       required={"name", "product_id", "commission_value", "commission_value_type", "date_range_start", "date_range_end"},
      *       @OA\Property(property="name", type="string", example="Summer Promotion"),
+     *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="commission_value", type="number", format="float", example=10.5),
-     *       @OA\Property(property="commission_value_type", type="string", example="Amount"),
+     *       @OA\Property(property="commission_value_type", type="string", enum={"AMOUNT", "PERCENTAGE"}, example="AMOUNT"),
      *       @OA\Property(property="date_range_start", type="string", format="date", example="2023-01-01"),
      *       @OA\Property(property="date_range_end", type="string", format="date", example="2023-12-31")
      *     )
@@ -115,9 +116,9 @@ class TravelAgencyCommissionRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Get(
-     *   tags={"Travel Agency Commissions"},
+     *   tags={"Product | Travel Agency Commissions"},
      *   path="/api/repo/travel-agency-commissions/{id}",
      *   summary="Get travel agency commission details",
      *   description="Retrieve details of a specific travel agency commission.",
@@ -151,9 +152,9 @@ class TravelAgencyCommissionRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Put(
-     *   tags={"Travel Agency Commissions"},
+     *   tags={"Product | Travel Agency Commissions"},
      *   path="/api/repo/travel-agency-commissions/{id}",
      *   summary="Update travel agency commission details",
      *   description="Update details of a specific travel agency commission.",
@@ -171,10 +172,11 @@ class TravelAgencyCommissionRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"name", "commission_value", "commission_value_type", "date_range_start", "date_range_end"},
+     *       required={"name", "product_id", "commission_value", "commission_value_type", "date_range_start", "date_range_end"},
      *       @OA\Property(property="name", type="string", example="Summer Promotion"),
+     *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="commission_value", type="number", format="float", example=10.5),
-     *       @OA\Property(property="commission_value_type", type="string", example="AMOUNT"),
+     *       @OA\Property(property="commission_value_type", type="string", enum={"AMOUNT", "PERCENTAGE"}, example="AMOUNT"),
      *       @OA\Property(property="date_range_start", type="string", format="date", example="2023-01-01"),
      *       @OA\Property(property="date_range_end", type="string", format="date", example="2023-12-31")
      *     )
@@ -206,9 +208,9 @@ class TravelAgencyCommissionRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Delete(
-     *   tags={"Travel Agency Commissions"},
+     *   tags={"Product | Travel Agency Commissions"},
      *   path="/api/repo/travel-agency-commissions/{id}",
      *   summary="Delete a travel agency commission",
      *   description="Delete a specific travel agency commission.",
@@ -250,6 +252,7 @@ class TravelAgencyCommissionRequest extends ApiRequest
 
         return [
             'name' => 'required|string',
+            'product_id' => 'required|integer|exists:pd_products,id',
             'commission_value' => 'required|numeric',
             'commission_value_type' => 'required|in:' . $commissionValueTypes,
             'date_range_start' => 'required|date',

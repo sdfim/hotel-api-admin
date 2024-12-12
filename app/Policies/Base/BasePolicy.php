@@ -2,6 +2,7 @@
 
 namespace App\Policies\Base;
 
+use App\Models\Enums\RoleSlug;
 use App\Models\User;
 
 class BasePolicy
@@ -39,7 +40,7 @@ class BasePolicy
 
         return $user->hasPermission($permission) ||
             $this->withTeam($name, $user) ||
-            $user->hasRole('admin');
+            $user->hasRole(RoleSlug::ADMIN->value);
     }
 
     protected function withTeam(string $name, User $user): bool

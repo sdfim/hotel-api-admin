@@ -9,8 +9,9 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Arr;
 use Faker\Factory as Faker;
 use Modules\Enums\FeeTaxCollectedByEnum;
-use Modules\Enums\FeeTaxTypeEnum;
-use Modules\Enums\FeeTaxValueTypeEnum;
+use Modules\Enums\ProductFeeTaxApplyTypeEnum;
+use Modules\Enums\ProductFeeTaxTypeEnum;
+use Modules\Enums\ProductFeeTaxValueTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
@@ -59,7 +60,7 @@ class TestSeederExpediaContentToHotels extends Command
 
         $this->st = microtime(true);
 
-        if (Vendor::count() === 0) {
+        if (Vendor::count() < 2) {
             // Create vendors using VendorFactory
             Vendor::factory()->count(10)->create();
         }
@@ -84,15 +85,22 @@ class TestSeederExpediaContentToHotels extends Command
         $address = $expediaContent->address;
         unset($address['localized']);
 
+        $giata_code = Mapping::where('supplier_id', $expediaContent->property_id)
+            ->where('supplier', SupplierNameEnum::EXPEDIA->value)
+            ->value('giata_id');
+
         $hotelData = [
             'weight' =>  rand(1, 100),
             'sale_type' => 'Direct connection',
+            'giata_code' => $giata_code,
+            'featured_flag' => false,
             'address' => $address,
             'star_rating' => $expediaContent?->rating,
             'num_rooms' => Arr::get($expediaContent->expediaSlave->statistics, '52.value'),
             'room_images_source_id' => $expediaId,
             'product_board_basis' => '',
             'travel_agent_commission' => 10,
+            'hotel_board_basis' => 'AI',
         ];
 
         $hotel = Hotel::updateOrCreate(
@@ -122,7 +130,7 @@ class TestSeederExpediaContentToHotels extends Command
 
         $this->updateOrCreateProductAffiliation($product);
         $this->updateOrCreateHotelImages($expediaContent, $product);
-        $this->updateOrCreateKey($expediaContent, $product);
+//        $this->updateOrCreateKey($expediaContent, $product);
         $this->updateOrFeeTaxs($expediaContent, $product);
 
         $this->updateOrRooms($expediaContent, $hotel);
@@ -196,12 +204,16 @@ class TestSeederExpediaContentToHotels extends Command
                     'rack_value' => $fee['rack_value'],
                     'commissionable' => false,
                     'type' => $this->faker->randomElement([
-                        FeeTaxTypeEnum::TAX->value,
-                        FeeTaxTypeEnum::FEE->value
+                        ProductFeeTaxTypeEnum::TAX->value,
+                        ProductFeeTaxTypeEnum::FEE->value
                     ]),
                     'value_type' => $this->faker->randomElement([
-                        FeeTaxValueTypeEnum::PERCENTAGE->value,
-                        FeeTaxValueTypeEnum::AMOUNT->value
+                        ProductFeeTaxValueTypeEnum::PERCENTAGE->value,
+                        ProductFeeTaxValueTypeEnum::AMOUNT->value
+                    ]),
+                    'apply_type' => $this->faker->randomElement([
+                        ProductFeeTaxApplyTypeEnum::PER_NIGHT->value,
+                        ProductFeeTaxApplyTypeEnum::PER_PERSON->value,
                     ]),
                     'collected_by' => $this->faker->randomElement([
                         FeeTaxCollectedByEnum::DIRECT->value,

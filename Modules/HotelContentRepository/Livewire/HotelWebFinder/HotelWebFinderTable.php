@@ -4,6 +4,7 @@ namespace Modules\HotelContentRepository\Livewire\HotelWebFinder;
 
 use App\Helpers\ClassHelper;
 use Carbon\Carbon;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
@@ -20,10 +21,13 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelWebFinder;
+use Modules\HotelContentRepository\Models\Product;
 
 class HotelWebFinderTable extends Component implements HasForms, HasTable
 {
@@ -33,10 +37,13 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
     public ?int $hotelId = null;
     public $base_url;
     public $units = [];
+    public string $title;
 
     public function mount(?int $hotelId = null)
     {
         $this->hotelId = $hotelId;
+        $hotel = Hotel::find($hotelId);
+        $this->title = 'Website Search Generation for <h4>' . ($hotel ? $hotel->product->name : 'Unknown Hotel') . '</h4>';
     }
 
     public function form(Form $form): Form
@@ -47,11 +54,7 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
     public function schemeForm($record = null): array
     {
         return [
-            Select::make('hotel_id')
-                ->label('Hotel')
-                ->options(Hotel::with('product')->get()->pluck('product.name', 'id'))
-                ->disabled(fn () => $this->hotelId)
-                ->required(),
+            Hidden::make('hotel_id')->default($this->hotelId),
             TextInput::make('type')
                 ->label('Search Type')
                 ->required(),
@@ -67,6 +70,7 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                 ->required(),
 
             CustomRepeater::make('units')
+                ->label('Parameters')
                 ->schema([
                     Select::make('field')
                         ->label('')
@@ -136,19 +140,22 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                     ->modalHeading('Edit Web Finder')
                     ->action(function (array $data, HotelWebFinder $record) {
                         $this->saveOrUpdate($data, $record->id);
-                    }),
+                    })
+                    ->visible(fn () => Gate::allows('create', Hotel::class)),
                 DeleteAction::make()
                     ->label('')
                     ->tooltip('Delete Web Finder')
                     ->action(function (HotelWebFinder $record) {
                         $record->delete();
-                    }),
+                    })
+                    ->visible(fn () => Gate::allows('create', Hotel::class)),
             ])
             ->bulkActions([
 //                DeleteBulkAction::make(),
             ])
             ->headerActions([
                 CreateAction::make()
+                    ->modalHeading(new HtmlString("Create {$this->title}"))
                     ->form($this->schemeForm())
                     ->fillForm(function () {
                         return $this->hotelId ? ['hotel_id' => $this->hotelId] : [];
@@ -159,8 +166,10 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                     ->iconButton()
                     ->action(function (array $data) {
                         $this->saveOrUpdate($data);
-                    }),
+                    })
+                    ->visible(fn () => Gate::allows('create', Hotel::class)),
                 Action::make('attachCopy')
+                    ->modalHeading(new HtmlString("Edit {$this->title}"))
                     ->label('')
                     ->tooltip('Attach/Copy existing Web Finder')
                     ->icon('heroicon-o-document-plus')
@@ -181,7 +190,8 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
                         if ($webFinder) {
                             $webFinder->hotels()->syncWithoutDetaching([$this->hotelId]);
                         }
-                    }),
+                    })
+                    ->visible(fn () => Gate::allows('create', Hotel::class)),
             ]);
     }
 

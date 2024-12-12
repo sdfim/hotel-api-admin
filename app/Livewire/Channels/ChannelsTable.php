@@ -3,6 +3,7 @@
 namespace App\Livewire\Channels;
 
 use App\Models\Channel;
+use App\Models\Enums\RoleSlug;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
@@ -65,7 +66,7 @@ class ChannelsTable extends Component implements HasForms, HasTable
         $user = auth()->user();
 
         return Channel::query()
-            ->when(!$user->hasRole('admin'), function ($query) use ($user) {
+            ->when(!$user->hasRole(RoleSlug::ADMIN->value), function ($query) use ($user) {
                 return $query->whereHas(
                     'token', fn ($query) => $query->where('tokenable_id', $user->id),
                 );

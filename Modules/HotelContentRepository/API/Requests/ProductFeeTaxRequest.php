@@ -5,14 +5,15 @@ namespace Modules\HotelContentRepository\API\Requests;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 use Modules\Enums\FeeTaxCollectedByEnum;
-use Modules\Enums\FeeTaxTypeEnum;
-use Modules\Enums\FeeTaxValueTypeEnum;
+use Modules\Enums\ProductFeeTaxApplyTypeEnum;
+use Modules\Enums\ProductFeeTaxTypeEnum;
+use Modules\Enums\ProductFeeTaxValueTypeEnum;
 
 class ProductFeeTaxRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Product | Fee and Tax"},
+     *   tags={"Product | Fees and Taxes"},
      *   path="/api/repo/product-fee-taxes",
      *   summary="Get all product fee taxes",
      *   description="Retrieve all product fee tax records with optional filters.",
@@ -127,10 +128,9 @@ class ProductFeeTaxRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
      *
      * @OA\Post(
-     *   tags={"Product | Fee and Tax"},
+     *   tags={"Product | Fees and Taxes"},
      *   path="/api/repo/product-fee-taxes",
      *   summary="Create a new product fee tax",
      *   description="Create a new product fee tax entry.",
@@ -138,7 +138,7 @@ class ProductFeeTaxRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"product_id", "name", "net_value", "rack_value", "type", "value_type", "collected_by", "commissionable", "fee_category"},
+     *       required={"product_id", "name", "net_value", "rack_value", "type", "value_type", "collected_by", "commissionable", "fee_category", "apply_type"},
      *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="name", type="string", example="Service Fee"),
      *       @OA\Property(property="net_value", type="number", format="float", example=100.0),
@@ -147,7 +147,8 @@ class ProductFeeTaxRequest extends ApiRequest
      *       @OA\Property(property="value_type", type="string", enum={"Percentage", "Amount"}, example="Percentage"),
      *       @OA\Property(property="collected_by", type="string", enum={"Direct", "Vendor"}, example="Direct"),
      *       @OA\Property(property="commissionable", type="boolean", example=true),
-     *       @OA\Property(property="fee_category", type="string", example="optional")
+     *       @OA\Property(property="fee_category", type="string", example="optional"),
+     *       @OA\Property(property="apply_type", type="string", enum={"Per Night", "Per Person"}, example="Per Night")
      *     )
      *   ),
      *   @OA\Response(
@@ -178,7 +179,7 @@ class ProductFeeTaxRequest extends ApiRequest
      * )
      *
      * @OA\Get(
-     *   tags={"Product | Fee and Tax"},
+     *   tags={"Product | Fees and Taxes"},
      *   path="/api/repo/product-fee-taxes/{id}",
      *   summary="Get product fee tax details",
      *   description="Retrieve details of a specific product fee tax.",
@@ -220,7 +221,7 @@ class ProductFeeTaxRequest extends ApiRequest
      * )
      *
      * @OA\Put(
-     *   tags={"Product | Fee and Tax"},
+     *   tags={"Product | Fees and Taxes"},
      *   path="/api/repo/product-fee-taxes/{id}",
      *   summary="Update product fee tax details",
      *   description="Update details of a specific product fee tax.",
@@ -238,7 +239,7 @@ class ProductFeeTaxRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"product_id", "name", "net_value", "rack_value", "type", "value_type", "collected_by", "commissionable", "fee_category"},
+     *       required={"product_id", "name", "net_value", "rack_value", "type", "value_type", "collected_by", "commissionable", "fee_category", "apply_type"},
      *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="name", type="string", example="Service Fee"),
      *       @OA\Property(property="net_value", type="number", format="float", example=100.0),
@@ -247,7 +248,8 @@ class ProductFeeTaxRequest extends ApiRequest
      *       @OA\Property(property="value_type", type="string", enum={"Percentage", "Amount"}, example="Percentage"),
      *       @OA\Property(property="collected_by", type="string", enum={"Direct", "Vendor"}, example="Direct"),
      *       @OA\Property(property="commissionable", type="boolean", example=true),
-     *       @OA\Property(property="fee_category", type="string", example="optional")
+     *       @OA\Property(property="fee_category", type="string", example="optional"),
+     *       @OA\Property(property="apply_type", type="string", enum={"Per Night", "Per Person"}, example="Per Night")
      *     )
      *   ),
      *   @OA\Response(
@@ -288,7 +290,7 @@ class ProductFeeTaxRequest extends ApiRequest
      * )
      *
      * @OA\Delete(
-     *   tags={"Product | Fee and Tax"},
+     *   tags={"Product | Fees and Taxes"},
      *   path="/api/repo/product-fee-taxes/{id}",
      *   summary="Delete a product fee tax",
      *   description="Delete a specific product fee tax.",
@@ -337,9 +339,10 @@ class ProductFeeTaxRequest extends ApiRequest
             'name' => 'required|string|max:255',
             'net_value' => 'required|numeric',
             'rack_value' => 'required|numeric',
-            'type' => 'required|in:' . implode(',', array_column(FeeTaxTypeEnum::cases(), 'value')),
-            'value_type' => 'required|in:' . implode(',', array_column(FeeTaxValueTypeEnum::cases(), 'value')),
+            'type' => 'required|in:' . implode(',', array_column(ProductFeeTaxTypeEnum::cases(), 'value')),
+            'value_type' => 'required|in:' . implode(',', array_column(ProductFeeTaxValueTypeEnum::cases(), 'value')),
             'collected_by' => 'required|in:' . implode(',', array_column(FeeTaxCollectedByEnum::cases(), 'value')),
+            'apply_type' => 'required|in:' . implode(',', array_column(ProductFeeTaxApplyTypeEnum::cases(), 'value')),
             'commissionable' => 'required|boolean',
             'fee_category' => 'required|string|max:255',
         ];

@@ -56,8 +56,8 @@ use Modules\API\BaseController as MainController;
  *       description="API Endpoints for Affiliations"
  *   ),
  * @OA\Tag(
- *        name="Product | Fee and Tax",
- *        description="API Endpoints for Fee and Tax"
+ *        name="Product | Fees and Taxes",
+ *        description="API Endpoints for Fees and Taxes"
  *    ),
  * @OA\Tag(
  *        name="Product | Descriptive Content",
@@ -84,7 +84,7 @@ use Modules\API\BaseController as MainController;
  *          description="API Endpoints for Age Restrictions"
  *      ),
  * @OA\Tag(
- *     name="Travel Agency Commissions",
+ *     name="Product | Travel Agency Commissions",
  *     description="API Endpoints for Travel Agency Commissions"
  *      ),
  * @OA\Tag(

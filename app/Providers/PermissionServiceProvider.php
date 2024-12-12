@@ -8,6 +8,7 @@ use App\Models\Configurations\ConfigConsortium;
 use App\Models\Configurations\ConfigDescriptiveType;
 use App\Models\Configurations\ConfigJobDescription;
 use App\Models\Configurations\ConfigServiceType;
+use App\Models\Enums\RoleSlug;
 use App\Models\InformationalService;
 use App\Models\Team;
 use App\Policies\Configurations\ConfigAttributePolicy;
@@ -16,6 +17,7 @@ use App\Policies\Configurations\ConfigConsortiumPolicy;
 use App\Policies\Configurations\ConfigDescriptiveTypePolicy;
 use App\Policies\Configurations\ConfigJobDescriptionPolicy;
 use App\Policies\Configurations\ConfigServiceTypePolicy;
+use App\Policies\HotelRoomPolicy;
 use App\Policies\ImagePolicy;
 use App\Policies\HotelPolicy;
 use App\Policies\ImageGalleryPolicy;
@@ -32,6 +34,7 @@ use App\Policies\VendorPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\Image;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\Product;
@@ -49,10 +52,12 @@ class PermissionServiceProvider extends ServiceProvider
         'statistic-charts',
         'swagger-docs',
         'log-viewer',
+        'activities',
         'config-group',
     ];
 
     private static array $modelPolicies = [
+        HotelRoom::class                            => HotelRoomPolicy::class,
         Hotel::class                                => HotelPolicy::class,
         Vendor::class                               => VendorPolicy::class,
         Product::class                              => ProductPolicy::class,
@@ -92,7 +97,7 @@ class PermissionServiceProvider extends ServiceProvider
 
         foreach (self::$permissions as $permission) {
             Gate::define($permission, function ($user) use ($permission) {
-                return $user->hasPermission($permission) || $user->hasRole('admin');
+                return $user->hasPermission($permission) || $user->hasRole(RoleSlug::ADMIN->value);
             });
         }
     }

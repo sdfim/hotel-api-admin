@@ -26,6 +26,8 @@ class Product extends Model
 
     protected $fillable = [
         'vendor_id',
+        'hero_image',
+        'hero_image_thumbnails',
         'product_type',
         'name',
         'verified',
@@ -125,6 +127,11 @@ class Product extends Model
     public function contactInformation()
     {
         return $this->morphOne(ContactInformation::class, 'contactable');
+    }
+
+    public function travelAgencyCommissions()
+    {
+        return $this->hasMany(TravelAgencyCommission::class, 'product_id');
     }
 
     protected $appends = [

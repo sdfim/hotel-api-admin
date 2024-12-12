@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Configurations\ConfigDescriptiveType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -26,6 +27,8 @@ class ProductDescriptiveContentSection extends Model
         'section_name',
         'start_date',
         'end_date',
+        'descriptive_type_id',
+        'value',
     ];
 
     public function product(): BelongsTo
@@ -33,8 +36,8 @@ class ProductDescriptiveContentSection extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function content(): HasMany
+    public function descriptiveType()
     {
-        return $this->hasMany(ProductDescriptiveContent::class, 'content_sections_id');
+        return $this->belongsTo(ConfigDescriptiveType::class, 'descriptive_type_id');
     }
 }

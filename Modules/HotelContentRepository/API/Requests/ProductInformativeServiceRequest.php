@@ -64,7 +64,8 @@ class ProductInformativeServiceRequest extends FormRequest
      *       type="object",
      *       required={"product_id", "service_id"},
      *       @OA\Property(property="product_id", type="integer", example=1),
-     *       @OA\Property(property="service_id", type="integer", example=1)
+     *       @OA\Property(property="service_id", type="integer", example=1),
+     *       @OA\Property(property="cost", type="number", format="float", example=100.00)
      *     )
      *   ),
      *   @OA\Response(
@@ -145,7 +146,8 @@ class ProductInformativeServiceRequest extends FormRequest
      *       type="object",
      *       required={"product_id", "service_id"},
      *       @OA\Property(property="product_id", type="integer", example=1),
-     *       @OA\Property(property="service_id", type="integer", example=1)
+     *       @OA\Property(property="service_id", type="integer", example=1),
+     *       @OA\Property(property="cost", type="number", format="float", example=100.00)
      *     )
      *   ),
      *   @OA\Response(
@@ -223,6 +225,7 @@ class ProductInformativeServiceRequest extends FormRequest
         return [
             'product_id' => 'required|integer|exists:pd_products,id',
             'service_id' => 'required|integer|exists:config_service_types,id',
+            'cost' => 'nullable|numeric'
         ];
     }
 }

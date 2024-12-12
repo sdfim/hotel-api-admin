@@ -35,9 +35,6 @@ class AttributesForm extends Component implements HasForms
                 TextInput::make('name')
                     ->required()
                     ->maxLength(191),
-                TextInput::make('default_value')
-                    ->required()
-                    ->maxLength(191),
             ])
             ->statePath('data')
             ->model($this->record);
@@ -46,6 +43,9 @@ class AttributesForm extends Component implements HasForms
     public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
+        if (!isset($data['default_value'])) {
+            $data['default_value'] = '';
+        }
         $this->record->fill($data);
         $this->record->save();
 

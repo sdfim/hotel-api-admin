@@ -3,6 +3,7 @@
 namespace Modules\Insurance\Livewire\RateTiers;
 
 use App\Helpers\ClassHelper;
+use App\Models\Enums\RoleSlug;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -10,9 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -23,23 +22,14 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
-use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsuranceRateTier;
 
 class RateTiersTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
-
-    public ?int $vendorId;
-    public bool $viewAll = false;
-
-    public function mount(?Vendor $vendor, bool $viewAll = false): void
-    {
-        $this->vendorId = $vendor->id;
-        $this->viewAll = $viewAll;
-    }
 
     public function form(Form $form): Form
     {
@@ -90,9 +80,13 @@ class RateTiersTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn () => $this->viewAll
-                ? InsuranceRateTier::query()
-                : InsuranceRateTier::query()->where('vendor_id', $this->vendorId))
+            ->query(
+                InsuranceRateTier::query()
+                    ->when(
+                        auth()->user()->currentTeam && !auth()->user()->hasRole(RoleSlug::ADMIN->value),
+                        fn ($q) => $q->where('vendor_id', auth()->user()->currentTeam->vendor_id),
+                    )
+            )
             ->columns([
                 TextColumn::make('vendor.name')
                     ->label('Insurance Vendor')
@@ -127,6 +121,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     ->fillForm(function (InsuranceRateTier $record) {
                         return $record->toArray();
                     })
+                    ->visible(fn (InsuranceRateTier $record): bool => Gate::allows('update', $record))
                     ->action(function (InsuranceRateTier $record, array $data) {
                         $record->update($data);
 
@@ -141,6 +136,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     ->label('')
                     ->tooltip('Delete Rate Tier')
                     ->requiresConfirmation()
+                    ->visible(fn (InsuranceRateTier $record): bool => Gate::allows('delete', $record))
                     ->action(function (InsuranceRateTier $record) {
                         $record->delete();
 
@@ -166,7 +162,8 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     ->tooltip('Add New Rate Tier')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->visible(fn (): bool => Gate::allows('create', InsuranceRateTier::class)),
                 CreateAction::make('importInsuranceRateTiers')
                     ->label('Import Insurance Rate Tiers')
                     ->form([
@@ -203,7 +200,8 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     ->tooltip('Import Insurance Rate Tiers')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->visible(fn (): bool => Gate::allows('create', InsuranceRateTier::class)),
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),

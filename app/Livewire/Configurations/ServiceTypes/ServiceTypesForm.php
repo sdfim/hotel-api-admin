@@ -39,7 +39,6 @@ class ServiceTypesForm extends Component implements HasForms
                     ->required()
                     ->maxLength(191),
                 TextInput::make('cost')
-                    ->required()
                     ->numeric(),
             ])
             ->statePath('data')
@@ -49,6 +48,7 @@ class ServiceTypesForm extends Component implements HasForms
     public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
+        $data['cost'] = $data['cost'] ?? 0;
         $this->record->fill($data);
         $this->record->save();
 

@@ -61,7 +61,7 @@ Route::get('/admin/', function () {
     if (! Auth::check()) {
         return redirect(config('app.url').'/admin/login');
     } else {
-        return redirect(config('app.url').'/admin/reservations');
+        return redirect(config('app.url').'/admin/vendor-repository');
     }
 })->name('root');
 
@@ -69,6 +69,9 @@ Route::post('/teams/switch', [TeamController::class, 'switch'])->name('teams.swi
 
 Route::prefix('admin')->group(function () {
     Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
+
+        Route::resource('teams', TeamController::class)->only(['index', 'edit']);
+
         Route::resource('channels', ChannelsController::class);
         Route::resource('pricing-rules', PricingRulesController::class);
         Route::resource('suppliers', SuppliersController::class);

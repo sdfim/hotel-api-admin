@@ -2,14 +2,14 @@
 
 namespace Modules\HotelContentRepository\Http\Controllers;
 
+use Modules\AdministrationSuite\Http\Controllers\BaseWithPolicyController;
 use Modules\HotelContentRepository\Models\Vendor;
 use Illuminate\Contracts\View\View;
-use Modules\AdministrationSuite\Http\Controllers\Controller;
 
-class VendorController extends Controller
+class VendorController extends BaseWithPolicyController
 {
     protected static string $model = Vendor::class;
-    protected static ?string $parameterName = 'vendor';
+    protected static ?string $parameterName = 'vendor_repository';
 
     private array $message = ['edit' => 'Edit', 'create' => 'Create'];
 

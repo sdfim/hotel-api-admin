@@ -85,11 +85,13 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"product_id", "section_name", "start_date"},
+     *       required={"product_id", "section_name", "start_date", "descriptive_type_id", "value"},
      *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="section_name", type="string", example="General Information"),
      *       @OA\Property(property="start_date", type="string", format="date", example="2023-01-01"),
-     *       @OA\Property(property="end_date", type="string", format="date", example="2023-12-31")
+     *       @OA\Property(property="end_date", type="string", format="date", example="2023-12-31"),
+     *       @OA\Property(property="descriptive_type_id", type="integer", example=1),
+     *       @OA\Property(property="value", type="string", example="Some descriptive content")
      *     )
      *   ),
      *   @OA\Response(
@@ -168,11 +170,13 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"product_id", "section_name", "start_date"},
+     *       required={"product_id", "section_name", "start_date", "descriptive_type_id", "value"},
      *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="section_name", type="string", example="General Information"),
      *       @OA\Property(property="start_date", type="string", format="date", example="2023-01-01"),
-     *       @OA\Property(property="end_date", type="string", format="date", example="2023-12-31")
+     *       @OA\Property(property="end_date", type="string", format="date", example="2023-12-31"),
+     *       @OA\Property(property="descriptive_type_id", type="integer", example=1),
+     *       @OA\Property(property="value", type="string", example="Some descriptive content")
      *     )
      *   ),
      *   @OA\Response(
@@ -240,8 +244,6 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      * )
      */
 
-
-
     public function rules(): array
     {
         return [
@@ -249,6 +251,8 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
             'section_name' => 'required|string|max:255',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date',
+            'descriptive_type_id' => 'required|exists:config_descriptive_types,id',
+            'value' => 'required|string',
         ];
     }
 }

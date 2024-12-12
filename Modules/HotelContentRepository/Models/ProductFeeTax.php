@@ -5,6 +5,7 @@ namespace Modules\HotelContentRepository\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Modules\Enums\ProductFeeTaxApplyTypeEnum;
 use Modules\HotelContentRepository\Models\Factories\ProductFeeTaxFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 
@@ -30,6 +31,8 @@ class ProductFeeTax extends Model
         'commissionable',
         'collected_by',
         'fee_category',
+        'apply_type',
+        'apply_type' => ProductFeeTaxApplyTypeEnum::class,
     ];
 
     protected $casts = [

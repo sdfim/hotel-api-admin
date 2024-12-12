@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\PdGrid;
 
 use App\Helpers\ClassHelper;
+use App\Models\Enums\RoleSlug;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -32,9 +33,17 @@ class PdGridTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([10, 25, 50])
-            ->query(Hotel::query())
+            ->query(
+                Hotel::query()
+                    ->when(
+                        auth()->user()->currentTeam && !auth()->user()->hasRole(RoleSlug::ADMIN->value),
+                        fn ($q) => $q->whereHas('product', function (Builder $query) {
+                            $query->where('vendor_id', auth()->user()->currentTeam->vendor_id);
+                        }),
+                    )
+            )
             ->columns([
-                TextColumn::make('product.verified')->label('Verified')->sortable(),
+                Tables\Columns\IconColumn::make('product.verified')->label('Verified')->sortable()->boolean(),
                 TextColumn::make('product.name')->label('Name')->sortable(),
 
                 TextColumn::make('product.vendor.name')->label('Vendor Name')->sortable(),

@@ -22,7 +22,7 @@ class ProductPromotionControllerTest extends TestCase
                 '*' => [
                     'id', 'product_id', 'promotion_name', 'description',
                     'validity_start', 'validity_end', 'booking_start', 'booking_end',
-                    'terms_conditions', 'exclusions'
+                    'terms_conditions', 'exclusions', 'min_night_stay', 'max_night_stay'
                 ]
             ],
             'message'
@@ -40,7 +40,7 @@ class ProductPromotionControllerTest extends TestCase
             'data' => [
                 'id', 'product_id', 'promotion_name', 'description',
                 'validity_start', 'validity_end', 'booking_start', 'booking_end',
-                'terms_conditions', 'exclusions'
+                'terms_conditions', 'exclusions', 'min_night_stay', 'max_night_stay'
             ],
             'message'
         ]);
@@ -57,7 +57,7 @@ class ProductPromotionControllerTest extends TestCase
             'data' => [
                 'id', 'product_id', 'promotion_name', 'description',
                 'validity_start', 'validity_end', 'booking_start', 'booking_end',
-                'terms_conditions', 'exclusions'
+                'terms_conditions', 'exclusions', 'min_night_stay', 'max_night_stay'
             ],
             'message'
         ]);
@@ -75,7 +75,7 @@ class ProductPromotionControllerTest extends TestCase
             'data' => [
                 'id', 'product_id', 'promotion_name', 'description',
                 'validity_start', 'validity_end', 'booking_start', 'booking_end',
-                'terms_conditions', 'exclusions'
+                'terms_conditions', 'exclusions', 'min_night_stay', 'max_night_stay'
             ],
             'message'
         ]);

@@ -2,11 +2,13 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Property;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Modules\HotelContentRepository\Models\Factories\HotelFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
@@ -24,6 +26,8 @@ class Hotel extends Model
     protected $table = 'pd_hotels';
 
     protected $fillable = [
+        'giata_code',
+        'featured_flag',
         'weight',
         'sale_type',
         'address',
@@ -37,6 +41,7 @@ class Hotel extends Model
     protected $casts = [
         'address' => 'array',
         'location' => 'array',
+        'hotel_board_basis' => 'array',
         'travel_agent_commission' => 'float'
     ];
 
@@ -45,6 +50,11 @@ class Hotel extends Model
         'updated_at',
         'pivot'
     ];
+
+    public function giataCode(): HasOne
+    {
+        return $this->hasOne(Property::class, 'code');
+    }
 
     public function roomImagesSource(): BelongsTo
     {

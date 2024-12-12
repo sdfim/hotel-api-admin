@@ -4,8 +4,9 @@ namespace Modules\HotelContentRepository\Models\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Enums\FeeTaxCollectedByEnum;
-use Modules\Enums\FeeTaxTypeEnum;
-use Modules\Enums\FeeTaxValueTypeEnum;
+use Modules\Enums\ProductFeeTaxApplyTypeEnum;
+use Modules\Enums\ProductFeeTaxTypeEnum;
+use Modules\Enums\ProductFeeTaxValueTypeEnum;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\ProductFeeTax;
 use Modules\HotelContentRepository\Models\Product;
@@ -22,12 +23,12 @@ class ProductFeeTaxFactory extends Factory
             'net_value' => $this->faker->randomFloat(2, 10, 1000),
             'rack_value' => $this->faker->randomFloat(2, 10, 1000),
             'type' => $this->faker->randomElement([
-                FeeTaxTypeEnum::TAX->value,
-                FeeTaxTypeEnum::FEE->value
+                ProductFeeTaxTypeEnum::TAX->value,
+                ProductFeeTaxTypeEnum::FEE->value
             ]),
             'value_type' => $this->faker->randomElement([
-                FeeTaxValueTypeEnum::PERCENTAGE->value,
-                FeeTaxValueTypeEnum::AMOUNT->value
+                ProductFeeTaxValueTypeEnum::PERCENTAGE->value,
+                ProductFeeTaxValueTypeEnum::AMOUNT->value
             ]),
             'collected_by' => $this->faker->randomElement([
                 FeeTaxCollectedByEnum::DIRECT->value,
@@ -35,6 +36,10 @@ class ProductFeeTaxFactory extends Factory
             ]),
             'commissionable' => $this->faker->boolean,
             'fee_category' => $this->faker->randomElement(['optional', 'mandatory']),
+            'apply_type' => $this->faker->randomElement([
+                ProductFeeTaxApplyTypeEnum::PER_NIGHT->value,
+                ProductFeeTaxApplyTypeEnum::PER_PERSON->value
+            ]),
         ];
     }
 }

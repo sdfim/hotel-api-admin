@@ -3,6 +3,9 @@
 namespace Modules\HotelContentRepository\API\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use League\Fractal\Manager;
+use League\Fractal\Resource\Collection as FractalCollection;
 use Modules\HotelContentRepository\Actions\Product\AddProduct;
 use Modules\HotelContentRepository\Actions\Product\DeleteProduct;
 use Modules\HotelContentRepository\Actions\Product\EditProduct;
@@ -10,6 +13,7 @@ use Modules\HotelContentRepository\API\Requests\AttachOrDetachGalleryRequest;
 use Modules\HotelContentRepository\API\Requests\ProductRequest;
 use Modules\HotelContentRepository\Models\DTOs\ProductDTO;
 use Modules\HotelContentRepository\Models\Product;
+use Modules\HotelContentRepository\Models\Transformers\CustomFractalSerializer;
 use Modules\HotelContentRepository\Models\Transformers\ProductTransformer;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\API\Controllers\BaseController;
@@ -22,7 +26,10 @@ class ProductController extends BaseController
         protected EditProduct $editProduct,
         protected DeleteProduct $deleteProduct,
         protected ProductDTO $productDTO
-    ) {}
+    ) {
+        $this->fractal = new Manager();
+        $this->fractal->setSerializer(new CustomFractalSerializer());
+    }
 
     public function index()
     {
@@ -30,14 +37,12 @@ class ProductController extends BaseController
         $query = $this->filter($query, Product::class);
         $products = $query->with($this->getIncludes())->get();
 
-        $useFractal = env('USE_FRACTAL', true);
+        $useFractal = config('packages.use_fractal', true);
         if (!$useFractal) {
             $productDTO = $this->productDTO->transform($products, true);
         } else {
-            $productDTO = Fractal::create()
-                ->collection($products)
-                ->transformWith(new ProductTransformer())
-                ->toArray()['data'];
+            $resource = new FractalCollection($products, new ProductTransformer());
+            $productDTO = $this->fractal->createData($resource)->toArray();
         }
 
         return $this->sendResponse($productDTO, 'index success');
@@ -51,16 +56,18 @@ class ProductController extends BaseController
 
     public function show($id)
     {
-        $product = Product::with($this->getIncludes())->findOrFail($id);
+        try {
+            $product = Product::with($this->getIncludes())->findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            return $this->sendError('Product not found', Response::HTTP_NOT_FOUND);
+        }
 
-        $useFractal = env('USE_FRACTAL', true);
+        $useFractal = config('packages.use_fractal', true);
         if (!$useFractal) {
             $productDTO = $this->productDTO->transform($product->get(), true);
         } else {
-            $productDTO = Fractal::create()
-                ->item($product)
-                ->transformWith(new ProductTransformer())
-                ->toArray()['data'];
+            $resource = new FractalCollection([$product], new ProductTransformer());
+            $productDTO = $this->fractal->createData($resource)->toArray()[0];
         }
 
         return $this->sendResponse([$productDTO], 'show success');
@@ -101,7 +108,7 @@ class ProductController extends BaseController
             'attributes',
             'contentSource',
             'propertyImagesSource',
-            'descriptiveContentsSection.content',
+            'descriptiveContentsSection',
             'feeTaxes',
             'informativeServices.service',
             'promotions.galleries.images',

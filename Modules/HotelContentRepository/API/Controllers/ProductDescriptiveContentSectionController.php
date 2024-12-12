@@ -11,10 +11,9 @@ use Modules\HotelContentRepository\Models\ProductDescriptiveContentSection;
 class ProductDescriptiveContentSectionController extends BaseController
 {
     public function index()
-    {
-        $query = ProductDescriptiveContentSection::query();
+    {$query = ProductDescriptiveContentSection::query();
         $query = $this->filter($query, ProductDescriptiveContentSection::class);
-        $section = $query->with(['content'])->get();
+        $section = $query->get();
 
         return $this->sendResponse($section->toArray(), 'index success');
     }
@@ -27,7 +26,7 @@ class ProductDescriptiveContentSectionController extends BaseController
 
     public function show($id)
     {
-        $section = ProductDescriptiveContentSection::with(['content'])->findOrFail($id);
+        $section = ProductDescriptiveContentSection::findOrFail($id);
         return $this->sendResponse($section->toArray(), 'show success');
     }
 

@@ -2,9 +2,11 @@
 
 namespace Modules\HotelContentRepository\Models\Factories;
 
+use App\Models\Property;
 use Google\Service\AdExchangeBuyer\Product;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Modules\Enums\HotelTypeEnum;
+use Modules\Enums\HotelSaleTypeEnum;
+use Modules\Enums\MealPlansEnum;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
 
@@ -15,17 +17,19 @@ class HotelFactory extends Factory
     public function definition()
     {
         return [
+            'giata_code' => Property::factory(),
             'weight' => $this->faker->numberBetween(1, 100),
-            'sale_type' => $this->faker->randomElement([
-                HotelTypeEnum::DIRECT_CONNECTION->value,
-                HotelTypeEnum::MANUAL_CONTRACT->value,
-                HotelTypeEnum::COMMISSION_TRACKING->value,
+            'featured_flag' => $this->faker->randomElement([1, 0]),
+            'sale_type' => (string) $this->faker->randomElement([
+                HotelSaleTypeEnum::DIRECT_CONNECTION->value,
+                HotelSaleTypeEnum::MANUAL_CONTRACT->value,
+                HotelSaleTypeEnum::COMMISSION_TRACKING->value,
             ]),
-            'address' => $this->faker->address,
+            'address' => (string) $this->faker->address,
             'star_rating' => $this->faker->numberBetween(1, 5),
             'num_rooms' => $this->faker->numberBetween(1, 500),
             'room_images_source_id' => ContentSource::factory(),
-            'hotel_board_basis' => $this->faker->word,
+            'hotel_board_basis' => $this->faker->randomElement(MealPlansEnum::cases())->value,
             'travel_agent_commission' => $this->faker->randomFloat(2, 0, 20),
         ];
     }

@@ -12,6 +12,7 @@ class ConfigDescriptiveTypeSeeder extends Seeder
         $types = [
             'Meta Description',
             'Property Description',
+            'Age Restriction',
             'Cancellation Policy',
             'Pet Policy',
             'Terms and Conditions',

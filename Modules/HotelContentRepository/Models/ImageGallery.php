@@ -4,6 +4,7 @@ namespace Modules\HotelContentRepository\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Modules\HotelContentRepository\Models\Factories\ImageGalleryFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 
@@ -30,11 +31,11 @@ class ImageGallery extends Model
         'pivot'
     ];
 
-    public function images()
+    public function images(): BelongsToMany
     {
         return $this->belongsToMany(Image::class, 'pd_gallery_images', 'gallery_id', 'image_id');
     }
-    public function products()
+    public function products(): BelongsToMany
     {
         return $this->belongsToMany(Hotel::class, 'pd_product_gallery', 'gallery_id', 'product_id');
     }
@@ -46,7 +47,7 @@ class ImageGallery extends Model
         });
     }
 
-    public function hotelRooms()
+    public function hotelRooms(): BelongsToMany
     {
         return $this->belongsToMany(HotelRoom::class, 'pd_hotel_room_gallery', 'gallery_id', 'hotel_room_id');
     }
@@ -58,7 +59,7 @@ class ImageGallery extends Model
         });
     }
 
-    public function productPromotions()
+    public function productPromotions(): BelongsToMany
     {
         return $this->belongsToMany(ProductPromotion::class, 'pd_product_promotion_gallery', 'gallery_id', 'product_promotion_id');
     }

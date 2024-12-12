@@ -3,6 +3,7 @@
 namespace App\Livewire\Users;
 
 use App\Helpers\ClassHelper;
+use App\Models\Team;
 use App\Models\User;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -10,6 +11,7 @@ use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -31,10 +33,17 @@ class UsersTable extends Component implements HasForms, HasTable
             ->query(User::query())
             ->modifyQueryUsing(fn (Builder $query) => $query->with('roles'))
             ->columns([
+//                TextColumn::make('id')
+//                    ->label('ID'),
                 TextColumn::make('name')
                     ->searchable(),
                 TextColumn::make('email')
                     ->searchable(),
+                TextColumn::make('currentTeam.name')
+                    ->label('Vendor (Team)'),
+                BooleanColumn::make('owner_team')
+                    ->label('Owner')
+                    ->getStateUsing(fn (User $record) => $record->currentTeam?->owner()->is($record)),
                 TextColumn::make('roles.0.name')
                     ->label('Role'),
             ])
@@ -45,7 +54,28 @@ class UsersTable extends Component implements HasForms, HasTable
                         ->visible(fn (User $record) => Gate::allows('update', $record)),
                     DeleteAction::make()
                         ->requiresConfirmation()
-                        ->action(fn (User $record) => $record->delete())
+                        ->action(function (User $record) {
+                            // Check if the user is the owner of the team
+                            $teams = Team::where('user_id', $record->id)->get();
+                            foreach ($teams as $team) {
+                                if ($team->owner()->is($record)) {
+                                    $newOwner = $record->currentTeam->allUsers()->where('id', '!=', $record->id)->first();
+                                    if ($newOwner) {
+                                        $team->owner()->associate($newOwner);
+                                        $team->save();
+                                    }
+                                }
+
+                            }
+                            if ($record->currentTeam) {
+                                $record->currentTeam->users()->detach($record->id);
+                            }
+                            // Check if the team has no users left
+                            if ($record->currentTeam?->allUsers()?->count() === 0) { // Check if the team has no users left
+                                $record->currentTeam()->delete();
+                            }
+                            $record->delete();
+                        })
                         ->visible(fn (User $record) => Gate::allows('delete', $record)),
                 ]),
             ])->headerActions([

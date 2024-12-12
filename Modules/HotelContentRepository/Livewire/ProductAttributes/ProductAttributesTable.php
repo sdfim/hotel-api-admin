@@ -4,6 +4,7 @@ namespace Modules\HotelContentRepository\Livewire\ProductAttributes;
 
 use App\Helpers\ClassHelper;
 use App\Models\Configurations\ConfigAttribute;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -17,7 +18,9 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
+use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductAttribute;
@@ -26,28 +29,27 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
+    use HasProductActions;
 
     public int $productId;
+    public string $title;
 
     public function mount(int $productId)
     {
         $this->productId = $productId;
+        $product = Product::find($productId);
+        $this->title = 'Attributes for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
     public function form(Form $form): Form
     {
-        return $form
-            ->schema($this->schemeForm());
+        return $form->schema($this->schemeForm());
     }
 
     public function schemeForm(): array
     {
         return [
-            Select::make('product_id')
-                ->label('Product')
-                ->options(Product::pluck('name', 'id'))
-                ->disabled(fn () => $this->productId)
-                ->required(),
+            Hidden::make('product_id')->default($this->productId),
             Select::make('config_attribute_id')
                 ->label('Attribute')
                 ->options(ConfigAttribute::all()->pluck('name', 'id'))
@@ -65,30 +67,9 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
                 TextColumn::make('attribute.name')->label('Attribute Name'),
 //                TextColumn::make('attribute.default_value')->label('Value'),
             ])
-            ->actions([
-                EditAction::make()
-                    ->label('')
-                    ->tooltip('Edit Attribute')
-                    ->form($this->schemeForm()),
-            ])
-            ->bulkActions([
-                DeleteBulkAction::make(),
-            ])
-            ->headerActions([
-                CreateAction::make()
-                    ->form($this->schemeForm())
-                    ->fillForm(function () {
-                        return $this->productId ? ['product_id' => $this->productId] : [];
-                    })
-                    ->action(function ($data) {
-                        if ($this->productId) $data['product_id'] = $this->productId;
-                        ProductAttribute::create($data);
-                    })
-                    ->tooltip('Add New Attribute')
-                    ->icon('heroicon-o-plus')
-                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
-            ]);
+            ->actions($this->getActions())
+            ->bulkActions($this->getBulkActions())
+            ->headerActions($this->getHeaderActions());
     }
 
     public function render()

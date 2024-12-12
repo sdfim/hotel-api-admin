@@ -32,6 +32,8 @@ class ProductPromotion extends Model
         'terms_conditions',
         'exclusions',
         'deposit_info',
+        'min_night_stay',
+        'max_night_stay',
     ];
 
     protected $hidden = [

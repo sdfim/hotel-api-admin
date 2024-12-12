@@ -20,6 +20,7 @@ class TravelAgencyCommission extends Model
     protected $table = 'pd_travel_agency_commissions';
 
     protected $fillable = [
+        'product_id',
         'name',
         'commission_value',
         'commission_value_type',
@@ -32,6 +33,11 @@ class TravelAgencyCommission extends Model
         'updated_at',
         'pivot'
     ];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
 
     public function conditions()
     {

@@ -3,7 +3,7 @@
 namespace Modules\HotelContentRepository\API\Requests;
 
 use Modules\API\Validate\ApiRequest;
-use Modules\Enums\HotelTypeEnum;
+use Modules\Enums\HotelSaleTypeEnum;
 
 class HotelRequest extends ApiRequest
 {
@@ -352,7 +352,9 @@ class HotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'sale_type' => 'required|string|in:' . implode(',', array_column(HotelTypeEnum::cases(), 'value')),
+            'giata_code' => 'required|int',
+            'sale_type' => 'required|string|in:' . implode(',', array_column(HotelSaleTypeEnum::cases(), 'value')),
+            'featured_flag' => 'boolean',
             'address' => 'required|string',
             'star_rating' => 'required|integer|min:1|max:5',
             'num_rooms' => 'required|integer',

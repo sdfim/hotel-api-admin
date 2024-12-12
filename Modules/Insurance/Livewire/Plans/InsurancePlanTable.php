@@ -2,47 +2,32 @@
 
 namespace Modules\Insurance\Livewire\Plans;
 
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use App\Models\Enums\RoleSlug;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
-use Filament\Notifications\Notification;
-use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Model;
 use Livewire\Component;
-use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsurancePlan;
-use Modules\Insurance\Models\InsuranceProvider;
 
 class InsurancePlanTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public ?int $vendorId;
-    public bool $viewAll = false;
-
-    public function mount(?Vendor $vendor, bool $viewAll = false): void
-    {
-        $this->vendorId = $vendor->id;
-        $this->viewAll = $viewAll;
-    }
-
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn () => $this->viewAll
-                ? InsurancePlan::query()
-                : InsurancePlan::query()->where('vendor_id', $this->vendorId))
+            ->query(
+                InsurancePlan::query()
+                    ->when(
+                        auth()->user()->currentTeam && !auth()->user()->hasRole(RoleSlug::ADMIN->value),
+                        fn ($q) => $q->where('vendor_id', auth()->user()->currentTeam->vendor_id),
+                    )
+            )
             ->columns([
                 TextColumn::make('vendor.name')
                     ->label('Vendor Name')

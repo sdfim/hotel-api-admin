@@ -15,6 +15,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
+            $table->boolean('combinable')->nullable();
             $table->timestamps();
 
             $table->foreign('affiliation_id')->references('id')->on('pd_product_affiliations')->onDelete('cascade');

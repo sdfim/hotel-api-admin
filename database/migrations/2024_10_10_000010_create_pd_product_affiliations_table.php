@@ -12,7 +12,7 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
             $table->string('affiliation_name');
-            $table->boolean('combinable');
+            $table->boolean('combinable')->nullable();
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');

@@ -54,6 +54,10 @@ thead .bg-gray-50{
     background-color: var(--grey-lite-color);
 }
 
+.fi-btn-label {
+    text-transform: capitalize;
+}
+
 .fi-ta-content {
     margin: 24px;
     outline: 1px solid var(--grey-lite-color);

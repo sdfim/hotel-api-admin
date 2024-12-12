@@ -24,6 +24,7 @@ class ProductInformativeService extends Model
     protected $fillable = [
         'product_id',
         'service_id',
+        'cost'
     ];
 
     protected $hidden = [

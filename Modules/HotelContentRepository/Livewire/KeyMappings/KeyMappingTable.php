@@ -3,6 +3,9 @@
 namespace Modules\HotelContentRepository\Livewire\KeyMappings;
 
 use App\Helpers\ClassHelper;
+use App\Helpers\Strings;
+use App\Models\Property;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -16,7 +19,10 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
+use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\KeyMapping;
 use Modules\HotelContentRepository\Models\KeyMappingOwner;
@@ -26,12 +32,16 @@ class KeyMappingTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
+    use HasProductActions;
 
     public int $productId;
+    public string $title;
 
     public function mount(int $productId)
     {
         $this->productId = $productId;
+        $product = Product::find($productId);
+        $this->title = 'Key & Owner for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
     public function form(Form $form): Form
@@ -42,17 +52,21 @@ class KeyMappingTable extends Component implements HasForms, HasTable
     public function schemeForm(): array
     {
         return [
-            Select::make('product_id')
-                ->label('Product')
-                ->options(Product::pluck('name', 'id'))
-                ->disabled(fn () => $this->productId)
-                ->required(),
+            Hidden::make('product_id')->default($this->productId),
             Select::make('key_mapping_owner_id')
                 ->label('Key Mapping Owner')
                 ->options(KeyMappingOwner::pluck('name', 'id'))
+                ->relationship('keyMappingOwner', 'name')
+               ->createOptionForm([
+                    TextInput::make('name')
+                        ->label('Name')
+                        ->required(),
+               ])
                 ->required(),
-            TextInput::make('key_id')->label('Key ID')->required(),
-        ];
+            TextInput::make('key_id')
+                ->label('Key ID')
+                ->required(),
+            ];
     }
 
     public function table(Table $table): Table
@@ -66,30 +80,9 @@ class KeyMappingTable extends Component implements HasForms, HasTable
                 TextColumn::make('keyMappingOwner.name')->label('Owner'),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
-            ->actions([
-                EditAction::make()
-                    ->label('')
-                    ->tooltip('Edit Key Mapping')
-                    ->form($this->schemeForm()),
-            ])
-            ->bulkActions([
-                DeleteBulkAction::make(),
-            ])
-            ->headerActions([
-                CreateAction::make()
-                    ->form($this->schemeForm())
-                    ->fillForm(function () {
-                        return $this->productId ? ['product_id' => $this->productId] : [];
-                    })
-                    ->action(function ($data) {
-                        if ($this->productId) $data['product_id'] = $this->productId;
-                        KeyMapping::create($data);
-                    })
-                    ->tooltip('Add New Mapping')
-                    ->icon('heroicon-o-plus')
-                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
-            ]);
+            ->actions($this->getActions())
+            ->bulkActions($this->getBulkActions())
+            ->headerActions($this->getHeaderActions());
     }
 
     public function render()

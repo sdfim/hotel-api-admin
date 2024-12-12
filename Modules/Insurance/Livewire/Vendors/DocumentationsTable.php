@@ -3,6 +3,7 @@
 namespace Modules\Insurance\Livewire\Vendors;
 
 use App\Helpers\ClassHelper;
+use App\Models\Enums\RoleSlug;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -19,9 +20,9 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
-use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsuranceProviderDocumentation;
 
 class DocumentationsTable extends Component implements HasForms, HasTable
@@ -30,13 +31,9 @@ class DocumentationsTable extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     public array $documentTypes = [];
-    public ?int $vendorId;
-    public bool $viewAll = false;
 
-    public function mount(?Vendor $vendor, bool $viewAll = false): void
+    public function mount(): void
     {
-        $this->vendorId = $vendor->id;
-        $this->viewAll = $viewAll;
         $this->documentTypes = [
             'privacy_policy' => 'Privacy Policy',
             'terms_and_condition' => 'Terms & Conditions'
@@ -78,9 +75,13 @@ class DocumentationsTable extends Component implements HasForms, HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query(fn () => $this->viewAll
-                ? InsuranceProviderDocumentation::query()
-                : InsuranceProviderDocumentation::query()->where('vendor_id', $this->vendorId))
+            ->query(
+                InsuranceProviderDocumentation::query()
+                    ->when(
+                        auth()->user()->currentTeam && !auth()->user()->hasRole(RoleSlug::ADMIN->value),
+                        fn ($q) => $q->where('vendor_id', auth()->user()->currentTeam->vendor_id),
+                    )
+            )
             ->columns([
                 TextColumn::make('vendor.name')
                     ->label('Vendor name')
@@ -121,6 +122,7 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                     ->fillForm(function (InsuranceProviderDocumentation $record) {
                         return $record->toArray();
                     })
+                    ->visible(fn (InsuranceProviderDocumentation $record): bool => Gate::allows('update', $record))
                     ->action(function (InsuranceProviderDocumentation $record, array $data) {
                         $record->update($data);
 
@@ -135,6 +137,7 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                     ->label('')
                     ->tooltip('Delete Provider Documentation')
                     ->requiresConfirmation()
+                    ->visible(fn (InsuranceProviderDocumentation $record): bool => Gate::allows('delete', $record))
                     ->action(function (InsuranceProviderDocumentation $record) {
                         $filePath = $record->path;
 
@@ -171,7 +174,8 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                     ->tooltip('Add Provider Documentation')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->iconButton(),
+                    ->iconButton()
+                    ->visible(fn (): bool => Gate::allows('create', InsuranceProviderDocumentation::class)),
             ]);
     }
 
