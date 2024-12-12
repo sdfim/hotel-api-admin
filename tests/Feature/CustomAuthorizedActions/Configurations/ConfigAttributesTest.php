@@ -25,9 +25,9 @@ class ConfigAttributesTest extends CustomAuthorizedActionsTestCase
 
         $component = Livewire::test(AttributesTable::class);
 
-        $attributes = ConfigAttribute::limit(10)->get(['name', 'default_value']);
+        $attributes = ConfigAttribute::limit(10)->get(['name']);
         foreach ($attributes as $attribute) {
-            $component->assertSee([$attribute->name, $attribute->default_value]);
+            $component->assertSee([$attribute->name]);
         }
     }
 
@@ -41,17 +41,15 @@ class ConfigAttributesTest extends CustomAuthorizedActionsTestCase
         $component = Livewire::test(AttributesForm::class, ['configAttribute' => new ConfigAttribute()]);
 
         $name = $this->faker->name;
-        $defaultValue = $this->faker->word;
 
         $component->set('data', [
             'name' => $name,
-            'default_value' => $defaultValue,
         ]);
 
         $component->call('edit');
         $component->assertRedirect(route('configurations.attributes.index'));
 
-        $this->assertDatabaseHas('config_attributes', ['name' => $name, 'default_value' => $defaultValue]);
+        $this->assertDatabaseHas('config_attributes', ['name' => $name]);
     }
 
     #[Test]
@@ -66,16 +64,14 @@ class ConfigAttributesTest extends CustomAuthorizedActionsTestCase
         $component = Livewire::test(AttributesForm::class, ['configAttribute' => $configAttribute]);
 
         $name = $this->faker->name;
-        $defaultValue = $this->faker->word;
 
         $component->set('data', [
             'name' => $name,
-            'default_value' => $defaultValue,
         ]);
 
         $component->call('edit');
         $component->assertRedirect(route('configurations.attributes.index'));
 
-        $this->assertDatabaseHas('config_attributes', ['name' => $name, 'default_value' => $defaultValue]);
+        $this->assertDatabaseHas('config_attributes', ['name' => $name]);
     }
 }
