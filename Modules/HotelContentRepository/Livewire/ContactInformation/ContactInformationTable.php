@@ -49,17 +49,8 @@ class ContactInformationTable extends Component implements HasForms, HasTable
     public function schemeForm(): array
     {
         return [
-            Select::make('contactable_id')
-                ->label($this->contactableType)
-                ->options(function () {
-                    if ($this->contactableType === 'Product') {
-                        return Product::pluck('name', 'id');
-                    } elseif ($this->contactableType === 'Vendor') {
-                        return Vendor::pluck('name', 'id');
-                    }
-                    return [];
-                })
-                ->disabled(fn () => $this->contactableId)
+            Hidden::make('contactable_id')
+                ->default($this->contactableId)
                 ->required(),
             Grid::make(2)
                 ->schema([
@@ -134,9 +125,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                 CreateAction::make()
                     ->modalHeading(new HtmlString("Create {$this->title}"))
                     ->form($this->schemeForm())
-                    ->fillForm(function () {
-                        return $this->contactableId ? ['contactable_id' => $this->contactableId] : [];
-                    })
+                    ->createAnother(false)
                     ->action(function ($data) {
                         if ($this->contactableId) $data['contactable_id'] = $this->contactableId;
                         $data['contactable_type'] = __NAMESPACE__ . '\\Models\\' . $this->contactableType;

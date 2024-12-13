@@ -17,7 +17,7 @@ trait HasProductActions
     protected function getActions(): array
     {
         $actions = [
-            EditAction::make('Save Changes')
+            EditAction::make()
                 ->iconButton()
                 ->modalHeading(new HtmlString("Edit {$this->title}"))
                 ->form($this->schemeForm())

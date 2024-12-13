@@ -211,9 +211,10 @@ class HotelForm extends Component implements HasForms
                                         ->schema([
                                         TextInput::make('full_address')
                                             ->label('Get Location by Address')
+                                            ->required()
                                             ->placeholder(fn($get) => $get('addressArr.line_1') . ' ' . $get('addressArr.city')),
-                                        TextInput::make('product.lat')->label('Latitude')->required()->numeric(),
-                                        TextInput::make('product.lng')->label('Longitude')->required()->numeric(),
+                                        TextInput::make('product.lat')->label('Latitude')->numeric()->readOnly(),
+                                        TextInput::make('product.lng')->label('Longitude')->numeric()->readOnly(),
                                     ])->columnSpan(1),
 
                                     $mapComponent ?? Placeholder::make('map_message')
@@ -224,13 +225,13 @@ class HotelForm extends Component implements HasForms
                             Grid::make(2)
                                 ->schema([
                                     TextInput::make('addressArr.city')
-                                        ->label('City'),
+                                        ->label('City')->readOnly(),
                                     TextInput::make('addressArr.line_1')
-                                        ->label('Line 1'),
+                                        ->label('Line 1')->readOnly(),
                                     TextInput::make('addressArr.country_code')
-                                        ->label('Country Code'),
+                                        ->label('Country Code')->readOnly(),
                                     TextInput::make('addressArr.state_province_name')
-                                        ->label('State Province Name'),
+                                        ->label('State Province Name')->readOnly(),
                                 ]),
                         ])
                         ->columns(1),

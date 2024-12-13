@@ -72,6 +72,7 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                 DatePicker::make('date_range_start')
                     ->label('Start Date')
                     ->native(false)
+                    ->default(fn() => now())
                     ->required(),
                 DatePicker::make('date_range_end')
                     ->label('End Date')
@@ -217,7 +218,10 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     ->modalHeading(new HtmlString("Create {$this->title}"))
                     ->form($this->schemeForm())
                     ->fillForm(function () {
-                        return $this->productId ? ['product_id' => $this->productId] : [];
+                        return $this->productId ? [
+                            'product_id' => $this->productId,
+                            'date_range_start' => now(),
+                        ] : [];
                     })
                     ->action(function ($data) {
                         if ($this->productId) $data['product_id'] = $this->productId;
@@ -229,6 +233,7 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                         }
                         return $data;
                     })
+                    ->createAnother(false)
                     ->tooltip('Add New Travel Agency Commission')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])

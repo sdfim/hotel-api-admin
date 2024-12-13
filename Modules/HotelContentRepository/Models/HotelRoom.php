@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Configurations\ConfigAttribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\HotelRoomFactory;
@@ -46,5 +47,10 @@ class HotelRoom extends Model
     public function galleries()
     {
         return $this->belongsToMany(ImageGallery::class, 'pd_hotel_room_gallery', 'hotel_room_id', 'gallery_id');
+    }
+
+    public function attributes()
+    {
+        return $this->belongsToMany(ConfigAttribute::class, 'pd_hotel_room_attributes', 'hotel_room_id', 'config_attribute_id');
     }
 }

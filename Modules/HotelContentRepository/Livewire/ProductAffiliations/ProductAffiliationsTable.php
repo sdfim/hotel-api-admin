@@ -178,9 +178,6 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                 CreateAction::make()
                     ->modalHeading(new HtmlString("Create {$this->title}"))
                     ->form($this->schemeForm())
-                    ->fillForm(function () {
-                        return $this->productId ? ['product_id' => $this->productId] : [];
-                    })
                     ->action(function ($data) {
                         if ($this->productId) $data['product_id'] = $this->productId;
                         if (!isset($data['combinable'])) $data['combinable'] = null;
@@ -190,6 +187,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                             $affiliation->details()->create($detail);
                         }
                     })
+                    ->createAnother(false)
                     ->tooltip('Add New Affiliation')
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])

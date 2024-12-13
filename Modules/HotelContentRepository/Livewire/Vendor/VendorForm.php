@@ -130,7 +130,6 @@ class VendorForm extends Component implements HasForms
                             )
                             ->multiple()
                             ->searchable()
-                            ->required()
                             ->createOptionForm([
                                 TextInput::make('name')
                                     ->required()
@@ -167,9 +166,10 @@ class VendorForm extends Component implements HasForms
                             ->schema([
                                 TextInput::make('full_address')
                                     ->label('Get Location by Address')
+                                    ->required()
                                     ->placeholder(fn($get) => $get('address')),
-                                TextInput::make('lat')->label('Latitude')->numeric(),
-                                TextInput::make('lng')->label('Longitude')->numeric(),
+                                TextInput::make('lat')->label('Latitude')->numeric()->readOnly(),
+                                TextInput::make('lng')->label('Longitude')->numeric()->readOnly(),
                             ])->columnSpan(1),
 
                         $mapComponent ?? Placeholder::make('map_message')
@@ -179,7 +179,7 @@ class VendorForm extends Component implements HasForms
 
                 Grid::make(1)
                     ->schema([
-                        TextInput::make('address')->label('Address')->required(),
+                        TextInput::make('address')->label('Address')->readOnly(),
                     ]),
 
                 Grid::make(2)
@@ -291,7 +291,7 @@ class VendorForm extends Component implements HasForms
             $user->switchTeam($team);
         }
 
-        $team->update(['vendor_id' => $this->record->id]);
+        if ($team) $team->update(['vendor_id' => $this->record->id]);
 
         Notification::make()
             ->title('Team created successfully')

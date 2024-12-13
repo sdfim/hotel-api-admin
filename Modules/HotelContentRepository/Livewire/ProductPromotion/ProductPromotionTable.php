@@ -20,6 +20,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Product;
@@ -118,9 +119,41 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                 TextColumn::make('booking_end')->label('Booking End')->date(),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
-            ->actions($this->getActions())
+            ->actions([
+                EditAction::make()
+                    ->label('')
+                    ->tooltip('Edit Promotion')
+                    ->form($this->schemeForm())
+                    ->fillForm(function ($record) {
+                        $data = $record->toArray();
+                        $data['galleries'] = $record->galleries->pluck('id')->toArray();
+                        return $data;
+                    })
+                    ->action(function (ProductPromotion $record, array $data) {
+                        $record->update($data);
+                        if (isset($data['galleries'])) $record->galleries()->sync($data['galleries']);
+                    })
+                    ->modalHeading(new HtmlString("Edit {$this->title}"))
+                    ->modalHeading('Edit Promotion')
+                    ->visible(fn () => Gate::allows('create', Product::class)),
+            ])
             ->bulkActions($this->getBulkActions())
-            ->headerActions($this->getHeaderActions());
+            ->headerActions([
+                CreateAction::make()
+                    ->form($this->schemeForm())
+                    ->modalHeading(new HtmlString("Create {$this->title}"))
+                    ->action(function ($data) {
+                        if ($this->productId) $data['product_id'] = $this->productId;
+                        $promotion = ProductPromotion::create($data);
+                        if (isset($data['galleries'])) $promotion->galleries()->sync($data['galleries']);
+                    })
+                    ->createAnother(false)
+                    ->tooltip('Add New Promotion')
+                    ->icon('heroicon-o-plus')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton()
+                    ->visible(fn () => Gate::allows('create', Product::class)),
+            ]);
     }
 
     public function render()

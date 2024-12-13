@@ -76,6 +76,11 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->wrap(),
 
+                TextColumn::make('giata_code')
+                    ->searchable()
+                    ->toggleable()
+                    ->sortable(),
+
                 TextColumn::make('product.address')
                     ->label('Address')
                     ->searchable()
