@@ -166,7 +166,6 @@ class VendorForm extends Component implements HasForms
                             ->schema([
                                 TextInput::make('full_address')
                                     ->label('Get Location by Address')
-                                    ->required()
                                     ->placeholder(fn($get) => $get('address')),
                                 TextInput::make('lat')->label('Latitude')->numeric()->readOnly(),
                                 TextInput::make('lng')->label('Longitude')->numeric()->readOnly(),

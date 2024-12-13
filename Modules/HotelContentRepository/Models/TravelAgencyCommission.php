@@ -2,8 +2,11 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Configurations\ConfigConsortium;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Modules\HotelContentRepository\Models\Factories\TravelAgencyCommissionFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 
@@ -26,6 +29,8 @@ class TravelAgencyCommission extends Model
         'commission_value_type',
         'date_range_start',
         'date_range_end',
+        'room_type',
+        'consortia'
     ];
 
     protected $hidden = [
@@ -34,13 +39,29 @@ class TravelAgencyCommission extends Model
         'pivot'
     ];
 
-    public function product()
+    protected $casts = [
+        'date_range_start' => 'date',
+        'date_range_end' => 'date',
+        'consortia' => 'array'
+    ];
+
+    public function product(): HasOne
     {
         return $this->belongsTo(Product::class, 'product_id');
     }
 
-    public function conditions()
+    public function conditions(): HasMany
     {
         return $this->hasMany(TravelAgencyCommissionCondition::class, 'travel_agency_commissions_id');
+    }
+
+    public function getConsortiaAttribute($value): array
+    {
+        return json_decode($value, true);
+    }
+
+    public function setConsortiaAttribute($value): void
+    {
+        $this->attributes['consortia'] = json_encode($value);
     }
 }

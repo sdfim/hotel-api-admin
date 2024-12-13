@@ -156,6 +156,7 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->label('Add Hotel with GIATA Code')
                     ->icon('heroicon-o-document-plus')
                     ->iconButton()
+                    ->createAnother(false)
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->action(function (array $data) {
                         $this->saveHotelWithGiataCode($data);

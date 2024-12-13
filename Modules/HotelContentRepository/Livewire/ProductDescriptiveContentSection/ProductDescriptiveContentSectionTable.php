@@ -89,7 +89,7 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                 TextColumn::make('descriptiveType.name')
                     ->label('Content Section')
                     ->searchable(),
-                TextColumn::make('value')->label('Value'),
+                TextColumn::make('value')->label('Value')->wrap(),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions($this->getActions())

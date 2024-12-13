@@ -27,7 +27,7 @@ class ConfigAttributesTest extends CustomAuthorizedActionsTestCase
 
         $attributes = ConfigAttribute::limit(10)->get(['name']);
         foreach ($attributes as $attribute) {
-            $component->assertSee([$attribute->name]);
+            $component->assertSee([$attribute->name, $attribute->default_value]);
         }
     }
 

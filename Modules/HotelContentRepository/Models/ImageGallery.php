@@ -70,4 +70,9 @@ class ImageGallery extends Model
             $q->where('product_promotion_id', $productPromotionId);
         });
     }
+
+    public function vendors(): BelongsToMany
+    {
+        return $this->belongsToMany(Vendor::class, 'pd_vendor_gallery', 'gallery_id', 'vendor_id');
+    }
 }

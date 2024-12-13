@@ -25,7 +25,7 @@ class ConfigServiceTypesTest extends CustomAuthorizedActionsTestCase
 
         $component = Livewire::test(ServiceTypesTable::class);
 
-        $serviceTypes = ConfigServiceType::limit(10)->get(['name', 'description', 'cost']);
+        $serviceTypes = ConfigServiceType::limit(10)->get(['name', 'description']);
         foreach ($serviceTypes as $serviceType) {
             $component->assertSee([
                 $serviceType->name,
@@ -46,12 +46,10 @@ class ConfigServiceTypesTest extends CustomAuthorizedActionsTestCase
 
         $name = $this->faker->name;
         $description = $this->faker->sentence;
-        $cost = $this->faker->randomFloat(2, 0, 1000);
 
         $component->set('data', [
             'name' => $name,
             'description' => $description,
-            'cost' => $cost,
         ]);
 
         $component->call('edit');
@@ -60,7 +58,6 @@ class ConfigServiceTypesTest extends CustomAuthorizedActionsTestCase
         $this->assertDatabaseHas('config_service_types', [
             'name' => $name,
             'description' => $description,
-            'cost' => $cost,
         ]);
     }
 
@@ -77,12 +74,10 @@ class ConfigServiceTypesTest extends CustomAuthorizedActionsTestCase
 
         $name = $this->faker->name;
         $description = $this->faker->sentence;
-        $cost = $this->faker->randomFloat(2, 0, 1000);
 
         $component->set('data', [
             'name' => $name,
             'description' => $description,
-            'cost' => $cost,
         ]);
 
         $component->call('edit');
@@ -91,7 +86,6 @@ class ConfigServiceTypesTest extends CustomAuthorizedActionsTestCase
         $this->assertDatabaseHas('config_service_types', [
             'name' => $name,
             'description' => $description,
-            'cost' => $cost,
         ]);
     }
 }

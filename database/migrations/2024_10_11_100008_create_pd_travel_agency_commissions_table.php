@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('commission_value_type');
             $table->date('date_range_start');
             $table->date('date_range_end');
+            $table->string('room_type')->nullable();
+            $table->json('consortia')->nullable();
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');
