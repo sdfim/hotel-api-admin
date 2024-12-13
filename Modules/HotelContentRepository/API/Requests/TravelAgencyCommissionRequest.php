@@ -257,6 +257,8 @@ class TravelAgencyCommissionRequest extends ApiRequest
             'commission_value_type' => 'required|in:' . $commissionValueTypes,
             'date_range_start' => 'required|date',
             'date_range_end' => 'required|date',
+            'room_type' => 'nullable|string',
+            'consortia' => 'nullable|string',
         ];
     }
 }

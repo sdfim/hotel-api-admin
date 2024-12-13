@@ -24,6 +24,7 @@ class TravelAgencyCommissionFactory extends Factory
             ]),
             'date_range_start' => $this->faker->date,
             'date_range_end' => $this->faker->date,
+            'room_type' => $this->faker->word,
         ];
     }
 }

@@ -55,7 +55,7 @@ class TravelAgencyCommission extends Model
         return $this->hasMany(TravelAgencyCommissionCondition::class, 'travel_agency_commissions_id');
     }
 
-    public function getConsortiaAttribute($value): array
+    public function getConsortiaAttribute($value): ?array
     {
         return json_decode($value, true);
     }
