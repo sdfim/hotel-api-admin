@@ -5,11 +5,14 @@ namespace App\Livewire\Inspectors;
 use App\Models\ApiBookingItem;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\BulkActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -22,7 +25,7 @@ class BookingItemsTable extends Component implements HasForms, HasTable
     {
         return $table
             ->paginated([5, 10, 25, 50])
-            ->query(ApiBookingItem::where('complete_id', null)->orderBy('created_at', 'DESC'))
+            ->query(ApiBookingItem::where('rate_type', 'complete')->orderBy('created_at', 'DESC'))
             ->columns([
                 TextColumn::make('created_at')
                     ->toggleable()
@@ -68,6 +71,16 @@ class BookingItemsTable extends Component implements HasForms, HasTable
                     ->label('Pricing data')
                     ->view('dashboard.booking-items.column.booking-pricing-data'),
 
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    BulkAction::make('delete')
+                        ->requiresConfirmation()
+                        ->action(fn (Collection $records) => $records->each->delete()),
+                    BulkAction::make('forceDelete')
+                        ->requiresConfirmation()
+                        ->action(fn (Collection $records) => $records->each->forceDelete()),
+                ]),
             ]);
     }
 

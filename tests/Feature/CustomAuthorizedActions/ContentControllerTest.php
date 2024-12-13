@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\CustomAuthorizedActions;
 
+use PHPUnit\Framework\Attributes\Test;
+
 class ContentControllerTest extends CustomAuthorizedActionsTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_admin_index_is_opening(): void
     {
         $response = $this->get('/admin/content');

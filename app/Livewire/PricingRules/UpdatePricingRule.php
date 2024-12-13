@@ -24,6 +24,8 @@ class UpdatePricingRule extends Component implements HasForms
     public function mount(PricingRule $pricingRule): void
     {
         $this->record = $pricingRule;
+        $this->record->rule_start_date = optional($pricingRule->rule_start_date)->format('Y-m-d');
+        $this->record->rule_expiration_date = optional($pricingRule->rule_expiration_date)->format('Y-m-d');
         $this->form->fill($this->record->attributesToArray());
     }
 

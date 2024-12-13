@@ -40,6 +40,13 @@ class SearchInspectorTable extends Component implements HasForms, HasTable
                     }),
                 TextColumn::make('search_type')
                     ->label('Search Type'),
+                TextColumn::make('type')
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'price' => 'success',
+                        'change' => 'gray',
+                        default => 'gray',
+                    }),
                 TextColumn::make('destination_name')
                     ->label('Destination Name'),
                 ViewColumn::make('view error data')

@@ -29,7 +29,7 @@ class PropertyPriceCall
         'sales_environment' => 'hotel_package',
     ];
 
-    private const RATE_PLAN_COUNT = 250;
+    public const RATE_PLAN_COUNT = 249;
 
     // https://developers.expediagroup.com/docs/rapid/lodging/shopping#get-/properties/availability
 

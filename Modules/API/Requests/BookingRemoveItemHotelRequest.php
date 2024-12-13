@@ -10,7 +10,7 @@ class BookingRemoveItemHotelRequest extends ApiRequest
 {
     /**
      * @OA\Post(
-     *   tags={"Booking API | Cart Endpoints"},
+     *   tags={"Booking API | Basket"},
      *   path="/api/booking/add-item",
      *   summary="Add an item to your shopping cart.",
      *   description="Add an item to your shopping cart. This endpoint is used for adding products or services to your cart.",

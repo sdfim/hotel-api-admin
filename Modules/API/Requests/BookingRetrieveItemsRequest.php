@@ -10,7 +10,7 @@ class BookingRetrieveItemsRequest extends ApiRequest
 {
     /**
      * @OA\Get(
-     *   tags={"Booking API | Booking Endpoints"},
+     *   tags={"Booking API | Booking"},
      *   path="/api/booking/retrieve-booking",
      *   summary="Retrieve detailed information about a specific booking reservation. ",
      *   description="Retrieve detailed information about a specific booking reservation. This endpoint allows you to access all the information related to a particular reservation.",

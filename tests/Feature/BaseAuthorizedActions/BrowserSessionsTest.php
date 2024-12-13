@@ -6,12 +6,11 @@ use App\Models\User;
 use Laravel\Jetstream\Http\Livewire\LogoutOtherBrowserSessionsForm;
 use Livewire\Livewire;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class BrowserSessionsTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_other_browser_sessions_can_be_logged_out(): void
     {
         $this->actingAs(User::factory()->create());

@@ -8,12 +8,11 @@ use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Http\Livewire\ApiTokenManager;
 use Livewire\Livewire;
 use Tests\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class ApiTokenPermissionsTest extends TestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function test_api_token_permissions_can_be_updated(): void
     {
         if (! Features::hasApiFeatures()) {
