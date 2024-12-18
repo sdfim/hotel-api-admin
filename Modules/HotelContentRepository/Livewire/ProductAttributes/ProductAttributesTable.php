@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\ProductAttributes;
 
 use App\Helpers\ClassHelper;
+use App\Livewire\Configurations\Attributes\AttributesForm;
 use App\Models\Configurations\ConfigAttribute;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -10,6 +11,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Support\Contracts\TranslatableContentDriver;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -53,6 +55,16 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
             Select::make('config_attribute_id')
                 ->label('Attribute')
                 ->options(ConfigAttribute::all()->pluck('name', 'id'))
+                ->createOptionForm(AttributesForm::getSchema())
+                ->createOptionUsing(function (array $data) {
+                    $data['default_value'] = '';
+                    $attribute = ConfigAttribute::create($data);
+                    Notification::make()
+                        ->title('Attributes created successfully')
+                        ->success()
+                        ->send();
+                    return $attribute->id;
+                })
                 ->required(),
         ];
     }

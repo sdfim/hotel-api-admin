@@ -43,10 +43,9 @@ trait HasPricingRuleFields
                         ->unique(ignoreRecord: true)
                         ->required(),
                     TextInput::make('weight')
-                        ->label('Weight')
+                        ->label('Priority Weighting')
                         ->numeric()
                         ->maxLength(191)
-                        ->unique(ignoreRecord: true)
                         ->required(),
                     TextInput::make('rule_start_date')
                         ->label('Rule Start Date')

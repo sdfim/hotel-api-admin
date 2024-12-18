@@ -4,12 +4,21 @@ namespace Modules\Enums;
 
 enum SupplierNameEnum: string
 {
+    case EXPEDIA = 'Expedia';
+    case HBSI = 'HBSI';
+    case ICE_PORTAL = 'IcePortal';
+
     static function getValues()
     {
         return [self::EXPEDIA->value, self::HBSI->value, self::ICE_PORTAL->value];
     }
 
-    case EXPEDIA = 'Expedia';
-    case HBSI = 'HBSI';
-    case ICE_PORTAL = 'IcePortal';
+    public static function options(): array
+    {
+        return [
+            self::EXPEDIA->value => self::EXPEDIA->value,
+            self::ICE_PORTAL->value => self::ICE_PORTAL->value,
+            self::HBSI->value => self::HBSI->value,
+        ];
+    }
 }

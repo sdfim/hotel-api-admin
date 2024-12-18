@@ -55,6 +55,11 @@ class PricingRulesController extends BaseWithPolicyController
 
         $pricingRule = PricingRule::findOrFail($id);
 
-        return view('dashboard.pricing-rules.update', compact('pricingRule', 'text'));
+        $giataId = $pricingRule->conditions->filter(function ($condition) {
+            return $condition->field === 'property';
+        })->first()?->value_from;
+        $isSrCreator = request()->input('sr', false);
+
+        return view('dashboard.pricing-rules.update', compact('pricingRule', 'text', 'giataId', 'isSrCreator'));
     }
 }

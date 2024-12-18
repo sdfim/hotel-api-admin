@@ -15,7 +15,6 @@ use Modules\HotelContentRepository\API\Controllers\ProductDepositInformationCont
 use Modules\HotelContentRepository\API\Controllers\ProductDescriptiveContentSectionController;
 use Modules\HotelContentRepository\API\Controllers\ProductFeeTaxController;
 use Modules\HotelContentRepository\API\Controllers\ProductAttributeController;
-use Modules\HotelContentRepository\API\Controllers\ProductDescriptiveContentController;
 use Modules\HotelContentRepository\API\Controllers\ImageController;
 use Modules\HotelContentRepository\API\Controllers\ImageSectionController;
 use Modules\HotelContentRepository\API\Controllers\ProductInformativeServiceController;
@@ -47,10 +46,10 @@ class HotelContentRepositoryApiRoutes
             Route::resource('hotel-web-finders', HotelWebFinderController::class);
             Route::resource('hotel-web-finder-units', HotelWebFinderUnitController::class);
 
-            Route::resource('images', ImageController::class);
+            Route::resource('images', ImageController::class)->names('api.images');
             Route::resource('image-sections', ImageSectionController::class);
 
-            Route::resource('image-galleries', ImageGalleryController::class);
+            Route::resource('image-galleries', ImageGalleryController::class)->names('api.image-galleries');
             Route::post('image-galleries/{id}/attach-image', [ImageGalleryController::class, 'attachImage']);
             Route::post('image-galleries/{id}/detach-image', [ImageGalleryController::class, 'detachImage']);
 
@@ -72,7 +71,6 @@ class HotelContentRepositoryApiRoutes
 
             Route::resource('product-descriptive-content-sections', ProductDescriptiveContentSectionController::class)
                 ->parameters(['product-descriptive-content-sections' => 'section']);
-            Route::resource('product-descriptive-contents', ProductDescriptiveContentController::class);
 
             Route::resource('product-fee-taxes', ProductFeeTaxController::class);
 

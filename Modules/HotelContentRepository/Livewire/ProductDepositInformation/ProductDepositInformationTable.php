@@ -40,7 +40,7 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
     {
         $this->productId = $productId;
         $product = Product::find($productId);
-        $this->title = 'Informational Service for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
+        $this->title = 'Deposit Information for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
     public function form(Form $form): Form

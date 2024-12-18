@@ -269,9 +269,9 @@ class HotelForm extends Component implements HasForms
                                 ]),
                             TextInput::make('weight')->label('Weight')
                                 ->integer(),
-                            TextInput::make('travel_agent_commission')
-                                ->label('Travel Agent Commission')
-                                ->numeric('decimal'),
+//                            TextInput::make('travel_agent_commission')
+//                                ->label('Travel Agent Commission')
+//                                ->numeric('decimal'),
                             Select::make('channels')
                                 ->label('Channels')
                                 ->multiple()

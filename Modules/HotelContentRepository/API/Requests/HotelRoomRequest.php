@@ -373,7 +373,6 @@ class HotelRoomRequest extends ApiRequest
      */
 
 
-
     public function rules(): array
     {
         return [
@@ -381,6 +380,7 @@ class HotelRoomRequest extends ApiRequest
             'name' => 'required|string|max:255',
             'hbsi_data_mapped_name' => 'required|string|max:255',
             'description' => 'required|string',
+            'supplier_codes' => 'nullable|array',
         ];
     }
 }

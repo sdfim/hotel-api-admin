@@ -23,8 +23,10 @@ class HotelRoom extends Model
     protected $fillable = [
         'hotel_id',
         'hbsi_data_mapped_name',
+        'supplier_codes',
         'name',
         'description',
+        'supplier_codes',
     ];
 
     protected $casts = [

@@ -25,7 +25,7 @@ trait HasProductActions
         ];
 
         if (self::$shouldUseSaveData) {
-            $actions[0]->action('saveData');
+            $actions[0]->using(fn (array $data) => $this->saveData($data));
         }
 
         return $actions;

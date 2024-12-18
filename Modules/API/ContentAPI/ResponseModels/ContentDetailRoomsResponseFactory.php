@@ -8,12 +8,15 @@ class ContentDetailRoomsResponseFactory
     {
         $contentDetailRoomsResponse = new ContentDetailRoomsResponse();
 
+        $contentDetailRoomsResponse->setContentSupplier('');
         $contentDetailRoomsResponse->setSupplierRoomId(0);
         $contentDetailRoomsResponse->setSupplierRoomName('');
         $contentDetailRoomsResponse->setSupplierRoomCode('');
         $contentDetailRoomsResponse->setAmenities([]);
         $contentDetailRoomsResponse->setImages([]);
         $contentDetailRoomsResponse->setDescriptions('');
+        $contentDetailRoomsResponse->setContentSupplier('');
+
 
         return $contentDetailRoomsResponse;
     }

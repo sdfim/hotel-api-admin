@@ -1,3 +1,4 @@
+@php use Modules\HotelContentRepository\Models\Hotel; @endphp
 @extends('layouts.master')
 @section('title')
     {{ __('Create Pricing Rule') }}
@@ -13,8 +14,17 @@
                 <div class="relative overflow-x-auto">
                     <div class="row">
                         <div class="col-lg-12 margin-tb">
-                            <div class="mb-6">
-                                <x-button-back route="{{ route('pricing-rules.index') }}" text="Back"/>
+                            <div class="mb-6 row">
+                                @if ($isSrCreator && $giataCodeProperty)
+                                    @php
+                                        $hotel = Hotel::where('giata_code', $giataCodeProperty)->first();
+                                    @endphp
+                                    @if ($hotel)
+                                        <x-button-back class="ml-4" route="{{ route('hotel-repository.edit', $hotel->id) }}" text="Back"/>
+                                    @endif
+                                @else
+                                    <x-button-back class="pr-6" route="{{ route('pricing-rules.index') }}" text="Back"/>
+                                @endif
                             </div>
                         </div>
                     </div>

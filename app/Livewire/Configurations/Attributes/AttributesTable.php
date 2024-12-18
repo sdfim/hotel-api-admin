@@ -7,6 +7,7 @@ use App\Models\Configurations\ConfigAttribute;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -34,15 +35,22 @@ class AttributesTable extends Component implements HasForms, HasTable
                     ->searchable(),
             ])
             ->actions([
-                ActionGroup::make([
+//                ActionGroup::make([
                     EditAction::make()
+                        ->iconButton()
                         ->url(fn (ConfigAttribute $record): string => route('configurations.attributes.edit', $record))
                         ->visible(fn (ConfigAttribute $record) => Gate::allows('update', $record)),
-                    DeleteAction::make()
-                        ->requiresConfirmation()
-                        ->action(fn (ConfigAttribute $record) => $record->delete())
-                        ->visible(fn (ConfigAttribute $record) => Gate::allows('delete', $record)),
-                ]),
+//                    DeleteAction::make()
+//                        ->requiresConfirmation()
+//                        ->action(fn (ConfigAttribute $record) => $record->delete())
+//                        ->visible(fn (ConfigAttribute $record) => Gate::allows('delete', $record)),
+//                ]),
+            ])
+            ->bulkActions([
+                BulkAction::make('delete')
+                    ->action(fn (array $records) => ConfigAttribute::destroy($records))
+                    ->requiresConfirmation()
+                    ->visible(fn () => Gate::allows('delete', ConfigAttribute::class)),
             ])
             ->headerActions([
                 CreateAction::make()

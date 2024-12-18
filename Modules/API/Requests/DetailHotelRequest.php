@@ -90,7 +90,8 @@ class DetailHotelRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'property_id' => 'required|int|digits_between:4,12',
+            'property_id' => 'required_without:property_ids|int|digits_between:4,12',
+            'property_ids' => 'required_without:property_id|string',
             'type' => 'required|in:hotel,flight,combo',
             'supplier' => 'string',
             'room_type_codes' => 'array',

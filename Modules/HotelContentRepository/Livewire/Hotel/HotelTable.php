@@ -185,7 +185,7 @@ class HotelTable extends Component implements HasForms, HasTable
             $hotel = Hotel::create([
                 'giata_code' => $property->code,
                 'star_rating' => $property->rating,
-                'sale_type' => 'Direct connection',
+                'sale_type' => 'Direct Connection',
                 'num_rooms' => 0,
                 'room_images_source_id' => $source_id,
                 'address' => [

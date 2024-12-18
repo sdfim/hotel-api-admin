@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\TravelAgencyCommission;
 
 use App\Helpers\ClassHelper;
+use App\Livewire\Configurations\Consortia\ConsortiaForm;
 use App\Models\Configurations\ConfigConsortium;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
@@ -15,6 +16,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Forms\Get;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -91,7 +93,16 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                 Select::make('consortia')
                     ->label('Consortia')
                     ->multiple()
-                    ->options(ConfigConsortium::pluck('name', 'id')),
+                    ->options(ConfigConsortium::pluck('name', 'id'))
+                    ->createOptionForm(ConsortiaForm::getSchema())
+                    ->createOptionUsing(function (array $data) {
+                        $consortia =ConfigConsortium::create($data);
+                        Notification::make()
+                            ->title('Consortia created successfully')
+                            ->success()
+                            ->send();
+                        return $consortia->id;
+                    }),
             ]),
 
         ];

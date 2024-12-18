@@ -31,16 +31,21 @@ class ConsortiaForm extends Component implements HasForms
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(191),
-                TextInput::make('description')
-                    ->required()
-                    ->maxLength(191),
-            ])
+            ->schema(self::getSchema())
             ->statePath('data')
             ->model($this->record);
+    }
+
+    public static function getSchema(): array
+    {
+        return [
+            TextInput::make('name')
+                ->required()
+                ->maxLength(191),
+            TextInput::make('description')
+                ->required()
+                ->maxLength(191),
+        ];
     }
 
     public function edit(): Redirector|RedirectResponse

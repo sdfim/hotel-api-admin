@@ -3,7 +3,10 @@
 namespace Modules\HotelContentRepository\Livewire\HotelRooms;
 
 use App\Helpers\ClassHelper;
+use App\Livewire\Components\CustomRepeater;
+use App\Livewire\Configurations\Attributes\AttributesForm;
 use App\Models\Configurations\ConfigAttribute;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -24,6 +27,8 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
+use Modules\Enums\ContentSourceEnum;
+use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelRoom;
@@ -57,14 +62,25 @@ class HotelRoomTable extends Component implements HasForms, HasTable
     {
         return [
             Hidden::make('hotel_id')->default($this->hotelId),
-            TextInput::make('hbsi_data_mapped_name')->label('External Code'),
-            TextInput::make('name')->label('Name')->required(),
+            Grid::make(3)->schema([
+                TextInput::make('name')->label('Name')->required()->columnSpan(2),
+                TextInput::make('hbsi_data_mapped_name')->label('External Code')->columnSpan(1),
+            ]),
             Textarea::make('description')
                 ->label('Description')
                 ->required()
                 ->rows(5),
             Select::make('attributes')
                 ->label('Attributes')
+                ->createOptionForm(AttributesForm::getSchema())
+                ->createOptionUsing(function (array $data) {
+                    $data['default_value'] = '';
+                    ConfigAttribute::create($data);
+                    Notification::make()
+                        ->title('Attributes created successfully')
+                        ->success()
+                        ->send();
+                })
                 ->searchable()
                 ->multiple()
                 ->options(ConfigAttribute::pluck('name', 'id')),
@@ -72,6 +88,15 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                 ->label('Galleries')
                 ->multiple()
                 ->options(ImageGallery::pluck('gallery_name', 'id')),
+            CustomRepeater::make('supplier_codes')
+                ->label('Content Suppliers Codes')
+                ->schema([
+                    Grid::make(2)->schema([
+                        Select::make('supplier')
+                            ->options(ContentSourceEnum::options()),
+                        TextInput::make('code'),
+                    ]),
+                ]),
             ];
     }
 
@@ -99,6 +124,14 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%'])
                     ->disabled(fn () => !Gate::allows('create', Hotel::class)),
+                TextColumn::make('supplier_codes')
+                    ->label('Supplier Codes')
+                    ->formatStateUsing(function ($state) {
+                        return implode('<br>', array_map(function ($code) {
+                            return $code['supplier'] . ': ' . $code['code'];
+                        }, json_decode($state, true) ?? []));
+                    })
+                    ->html(),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([
@@ -112,12 +145,15 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                         $data['galleries'] = $record->galleries->pluck('id')->toArray();
                         $data['attributes'] = $record->attributes->pluck('id')->toArray();
                         $data['hotel_id'] = $record->hotel->id;
+                        $data['supplier_codes'] = json_decode($record->supplier_codes, true);
                         return $data;
                     })
                     ->action(function (HotelRoom $record, array $data) {
                         $record->update($data);
                         if (isset($data['attributes'])) $record->attributes()->sync($data['attributes']);
                         if (isset($data['galleries'])) $record->galleries()->sync($data['galleries']);
+                        if (isset($data['supplier_codes'])) $data['supplier_codes'] = json_encode($data['supplier_codes']);
+
                         Notification::make()
                             ->title('Success')
                             ->body('Hotel room updated successfully.')
@@ -136,9 +172,15 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                     ->modalHeading(new HtmlString("Create {$this->title}"))
                     ->action(function ($data) {
                         if ($this->hotelId) $data['hotel_id'] = $this->hotelId;
+                        if (isset($data['supplier_codes'])) $data['supplier_codes'] = json_encode($data['supplier_codes']);
                         $hotelRoom = HotelRoom::create($data);
                         if (isset($data['attributes'])) $hotelRoom->attributes()->sync($data['attributes']);
                         if (isset($data['galleries'])) $hotelRoom->galleries()->sync($data['galleries']);
+                        Notification::make()
+                            ->title('Success')
+                            ->body('Hotel room created successfully.')
+                            ->success()
+                            ->send();
                     })
                     ->createAnother(false)
                     ->tooltip('Add New Room')

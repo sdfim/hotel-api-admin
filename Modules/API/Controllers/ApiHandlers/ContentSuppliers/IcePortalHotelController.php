@@ -57,7 +57,7 @@ class IcePortalHotelController
 
         $propertyRepository = new PropertyRepository();
 
-        $results = IcePortalRepository::dataByCity($geographyData->city_name);
+        $results = IcePortalRepository::dataByCity($geographyData?->city_name);
         if (count($results) > 0 && ! request()->supplier_data) {
             return $results;
         }
@@ -216,6 +216,71 @@ class IcePortalHotelController
                 'response' => $response->json(),
                 'error' => $response->serverError(),
             ]);
+        }
+
+        return $results;
+    }
+
+    public function details(array $giataCodes): array
+    {
+        $ids = Mapping::icePortal()->whereIn('giata_id', $giataCodes)->get();
+
+        if ($ids->isEmpty()) {
+            return [];
+        }
+
+        $mapListingID = [];
+        $responses = Http::pool(function (Pool $pool) use ($ids, &$mapListingID) {
+            foreach ($ids as $id) {
+                $mapListingID[$id->supplier_id] = $id->giata_id;
+                $pool->as($id->giata_id)
+                    ->withToken($this->client->fetchToken())
+                    ->get($this->client->url('/v1/listings/'.$id->supplier_id.'/'), [
+                        'mType' => self::ICE_MTYPE,
+                    ]);
+            }
+        });
+
+        $results = [];
+        $listingIDs = [];
+        foreach ($responses as $giataId => $response) {
+            if ($response instanceof \Illuminate\Http\Client\Response && $response->successful()) {
+                $responseData = $response->json();
+                $results[$giataId] = $responseData;
+                $listingIDs[] = $responseData['listingID'];
+            } else {
+                Log::error('IceHBSIClient | search | error', [
+                    'giataId' => $giataId,
+                    'response' => $response instanceof \Illuminate\Http\Client\Response ? $response->json() : null,
+                    'error' => $response instanceof \Illuminate\Http\Client\Response ? $response->serverError() : 'Connection error',
+                ]);
+            }
+        }
+
+        $assetResponses = Http::pool(function (Pool $pool) use ($listingIDs, $mapListingID) {
+            foreach ($listingIDs as $listingID) {
+                $giataId = $mapListingID[$listingID];
+                $pool->as($giataId)
+                    ->withToken($this->client->fetchToken())
+                    ->get($this->client->url('/v1/listings/'.$listingID.'/assets'), [
+                        'includeDisabledAssets' => 'true',
+                        'includeNotApprovedAssets' => 'true',
+                        'page' => '1',
+                        'pageSize' => '100',
+                    ]);
+            }
+        });
+
+        foreach ($assetResponses as $giataId => $assetResponse) {
+            if ($assetResponse instanceof \Illuminate\Http\Client\Response && $assetResponse->successful()) {
+                $results[$giataId]['assets'] = $assetResponse->json();
+            } else {
+                Log::error('IceHBSIClient | search | error fetching assets', [
+                    'giataId' => $giataId,
+                    'response' => $assetResponse instanceof \Illuminate\Http\Client\Response ? $assetResponse->json() : null,
+                    'error' => $assetResponse instanceof \Illuminate\Http\Client\Response ? $assetResponse->serverError() : 'Connection error',
+                ]);
+            }
         }
 
         return $results;

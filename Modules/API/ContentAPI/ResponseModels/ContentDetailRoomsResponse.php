@@ -4,17 +4,23 @@ namespace Modules\API\ContentAPI\ResponseModels;
 
 class ContentDetailRoomsResponse
 {
+    private string $content_supplier;
     private int $supplier_room_id;
-
     private string $supplier_room_name;
-
     private string $supplier_room_code;
-
     private array $amenities;
-
     private array $images;
-
     private string $descriptions;
+
+    public function setContentSupplier(string $content_supplier): void
+    {
+        $this->content_supplier = $content_supplier;
+    }
+
+    public function getContentSupplier(): string
+    {
+        return $this->content_supplier;
+    }
 
     public function setDescriptions(string $descriptions): void
     {
@@ -79,6 +85,7 @@ class ContentDetailRoomsResponse
     public function toArray(): array
     {
         return [
+            'content_supplier' => $this->getContentSupplier(),
             'supplier_room_id' => $this->getSupplierRoomId(),
             'supplier_room_name' => $this->getSupplierRoomName(),
             'supplier_room_code' => $this->getSupplierRoomCode(),

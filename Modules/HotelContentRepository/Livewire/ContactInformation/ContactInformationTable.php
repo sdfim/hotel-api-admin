@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\ContactInformation;
 
 use App\Helpers\ClassHelper;
+use App\Livewire\Configurations\JobDescriptions\JobDescriptionsForm;
 use App\Models\Configurations\ConfigJobDescription;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -12,6 +13,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
@@ -76,7 +78,16 @@ class ContactInformationTable extends Component implements HasForms, HasTable
             Select::make('contactInformations')
                 ->label('Job Descriptions')
                 ->multiple()
-                ->options(ConfigJobDescription::pluck('name', 'id')),
+                ->options(ConfigJobDescription::pluck('name', 'id'))
+                ->createOptionForm(JobDescriptionsForm::getSchema())
+                ->createOptionUsing(function (array $data) {
+                    $description = ConfigJobDescription::create($data);
+                    Notification::make()
+                        ->title('Job Descriptions created successfully')
+                        ->success()
+                        ->send();
+                    return $description->id;
+                }),
         ];
     }
 

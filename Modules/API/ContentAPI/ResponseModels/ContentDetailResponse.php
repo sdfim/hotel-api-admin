@@ -5,43 +5,24 @@ namespace Modules\API\ContentAPI\ResponseModels;
 class ContentDetailResponse
 {
     private int $giata_hotel_code;
-
     private array $images;
-
     private string $description;
-
     private string $hotel_name;
-
     private string $distance;
-
     private string $latitude;
-
     private string $longitude;
-
     private string $rating;
-
     private array $amenities;
-
     private string $giata_destination;
-
     private string $user_rating;
-
     private array $special_instructions;
-
     private string $check_in_time;
-
     private string $check_out_time;
-
     private array $hotel_fees;
-
     private array $policies;
-
     private array $descriptions;
-
     private array $rooms;
-
     private string $address;
-
     private array $supplier_information = [];
 
     public function setSupplierInformation(array $supplier_information): void
@@ -249,7 +230,7 @@ class ContentDetailResponse
         return [
             'giata_hotel_code' => $this->getGiataHotelCode(),
             'images' => $this->getImages(),
-            'description' => $this->getDescription(),
+//            'description' => $this->getDescription(),
             'hotel_name' => $this->getHotelName(),
             'distance' => $this->getDistance(),
             'latitude' => $this->getLatitude(),

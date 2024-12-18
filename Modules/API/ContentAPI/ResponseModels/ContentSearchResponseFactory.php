@@ -21,6 +21,7 @@ class ContentSearchResponseFactory
         $contentSearchResponse->setUserRating('');
         $contentSearchResponse->setImportantInformation([]);
         $contentSearchResponse->setSupplierInformation([]);
+        $contentSearchResponse->setWeight(0);
 
         return $contentSearchResponse;
     }

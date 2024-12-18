@@ -5,33 +5,29 @@ namespace Modules\API\ContentAPI\ResponseModels;
 class ContentSearchResponse
 {
     private int $giata_hotel_code;
-
     private array $images;
-
-    /**
-     * @var string
-     */
     private array $description;
-
     private string $hotel_name;
-
     private string $distance;
-
     private string $latitude;
-
     private string $longitude;
-
     private string $rating;
-
     private array $amenities;
-
     private string $giata_destination;
-
     private string $user_rating;
-
     private array $important_information;
-
     private array $supplier_information;
+    private int $weight;
+
+    public function setWeight(int $weight): void
+    {
+        $this->weight = $weight;
+    }
+
+    public function getWeight(): int
+    {
+        return $this->weight;
+    }
 
     public function setSupplierInformation(array $supplier_information): void
     {
@@ -167,6 +163,7 @@ class ContentSearchResponse
     {
         return [
             'giata_hotel_code' => $this->getGiataHotelCode(),
+            'weight' => $this->getWeight(),
             'images' => $this->getImages(),
             'description' => $this->getDescription(),
             'hotel_name' => $this->getHotelName(),

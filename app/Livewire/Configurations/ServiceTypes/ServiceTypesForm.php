@@ -31,18 +31,23 @@ class ServiceTypesForm extends Component implements HasForms
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(191),
-                TextInput::make('description')
-                    ->required()
-                    ->maxLength(191),
-                TextInput::make('cost')
-                    ->numeric(),
-            ])
+            ->schema(self::getSchema())
             ->statePath('data')
             ->model($this->record);
+    }
+
+    public static function getSchema(): array
+    {
+        return [
+            TextInput::make('name')
+                ->required()
+                ->maxLength(191),
+            TextInput::make('description')
+                ->required()
+                ->maxLength(191),
+            TextInput::make('cost')
+                ->numeric(),
+        ];
     }
 
     public function edit(): Redirector|RedirectResponse

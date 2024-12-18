@@ -3,7 +3,9 @@
 namespace Modules\HotelContentRepository\Livewire\ProductDescriptiveContentSection;
 
 use App\Helpers\ClassHelper;
+use App\Livewire\Configurations\DescriptiveTypes\DescriptiveTypesForm;
 use App\Models\Configurations\ConfigDescriptiveType;
+use App\Models\Enums\DescriptiveLocationEnum;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
@@ -14,6 +16,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
@@ -69,7 +72,15 @@ class ProductDescriptiveContentSectionTable extends Component implements HasForm
                     Select::make('descriptive_type_id')
                         ->label('Content')
                         ->options(ConfigDescriptiveType::pluck('name', 'id'))
-                        ->required(),
+                        ->required()
+                        ->createOptionForm(DescriptiveTypesForm::getSchema())
+                        ->createOptionUsing(function (array $data) {
+                            ConfigDescriptiveType::create($data);
+                            Notification::make()
+                                ->title('DescriptiveType created successfully')
+                                ->success()
+                                ->send();
+                        }),
                     Textarea::make('value')
                         ->label('Value')
                         ->rows(3)

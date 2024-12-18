@@ -10,7 +10,7 @@ class ContentDetailResponseFactory
 
         $contentDetailResponse->setGiataHotelCode(0);
         $contentDetailResponse->setImages([]);
-        $contentDetailResponse->setDescription('');
+//        $contentDetailResponse->setDescription('');
         $contentDetailResponse->setHotelName('');
         $contentDetailResponse->setDistance('');
         $contentDetailResponse->setLatitude('');

@@ -4,6 +4,7 @@ namespace Modules\HotelContentRepository\Livewire\ProductInformativeServices;
 
 
 use App\Helpers\ClassHelper;
+use App\Livewire\Configurations\ServiceTypes\ServiceTypesForm;
 use App\Models\Configurations\ConfigServiceType;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -11,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
@@ -52,6 +54,14 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
             Select::make('service_id')
                 ->label('Service Type')
                 ->options(ConfigServiceType::all()->pluck('name', 'id')->toArray())
+                ->createOptionForm(ServiceTypesForm::getSchema())
+                ->createOptionUsing(function (array $data) {
+                    ConfigServiceType::create($data);
+                    Notification::make()
+                        ->title('Service created successfully')
+                        ->success()
+                        ->send();
+                })
                 ->required(),
             TextInput::make('cost')
                 ->label('Cost')

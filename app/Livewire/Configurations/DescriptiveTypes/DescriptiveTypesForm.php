@@ -30,23 +30,28 @@ class DescriptiveTypesForm extends Component implements HasForms
         $this->form->fill($this->record->attributesToArray());
     }
 
+    public static function getSchema(): array
+    {
+        return [
+            TextInput::make('name')
+                ->required()
+                ->maxLength(191),
+            TextInput::make('description')
+                ->required()
+                ->maxLength(191),
+            TextInput::make('type')
+                ->required(),
+            Select::make('location')
+                ->options(DescriptiveLocationEnum::class)
+                ->enum(DescriptiveLocationEnum::class)
+                ->required(),
+        ];
+    }
+
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(191),
-                TextInput::make('description')
-                    ->required()
-                    ->maxLength(191),
-                TextInput::make('type')
-                    ->required(),
-                Select::make('location')
-                    ->options(DescriptiveLocationEnum::class)
-                    ->enum(DescriptiveLocationEnum::class)
-                    ->required(),
-            ])
+            ->schema(self::getSchema())
             ->statePath('data')
             ->model($this->record);
     }

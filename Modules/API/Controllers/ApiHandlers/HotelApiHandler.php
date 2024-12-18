@@ -132,7 +132,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 ];
                 $clientContent = [
                     'count' => $count,
-                    'total_pages' => max($totalPages),
+                    'total_pages' => !empty($totalPages) ? max($totalPages) : 0,
                     'query' => $filters,
                     'results' => $clientResponse,
                 ];
@@ -147,7 +147,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 $res = $clientContent;
             }
 
-            $res['count'] = $res['count'][0];
+            $res['count'] = Arr::get($res, 'count.0', 0);
             if (count($supplierNames) > 1) {
                 $contentSupplier = $request->supplier ?? 'Expedia';
                 $res['results']['general'] = $res['results'][$contentSupplier] ?? [];
@@ -169,15 +169,17 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
     public function detail(Request $request): JsonResponse
     {
+        $start = microtime(true);
+
         try {
             $supplierNames = explode(', ', GeneralConfiguration::pluck('content_supplier')->toArray()[0]);
             $roomTypeCodes = $request->input('room_type_codes') ?? [];
-            $keyPricingSearch = $request->type.':contentDetail:'.http_build_query(Arr::dot($request->all()));
+            $keyDetail = $request->type.':contentDetail:'.http_build_query(Arr::dot($request->all()));
 
-            if (Cache::has($keyPricingSearch.':dataResponse') && Cache::has($keyPricingSearch.':clientResponse')) {
+            if (Cache::has($keyDetail.':dataResponse') && Cache::has($keyDetail.':clientResponse')) {
 
-                $dataResponse = Cache::get($keyPricingSearch.':dataResponse');
-                $clientResponse = Cache::get($keyPricingSearch.':clientResponse');
+                $dataResponse = Cache::get($keyDetail.':dataResponse');
+                $clientResponse = Cache::get($keyDetail.':clientResponse');
 
             } else {
 
@@ -204,8 +206,8 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     }
                 }
 
-                Cache::put($keyPricingSearch.':dataResponse', $dataResponse, now()->addMinutes(self::TTL));
-                Cache::put($keyPricingSearch.':clientResponse', $clientResponse, now()->addMinutes(self::TTL));
+                Cache::put($keyDetail.':dataResponse', $dataResponse, now()->addMinutes(self::TTL));
+                Cache::put($keyDetail.':clientResponse', $clientResponse, now()->addMinutes(self::TTL));
             }
 
             if ($request->input('supplier_data') == 'true') {
@@ -222,6 +224,10 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                 unset($results[$supplierNames[0]]);
                 $contentSupplier = $supplierNames[0];
             }
+
+            $end = microtime(true);
+            $executionTime = ($end - $start) * 1000;
+            Log::info('HotelApiHandler _ detail _ Execution time: ' . $executionTime . ' ms');
 
             return $this->sendResponse(['results' => $results, 'content_supplier' => $contentSupplier], 'success');
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
