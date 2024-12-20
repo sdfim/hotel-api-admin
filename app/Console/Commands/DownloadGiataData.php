@@ -125,6 +125,7 @@ class DownloadGiataData extends Command
 
             $data = [
                 'code' => (int) $property['Code'],
+                'search_index' => (string) $property->Name.' '.(int) $property['Code'],
                 'last_updated' => (string) $property['LastUpdated'],
                 'name' => (string) $property->Name,
                 'chain' => $chain,

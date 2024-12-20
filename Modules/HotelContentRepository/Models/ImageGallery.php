@@ -75,4 +75,11 @@ class ImageGallery extends Model
     {
         return $this->belongsToMany(Vendor::class, 'pd_vendor_gallery', 'gallery_id', 'vendor_id');
     }
+
+    public function scopeHasVendor($query, $vendorId)
+    {
+        return $query->whereHas('vendors', function ($q) use ($vendorId) {
+            $q->where('vendor_id', $vendorId);
+        });
+    }
 }

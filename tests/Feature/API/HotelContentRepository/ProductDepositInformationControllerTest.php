@@ -19,7 +19,7 @@ class ProductDepositInformationControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'product_id', 'days_prior_type', 'days', 'pricing_parameters', 'pricing_value'
+                    'id', 'product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target'
                 ]
             ],
             'message'
@@ -35,7 +35,7 @@ class ProductDepositInformationControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'product_id', 'days_prior_type', 'days', 'pricing_parameters', 'pricing_value'
+                'id', 'product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target'
             ],
             'message'
         ]);
@@ -50,7 +50,7 @@ class ProductDepositInformationControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'product_id', 'days_prior_type', 'days', 'pricing_parameters', 'pricing_value'
+                'id', 'product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target'
             ],
             'message'
         ]);
@@ -66,7 +66,7 @@ class ProductDepositInformationControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'product_id', 'days_prior_type', 'days', 'pricing_parameters', 'pricing_value'
+                'id', 'product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target'
             ],
             'message'
         ]);

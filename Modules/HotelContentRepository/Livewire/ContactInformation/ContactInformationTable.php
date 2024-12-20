@@ -76,14 +76,14 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                         ->label('Phone'),
                 ]),
             Select::make('contactInformations')
-                ->label('Job Descriptions')
+                ->label('Job Title / Department')
                 ->multiple()
                 ->options(ConfigJobDescription::pluck('name', 'id'))
                 ->createOptionForm(JobDescriptionsForm::getSchema())
                 ->createOptionUsing(function (array $data) {
                     $description = ConfigJobDescription::create($data);
                     Notification::make()
-                        ->title('Job Descriptions created successfully')
+                        ->title('Job Title / Department created successfully')
                         ->success()
                         ->send();
                     return $description->id;
@@ -105,7 +105,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                 TextColumn::make('email')->label('Email'),
                 TextColumn::make('phone')->label('Phone'),
                 TextColumn::make('contactInformations')
-                    ->label('Job Descriptions')
+                    ->label('Job Title / Department')
                     ->formatStateUsing(function ($record) {
                         return $record->contactInformations->pluck('name')->join(', ');
                     }),

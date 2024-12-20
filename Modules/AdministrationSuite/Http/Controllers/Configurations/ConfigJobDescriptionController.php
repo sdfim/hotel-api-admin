@@ -10,7 +10,7 @@ class ConfigJobDescriptionController extends BaseWithPolicyController
 {
     protected static string $model = ConfigJobDescription::class;
 
-    private array $message = ['edit' => 'Edit Job Description', 'create' => 'Create Job Description'];
+    private array $message = ['edit' => 'Edit Department', 'create' => 'Create Department'];
 
     /**
      * Display a listing of the resource.

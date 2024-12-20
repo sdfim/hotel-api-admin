@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\ProductDepositInformation;
 
 use App\Helpers\ClassHelper;
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -20,6 +21,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\Enums\DaysPriorTypeEnum;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
@@ -32,6 +34,7 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
     use InteractsWithForms;
     use InteractsWithTable;
     use HasProductActions;
+    use DepositFieldTrait;
 
     public int $productId;
     public string $title;
@@ -43,46 +46,6 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
         $this->title = 'Deposit Information for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
-    public function form(Form $form): Form
-    {
-        return $form->schema($this->schemeForm());
-    }
-
-    public function schemeForm(): array
-    {
-        return  [
-            Hidden::make('product_id')->default($this->productId),
-            Select::make('days_prior_type')
-                ->label('Type')
-                ->options(array_combine(DaysPriorTypeEnum::values(), DaysPriorTypeEnum::values()))
-                ->live()
-                ->required(),
-            TextInput::make('days')
-                ->label('Days Prior')
-                ->required()
-                ->default(null)
-                ->numeric()
-                ->visible(fn($get) => $get('days_prior_type') !== DaysPriorTypeEnum::DATE->value),
-            DatePicker::make('date')
-                ->label('Date')
-                ->required()
-                ->default(null)
-                ->native(false)
-                ->visible(fn($get) => $get('days_prior_type') === DaysPriorTypeEnum::DATE->value),
-            Select::make('pricing_parameters')
-                ->label('Pricing Parameters')
-                ->options([
-                    'per_channel' => 'Per Channel',
-                    'per_room' => 'Per Room',
-                    'per_rate' => 'Per Rate',
-                ])
-                ->required(),
-            TextInput::make('pricing_value')
-                ->numeric('decimal')
-                ->label('Pricing Value'),
-        ];
-    }
-
     public function table(Table $table): Table
     {
         return $table
@@ -90,16 +53,77 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
                 ProductDepositInformation::query()->where('product_id', $this->productId)
             )
             ->columns([
-                TextColumn::make('days_prior_type')->label('Type')->searchable(),
-                TextColumn::make('days')->label('Days Prior')->searchable(),
-                TextColumn::make('date')->label('Date')->searchable(),
-                TextColumn::make('pricing_parameters')->label('Pricing Parameters')->searchable(),
-                TextColumn::make('pricing_value')->label('Value')->searchable(),
-                TextColumn::make('created_at')->label('Created At')->date(),
+                TextColumn::make('name')->label('Name')->searchable(),
+                TextColumn::make('start_date')->label('Start Date')->date()->searchable(),
+                TextColumn::make('expiration_date')->label('Expiration Date')->date()->searchable(),
+                TextColumn::make('manipulable_price_type')->label('Price Type')->searchable(),
+                TextColumn::make('price_value_type')->label('Value Type')->searchable(),
+                TextColumn::make('price_value')->label('Value')->searchable(),
+                TextColumn::make('price_value_target')->label('Value Target')->searchable(),
             ])
-            ->actions($this->getActions())
-            ->bulkActions($this->getBulkActions())
-            ->headerActions($this->getHeaderActions());
+            ->actions([
+                EditAction::make()
+                    ->iconButton()
+                    ->modalHeading(new HtmlString("Edit {$this->title}"))
+                    ->tooltip('Edit Deposit Information')
+                    ->form(fn ($record) => $this->schemeForm($record))
+                    ->fillForm(function ($record) {
+                        $data = $record->toArray();
+                        $data['conditions'] = $record->conditions->toArray();
+                        return $data;
+                    })
+                    ->action(function (array $data, ProductDepositInformation $record) {
+                        if ($this->productId) $data['product_id'] = $this->productId;
+                        if (!$data['expiration_date']) $data['expiration_date'] = Carbon::create(2112, 02, 02);
+
+                        $record->update($data);
+
+                        if (isset($data['conditions'])) {
+                            foreach ($data['conditions'] as $condition) {
+                                if ($condition['compare'] == 'in' || $condition['compare'] == 'not_in') {
+                                    $condition['value_from'] = null;
+                                } else {
+                                    $condition['value'] = null;
+                                }
+                                $record->conditions()->updateOrCreate(['id' => $condition['id']], $condition);
+                            }
+                        }
+                    })
+                    ->modalWidth('7xl')
+                    ->modalHeading('Edit Deposit Information')
+                    ->visible(fn () => Gate::allows('create', Product::class)),
+            ])
+            ->bulkActions([
+                DeleteBulkAction::make()
+                    ->visible(fn () => Gate::allows('create', Product::class)),
+            ])
+            ->headerActions([
+                CreateAction::make()
+                    ->modalHeading(new HtmlString("Create {$this->title}"))
+                    ->form($this->schemeForm())
+                    ->modalWidth('7xl')
+                    ->createAnother(false)
+                    ->action(function ($data) {
+                        if ($this->productId) $data['product_id'] = $this->productId;
+                        if (!$data['expiration_date']) $data['expiration_date'] = Carbon::create(2112, 02, 02);
+                        $productDepositInformation = ProductDepositInformation::create($data);
+                        if (isset($data['conditions'])) {
+                            foreach ($data['conditions'] as $condition) {
+                                if ($condition['compare'] == 'in' || $condition['compare'] == 'not_in') {
+                                    $condition['value_from'] = null;
+                                } else {
+                                    $condition['value'] = null;
+                                }
+                                $productDepositInformation->conditions()->create($condition);
+                            }
+                        }
+                    })
+                    ->tooltip('Add New Deposit Information')
+                    ->icon('heroicon-o-plus')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton()
+                    ->visible(fn () => Gate::allows('create', Product::class)),
+            ]);
     }
 
     public function render()

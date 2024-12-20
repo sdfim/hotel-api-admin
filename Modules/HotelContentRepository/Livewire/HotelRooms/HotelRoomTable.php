@@ -54,8 +54,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
 
     public function form(Form $form): Form
     {
-        return $form->schema($this->schemeForm())
-            ->model($this->record);
+        return $form->schema($this->schemeForm())->model($this->record);
     }
 
     public function schemeForm($record = null): array
@@ -93,11 +92,15 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                 ->schema([
                     Grid::make(2)->schema([
                         Select::make('supplier')
+                            ->placeholder('Select Supplier')
+                            ->label(fn ($get) => $get('supplier_codes.0.supplier') ? 'Supplier' : false)
                             ->options(ContentSourceEnum::options()),
-                        TextInput::make('code'),
+                        TextInput::make('code')
+                            ->placeholder('Enter Code')
+                            ->label(fn ($get) => $get('supplier_codes.0.code') ? 'Code' : false),
                     ]),
                 ]),
-            ];
+        ];
     }
 
     public function table(Table $table): Table

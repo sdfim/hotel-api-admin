@@ -272,8 +272,7 @@ trait HasPricingRuleFields
                                         $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
                                         $result = Property::select(
                                             DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name, code'))
-                                            ->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
-                                            ->orWhere('code', 'like', "%$search%")
+                                            ->whereRaw("MATCH(search_index) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
                                             ->limit(100);
                                         return $result->pluck('full_name', 'code')
                                             ->mapWithKeys(function ($full_name, $code) {
@@ -300,12 +299,9 @@ trait HasPricingRuleFields
                                     ->getSearchResultsUsing(function (string $search): ?array {
                                         $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
                                         $result = Property::select(
-                                            DB::raw('CONCAT(name, " (", city, ", ", locale, ", ", code, ")") AS full_name'), 'code')
-                                            ->whereRaw("MATCH(name,city,locale) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
-                                                    ->orderByRaw("name LIKE '$search%' DESC")
-                                            ->orWhere('code', 'like', "%$search%")
+                                            DB::raw('CONCAT(name, " (", city, ", ", locale, ", ", code, ")") AS full_name, code'))
+                                            ->whereRaw("MATCH(search_index) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
                                             ->limit(100);
-
                                         return $result->pluck('full_name', 'code')->toArray() ?? [];
                                     })
                                     ->getOptionLabelUsing(function ($value): ?string {

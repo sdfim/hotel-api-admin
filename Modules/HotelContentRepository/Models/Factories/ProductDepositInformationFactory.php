@@ -14,13 +14,18 @@ class ProductDepositInformationFactory extends Factory
 
     public function definition()
     {
+        $startDate = $this->faker->dateTimeBetween('-1 year', 'now');
+        $expirationDate = $this->faker->dateTimeBetween($startDate, '+1 year');
+
         return [
             'product_id' => Product::factory(),
-            'days_prior_type' => DaysPriorTypeEnum::DEPARTURE->value,
-            'days' => $this->faker->numberBetween(1, 30),
-            'date' => null,
-            'pricing_parameters' => $this->faker->randomElement(['per_channel', 'per_room', 'per_rate']),
-            'pricing_value' => $this->faker->randomFloat(2, 0, 100),
+            'name' => $this->faker->word,
+            'start_date' => $startDate->format('Y-m-d'),
+            'expiration_date' => $expirationDate->format('Y-m-d'),
+            'manipulable_price_type' => $this->faker->randomElement(['total_price', 'net_price']),
+            'price_value' => $this->faker->randomFloat(2, 0, 100),
+            'price_value_type' => $this->faker->randomElement(['fixed_value', 'percentage']),
+            'price_value_target' => $this->faker->randomElement(['per_guest', 'per_room', 'per_night', 'not_applicable']),
         ];
     }
 }

@@ -3,7 +3,7 @@
         'Product' => [
             'tab_name' => '-product-tab',
             'related' => [
-                ['title' => 'Key & Owner', 'component' => 'products.key-mapping-table'],
+                ['title' => 'External Identifiers', 'component' => 'products.key-mapping-table'],
                 ['title' => 'Contact Information', 'component' => 'products.contact-information-table'],
 //                ['title' => 'Age Restrictions', 'component' => 'products.hotel-age-restriction-table'],
                 ['title' => 'Affiliations', 'component' => 'products.product-affiliations-table'],

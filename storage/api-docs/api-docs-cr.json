@@ -5117,41 +5117,63 @@
                             "schema": {
                                 "required": [
                                     "product_id",
-                                    "days_prior_type",
-                                    "days",
-                                    "pricing_parameters",
-                                    "pricing_value"
+                                    "name",
+                                    "start_date",
+                                    "expiration_date",
+                                    "manipulable_price_type",
+                                    "price_value",
+                                    "price_value_type",
+                                    "price_value_target"
                                 ],
                                 "properties": {
                                     "product_id": {
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "days_prior_type": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Sample Name"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2023-01-01T00:00:00Z"
+                                    },
+                                    "expiration_date": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-01-01T00:00:00Z"
+                                    },
+                                    "manipulable_price_type": {
                                         "type": "string",
                                         "enum": [
-                                            "Departure",
-                                            "Date"
+                                            "total_price",
+                                            "net_price"
                                         ],
-                                        "example": "Departure"
+                                        "example": "total_price"
                                     },
-                                    "days": {
-                                        "type": "integer",
-                                        "example": 10
-                                    },
-                                    "pricing_parameters": {
-                                        "type": "string",
-                                        "enum": [
-                                            "per_channel",
-                                            "per_room",
-                                            "per_rate"
-                                        ],
-                                        "example": "per_channel"
-                                    },
-                                    "pricing_value": {
+                                    "price_value": {
                                         "type": "number",
                                         "format": "float",
                                         "example": 100
+                                    },
+                                    "price_value_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "fixed_value",
+                                            "percentage"
+                                        ],
+                                        "example": "fixed_value"
+                                    },
+                                    "price_value_target": {
+                                        "type": "string",
+                                        "enum": [
+                                            "per_guest",
+                                            "per_room",
+                                            "per_night",
+                                            "not_applicable"
+                                        ],
+                                        "example": "per_guest"
                                     }
                                 },
                                 "type": "object"
@@ -5268,41 +5290,63 @@
                             "schema": {
                                 "required": [
                                     "product_id",
-                                    "days_prior_type",
-                                    "days",
-                                    "pricing_parameters",
-                                    "pricing_value"
+                                    "name",
+                                    "start_date",
+                                    "expiration_date",
+                                    "manipulable_price_type",
+                                    "price_value",
+                                    "price_value_type",
+                                    "price_value_target"
                                 ],
                                 "properties": {
                                     "product_id": {
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "days_prior_type": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Sample Name"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2023-01-01T00:00:00Z"
+                                    },
+                                    "expiration_date": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-01-01T00:00:00Z"
+                                    },
+                                    "manipulable_price_type": {
                                         "type": "string",
                                         "enum": [
-                                            "Departure",
-                                            "Date"
+                                            "total_price",
+                                            "net_price"
                                         ],
-                                        "example": "Departure"
+                                        "example": "total_price"
                                     },
-                                    "days": {
-                                        "type": "integer",
-                                        "example": 10
-                                    },
-                                    "pricing_parameters": {
-                                        "type": "string",
-                                        "enum": [
-                                            "per_channel",
-                                            "per_room",
-                                            "per_rate"
-                                        ],
-                                        "example": "per_channel"
-                                    },
-                                    "pricing_value": {
+                                    "price_value": {
                                         "type": "number",
                                         "format": "float",
                                         "example": 100
+                                    },
+                                    "price_value_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "fixed_value",
+                                            "percentage"
+                                        ],
+                                        "example": "fixed_value"
+                                    },
+                                    "price_value_target": {
+                                        "type": "string",
+                                        "enum": [
+                                            "per_guest",
+                                            "per_room",
+                                            "per_night",
+                                            "not_applicable"
+                                        ],
+                                        "example": "per_guest"
                                     }
                                 },
                                 "type": "object"

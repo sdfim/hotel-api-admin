@@ -1,9 +1,9 @@
 @extends('layouts.master')
 @section('title')
     @if($configJobDescription->exists)
-        {{ __('Edit Job Description') }}
+        {{ __('Edit Job Title / Department') }}
     @else
-        {{ __('Create Job Description') }}
+        {{ __('Create Job Title / Department') }}
     @endif
 @endsection
 @section('content')

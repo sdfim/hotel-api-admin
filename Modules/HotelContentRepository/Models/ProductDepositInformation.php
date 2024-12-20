@@ -2,9 +2,11 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\ProductDepositInformationFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 
@@ -22,11 +24,13 @@ class ProductDepositInformation extends Model
 
     protected $fillable = [
         'product_id',
-        'days_prior_type',
-        'days',
-        'date',
-        'pricing_parameters',
-        'pricing_value',
+        'name',
+        'start_date',
+        'expiration_date',
+        'manipulable_price_type',
+        'price_value',
+        'price_value_type',
+        'price_value_target',
     ];
 
     protected $hidden = [
@@ -37,5 +41,10 @@ class ProductDepositInformation extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function conditions(): HasMany
+    {
+        return $this->hasMany(ProductDepositInformationCondition::class, 'product_deposit_information_id', 'id');
     }
 }

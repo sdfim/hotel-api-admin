@@ -11,11 +11,13 @@ return new class extends Migration
         Schema::create('pd_product_deposit_information', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
-            $table->string('days_prior_type');
-            $table->integer('days')->nullable();
-            $table->dateTime('date')->nullable();
-            $table->string('pricing_parameters');
-            $table->decimal('pricing_value', 8, 2)->nullable();
+            $table->string('name');
+            $table->dateTime('start_date');
+            $table->dateTime('expiration_date');
+            $table->string('manipulable_price_type');
+            $table->decimal('price_value', 8, 2);
+            $table->string('price_value_type');
+            $table->string('price_value_target');
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');

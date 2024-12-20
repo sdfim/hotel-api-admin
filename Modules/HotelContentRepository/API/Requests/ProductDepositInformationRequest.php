@@ -4,7 +4,6 @@ namespace Modules\HotelContentRepository\API\Requests;
 
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
-use Modules\Enums\DaysPriorTypeEnum;
 
 class ProductDepositInformationRequest extends ApiRequest
 {
@@ -54,12 +53,15 @@ class ProductDepositInformationRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"product_id", "days_prior_type", "days", "pricing_parameters", "pricing_value"},
+     *       required={"product_id", "name", "start_date", "expiration_date", "manipulable_price_type", "price_value", "price_value_type", "price_value_target"},
      *       @OA\Property(property="product_id", type="integer", example=1),
-     *       @OA\Property(property="days_prior_type", type="string", enum={"Departure", "Date"}, example="Departure"),
-     *       @OA\Property(property="days", type="integer", example=10),
-     *       @OA\Property(property="pricing_parameters", type="string", enum={"per_channel", "per_room", "per_rate"}, example="per_channel"),
-     *       @OA\Property(property="pricing_value", type="number", format="float", example=100.00)
+     *       @OA\Property(property="name", type="string", example="Sample Name"),
+     *       @OA\Property(property="start_date", type="string", format="date-time", example="2023-01-01T00:00:00Z"),
+     *       @OA\Property(property="expiration_date", type="string", format="date-time", example="2024-01-01T00:00:00Z"),
+     *       @OA\Property(property="manipulable_price_type", type="string", enum={"total_price", "net_price"}, example="total_price"),
+     *       @OA\Property(property="price_value", type="number", format="float", example=100.00),
+     *       @OA\Property(property="price_value_type", type="string", enum={"fixed_value", "percentage"}, example="fixed_value"),
+     *       @OA\Property(property="price_value_target", type="string", enum={"per_guest", "per_room", "per_night", "not_applicable"}, example="per_guest")
      *     )
      *   ),
      *   @OA\Response(
@@ -138,12 +140,15 @@ class ProductDepositInformationRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"product_id", "days_prior_type", "days", "pricing_parameters", "pricing_value"},
+     *       required={"product_id", "name", "start_date", "expiration_date", "manipulable_price_type", "price_value", "price_value_type", "price_value_target"},
      *       @OA\Property(property="product_id", type="integer", example=1),
-     *       @OA\Property(property="days_prior_type", type="string", enum={"Departure", "Date"}, example="Departure"),
-     *       @OA\Property(property="days", type="integer", example=10),
-     *       @OA\Property(property="pricing_parameters", type="string", enum={"per_channel", "per_room", "per_rate"}, example="per_channel"),
-     *       @OA\Property(property="pricing_value", type="number", format="float", example=100.00)
+     *       @OA\Property(property="name", type="string", example="Sample Name"),
+     *       @OA\Property(property="start_date", type="string", format="date-time", example="2023-01-01T00:00:00Z"),
+     *       @OA\Property(property="expiration_date", type="string", format="date-time", example="2024-01-01T00:00:00Z"),
+     *       @OA\Property(property="manipulable_price_type", type="string", enum={"total_price", "net_price"}, example="total_price"),
+     *       @OA\Property(property="price_value", type="number", format="float", example=100.00),
+     *       @OA\Property(property="price_value_type", type="string", enum={"fixed_value", "percentage"}, example="fixed_value"),
+     *       @OA\Property(property="price_value_target", type="string", enum={"per_guest", "per_room", "per_night", "not_applicable"}, example="per_guest")
      *     )
      *   ),
      *   @OA\Response(
@@ -214,11 +219,14 @@ class ProductDepositInformationRequest extends ApiRequest
     public function rules(): array
     {
         return [
-            'product_id' => 'required|exists:pd_products,id',
-            'days_prior_type' => 'required|string|in:' . implode(',', DaysPriorTypeEnum::values()),
-            'days' => 'required|integer',
-            'pricing_parameters' => 'required|string|in:per_channel,per_room,per_rate',
-            'pricing_value' => 'required|numeric',
+            'product_id' => 'required|integer|exists:pd_products,id',
+            'name' => 'required|string|max:255',
+            'start_date' => 'required|date',
+            'expiration_date' => 'required|date|after:start_date',
+            'manipulable_price_type' => 'required|string|in:total_price,net_price',
+            'price_value' => 'required|numeric',
+            'price_value_type' => 'required|string|in:fixed_value,percentage',
+            'price_value_target' => 'required|string|in:per_guest,per_room,per_night,not_applicable',
         ];
     }
 }

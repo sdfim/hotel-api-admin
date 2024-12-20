@@ -308,8 +308,9 @@ class HotelForm extends Component implements HasForms
                     $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
                     $result = Property::select(
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name, code'))
-                        ->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
-                        ->orWhere('code', 'like', "%$search%")
+                        ->whereRaw("MATCH(search_index) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
+//                        ->whereRaw("MATCH(name) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
+//                        ->orWhere('code', 'like', "%$search%")
                         ->limit(100);
                     return $result->pluck('full_name', 'code')
                         ->mapWithKeys(function ($full_name, $code) {

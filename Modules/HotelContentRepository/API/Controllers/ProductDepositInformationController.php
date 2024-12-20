@@ -21,7 +21,7 @@ class ProductDepositInformationController extends BaseController
 
     public function index()
     {
-        $query = ProductDepositInformation::query();
+        $query = ProductDepositInformation::query()->with('conditions');
         $query = $this->filter($query, ProductDepositInformation::class);
         $hotelDepositInformations = $query->get();
 
@@ -36,7 +36,7 @@ class ProductDepositInformationController extends BaseController
 
     public function show($id)
     {
-        $hotelDepositInformation = ProductDepositInformation::findOrFail($id);
+        $hotelDepositInformation = ProductDepositInformation::with('conditions')->findOrFail($id);
         return $this->sendResponse($hotelDepositInformation->toArray(), 'show success');
     }
 
