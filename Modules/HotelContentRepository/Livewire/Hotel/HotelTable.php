@@ -134,7 +134,7 @@ class HotelTable extends Component implements HasForms, HasTable
                     ->visible(fn (Hotel $record): bool => Gate::allows('delete', $record))
                     ->action(function (Hotel $record) {
                         \DB::transaction(function () use ($record) {
-                            $record->product->delete();
+                            if ($record->product) $record->product->delete();
                             $record->delete();
                         });
                         Notification::make()

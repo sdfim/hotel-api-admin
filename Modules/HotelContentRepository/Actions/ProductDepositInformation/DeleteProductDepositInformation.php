@@ -7,9 +7,9 @@ use Modules\HotelContentRepository\Models\ProductDepositInformation;
 
 class DeleteProductDepositInformation
 {
-    public function handle(ProductDepositInformation $hotelDepositInformation)
+    public function handle(ProductDepositInformation $productDepositInformation)
     {
-        $hotelDepositInformation->delete();
-        ProductDepositInformationDeleted::dispatch($hotelDepositInformation);
+        $productDepositInformation->delete();
+        ProductDepositInformationDeleted::dispatch($productDepositInformation);
     }
 }

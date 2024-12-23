@@ -42,7 +42,7 @@ class HotelController extends BaseController
         $query = $this->filter($query, Hotel::class);
         $hotels = $query->with($this->getIncludes())->get();
 
-        $useFractal = config('packages.use_fractal', true);
+        $useFractal = config('packages.fractal.use_fractal', true);
         if (!$useFractal){
             $hotelDTOs = $this->hotelDTO->transform($hotels, true);
         } else {
@@ -67,9 +67,9 @@ class HotelController extends BaseController
             return $this->sendError('Hotel not found', Response::HTTP_NOT_FOUND);
         }
 
-        $useFractal = config('packages.use_fractal', true);
+        $useFractal = config('packages.fractal.use_fractal', true);
         if (!$useFractal) {
-            $hotelDTO = $this->hotelDTO->transform(new Collection([$hotel]), true);
+            $hotelDTO = $this->hotelDTO->transformHotel($hotel, true);
         } else {
             $resource = new FractalCollection([$hotel], new HotelTransformer());
             $hotelDTO = $this->fractal->createData($resource)->toArray()[0];

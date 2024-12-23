@@ -12,7 +12,8 @@ class DescriptiveContentsSectionTransformer extends TransformerAbstract
         return [
             'start_date' => $section->start_date,
             'end_date' => $section->end_date,
-            'content' => $section->content,
+            'descriptive_type' => $section->descriptiveType->name,
+            'value' => $section->value,
         ];
     }
 }

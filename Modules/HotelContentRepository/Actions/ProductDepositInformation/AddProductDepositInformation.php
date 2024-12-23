@@ -10,8 +10,8 @@ class AddProductDepositInformation
 {
     public function handle(ProductDepositInformationRequest $request)
     {
-        $hotelDepositInformation = ProductDepositInformation::create($request->validated());
-        ProductDepositInformationAdded::dispatch($hotelDepositInformation);
-        return $hotelDepositInformation;
+        $productDepositInformation = ProductDepositInformation::create($request->validated());
+        ProductDepositInformationAdded::dispatch($productDepositInformation);
+        return $productDepositInformation;
     }
 }

@@ -83,7 +83,17 @@ class VendorTable extends Component implements HasForms, HasTable
                     ->label('')
                     ->tooltip('Delete Vendor')
                     ->requiresConfirmation()
-                    ->action(fn (Vendor $record) => $record->delete())
+                    ->action(function (Vendor $record) {
+                        \DB::transaction(function () use ($record) {
+                            foreach ($record->products as $product) {
+                                if ($product->related) {
+                                    $product->related->delete();
+                                }
+                                $product->delete();
+                            }
+                            $record->delete();
+                        });
+                    })
                     ->visible(fn (Vendor $record) => Gate::allows('delete', $record)),
             ])
             ->headerActions([

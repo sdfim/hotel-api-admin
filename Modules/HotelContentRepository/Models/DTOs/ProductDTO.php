@@ -42,6 +42,9 @@ class ProductDTO
         private readonly KeyMappingDTO $keyMappingDTO,
         private readonly ImageGalleryDTO $imageGalleryDTO,
         private readonly ContactInformationDTO $contactInformationDTO,
+        private readonly ProductCancellationPolicyDTO $productCancellationPolicyDTO,
+        private readonly ProductDepositInformationDTO $productDepositInformationDTO,
+
     ) {}
 
     public function transform(Collection $products, bool $returnRelation = false)
@@ -77,6 +80,9 @@ class ProductDTO
             'key_mappings' => $this->keyMappingDTO->transform($product->keyMappings),
             'galleries' => $this->imageGalleryDTO->transform($product->galleries),
             'contact_information' => $product->contactInformation ? $this->contactInformationDTO->transform($product->contactInformation) : null,
+            'cancellation_policies' => $product->cancellationPolicies? $this->productCancellationPolicyDTO->transform($product->cancellationPolicies) : null,
+            'deposit_information' => $product->depositInformation? $this->productDepositInformationDTO->transform($product->depositInformation) : null,
+
         ];
 
         return $data;

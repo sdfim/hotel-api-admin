@@ -10,6 +10,7 @@ use Modules\HotelContentRepository\API\Controllers\ProductAffiliationController;
 use Modules\HotelContentRepository\API\Controllers\ProductAgeRestrictionController;
 use Modules\HotelContentRepository\API\Controllers\ContactInformationController;
 use Modules\HotelContentRepository\API\Controllers\HotelController;
+use Modules\HotelContentRepository\API\Controllers\ProductCancellationPolicyController;
 use Modules\HotelContentRepository\API\Controllers\ProductController;
 use Modules\HotelContentRepository\API\Controllers\ProductDepositInformationController;
 use Modules\HotelContentRepository\API\Controllers\ProductDescriptiveContentSectionController;
@@ -79,6 +80,8 @@ class HotelContentRepositoryApiRoutes
             Route::resource('contact-information', ContactInformationController::class);
 
             Route::resource('product-deposit-information', ProductDepositInformationController::class);
+
+            Route::resource('product-cancellation-policy', ProductCancellationPolicyController::class);
 
             Route::resource('key-mappings', KeyMappingController::class);
             Route::resource('key-mapping-owners', KeyMappingOwnerController::class);

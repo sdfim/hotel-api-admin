@@ -76,6 +76,10 @@ use Modules\API\BaseController as MainController;
  *          description="API Endpoints for Deposit Information"
  *      ),
  * @OA\Tag(
+ *          name="Product | Cancellation Policy",
+ *          description="API Endpoints for Cancellation Policy"
+ *      ),
+ * @OA\Tag(
  *          name="Product | Contact Information",
  *          description="API Endpoints for Contact Information"
  *      ),

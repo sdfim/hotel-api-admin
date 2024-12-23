@@ -60,6 +60,7 @@
             'related' => [
                 ['title' => 'Pricing Rules', 'component' => 'pricing-rules.pricing-rules-table'],
                 ['title' => 'Deposit Information', 'component' => 'products.product-deposit-information-table'],
+                ['title' => 'Cancellation Policy', 'component' => 'products.product-cancellation-policy-table'],
             ],
         ],
         'Travel Agency Commission' => [

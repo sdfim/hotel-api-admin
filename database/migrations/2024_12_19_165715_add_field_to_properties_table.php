@@ -15,9 +15,15 @@ return new class extends Migration
             }
         });
 
-        if (!Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->hasColumn('properties', 'search_index')) {
-            DB::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->statement("UPDATE properties SET search_index = CONCAT(name, ' ', code)");
-            DB::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->statement("CREATE FULLTEXT INDEX idx_search_index ON properties (search_index)");
+        if (Schema::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->hasColumn('properties', 'search_index')) {
+            $indexExists = DB::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->select(
+                "SHOW INDEX FROM properties WHERE Key_name = 'idx_search_index'"
+            );
+
+            if (empty($indexExists)) {
+                DB::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->statement("UPDATE properties SET search_index = CONCAT(name, ' ', code)");
+                DB::connection(env('SUPPLIER_CONTENT_DB_CONNECTION', 'mysql_cache'))->statement("CREATE FULLTEXT INDEX idx_search_index ON properties (search_index)");
+            }
         }
     }
 

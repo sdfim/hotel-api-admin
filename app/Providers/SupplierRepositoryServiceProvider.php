@@ -13,6 +13,7 @@ use Modules\HotelContentRepository\Livewire\ProductAffiliations\ProductAffiliati
 use Modules\HotelContentRepository\Livewire\ProductAgeRestriction\ProductAgeRestrictionTable;
 use Modules\HotelContentRepository\Livewire\ProductAttributes\ProductAttributesTable;
 use Modules\HotelContentRepository\Livewire\ContactInformation\ContactInformationTable;
+use Modules\HotelContentRepository\Livewire\ProductDepositInformation\ProductCancellationPolicyTable;
 use Modules\HotelContentRepository\Livewire\ProductDepositInformation\ProductDepositInformationTable;
 use Modules\HotelContentRepository\Livewire\ProductDescriptiveContentSection\ProductDescriptiveContentSectionTable;
 use Modules\HotelContentRepository\Livewire\ProductFeeTaxes\ProductFeeTaxTable;
@@ -30,7 +31,6 @@ use Modules\HotelContentRepository\Livewire\Vendor\VendorForm;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorTable;
 use Modules\Insurance\Livewire\Plans\InsurancePlanTable;
 use Modules\Insurance\Livewire\Vendors\DocumentationsTable;
-use Modules\Insurance\Livewire\Vendors\ProvidersTable;
 use Modules\Insurance\Livewire\RateTiers\RateTiersTable;
 use Modules\Insurance\Livewire\Restrictions\RestrictionsTable;
 
@@ -60,6 +60,7 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('products.product-attributes-table', ProductAttributesTable::class);
         Livewire::component('products.contact-information-table', ContactInformationTable::class);
         Livewire::component('products.product-deposit-information-table', ProductDepositInformationTable::class);
+        Livewire::component('products.product-cancellation-policy-table', ProductCancellationPolicyTable::class);
         Livewire::component('products.hotel-descriptive-content-section-table', ProductDescriptiveContentSectionTable::class);
         Livewire::component('products.hotel-fee-tax-table', ProductFeeTaxTable::class);
         Livewire::component('products.product-informative-services-table', ProductInformativeServicesTable::class);

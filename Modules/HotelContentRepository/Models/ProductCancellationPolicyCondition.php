@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\HotelContentRepository\Models\Factories\ProductDepositInformationConditionFactory;
 
-class ProductDepositInformationCondition extends Model
+class ProductCancellationPolicyCondition extends Model
 {
     use HasFactory;
 
@@ -16,7 +16,7 @@ class ProductDepositInformationCondition extends Model
         return ProductDepositInformationConditionFactory::new();
     }
 
-    protected $table = 'pd_product_deposit_information_conditions';
+    protected $table = 'pd_product_cancellation_policy_conditions';
 
     protected $fillable = [
         'product_deposit_information_id',
@@ -31,8 +31,8 @@ class ProductDepositInformationCondition extends Model
         'value' => 'json',
     ];
 
-    public function productDepositInformation(): BelongsTo
+    public function productCancellationPolicy(): BelongsTo
     {
-        return $this->belongsTo(ProductDepositInformation::class, 'product_deposit_information_id', 'id');
+        return $this->belongsTo(ProductCancellationPolicy::class, 'product_cancellation_policy_id', 'id');
     }
 }

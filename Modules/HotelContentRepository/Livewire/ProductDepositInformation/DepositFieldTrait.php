@@ -142,7 +142,7 @@ trait DepositFieldTrait
                             'room_type' => 'Room type',
                         ];
                     })
-//                    ->live()
+                    ->live()
                     ->required()
                     ->afterStateUpdated(fn(Select $component) => $component
                         ->getContainer()
@@ -156,7 +156,7 @@ trait DepositFieldTrait
                             '=' => 'Equals',
                             '!=' => 'Not Equals',
                         ],
-                        'property', 'destination', 'room_type', 'room_type_cr', 'room_code', 'room_name', 'rate_code' => [
+                        'property', 'destination', 'room_type', 'room_code', 'room_name', 'rate_code' => [
                             'in' => 'In List',
                             '!in' => 'Not In List',
                             '=' => 'Equals',
@@ -285,55 +285,6 @@ trait DepositFieldTrait
                                         ->where('city_id', $value)->first();
 
                                     return $result->full_name ?? '';
-                                })
-                                ->required()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
-                        ],
-
-                        'room_type_cr' => [
-                            Select::make('value')
-                                ->label('Room type (SR)')
-                                ->searchable()
-                                ->multiple()
-                                ->getSearchResultsUsing(function (string $search): array {
-                                    return HotelRoom::query()
-                                        ->where('hbsi_data_mapped_name', 'like', "%$search%")
-                                        ->orWhere('name', 'like', "%$search%")
-                                        ->limit(30)
-                                        ->get()
-                                        ->mapWithKeys(function ($room) {
-                                            return [$room->id => "{$room->hbsi_data_mapped_name} ({$room->name})"];
-                                        })
-                                        ->toArray();
-                                })
-                                ->getOptionLabelsUsing(function (array $values): array {
-                                    return HotelRoom::whereIn('id', $values)
-                                        ->get()
-                                        ->mapWithKeys(function ($room) {
-                                            return [$room->id => "{$room->hbsi_data_mapped_name} ({$room->name})"];
-                                        })
-                                        ->toArray();
-                                })
-                                ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
-
-                            Select::make('value_from')
-                                ->label('Room type (SR)')
-                                ->searchable()
-                                ->getSearchResultsUsing(function (string $search): array {
-                                    return HotelRoom::query()
-                                        ->where('hbsi_data_mapped_name', 'like', "%$search%")
-                                        ->orWhere('name', 'like', "%$search%")
-                                        ->limit(30)
-                                        ->get()
-                                        ->mapWithKeys(function ($room) {
-                                            return [$room->id => "{$room->hbsi_data_mapped_name} ({$room->name})"];
-                                        })
-                                        ->toArray();
-                                })
-                                ->getOptionLabelUsing(function ($value): ?string {
-                                    $room = HotelRoom::find($value);
-                                    return $room ? "{$room->hbsi_data_mapped_name} ({$room->name})" : null;
                                 })
                                 ->required()
                                 ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),

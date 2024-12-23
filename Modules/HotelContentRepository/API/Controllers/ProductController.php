@@ -37,7 +37,7 @@ class ProductController extends BaseController
         $query = $this->filter($query, Product::class);
         $products = $query->with($this->getIncludes())->get();
 
-        $useFractal = config('packages.use_fractal', true);
+        $useFractal = config('packages.fractal.use_fractal', true);
         if (!$useFractal) {
             $productDTO = $this->productDTO->transform($products, true);
         } else {
@@ -62,9 +62,9 @@ class ProductController extends BaseController
             return $this->sendError('Product not found', Response::HTTP_NOT_FOUND);
         }
 
-        $useFractal = config('packages.use_fractal', true);
+        $useFractal = config('packages.fractal.use_fractal', true);
         if (!$useFractal) {
-            $productDTO = $this->productDTO->transform($product->get(), true);
+            $productDTO = $this->productDTO->transformProduct($product, true);
         } else {
             $resource = new FractalCollection([$product], new ProductTransformer());
             $productDTO = $this->fractal->createData($resource)->toArray()[0];

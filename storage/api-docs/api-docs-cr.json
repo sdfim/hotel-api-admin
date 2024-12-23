@@ -5052,6 +5052,400 @@
                 ]
             }
         },
+        "/api/repo/product-cancellation-policy": {
+            "get": {
+                "tags": [
+                    "Product | Cancellation Policy"
+                ],
+                "summary": "Get all product cancellation policies",
+                "description": "Retrieve all product cancellation policy records with optional filters.",
+                "operationId": "80ed14cca0863e34294e3afa2a10eab6",
+                "parameters": [
+                    {
+                        "name": "product_id",
+                        "in": "query",
+                        "description": "Filter by product ID",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Product | Cancellation Policy"
+                ],
+                "summary": "Create a new product cancellation policy",
+                "description": "Create a new product cancellation policy entry.",
+                "operationId": "579fbb879a78310c68c9c11c204fe2f6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "product_id",
+                                    "name",
+                                    "start_date",
+                                    "expiration_date",
+                                    "manipulable_price_type",
+                                    "price_value",
+                                    "price_value_type",
+                                    "price_value_target"
+                                ],
+                                "properties": {
+                                    "product_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Sample Name"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2023-01-01T00:00:00Z"
+                                    },
+                                    "expiration_date": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-01-01T00:00:00Z"
+                                    },
+                                    "manipulable_price_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "total_price",
+                                            "net_price"
+                                        ],
+                                        "example": "total_price"
+                                    },
+                                    "price_value": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100
+                                    },
+                                    "price_value_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "fixed_value",
+                                            "percentage"
+                                        ],
+                                        "example": "fixed_value"
+                                    },
+                                    "price_value_target": {
+                                        "type": "string",
+                                        "enum": [
+                                            "per_guest",
+                                            "per_room",
+                                            "per_night",
+                                            "not_applicable"
+                                        ],
+                                        "example": "per_guest"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/product-cancellation-policy/{id}": {
+            "get": {
+                "tags": [
+                    "Product | Cancellation Policy"
+                ],
+                "summary": "Get product cancellation policy details",
+                "description": "Retrieve details of a specific product cancellation policy.",
+                "operationId": "a36713b576fe390e1c59598a0f13ab48",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the product cancellation policy",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Product | Cancellation Policy"
+                ],
+                "summary": "Update product cancellation policy details",
+                "description": "Update details of a specific product cancellation policy.",
+                "operationId": "df247a277a7246a105567f283342c632",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the product cancellation policy",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "product_id",
+                                    "name",
+                                    "start_date",
+                                    "expiration_date",
+                                    "manipulable_price_type",
+                                    "price_value",
+                                    "price_value_type",
+                                    "price_value_target"
+                                ],
+                                "properties": {
+                                    "product_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Sample Name"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2023-01-01T00:00:00Z"
+                                    },
+                                    "expiration_date": {
+                                        "type": "string",
+                                        "format": "date-time",
+                                        "example": "2024-01-01T00:00:00Z"
+                                    },
+                                    "manipulable_price_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "total_price",
+                                            "net_price"
+                                        ],
+                                        "example": "total_price"
+                                    },
+                                    "price_value": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100
+                                    },
+                                    "price_value_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "fixed_value",
+                                            "percentage"
+                                        ],
+                                        "example": "fixed_value"
+                                    },
+                                    "price_value_target": {
+                                        "type": "string",
+                                        "enum": [
+                                            "per_guest",
+                                            "per_room",
+                                            "per_night",
+                                            "not_applicable"
+                                        ],
+                                        "example": "per_guest"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Product | Cancellation Policy"
+                ],
+                "summary": "Delete a product cancellation policy",
+                "description": "Delete a specific product cancellation policy.",
+                "operationId": "253f00b9ae4dc315f2adf7484c7f0f16",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the product cancellation policy",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
         "/api/repo/product-deposit-information": {
             "get": {
                 "tags": [
@@ -8224,6 +8618,10 @@
         {
             "name": "Product | Deposit Information",
             "description": "API Endpoints for Deposit Information"
+        },
+        {
+            "name": "Product | Cancellation Policy",
+            "description": "API Endpoints for Cancellation Policy"
         },
         {
             "name": "Product | Contact Information",

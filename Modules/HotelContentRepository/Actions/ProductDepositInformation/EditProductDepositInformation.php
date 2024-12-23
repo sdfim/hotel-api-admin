@@ -8,10 +8,10 @@ use Modules\HotelContentRepository\Models\ProductDepositInformation;
 
 class EditProductDepositInformation
 {
-    public function handle(ProductDepositInformation $hotelDepositInformation, ProductDepositInformationRequest $request)
+    public function handle(ProductDepositInformation $productDepositInformation, ProductDepositInformationRequest $request)
     {
-        $hotelDepositInformation->update($request->validated());
-        ProductDepositInformationEdited::dispatch($hotelDepositInformation);
-        return $hotelDepositInformation;
+        $productDepositInformation->update($request->validated());
+        ProductDepositInformationEdited::dispatch($productDepositInformation);
+        return $productDepositInformation;
     }
 }

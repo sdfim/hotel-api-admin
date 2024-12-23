@@ -4,11 +4,11 @@ namespace Modules\HotelContentRepository\Models\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\HotelContentRepository\Models\Product;
-use Modules\HotelContentRepository\Models\ProductDepositInformation;
+use Modules\HotelContentRepository\Models\ProductCancellationPolicy;
 
-class ProductDepositInformationFactory extends Factory
+class ProductCancellationPolicyFactory extends Factory
 {
-    protected $model = ProductDepositInformation::class;
+    protected $model = ProductCancellationPolicy::class;
 
     public function definition()
     {

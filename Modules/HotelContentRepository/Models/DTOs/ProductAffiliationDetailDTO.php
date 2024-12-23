@@ -12,6 +12,7 @@ class ProductAffiliationDetailDTO
     public $description;
     public $start_date;
     public $end_date;
+    public $combinable;
 
     public function __construct() {}
 
@@ -30,6 +31,7 @@ class ProductAffiliationDetailDTO
             'description' => $detail->description,
             'start_date' => $detail->start_date,
             'end_date' => $detail->end_date,
+            'combinable' => $detail->combinable,
         ];
     }
 }

@@ -14,7 +14,7 @@ use Modules\HotelContentRepository\API\Controllers\BaseController;
 class ProductDepositInformationController extends BaseController
 {
     public function __construct(
-        protected AddProductDepositInformation    $addProductDepositInformation,
+        protected AddProductDepositInformation   $addProductDepositInformation,
         protected EditProductDepositInformation   $editProductDepositInformation,
         protected DeleteProductDepositInformation $deleteProductDepositInformation
     ) {}

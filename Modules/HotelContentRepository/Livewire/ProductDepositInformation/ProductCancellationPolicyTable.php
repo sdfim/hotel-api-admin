@@ -4,14 +4,8 @@ namespace Modules\HotelContentRepository\Livewire\ProductDepositInformation;
 
 use App\Helpers\ClassHelper;
 use Carbon\Carbon;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
-use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
@@ -23,13 +17,11 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
-use Modules\Enums\DaysPriorTypeEnum;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
-use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Product;
-use Modules\HotelContentRepository\Models\ProductDepositInformation;
+use Modules\HotelContentRepository\Models\ProductCancellationPolicy;
 
-class ProductDepositInformationTable extends Component implements HasForms, HasTable
+class ProductCancellationPolicyTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
@@ -43,14 +35,14 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
     {
         $this->productId = $productId;
         $product = Product::find($productId);
-        $this->title = 'Deposit Information for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
+        $this->title = 'Cancellation Policy for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
     public function table(Table $table): Table
     {
         return $table
             ->query(
-                ProductDepositInformation::query()->where('product_id', $this->productId)
+                ProductCancellationPolicy::query()->where('product_id', $this->productId)
             )
             ->columns([
                 TextColumn::make('name')->label('Name')->searchable(),
@@ -65,14 +57,13 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
                 EditAction::make()
                     ->iconButton()
                     ->modalHeading(new HtmlString("Edit {$this->title}"))
-                    ->tooltip('Edit Deposit Information')
                     ->form(fn ($record) => $this->schemeForm($record))
                     ->fillForm(function ($record) {
                         $data = $record->toArray();
                         $data['conditions'] = $record->conditions->toArray();
                         return $data;
                     })
-                    ->action(function (array $data, ProductDepositInformation $record) {
+                    ->action(function (array $data, ProductCancellationPolicy $record) {
                         if ($this->productId) $data['product_id'] = $this->productId;
                         if (!$data['expiration_date']) $data['expiration_date'] = Carbon::create(2112, 02, 02);
 
@@ -109,7 +100,7 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
                     ->action(function ($data) {
                         if ($this->productId) $data['product_id'] = $this->productId;
                         if (!$data['expiration_date']) $data['expiration_date'] = Carbon::create(2112, 02, 02);
-                        $productDepositInformation = ProductDepositInformation::create($data);
+                        $productCancellationPolicy = ProductCancellationPolicy::create($data);
                         if (isset($data['conditions'])) {
                             foreach ($data['conditions'] as $condition) {
                                 if ($condition['compare'] == 'in' || $condition['compare'] == 'not_in') {
@@ -117,7 +108,7 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
                                 } else {
                                     $condition['value'] = null;
                                 }
-                                $productDepositInformation->conditions()->create($condition);
+                                $productCancellationPolicy->conditions()->create($condition);
                             }
                         }
                     })
@@ -131,6 +122,6 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
 
     public function render()
     {
-        return view('livewire.products.product-deposit-information-table');
+        return view('livewire.products.product-cancellation-policy-table');
     }
 }
