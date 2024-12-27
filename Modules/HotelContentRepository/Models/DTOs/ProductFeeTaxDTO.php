@@ -32,7 +32,6 @@ class ProductFeeTaxDTO
         return [
             'id' => $productFeeTax->id,
             'name' => $productFeeTax->name,
-            'product_id' => $productFeeTax->product_id,
             'net_value' => $productFeeTax->net_value,
             'rack_value' => $productFeeTax->rack_value,
             'type' => $productFeeTax->type,

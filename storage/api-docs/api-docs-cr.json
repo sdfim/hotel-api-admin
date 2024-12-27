@@ -4039,7 +4039,6 @@
                             "schema": {
                                 "required": [
                                     "product_id",
-                                    "affiliation_name",
                                     "combinable"
                                 ],
                                 "properties": {
@@ -4047,17 +4046,13 @@
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "affiliation_name": {
-                                        "type": "string",
-                                        "enum": [
-                                            "UJV Exclusive Amenities",
-                                            "Consortia Inclusions"
-                                        ],
-                                        "example": "UJV Exclusive Amenities"
-                                    },
                                     "combinable": {
-                                        "type": "boolean",
-                                        "example": true
+                                        "type": "string",
+                                        "example": "true"
+                                    },
+                                    "non_combinable": {
+                                        "type": "string",
+                                        "example": "false"
                                     }
                                 },
                                 "type": "object"
@@ -4194,7 +4189,6 @@
                             "schema": {
                                 "required": [
                                     "product_id",
-                                    "affiliation_name",
                                     "combinable"
                                 ],
                                 "properties": {
@@ -4202,17 +4196,13 @@
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "affiliation_name": {
-                                        "type": "string",
-                                        "enum": [
-                                            "UJV Exclusive Amenities",
-                                            "Consortia Inclusions"
-                                        ],
-                                        "example": "UJV Exclusive Amenities"
-                                    },
                                     "combinable": {
-                                        "type": "boolean",
-                                        "example": true
+                                        "type": "string",
+                                        "example": "true"
+                                    },
+                                    "non_combinable": {
+                                        "type": "string",
+                                        "example": "false"
                                     }
                                 },
                                 "type": "object"
@@ -4325,356 +4315,6 @@
                                     "NotFoundResponse": {
                                         "$ref": "#/components/examples/NotFoundResponse"
                                     }
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/repo/age-restrictions": {
-            "get": {
-                "tags": [
-                    "Product | Age Restrictions"
-                ],
-                "summary": "Get all product age restrictions",
-                "description": "Retrieve all product age restriction records with optional filters.",
-                "operationId": "e37970feb40993386beeb4d175b7b850",
-                "parameters": [
-                    {
-                        "name": "product_id",
-                        "in": "query",
-                        "description": "Filter by product ID",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    },
-                    {
-                        "name": "restriction_type_id",
-                        "in": "query",
-                        "description": "Filter by restriction type ID",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    },
-                    {
-                        "name": "value",
-                        "in": "query",
-                        "description": "Filter by value",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 18
-                        }
-                    },
-                    {
-                        "name": "active",
-                        "in": "query",
-                        "description": "Filter by active status",
-                        "required": false,
-                        "schema": {
-                            "type": "boolean",
-                            "example": true
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Product | Age Restrictions"
-                ],
-                "summary": "Create a new product age restriction",
-                "description": "Create a new product age restriction entry.",
-                "operationId": "92d3bc63ace75479e6afb9162b13fabe",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "product_id",
-                                    "restriction_type_id",
-                                    "value",
-                                    "active"
-                                ],
-                                "properties": {
-                                    "product_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "restriction_type_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "value": {
-                                        "type": "integer",
-                                        "example": 18
-                                    },
-                                    "active": {
-                                        "type": "boolean",
-                                        "example": true
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Created"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/repo/age-restrictions/{id}": {
-            "get": {
-                "tags": [
-                    "Product | Age Restrictions"
-                ],
-                "summary": "Get product age restriction details",
-                "description": "Retrieve details of a specific product age restriction.",
-                "operationId": "6c0f92fe58fbab002700381964a7fb84",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID of the product age restriction",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NotFoundResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Product | Age Restrictions"
-                ],
-                "summary": "Update product age restriction details",
-                "description": "Update details of a specific product age restriction.",
-                "operationId": "1aff6069a5cf7d7c4b4e44c0940a65d3",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID of the product age restriction",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "product_id",
-                                    "restriction_type_id",
-                                    "value",
-                                    "active"
-                                ],
-                                "properties": {
-                                    "product_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "restriction_type_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "value": {
-                                        "type": "integer",
-                                        "example": 18
-                                    },
-                                    "active": {
-                                        "type": "boolean",
-                                        "example": true
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NotFoundResponse"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "apiAuth": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Product | Age Restrictions"
-                ],
-                "summary": "Delete a product age restriction",
-                "description": "Delete a specific product age restriction.",
-                "operationId": "cabcf37509fb55e2d523c08665a88e4e",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID of the product age restriction",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "401": {
-                        "description": "Unauthenticated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/NotFoundResponse"
                                 }
                             }
                         }
@@ -8626,10 +8266,6 @@
         {
             "name": "Product | Contact Information",
             "description": "API Endpoints for Contact Information"
-        },
-        {
-            "name": "Product | Age Restrictions",
-            "description": "API Endpoints for Age Restrictions"
         },
         {
             "name": "Product | Travel Agency Commissions",

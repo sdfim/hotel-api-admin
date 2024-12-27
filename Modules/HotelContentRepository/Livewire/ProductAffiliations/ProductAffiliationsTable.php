@@ -6,6 +6,7 @@ use App\Helpers\ClassHelper;
 use App\Livewire\Components\CustomRepeater;
 use App\Models\Configurations\ConfigConsortium;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -47,67 +48,53 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
         $this->title = 'Affiliations for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
-    public function form(Form $form): Form
-    {
-        return $form->schema($this->schemeForm());
-    }
-
     public function schemeForm(): array
     {
         return  [
             Hidden::make('product_id')->default($this->productId),
 
-            Select::make('affiliation_name')
-                ->label('Affiliation Name')
-                ->options([
-                    'UJV Exclusive Amenities' => 'UJV Exclusive Amenities',
-                    'Consortia Inclusions' => 'Consortia Inclusions',
-                ])
-                ->required()
-                ->reactive(),
-
-            CustomRepeater::make('details')
-                ->label('Affiliation Details')
+            Fieldset::make('UJV Exclusive Amenities')
                 ->schema([
-                    Grid::make(2)->schema([
-                        Select::make('consortia_id')
-                            ->label('Consortia')
-                            ->options(ConfigConsortium::pluck('name', 'id'))
-                            ->required(),
-                        Select::make('combinable')
-                            ->label('Combinable')
-                            ->options([
-                                1 => 'Yes',
-                                0 => 'No',
+                    Textarea::make('combinable')
+                        ->label('Combinable'),
+                    Textarea::make('non_combinable')
+                        ->label('Non Combinable'),
+                ])
+            ->columns(1),
+            Fieldset::make('Consortia Inclusions')
+                ->schema([
+                    CustomRepeater::make('details')
+                        ->schema([
+                            Grid::make(2)->schema([
+                                Select::make('consortia_id')
+                                    ->label('Consortia')
+                                    ->options(ConfigConsortium::pluck('name', 'id'))
+                                    ->required(),
+                                Select::make('combinable')
+                                    ->label('Combinable')
+                                    ->options([
+                                        1 => 'Yes',
+                                        0 => 'No',
+                                    ]),
+                                ]),
+                            Grid::make(2)->schema([
+                                DatePicker::make('start_date')
+                                    ->label('Start Date')
+                                    ->native(false)
+                                    ->required(),
+                                DatePicker::make('end_date')
+                                    ->label('End Date')
+                                    ->native(false)
+                                    ->required(),
                             ]),
-                        ]),
-                    Grid::make(2)->schema([
-                        DatePicker::make('start_date')
-                            ->label('Start Date')
-                            ->native(false)
-                            ->required(),
-                        DatePicker::make('end_date')
-                            ->label('End Date')
-                            ->native(false)
-                            ->required(),
-                    ]),
-                    Grid::make(1)->schema([
-                        Textarea::make('description')
-                            ->label('Description')
-                            ->required(),
-                    ]),
-                ])
-                ->minItems(1)
-                ->visible(fn ($get) => $get('affiliation_name') === 'Consortia Inclusions'),
-
-            Select::make('combinable')
-                ->label('Combinable')
-                ->options([
-                    1 => 'Yes',
-                    0 => 'No',
-                ])
-                ->required(fn ($get) => $get('affiliation_name') !== 'Consortia Inclusions')
-                ->visible(fn ($get) => $get('affiliation_name') !== 'Consortia Inclusions'),
+                            Grid::make(1)->schema([
+                                Textarea::make('description')
+                                    ->label('Description')
+                                    ->required(),
+                            ]),
+                        ])
+                        ->minItems(1),
+                ])->columns(1),
         ];
     }
 
@@ -118,16 +105,20 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                 ProductAffiliation::query()->where('product_id', $this->productId)
             )
             ->columns([
-                TextColumn::make('affiliation_name')
-                    ->label('Affiliation Name'),
-                IconColumn::make('combinable')
-                    ->label('Combinable')
-                    ->boolean(),
+                TextColumn::make('combinable_non_combinable')
+                    ->label('UJV Exclusive Amenities')
+                    ->getStateUsing(function ($record) {
+                        return 'Combinable: ' . $record->combinable . '<br>Non Combinable: ' . $record->non_combinable;
+                    })
+                    ->html(),
                 TextColumn::make('details')
-                    ->label('Details')
+                    ->label('Consortia Inclusions')
                     ->getStateUsing(function ($record) {
                         return $record->details->map(function ($detail) {
-                            return $detail->consortia->name . ' (' . $detail->start_date . ' - ' . $detail->end_date . ')' . ($detail->combinable ? ' - Combinable' : '');
+                            return $detail->consortia->name
+                                . ' (' . $detail->start_date . ' - ' . $detail->end_date . ')'
+                                . ': ' . $detail->description
+                                . ($detail->combinable ? ' - Combinable' : '');
                         })->implode('<br>');
                     })
                     ->html(),
@@ -145,6 +136,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                             'product_id' => $record->product_id,
                             'affiliation_name' => $record->affiliation_name,
                             'combinable' => $record->combinable,
+                            'non_combinable' => $record->non_combinable,
                             'details' => $record->details->map(function ($detail) {
                                 return [
                                     'consortia_id' => $detail->consortia_id,
@@ -192,8 +184,7 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-o-plus')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->iconButton()
-                    ->visible(fn () => Gate::allows('create', Product::class)),
-            ]);
+                    ->visible(fn () => Gate::allows('create', Product::class) && !ProductAffiliation::where('product_id', $this->productId)->exists())            ]);
     }
 
     public function render()

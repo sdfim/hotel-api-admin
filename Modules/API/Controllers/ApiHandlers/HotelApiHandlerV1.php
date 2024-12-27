@@ -4,6 +4,7 @@ namespace Modules\API\Controllers\ApiHandlers;
 
 use App\Models\ExpediaContent;
 use App\Models\GeneralConfiguration;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -38,7 +39,6 @@ class HotelApiHandlerV1 extends HotelApiHandler
         private readonly ExpediaHotelContentDto         $expediaHotelContentDto = new ExpediaHotelContentDto(),
         private readonly IcePortalHotelContentDto       $icePortalHotelContentDto = new IcePortalHotelContentDto(),
         private readonly IcePortalHotelContentDetailDto $icePortalHotelContentDetailDto,
-        private readonly EnrichmentWeight               $propsWeight,
     ) {}
 
     public function search(Request $request): JsonResponse
@@ -113,6 +113,7 @@ class HotelApiHandlerV1 extends HotelApiHandler
     {
         $resultsExpedia = Arr::get($this->expedia->search($request->all()), 'results', []);
         $resultsIcePortal = Arr::get($this->icePortal->search($request->all()), 'results', []);
+
         $giataCodes = $this->getGiataCodesByContent($resultsExpedia, $resultsIcePortal);
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
@@ -149,7 +150,7 @@ class HotelApiHandlerV1 extends HotelApiHandler
             : [$request->input('property_id')];
     }
 
-    private function getGiataCodesByContent(array $resultsExpedia, array$resultsIcePortal): array
+    private function getGiataCodesByContent(array $resultsExpedia, array $resultsIcePortal): array
     {
         return array_merge(
             array_column($resultsExpedia, 'giata_id'),
@@ -219,7 +220,28 @@ class HotelApiHandlerV1 extends HotelApiHandler
 
     private function combineDetailResults(array $resultsExpedia, array $resultsIcePortal, array $structureSource, $repoData, array $giataCodes): array
     {
-        $rooms = $repoData->whereIn('giata_code', $giataCodes)->pluck('rooms', 'giata_code')->toArray();
+        $rooms = $this->getRooms($repoData, $giataCodes);
+        $roomMappers = $this->getRoomMappers($rooms);
+
+        $existingExpediaGiataIds = array_column($resultsExpedia, 'giata_hotel_code');
+        $filteredResultsIcePortal = $this->filterResultsIcePortal($resultsIcePortal, $existingExpediaGiataIds);
+
+        $detailResults = array_merge($resultsExpedia, $filteredResultsIcePortal);
+        $romsImagesData = $this->mergeRooms($detailResults, $resultsExpedia, $resultsIcePortal, $roomMappers);
+
+        $missingGiataCodes = $this->getMissingGiataCodes($giataCodes);
+        $detailResults = $this->addMissingGiataCodes($detailResults, $missingGiataCodes);
+
+        return $this->updateDetailResults($detailResults, $structureSource, $repoData, $resultsIcePortal, $romsImagesData);
+    }
+
+    private function getRooms($repoData, array $giataCodes): array
+    {
+        return $repoData->whereIn('giata_code', $giataCodes)->pluck('rooms', 'giata_code')->toArray();
+    }
+
+    private function getRoomMappers(array $rooms): array
+    {
         $roomMappers = [];
         foreach ($rooms as $giataCode => $roomArray) {
             foreach ($roomArray as $room) {
@@ -232,15 +254,18 @@ class HotelApiHandlerV1 extends HotelApiHandler
                 $roomMappers[$giataCode][] = $mapper;
             }
         }
+        return $roomMappers;
+    }
 
-        $existingExpediaGiataIds = array_column($resultsExpedia, 'giata_hotel_code');
-
-        $filteredResultsIcePortal = array_filter($resultsIcePortal, function($item) use ($existingExpediaGiataIds) {
+    private function filterResultsIcePortal(array $resultsIcePortal, array $existingExpediaGiataIds): array
+    {
+        return array_filter($resultsIcePortal, function($item) use ($existingExpediaGiataIds) {
             return !in_array($item['giata_hotel_code'], $existingExpediaGiataIds);
         });
+    }
 
-        $detailResults = array_merge($resultsExpedia, $filteredResultsIcePortal);
-
+    private function mergeRooms(array &$detailResults, array $resultsExpedia, array $resultsIcePortal, array $roomMappers): array
+    {
         $romsImagesData = [];
         foreach ($detailResults as &$item) {
             $giataCode = $item['giata_hotel_code'];
@@ -264,9 +289,9 @@ class HotelApiHandlerV1 extends HotelApiHandler
                     $externalCode = $mapper['external_code'];
 
                     if (in_array($expediaRoomId, $mapper)) {
-                        $romsImagesData[$giataCode][$externalCode]['Expedia'] = $expediaRoom['images'];
+                        $romsImagesData[$giataCode][$externalCode][SupplierNameEnum::EXPEDIA->value] = $expediaRoom['images'];
                         $foundInMapper = true;
-                        $icePortalRoomId = Arr::get($mapper, 'IcePortal');
+                        $icePortalRoomId = Arr::get($mapper, SupplierNameEnum::ICE_PORTAL->value);
                         if (!$icePortalRoomId) {
                             $expediaRoom['supplier_codes'] = $mapper;
                             $mergedRooms[] = $expediaRoom;
@@ -275,7 +300,7 @@ class HotelApiHandlerV1 extends HotelApiHandler
 
                         $icePortalRoomKey = array_search($icePortalRoomId, array_column($icePortalRooms, 'supplier_room_id'));
                         if (isset($icePortalRooms[$icePortalRoomKey])) {
-                            $romsImagesData[$giataCode][$externalCode]['IcePortal'] = $icePortalRooms[$icePortalRoomKey]['images'];
+                            $romsImagesData[$giataCode][$externalCode][SupplierNameEnum::ICE_PORTAL->value] = $icePortalRooms[$icePortalRoomKey]['images'];
                         }
                         if ($icePortalRoomKey !== false) {
                             $expediaRoom['supplier_codes'] = $mapper;
@@ -297,12 +322,19 @@ class HotelApiHandlerV1 extends HotelApiHandler
         }
         unset($item);
 
-        $missingGiataCodes = $this->getMissingGiataCodes($giataCodes);
+        return $romsImagesData;
+    }
 
+    private function addMissingGiataCodes(array $detailResults, array $missingGiataCodes): array
+    {
         foreach ($missingGiataCodes as $giataCode) {
             $detailResults = array_merge($detailResults, [$this->dataTransformer->createEmptyHotelResponse($giataCode)]);
         }
+        return $detailResults;
+    }
 
+    private function updateDetailResults(array $detailResults, array $structureSource, $repoData, array $resultsIcePortal, array $romsImagesData): array
+    {
         foreach ($detailResults as &$result) {
             $giata_code = Arr::get($result, 'giata_hotel_code');
             if (!$giata_code || !isset($structureSource[$giata_code])) continue;
@@ -314,7 +346,6 @@ class HotelApiHandlerV1 extends HotelApiHandler
 
         return $detailResults;
     }
-
     private function combineContentResults(array $resultsExpedia, array $resultsIcePortal, array $structureSource, $repoData, array $giataCodes): array
     {
         $existingGiataIds = array_column($resultsExpedia, 'giata_hotel_code');

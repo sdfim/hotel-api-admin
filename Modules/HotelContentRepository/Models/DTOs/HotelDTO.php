@@ -40,7 +40,7 @@ class HotelDTO
             'address' => $hotel->address,
             'star_rating' => $hotel->star_rating,
             'num_rooms' => $hotel->num_rooms,
-            'room_images_source' => new ContentSourceDTO($hotel->roomImagesSource),
+            'room_images_source' => resolve(ContentSourceDTO::class)->transformContentSource($hotel->roomImagesSource),
             'hotel_board_basis' => $hotel->hotel_board_basis,
             'travel_agent_commission' => $hotel->travel_agent_commission,
             'rooms' => $this->hotelRoomDTO->transform($hotel->rooms),
@@ -48,7 +48,7 @@ class HotelDTO
         ];
 
         if ($returnProduct) {
-            $data['product'] = $this->productDTO->transform(new Collection([$hotel->product]));
+            $data['product'] = $this->productDTO->transformProduct($hotel->product);
         }
 
         return $data;

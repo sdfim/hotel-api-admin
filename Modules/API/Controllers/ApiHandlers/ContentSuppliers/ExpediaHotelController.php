@@ -102,8 +102,8 @@ class ExpediaHotelController
             $queryBuilder->leftJoin('expedia_content_slave', 'expedia_content_slave.expedia_property_id', '=', 'expedia_content_main.property_id')
                 ->leftJoin($mainDB.'.mappings', $mainDB.'.mappings.supplier_id', '=', 'expedia_content_main.property_id')
                 ->where('expedia_content_main.is_active', 1)
-                ->where($mainDB.'.mappings.supplier', MappingSuppliersEnum::Expedia->value)
-                ->whereNotNull($mainDB.'.mappings.supplier_id')
+//                ->where($mainDB.'.mappings.supplier', MappingSuppliersEnum::Expedia->value)
+//                ->whereNotNull($mainDB.'.mappings.supplier_id')
                 ->whereIn($mainDB.'.mappings.giata_id', $giataCodes)
                 ->select($selectFields);
 

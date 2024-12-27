@@ -57,7 +57,6 @@ class ProductAffiliationControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonFragment([
                 'id' => $productAffiliation->id,
-                'affiliation_name' => $productAffiliation->affiliation_name,
             ]);
     }
 }

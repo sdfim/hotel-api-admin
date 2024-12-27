@@ -70,10 +70,10 @@ class ProductAffiliationRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"product_id", "affiliation_name", "combinable"},
+     *       required={"product_id", "combinable"},
      *       @OA\Property(property="product_id", type="integer", example=1),
-     *       @OA\Property(property="affiliation_name", type="string", enum={"UJV Exclusive Amenities", "Consortia Inclusions"}, example="UJV Exclusive Amenities"),
-     *       @OA\Property(property="combinable", type="boolean", example=true)
+     *       @OA\Property(property="combinable", type="string", example="true"),
+     *       @OA\Property(property="non_combinable", type="string", example="false")
      *     )
      *   ),
      *   @OA\Response(
@@ -164,10 +164,10 @@ class ProductAffiliationRequest extends ApiRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"product_id", "affiliation_name", "combinable"},
+     *       required={"product_id", "combinable"},
      *       @OA\Property(property="product_id", type="integer", example=1),
-     *       @OA\Property(property="affiliation_name", type="string", enum={"UJV Exclusive Amenities", "Consortia Inclusions"}, example="UJV Exclusive Amenities"),
-     *       @OA\Property(property="combinable", type="boolean", example=true)
+     *       @OA\Property(property="combinable", type="string", example="true"),
+     *       @OA\Property(property="non_combinable", type="string", example="false")
      *     )
      *   ),
      *   @OA\Response(
@@ -251,13 +251,12 @@ class ProductAffiliationRequest extends ApiRequest
      */
 
 
-
     public function rules(): array
     {
         return [
             'product_id' => 'required|integer|exists:pd_products,id',
-            'affiliation_name' => 'required|string|max:255|in:UJV Exclusive Amenities,Consortia Inclusions',
-            'combinable' => 'required|boolean',
+            'combinable' => 'required|string',
+            'non_combinable' => 'nullable|string',
         ];
     }
 }

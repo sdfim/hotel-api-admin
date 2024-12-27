@@ -44,7 +44,6 @@ class ProductDTO
         private readonly ContactInformationDTO $contactInformationDTO,
         private readonly ProductCancellationPolicyDTO $productCancellationPolicyDTO,
         private readonly ProductDepositInformationDTO $productDepositInformationDTO,
-
     ) {}
 
     public function transform(Collection $products, bool $returnRelation = false)
@@ -62,8 +61,8 @@ class ProductDTO
             'product_type' => $product->product_type,
             'name' => $product->name,
             'verified' => $product->verified,
-            'content_source' => new ContentSourceDTO($product->contentSource),
-            'property_images_source' => new ContentSourceDTO($product->propertyImagesSource),
+            'content_source' => resolve(ContentSourceDTO::class)->transformContentSource($product->contentSource),
+            'property_images_source' => resolve(ContentSourceDTO::class)->transformContentSource($product->propertyImagesSource),
             'default_currency' => $product->default_currency,
             'website' => $product->website,
             'location' => $product->location,
@@ -73,7 +72,7 @@ class ProductDTO
             'affiliations' => $this->productAffiliationDTO->transform($product->affiliations),
             'age_restrictions' => $this->productAgeRestrictionDTO->transform($product->ageRestrictions),
             'attributes' => $this->productAttributeDTO->transform($product->attributes),
-            'descriptive_contents_section' => $this->productDescriptiveContentSectionDTO->transform($product->descriptiveContentsSection),
+            'descriptive_contents' => $this->productDescriptiveContentSectionDTO->transform($product->descriptiveContentsSection),
             'fee_taxes' => $this->productFeeTaxDTO->transform($product->feeTaxes),
             'informative_services' => $this->productInformativeServiceDTO->transform($product->informativeServices),
             'promotions' => $this->productPromotionDTO->transform($product->promotions),
@@ -81,9 +80,17 @@ class ProductDTO
             'galleries' => $this->imageGalleryDTO->transform($product->galleries),
             'contact_information' => $product->contactInformation ? $this->contactInformationDTO->transform($product->contactInformation) : null,
             'cancellation_policies' => $product->cancellationPolicies? $this->productCancellationPolicyDTO->transform($product->cancellationPolicies) : null,
-            'deposit_information' => $product->depositInformation? $this->productDepositInformationDTO->transform($product->depositInformation) : null,
-
+            'deposit_information' => $product->depositInformations? $this->productDepositInformationDTO->transform($product->depositInformations) : null,
         ];
+
+        if ($returnRelation && $product->product_type === 'hotel') {
+            try {
+                $hotelDTO = resolve(HotelDTO::class);
+                $data['related'] = $hotelDTO->transformHotel($product->related);
+            } catch (\Exception $e) {
+                \Log::error('error related product', ['error' => $e->getMessage()]);
+            }
+        }
 
         return $data;
     }

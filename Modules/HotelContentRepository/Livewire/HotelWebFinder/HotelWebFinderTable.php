@@ -46,11 +46,6 @@ class HotelWebFinderTable extends Component implements HasForms, HasTable
         $this->title = 'Website Search Generation for <h4>' . ($hotel ? $hotel->product->name : 'Unknown Hotel') . '</h4>';
     }
 
-    public function form(Form $form): Form
-    {
-        return $form->schema($this->schemeForm());
-    }
-
     public function schemeForm($record = null): array
     {
         return [

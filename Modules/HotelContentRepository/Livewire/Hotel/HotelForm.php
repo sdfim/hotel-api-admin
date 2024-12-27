@@ -160,21 +160,45 @@ class HotelForm extends Component implements HasForms
                                 ->schema(self::getCoreFields($this->record)),
                             Grid::make(2)
                                 ->schema([
-                                    TextInput::make('product.name')->required()->label('Product Name')->maxLength(191),
+                                    TextInput::make('product.name')
+                                        ->required()
+                                        ->rule('required', function (Get $get, $state) {
+                                            return self::validateRequiredField($get, $state, 'Product Name');
+                                        })
+                                        ->label('Product Name')
+                                        ->maxLength(191),
                                     Select::make('sale_type')
                                         ->label('Type')
                                         ->options([
                                             HotelSaleTypeEnum::DIRECT_CONNECTION->value => HotelSaleTypeEnum::DIRECT_CONNECTION->value,
                                             HotelSaleTypeEnum::MANUAL_CONTRACT->value => HotelSaleTypeEnum::MANUAL_CONTRACT->value,
                                             HotelSaleTypeEnum::COMMISSION_TRACKING->value => HotelSaleTypeEnum::COMMISSION_TRACKING->value,
-                                        ])->required(),
-                                    TextInput::make('star_rating')->required()->numeric()->label('Star Rating'),
-                                    TextInput::make('num_rooms')->required()->numeric()->label('Number of Rooms'),
+                                        ])->required()
+                                        ->rule('required', function (Get $get, $state) {
+                                            return self::validateRequiredField($get, $state, 'Type');
+                                        }),
+                                    TextInput::make('star_rating')
+                                        ->required()
+                                        ->rule('required', function (Get $get, $state) {
+                                            return self::validateRequiredField($get, $state, 'Star Rating');
+                                        })
+                                        ->numeric()
+                                        ->label('Star Rating'),
+                                    TextInput::make('num_rooms')
+                                        ->required()
+                                        ->rule('required', function (Get $get, $state) {
+                                            return self::validateRequiredField($get, $state, 'Number of Rooms');
+                                        })
+                                        ->numeric()
+                                        ->label('Number of Rooms'),
                                     Select::make('hotel_board_basis')
                                         ->label('Meal Plans Available')
                                         ->multiple()
                                         ->options(array_combine(MealPlansEnum::values(), MealPlansEnum::values()))
-                                        ->required(),
+                                        ->required()
+                                        ->rule('required', function (Get $get, $state) {
+                                            return self::validateRequiredField($get, $state, 'Meal Plans Available');
+                                        }),
                                     TextInput::make('product.website')->url()->label('Website')->maxLength(191),
                                     FileUpload::make('product.hero_image')
                                         ->image()
@@ -242,19 +266,31 @@ class HotelForm extends Component implements HasForms
                             Select::make('product.content_source_id')
                                 ->label('Content Source')
                                 ->options(ContentSource::pluck('name', 'id'))
-                                ->required(),
+                                ->required()
+                                ->rule('required', function (Get $get, $state) {
+                                    return self::validateRequiredField($get, $state, 'Content Source');
+                                }),
                             Select::make('room_images_source_id')
                                 ->label('Room Images Source')
                                 ->placeholder('Select an option')
                                 ->options(ContentSource::pluck('name', 'id'))
-                                ->required(),
+                                ->required()
+                                ->rule('required', function (Get $get, $state) {
+                                    return self::validateRequiredField($get, $state, 'Room Images Source');
+                                }),
                             Select::make('product.property_images_source_id')
                                 ->label('Property Images Source')
                                 ->options(ContentSource::pluck('name', 'id'))
-                                ->required(),
+                                ->required()
+                                ->rule('required', function (Get $get, $state) {
+                                    return self::validateRequiredField($get, $state, 'Property Images Source');
+                                }),
                             Select::make('product.default_currency')
                                 ->label('Default Currency')
                                 ->required()
+                                ->rule('required', function (Get $get, $state) {
+                                    return self::validateRequiredField($get, $state, 'Default Currency');
+                                })
                                 ->options([
                                     'USD' => 'USD',
                                     'EUR' => 'EUR',
@@ -298,6 +334,19 @@ class HotelForm extends Component implements HasForms
         ];
     }
 
+    protected static function validateRequiredField(Get $get, $state, string $fieldName): bool
+    {
+        if (empty($state)) {
+            Notification::make()
+                ->title('Validation Error')
+                ->body("The {$fieldName} field is required.")
+                ->danger()
+                ->send();
+            return false;
+        }
+        return true;
+    }
+
     public static function getCoreFields($record = null): array
     {
         return [
@@ -338,7 +387,10 @@ class HotelForm extends Component implements HasForms
                     return $query->pluck('name', 'id')->toArray();
                 })
                 ->dehydrated()
-                ->required(),
+                ->required()
+                ->rule('required', function (Get $get, $state) {
+                    return self::validateRequiredField($get, $state, 'Vendor Name');
+                }),
         ];
     }
 

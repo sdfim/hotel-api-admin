@@ -18,6 +18,28 @@ class ContentSearchResponse
     private array $important_information;
     private array $supplier_information;
     private int $weight;
+    private array $deposit_information;
+    private array $cancellation_policies;
+
+    public function setCancellationPolicies(array $cancellation_policies): void
+    {
+        $this->cancellation_policies = $cancellation_policies;
+    }
+
+    public function getCancellationPolicies(): array
+    {
+        return $this->cancellation_policies;
+    }
+
+    public function setDepositInformation(array $deposit_information): void
+    {
+        $this->deposit_information = $deposit_information;
+    }
+
+    public function getDepositInformation(): array
+    {
+        return $this->deposit_information;
+    }
 
     public function setWeight(int $weight): void
     {
@@ -166,6 +188,8 @@ class ContentSearchResponse
             'weight' => $this->getWeight(),
             'images' => $this->getImages(),
             'description' => $this->getDescription(),
+            'deposit_information' => $this->getDepositInformation(),
+            'cancellation_policies' => $this->getCancellationPolicies(),
             'hotel_name' => $this->getHotelName(),
             'distance' => $this->getDistance(),
             'latitude' => $this->getLatitude(),

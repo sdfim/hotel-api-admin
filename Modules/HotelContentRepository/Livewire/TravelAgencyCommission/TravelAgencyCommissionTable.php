@@ -52,11 +52,6 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
         $this->title = 'Travel Agency Commission for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
-    public function form(Form $form): Form
-    {
-        return $form->schema($this->schemeForm());
-    }
-
     public function schemeForm(): array
     {
         return [

@@ -55,12 +55,27 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
             ->columns([
                 TextColumn::make('name')->label('Name')->searchable(),
                 TextColumn::make('start_date')->label('Start Date')->date()->searchable(),
-                TextColumn::make('expiration_date')->label('Expiration Date')->date()->searchable(),
-                TextColumn::make('manipulable_price_type')->label('Price Type')->searchable(),
-                TextColumn::make('price_value_type')->label('Value Type')->searchable(),
+                TextColumn::make('expiration_date')
+                    ->label('Expiration Date')
+                    ->date()
+                    ->searchable()
+                    ->formatStateUsing(function ($state) {
+                        $date = Carbon::parse($state)->format('M j, Y');
+                        return $date === 'Feb 2, 2112' ? '' : $date;
+                    }),
+                TextColumn::make('manipulable_price_type')
+                    ->label('Price Type')
+                    ->searchable()
+                    ->formatStateUsing(fn ($state) => ucwords(str_replace('_', ' ', $state))),
+                TextColumn::make('price_value_type')
+                    ->label('Value Type')
+                    ->searchable()
+                    ->formatStateUsing(fn ($state) => ucwords(str_replace('_', ' ', $state))),
                 TextColumn::make('price_value')->label('Value')->searchable(),
-                TextColumn::make('price_value_target')->label('Value Target')->searchable(),
-            ])
+                TextColumn::make('price_value_target')
+                    ->label('Value Target')
+                    ->searchable()
+                    ->formatStateUsing(fn ($state) => ucwords(str_replace('_', ' ', $state))),            ])
             ->actions([
                 EditAction::make()
                     ->iconButton()

@@ -19,4 +19,6 @@ return [
         'server_key'  => env('FILAMENT_GOOGLE_MAPS_SERVER_API_KEY', env('GOOGLE_API_DEVELOPER_KEY')),
         'signing_key' => env('FILAMENT_GOOGLE_MAPS_SIGNING_KEY', null),
     ],
+
+    'force-https' => env('FILAMENT_GOOGLE_MAPS_FORCE_HTTPS', true),
 ];

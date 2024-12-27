@@ -22,6 +22,8 @@ class ContentSearchResponseFactory
         $contentSearchResponse->setImportantInformation([]);
         $contentSearchResponse->setSupplierInformation([]);
         $contentSearchResponse->setWeight(0);
+        $contentSearchResponse->setDepositInformation([]);
+        $contentSearchResponse->setCancellationPolicies([]);
 
         return $contentSearchResponse;
     }

@@ -24,8 +24,9 @@ class ProductInformativeServiceDTO
     {
         return [
             'id' => $informativeService->id,
-            'product_id' => $informativeService->product_id,
             'service_id' => $informativeService->service_id,
+            'service' => $informativeService->service->name,
+            'cost' => $informativeService->cost,
         ];
     }
 }

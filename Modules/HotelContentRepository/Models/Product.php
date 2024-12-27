@@ -134,6 +134,16 @@ class Product extends Model
         return $this->hasMany(TravelAgencyCommission::class, 'product_id');
     }
 
+    public function depositInformations()
+    {
+        return $this->hasMany(ProductDepositInformation::class, 'product_id');
+    }
+
+    public function cancellationPolicies()
+    {
+        return $this->hasMany(ProductCancellationPolicy::class, 'product_id');
+    }
+
     protected $appends = [
         'location',
     ];

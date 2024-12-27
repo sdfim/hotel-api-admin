@@ -51,11 +51,6 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
         $this->title = 'Fees and Taxes for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
-    public function form(Form $form): Form
-    {
-        return $form->schema($this->schemeForm());
-    }
-
     public function schemeForm(): array
     {
         return [

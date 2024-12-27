@@ -14,6 +14,8 @@ class ProductTransformer extends TransformerAbstract
         'contentSource',
         'contactInformation',
         'descriptiveContentsSection',
+        'depositInformations',
+        'cancellationPolicies',
         'feeTaxes',
         'informativeServices',
         'promotions',
@@ -61,7 +63,7 @@ class ProductTransformer extends TransformerAbstract
     public function includeContactInformation(Product $product)
     {
         if ($product->contactInformation !== null) {
-            return $this->collection($product->contactInformation, new ContactInformationTransformer());
+            return $this->item($product->contactInformation, new ContactInformationTransformer());
         }
         return $this->null();
     }
@@ -104,5 +106,15 @@ class ProductTransformer extends TransformerAbstract
     public function includeGalleries(Product $product)
     {
         return $this->collection($product->galleries, new GalleryTransformer());
+    }
+
+    public function includeDepositInformations(Product $product)
+    {
+        return $this->collection($product->depositInformations, new DepositInformationTransformer());
+    }
+
+    public function includeCancellationPolicies(Product $product)
+    {
+        return $this->collection($product->cancellationPolicies, new CancellationPolicyTransformer());
     }
 }

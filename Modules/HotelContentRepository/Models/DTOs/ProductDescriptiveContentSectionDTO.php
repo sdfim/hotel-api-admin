@@ -27,11 +27,10 @@ class ProductDescriptiveContentSectionDTO
     {
         return [
             'id' => $section->id,
-            'product_id' => $section->product_id,
-            'section_name' => $section->section_name,
             'start_date' => $section->start_date,
             'end_date' => $section->end_date,
             'descriptive_type_id' => $section->descriptive_type_id,
+            'descriptive' => $section->descriptiveType->name,
             'value' => $section->value,
         ];
     }

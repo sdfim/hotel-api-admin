@@ -43,11 +43,6 @@ class ContactInformationTable extends Component implements HasForms, HasTable
         $this->title = 'Contact Information';
     }
 
-    public function form(Form $form): Form
-    {
-        return $form->schema($this->schemeForm());
-    }
-
     public function schemeForm(): array
     {
         return [
@@ -97,7 +92,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
             ->query(
                 ContactInformation::with('contactInformations')
                     ->where('contactable_id', $this->contactableId)
-                    ->where('contactable_type', __NAMESPACE__ . '\\Models\\' . $this->contactableType)
+                    ->where('contactable_type', 'Modules\\HotelContentRepository\\Models\\' . $this->contactableType)
             )
             ->columns([
                 TextColumn::make('first_name')->label('First Name'),
@@ -122,7 +117,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                         return $data;
                     })
                     ->action(function ($data, $record) {
-                        $data['contactable_type'] = __NAMESPACE__ . '\\Models\\' . $this->contactableType;
+                        $data['contactable_type'] = 'Modules\\HotelContentRepository\\Models\\' . $this->contactableType;
                         $contactInformations = $data['contactInformations'] ?? [];
                         unset($data['contactInformations']);
                         $record->update($data);
@@ -139,7 +134,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                     ->createAnother(false)
                     ->action(function ($data) {
                         if ($this->contactableId) $data['contactable_id'] = $this->contactableId;
-                        $data['contactable_type'] = __NAMESPACE__ . '\\Models\\' . $this->contactableType;
+                        $data['contactable_type'] = 'Modules\\HotelContentRepository\\Models\\' . $this->contactableType;
                         $contactInformations = $data['contactInformations'] ?? [];
                         unset($data['contactInformations']);
                         $hotelContactInformation = ContactInformation::create($data);

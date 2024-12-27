@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\Hotel;
 
 use App\Helpers\ClassHelper;
+use App\Models\Configurations\ConfigAttribute;
 use App\Models\Enums\RoleSlug;
 use App\Helpers\Strings;
 use App\Models\Property;
@@ -18,10 +19,12 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\API\Services\MappingCacheService;
 use Modules\Enums\ContentSourceEnum;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;

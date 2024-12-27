@@ -41,6 +41,7 @@ trait DepositFieldTrait
                     TextInput::make('start_date')
                         ->label('Start Date')
                         ->type('date')
+                        ->default(Carbon::now()->format('Y-m-d'))
                         ->required()
                         ->afterStateHydrated(function (TextInput $component) use ($record) {
                             if (isset($record)) {
@@ -126,7 +127,7 @@ trait DepositFieldTrait
                         return [
                             'supplier_id' => 'Supplier ID',
                             'channel_id' => 'Channel ID',
-                            'property' => 'Property',
+//                            'property' => 'Property',
                             'destination' => 'Destination',
                             'travel_date' => 'Travel date',
                             'booking_date' => 'Booking date',
@@ -136,7 +137,6 @@ trait DepositFieldTrait
                             'rating' => 'Rating',
                             'number_of_rooms' => 'Number of rooms',
                             'meal_plan' => 'Meal plan / Board basis',
-                            'rate_code' => 'Rate code',
 //                                'room_code' => 'Room code',
                             'room_name' => 'Room name',
                             'room_type' => 'Room type',
@@ -218,7 +218,7 @@ trait DepositFieldTrait
                                     return $properties;
                                 })
                                 ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
+                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', '!in'])),
 
                             Select::make('value_from')
                                 ->label('Property')
@@ -240,7 +240,7 @@ trait DepositFieldTrait
                                 })
                                 ->required()
                                 ->dehydrated()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
+                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', '!in'])),
                         ],
                         'destination' => [
                             Select::make('value')
@@ -267,7 +267,7 @@ trait DepositFieldTrait
                                     return $properties;
                                 })
                                 ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
+                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', '!in'])),
 
                             Select::make('value_from')
                                 ->label('Destination')
@@ -287,7 +287,7 @@ trait DepositFieldTrait
                                     return $result->full_name ?? '';
                                 })
                                 ->required()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
+                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', '!in'])),
                         ],
 
                         'travel_date' => [
@@ -423,56 +423,56 @@ trait DepositFieldTrait
                                 ->label('Rate code')
                                 ->maxLength(191)
                                 ->required()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
+                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', '!in'])),
 
                             TagsInput::make('value')
                                 ->separator('; ')
                                 ->placeholder('New Rate code')
                                 ->label('Rate codes')
                                 ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
+                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', '!in'])),
                         ],
                         'room_type' => [
                             TextInput::make('value_from')
                                 ->label('Room type')
                                 ->maxLength(191)
                                 ->required()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
+                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', '!in'])),
 
                             TagsInput::make('value')
                                 ->placeholder('New Room type')
                                 ->separator('; ')
                                 ->label('Room types')
                                 ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
+                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', '!in'])),
                         ],
                         'room_code' => [
                             TextInput::make('value_from')
                                 ->label('Room code')
                                 ->maxLength(191)
                                 ->required()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
+                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', '!in'])),
 
                             TagsInput::make('value')
                                 ->separator('; ')
                                 ->placeholder('New Room code')
                                 ->label('Room codes')
                                 ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
+                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', '!in'])),
                         ],
                         'room_name' => [
                             TextInput::make('value_from')
                                 ->label('Room name')
                                 ->maxLength(191)
                                 ->required()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', 'not_in'])),
+                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', '!in'])),
 
                             TagsInput::make('value')
                                 ->separator('; ')
                                 ->placeholder('New Room name')
                                 ->label('Room names')
                                 ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', 'not_in'])),
+                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', '!in'])),
                         ],
                         'meal_plan' => [
                             TextInput::make('value_from')

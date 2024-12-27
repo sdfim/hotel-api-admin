@@ -1,4 +1,5 @@
-name: Laravel
+name: Laravel Build and Test
+
 on:
   push:
     branches: ["master", "dev", "stage-ndr"]
@@ -46,9 +47,17 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
       - name: Install Composer Dependencies
         run: |
@@ -59,7 +68,16 @@ jobs:
           cp .env.ci .env
           php artisan key:generate
 
+      - name: Cache PHP Extensions
+        uses: actions/cache@v4
+        with:
+          path: /usr/local/lib/php/extensions
+          key: ${{ runner.os }}-php-extensions-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-extensions-
+
       - name: Install additional PHP extensions
+        if: steps.cache-php-extensions.outputs.cache-hit != 'true'
         run: |
           apt-get update
           apt-get install -y php8.2-xdebug
@@ -77,10 +95,32 @@ jobs:
       - name: Run Database Migrations With Seeding
         run: php artisan migrate --seed
 
-      - name: Install Node Modules And Build Frontend
-        run: |
-          npm i
-          npm run build --if-present
+      - name: Cache Node Modules
+        id: cache-npm
+        uses: actions/cache@v4
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
+        name: List the State of Node Modules
+        continue-on-error: true
+        run: npm list
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Set Permissions for Public Directory
+        run: chmod -R 777 $GITHUB_WORKSPACE/public
+
+      - name: Build Frontend
+        run: npm run build
 
       - name: Directory Permissions
         run: chmod -R 777 storage bootstrap/cache

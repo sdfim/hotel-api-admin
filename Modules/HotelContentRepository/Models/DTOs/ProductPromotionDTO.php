@@ -35,7 +35,6 @@ class ProductPromotionDTO
     {
         return [
             'id' => $promotion->id,
-            'product_id' => $promotion->product_id,
             'promotion_name' => $promotion->promotion_name,
             'description' => $promotion->description,
             'validity_start' => $promotion->validity_start,

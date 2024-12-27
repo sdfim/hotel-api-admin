@@ -23,8 +23,8 @@ class ProductAffiliation extends Model
 
     protected $fillable = [
         'product_id',
-        'affiliation_name',
         'combinable',
+        'non_combinable',
     ];
 
     protected $hidden = [

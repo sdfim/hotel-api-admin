@@ -28,7 +28,6 @@ class ProductAffiliationDTO
     {
         return [
             'id' => $productAffiliation->id,
-            'product_id' => $productAffiliation->product_id,
             'affiliation_name' => $productAffiliation->affiliation_name,
             'combinable' => $productAffiliation->combinable,
             'details' => $this->productAffiliationDetailDTO->transform($productAffiliation->details),

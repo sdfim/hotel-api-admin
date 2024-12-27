@@ -24,6 +24,28 @@ class ContentDetailResponse
     private array $rooms;
     private string $address;
     private array $supplier_information = [];
+    private array $deposit_information;
+    private array $cancellation_policies;
+
+    public function setCancellationPolicies(array $cancellation_policies): void
+    {
+        $this->cancellation_policies = $cancellation_policies;
+    }
+
+    public function getCancellationPolicies(): array
+    {
+        return $this->cancellation_policies;
+    }
+
+    public function setDepositInformation(array $deposit_information): void
+    {
+        $this->deposit_information = $deposit_information;
+    }
+
+    public function getDepositInformation(): array
+    {
+        return $this->deposit_information;
+    }
 
     public function setSupplierInformation(array $supplier_information): void
     {
@@ -245,6 +267,8 @@ class ContentDetailResponse
             'hotel_fees' => $this->getHotelFees(),
             'policies' => $this->getPolicies(),
             'descriptions' => $this->getDescriptions(),
+            'deposit_information' => $this->getDepositInformation(),
+            'cancellation_policies' => $this->getCancellationPolicies(),
             'address' => $this->getAddress(),
             'rooms' => $this->getRooms(),
             'supplier_information' => $this->getSupplierInformation(),

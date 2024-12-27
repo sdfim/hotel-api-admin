@@ -27,6 +27,8 @@ class ContentDetailResponseFactory
         $contentDetailResponse->setDescriptions([]);
         $contentDetailResponse->setAddress('');
         $contentDetailResponse->setSupplierInformation([]);
+        $contentDetailResponse->setDepositInformation([]);
+        $contentDetailResponse->setCancellationPolicies([]);
 
         return $contentDetailResponse;
     }

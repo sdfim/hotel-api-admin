@@ -24,8 +24,8 @@ class ProductAttributeDTO
     {
         return [
             'id' => $productAttribute->id,
-            'product_id' => $productAttribute->product_id,
             'config_attribute_id' => $productAttribute->config_attribute_id,
+            'attribute' => $productAttribute->attribute->name,
         ];
     }
 }

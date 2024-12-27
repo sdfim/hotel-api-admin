@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('pd_product_affiliations', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
-            $table->string('affiliation_name');
-            $table->boolean('combinable')->nullable();
+            $table->text('combinable')->nullable();
+            $table->text('non_combinable')->nullable();
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');

@@ -32,7 +32,6 @@ class HotelRoomDTO
     {
         return [
             'id' => $hotelRoom->id,
-            'hotel_id' => $hotelRoom->hotel_id,
             'hbsi_data_mapped_name' => $hotelRoom->hbsi_data_mapped_name,
             'name' => $hotelRoom->name,
             'description' => $hotelRoom->description,

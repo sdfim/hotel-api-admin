@@ -19,7 +19,7 @@ class ProductCancellationPolicyCondition extends Model
     protected $table = 'pd_product_cancellation_policy_conditions';
 
     protected $fillable = [
-        'product_deposit_information_id',
+        'product_cancellation_policy_id',
         'field',
         'compare',
         'value',

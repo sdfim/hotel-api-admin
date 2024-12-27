@@ -42,11 +42,6 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
         $this->title = 'Informational Service for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
     }
 
-    public function form(Form $form): Form
-    {
-        return $form->schema($this->schemeForm());
-    }
-
     public function schemeForm(): array
     {
         return [

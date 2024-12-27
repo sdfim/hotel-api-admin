@@ -30,7 +30,6 @@ class ProductCancellationPolicyDTO
     {
         return [
             'id' => $policy->id,
-            'product_id' => $policy->product_id,
             'name' => $policy->name,
             'start_date' => $policy->start_date,
             'expiration_date' => $policy->expiration_date,

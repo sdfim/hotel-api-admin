@@ -52,11 +52,6 @@ class HotelRoomTable extends Component implements HasForms, HasTable
         $this->title = 'Hotel Room for <h4>' . ($hotel ? $hotel->product->name : 'Unknown Hotel') . '</h4>';
     }
 
-    public function form(Form $form): Form
-    {
-        return $form->schema($this->schemeForm())->model($this->record);
-    }
-
     public function schemeForm($record = null): array
     {
         return [

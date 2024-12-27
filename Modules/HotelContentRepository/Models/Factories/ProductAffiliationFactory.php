@@ -15,8 +15,8 @@ class ProductAffiliationFactory extends Factory
     {
         return [
             'product_id' => Product::factory(),
-            'affiliation_name' => $this->faker->randomElement(['UJV Exclusive Amenities', 'Consortia Inclusions']),
-            'combinable' => $this->faker->boolean,
+            'combinable' => $this->faker->text(50),
+            'non_combinable' => $this->faker->text(50),
         ];
     }
 }

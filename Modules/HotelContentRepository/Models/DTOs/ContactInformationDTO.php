@@ -28,12 +28,16 @@ class ContactInformationDTO
     {
         return [
             'id' => $contactInformation->id,
-            'contactable_id' => $contactInformation->contactable_id,
             'first_name' => $contactInformation->first_name,
             'last_name' => $contactInformation->last_name,
             'email' => $contactInformation->email,
             'phone' => $contactInformation->phone,
-            'contact_informations' => $contactInformation->contactInformations,
+            'jobs' => $contactInformation->contactInformations->map(function ($information) {
+                return [
+                    'id' => $information->id,
+                    'name' => $information->name,
+                ];
+            }),
         ];
     }
 }

@@ -12,7 +12,7 @@ class ProductDepositInformationConditionFactory extends Factory
     public function definition()
     {
         return [
-            'product_deposit_information_id' => $this->faker->numberBetween(1, 100),
+            'product_cancellation_policy_id' => $this->faker->numberBetween(1, 100),
             'field' => $this->faker->word,
             'compare' => $this->faker->randomElement(['=', '!=', '>', '<', '>=', '<=', 'in', 'not_in']),
             'value' => $this->faker->optional()->word,

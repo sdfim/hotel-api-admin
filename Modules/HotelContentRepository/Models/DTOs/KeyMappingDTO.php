@@ -25,7 +25,6 @@ class KeyMappingDTO
     {
         return [
             'id' => $keyMapping->id,
-            'product_id' => $keyMapping->product_id,
             'key_id' => $keyMapping->key_id,
             'key_mapping_owner_id' => $keyMapping->key_mapping_owner_id,
         ];

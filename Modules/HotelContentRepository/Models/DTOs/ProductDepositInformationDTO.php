@@ -31,7 +31,6 @@ class ProductDepositInformationDTO
     {
         return [
             'id' => $deposit->id,
-            'product_id' => $deposit->product_id,
             'name' => $deposit->name,
             'start_date' => $deposit->start_date,
             'expiration_date' => $deposit->expiration_date,

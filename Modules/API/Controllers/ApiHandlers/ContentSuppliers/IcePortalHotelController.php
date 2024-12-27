@@ -35,7 +35,9 @@ class IcePortalHotelController
 
     public function search(array $filters): array
     {
-        if (isset($filters['place'])) {
+        if (isset($filters['session']) || isset($filters['latitude'])) {
+            return [];
+        } elseif (isset($filters['place'])) {
             $tticodes = GiataPlace::where('key', $filters['place'])->first()->tticodes;
             $city_id = 0;
             foreach ($tticodes as $tticode) {
