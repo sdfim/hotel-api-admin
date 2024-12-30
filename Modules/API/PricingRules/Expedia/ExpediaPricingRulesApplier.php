@@ -3,6 +3,7 @@
 namespace Modules\API\PricingRules\Expedia;
 
 use App\Models\Supplier;
+use Illuminate\Support\Arr;
 use Modules\API\PricingRules\BasePricingRulesApplier;
 use Modules\API\PricingRules\PricingRulesApplierInterface;
 
@@ -88,7 +89,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
         }
 
         $totals['total_fees'] += (float)($roomPricing['totals']['property_fees']['billable_currency']['value'] ?? 0);
-        $totals['commission_amount'] += (float)($roomPricing['totals']['marketing_fee']['billable_currency']['value'] ?? 0);
+        $totals['commission_amount'] += (float)(Arr::get($roomPricing, 'totals.marketing_fee.billable_currency.value', 0));
 
         return $totals;
     }

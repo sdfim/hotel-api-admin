@@ -295,7 +295,7 @@ class ExpediaHotelPricingDto
 
         /** Commission tracking data */
         $roomResponse->setCommissionableAmount($roomResponse->getTotalPrice() - $roomResponse->getTotalTax());
-        $roomResponse->setCommissionAmount($pricingRulesApplier['commission_amount']);
+        $roomResponse->setCommissionAmount(Arr::get($pricingRulesApplier,'commission_amount', 0));
 
         $roomResponse->setCurrency($this->currency);
 
