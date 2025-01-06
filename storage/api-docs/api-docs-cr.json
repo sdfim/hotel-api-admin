@@ -1078,6 +1078,14 @@
                                     "description": {
                                         "type": "string",
                                         "example": "A luxurious room with all amenities."
+                                    },
+                                    "area": {
+                                        "type": "string",
+                                        "example": "50"
+                                    },
+                                    "bed_groups": {
+                                        "type": "string",
+                                        "example": "King Bed"
                                     }
                                 },
                                 "type": "object"
@@ -1234,6 +1242,14 @@
                                     "description": {
                                         "type": "string",
                                         "example": "A luxurious room with all amenities."
+                                    },
+                                    "area": {
+                                        "type": "string",
+                                        "example": "50"
+                                    },
+                                    "bed_groups": {
+                                        "type": "string",
+                                        "example": "King Bed"
                                     }
                                 },
                                 "type": "object"
@@ -6730,6 +6746,34 @@
             }
         },
         "/api/repo/product-promotions": {
+            "get": {
+                "tags": [
+                    "Product | Promotions"
+                ],
+                "summary": "Get list of product promotions",
+                "description": "Retrieve a list of product promotions.",
+                "operationId": "ab61a527905e9a79cedb074ebb8636d8",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
                     "Product | Promotions"
@@ -6745,6 +6789,7 @@
                                 "required": [
                                     "product_id",
                                     "promotion_name",
+                                    "rate_code",
                                     "description",
                                     "validity_start",
                                     "validity_end",
@@ -6753,7 +6798,9 @@
                                     "terms_conditions",
                                     "exclusions",
                                     "min_night_stay",
-                                    "max_night_stay"
+                                    "max_night_stay",
+                                    "not_refundable",
+                                    "package"
                                 ],
                                 "properties": {
                                     "product_id": {
@@ -6763,6 +6810,10 @@
                                     "promotion_name": {
                                         "type": "string",
                                         "example": "Summer Sale"
+                                    },
+                                    "rate_code": {
+                                        "type": "string",
+                                        "example": "SUMMER2024"
                                     },
                                     "description": {
                                         "type": "string",
@@ -6803,6 +6854,14 @@
                                     "max_night_stay": {
                                         "type": "integer",
                                         "example": 10
+                                    },
+                                    "not_refundable": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "package": {
+                                        "type": "boolean",
+                                        "example": false
                                     }
                                 },
                                 "type": "object"
@@ -6843,6 +6902,56 @@
             }
         },
         "/api/repo/product-promotions/{id}": {
+            "get": {
+                "tags": [
+                    "Product | Promotions"
+                ],
+                "summary": "Get product promotion details",
+                "description": "Retrieve details of a specific product promotion.",
+                "operationId": "994042513a390bed693eb576efa4c1c2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the product promotion",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
             "put": {
                 "tags": [
                     "Product | Promotions"
@@ -6870,6 +6979,7 @@
                                 "required": [
                                     "product_id",
                                     "promotion_name",
+                                    "rate_code",
                                     "description",
                                     "validity_start",
                                     "validity_end",
@@ -6878,7 +6988,9 @@
                                     "terms_conditions",
                                     "exclusions",
                                     "min_night_stay",
-                                    "max_night_stay"
+                                    "max_night_stay",
+                                    "not_refundable",
+                                    "package"
                                 ],
                                 "properties": {
                                     "product_id": {
@@ -6888,6 +7000,10 @@
                                     "promotion_name": {
                                         "type": "string",
                                         "example": "Summer Sale"
+                                    },
+                                    "rate_code": {
+                                        "type": "string",
+                                        "example": "SUMMER2024"
                                     },
                                     "description": {
                                         "type": "string",
@@ -6928,6 +7044,14 @@
                                     "max_night_stay": {
                                         "type": "integer",
                                         "example": 10
+                                    },
+                                    "not_refundable": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "package": {
+                                        "type": "boolean",
+                                        "example": false
                                     }
                                 },
                                 "type": "object"
@@ -6955,6 +7079,198 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Product | Promotions"
+                ],
+                "summary": "Delete a product promotion",
+                "description": "Delete a specific product promotion.",
+                "operationId": "14464f61ef7d404c9cdfc6f565eda359",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the product promotion",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/product-promotions/{id}/attach-gallery": {
+            "post": {
+                "tags": [
+                    "Product | Promotions"
+                ],
+                "summary": "Attach a gallery to a product promotion",
+                "description": "Attach a gallery to a specific product promotion.",
+                "operationId": "0a73643873056e0f0faeef70b9b66f5f",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the product promotion",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "gallery_id"
+                                ],
+                                "properties": {
+                                    "gallery_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/repo/product-promotions/{id}/detach-gallery": {
+            "post": {
+                "tags": [
+                    "Product | Promotions"
+                ],
+                "summary": "Detach a gallery from a product promotion",
+                "description": "Detach a gallery from a specific product promotion.",
+                "operationId": "c30b635cf3672e3576d2adf288839930",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the product promotion",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "gallery_id"
+                                ],
+                                "properties": {
+                                    "gallery_id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
                                 }
                             }
                         }

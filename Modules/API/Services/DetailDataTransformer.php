@@ -2,6 +2,7 @@
 
 namespace Modules\API\Services;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
@@ -54,17 +55,17 @@ class DetailDataTransformer
         $internalPropertyImages = $this->getPropertyImages($hotel);
         $internalPropertyDescription = $this->getHotelDescriptions($hotel);
 
-        if ($structureSource['property_images'] == 'Expedia') {
+        if ($structureSource['property_images'] == SupplierNameEnum::EXPEDIA->value) {
             $result['images'] = array_merge($internalPropertyImages, $result['images']);
-        } elseif ($structureSource['property_images'] == 'IcePortal') {
+        } elseif ($structureSource['property_images'] == SupplierNameEnum::ICE_PORTAL->value) {
             $result['images'] = array_merge($internalPropertyImages, Arr::get($transformedResultsIcePortal, $hotel->giata_code . '.images', []));
         } else {
             $result['images'] = $internalPropertyImages;
         }
 
-        if ($structureSource['content_source'] == 'Expedia') {
+        if ($structureSource['content_source'] == SupplierNameEnum::EXPEDIA->value) {
             $result['description'] = array_merge($internalPropertyDescription, $result['description']);
-        } elseif ($structureSource['content_source'] == 'IcePortal') {
+        } elseif ($structureSource['content_source'] == SupplierNameEnum::ICE_PORTAL->value) {
             $result['description'] = array_merge($internalPropertyDescription, Arr::get($transformedResultsIcePortal, $hotel->giata_code . '.description', []));
         } else {
             $result['description'] = $internalPropertyDescription;
@@ -82,12 +83,12 @@ class DetailDataTransformer
 
         $internalRooms = $this->getHotelRooms($hotel);
         $existingRoomCodes = [
-            'Expedia' => [],
-            'IcePortal' => [],
+            SupplierNameEnum::EXPEDIA->value => [],
+            SupplierNameEnum::ICE_PORTAL->value => [],
         ];
         foreach ($internalRooms as $room) {
-            $existingRoomCodes['Expedia'][] = $room['supplier_codes']['Expedia'] ?? null;
-            $existingRoomCodes['IcePortal'][] = $room['supplier_codes']['IcePortal'] ?? null;
+            $existingRoomCodes[SupplierNameEnum::EXPEDIA->value][] = $room['supplier_codes'][SupplierNameEnum::EXPEDIA->value] ?? null;
+            $existingRoomCodes[SupplierNameEnum::ICE_PORTAL->value][] = $room['supplier_codes'][SupplierNameEnum::ICE_PORTAL->value] ?? null;
         }
 
         $result['rooms'] = array_merge($internalRooms, $result['rooms']);
@@ -107,29 +108,31 @@ class DetailDataTransformer
             $transformedResultsIcePortal[$giataHotelCode] = $item;
         }
 
-        if ($structureSource['property_images'] == 'Expedia') {
+        if ($structureSource['property_images'] == SupplierNameEnum::EXPEDIA->value) {
             $result['images'] = array_merge($internalPropertyImages, $result['images']);
-        } elseif ($structureSource['property_images'] == 'IcePortal') {
+        } elseif ($structureSource['property_images'] == SupplierNameEnum::ICE_PORTAL->value) {
             $result['images'] = array_merge($internalPropertyImages, Arr::get($transformedResultsIcePortal, $hotel->giata_code . '.images', []));
         }
 
         $giataId = $hotel->giata_code;
-        if ($structureSource['room_images'] == 'Expedia') {
+        if ($structureSource['room_images'] == SupplierNameEnum::EXPEDIA->value) {
             foreach ($result['rooms'] as &$room) {
                 $externalCode = Arr::get($room, 'supplier_codes.external_code', '');
-                $room['images'] = array_merge($room['images'], $romsImagesData[$giataId][$externalCode]['Expedia'] ?? []);
+                $room['images'] = array_merge($room['images'], $romsImagesData[$giataId][$externalCode][SupplierNameEnum::EXPEDIA->value] ?? []);
             }
-        } elseif ($structureSource['room_images'] == 'IcePortal') {
+        } elseif ($structureSource['room_images'] == SupplierNameEnum::ICE_PORTAL->value) {
             foreach ($result['rooms'] as &$room) {
                 $externalCode = Arr::get($room, 'supplier_codes.external_code', '');
-                $room['images'] = array_merge($room['images'], $romsImagesData[$giataId][$externalCode]['IcePortal'] ?? []);
+                $room['images'] = array_merge($room['images'], $romsImagesData[$giataId][$externalCode][SupplierNameEnum::ICE_PORTAL->value] ?? []);
             }
         }
 
-        if ($structureSource['content_source'] == 'Expedia') {
+        if ($structureSource['content_source'] == SupplierNameEnum::EXPEDIA->value) {
             $result['descriptions'] = array_merge($internalPropertyDescription, $result['descriptions']);
-        } elseif ($structureSource['content_source'] == 'IcePortal') {
+        } elseif ($structureSource['content_source'] == SupplierNameEnum::ICE_PORTAL->value) {
             $result['descriptions'] = array_merge($internalPropertyDescription, Arr::get($transformedResultsIcePortal, $hotel->giata_code . '.descriptions', []));
+        } else {
+            $result['descriptions'] = $internalPropertyDescription;
         }
 
         $result['structure'] = $structureSource;
@@ -156,6 +159,8 @@ class DetailDataTransformer
         $result['amenities'] = $this->getHotelAmenities($hotel);
 //        $result['rooms'] = $this->getHotelRooms($hotel);
         $result['weight'] = $hotel->weight;
+        $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
+        $result['deposit_information'] = $this->getProductDepositInformation($hotel);
     }
 
     private function updateContentResultWithInternalData(array &$result, $hotel): void
@@ -169,7 +174,8 @@ class DetailDataTransformer
         $result['user_rating'] = $hotel->star_rating;
         $result['amenities'] = $this->getHotelAmenities($hotel);
         $result['weight'] = $hotel->weight ?? 0;
-
+        $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
+        $result['deposit_information'] = $this->getProductDepositInformation($hotel);
     }
 
     private function getHotelFees($hotel): array
@@ -191,6 +197,59 @@ class DetailDataTransformer
             }
         }
         return $res;
+    }
+
+    private function getHotelCancellationPolicies($hotel): array
+    {
+        if (!$hotel->product->cancellationPolicies) {
+            return [];
+        }
+        return $hotel->product->cancellationPolicies->map(function ($policy) {
+            return [
+                'name' => $policy->name,
+                'start_date' => $policy->start_date,
+                'expiration_date' => $policy->end_date,
+                'manipulable_price_type' => $policy->manipulable_price_type,
+                'price_value' => $policy->price_value,
+                'price_value_type' => $policy->price_value_type,
+                'price_value_target' => $policy->price_value_target,
+                'conditions' => $this->formatConditions($policy->conditions),
+            ];
+        })->all();
+    }
+
+    private function getProductDepositInformation($hotel): array
+    {
+        if (!$hotel->product->depositInformations) {
+            return [];
+        }
+        return $hotel->product->depositInformations->map(function ($depositInfo) {
+            return [
+                'name' => $depositInfo->name,
+                'start_date' => $depositInfo->start_date,
+                'expiration_date' => $depositInfo->expiration_date,
+                'manipulable_price_type' => $depositInfo->manipulable_price_type,
+                'price_value' => $depositInfo->price_value,
+                'price_value_type' => $depositInfo->price_value_type,
+                'price_value_target' => $depositInfo->price_value_target,
+                'conditions' => $this->formatConditions($depositInfo->conditions),
+            ];
+        })->all();
+    }
+
+    private function formatConditions(Collection $conditions): string
+    {
+        return collect($conditions)->map(function ($condition) {
+            $value = $condition['value'] ?? '';
+            $valueFrom = $condition['value_from'] ?? '';
+            $valueTo = $condition['value_to'] ?? '';
+//            return "{$condition['field']} {$condition['compare']} {$value} {$valueFrom} {$valueTo}";
+            return preg_replace(
+                ['/ {2,}/', '/\s+([,.!?])/', '/\s+$/'],
+                [' ', '$1', ''],
+                "{$condition['field']} {$condition['compare']} {$value} {$valueFrom} {$valueTo}"
+            );
+        })->implode(', ');
     }
 
     private function getHotelDescriptions($hotel): array
@@ -236,6 +295,8 @@ class DetailDataTransformer
                 'content_supplier' => 'Internal Repository',
                 'supplier_room_id' => $room->hbsi_data_mapped_name,
                 'supplier_room_name' => $room->name,
+//                'area' => $room->area . ' sqft',
+//                'bed_groups' => $room->bed_groups,
                 'supplier_room_code' => $room->hbsi_data_mapped_name,
                 'amenities' => $amenities,
                 'images' => $newImages,

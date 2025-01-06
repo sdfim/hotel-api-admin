@@ -15,6 +15,7 @@ class ProductPromotionFactory extends Factory
         return [
             'product_id' => Product::factory(),
             'promotion_name' => $this->faker->word,
+            'rate_code' => $this->faker->word,
             'description' => $this->faker->paragraph,
             'validity_start' => $this->faker->date,
             'validity_end' => $this->faker->date,
@@ -24,6 +25,8 @@ class ProductPromotionFactory extends Factory
             'exclusions' => $this->faker->paragraph,
             'min_night_stay' => $this->faker->numberBetween(1, 5),
             'max_night_stay' => $this->faker->numberBetween(6, 10),
+            'not_refundable' => $this->faker->boolean,
+            'package' => $this->faker->boolean,
             ];
     }
 }

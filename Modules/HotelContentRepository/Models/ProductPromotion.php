@@ -24,6 +24,7 @@ class ProductPromotion extends Model
     protected $fillable = [
         'product_id',
         'promotion_name',
+        'rate_code',
         'description',
         'validity_start',
         'validity_end',
@@ -34,6 +35,13 @@ class ProductPromotion extends Model
         'deposit_info',
         'min_night_stay',
         'max_night_stay',
+        'not_refundable',
+        'package',
+    ];
+
+    protected $casts = [
+        'not_refundable' => 'boolean',
+        'package' => 'boolean',
     ];
 
     protected $hidden = [

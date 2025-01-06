@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\ProductPromotion;
 
 use App\Helpers\ClassHelper;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -11,11 +12,10 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
@@ -51,6 +51,8 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
             TextInput::make('promotion_name')
                 ->label('Promotion Name')
                 ->required(),
+            TextInput::make('rate_code')
+                ->label('Rate Code'),
             Textarea::make('description')
                 ->label('Description'),
             Grid::make()
@@ -61,8 +63,7 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                         ->required(),
                     DatePicker::make('validity_end')
                         ->label('Validity End')
-                        ->native(false)
-                        ->required(),
+                        ->native(false),
                 ]),
             Grid::make()
                 ->schema([
@@ -95,6 +96,13 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                 ->multiple()
                 ->searchable()
                 ->options(ImageGallery::pluck('gallery_name', 'id')),
+            Grid::make()
+                ->schema([
+                    Checkbox::make('not_refundable')
+                        ->label('Not Refundable'),
+                    Checkbox::make('package')
+                        ->label('Package'),
+                ]),
         ];
     }
 
@@ -106,11 +114,14 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
             )
             ->columns([
                 TextColumn::make('promotion_name')->label('Promotion Name')->searchable(),
+                TextColumn::make('rate_code')->label('Rate Code')->searchable(),
                 TextColumn::make('description')->label('Description')->searchable(),
                 TextColumn::make('validity_start')->label('Validity Start')->date(),
                 TextColumn::make('validity_end')->label('Validity End')->date(),
                 TextColumn::make('booking_start')->label('Booking Start')->date(),
                 TextColumn::make('booking_end')->label('Booking End')->date(),
+                IconColumn::make('not_refundable')->label('Not Refundable')->boolean(),
+                IconColumn::make('package')->label('Package')->boolean(),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([

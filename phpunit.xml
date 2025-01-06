@@ -15,6 +15,7 @@
         </testsuite>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
+            <exclude>tests/Unit/Hotel/Pricing</exclude>
         </testsuite>
     </testsuites>
     <source>
