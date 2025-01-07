@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Mapping;
 use App\Models\Property;
 use Exception;
 use GuzzleHttp\Client;
@@ -9,6 +10,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\Enums\PropertiesSourceEnum;
 
 class DownloadGiataData extends Command
@@ -92,6 +94,8 @@ class DownloadGiataData extends Command
         $xml = simplexml_load_string($xmlContent);
         $proterties = $xml->TTI_Property;
 
+        $batchDataMapperHbsi = [];
+        $batchDataMapperExpedia = [];
         $batchData = [];
         $propertyIds = [];
         $propertiesToNotUpdate = Property::where('property_auto_updates', 0)
@@ -146,6 +150,26 @@ class DownloadGiataData extends Command
                 'created_at' => date('Y-m-d H:i:s'),
             ];
 
+            foreach ($property->CrossReferences->CrossReference as $crossReference) {
+                if ((string) $crossReference['Code'] == 'ULTIMATE_JET_VACATIONS' && (string) $crossReference['Status'] !== 'Inactive') {
+                    $batchDataMapperHbsi[] = [
+                        'supplier_id' => $crossReference->Code['HotelCode'],
+                        'giata_id' => (int) $property['Code'],
+                        'supplier' => MappingSuppliersEnum::HBSI->value,
+                        'match_percentage' => 100,
+                    ];
+                }
+
+                if ((string) $crossReference['Code'] == 'EXPEDIA_RAPID' && (string) $crossReference['Status'] !== 'Inactive') {
+                    $batchDataMapperExpedia[] = [
+                        'supplier_id' => $crossReference->Code['HotelCode'],
+                        'giata_id' => (int) $property['Code'],
+                        'supplier' => MappingSuppliersEnum::Expedia->value,
+                        'match_percentage' => 100,
+                    ];
+                }
+            }
+
             $batchData[] = $data;
             $propertyIds[] = $data['code'];
         }
@@ -171,6 +195,32 @@ class DownloadGiataData extends Command
         }
 
         try {
+            DB::beginTransaction();
+            Mapping::HBSI()->whereIn('giata_id', $propertyIds)->delete();
+            Mapping::insert($batchDataMapperHbsi);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('ImportJsonlData insert Mapping ', ['error' => $e->getMessage()]);
+            Log::error($e->getTraceAsString());
+
+            return false;
+        }
+
+        try {
+            DB::beginTransaction();
+            Mapping::Expedia()->whereIn('giata_id', $propertyIds)->delete();
+            Mapping::insert($batchDataMapperExpedia);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('ImportJsonlData insert Mapping ', ['error' => $e->getMessage()]);
+            Log::error($e->getTraceAsString());
+
+            return false;
+        }
+
+        try {
             $url_next = explode('<More_Properties xlink:href=', $xmlContent)[1];
             $url_arr = explode('"', $url_next);
             $url = array_key_exists(1, $url_arr) ? $url_arr[1] : false;
@@ -181,7 +231,7 @@ class DownloadGiataData extends Command
             return false;
         }
 
-        unset($batchData, $propertyIds, $proterties, $xml, $xmlContent);
+        unset($batchData, $batchDataMapperHbsi, $batchDataMapperExpedia, $propertyIds, $proterties, $xml, $xmlContent);
 
         return $url;
     }

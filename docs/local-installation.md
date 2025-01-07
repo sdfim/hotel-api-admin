@@ -17,6 +17,9 @@ personal use and don't leak them anywhere or you'll expose yourself to attackers
   * `travelagentadmin.test.crt`
   * `travelagentadmin.test.key`
 * Run `cp .env.example .env`
+  * Make sure to fill the following entries:
+    * All booking suppliers (expedia, hbsi, Ice portal, Giata)
+    * Google GOOGLE_API_DEVELOPER_KEY
 * In case it does not exist, create the network
   * `docker network ls`
   * `docker network create --subnet=10.10.0.0/16 travelagentadmin-network`
@@ -31,13 +34,24 @@ personal use and don't leak them anywhere or you'll expose yourself to attackers
 * Run `php artisan migrate --seed`
 * Run `npm ci`
 * Run `npm run build`
-* Ask your Admin for the `.env` credentials for the following services: GIATA, HBSI, Expedia
-* Run the following commands:
+* Run the following commands (Giata commands can take more than 2hs):
 ```
 php artisan download-giata-poi
 php artisan download-giata-places
 php artisan download-giata-geography
 php artisan download-giata-data
+```
+* To download EXPEDIA content for only a city (cancun recomended) for test environments, run the following command.
+```
+php artisan download-expedia-data content '1, 2, 3, 4' 'cancun'
+```
+* To generate the Ice Portal mappings for cancun, run:
+```
+php artisan db:seed --class=IcePortalCancunMappingPropertiesSeeder
+```
+* To generate mappings for HBSI test env:
+```
+php artisan db:seed --class=TestPropertiesSeeder
 ```
 * At this point everything should up & running.
   * Head to https://obe.travelagentadmin.test/admin
@@ -46,6 +60,9 @@ php artisan download-giata-data
       * Password: `C5EV0gEU9OnlS5r`
       * Password: `C5EV0gEU9OnlS5r`
       * See [UsersSeeder.php](../database/seeders/UserSeeder.php)
-
-
-* If expedia needs to be tested locally, go to confluence booking engine installation document, and download the expedia_obe.zip file. It contains two scripts to be run, containing a portion of the expedia data, as downloading everything is too heavy.
+  * To configure ADMIN access:
+    * Go to https://obe.travelagentadmin.test:8448/admin/channels and copy the Access token (it looks like that: 1|OJHtyifdfdfdfsdfdsafasdfasdfasdf8dsdfasdffsdsdfafa). Paste it in ADMI .env: TRAVEL_CONNECT_OBE_TOKEN 
+    * In admin run:
+    ```
+      php artisan db:seed --class=ExternalIdentifiersTableSeeder
+      ```
