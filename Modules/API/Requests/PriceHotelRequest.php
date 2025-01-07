@@ -4,6 +4,7 @@ namespace Modules\API\Requests;
 
 use App\Models\Supplier;
 use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
@@ -126,7 +127,7 @@ class PriceHotelRequest extends ApiRequest
             'currency' => ['string', 'in:'.implode(',', $validCurrencies)],
             'hotel_name' => 'nullable|string',
             'supplier' => 'string',
-            'checkin' => 'required|date_format:Y-m-d|after:yesterday',
+            'checkin' => 'required|date_format:Y-m-d|after:'.Carbon::yesterday()->subDay()->format('Y-m-d'),
             'checkout' => 'required|date_format:Y-m-d|after:checkin',
 
             'giata_ids' => 'required_without_all:latitude,longitude,destination,place|array',
