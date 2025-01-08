@@ -63,12 +63,12 @@
                 ['title' => 'Cancellation Policy', 'component' => 'products.product-cancellation-policy-table'],
             ],
         ],
-        'Travel Agency Commission' => [
-            'tab_name' => 'travel-agency-commission',
-            'related' => [
-                ['title' => 'Travel Agency Commission', 'component' => 'commissions.travel-agency-commission-table'],
-            ],
-        ],
+//        'Travel Agency Commission' => [
+//            'tab_name' => 'travel-agency-commission',
+//            'related' => [
+//                ['title' => 'Travel Agency Commission', 'component' => 'commissions.travel-agency-commission-table'],
+//            ],
+//        ],
     ];
 
     $hotelTitle = ['Rooms', 'Website Search Generation'];
