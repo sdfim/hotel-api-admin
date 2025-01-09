@@ -96,6 +96,7 @@ class DownloadGiataData extends Command
 
         $batchDataMapperHbsi = [];
         $batchDataMapperExpedia = [];
+        $batchDataMapperIcePortal = [];
         $batchData = [];
         $propertyIds = [];
         $propertiesToNotUpdate = Property::where('property_auto_updates', 0)
@@ -168,7 +169,20 @@ class DownloadGiataData extends Command
                         'match_percentage' => 100,
                     ];
                 }
+
+                if ((string) $crossReference['Code'] == 'ICE_PORTAL' && (string) $crossReference['Status'] !== 'Inactive') {
+                    $batchDataMapperIcePortal[] = [
+                        'supplier_id' => $crossReference->Code['HotelCode'],
+                        'giata_id' => (int) $property['Code'],
+                        'supplier' => MappingSuppliersEnum::IcePortal->value,
+                        'match_percentage' => 100,
+                    ];
+                }
+
+
             }
+
+
 
             $batchData[] = $data;
             $propertyIds[] = $data['code'];
@@ -201,7 +215,7 @@ class DownloadGiataData extends Command
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('ImportJsonlData insert Mapping ', ['error' => $e->getMessage()]);
+            Log::error('ImportJsonlData insert Mapping For HBSI ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
             return false;
@@ -214,7 +228,20 @@ class DownloadGiataData extends Command
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('ImportJsonlData insert Mapping ', ['error' => $e->getMessage()]);
+            Log::error('ImportJsonlData insert Mapping for Expedia', ['error' => $e->getMessage()]);
+            Log::error($e->getTraceAsString());
+
+            return false;
+        }
+
+        try {
+            DB::beginTransaction();
+            Mapping::Expedia()->whereIn('giata_id', $propertyIds)->delete();
+            Mapping::insert($batchDataMapperIcePortal);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('ImportJsonlData insert Mapping for Ice Portal', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
             return false;
