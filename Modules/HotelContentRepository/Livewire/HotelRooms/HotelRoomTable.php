@@ -8,14 +8,13 @@ use App\Livewire\Configurations\Attributes\AttributesForm;
 use App\Models\Configurations\ConfigAttribute;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
@@ -28,12 +27,9 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\Enums\ContentSourceEnum;
-use Modules\Enums\SupplierNameEnum;
-use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\ImageGallery;
-use Modules\HotelContentRepository\Models\Product;
 
 class HotelRoomTable extends Component implements HasForms, HasTable
 {
@@ -64,6 +60,10 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                 ->label('Description')
                 ->required()
                 ->rows(5),
+            Grid::make(2)->schema([
+                TextInput::make('area')->label('Area, square feet'),
+                TagsInput::make('bed_groups')->label('Bed Groups')->placeholder('Enter Bed Groups'),
+            ]),
             Select::make('attributes')
                 ->label('Attributes')
                 ->createOptionForm(AttributesForm::getSchema())

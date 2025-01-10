@@ -14,6 +14,8 @@ return new class extends Migration
             $table->string('hbsi_data_mapped_name')->nullable();
             $table->jsonb('supplier_codes')->nullable();
             $table->string('name')->nullable();
+            $table->string('area')->nullable();
+            $table->string('bed_groups')->nullable();
             $table->text('description')->nullable();
 
             $table->timestamps();

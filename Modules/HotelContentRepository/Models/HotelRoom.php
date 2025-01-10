@@ -25,13 +25,14 @@ class HotelRoom extends Model
         'hbsi_data_mapped_name',
         'supplier_codes',
         'name',
+        'area',
+        'bed_groups',
         'description',
         'supplier_codes',
     ];
 
     protected $casts = [
         'amenities' => 'array',
-        'occupancy' => 'array',
         'bed_groups' => 'array',
     ];
 

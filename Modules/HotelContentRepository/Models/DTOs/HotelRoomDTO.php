@@ -15,6 +15,7 @@ class HotelRoomDTO
     public $amenities;
     public $occupancy;
     public $bed_groups;
+    public $area;
     public $galleries;
 
     public function __construct(
@@ -34,6 +35,7 @@ class HotelRoomDTO
             'id' => $hotelRoom->id,
             'hbsi_data_mapped_name' => $hotelRoom->hbsi_data_mapped_name,
             'name' => $hotelRoom->name,
+            'area' => $hotelRoom->area,
             'description' => $hotelRoom->description,
             'amenities' => $hotelRoom->amenities,
             'occupancy' => $hotelRoom->occupancy,
