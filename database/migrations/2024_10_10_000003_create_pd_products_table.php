@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('product_type');
             $table->string('name');
             $table->boolean('verified');
+            $table->boolean('onSale')->default(true);
             $table->unsignedBigInteger('content_source_id');
             $table->unsignedBigInteger('property_images_source_id');
             $table->decimal('lat', 10, 7)->nullable();
@@ -24,6 +25,7 @@ return new class extends Migration
             $table->string('website')->nullable();
             $table->unsignedBigInteger('related_id')->nullable();
             $table->string('related_type')->nullable();
+            $table->string('off_sale_by_sources')->nullable();
             $table->timestamps();
 
             $table->foreign('vendor_id')->references('id')->on('pd_vendors');

@@ -13,6 +13,7 @@ return new class extends Migration
             $table->string('image_url')->index();
             $table->string('tag', 100);
             $table->string('weight');
+            $table->string('alt')->nullable();
             $table->unsignedBigInteger('section_id');
             $table->timestamps();
 

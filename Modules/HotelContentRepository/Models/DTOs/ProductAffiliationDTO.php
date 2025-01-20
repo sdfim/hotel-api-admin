@@ -9,13 +9,10 @@ class ProductAffiliationDTO
 {
     public $id;
     public $product_id;
-    public $affiliation_name;
-    public $combinable;
-    public $details;
-
-    public function __construct(
-        private readonly ProductAffiliationDetailDTO $productAffiliationDetailDTO
-    ) {}
+    public $consortia_id;
+    public $description;
+    public $start_date;
+    public $end_date;
 
     public function transform(Collection $productAffiliations)
     {
@@ -28,9 +25,11 @@ class ProductAffiliationDTO
     {
         return [
             'id' => $productAffiliation->id,
-            'affiliation_name' => $productAffiliation->affiliation_name,
+            'consortia' => $productAffiliation->consortia->name,
+            'description' => $productAffiliation->description,
+            'start_date' => $productAffiliation->start_date,
+            'end_date' => $productAffiliation->end_date,
             'combinable' => $productAffiliation->combinable,
-            'details' => $this->productAffiliationDetailDTO->transform($productAffiliation->details),
         ];
     }
 }

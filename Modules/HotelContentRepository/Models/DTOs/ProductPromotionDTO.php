@@ -36,6 +36,7 @@ class ProductPromotionDTO
         return [
             'id' => $promotion->id,
             'promotion_name' => $promotion->promotion_name,
+            'rate_code' => $promotion->rate_code,
             'description' => $promotion->description,
             'validity_start' => $promotion->validity_start,
             'validity_end' => $promotion->validity_end,
@@ -44,6 +45,8 @@ class ProductPromotionDTO
             'terms_conditions' => $promotion->terms_conditions,
             'exclusions' => $promotion->exclusions,
             'deposit_info' => $promotion->deposit_info,
+            'not_refundable' => $promotion->not_refundable,
+            'package' => $promotion->package,
             'galleries' => $this->imageGalleryDTO->transform($promotion->galleries),
         ];
     }

@@ -5,9 +5,7 @@ namespace Modules\HotelContentRepository\Livewire\Hotel;
 use App\Helpers\ClassHelper;
 use App\Models\Configurations\ConfigAttribute;
 use App\Models\Enums\RoleSlug;
-use App\Helpers\Strings;
 use App\Models\Property;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -28,8 +26,8 @@ use Modules\API\Services\MappingCacheService;
 use Modules\Enums\ContentSourceEnum;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\Vendor;
+use Modules\Enums\MealPlansEnum;
 
 class HotelTable extends Component implements HasForms, HasTable
 {
@@ -87,6 +85,7 @@ class HotelTable extends Component implements HasForms, HasTable
                 TextColumn::make('product.address')
                     ->label('Address')
                     ->searchable()
+                    ->wrap()
                     ->getStateUsing(function ($record) {
                         $string = '';
                         foreach ($record->address as $item) {
@@ -183,13 +182,39 @@ class HotelTable extends Component implements HasForms, HasTable
                 ->send();
             return;
         }
-
-        $hotel = \DB::transaction(function () use ($property, $vendorId, $source_id) {
+        $hashMapperExpedia =  resolve(MappingCacheService::class)->getMappingsExpediaHashMap();
+        $reversedHashMap = array_flip($hashMapperExpedia);
+        $expediaCode = $reversedHashMap[$property->code] ?? null;
+        $roomsData = [];
+        $numRooms = 0;
+        $mealPlansRes = [MealPlansEnum::NO_MEAL_PLAN->value];
+        if ($expediaCode) {
+            $rooms = DB::connection('mysql_cache')
+                ->table('expedia_content_slave')
+                ->select('rooms', 'statistics',  'all_inclusive')
+                ->where('expedia_property_id', $expediaCode)
+                ->get();
+            if ($rooms->isEmpty()) return;
+            $roomsData = json_decode(Arr::get(json_decode($rooms, true)[0], 'rooms', '[]'), true);
+            $statistics = json_decode(Arr::get(json_decode($rooms, true)[0], 'statistics', '{}'), true);
+            $numRooms = Arr::get($statistics, '52.value', 0);
+            $allInclusive = json_decode(Arr::get(json_decode($rooms, true)[0], 'all_inclusive', '{}'), true);
+            $mealPlans = MealPlansEnum::values();
+            $mealPlansRes = array_filter($allInclusive, function ($value) use ($mealPlans) {
+                return in_array($value, $mealPlans);
+            });
+            $mealPlansRes = array_values($mealPlansRes);
+            if (empty($mealPlansRes)) {
+                $mealPlansRes = [MealPlansEnum::NO_MEAL_PLAN->value];
+            }
+        }
+        $hotel = \DB::transaction(function () use ($property, $vendorId, $source_id, $roomsData, $numRooms, $mealPlansRes) {
             $hotel = Hotel::create([
                 'giata_code' => $property->code,
-                'star_rating' => $property->rating,
+                'star_rating' => ($property->rating ?? 1) > 0 ? $property->rating : 1,
                 'sale_type' => 'Direct Connection',
-                'num_rooms' => 0,
+                'num_rooms' => $numRooms,
+                'hotel_board_basis' => $mealPlansRes,
                 'room_images_source_id' => $source_id,
                 'address' => [
                     'line_1' => $property->mapper_address ?? '',
@@ -210,6 +235,41 @@ class HotelTable extends Component implements HasForms, HasTable
                 'lat' => $property->latitude,
                 'lng' => $property->longitude,
             ]);
+
+            if (!empty($roomsData)) {
+                foreach ($roomsData as $room) {
+                    $description = Arr::get($room, 'descriptions.overview');
+                    $descriptionAfterLayout = preg_replace('/^<p>.*?<\/p>\s*<p>.*?<\/p>\s*/', '', $description);
+                    $hotelRoom = $hotel->rooms()->create([
+                        'name' => Arr::get($room,'name'),
+                        'description' => $descriptionAfterLayout,
+                        'supplier_codes' => json_encode([['code' => Arr::get($room,'id'), 'supplier' => 'Expedia']]),
+                        'area' => Arr::get($room,'area.square_feet', 0),
+                        'room_views' => array_values(array_map(function ($view) {
+                            return $view['name'];
+                        }, Arr::get($room, 'views', []))),
+                        'bed_groups' => array_merge(...array_map(function ($group) {
+                            return array_map(function ($config) {
+                                return $config['quantity'] . ' ' . $config['size'] . ' Beds';
+                            }, $group['configuration']);
+                        }, Arr::get($room, 'bed_groups', []))),
+                        ]);
+                    $attributeIds = [];
+                    foreach ($room['amenities'] as $k => $amenity) {
+                        // Check if the attribute already exists
+                        $attribute = ConfigAttribute::firstOrCreate([
+                            'name' => Arr::get($amenity, 'name'),
+                            'default_value' => '',
+                        ]);
+                        // Collect the attribute ID
+                        $attributeIds[] = $attribute->id;
+
+                        if ($k > 10) break;
+                    }
+                    // Attach the attribute IDs to the room
+                    $hotelRoom->attributes()->sync($attributeIds);
+                }
+            }
 
             return $hotel;
         });

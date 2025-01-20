@@ -16,6 +16,7 @@ class ImageFactory extends Factory
             'image_url' => $this->faker->imageUrl,
             'tag' => $this->faker->word,
             'weight' => $this->faker->numberBetween(1, 100),
+            'alt' => $this->faker->sentence,
             'section_id' => ImageSection::factory(),
         ];
     }

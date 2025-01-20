@@ -45,6 +45,11 @@ class VendorTable extends Component implements HasForms, HasTable
                     ->searchable()
                     ->sortable()
                     ->extraAttributes(['style' => 'width: 100%']),
+                IconColumn::make('independent_flag')
+                    ->label('Independent')
+                    ->sortable()
+                    ->toggleable()
+                    ->boolean(),
                 TextColumn::make('address')
                     ->label('Address')
                     ->searchable()

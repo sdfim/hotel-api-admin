@@ -7,6 +7,7 @@ use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\BookingItemsController;
 use Modules\AdministrationSuite\Http\Controllers\ChannelsController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAmenityController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigChainController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigConsortiumController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigDescriptiveTypeController;
@@ -116,6 +117,7 @@ Route::prefix('admin')->group(function () {
 
         Route::prefix('configurations')->name('configurations.')->group(function () {
             Route::resource('attributes', ConfigAttributeController::class)->only(['index', 'create', 'edit']);
+            Route::resource('amenities', ConfigAmenityController::class)->only(['index', 'create', 'edit']);
             Route::resource('consortia', ConfigConsortiumController::class)->only(['index', 'create', 'edit']);
             Route::resource('descriptive-types', ConfigDescriptiveTypeController::class)->only(['index', 'create', 'edit']);
             Route::resource('job-descriptions', ConfigJobDescriptionController::class)->only(['index', 'create', 'edit']);

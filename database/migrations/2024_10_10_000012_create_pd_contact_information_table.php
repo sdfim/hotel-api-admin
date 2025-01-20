@@ -14,8 +14,7 @@ return new class extends Migration
             $table->string('contactable_type');
             $table->string('first_name');
             $table->string('last_name')->nullable();
-            $table->string('email')->nullable();
-            $table->string('phone')->nullable();
+            $table->string('job_title')->nullable();
             $table->timestamps();
         });
     }

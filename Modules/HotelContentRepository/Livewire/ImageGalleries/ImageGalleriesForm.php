@@ -29,6 +29,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
+use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
 
 class ImageGalleriesForm extends Component implements HasForms, HasTable
 {
@@ -54,16 +55,21 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('gallery_name')
-                    ->required()
-                    ->maxLength(191),
-                TextInput::make('description')
-                    ->required()
-                    ->maxLength(191),
-            ])
+            ->schema(self::getGalleryFormComponents())
             ->statePath('data')
             ->model($this->record);
+    }
+
+    public static function getGalleryFormComponents(): array
+    {
+        return [
+            TextInput::make('gallery_name')
+                ->required()
+                ->maxLength(191),
+            TextInput::make('description')
+                ->required()
+                ->maxLength(191),
+        ];
     }
 
     public function table(Table $table): Table
@@ -102,31 +108,17 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                     ->iconButton()
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->action(fn() => $this->toggleViewMode()),
-                Action::make('Create image')
-                    ->tooltip('Create image')
+                Action::make('Create Image')
+                    ->tooltip('Create Image')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->icon('heroicon-o-plus')
                     ->iconButton()
-                    ->form([
-                        TextInput::make('tag')
-                            ->required(),
-                        Select::make('section_id')
-                            ->required()
-                            ->label('Section')
-                            ->options(ImageSection::pluck('name', 'id')),
-                        TextInput::make('weight'),
-                        FileUpload::make('image')
-                            ->required()
-                            ->image()
-                            ->imageEditor()
-                            ->preserveFilenames()
-                            ->directory('images')
-                            ->disk('public'),
-                    ])
+                    ->form(HotelImagesForm::getFormComponents())
                     ->action(function($data) {
                         $image = Image::create([
-                            'image_url'  => $data['image'],
+                            'image_url'  => $data['image_url'],
                             'tag'        => $data['tag'],
+                            'alt'        => $data['alt'],
                             'section_id' => $data['section_id'],
                             'weight'     => $data['weight'] ?? '500px',
                         ]);
@@ -166,18 +158,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
             ->actions([
                 EditAction::make('edit')
                     ->iconButton()
-                    ->form([
-                        TextInput::make('tag'),
-                        Select::make('section_id')
-                            ->options(ImageSection::pluck('name', 'id')),
-                        FileUpload::make('image_url')
-                            ->image()
-                            ->imageEditor()
-                            ->preserveFilenames()
-                            ->directory('images')
-                            ->disk('public')
-                            ->visibility('public'),
-                    ]),
+                    ->form(HotelImagesForm::getFormComponents()),
                 DeleteAction::make()
                     ->iconButton()
                     ->action(function (Image $record) {

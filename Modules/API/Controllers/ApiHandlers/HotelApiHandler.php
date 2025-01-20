@@ -337,8 +337,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                                 SupplierNameEnum::HBSI => $this->hbsi->price($currentFilters, $searchInspector, $preSearchData),
                                 default => throw new Exception("Unknown supplier: $supplier")
                             };
+                            $giataIds = [];
+                            if (SupplierNameEnum::from($supplier) === SupplierNameEnum::HBSI) {
+                                $giataIds = array_column(Arr::get($preSearchData, 'data', []), 'giata');
+                            }
 
-                            return $this->handlePriceSupplier($supplierResponse, $supplier, $currentFilters, $search_id, $pricingRules);
+                            return $this->handlePriceSupplier($supplierResponse, $supplier, $currentFilters, $search_id, $pricingRules, $giataIds);
                         });
                     }
 
@@ -635,7 +639,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     /**
      * @throws Throwable
      */
-    private function handlePriceSupplier($supplierResponse, string $supplierName, array $filters, string $search_id, array $pricingRules): array
+    private function handlePriceSupplier($supplierResponse, string $supplierName, array $filters, string $search_id, array $pricingRules, array $giataIds): array
     {
         $dataResponse = [];
         $clientResponse = [];
@@ -671,7 +675,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $dataOriginal[$supplierName] = $hbsiResponse['original'];
 
             $st = microtime(true);
-            $dtoData = $this->HbsiHotelPricingDto->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules);
+            $dtoData = $this->HbsiHotelPricingDto->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules, $giataIds);
 
             /** Enrichment Room Combinations */
             $countRooms = count($filters['occupancy']);

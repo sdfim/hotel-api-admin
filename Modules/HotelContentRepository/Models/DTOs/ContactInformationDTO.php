@@ -32,6 +32,7 @@ class ContactInformationDTO
             'last_name' => $contactInformation->last_name,
             'email' => $contactInformation->email,
             'phone' => $contactInformation->phone,
+            'job_title' => $contactInformation->job_title,
             'jobs' => $contactInformation->contactInformations->map(function ($information) {
                 return [
                     'id' => $information->id,

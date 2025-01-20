@@ -14,6 +14,7 @@ class VendorFactory extends Factory
         return [
             'name' => $this->faker->company,
             'verified' => $this->faker->boolean,
+            'independent_flag' => $this->faker->boolean,
             'address' => $this->faker->address,
             'lat' => $this->faker->latitude,
             'lng' => $this->faker->longitude,

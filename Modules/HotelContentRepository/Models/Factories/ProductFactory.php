@@ -8,6 +8,7 @@ use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\Vendor;
+use Modules\Enums\ContentSourceEnum;
 
 class ProductFactory extends Factory
 {

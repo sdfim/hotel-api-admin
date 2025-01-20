@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->string('area')->nullable();
             $table->string('bed_groups')->nullable();
+            $table->string('room_views')->nullable();
             $table->text('description')->nullable();
 
             $table->timestamps();

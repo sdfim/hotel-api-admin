@@ -15,6 +15,7 @@ class HotelRoomFactory extends Factory
         return [
             'hotel_id' => Hotel::factory(),
             'name' => $this->faker->word,
+            'area' => (string) $this->faker->randomFloat(2, 0, 100),
             'hbsi_data_mapped_name' => $this->faker->word,
             'description' => $this->faker->paragraph,
         ];

@@ -2,7 +2,6 @@
 
 namespace Modules\HotelContentRepository\API\Requests;
 
-use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
 class HotelRoomRequest extends ApiRequest
@@ -94,7 +93,9 @@ class HotelRoomRequest extends ApiRequest
      *       @OA\Property(property="hotel_id", type="integer", example=1),
      *       @OA\Property(property="name", type="string", example="Deluxe Room"),
      *       @OA\Property(property="hbsi_data_mapped_name", type="string", example="Deluxe Room Mapped"),
-     *       @OA\Property(property="description", type="string", example="A luxurious room with all amenities.")
+     *       @OA\Property(property="description", type="string", example="A luxurious room with all amenities."),
+     *       @OA\Property(property="area", type="string", example="50"),
+     *       @OA\Property(property="bed_groups", type="string", example="King Bed")
      *     )
      *   ),
      *   @OA\Response(
@@ -189,7 +190,9 @@ class HotelRoomRequest extends ApiRequest
      *       @OA\Property(property="hotel_id", type="integer", example=1),
      *       @OA\Property(property="name", type="string", example="Deluxe Room"),
      *       @OA\Property(property="hbsi_data_mapped_name", type="string", example="Deluxe Room Mapped"),
-     *       @OA\Property(property="description", type="string", example="A luxurious room with all amenities.")
+     *       @OA\Property(property="description", type="string", example="A luxurious room with all amenities."),
+     *       @OA\Property(property="area", type="string", example="50"),
+     *       @OA\Property(property="bed_groups", type="string", example="King Bed")
      *     )
      *   ),
      *   @OA\Response(
@@ -372,12 +375,14 @@ class HotelRoomRequest extends ApiRequest
      * )
      */
 
-
     public function rules(): array
     {
         return [
             'hotel_id' => 'required|integer|exists:pd_hotels,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:191',
+            'area' => 'string|max:191',
+            'bed_groups' => 'string|max:191',
+            'room_views' => 'string|max:191',
             'hbsi_data_mapped_name' => 'required|string|max:255',
             'description' => 'required|string',
             'supplier_codes' => 'nullable|array',

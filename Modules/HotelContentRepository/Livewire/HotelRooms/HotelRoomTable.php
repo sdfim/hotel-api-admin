@@ -18,6 +18,7 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\TextInputColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -30,6 +31,7 @@ use Modules\Enums\ContentSourceEnum;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\ImageGallery;
+use Filament\Forms\Components\RichEditor;
 
 class HotelRoomTable extends Component implements HasForms, HasTable
 {
@@ -56,32 +58,56 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                 TextInput::make('name')->label('Name')->required()->columnSpan(2),
                 TextInput::make('hbsi_data_mapped_name')->label('External Code')->columnSpan(1),
             ]),
-            Textarea::make('description')
-                ->label('Description')
-                ->required()
-                ->rows(5),
-            Grid::make(2)->schema([
-                TextInput::make('area')->label('Area, square feet'),
-                TagsInput::make('bed_groups')->label('Bed Groups')->placeholder('Enter Bed Groups'),
+            Grid::make(3)->schema([
+                RichEditor::make('description')
+                    ->label('Description')
+                    ->required()
+                    ->disableAllToolbarButtons()
+                    ->toolbarButtons([
+                        'attachFiles',
+                        'blockquote',
+                        'bold',
+                        'bulletList',
+                        'codeBlock',
+                        'h2',
+                        'h3',
+                        'italic',
+                        'link',
+                        'orderedList',
+                        'redo',
+                        'strike',
+                        'underline',
+                        'undo',
+                    ])
+                    ->extraAttributes([
+                        'style' => 'max-height: 22em; overflow-x: auto;',
+                    ])->columnSpan(2),
+                Grid::make(1)->schema([
+                    TextInput::make('area')->label('Area, square feet'),
+                    TagsInput::make('room_views')->label('Room Views')->placeholder('Enter Views'),
+                    TagsInput::make('bed_groups')->label('Bed Types')->placeholder('Enter Bed Types'),
+                ])->columnSpan(1),
             ]),
-            Select::make('attributes')
-                ->label('Attributes')
-                ->createOptionForm(AttributesForm::getSchema())
-                ->createOptionUsing(function (array $data) {
-                    $data['default_value'] = '';
-                    ConfigAttribute::create($data);
-                    Notification::make()
-                        ->title('Attributes created successfully')
-                        ->success()
-                        ->send();
-                })
-                ->searchable()
-                ->multiple()
-                ->options(ConfigAttribute::pluck('name', 'id')),
-            Select::make('galleries')
-                ->label('Galleries')
-                ->multiple()
-                ->options(ImageGallery::pluck('gallery_name', 'id')),
+            Grid::make(2)->schema([
+                Select::make('attributes')
+                    ->label('Attributes')
+                    ->createOptionForm(AttributesForm::getSchema())
+                    ->createOptionUsing(function (array $data) {
+                        $data['default_value'] = '';
+                        ConfigAttribute::create($data);
+                        Notification::make()
+                            ->title('Attributes created successfully')
+                            ->success()
+                            ->send();
+                    })
+                    ->searchable()
+                    ->multiple()
+                    ->options(ConfigAttribute::pluck('name', 'id')),
+                Select::make('galleries')
+                    ->label('Galleries')
+                    ->multiple()
+                    ->options(ImageGallery::pluck('gallery_name', 'id')),
+            ]),
             CustomRepeater::make('supplier_codes')
                 ->label('Content Suppliers Codes')
                 ->schema([
@@ -135,6 +161,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
             ->actions([
                 EditAction::make()
                     ->label('')
+                    ->modalWidth('6xl')
                     ->modalHeading(new HtmlString("Edit {$this->title}"))
                     ->tooltip('Edit Hotel Room')
                     ->form($this->schemeForm())
@@ -159,6 +186,16 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                             ->send();
                     })
                     ->visible(fn () => Gate::allows('create', Hotel::class)),
+                Action::make('add-image')
+                    ->icon('heroicon-o-eye')
+                    ->tooltip('List Images and Add New Image')
+                    ->iconButton()
+                    ->modalHeading('Add Image')
+                    ->modalWidth('7xl')
+                    ->modalContent(function ($record) {
+                        return view('dashboard.images.modal', ['productId' => null, 'roomId' => $record->id]);
+                    })
+                    ->visible(fn () => Gate::allows('create', Hotel::class)),
             ])
             ->bulkActions([
                 DeleteBulkAction::make()
@@ -167,6 +204,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
             ->headerActions([
                 CreateAction::make()
                     ->form($this->schemeForm())
+                    ->modalWidth('5xl')
                     ->modalHeading(new HtmlString("Create {$this->title}"))
                     ->action(function ($data) {
                         if ($this->hotelId) $data['hotel_id'] = $this->hotelId;

@@ -12,6 +12,7 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->string('name', 255);
             $table->boolean('verified');
+            $table->boolean('independent_flag')->default(false);
             $table->json('address')->nullable();
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lng', 10, 7)->nullable();

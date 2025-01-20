@@ -31,6 +31,7 @@ class Product extends Model
         'product_type',
         'name',
         'verified',
+        'onSale',
         'content_source_id',
         'property_images_source_id',
         'default_currency',
@@ -39,11 +40,14 @@ class Product extends Model
         'lat',
         'lng',
         'related_id',
-        'related_type'
+        'related_type',
+        'off_sale_by_sources',
     ];
 
     protected $casts = [
         'verified' => 'boolean',
+        'onSale' => 'boolean',
+        'off_sale_by_sources' => 'json',
         'lat' => 'float',
         'lng' => 'float',
     ];

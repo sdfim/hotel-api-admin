@@ -36,6 +36,7 @@ class HotelRoomDTO
             'hbsi_data_mapped_name' => $hotelRoom->hbsi_data_mapped_name,
             'name' => $hotelRoom->name,
             'area' => $hotelRoom->area,
+            'room_views' => $hotelRoom->room_views,
             'description' => $hotelRoom->description,
             'amenities' => $hotelRoom->amenities,
             'occupancy' => $hotelRoom->occupancy,

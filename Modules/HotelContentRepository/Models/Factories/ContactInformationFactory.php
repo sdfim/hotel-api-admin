@@ -18,8 +18,7 @@ class ContactInformationFactory extends Factory
             'contactable_type' => Product::class,
             'first_name' => $this->faker->firstName,
             'last_name' => $this->faker->lastName,
-            'email' => $this->faker->unique()->safeEmail,
-            'phone' => $this->faker->phoneNumber,
+            'job_title' => $this->faker->jobTitle,
         ];
     }
 }

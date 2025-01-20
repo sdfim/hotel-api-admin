@@ -6,21 +6,30 @@ use App\Actions\Jetstream\AddTeamMember;
 use App\Actions\Jetstream\CreateTeam;
 use App\Actions\Jetstream\RemoveTeamMember;
 use App\Actions\Jetstream\UpdateTeamName;
-use App\Livewire\Users\UsersForm;
+use App\Helpers\Strings;
+use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
+use Modules\HotelContentRepository\Models\Hotel;
 use App\Models\Enums\RoleSlug;
+use App\Models\Property;
 use App\Models\Role;
 use App\Models\User;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
+use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -43,14 +52,24 @@ class VendorForm extends Component implements HasForms
 
         $this->verified = $vendor->verified ?? false;
 
-        $attributes = $this->record->attributesToArray();
+        $vendor = $this->record->attributesToArray();
+
+        if ($this->record->address && is_array($this->record->address)) {
+            foreach ($this->record->address as $key => $value) {
+                $vendor['addressArr'][$key] = $value;
+            }
+        } else {
+            $vendor['addressArr'] = [];
+        }
 
         if ($this->record->exists && $this->record->team) {
             $userIds = $this->record->team->allUsers()->pluck('id')->toArray();
-            $attributes = array_merge($attributes, ['user_ids' => $userIds]);
+            $vendor = array_merge($vendor, ['user_ids' => $userIds]);
         }
 
-        $this->form->fill($attributes);
+        $vendor['independent_flag'] = $this->record->independent_flag ?? false;
+
+        $this->form->fill($vendor);
     }
 
     public function toggleVerified()
@@ -166,7 +185,7 @@ class VendorForm extends Component implements HasForms
                             ->schema([
                                 TextInput::make('full_address')
                                     ->label('Get Location by Address')
-                                    ->placeholder(fn($get) => $get('address')),
+                                    ->placeholder(fn($get) => $get('addressArr.line_1') . ' ' . $get('addressArr.city')),
                                 TextInput::make('lat')->label('Latitude')->numeric()->readOnly(),
                                 TextInput::make('lng')->label('Longitude')->numeric()->readOnly(),
                             ])->columnSpan(1),
@@ -176,9 +195,17 @@ class VendorForm extends Component implements HasForms
                             ->content('Please add GOOGLE_API_DEVELOPER_KEY to the .env file to display the Google Map and search coordinates by address.'),
                     ]),
 
-                Grid::make(1)
+
+                Grid::make(2)
                     ->schema([
-                        TextInput::make('address')->label('Address')->readOnly(),
+                        TextInput::make('addressArr.city')
+                            ->label('City')->readOnly(),
+                        TextInput::make('addressArr.line_1')
+                            ->label('Line 1')->readOnly(),
+                        TextInput::make('addressArr.country_code')
+                            ->label('Country Code')->readOnly(),
+                        TextInput::make('addressArr.state_province_name')
+                            ->label('State Province Name')->readOnly(),
                     ]),
 
                 Grid::make(2)
@@ -190,14 +217,72 @@ class VendorForm extends Component implements HasForms
                         ->relationship('galleries', 'gallery_name')
                         ->preload(),
                 ]),
+
+                Grid::make(6)
+                    ->schema([
+//                        ToggleButtons::make('independent_flag')
+//                            ->label('Independent?')
+//                            ->boolean()
+//                            ->grouped()
+//                            ->reactive()
+//                            ->afterStateUpdated(function ($state, callable $set) {
+//                                if ($state) {
+//                                    $set('giata_code_visible', true);
+//                                } else {
+//                                    $set('giata_code_visible', false);
+//                                }
+//                            })
+//                            ->disabled(fn () => $this->record->exists),
+                            CustomToggle::make('independent_flag')
+                                ->label('Independent')
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, callable $set) {
+                                    if ($state) {
+                                        $set('giata_code_visible', true);
+                                    } else {
+                                        $set('giata_code_visible', false);
+                                    }
+                                })
+                                ->disabled(fn () => $this->record->exists),
+                        Select::make('giata_code')
+                            ->label('GIATA code')
+                            ->searchable()
+                            ->getSearchResultsUsing(function (string $search): ?array {
+                                $preparedSearchText = Strings::prepareSearchForBooleanMode($search);
+                                $result = Property::select(
+                                    DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name, code'))
+                                    ->whereRaw("MATCH(search_index) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
+                                    ->limit(100);
+                                return $result->pluck('full_name', 'code')
+                                    ->mapWithKeys(function ($full_name, $code) {
+                                        return [$code => $code . ' (' . $full_name  . ')'];
+                                    })
+                                    ->toArray() ?? [];
+                            })
+                            ->getOptionLabelUsing(function (string $value): ?string {
+                                $properties = Property::select(DB::raw('CONCAT(code, " (", name, ", location: ", city, ", ", locale, ")") AS full_name'), 'code')
+                                    ->where('code', $value)
+                                    ->first()
+                                    ->full_name ?? '';
+                                return $properties;
+                            })
+                            ->columnSpan(2)
+                            ->visible(fn ($get) => $get('giata_code_visible'))
+                            ->hidden(fn ($get) => !$get('giata_code_visible')),
+                        ]),
+
             ])
             ->statePath('data')
             ->model($this->record);
     }
 
-    public function edit(): Redirector|RedirectResponse
+    public function save(): Redirector|RedirectResponse
     {
         $this->validate();
+        $isCreate = !$this->record->exists;
+
+        $this->data['address'] = $this->data['addressArr'];
+
         $this->record->fill($this->data);
         $this->record->verified = $this->verified ?? false;
         $isNew = !$this->record->exists || !$this->record->team;
@@ -214,6 +299,27 @@ class VendorForm extends Component implements HasForms
 
         if (isset($this->data['galleries'])) {
             $this->record->galleries()->sync($this->data['galleries']);
+        }
+
+        if ($this->data['independent_flag']) {
+            if ($isCreate) {
+                $dataGiata['giata_code'] = $this->data['giata_code'];
+                $dataGiata['product']['vendor_id'] = $this->record->id;
+                resolve(HotelTable::class)->saveHotelWithGiataCode($dataGiata);
+            } else {
+                $hotels = Hotel::whereHas('product', function ($query) {
+                    $query->where('vendor_id', $this->record->id);
+                })->get();
+                foreach ($hotels as $hotel) {
+                    $hotel->product->name = $this->data['name'];
+                    $hotel->product->lat = $this->data['lat'];
+                    $hotel->product->lng = $this->data['lng'];
+                    $hotel->product->website = $this->data['website'];
+                    $hotel->address = $this->data['addressArr'];
+                    $hotel->save();
+                    $hotel->product->save();
+                }
+            }
         }
 
         Notification::make()
@@ -267,7 +373,11 @@ class VendorForm extends Component implements HasForms
                     }
                 }
 
-                $set('address', trim("$streetNumber $route, $zip"));
+//                $set('address', trim("$streetNumber $route, $zip"));
+                $set('addressArr.line_1', trim("$streetNumber $route, $zip"));
+                $set('addressArr.city', $city !== '' ? $city : $postal_town);
+                $set('addressArr.state_province_name', $state_province_name);
+                $set('addressArr.country_code', $country_code);
             }
         }
     }

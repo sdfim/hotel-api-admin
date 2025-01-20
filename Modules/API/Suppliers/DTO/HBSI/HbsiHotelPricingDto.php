@@ -18,10 +18,12 @@ use Modules\API\Suppliers\HbsiSupplier\HbsiClient;
 use Modules\API\Tools\PricingDtoTools;
 use Modules\Enums\ItemTypeEnum;
 use Modules\Enums\SupplierNameEnum;
+use Modules\HotelContentRepository\Models\Hotel;
 
 class HbsiHotelPricingDto
 {
     private HbsiPricingRulesApplier $pricingRulesApplier;
+    private array $mapperSupplierRepository;
 
     /**
      * @var string[]
@@ -92,12 +94,27 @@ class HbsiHotelPricingDto
         private string                   $search_id = '',
         private string                   $currency = '',
         private int                      $supplier_id = 0,
-    )
-    {
-    }
+    ){}
 
-    public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules): array
+    public function HbsiToHotelResponse(array $supplierResponse, array $query, string $search_id, array $pricingRules, array $giataIds): array
     {
+        $supplierRepositoryData = Hotel::has('rooms')->whereIn('giata_code', $giataIds)->get();
+        $this->mapperSupplierRepository = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+            return [
+                $hotel->giata_code => $hotel->rooms->mapWithKeys(function ($room) {
+                    if (!empty($room->hbsi_data_mapped_name)) {
+                        return [
+                            $room->hbsi_data_mapped_name => [
+                                'description' => $room->description,
+                                'name' => $room->name,
+                            ],
+                        ];
+                    }
+                    return [];
+                })->toArray(),
+            ];
+        })->toArray();
+
         $this->search_id = $search_id;
         $this->rate_type = count($query['occupancy']) > 1 ? ItemTypeEnum::SINGLE->value : ItemTypeEnum::COMPLETE->value;
         $this->supplier_id = Supplier::where('name', SupplierNameEnum::HBSI->value)->first()->id;
@@ -105,10 +122,6 @@ class HbsiHotelPricingDto
 
         $pricingRules = array_column($pricingRules, null, 'property');
         $this->pricingRulesApplier = new HbsiPricingRulesApplier($query, $pricingRules);
-
-        $giataIds = array_map(function ($item) {
-            return $item['giata_id'];
-        }, $supplierResponse);
 
         $this->giata = $this->pricingDtoTools->getGiataProperties($query, $giataIds);
         $this->destinationData = $this->pricingDtoTools->getDestinationData($query);
@@ -362,12 +375,21 @@ class HbsiHotelPricingDto
             $nonRefundable = true;
         }
 
+        $giataCode = Arr::get($propertyGroup, 'giata_id',0);
+        $roomType = Arr::get($rate, 'RoomTypes.RoomType.@attributes.RoomTypeCode', 0);
+
+        $roomName = Arr::get($this->mapperSupplierRepository, "$giataCode.$roomType.name", $rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
+        $roomDescription = is_array($rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
+            ? implode(' ', $rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
+            : $rate['RoomTypes']['RoomType']['RoomDescription']['Text'] ?? '';
+        $roomDescription = Arr::get($this->mapperSupplierRepository, "$giataCode.$roomType.description", $roomDescription);
+
         $roomResponse = RoomResponseFactory::create();
         $roomResponse->setGiataRoomCode($rate['giata_room_code'] ?? '');
         $roomResponse->setGiataRoomName($rate['giata_room_name'] ?? '');
         $roomResponse->setPenaltyDate($penaltyDate);
         $roomResponse->setPerDayRateBreakdown($rate['per_day_rate_breakdown'] ?? '');
-        $roomResponse->setSupplierRoomName($rate['RoomTypes']['RoomType']['RoomDescription']['@attributes']['Name'] ?? '');
+        $roomResponse->setSupplierRoomName($roomName);
         $roomResponse->setSupplierRoomCode($rateOccupancy);
         $roomResponse->setCapacity([
             'adults' => $adults - $unknown,
@@ -377,9 +399,6 @@ class HbsiHotelPricingDto
 
         $roomResponse->setSupplierBedGroups($rate['bed_groups'] ?? 0);
         $roomResponse->setRoomType($roomType);
-        $roomDescription = is_array($rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
-            ? implode(' ', $rate['RoomTypes']['RoomType']['RoomDescription']['Text'])
-            : $rate['RoomTypes']['RoomType']['RoomDescription']['Text'] ?? '';
         $roomResponse->setRoomDescription($roomDescription);
         $roomResponse->setRateName($rate['RatePlans']['RatePlan']['RatePlanDescription']['@attributes']['Name'] ?? '');
         if (is_string($rate['RatePlans']['RatePlan']['RatePlanDescription']['Text'])) {

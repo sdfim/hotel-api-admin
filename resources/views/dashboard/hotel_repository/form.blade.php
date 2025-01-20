@@ -6,7 +6,6 @@
                 ['title' => 'External Identifiers', 'component' => 'products.key-mapping-table'],
                 ['title' => 'Contact Information', 'component' => 'products.contact-information-table'],
 //                ['title' => 'Age Restrictions', 'component' => 'products.hotel-age-restriction-table'],
-                ['title' => 'Affiliations', 'component' => 'products.product-affiliations-table'],
             ],
         ],
         'Location' => [
@@ -19,17 +18,23 @@
                 ['title' => 'Website Search Generation', 'component' => 'hotels.hotel-web-finder-table'],
             ],
         ],
+        'Rooms' => [
+            'tab_name' => 'rooms',
+             'related' => [
+                ['title' => 'Rooms', 'component' => 'hotels.hotel-room-table'],
+             ],
+        ],
         'Attributes' => [
             'tab_name' => 'attributes',
             'related' => [
                 ['title' => 'Hotel Attributes', 'component' => 'products.product-attributes-table'],
             ],
         ],
-        'Rooms' => [
-            'tab_name' => 'rooms',
-             'related' => [
-                ['title' => 'Rooms', 'component' => 'hotels.hotel-room-table'],
-             ],
+        'Ultimate Amenities' => [
+            'tab_name' => 'ultimate-amenities',
+            'related' => [
+                ['title' => 'Ultimate Amenities', 'component' => 'products.product-affiliations-table'],
+            ],
         ],
         'Fees and Taxes' => [
             'tab_name' => 'fee-and-tax',
@@ -69,10 +74,17 @@
 //                ['title' => 'Travel Agency Commission', 'component' => 'commissions.travel-agency-commission-table'],
 //            ],
 //        ],
+        'Gallery' => [
+            'tab_name' => 'images-gallery',
+            'related' => [
+//                ['title' => 'Product Images', 'component' => 'hotel-images.hotel-images-table'],
+                ['title' => 'Image Galleries', 'component' => 'image-galleries.image-galleries-table'],
+            ],
+        ],
     ];
 
     $hotelTitle = ['Rooms', 'Website Search Generation'];
-    $createTabs = ['Product', 'Location', 'Data Sources'];
+    $createTabs = ['Product', 'Location', 'Data Sources', 'Gallery',];
 @endphp
 @extends('layouts.master')
 @section('title')
@@ -101,7 +113,7 @@
             <div class="card-body text-slate-900 dark:text-white mt-5 text-base font-medium tracking-tight">
                 <div class="relative overflow-x-auto">
 
-                    <div x-data="{activeTab: '{{ $tabGroups[array_key_first($tabGroups)]['tab_name'] }}' }"
+                    <div x-data="{activeTab: new URLSearchParams(window.location.search).get('tab') || '{{ $tabGroups[array_key_first($tabGroups)]['tab_name'] }}' }"
                          class="sr_tab-container">
 
                         <ul class="sr_tab-list flex justify-between w-full">
@@ -116,6 +128,9 @@
                                        @click.prevent="
                                        activeTab = '{{ $tabs['tab_name'] }}';
 {{--                                       $wire.set('activeTab', '{{ $tabs['tab_name'] }}')--}}
+                                        const url = new URL(window.location);
+                                       url.searchParams.set('tab', '{{ $tabs['tab_name'] }}');
+                                       window.history.pushState({}, '', url);
                                        ">
                                         <span>{{ $group }}</span>
                                     </a>

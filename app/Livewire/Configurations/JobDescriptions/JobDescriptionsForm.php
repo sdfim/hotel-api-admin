@@ -43,7 +43,6 @@ class JobDescriptionsForm extends Component implements HasForms
                 ->required()
                 ->maxLength(191),
             TextInput::make('description')
-                ->required()
                 ->maxLength(191),
         ];
     }

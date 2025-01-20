@@ -112,13 +112,14 @@ class ContactInformationRequest extends FormRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"contactable_id", "contactable_type", "first_name", "last_name", "email", "phone"},
+     *       required={"contactable_id", "contactable_type", "first_name", "last_name", "email", "phone", "job_title"},
      *       @OA\Property(property="contactable_id", type="integer", example=1),
      *       @OA\Property(property="contactable_type", type="string", example="App\\Models\\Product"),
      *       @OA\Property(property="first_name", type="string", example="John"),
      *       @OA\Property(property="last_name", type="string", example="Doe"),
      *       @OA\Property(property="email", type="string", example="john.doe@example.com"),
-     *       @OA\Property(property="phone", type="string", example="+1234567890")
+     *       @OA\Property(property="phone", type="string", example="+1234567890"),
+     *       @OA\Property(property="job_title", type="string", example="Manager")
      *     )
      *   ),
      *   @OA\Response(
@@ -197,13 +198,14 @@ class ContactInformationRequest extends FormRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"contactable_id", "contactable_type", "first_name", "last_name", "email", "phone"},
+     *       required={"contactable_id", "contactable_type", "first_name", "last_name", "email", "phone", "job_title"},
      *       @OA\Property(property="contactable_id", type="integer", example=1),
      *       @OA\Property(property="contactable_type", type="string", example="App\\Models\\Product"),
      *       @OA\Property(property="first_name", type="string", example="John"),
      *       @OA\Property(property="last_name", type="string", example="Doe"),
      *       @OA\Property(property="email", type="string", example="john.doe@example.com"),
-     *       @OA\Property(property="phone", type="string", example="+1234567890")
+     *       @OA\Property(property="phone", type="string", example="+1234567890"),
+     *       @OA\Property(property="job_title", type="string", example="Manager")
      *     )
      *   ),
      *   @OA\Response(
@@ -271,22 +273,24 @@ class ContactInformationRequest extends FormRequest
      * )
      */
 
-    public function authorize()
-    {
-        return true;
-    }
-
     public function rules()
     {
         return [
             'contactable_id' => 'required|integer',
-            'contactable_type' => 'required|string|max:255',
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:20',
-            'contactInformations' => 'array',
-            'contactInformations.*' => 'integer|exists:config_job_descriptions,id',
+            'contactable_type' => 'required|string|max:191',
+            'first_name' => 'required|string|max:191',
+            'last_name' => 'required|string|max:191',
+            'job_title' => 'required|string|max:191',
+            'emails' => 'array',
+            'emails.*.email' => 'required|string|max:191',
+            'emails.*.contactInformations' => 'array',
+            'emails.*.contactInformations.*.name' => 'required|string|max:20',
+            'phones' => 'array',
+            'phones.*.country_code' => 'required|string|max:20',
+            'phones.*.area_code' => 'nullable|string|max:20',
+            'phones.*.phone' => 'required|string|max:20',
+            'phones.*.extension' => 'nullable|string|max:20',
+            'phones.*.description' => 'nullable|string|max:255',
         ];
     }
 }

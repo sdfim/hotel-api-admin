@@ -10,9 +10,9 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -23,8 +23,10 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
-use Modules\HotelContentRepository\Models\Product;
+use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Models\ContactInformation;
+use Modules\Enums\ContactInformationDepartmentEnum;
+use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\Vendor;
 
 class ContactInformationTable extends Component implements HasForms, HasTable
@@ -40,7 +42,14 @@ class ContactInformationTable extends Component implements HasForms, HasTable
     {
         $this->contactableId = $contactableId;
         $this->contactableType = $contactableType;
-        $this->title = 'Contact Information';
+
+        if ($this->contactableType == 'Vendor') {
+            $contactable = Vendor::find($contactableId) ?? null;
+        } else {
+            $contactable = Product::find($contactableId) ?? null;
+        }
+
+        $this->title = 'Contact Information for <h4>' . ($contactable ? $contactable->name : 'Unknown Entity') . '</h4>';
     }
 
     public function schemeForm(): array
@@ -57,71 +66,168 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                     TextInput::make('last_name')
                         ->label('Last Name')
                         ->required(),
+                    TextInput::make('job_title')
+                        ->label('Job Title'),
+                    Select::make('ujv_departments')
+                        ->label('Department')
+                        ->required()
+                        ->multiple()
+                        ->options(ConfigJobDescription::pluck('name', 'id'))
+                        ->createOptionForm(JobDescriptionsForm::getSchema())
+                        ->createOptionUsing(function (array $data) {
+                            $description = ConfigJobDescription::create($data);
+                            Notification::make()
+                                ->title('Department created successfully')
+                                ->success()
+                                ->send();
+                            return $description->id;
+                        })
                 ]),
-            Grid::make(2)
+
+            CustomRepeater::make('phones')
+                ->label('Phones')
                 ->schema([
-                    TagsInput::make('email')
-                        ->label('Emails')
-                        ->placeholder('Add email')
-                        ->separator(', ')
-                        ->nestedRecursiveRules([
-                            'email',
-                        ]),
-                    TextInput::make('phone')
-                        ->label('Phone'),
+                    Grid::make(6)
+                        ->schema([
+                            TextInput::make('country_code')
+                                ->hiddenLabel()
+                                ->placeholder('Country Code*'),
+                            TextInput::make('area_code')
+                                ->hiddenLabel()
+                                ->placeholder('Area Code'),
+                            TextInput::make('phone')
+                                ->hiddenLabel()
+                                ->placeholder('Phone*'),
+                            TextInput::make('extension')
+                                ->hiddenLabel()
+                                ->placeholder('Extension'),
+                            Textarea::make('description')
+                                ->hiddenLabel()
+                                ->placeholder('Description')
+                                ->columnSpan(2),
+                            ]),
                 ]),
-            Select::make('contactInformations')
-                ->label('Job Title / Department')
-                ->multiple()
-                ->options(ConfigJobDescription::pluck('name', 'id'))
-                ->createOptionForm(JobDescriptionsForm::getSchema())
-                ->createOptionUsing(function (array $data) {
-                    $description = ConfigJobDescription::create($data);
-                    Notification::make()
-                        ->title('Job Title / Department created successfully')
-                        ->success()
-                        ->send();
-                    return $description->id;
-                }),
+
+            CustomRepeater::make('emails')
+                ->label('Emails')
+                ->schema([
+                    Grid::make(3)
+                        ->schema([
+                            TextInput::make('email')
+                                ->hiddenLabel()
+                                ->placeholder('Email*')
+                                ->required(),
+                            Select::make('departments')
+                                ->hiddenLabel()
+                                ->placeholder('Select UJV Department*')
+                                ->multiple()
+                                ->options(ContactInformationDepartmentEnum::options())
+                                ->columnSpan(2),
+                        ]),
+                ]),
         ];
+    }
+
+    protected function createEmailColumn($name)
+    {
+        return TextColumn::make($name)
+            ->label($name)
+            ->getStateUsing(function ($record) use ($name) {
+                return $record->emails->filter(function ($email) use ($name) {
+                    return in_array($name, $email['departments']);
+                })->pluck('email')->implode('<br>');
+            })
+            ->html()
+            ->wrap();
     }
 
     public function table(Table $table): Table
     {
+        $categories = ContactInformationDepartmentEnum::values();
+
+        $emailColumns = array_map(function ($category) {
+            return $this->createEmailColumn($category);
+        }, $categories);
+
+        $columns = [
+            TextColumn::make('first_name')->label('First Name'),
+            TextColumn::make('last_name')->label('Last Name'),
+            TextColumn::make('job_title')->label('Job Title')->wrap(),
+            TextColumn::make('job_title')
+                ->label('Job Title/Departments')
+                ->getStateUsing(function ($record) {
+                    $ujvDepartments = $record->ujvDepartments ?? collect();
+                    return "{$record->job_title} / {$ujvDepartments->pluck('name')->implode(', ')}";
+                })
+                ->wrap(),
+            TextColumn::make('phones')
+                ->label('Phones')
+                ->extraAttributes(['style' => 'min-width: 150px;'])
+                ->getStateUsing(function ($record) {
+                    return $record->phones->map(function ($phone) {
+                        return "{$phone['country_code']} {$phone['area_code']} {$phone['phone']} {$phone['extension']}";
+                    })->implode('<br>');
+                })
+                ->html()
+                ->wrap(),
+        ];
+
+        $columns = array_merge($columns, $emailColumns);
+        $columns[] = TextColumn::make('Uncategorized')
+            ->label('Uncategorized')
+            ->getStateUsing(function ($record) use ($categories) {
+                $categorizedEmails = $record->emails->filter(function ($email) use ($categories) {
+                    foreach ($categories as $category) {
+                        if (in_array($category, $email['departments'])) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+
+                return $record->emails->diff($categorizedEmails)->pluck('email')->implode('<br>');
+            })
+            ->html()
+            ->wrap();
+
         return $table
             ->query(
-                ContactInformation::with('contactInformations')
+                ContactInformation::with('emails', 'phones')
                     ->where('contactable_id', $this->contactableId)
                     ->where('contactable_type', 'Modules\\HotelContentRepository\\Models\\' . $this->contactableType)
             )
-            ->columns([
-                TextColumn::make('first_name')->label('First Name'),
-                TextColumn::make('last_name')->label('Last Name'),
-                TextColumn::make('email')->label('Email'),
-                TextColumn::make('phone')->label('Phone'),
-                TextColumn::make('contactInformations')
-                    ->label('Job Title / Department')
-                    ->formatStateUsing(function ($record) {
-                        return $record->contactInformations->pluck('name')->join(', ');
-                    }),
-            ])
+            ->columns($columns)
             ->actions([
                 EditAction::make()
                     ->label('')
+                    ->modalWidth('6xl')
                     ->modalHeading(new HtmlString("Edit {$this->title}"))
                     ->tooltip('Edit Contact Information')
                     ->form($this->schemeForm())
                     ->fillForm(function ($record) {
                         $data = $record->toArray();
-                        $data['contactInformations'] = $record->contactInformations->pluck('id')->toArray();
+                        $data['ujv_departments'] = $record->ujvDepartments->pluck('id')->toArray();
+                        $data['emails'] = $record->emails->toArray();
+                        $data['phones'] = $record->phones->toArray();
                         return $data;
                     })
                     ->action(function ($data, $record) {
                         $data['contactable_type'] = 'Modules\\HotelContentRepository\\Models\\' . $this->contactableType;
-                        $contactInformations = $data['contactInformations'] ?? [];
-                        unset($data['contactInformations']);
+                        $emails = $data['emails'] ?? [];
+                        $phones = $data['phones'] ?? [];
+                        unset($data['emails'], $data['phones']);
                         $record->update($data);
-                        $record->contactInformations()->sync($contactInformations);
+                        $record->ujvDepartments()->sync($data['ujv_departments']);
+                        $record->emails()->delete();
+                        foreach ($emails as $email) {
+                            $email['contact_information_id'] = $record->id;
+                           $record->emails()->create($email);
+                        }
+                        $record->phones()->delete();
+                        foreach ($phones as $phone) {
+                            $phone['contact_information_id'] = $record->id;
+                            $record->phones()->create($phone);
+                        }
                     })
             ])
             ->bulkActions([
@@ -130,18 +236,57 @@ class ContactInformationTable extends Component implements HasForms, HasTable
             ->headerActions([
                 CreateAction::make()
                     ->modalHeading(new HtmlString("Create {$this->title}"))
+                    ->modalWidth('6xl')
                     ->form($this->schemeForm())
                     ->createAnother(false)
                     ->action(function ($data) {
                         if ($this->contactableId) $data['contactable_id'] = $this->contactableId;
                         $data['contactable_type'] = 'Modules\\HotelContentRepository\\Models\\' . $this->contactableType;
-                        $contactInformations = $data['contactInformations'] ?? [];
-                        unset($data['contactInformations']);
+                        $emails = $data['emails'] ?? [];
+                        $phones = $data['phones'] ?? [];
+                        unset($data['emails'], $data['phones']);
                         $hotelContactInformation = ContactInformation::create($data);
-                        $hotelContactInformation->contactInformations()->sync($contactInformations);
+                        $hotelContactInformation->ujvDepartments()->sync($data['ujv_departments']);
+                        foreach ($emails as $email) {
+                            $email['contact_information_id'] = $hotelContactInformation->id;
+                            $hotelContactInformation->emails()->create($email);
+                        }
+                        foreach ($phones as $phone) {
+                            $phone['contact_information_id'] = $hotelContactInformation->id;
+                            $hotelContactInformation->phones()->create($phone);
+                        }
                     })
                     ->tooltip('Add New Contact Information')
                     ->icon('heroicon-o-plus')
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->iconButton(),
+                CreateAction::make('copyEmails')
+                    ->label('Copy Emails')
+                    ->modalWidth('sm')
+                    ->createAnother(false)
+                    ->modalHeading('Copy Emails to Clipboard')
+                    ->form([
+                        Select::make('department')
+                            ->label('Department')
+                            ->options(ContactInformationDepartmentEnum::options())
+                            ->required(),
+                    ])
+                    ->action(function ($data, Component $livewire) {
+                        $livewire->js('console.log("action clicked")');
+                        $emails = ContactInformation::where('contactable_id', $this->contactableId)
+                            ->with(['emails' => function ($query) use ($data) {
+                                $query->where('departments', 'like', '%'.$data['department'].'%');
+                            }])->get()->pluck('emails.*.email')->flatten()->toArray();
+                        $emailsString = implode('; ', $emails);
+                        $livewire->dispatch('copy-to-clipboard', ['emails' => $emailsString]);
+                        Notification::make()
+                            ->title('Emails сopied to clipboard')
+                            ->body($emailsString)
+                            ->success()
+                            ->send();
+                    })
+                    ->tooltip('Copy Emails to Clipboard')
+                    ->icon('heroicon-o-clipboard')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->iconButton(),
             ]);

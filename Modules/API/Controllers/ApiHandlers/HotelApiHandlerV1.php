@@ -160,7 +160,9 @@ class HotelApiHandlerV1 extends HotelApiHandler
 
     private function getRepoData(array $giataCodes)
     {
-        return Hotel::with('product')->whereIn('giata_code', $giataCodes)->get();
+        return Hotel::with(['product' => function ($query) {
+            $query->where('onSale', 1);
+        }])->whereIn('giata_code', $giataCodes)->get();
     }
 
     private function getExpediaResults(array $giataCodes): array

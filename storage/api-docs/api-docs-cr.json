@@ -12,7 +12,7 @@
                 ],
                 "summary": "Get all contact information",
                 "description": "Retrieve all contact information records with optional filters.",
-                "operationId": "c108ff5ec6bcee8068da6aa961ed1dc9",
+                "operationId": "2471c2e42e559ada455448d7738a8b82",
                 "parameters": [
                     {
                         "name": "contactable_id",
@@ -125,7 +125,7 @@
                 ],
                 "summary": "Create a new contact information",
                 "description": "Create a new contact information entry.",
-                "operationId": "06dcc874f8b875d754fcc9e4ec8b4e56",
+                "operationId": "d3b5dbe37078af61d66694fa6ed2ae0c",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -137,7 +137,8 @@
                                     "first_name",
                                     "last_name",
                                     "email",
-                                    "phone"
+                                    "phone",
+                                    "job_title"
                                 ],
                                 "properties": {
                                     "contactable_id": {
@@ -163,6 +164,10 @@
                                     "phone": {
                                         "type": "string",
                                         "example": "+1234567890"
+                                    },
+                                    "job_title": {
+                                        "type": "string",
+                                        "example": "Manager"
                                     }
                                 },
                                 "type": "object"
@@ -209,7 +214,7 @@
                 ],
                 "summary": "Get contact information details",
                 "description": "Retrieve details of a specific contact information.",
-                "operationId": "d54c84ea83f9d76adbbc8787059d0e62",
+                "operationId": "6603b173484c86487db5acb558632f60",
                 "parameters": [
                     {
                         "name": "id",
@@ -259,7 +264,7 @@
                 ],
                 "summary": "Update contact information details",
                 "description": "Update details of a specific contact information.",
-                "operationId": "96140978ba4781973effff6133d6eeb5",
+                "operationId": "793230e56fd4f0197307c3443dd24231",
                 "parameters": [
                     {
                         "name": "id",
@@ -283,7 +288,8 @@
                                     "first_name",
                                     "last_name",
                                     "email",
-                                    "phone"
+                                    "phone",
+                                    "job_title"
                                 ],
                                 "properties": {
                                     "contactable_id": {
@@ -309,6 +315,10 @@
                                     "phone": {
                                         "type": "string",
                                         "example": "+1234567890"
+                                    },
+                                    "job_title": {
+                                        "type": "string",
+                                        "example": "Manager"
                                     }
                                 },
                                 "type": "object"
@@ -363,7 +373,7 @@
                 ],
                 "summary": "Delete a contact information",
                 "description": "Delete a specific contact information.",
-                "operationId": "12558be0c3080b3407de7546a1addc85",
+                "operationId": "15ca6ce02f79be271df8c3ba165d5dec",
                 "parameters": [
                     {
                         "name": "id",
@@ -2740,6 +2750,10 @@
                                         "type": "string",
                                         "example": "Lobby"
                                     },
+                                    "alt": {
+                                        "type": "string",
+                                        "example": "Hotel Lobby Image"
+                                    },
                                     "weight": {
                                         "type": "integer",
                                         "example": 1
@@ -2875,6 +2889,10 @@
                                     "tag": {
                                         "type": "string",
                                         "example": "Lobby"
+                                    },
+                                    "alt": {
+                                        "type": "string",
+                                        "example": "Hotel Lobby Image"
                                     },
                                     "weight": {
                                         "type": "integer",
@@ -3975,31 +3993,9 @@
                 "tags": [
                     "Product | Affiliations"
                 ],
-                "summary": "Get all hotel affiliations",
-                "description": "Retrieve all hotel affiliation records with optional filters.",
+                "summary": "List all hotel affiliations",
+                "description": "Get a list of all hotel affiliations.",
                 "operationId": "c34b70e5bfd019c43b4788edfb93f4db",
-                "parameters": [
-                    {
-                        "name": "product_id",
-                        "in": "query",
-                        "description": "Filter by hotel ID",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    },
-                    {
-                        "name": "affiliation_name",
-                        "in": "query",
-                        "description": "Filter by affiliation name",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "UJV Exclusive Amenities"
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -4019,16 +4015,16 @@
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
+                    "404": {
+                        "description": "Not Found",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                    "$ref": "#/components/schemas/NotFoundResponse"
                                 },
                                 "examples": {
-                                    "BadRequestResponse": {
-                                        "$ref": "#/components/examples/BadRequestResponse"
+                                    "NotFoundResponse": {
+                                        "$ref": "#/components/examples/NotFoundResponse"
                                     }
                                 }
                             }
@@ -4046,7 +4042,7 @@
                     "Product | Affiliations"
                 ],
                 "summary": "Create a new hotel affiliation",
-                "description": "Create a new hotel affiliation entry.",
+                "description": "Create a new hotel affiliation.",
                 "operationId": "73ccc4093b4a068e37486ff855df763e",
                 "requestBody": {
                     "required": true,
@@ -4055,20 +4051,43 @@
                             "schema": {
                                 "required": [
                                     "product_id",
-                                    "combinable"
+                                    "consortia_id",
+                                    "description",
+                                    "start_date",
+                                    "end_date"
                                 ],
                                 "properties": {
                                     "product_id": {
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "combinable": {
-                                        "type": "string",
-                                        "example": "true"
+                                    "consortia_id": {
+                                        "type": "integer",
+                                        "example": 1
                                     },
-                                    "non_combinable": {
+                                    "description": {
                                         "type": "string",
-                                        "example": "false"
+                                        "example": "Description of the affiliation"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-01-01"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-12-31"
+                                    },
+                                    "amenities": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "WiFi",
+                                            "Pool"
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -4123,8 +4142,8 @@
                 "tags": [
                     "Product | Affiliations"
                 ],
-                "summary": "Get hotel affiliation details",
-                "description": "Retrieve details of a specific hotel affiliation.",
+                "summary": "Get a specific hotel affiliation",
+                "description": "Get details of a specific hotel affiliation.",
                 "operationId": "3bbdad5fd351b52bfc4c54bd1184a4df",
                 "parameters": [
                     {
@@ -4183,8 +4202,8 @@
                 "tags": [
                     "Product | Affiliations"
                 ],
-                "summary": "Update hotel affiliation details",
-                "description": "Update details of a specific hotel affiliation.",
+                "summary": "Update a hotel affiliation",
+                "description": "Update a specific hotel affiliation.",
                 "operationId": "b07263835aea22abaa0600d66a063013",
                 "parameters": [
                     {
@@ -4205,20 +4224,43 @@
                             "schema": {
                                 "required": [
                                     "product_id",
-                                    "combinable"
+                                    "consortia_id",
+                                    "description",
+                                    "start_date",
+                                    "end_date"
                                 ],
                                 "properties": {
                                     "product_id": {
                                         "type": "integer",
                                         "example": 1
                                     },
-                                    "combinable": {
-                                        "type": "string",
-                                        "example": "true"
+                                    "consortia_id": {
+                                        "type": "integer",
+                                        "example": 1
                                     },
-                                    "non_combinable": {
+                                    "description": {
                                         "type": "string",
-                                        "example": "false"
+                                        "example": "Description of the affiliation"
+                                    },
+                                    "start_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-01-01"
+                                    },
+                                    "end_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2023-12-31"
+                                    },
+                                    "amenities": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "WiFi",
+                                            "Pool"
+                                        ]
                                     }
                                 },
                                 "type": "object"
@@ -6515,6 +6557,30 @@
                                         "type": "number",
                                         "format": "float",
                                         "example": 100
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Service Name"
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "USD"
+                                    },
+                                    "service_time": {
+                                        "type": "string",
+                                        "example": "08:30 AM"
+                                    },
+                                    "show_service_on_pdf": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "show_service_data_on_pdf": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "auto_book": {
+                                        "type": "boolean",
+                                        "example": false
                                     }
                                 },
                                 "type": "object"
@@ -6646,6 +6712,30 @@
                                         "type": "number",
                                         "format": "float",
                                         "example": 100
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Service Name"
+                                    },
+                                    "currency": {
+                                        "type": "string",
+                                        "example": "USD"
+                                    },
+                                    "service_time": {
+                                        "type": "string",
+                                        "example": "08:30 AM"
+                                    },
+                                    "show_service_on_pdf": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "show_service_data_on_pdf": {
+                                        "type": "boolean",
+                                        "example": true
+                                    },
+                                    "auto_book": {
+                                        "type": "boolean",
+                                        "example": false
                                     }
                                 },
                                 "type": "object"
@@ -8247,6 +8337,44 @@
             }
         },
         "/api/repo/vendors": {
+            "get": {
+                "tags": [
+                    "Vendor | Vendors"
+                ],
+                "summary": "Get all vendors",
+                "description": "Retrieve all vendor records with optional filters.",
+                "operationId": "3d2b9721bf39965a483e24173fdc8806",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
             "post": {
                 "tags": [
                     "Vendor | Vendors"
@@ -8264,7 +8392,8 @@
                                     "address",
                                     "lat",
                                     "lng",
-                                    "verified"
+                                    "verified",
+                                    "independent_flag"
                                 ],
                                 "properties": {
                                     "name": {
@@ -8288,6 +8417,10 @@
                                     "verified": {
                                         "type": "boolean",
                                         "example": true
+                                    },
+                                    "independent_flag": {
+                                        "type": "boolean",
+                                        "example": false
                                     },
                                     "website": {
                                         "type": "string",
@@ -8332,6 +8465,56 @@
             }
         },
         "/api/repo/vendors/{id}": {
+            "get": {
+                "tags": [
+                    "Vendor | Vendors"
+                ],
+                "summary": "Get vendor details",
+                "description": "Retrieve details of a specific vendor.",
+                "operationId": "2de061b371e917bd0d843da81dee84ef",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the vendor",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
             "put": {
                 "tags": [
                     "Vendor | Vendors"
@@ -8361,7 +8544,8 @@
                                     "address",
                                     "lat",
                                     "lng",
-                                    "verified"
+                                    "verified",
+                                    "independent_flag"
                                 ],
                                 "properties": {
                                     "name": {
@@ -8385,6 +8569,10 @@
                                     "verified": {
                                         "type": "boolean",
                                         "example": true
+                                    },
+                                    "independent_flag": {
+                                        "type": "boolean",
+                                        "example": false
                                     },
                                     "website": {
                                         "type": "string",
@@ -8416,6 +8604,56 @@
                             "application/json": {
                                 "schema": {
                                     "$ref": "#/components/schemas/BadRequestResponse"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/NotFoundResponse"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "apiAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Vendor | Vendors"
+                ],
+                "summary": "Delete a vendor",
+                "description": "Delete a specific vendor.",
+                "operationId": "af4b27c00e121fcdef280f41b25f07bd",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the vendor",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "401": {
+                        "description": "Unauthenticated",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UnAuthenticatedResponse"
                                 }
                             }
                         }
@@ -8490,6 +8728,68 @@
                 "type": "object"
             }
         },
+        "responses": {
+            "200": {
+                "description": "OK"
+            },
+            "401": {
+                "description": "Unauthenticated",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/UnAuthenticatedResponse"
+                        },
+                        "examples": {
+                            "UnAuthenticatedResponse": {
+                                "$ref": "#/components/examples/UnAuthenticatedResponse"
+                            }
+                        }
+                    }
+                }
+            },
+            "400": {
+                "description": "Bad Request",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/BadRequestResponse"
+                        },
+                        "examples": {
+                            "BadRequestResponse": {
+                                "$ref": "#/components/examples/BadRequestResponse"
+                            }
+                        }
+                    }
+                }
+            },
+            "404": {
+                "description": "Not Found",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/NotFoundResponse"
+                        },
+                        "examples": {
+                            "NotFoundResponse": {
+                                "$ref": "#/components/examples/NotFoundResponse"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "parameters": {
+            "id": {
+                "name": "id",
+                "in": "path",
+                "description": "ID of the hotel affiliation",
+                "required": true,
+                "schema": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "examples": {
             "BadRequestResponse": {
                 "summary": "Example of BadRequest",
@@ -8508,6 +8808,59 @@
                 "value": {
                     "api_status": "401",
                     "message": "UnAuthenticated"
+                }
+            }
+        },
+        "requestBodies": {
+            "ProductAffiliationRequest": {
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "product_id",
+                                "consortia_id",
+                                "description",
+                                "start_date",
+                                "end_date"
+                            ],
+                            "properties": {
+                                "product_id": {
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "consortia_id": {
+                                    "type": "integer",
+                                    "example": 1
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "example": "Description of the affiliation"
+                                },
+                                "start_date": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "example": "2023-01-01"
+                                },
+                                "end_date": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "example": "2023-12-31"
+                                },
+                                "amenities": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    },
+                                    "example": [
+                                        "WiFi",
+                                        "Pool"
+                                    ]
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
                 }
             }
         },

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\ProductAffiliationFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use App\Models\Configurations\ConfigConsortium;
 
 class ProductAffiliation extends Model
 {
@@ -23,8 +24,17 @@ class ProductAffiliation extends Model
 
     protected $fillable = [
         'product_id',
-        'combinable',
-        'non_combinable',
+        'consortia_id',
+        'description',
+        'start_date',
+        'end_date',
+        'amenities',
+    ];
+
+    protected $casts = [
+        'amenities' => 'array',
+        'start_date' => 'date',
+        'end_date' => 'date',
     ];
 
     protected $hidden = [
@@ -38,8 +48,8 @@ class ProductAffiliation extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function details(): HasMany
+    public function consortia(): BelongsTo
     {
-        return $this->hasMany(ProductAffiliationDetail::class, 'affiliation_id');
+        return $this->belongsTo(ConfigConsortium::class);
     }
 }

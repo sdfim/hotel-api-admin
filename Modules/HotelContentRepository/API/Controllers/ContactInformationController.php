@@ -22,7 +22,7 @@ class ContactInformationController extends BaseController
 
     public function index()
     {
-        $query = ContactInformation::query();
+        $query = ContactInformation::with(['emails.contactInformations', 'phones']);
         $query = $this->filter($query, ContactInformation::class);
         $contactInformations = $query->get();
 
@@ -31,13 +31,37 @@ class ContactInformationController extends BaseController
 
     public function store(ContactInformationRequest $request)
     {
-        $contactInformation = $this->addProductContactInformation->handle($request);
+        try {
+            $contactInformation = ContactInformation::create($request->validated());
+
+            if ($request->has('emails')) {
+                $emails = $request->input('emails');
+                foreach ($emails as &$email) {
+                    $email['contact_information_id'] = $contactInformation->id;
+                }
+                $contactInformation->emails()->createMany($emails);
+            }
+
+            if ($request->has('phones')) {
+                $phones = $request->input('phones');
+                foreach ($phones as &$phone) {
+                    $phone['contact_information_id'] = $contactInformation->id;
+                }
+                $contactInformation->phones()->createMany($phones);
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('create failed: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
         return $this->sendResponse($contactInformation->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
-        $contactInformation = ContactInformation::findOrFail($id);
+        $contactInformation = ContactInformation::with(['emails.contactInformations', 'phones'])->find($id);
+        if (!$contactInformation) {
+            return $this->sendError('not found', Response::HTTP_NOT_FOUND);
+        }
         return $this->sendResponse($contactInformation->toArray(), 'show success');
     }
 

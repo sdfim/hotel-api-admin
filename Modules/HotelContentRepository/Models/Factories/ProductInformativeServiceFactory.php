@@ -17,6 +17,13 @@ class ProductInformativeServiceFactory extends Factory
             'product_id' => Product::factory(),
             'service_id' => ConfigServiceType::factory(),
             'cost' => $this->faker->randomFloat(2, 0, 1000),
+            'name' => $this->faker->name,
+            'currency' => $this->faker->currencyCode,
+            'service_time' => $this->faker->time(),
+            'show_service_on_pdf' => $this->faker->boolean,
+            'show_service_data_on_pdf' => $this->faker->boolean,
+            'commissionable' => $this->faker->boolean,
+            'auto_book' => $this->faker->boolean,
         ];
     }
 }

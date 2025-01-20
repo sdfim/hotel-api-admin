@@ -18,7 +18,7 @@ class ContactInformationControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'contactable_id', 'first_name', 'last_name', 'email', 'phone']
+                '*' => ['id', 'contactable_id', 'first_name', 'last_name', 'contactable_type']
             ],
             'message'
         ]);
@@ -31,7 +31,7 @@ class ContactInformationControllerTest extends TestCase
         $response = $this->request()->postJson('api/repo/contact-information', $data);
         $response->assertStatus(201);
         $response->assertJsonStructure([
-            'data' => ['id', 'contactable_id', 'first_name', 'last_name', 'email', 'phone'],
+            'data' => ['id', 'contactable_id', 'first_name', 'last_name', 'contactable_type'],
             'message'
         ]);
         $this->assertDatabaseHas('pd_contact_information', $data);
@@ -44,7 +44,7 @@ class ContactInformationControllerTest extends TestCase
         $response = $this->request()->getJson("api/repo/contact-information/{$contactInformation->id}");
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'contactable_id', 'first_name', 'last_name', 'email', 'phone'],
+            'data' => ['id', 'contactable_id', 'first_name', 'last_name', 'contactable_type'],
             'message'
         ]);
     }
@@ -57,7 +57,7 @@ class ContactInformationControllerTest extends TestCase
         $response = $this->request()->putJson("api/repo/contact-information/{$contactInformation->id}", $data);
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'data' => ['id', 'contactable_id', 'first_name', 'last_name', 'email', 'phone'],
+                'data' => ['id', 'contactable_id', 'first_name', 'last_name', 'contactable_type'],
                 'message'
             ]);
         $this->assertDatabaseHas('pd_contact_information', $data);

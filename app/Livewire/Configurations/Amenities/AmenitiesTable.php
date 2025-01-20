@@ -1,0 +1,69 @@
+<?php
+
+namespace App\Livewire\Configurations\Amenities;
+
+use App\Helpers\ClassHelper;
+use App\Models\Configurations\ConfigAmenity;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\BulkAction;
+use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\HtmlString;
+use Illuminate\View\View;
+use Livewire\Component;
+
+class AmenitiesTable extends Component implements HasForms, HasTable
+{
+    use InteractsWithForms;
+    use InteractsWithTable;
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->paginated([5, 10, 25, 50])
+            ->query(ConfigAmenity::query())
+            ->columns([
+                TextColumn::make('name')
+                    ->searchable(),
+            ])
+            ->actions([
+//                ActionGroup::make([
+                    EditAction::make()
+                        ->iconButton()
+                        ->url(fn (ConfigAmenity $record): string => route('configurations.amenities.edit', $record))
+                        ->visible(fn (ConfigAmenity $record) => Gate::allows('update', $record)),
+//                    DeleteAction::make()
+//                        ->requiresConfirmation()
+//                        ->action(fn (ConfigAmenity $record) => $record->delete())
+//                        ->visible(fn (ConfigAmenity $record) => Gate::allows('delete', $record)),
+//                ]),
+            ])
+            ->bulkActions([
+                BulkAction::make('delete')
+                    ->action(fn (array $records) => ConfigAmenity::destroy($records))
+                    ->requiresConfirmation()
+                    ->visible(fn () => Gate::allows('delete', ConfigAmenity::class)),
+            ])
+            ->headerActions([
+                CreateAction::make()
+                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+                    ->icon('heroicon-o-plus')
+                    ->iconButton()
+                    ->url(fn (): string => route('configurations.amenities.create'))
+                    ->visible(fn () => Gate::allows('create', ConfigAmenity::class)),
+            ]);
+    }
+
+    public function render(): View
+    {
+        return view('livewire.configurations.amenities.amenities-table');
+    }
+}

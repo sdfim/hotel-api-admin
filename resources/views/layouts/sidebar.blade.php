@@ -26,6 +26,7 @@
     use Modules\Insurance\Models\InsuranceRateTier;
     use Modules\Insurance\Models\InsurancePlan;
     use App\Models\Configurations\ConfigAttribute;
+    use App\Models\Configurations\ConfigAmenity;
     use App\Models\Configurations\ConfigConsortium;
     use App\Models\Configurations\ConfigDescriptiveType;
     use App\Models\Configurations\ConfigJobDescription;
@@ -42,6 +43,7 @@
         $canView(Channel::class) ||
         $canView(Supplier::class) ||
         $canView(ConfigAttribute::class) ||
+        $canView(ConfigAmenity::class) ||
         $canView(ConfigConsortium::class) ||
         $canView(ConfigDescriptiveType::class) ||
         $canView(ConfigJobDescription::class) ||
@@ -93,6 +95,13 @@
                                     <a href="{{ route('configurations.attributes.index') }}"
                                        class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
                                     >Attributes </a>
+                                </li>
+                            @endif
+                            @if($canView(ConfigAmenity::class))
+                                <li>
+                                    <a href="{{ route('configurations.amenities.index') }}"
+                                       class="pl-14 pr-4 py-2 block text-[13.5px] font-medium text-gray-700 transition-all duration-150 ease-linear hover:text-violet-500 dark:text-gray-300 dark:active:text-white dark:hover:text-white"
+                                    >Amenities </a>
                                 </li>
                             @endif
                             @if($canView(ConfigConsortium::class))

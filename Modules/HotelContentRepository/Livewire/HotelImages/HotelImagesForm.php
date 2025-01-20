@@ -15,13 +15,14 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
 use Modules\HotelContentRepository\Models\ImageSection;
+use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class HotelImagesForm extends Component implements HasForms
 {
     use InteractsWithForms;
 
     public ?array $data = [];
-
     public Image $record;
 
     public function mount(Image $repositoryImage): void
@@ -34,30 +35,52 @@ class HotelImagesForm extends Component implements HasForms
     public function form(Form $form): Form
     {
         return $form
-            ->schema([
-                TextInput::make('tag')
-                    ->required()
-                    ->maxLength(191),
-                Select::make('section_id')
-                    ->required()
-                    ->options(ImageSection::pluck('name', 'id')),
-                Select::make('galleries')
-                    ->multiple()
-                    ->searchable()
-                    ->preload()
-                    ->relationship('galleries', 'gallery_name'),
-                TextInput::make('weight')
-                    ->formatStateUsing(fn (Image $record) => $this->record->exists ? $record->weight : '500'),
-                FileUpload::make('image_url')
-                    ->image()
-                    ->imageEditor()
-                    ->preserveFilenames()
-                    ->directory('images')
-                    ->disk('public')
-                    ->visibility('public'),
-            ])
+            ->schema($this->getFormComponents())
             ->statePath('data')
             ->model($this->record);
+    }
+
+    public static function getFormComponents(?string $filePath = ''): array
+    {
+        return [
+            TextInput::make('tag')
+                ->label('Tag')
+                ->required()
+                ->maxLength(191),
+            Select::make('section_id')
+                ->label('Section')
+                ->required()
+                ->options(ImageSection::pluck('name', 'id')),
+            Select::make('galleries')
+                ->label('Galleries')
+                ->multiple()
+                ->searchable()
+                ->preload()
+                ->relationship('galleries', 'gallery_name')
+                ->createOptionForm(ImageGalleriesForm::getGalleryFormComponents())
+                ->createOptionUsing(function (array $data) {
+                    $image = Image::create($data);
+                    Notification::make()
+                        ->title('Gallery created successfully')
+                        ->success()
+                        ->send();
+                    return $image->id;
+                }),
+            TextInput::make('weight')
+                ->label('Weight')
+                ->formatStateUsing(fn (?Image $record) => $record?->exists ? $record->weight : '500'),
+            TextInput::make('alt')
+                ->label('Alt')
+                ->maxLength(191),
+            FileUpload::make('image_url')
+                ->label('Image')
+                ->image()
+                ->imageEditor()
+                ->preserveFilenames()
+                ->directory($filePath ? 'images/'.$filePath : 'images')
+                ->disk('public')
+                ->visibility('public'),
+        ];
     }
 
     public function edit(): Redirector|RedirectResponse

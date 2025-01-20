@@ -32,13 +32,16 @@ class Vendor extends Model
         'lat',
         'lng',
         'website',
-        'location'
+        'location',
+        'independent_flag'
     ];
 
     protected $casts = [
         'address' => 'array',
         'lat' => 'float',
         'lng' => 'float',
+        'verified' => 'boolean',
+        'independent_flag' => 'boolean'
     ];
 
     protected $hidden = [

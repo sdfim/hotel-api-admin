@@ -25,7 +25,7 @@
         @endif
     </div>
 
-    <form class="hotel-form-container" wire:submit="edit">
+    <form class="hotel-form-container" wire:submit="save">
         {{ $this->form }}
 
         <x-button class="mt-4">

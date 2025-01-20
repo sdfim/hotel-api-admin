@@ -28,6 +28,25 @@
     --primary-950: 26, 26, 69;
 }
 
+.pd-grid table {
+    max-height: 65vh;
+    overflow-y: auto;
+    display: block;
+}
+
+.pd-grid table thead tr {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.pd-grid table thead th span{
+    min-width: 70px;
+    word-break: break-word;
+    white-space: normal;
+
+}
+
 .border-r {
     border: none !important;
 }
@@ -127,7 +146,14 @@ thead .bg-gray-50{
 
 .choices .choices__input.choices__input--cloned {
     padding-left: 10px!important;
-    padding-top: 10px !important;
+}
+
+.choices__list--multiple:not(:empty) {
+    margin-bottom: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
 }
 
 .hotel-form-container {
@@ -160,6 +186,7 @@ thead .bg-gray-50{
 .sr_tab-list {
     background-color: var(--white-color);
     display: flex;
+    flex-wrap: wrap;
     grid: auto-flow / repeat(auto-fill, minmax(100px, 1fr));
     overflow-x: auto;
     scrollbar-width: none;
@@ -168,7 +195,7 @@ thead .bg-gray-50{
     padding: 0.7rem;
     margin: 60px 0 5px;
     justify-content: flex-start;
-    gap: 10px;
+    gap: 5px;
 }
 .sr_tab-list::-webkit-scrollbar {
     display: none;
@@ -434,4 +461,11 @@ thead .bg-gray-50{
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+#trix-toolbar-mountedTableActionsData\.0\.description {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: var(--background-main-color);
 }

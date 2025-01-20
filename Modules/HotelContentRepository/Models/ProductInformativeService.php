@@ -6,8 +6,10 @@ use App\Models\Configurations\ConfigServiceType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\ProductInformativeServiceFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Carbon\Carbon;
 
 class ProductInformativeService extends Model
 {
@@ -24,14 +26,31 @@ class ProductInformativeService extends Model
     protected $fillable = [
         'product_id',
         'service_id',
-        'cost'
+        'cost',
+        'name',
+        'currency',
+        'service_time',
+        'show_service_on_pdf',
+        'show_service_data_on_pdf',
+        'commissionable',
+        'auto_book'
     ];
 
     protected $hidden = [
-        'pivot'
+        'pivot',
+        'show_service_on_pdf' => 'boolean',
+        'show_service_data_on_pdf' => 'boolean',
+        'auto_book' => 'boolean',
     ];
 
-    public $timestamps = false;
+    public function setServiceTimeAttribute($value)
+    {
+        try {
+            $this->attributes['service_time'] = Carbon::createFromFormat('h:i A', $value)->format('H:i');
+        } catch (\Carbon\Exceptions\InvalidFormatException $e) {
+            $this->attributes['service_time'] = null;
+        }
+    }
 
     public function product(): BelongsTo
     {
@@ -41,5 +60,10 @@ class ProductInformativeService extends Model
     public function service(): BelongsTo
     {
         return $this->belongsTo(ConfigServiceType::class);
+    }
+
+    public function dynamicColumns(): HasMany
+    {
+        return $this->hasMany(ProductInformativeServiceDynamicColumn::class, 'product_informative_service_id');
     }
 }

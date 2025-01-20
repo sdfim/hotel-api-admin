@@ -21,9 +21,9 @@ class HotelController extends BaseWithPolicyController
 
     public function show(string $id): View
     {
-        $hotelRoom = Hotel::findOrFail($id);
+        $hotel = Hotel::findOrFail($id);
 
-        return view('dashboard.hotel_repository.show', compact('hotelRoom'));
+        return view('dashboard.hotel_repository.form', compact('hotel'));
     }
 
     public function edit(string $id): View

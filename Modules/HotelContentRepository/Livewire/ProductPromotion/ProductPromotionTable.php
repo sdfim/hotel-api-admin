@@ -120,8 +120,8 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                 TextColumn::make('validity_end')->label('Validity End')->date(),
                 TextColumn::make('booking_start')->label('Booking Start')->date(),
                 TextColumn::make('booking_end')->label('Booking End')->date(),
-                IconColumn::make('not_refundable')->label('Not Refundable')->boolean(),
-                IconColumn::make('package')->label('Package')->boolean(),
+                IconColumn::make('not_refundable')->label('Not Refundable'),
+                IconColumn::make('package')->label('Package'),
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([

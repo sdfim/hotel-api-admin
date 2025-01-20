@@ -29,6 +29,7 @@ class ImageDTO
             'image_url' => $image->image_url,
             'tag' => $image->tag,
             'weight' => $image->weight,
+            'alt' => $image->alt,
             'section_id' => $image->section_id,
         ];
     }

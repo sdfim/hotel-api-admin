@@ -21,4 +21,17 @@ enum SupplierNameEnum: string
             self::HBSI->value => self::HBSI->value,
         ];
     }
+
+    public static function optionsDriver(): array
+    {
+        return [
+            self::EXPEDIA->value => self::EXPEDIA->value,
+            self::HBSI->value => self::HBSI->value,
+        ];
+    }
+
+    public static function getValuesDriver(): array
+    {
+        return [self::EXPEDIA->value, self::HBSI->value];
+    }
 }

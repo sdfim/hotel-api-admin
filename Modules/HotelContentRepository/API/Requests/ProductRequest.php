@@ -4,6 +4,8 @@ namespace Modules\HotelContentRepository\API\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Modules\API\Validate\ApiRequest;
+use Illuminate\Validation\Rule;
+use Modules\Enums\ContentSourceEnum;
 
 class ProductRequest extends ApiRequest
 {
@@ -353,6 +355,11 @@ class ProductRequest extends ApiRequest
             'lng' => 'nullable|numeric',
             'related_id' => 'required|integer',
             'related_type' => 'required|string|max:255',
+            'off_sale_by_sources' => [
+                'nullable',
+                'array',
+                Rule::in(ContentSourceEnum::options()),
+            ],
         ];
     }
 }

@@ -12,7 +12,7 @@ class ProductInformativeServiceController extends BaseController
 {
     public function index()
     {
-        $query = ProductInformativeService::query();
+        $query = ProductInformativeService::with('dynamicColumns');
         $query = $this->filter($query, ProductInformativeService::class);
         $hotelInformativeServices = $query->get();
 
@@ -22,19 +22,33 @@ class ProductInformativeServiceController extends BaseController
     public function store(ProductInformativeServiceRequest $request)
     {
         $hotelInformativeService = ProductInformativeService::create($request->validated());
+        if ($request->has('dynamic_columns')) {
+            $hotelInformativeService->dynamicColumns()->createMany($request->input('dynamic_columns'));
+        }
+
         return $this->sendResponse($hotelInformativeService->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
-        $hotelInformativeService = ProductInformativeService::findOrFail($id);
+        $hotelInformativeService = ProductInformativeService::with('dynamicColumns')->findOrFail($id);
         return $this->sendResponse($hotelInformativeService->toArray(), 'show success');
     }
 
     public function update(ProductInformativeServiceRequest $request, $id)
     {
-        $hotelInformativeService = ProductInformativeService::findOrFail($id);
-        $hotelInformativeService->update($request->validated());
+        try {
+            $hotelInformativeService = ProductInformativeService::findOrFail($id);
+            $hotelInformativeService->update($request->validated());
+
+            if ($request->has('dynamic_columns')) {
+                $hotelInformativeService->dynamicColumns()->delete();
+                $hotelInformativeService->dynamicColumns()->createMany($request->input('dynamic_columns'));
+            }
+        } catch (\Exception $e) {
+            return $this->sendError('update failed: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
         return $this->sendResponse($hotelInformativeService->toArray(), 'update success');
     }
 

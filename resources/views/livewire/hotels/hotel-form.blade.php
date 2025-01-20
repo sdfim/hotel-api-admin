@@ -7,6 +7,11 @@
                     <input type="checkbox" wire:click="toggleVerified" {{ $verified ? 'checked' : '' }}>
                     <span class="hotel-form-slider"></span>
                 </label>
+                <span class="hotel-form-toggle-label pl-6">On Sale</span>
+                <label class="hotel-form-toggle-button">
+                    <input type="checkbox" wire:click="toggleOnSale" {{ $onSale ? 'checked' : '' }}>
+                    <span class="hotel-form-slider"></span>
+                </label>
             </div>
             @can('delete', Product::class)
             <div class="right-block" wire:click="confirmDeleteHotel">

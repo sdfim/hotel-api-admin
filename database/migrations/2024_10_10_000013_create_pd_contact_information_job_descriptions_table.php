@@ -18,7 +18,6 @@ return new class extends Migration
                 ->onDelete('cascade')
                 ->name('fk_contact_info_id');
 
-            // Adding a custom name for the unique constraint to avoid the length issue
             $table->unique(['job_descriptions_id', 'contact_information_id'], 'job_desc_contact_info_unique');
         });
     }

@@ -43,7 +43,7 @@ class ImageRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Post(
      *   tags={"Images"},
      *   path="/api/repo/images",
@@ -56,6 +56,7 @@ class ImageRequest extends ApiRequest
      *       required={"image_url", "tag", "weight", "section_id"},
      *       @OA\Property(property="image_url", type="string", example="http://example.com/image.jpg"),
      *       @OA\Property(property="tag", type="string", example="Lobby"),
+     *       @OA\Property(property="alt", type="string", example="Hotel Lobby Image"),
      *       @OA\Property(property="weight", type="integer", example=1),
      *       @OA\Property(property="section_id", type="integer", example=1)
      *     )
@@ -80,7 +81,7 @@ class ImageRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Get(
      *   tags={"Images"},
      *   path="/api/repo/images/{id}",
@@ -116,7 +117,7 @@ class ImageRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Put(
      *   tags={"Images"},
      *   path="/api/repo/images/{id}",
@@ -139,6 +140,7 @@ class ImageRequest extends ApiRequest
      *       required={"image_url", "tag", "weight", "section_id"},
      *       @OA\Property(property="image_url", type="string", example="http://example.com/image.jpg"),
      *       @OA\Property(property="tag", type="string", example="Lobby"),
+     *       @OA\Property(property="alt", type="string", example="Hotel Lobby Image"),
      *       @OA\Property(property="weight", type="integer", example=1),
      *       @OA\Property(property="section_id", type="integer", example=1)
      *     )
@@ -170,7 +172,7 @@ class ImageRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Delete(
      *   tags={"Images"},
      *   path="/api/repo/images/{id}",
@@ -208,13 +210,12 @@ class ImageRequest extends ApiRequest
      * )
      */
 
-
-
     public function rules(): array
     {
         return [
             'image_url' => 'required|string|max:255',
             'tag' => 'required|string|max:100',
+            'alt' => 'string|max:100',
             'weight' => 'required|integer',
             'section_id' => 'required|exists:pd_image_sections,id',
         ];

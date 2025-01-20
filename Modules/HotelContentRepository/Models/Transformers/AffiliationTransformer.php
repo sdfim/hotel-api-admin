@@ -7,20 +7,15 @@ use Modules\HotelContentRepository\Models\ProductAffiliation;
 
 class AffiliationTransformer extends TransformerAbstract
 {
-    protected array $defaultIncludes = [
-        'details',
-    ];
-
     public function transform(ProductAffiliation $affiliation)
     {
         return [
-            'affiliation_name' => $affiliation->affiliation_name,
+            'affiliation_id' => $affiliation->affiliation_id,
+            'consortia' => $affiliation->consortia->name,
+            'description' => $affiliation->description,
+            'start_date' => $affiliation->start_date,
+            'end_date' => $affiliation->end_date,
             'combinable' => $affiliation->combinable,
         ];
-    }
-
-    public function includeDetails(ProductAffiliation $affiliation)
-    {
-        return $this->collection($affiliation->details, new AffiliationDetailTransformer());
     }
 }

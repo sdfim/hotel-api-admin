@@ -24,6 +24,7 @@ class Image extends Model
         'tag',
         'weight',
         'section_id',
+        'alt',
         ];
 
     protected $hidden = [

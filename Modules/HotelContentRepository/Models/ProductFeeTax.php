@@ -32,13 +32,13 @@ class ProductFeeTax extends Model
         'collected_by',
         'fee_category',
         'apply_type',
-        'apply_type' => ProductFeeTaxApplyTypeEnum::class,
     ];
 
     protected $casts = [
         'net_value' => 'float',
         'rack_value' => 'float',
         'commissionable' => 'boolean',
+        'apply_type' => ProductFeeTaxApplyTypeEnum::class,
     ];
 
     protected $hidden = [

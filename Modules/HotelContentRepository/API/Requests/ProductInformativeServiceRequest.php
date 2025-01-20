@@ -65,7 +65,13 @@ class ProductInformativeServiceRequest extends FormRequest
      *       required={"product_id", "service_id"},
      *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="service_id", type="integer", example=1),
-     *       @OA\Property(property="cost", type="number", format="float", example=100.00)
+     *       @OA\Property(property="cost", type="number", format="float", example=100.00),
+     *       @OA\Property(property="name", type="string", example="Service Name"),
+     *       @OA\Property(property="currency", type="string", example="USD"),
+     *       @OA\Property(property="service_time", type="string", example="08:30 AM"),
+     *       @OA\Property(property="show_service_on_pdf", type="boolean", example=true),
+     *       @OA\Property(property="show_service_data_on_pdf", type="boolean", example=true),
+     *       @OA\Property(property="auto_book", type="boolean", example=false)
      *     )
      *   ),
      *   @OA\Response(
@@ -147,7 +153,13 @@ class ProductInformativeServiceRequest extends FormRequest
      *       required={"product_id", "service_id"},
      *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="service_id", type="integer", example=1),
-     *       @OA\Property(property="cost", type="number", format="float", example=100.00)
+     *       @OA\Property(property="cost", type="number", format="float", example=100.00),
+     *       @OA\Property(property="name", type="string", example="Service Name"),
+     *       @OA\Property(property="currency", type="string", example="USD"),
+     *       @OA\Property(property="service_time", type="string", example="08:30 AM"),
+     *       @OA\Property(property="show_service_on_pdf", type="boolean", example=true),
+     *       @OA\Property(property="show_service_data_on_pdf", type="boolean", example=true),
+     *       @OA\Property(property="auto_book", type="boolean", example=false)
      *     )
      *   ),
      *   @OA\Response(
@@ -225,7 +237,17 @@ class ProductInformativeServiceRequest extends FormRequest
         return [
             'product_id' => 'required|integer|exists:pd_products,id',
             'service_id' => 'required|integer|exists:config_service_types,id',
-            'cost' => 'nullable|numeric'
+            'cost' => 'nullable|numeric',
+            'name' => 'nullable|string',
+            'currency' => 'nullable|string',
+            'service_time' => 'nullable|string',
+            'show_service_on_pdf' => 'nullable|boolean',
+            'show_service_data_on_pdf' => 'nullable|boolean',
+            'commissionable' => 'nullable|boolean',
+            'auto_book' => 'nullable|boolean',
+            'dynamic_columns' => 'nullable|array',
+            'dynamic_columns.*.name' => 'required|string',
+            'dynamic_columns.*.value' => 'required|string',
         ];
     }
 }

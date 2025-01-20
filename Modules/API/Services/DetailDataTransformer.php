@@ -91,6 +91,12 @@ class DetailDataTransformer
             $existingRoomCodes[SupplierNameEnum::ICE_PORTAL->value][] = $room['supplier_codes'][SupplierNameEnum::ICE_PORTAL->value] ?? null;
         }
 
+        foreach ($internalRooms as &$room) {
+            $room['images'] = array_map(function ($imageUrl) {
+                return url('storage/' . $imageUrl);
+            }, $room['images']);
+        }
+
         $result['rooms'] = array_merge($internalRooms, $result['rooms']);
 
         foreach ($result['rooms'] as &$room) {
@@ -142,7 +148,9 @@ class DetailDataTransformer
     {
         return $hotel->product->galleries
             ->flatMap(function ($gallery) {
-                return $gallery->images->pluck('image_url');
+                return $gallery->images->pluck('image_url')->map(function ($imageUrl) {
+                    return url('storage/' . $imageUrl);
+                });
             })->take(25)->all();
     }
 
@@ -161,6 +169,7 @@ class DetailDataTransformer
         $result['weight'] = $hotel->weight;
         $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
         $result['deposit_information'] = $this->getProductDepositInformation($hotel);
+        $result['amenities'] = $this->getProductAmenities($hotel);
     }
 
     private function updateContentResultWithInternalData(array &$result, $hotel): void
@@ -176,6 +185,7 @@ class DetailDataTransformer
         $result['weight'] = $hotel->weight ?? 0;
         $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
         $result['deposit_information'] = $this->getProductDepositInformation($hotel);
+        $result['amenities'] = $this->getProductAmenities($hotel);
     }
 
     private function getHotelFees($hotel): array
@@ -233,6 +243,22 @@ class DetailDataTransformer
                 'price_value_type' => $depositInfo->price_value_type,
                 'price_value_target' => $depositInfo->price_value_target,
                 'conditions' => $this->formatConditions($depositInfo->conditions),
+            ];
+        })->all();
+    }
+
+    private function getProductAmenities($hotel): array
+    {
+        if (!$hotel->product->affiliations) {
+            return [];
+        }
+        return $hotel->product->affiliations->map(function ($depositInfo) {
+            return [
+                'consortia' => $depositInfo->consortia->name,
+                'description' => $depositInfo->description,
+                'start_date' => $depositInfo->start_date,
+                'end_date' => $depositInfo->end_date,
+                'amenities' => $depositInfo->amenities,
             ];
         })->all();
     }
@@ -295,8 +321,9 @@ class DetailDataTransformer
                 'content_supplier' => 'Internal Repository',
                 'supplier_room_id' => $room->hbsi_data_mapped_name,
                 'supplier_room_name' => $room->name,
-//                'area' => $room->area . ' sqft',
-//                'bed_groups' => $room->bed_groups,
+                'area' => $room->area . ' sqft',
+                'bed_groups' => $room->bed_groups,
+                'room_views' => $room->room_views,
                 'supplier_room_code' => $room->hbsi_data_mapped_name,
                 'amenities' => $amenities,
                 'images' => $newImages,
