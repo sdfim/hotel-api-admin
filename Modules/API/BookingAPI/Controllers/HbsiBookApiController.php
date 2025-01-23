@@ -552,7 +552,7 @@ class HbsiBookApiController extends BaseBookApiController
     {
         try {
             $hbsiHotel = HbsiRepository::getByGiataId($hotelId);
-            $hotelIds = [$hbsiHotel['supplier_id']];
+            $hotelIds = isset($hbsiHotel['supplier_id']) ? [$hbsiHotel['supplier_id']] : [];
 
             if (empty($hotelIds)) {
                 return [
