@@ -19,13 +19,12 @@ class FlowHbsiBookOperations extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'flow:hbsi-book-operations {scenarios?} {destination?} {type?} {checkin?} {giata_id?}';
+    protected $signature = 'flow:hbsi-book-operations {scenarios?} {destination?} {checkin?} {giata_id?}';
     protected PendingRequest $client;
 
     protected string $url;
 
     private ?string $destination;
-    private ?string $type;
     private ?string $checkin;
     private ?int $giata_id;
     private ?string $supplier;
@@ -405,11 +404,8 @@ class FlowHbsiBookOperations extends Command
         $this->destination = $this->argument('destination') ?? '508';
         $this->checkin = $this->argument('checkin') ?? null;
         $this->giata_id = $this->argument('giata_id') ?? null;
-        $this->type= $this->argument('type') ?? 'test';
         $this->supplier = 'HBSI';
-        if ($this->type !== 'test') $this->daysAfter = 240;
-        else $this->daysAfter = 20;
-        $this->daysAfter = $this->checkin ? (abs(Carbon::parse($this->checkin)->diffInDays(Carbon::now())) + 1) : $this->daysAfter;
+        $this->daysAfter = $this->checkin ? (abs(Carbon::parse($this->checkin)->diffInDays(Carbon::now())) + 20) : 240;
     }
 
     /**
