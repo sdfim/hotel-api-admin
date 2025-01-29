@@ -750,8 +750,12 @@ class FlowHbsiBookOperations extends Command
         $faker = Faker::create();
 
         foreach ($rooms as $k => $room) {
-            $adults = explode('-', $room)[0];
-            for ($i = 0; $i < $adults; $i++) {
+            $adults = (int)explode('-', $room)[0];
+            $child = (int)explode('-', $room)[1];
+            $infants = (int)(explode('-', $room)[2]);
+            $passengersNumber = $adults + $child + $infants;
+
+            for ($i = 0; $i < $passengersNumber; $i++) {
                 $passengers[] = [
                     'title' => 'mr',
                     'given_name' => $faker->firstName,
