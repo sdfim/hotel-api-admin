@@ -5,15 +5,18 @@ namespace App\Console\Commands;
 use App\Models\ExpediaContent;
 use App\Models\ExpediaContentSlave;
 use App\Models\GeneralConfiguration;
+use App\Models\Property;
 use App\Models\Supplier;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Str;
+use Modules\API\Suppliers\Enums\PropertiesSourceEnum;
 use Modules\API\Suppliers\ExpediaSupplier\PropertyPriceCall;
 use Modules\API\Suppliers\ExpediaSupplier\RapidClient;
 use Modules\Inspector\ExceptionReportController;
@@ -22,7 +25,7 @@ class DownloadExpediaData extends Command
 {
     use BaseTrait;
 
-    protected $signature = 'download-expedia-data {type} {step}';
+    protected $signature = 'download-expedia-data {type} {step} {city?}';
 
     protected $description = 'Command description';
 
@@ -39,6 +42,8 @@ class DownloadExpediaData extends Command
     private ?string $type;
 
     private ?string $step;
+
+    private ?string $city;
 
     protected int $expedia_id = 1;
 
@@ -83,6 +88,8 @@ class DownloadExpediaData extends Command
 
         $this->type = $this->argument('type'); // content
         $this->step = $this->argument('step'); // 1, 2, 3, 4
+        $this->city = strtolower($this->argument('city')); // cancun
+
         $this->report_id = Str::uuid()->toString();
 
         $this->executionTime('report');
@@ -312,6 +319,11 @@ class DownloadExpediaData extends Command
         $propertyIds = [];
         while (($line = fgets($file)) !== false) {
             $data = json_decode($line, true);
+
+            if($this->city && strtolower(Arr::get($data,'address.city')) !== $this->city )
+            {
+                continue;
+            }
 
             $output = [];
             foreach ($arr_json as $key) {

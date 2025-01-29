@@ -30,6 +30,10 @@ class RoomResponse extends BaseResponse
 
     private float $total_net;
 
+    private float $commissionable_amount = 0;
+
+    private float $commission_amount = 0;
+
     private float $markup;
 
     private string $booking_item;
@@ -66,26 +70,16 @@ class RoomResponse extends BaseResponse
 
     private string $query_package;
 
-    /**
-     * @param string $query_package
-     * @return void
-     */
     public function setQueryPackage(string $query_package): void
     {
         $this->query_package = $query_package;
     }
 
-    /**
-     * @return string
-     */
     public function getQueryPackage(): string
     {
         return $this->query_package;
     }
 
-    /**
-     * @param string $room_description
-     */
     public function setRoomDescription(string $room_description): void
     {
         $this->room_description = $room_description;
@@ -226,6 +220,26 @@ class RoomResponse extends BaseResponse
         return $this->total_tax;
     }
 
+    public function setCommissionAmount(float $commission_amount): void
+    {
+        $this->commission_amount = $commission_amount;
+    }
+
+    public function getCommissionAmount(): float
+    {
+        return $this->commission_amount;
+    }
+
+    public function getCommissionableAmount(): float
+    {
+        return $this->commissionable_amount;
+    }
+
+    public function setCommissionableAmount(float $commissionable_amount): void
+    {
+        $this->commissionable_amount = $commissionable_amount;
+    }
+
     public function setTotalFees(float $total_fees): void
     {
         $this->total_fees = $total_fees;
@@ -356,17 +370,11 @@ class RoomResponse extends BaseResponse
         $this->penalty_date = $penalty_date;
     }
 
-    /**
-     * @return array
-     */
     public function getPromotions(): array
     {
         return $this->promotions;
     }
 
-    /**
-     * @param array $promotions
-     */
     public function setPromotions(array $promotions): void
     {
         $this->promotions = $promotions;
@@ -377,30 +385,20 @@ class RoomResponse extends BaseResponse
         return $this->capacity;
     }
 
-    /**
-     * @param array $capacity
-     */
     public function setCapacity(array $capacity): void
     {
         $this->capacity = $capacity;
     }
 
-    /**
-     * @return array
-     */
     public function getAmenities(): array
     {
         return $this->amenities;
     }
 
-    /**
-     * @param array $amenities
-     */
     public function setAmenities(array $amenities): void
     {
         $this->amenities = $amenities;
     }
-
 
     public function toArray(): array
     {
@@ -436,6 +434,8 @@ class RoomResponse extends BaseResponse
             'package_deal' => $this->isPackageDeal(),
             'penalty_date' => $this->getPenaltyDate(),
             'promotions' => $this->getPromotions(),
+            'commissionable_amount' => $this->getCommissionableAmount(),
+            'commission_amount' => $this->getCommissionAmount(),
         ];
     }
 }

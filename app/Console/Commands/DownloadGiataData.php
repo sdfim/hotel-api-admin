@@ -10,13 +10,16 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\Enums\PropertiesSourceEnum;
 use Modules\Enums\SupplierNameEnum;
 
 class DownloadGiataData extends Command
 {
     protected $signature = 'download-giata-data';
+
     protected $description = 'Import XML data from a URL, wrtite to DB';
+
     protected float|string $current_time;
 
     public function handle(): void
@@ -90,12 +93,13 @@ class DownloadGiataData extends Command
         $xmlContent = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $text);
 
         $xml = simplexml_load_string($xmlContent);
-        $properties = $xml->TTI_Property;
+        $proterties = $xml->TTI_Property;
 
-        $batchData = [];
-        $propertyIds = [];
         $batchDataMapperHbsi = [];
         $batchDataMapperExpedia = [];
+        $batchDataMapperIcePortal = [];
+        $batchData = [];
+        $propertyIds = [];
         $propertiesToNotUpdate = Property::where('property_auto_updates', 0)
           ->orWhereNot('source', PropertiesSourceEnum::Giata->value)
           ->get()
@@ -106,7 +110,7 @@ class DownloadGiataData extends Command
           })
           ->toArray();
 
-        foreach ($properties as $property) {
+        foreach ($proterties as $property) {
             if (isset($propertiesToNotUpdate[$property['code']]) && $propertiesToNotUpdate[$property['code']]) {
               continue;
             }
@@ -154,27 +158,33 @@ class DownloadGiataData extends Command
                     $batchDataMapperHbsi[] = [
                         'supplier_id' => $crossReference->Code['HotelCode'],
                         'giata_id' => (int) $property['Code'],
-                        'supplier' => SupplierNameEnum::HBSI->value,
+                        'supplier' => MappingSuppliersEnum::HBSI->value,
                         'match_percentage' => 100,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
                     ];
-
-                    \Log::info('Property: '.$property['Code'].' - HBSI Mapping: '.$crossReference->Code['HotelCode']);
                 }
-                elseif ((string) $crossReference['Code'] == 'EXPEDIA_RAPID' && (string) $crossReference['Status'] !== 'Inactive') {
+
+                if ((string) $crossReference['Code'] == 'EXPEDIA_RAPID' && (string) $crossReference['Status'] !== 'Inactive') {
                     $batchDataMapperExpedia[] = [
                         'supplier_id' => $crossReference->Code['HotelCode'],
                         'giata_id' => (int) $property['Code'],
-                        'supplier' => SupplierNameEnum::EXPEDIA->value,
+                        'supplier' => MappingSuppliersEnum::Expedia->value,
                         'match_percentage' => 100,
-                        'created_at' => date('Y-m-d H:i:s'),
-                        'updated_at' => date('Y-m-d H:i:s'),
                     ];
-
-                    \Log::info('Property: '.$property['Code'].' - Expedia Mapping: '.$crossReference->Code['HotelCode']);
                 }
+
+                if ((string) $crossReference['Code'] == 'ICE_PORTAL' && (string) $crossReference['Status'] !== 'Inactive') {
+                    $batchDataMapperIcePortal[] = [
+                        'supplier_id' => $crossReference->Code['HotelCode'],
+                        'giata_id' => (int) $property['Code'],
+                        'supplier' => MappingSuppliersEnum::IcePortal->value,
+                        'match_percentage' => 100,
+                    ];
+                }
+
+
             }
+
+
 
             $batchData[] = $data;
             $propertyIds[] = $data['code'];
@@ -202,12 +212,12 @@ class DownloadGiataData extends Command
 
         try {
             DB::beginTransaction();
-            Mapping::whereIn('giata_id', $propertyIds)->where('supplier', SupplierNameEnum::HBSI->value)->delete();
+            Mapping::HBSI()->whereIn('giata_id', $propertyIds)->delete();
             Mapping::insert($batchDataMapperHbsi);
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('ImportJsonlData insert Mapping ', ['error' => $e->getMessage()]);
+            Log::error('ImportJsonlData insert Mapping For HBSI ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
             return false;
@@ -215,12 +225,25 @@ class DownloadGiataData extends Command
 
         try {
             DB::beginTransaction();
-            Mapping::whereIn('giata_id', $propertyIds)->where('supplier', SupplierNameEnum::EXPEDIA->value)->delete();
+            Mapping::Expedia()->whereIn('giata_id', $propertyIds)->delete();
             Mapping::insert($batchDataMapperExpedia);
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('ImportJsonlData insert Mapping ', ['error' => $e->getMessage()]);
+            Log::error('ImportJsonlData insert Mapping for Expedia', ['error' => $e->getMessage()]);
+            Log::error($e->getTraceAsString());
+
+            return false;
+        }
+
+        try {
+            DB::beginTransaction();
+            Mapping::Expedia()->whereIn('giata_id', $propertyIds)->delete();
+            Mapping::insert($batchDataMapperIcePortal);
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('ImportJsonlData insert Mapping for Ice Portal', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
             return false;
@@ -237,7 +260,7 @@ class DownloadGiataData extends Command
             return false;
         }
 
-        unset($batchData, $batchDataMapperHbsi, $propertyIds, $properties, $xml, $xmlContent);
+        unset($batchData, $batchDataMapperHbsi, $batchDataMapperExpedia, $propertyIds, $proterties, $xml, $xmlContent);
 
         return $url;
     }

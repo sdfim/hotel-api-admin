@@ -117,7 +117,7 @@ class ApiBookingInspectorRepository
         return $linkPutMethod;
     }
 
-    public static function getItineraryId($filters): ?string
+    public static function getItineraryId($filters, $supplierId): ?string
     {
         $booking_id = $filters['booking_id'];
 
@@ -125,6 +125,7 @@ class ApiBookingInspectorRepository
             ->where('sub_type', 'like', 'retrieve'.'%')
             ->where('booking_id', $booking_id)
             ->where('status', '!=', InspectorStatusEnum::ERROR->value)
+            ->where('supplier_id', $supplierId)
             ->first();
 
         $json_response = json_decode(Storage::get($inspector->response_path));

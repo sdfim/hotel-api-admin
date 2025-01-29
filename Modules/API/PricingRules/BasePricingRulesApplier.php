@@ -3,6 +3,7 @@
 namespace Modules\API\PricingRules;
 
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 
 class BasePricingRulesApplier
 {
@@ -19,6 +20,8 @@ class BasePricingRulesApplier
     protected int $totalNumberOfGuests = 0;
 
     protected float|int $totalPrice = 0;
+
+    protected float|int $commissionAmount = 0;
 
     protected float|int $totalTax = 0;
 
@@ -66,7 +69,9 @@ class BasePricingRulesApplier
 
         $this->totalFees += (float)$roomTotals['total_fees'];
 
-        $this->totalNet += (float)$roomTotals['total_net'];
+        $this->totalNet += (float) $roomTotals['total_net'];
+
+        $this->commissionAmount = (float) Arr::get($roomTotals,'commission_amount', 0);
     }
 
     protected function validPricingRule(
@@ -167,6 +172,7 @@ class BasePricingRulesApplier
             'total_tax' => $this->totalTax,
             'total_fees' => $this->totalFees,
             'total_net' => $this->totalNet,
+            'commission_amount' => $this->commissionAmount,
         ];
 
         $markup = round($this->markup, 2);
