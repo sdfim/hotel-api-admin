@@ -59,6 +59,7 @@ class ExpediaPricingRulesApplierTest extends TestCase
             'total_tax' => 355.5,
             'total_fees' => 270.0,
             'total_net' => 2196.0,
+            'commission_amount' => 0.0,
             'markup' => 60.0,
         ];
     }
