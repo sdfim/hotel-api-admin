@@ -18,7 +18,8 @@ class PricingRulesTools
         $token = ChannelRenository::getTokenId(request()->bearerToken());
         $channelId = Channel::where('token_id', $token)->first()->id;
 
-        $generalTools = new GeneralTools();
+        /** @var GeneralTools $generalTools */
+        $generalTools = app(GeneralTools::class);
 
         $today = now();
         $checkIn = $query['checkin'];
@@ -31,18 +32,19 @@ class PricingRulesTools
         $radius = $query['radius'] ?? null;
 
         if ($latitude && $longitude && $radius) {
-            $geography = new Geography();
+            /** @var Geography $geography */
+            $geography = app(Geography::class);
             $destination = $geography->findTheClosestCityInRadius($latitude, $longitude, $radius);
         }
 
         $carbonCheckIn = Carbon::parse($checkIn);
         $daysUntilDeparture = floor($today->diffInDays($carbonCheckIn, true));
         $nights = floor(Carbon::parse($query['checkout'])->diffInDays($carbonCheckIn, true));
-        $rating = (float)$query['rating'] ?? 4.0;
+        $rating = (float) $query['rating'] ?? 4.0;
         $numberOfRooms = count($query['occupancy']);
         $totalGuests = $generalTools->calcTotalNumberOfGuestsInAllRooms($query['occupancy']);
 
-        return  PricingRule::with(['conditions'])
+        return PricingRule::with(['conditions'])
 
             ->whereHas('conditions', function (Builder $q) use (
                 $channelId,

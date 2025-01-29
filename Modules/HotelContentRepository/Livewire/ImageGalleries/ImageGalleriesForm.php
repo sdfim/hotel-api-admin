@@ -3,8 +3,13 @@
 namespace Modules\HotelContentRepository\Livewire\ImageGalleries;
 
 use App\Helpers\ClassHelper;
-use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
+use Filament\Notifications\Notification;
+use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -14,22 +19,18 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Filament\Tables;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\Storage;
-use Modules\HotelContentRepository\Models\Image;
-use Modules\HotelContentRepository\Models\ImageSection;
-use Modules\HotelContentRepository\Models\ImageGallery;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
-use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
+use Modules\HotelContentRepository\Actions\Gallery\AddGallery;
+use Modules\HotelContentRepository\Actions\Gallery\DeleteGallery;
+use Modules\HotelContentRepository\Actions\Gallery\EditGallery;
 use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
+use Modules\HotelContentRepository\Models\Image;
+use Modules\HotelContentRepository\Models\ImageGallery;
 
 class ImageGalleriesForm extends Component implements HasForms, HasTable
 {
@@ -37,8 +38,11 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     public ?array $data = [];
+
     public ImageGallery $record;
+
     public array $imageIds = [];
+
     public string $viewMode = 'grid';
 
     public function mount(ImageGallery $imageGallery): void
@@ -82,7 +86,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                     ->when($this->record->exists, function ($query) {
                         return $query->whereHas('galleries', fn ($query) => $query->where('gallery_id', $this->record->id));
                     })
-                    ->when(!$this->record->exists, function ($query) {
+                    ->when(! $this->record->exists, function ($query) {
                         return $query->whereIn('id', $this->imageIds);
                     })
             )
@@ -92,42 +96,29 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
             ->bulkActions([
                 DeleteBulkAction::make('delete')
                     ->action(function ($records) {
-                        if ($this->record->exists) {
-                            $this->record->images()->detach($records->pluck('id'));
-                        } else {
-                            $ids = $records->pluck('id')->all();
-                            $this->imageIds = array_filter($this->imageIds, fn ($id) => !in_array($id, $ids));
-                        }
+                        /** @var DeleteGallery $deleteGallery */
+                        $deleteGallery = app(DeleteGallery::class);
+                        $deleteGallery->detachImages($records, $this->record, $this->imageIds);
                     }),
             ])
             ->headerActions([
                 Action::make('toggleViewMode')
                     ->label('')
-                    ->tooltip('Switch to ' . ($this->viewMode === 'grid' ? 'Table' : 'Grid') . ' View')
+                    ->tooltip('Switch to '.($this->viewMode === 'grid' ? 'Table' : 'Grid').' View')
                     ->icon($this->viewMode === 'grid' ? 'heroicon-o-table-cells' : 'heroicon-o-cube-transparent')
                     ->iconButton()
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-                    ->action(fn() => $this->toggleViewMode()),
+                    ->action(fn () => $this->toggleViewMode()),
                 Action::make('Create Image')
                     ->tooltip('Create Image')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->icon('heroicon-o-plus')
                     ->iconButton()
                     ->form(HotelImagesForm::getFormComponents())
-                    ->action(function($data) {
-                        $image = Image::create([
-                            'image_url'  => $data['image_url'],
-                            'tag'        => $data['tag'],
-                            'alt'        => $data['alt'],
-                            'section_id' => $data['section_id'],
-                            'weight'     => $data['weight'] ?? '500px',
-                        ]);
-
-                        if ($this->record->exists) {
-                            $this->record->images()->attach($image->id);
-                        } else {
-                            $this->imageIds[] = $image->id;
-                        }
+                    ->action(function ($data) {
+                        /** @var AddGallery $addGallery */
+                        $addGallery = app(AddGallery::class);
+                        $addGallery->execute($data, $this->record, $this->imageIds);
                     }),
                 Action::make('Add existing image')
                     ->tooltip('Add existing image')
@@ -146,13 +137,11 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                             )
                             ->getSearchResultsUsing(function ($search) {
                                 return $this->prepareSelectImages($this->getSelectImages($search));
-                            })
+                            }),
                     ])->action(function ($data) {
-                        if ($this->record->exists) {
-                            $this->record->images()->attach($data['image_ids']);
-                        } else {
-                            $this->imageIds = [...$this->imageIds, ...$data['image_ids']];
-                        }
+                        /** @var AddGallery $addGallery */
+                        $addGallery = app(AddGallery::class);
+                        $addGallery->attachImages($data, $this->record, $this->imageIds);
                     }),
             ])
             ->actions([
@@ -162,11 +151,9 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                 DeleteAction::make()
                     ->iconButton()
                     ->action(function (Image $record) {
-                        if ($this->record->exists) {
-                            $this->record->images()->detach($record->id);
-                        } else {
-                            $this->imageIds = array_filter($this->imageIds, fn ($id) => $id != $record->id);
-                        }
+                        /** @var DeleteGallery $deleteGallery */
+                        $deleteGallery = app(DeleteGallery::class);
+                        $deleteGallery->detachImage($record, $this->record, $this->imageIds);
                     }),
             ]);
     }
@@ -185,7 +172,7 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
                         ->searchable(),
                     TextColumn::make('weight')
                         ->searchable(),
-                ])
+                ]),
         ];
     }
 
@@ -226,26 +213,21 @@ class ImageGalleriesForm extends Component implements HasForms, HasTable
             }
 
             return [
-                $image->id => '<div class="flex flex-row gap-3">' .
-                    '<img src="' . $url . '" alt="img" style="max-width: 100px;max-height: 100px;">' .
-                    '<span>' . $image->tag . ',</span>' .
-                    '<span>' . $image->section?->name . '</span>' .
-                    '</div>'
+                $image->id => '<div class="flex flex-row gap-3">'.
+                    '<img src="'.$url.'" alt="img" style="max-width: 100px;max-height: 100px;">'.
+                    '<span>'.$image->tag.',</span>'.
+                    '<span>'.$image->section?->name.'</span>'.
+                    '</div>',
             ];
         });
     }
 
     public function edit(): Redirector|RedirectResponse
     {
-        $exists = $this->record->exists;
         $data = $this->form->getState();
-        $this->record->fill($data);
-        $this->record->save();
-
-        if (!$exists) {
-            $this->record->images()->attach($this->imageIds);
-        }
-
+        /** @var EditGallery $editGallery */
+        $editGallery = app(EditGallery::class);
+        $editGallery->execute($data, $this->record, $this->imageIds);
         Notification::make()
             ->title('Updated successfully')
             ->success()

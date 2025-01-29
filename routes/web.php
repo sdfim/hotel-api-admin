@@ -1,19 +1,21 @@
 <?php
 
+use App\Http\Controllers\GlobeController;
 use App\Http\Controllers\TeamController;
+use App\Http\Middleware\SelectTeamAfterAcceptMiddleware;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Laravel\Jetstream\Http\Controllers\TeamInvitationController;
 use Modules\AdministrationSuite\Http\Controllers\BookingInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\BookingItemsController;
 use Modules\AdministrationSuite\Http\Controllers\ChannelsController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAmenityController;
+use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigAttributeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigChainController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigConsortiumController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigDescriptiveTypeController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigJobDescriptionController;
 use Modules\AdministrationSuite\Http\Controllers\Configurations\ConfigServiceTypeController;
-use Modules\AdministrationSuite\Http\Controllers\Configurations\GroupConfigController;
 use Modules\AdministrationSuite\Http\Controllers\ContentController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportChartController;
 use Modules\AdministrationSuite\Http\Controllers\ExceptionsReportController;
@@ -22,7 +24,6 @@ use Modules\AdministrationSuite\Http\Controllers\GeneralConfigurationController;
 use Modules\AdministrationSuite\Http\Controllers\GeographyController;
 use Modules\AdministrationSuite\Http\Controllers\IceHbsiController;
 use Modules\AdministrationSuite\Http\Controllers\InformationalServicesController;
-use Modules\AdministrationSuite\Http\Controllers\InsuranceProvidersController;
 use Modules\AdministrationSuite\Http\Controllers\InsuranceRestrictionsController;
 use Modules\AdministrationSuite\Http\Controllers\MappingExpediaGiatasController;
 use Modules\AdministrationSuite\Http\Controllers\PermissionsController;
@@ -35,16 +36,18 @@ use Modules\AdministrationSuite\Http\Controllers\SearchInspectorController;
 use Modules\AdministrationSuite\Http\Controllers\StatisticChartsController;
 use Modules\AdministrationSuite\Http\Controllers\SuppliersController;
 use Modules\AdministrationSuite\Http\Controllers\UsersController;
+use Modules\HotelContentRepository\Http\Controllers\ActivityController;
 use Modules\HotelContentRepository\Http\Controllers\HotelController;
-use Modules\HotelContentRepository\Http\Controllers\ImageController;
+use Modules\HotelContentRepository\Http\Controllers\HotelRateController;
 use Modules\HotelContentRepository\Http\Controllers\HotelRoomController;
+use Modules\HotelContentRepository\Http\Controllers\ImageController;
 use Modules\HotelContentRepository\Http\Controllers\ImageGalleryController;
 use Modules\HotelContentRepository\Http\Controllers\PdGridController;
 use Modules\HotelContentRepository\Http\Controllers\ProductController;
 use Modules\HotelContentRepository\Http\Controllers\TravelAgencyCommissionController;
 use Modules\HotelContentRepository\Http\Controllers\VendorController;
-use Modules\Insurance\Http\Controllers\InsurancePlansController;
 use Modules\Insurance\Http\Controllers\InsuranceDocumentationsController;
+use Modules\Insurance\Http\Controllers\InsurancePlansController;
 use Modules\Insurance\Http\Controllers\InsuranceRateTiersController;
 
 /*
@@ -68,10 +71,16 @@ Route::get('/admin/', function () {
 
 Route::post('/teams/switch', [TeamController::class, 'switch'])->name('teams.switch');
 
+Route::get('team-invitations/{invitation}/accept', [TeamInvitationController::class, 'accept'])
+    ->name('team-invitations.accept')
+    ->middleware(SelectTeamAfterAcceptMiddleware::class);
+
 Route::prefix('admin')->group(function () {
     Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
 
         Route::resource('teams', TeamController::class)->only(['index', 'edit']);
+
+        Route::resource('activities', ActivityController::class)->only(['index', 'show']);
 
         Route::resource('channels', ChannelsController::class);
         Route::resource('pricing-rules', PricingRulesController::class);
@@ -105,7 +114,8 @@ Route::prefix('admin')->group(function () {
         Route::resource('hotel-repository', HotelController::class);
         Route::resource('product-repository', ProductController::class);
         Route::resource('vendor-repository', VendorController::class);
-        Route::resource('hotel_rooms', HotelRoomController::class);
+        Route::resource('hotel-rooms', HotelRoomController::class)->only(['index']);
+        Route::resource('hotel-rates', HotelRateController::class);
         Route::resource('travel-agency-commission', TravelAgencyCommissionController::class);
 
         Route::resource('pd-grid', PdGridController::class)->only(['index']);

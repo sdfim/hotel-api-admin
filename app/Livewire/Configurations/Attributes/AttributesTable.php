@@ -16,7 +16,6 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\HtmlString;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -35,16 +34,16 @@ class AttributesTable extends Component implements HasForms, HasTable
                     ->searchable(),
             ])
             ->actions([
-//                ActionGroup::make([
-                    EditAction::make()
-                        ->iconButton()
-                        ->url(fn (ConfigAttribute $record): string => route('configurations.attributes.edit', $record))
-                        ->visible(fn (ConfigAttribute $record) => Gate::allows('update', $record)),
-//                    DeleteAction::make()
-//                        ->requiresConfirmation()
-//                        ->action(fn (ConfigAttribute $record) => $record->delete())
-//                        ->visible(fn (ConfigAttribute $record) => Gate::allows('delete', $record)),
-//                ]),
+                //                ActionGroup::make([
+                EditAction::make()
+                    ->iconButton()
+                    ->url(fn (ConfigAttribute $record): string => route('configurations.attributes.edit', $record))
+                    ->visible(fn (ConfigAttribute $record) => Gate::allows('update', $record)),
+                //                    DeleteAction::make()
+                //                        ->requiresConfirmation()
+                //                        ->action(fn (ConfigAttribute $record) => $record->delete())
+                //                        ->visible(fn (ConfigAttribute $record) => Gate::allows('delete', $record)),
+                //                ]),
             ])
             ->bulkActions([
                 BulkAction::make('delete')

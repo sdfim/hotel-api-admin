@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\API\HotelContentRepository;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\HotelContentRepository\Models\Vendor;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -18,10 +17,10 @@ class VendorControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'name', 'address', 'lat', 'lng', 'website'
-                ]
+                    'id', 'name', 'address', 'lat', 'lng', 'website',
+                ],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_vendors', $initialCount + 3);
     }
@@ -34,9 +33,9 @@ class VendorControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'name', 'address', 'lat', 'lng', 'website'
+                'id', 'name', 'address', 'lat', 'lng', 'website',
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_vendors', $data);
     }
@@ -49,9 +48,9 @@ class VendorControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'name', 'address', 'lat', 'lng', 'website'
+                'id', 'name', 'address', 'lat', 'lng', 'website',
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_vendors', $vendor->toArray());
     }
@@ -65,9 +64,9 @@ class VendorControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'name', 'address', 'lat', 'lng', 'website'
+                'id', 'name', 'address', 'lat', 'lng', 'website',
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_vendors', $data);
     }

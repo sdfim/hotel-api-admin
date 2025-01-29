@@ -4,25 +4,27 @@ namespace Modules\HotelContentRepository\Livewire\ImageGalleries;
 
 use App\Helpers\ClassHelper;
 use Filament\Forms\Components\Select;
-use Filament\Tables\Columns\ImageColumn;
-use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesTable;
-use Illuminate\Support\Facades\DB;
-use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
-use Modules\HotelContentRepository\Models\Image;
-use Modules\HotelContentRepository\Models\ImageGallery;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\Action;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
+use Modules\HotelContentRepository\Actions\Gallery\AddGallery;
+use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
+use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesTable;
+use Modules\HotelContentRepository\Models\Image;
+use Modules\HotelContentRepository\Models\ImageGallery;
+use Modules\HotelContentRepository\Models\Product;
 
 class ImageGalleriesTable extends Component implements HasForms, HasTable
 {
@@ -31,9 +33,9 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
 
     public ?int $productId = null;
 
-    public function  mount(?int $productId): void
+    public function mount(?Product $product = null): void
     {
-        $this->productId = $productId;
+        $this->productId = $product->id;
     }
 
     public function table(Table $table): Table
@@ -41,9 +43,9 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
         $filePath = $galleryName = $description = '';
         $product = $room = null;
         if ($this->productId) {
-            $product = \Modules\HotelContentRepository\Models\Product::find($this->productId);
+            $product = Product::find($this->productId);
             ['filePath' => $filePath, 'galleryName' => $galleryName, 'description' => $description] = HotelImagesTable::generateGalleryDetails($product);
-            $description = 'Product Image Gallery: ' . $galleryName;
+            $description = 'Product Image Gallery: '.$galleryName;
         }
 
         return $table
@@ -53,11 +55,11 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
                 if ($this->productId) {
                     $query->hasProduct($this->productId);
                 }
+
                 return $query;
             })
             ->defaultSort('created_at', 'desc')
-            ->recordUrl(fn (ImageGallery $record): string|null =>
-                Gate::allows('update', $record) ? route('image-galleries.edit', $record) : null
+            ->recordUrl(fn (ImageGallery $record): ?string => Gate::allows('update', $record) ? route('image-galleries.edit', $record) : null
             )
             ->columns([
                 ImageColumn::make('images.image_url')
@@ -96,7 +98,7 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
                     ->icon('heroicon-o-plus')
                     ->iconButton()
                     ->form(ImageGalleriesForm::getGalleryFormComponents())
-                    ->visible(fn () => !$this->productId && Gate::allows('create', ImageGallery::class)),
+                    ->visible(fn () => ! $this->productId && Gate::allows('create', ImageGallery::class)),
                 Action::make('Add Image')
                     ->extraAttributes(['class' => ClassHelper::buttonClasses()])
                     ->icon('heroicon-o-plus')
@@ -105,27 +107,12 @@ class ImageGalleriesTable extends Component implements HasForms, HasTable
                     ->modalHeading('Create Image')
                     ->form(array_filter(
                         HotelImagesForm::getFormComponents($filePath),
-                        fn($component) => !($this->productId && $component instanceof Select && $component->getName() === 'galleries')
+                        fn ($component) => ! ($this->productId && $component instanceof Select && $component->getName() === 'galleries')
                     ))
-                    ->action(function ($data) use ($product, $room, $galleryName, $description) {
-                        DB::transaction(function () use ($data, $room, $product, $galleryName, $description) {
-                            $image = Image::create([
-                                'image_url'  => $data['image_url'],
-                                'tag'        => $data['tag'],
-                                'alt'        => $data['alt'],
-                                'section_id' => $data['section_id'],
-                                'weight'     => $data['weight'] ?? '500px',
-                            ]);
-
-                            if ($this->productId) {
-                                $gallery = ImageGallery::firstOrCreate(
-                                    ['gallery_name' => $galleryName],
-                                    ['description' => $description]
-                                );
-                                $gallery->images()->attach($image->id);
-                                $product->galleries()->syncWithoutDetaching([$gallery->id]);
-                            }
-                        });
+                    ->action(function ($data) use ($product, $galleryName, $description) {
+                        /** @var AddGallery $addGallery */
+                        $addGallery = app(AddGallery::class);
+                        $addGallery->addImageToGallery($data, $product, $galleryName, $description);
                     })
                     ->visible(fn () => $this->productId && Gate::allows('create', ImageGallery::class)),
             ]);

@@ -2,7 +2,6 @@
 
 namespace Modules\HotelContentRepository\API\Controllers;
 
-use Illuminate\Http\JsonResponse;
 use Modules\API\BaseController as MainController;
 
 /**
@@ -33,12 +32,10 @@ use Modules\API\BaseController as MainController;
  *      name="Hotel | Website Search Generation",
  *      description="API Endpoints for Website Search Generation"
  *  ),
- *
  * @OA\Tag(
  *        name="Vendor | Vendors",
  *        description="API Endpoints for Vendors"
  *   ),
- *
  * @OA\Tag(
  *       name="Product | Products",
  *       description="API Endpoints for Products"
@@ -96,5 +93,5 @@ use Modules\API\BaseController as MainController;
  *     description="API Endpoints for Image Galleries"
  *      ),
  */
-class BaseController extends MainController
-{}
+
+class BaseController extends MainController {}

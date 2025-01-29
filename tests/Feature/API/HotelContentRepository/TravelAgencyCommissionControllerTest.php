@@ -18,9 +18,9 @@ class TravelAgencyCommissionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'product_id', 'commission_value', 'commission_value_type', 'date_range_start', 'date_range_end']
+                '*' => ['id', 'product_id', 'commission_value', 'commission_value_type', 'date_range_start', 'date_range_end'],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_travel_agency_commissions', 3);
     }
@@ -33,7 +33,7 @@ class TravelAgencyCommissionControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => ['name', 'product_id', 'commission_value', 'commission_value_type', 'date_range_start', 'date_range_end'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_travel_agency_commissions', $data);
     }
@@ -46,7 +46,7 @@ class TravelAgencyCommissionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'commission_value', 'commission_value_type', 'date_range_start', 'date_range_end'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_travel_agency_commissions', $commission->toArray());
     }
@@ -60,7 +60,7 @@ class TravelAgencyCommissionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'commission_value', 'commission_value_type', 'date_range_start', 'date_range_end'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_travel_agency_commissions', $data);
     }

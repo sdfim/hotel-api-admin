@@ -2,11 +2,9 @@
 
 namespace Modules\HotelContentRepository\API\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
-use Modules\HotelContentRepository\Models\HotelWebFinder;
 use Modules\HotelContentRepository\API\Requests\HotelWebFinderRequest;
-use Modules\HotelContentRepository\API\Controllers\BaseController;
+use Modules\HotelContentRepository\Models\HotelWebFinder;
 
 class HotelWebFinderController extends BaseController
 {
@@ -22,12 +20,14 @@ class HotelWebFinderController extends BaseController
     public function store(HotelWebFinderRequest $request)
     {
         $webFinder = HotelWebFinder::create($request->validated());
+
         return $this->sendResponse($webFinder->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
         $webFinder = HotelWebFinder::findOrFail($id);
+
         return $this->sendResponse($webFinder->toArray(), 'show success');
     }
 
@@ -35,6 +35,7 @@ class HotelWebFinderController extends BaseController
     {
         $webFinder = HotelWebFinder::findOrFail($id);
         $webFinder->update($request->validated());
+
         return $this->sendResponse($webFinder->toArray(), 'update success');
     }
 
@@ -42,6 +43,7 @@ class HotelWebFinderController extends BaseController
     {
         $webFinder = HotelWebFinder::findOrFail($id);
         $webFinder->delete();
+
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 }

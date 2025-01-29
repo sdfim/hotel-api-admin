@@ -44,6 +44,7 @@ class PermissionSeeder extends Seeder
         'image_gallery',
         'hotel_image',
         'hotel_room',
+        'hotel_rate',
     ];
 
     private static array $permissions = [

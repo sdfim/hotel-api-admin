@@ -2,12 +2,10 @@
 
 namespace Modules\HotelContentRepository\API\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\API\Requests\AttachOrDetachImageRequest;
-use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\API\Requests\ImageGalleryRequest;
-use Modules\HotelContentRepository\API\Controllers\BaseController;
+use Modules\HotelContentRepository\Models\ImageGallery;
 
 class ImageGalleryController extends BaseController
 {
@@ -15,7 +13,7 @@ class ImageGalleryController extends BaseController
     {
         $query = ImageGallery::query();
         $query = $this->filter($query, ImageGallery::class);
-        $galleries = $query->with(['images'])->get();
+        $galleries = $query->get();
 
         return $this->sendResponse($galleries->toArray(), 'index success');
     }
@@ -23,12 +21,14 @@ class ImageGalleryController extends BaseController
     public function store(ImageGalleryRequest $request)
     {
         $gallery = ImageGallery::create($request->validated());
+
         return $this->sendResponse($gallery->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
-        $gallery = ImageGallery::with('images')->findOrFail($id);
+        $gallery = ImageGallery::findOrFail($id);
+
         return $this->sendResponse($gallery->toArray(), 'show success');
     }
 
@@ -36,6 +36,7 @@ class ImageGalleryController extends BaseController
     {
         $gallery = ImageGallery::findOrFail($id);
         $gallery->update($request->validated());
+
         return $this->sendResponse($gallery->toArray(), 'update success');
     }
 
@@ -43,6 +44,7 @@ class ImageGalleryController extends BaseController
     {
         $gallery = ImageGallery::findOrFail($id);
         $gallery->delete();
+
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 

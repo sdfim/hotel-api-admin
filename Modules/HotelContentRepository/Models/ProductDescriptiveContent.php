@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\HotelContentRepository\Models\Factories\ProductDescriptiveContentFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ProductDescriptiveContent extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -40,5 +43,13 @@ class ProductDescriptiveContent extends Model
     public function descriptiveType()
     {
         return $this->belongsTo(ConfigDescriptiveType::class, 'descriptive_type_id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['content_sections_id', 'descriptive_type_id', 'value'])
+            ->logOnlyDirty()
+            ->useLogName('product_descriptive_content');
     }
 }

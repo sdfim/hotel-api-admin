@@ -14,21 +14,21 @@ class SelectTeamAfterAcceptMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (str_starts_with($request->path(), 'team-invitations')) {
-            $invitationId = explode('/', $request->path())[1];
-            $invitation = TeamInvitation::findOrFail($invitationId);
-            $teamId = $invitation->team_id;
-            $app = $next($request);
-
-            $user = $request->user();
-            $user->refresh();
-            if (!$user->current_team_id) {
-                $user->update(['current_team_id' => $teamId]);
-            }
-
-            return $app;
+        $user = $request->user();
+        if (! $user) {
+            return redirect()->route('login');
         }
 
-        return $next($request);
+        $invitationId = explode('/', $request->path())[1];
+        $invitation = TeamInvitation::findOrFail($invitationId);
+        $teamId = $invitation->team_id;
+        $app = $next($request);
+
+        $user->refresh();
+        if (! $user->current_team_id) {
+            $user->update(['current_team_id' => $teamId]);
+        }
+
+        return $app;
     }
 }

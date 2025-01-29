@@ -35,12 +35,14 @@ class PricingRulesTable extends Component implements HasForms, HasTable
 
     public ?int $productId = null;
     public array $giataKeyIds = [];
+    public ?string $rateCode = null;
     public bool $isSrCreator = false;
 
-    public function mount(?int $productId = null, bool $isSrCreator = false): void
+    public function mount(?int $productId = null, bool $isSrCreator = false, ?string $rateCode = null): void
     {
         $this->productId = $productId;
         $this->isSrCreator = $isSrCreator;
+        $this->rateCode = $rateCode;
         if ($this->productId) {
             $this->giataKeyIds = Product::with(['related' => function ($query) {
                 $query->select('id', 'giata_code');
@@ -69,6 +71,12 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     });
                 } elseif ($this->isSrCreator) {
                     return PricingRule::query()->whereRaw('1 = 0');
+                }
+                if ($this->rateCode) {
+                    $query->whereHas('conditions', function ($query) {
+                        $query->where('field', 'rate_code')
+                            ->where('value_from', $this->rateCode);
+                    });
                 }
                 return $query;
             })
@@ -151,6 +159,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                         ->url(fn (PricingRule $record): string => route('pricing-rules.edit', array_merge(['pricing_rule' => $record], [
                             'sr' => $this->isSrCreator,
                             'gc' => $this->giataKeyIds[0] ?? null,
+                            'rc' => $this->rateCode ?? null,
                         ])))
                         ->visible(fn (PricingRule $record): bool => Gate::allows('update', $record)),
                     DeleteAction::make()
@@ -167,6 +176,7 @@ class PricingRulesTable extends Component implements HasForms, HasTable
                     ->url(route('pricing-rules.create', [
                         'sr' => $this->isSrCreator,
                         'gc' => $this->giataKeyIds[0] ?? null,
+                        'rc' => $this->rateCode ?? null,
                     ]))
                     ->visible(fn (): bool => Gate::allows('create', PricingRule::class)),
             ]);

@@ -4,7 +4,6 @@ namespace Modules\HotelContentRepository\Livewire\HotelImages;
 
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Modules\HotelContentRepository\Models\Image;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -14,15 +13,18 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
-use Modules\HotelContentRepository\Models\ImageSection;
+use Modules\HotelContentRepository\Actions\Image\AddImage;
+use Modules\HotelContentRepository\Actions\Image\EditImage;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Modules\HotelContentRepository\Models\Image;
+use Modules\HotelContentRepository\Models\ImageSection;
 
 class HotelImagesForm extends Component implements HasForms
 {
     use InteractsWithForms;
 
     public ?array $data = [];
+
     public Image $record;
 
     public function mount(Image $repositoryImage): void
@@ -59,11 +61,14 @@ class HotelImagesForm extends Component implements HasForms
                 ->relationship('galleries', 'gallery_name')
                 ->createOptionForm(ImageGalleriesForm::getGalleryFormComponents())
                 ->createOptionUsing(function (array $data) {
-                    $image = Image::create($data);
+                    /** @var AddImage $addImage */
+                    $addImage = app(AddImage::class);
+                    $image = $addImage->createImage($data);
                     Notification::make()
                         ->title('Gallery created successfully')
                         ->success()
                         ->send();
+
                     return $image->id;
                 }),
             TextInput::make('weight')
@@ -86,11 +91,10 @@ class HotelImagesForm extends Component implements HasForms
     public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
-        $this->record->fill($data);
-        $this->record->save();
-
         $galleries = $this->form->getRawState()['galleries'] ?? [];
-        $this->record->galleries()->sync($galleries);
+        /** @var EditImage $editImage */
+        $editImage = app(EditImage::class);
+        $editImage->execute($data, $this->record, $galleries);
 
         Notification::make()
             ->title('Updated successfully')

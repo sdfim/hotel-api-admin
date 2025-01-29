@@ -15,7 +15,6 @@ use Modules\HotelContentRepository\Models\Vendor;
  * @property int $restriction_type_id
  * @property string $compare
  * @property mixed $value
- *
  * @property InsuranceProvider $provider
  * @property InsuranceRestrictionType $restrictionType
  */
@@ -28,6 +27,7 @@ class InsuranceRestriction extends Model
         'restriction_type_id',
         'compare',
         'value',
+        'sale_type',
     ];
 
     public function vendor(): BelongsTo

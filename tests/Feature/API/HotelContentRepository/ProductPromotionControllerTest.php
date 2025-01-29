@@ -3,8 +3,8 @@
 namespace Tests\Feature\API\HotelContentRepository;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\HotelContentRepository\Models\ProductPromotion;
 use Modules\HotelContentRepository\Models\ImageGallery;
+use Modules\HotelContentRepository\Models\ProductPromotion;
 use PHPUnit\Framework\Attributes\Test;
 
 class ProductPromotionControllerTest extends TestCase
@@ -22,10 +22,10 @@ class ProductPromotionControllerTest extends TestCase
                 '*' => [
                     'id', 'product_id', 'promotion_name', 'description',
                     'validity_start', 'validity_end', 'booking_start', 'booking_end',
-                    'terms_conditions', 'exclusions', 'min_night_stay', 'max_night_stay'
-                ]
+                    'terms_conditions', 'exclusions', 'min_night_stay', 'max_night_stay',
+                ],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_product_promotions', 3);
     }
@@ -41,9 +41,9 @@ class ProductPromotionControllerTest extends TestCase
                 'id', 'rate_code', 'product_id', 'promotion_name', 'description',
                 'validity_start', 'validity_end', 'booking_start', 'booking_end',
                 'terms_conditions', 'exclusions', 'min_night_stay', 'max_night_stay',
-                'not_refundable', 'package'
+                'not_refundable', 'package',
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_promotions', $data);
     }
@@ -58,9 +58,9 @@ class ProductPromotionControllerTest extends TestCase
             'data' => [
                 'id', 'product_id', 'promotion_name', 'description',
                 'validity_start', 'validity_end', 'booking_start', 'booking_end',
-                'terms_conditions', 'exclusions', 'min_night_stay', 'max_night_stay'
+                'terms_conditions', 'exclusions', 'min_night_stay', 'max_night_stay',
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_promotions', $promotion->toArray());
     }
@@ -76,9 +76,9 @@ class ProductPromotionControllerTest extends TestCase
             'data' => [
                 'id', 'product_id', 'promotion_name', 'description',
                 'validity_start', 'validity_end', 'booking_start', 'booking_end',
-                'terms_conditions', 'exclusions', 'min_night_stay', 'max_night_stay'
+                'terms_conditions', 'exclusions', 'min_night_stay', 'max_night_stay',
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_promotions', $data);
     }
@@ -105,9 +105,9 @@ class ProductPromotionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'gallery_name', 'description']
+                '*' => ['id', 'gallery_name', 'description'],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_promotion_gallery', [
             'product_promotion_id' => $promotion->id,
@@ -129,7 +129,7 @@ class ProductPromotionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success',
-            'message'
+            'message',
         ]);
 
         $this->assertDatabaseMissing('pd_product_promotion_gallery', [

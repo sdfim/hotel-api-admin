@@ -2,18 +2,20 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Configurations\ConfigConsortium;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\ProductAffiliationFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
-use App\Models\Configurations\ConfigConsortium;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ProductAffiliation extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -24,6 +26,8 @@ class ProductAffiliation extends Model
 
     protected $fillable = [
         'product_id',
+        'rate_id',
+        'room_id',
         'consortia_id',
         'description',
         'start_date',
@@ -40,7 +44,7 @@ class ProductAffiliation extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
-        'pivot'
+        'pivot',
     ];
 
     public function product(): BelongsTo
@@ -51,5 +55,13 @@ class ProductAffiliation extends Model
     public function consortia(): BelongsTo
     {
         return $this->belongsTo(ConfigConsortium::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['product_id', 'affiliation_name', 'combinable'])
+            ->logOnlyDirty()
+            ->useLogName('product_affiliation');
     }
 }

@@ -47,8 +47,8 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
             }
         }
 
-        if (!empty($validPricingRules)) {
-            usort($validPricingRules, fn($a, $b) => $b['weight'] <=> $a['weight']);
+        if (! empty($validPricingRules)) {
+            usort($validPricingRules, fn ($a, $b) => $b['weight'] <=> $a['weight']);
             $this->applyPricingRulesLogic($validPricingRules[0]);
         }
 
@@ -93,7 +93,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
             }
         }
 
-        $totals['total_fees'] += (float)($roomPricing['totals']['property_fees']['billable_currency']['value'] ?? 0);
+        $totals['total_fees'] += (float) ($roomPricing['totals']['property_fees']['billable_currency']['value'] ?? 0);
 
         return $totals;
     }

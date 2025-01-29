@@ -7,22 +7,15 @@ use App\Actions\Jetstream\CreateTeam;
 use App\Actions\Jetstream\RemoveTeamMember;
 use App\Actions\Jetstream\UpdateTeamName;
 use App\Helpers\Strings;
-use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
-use Modules\HotelContentRepository\Models\Hotel;
 use App\Models\Enums\RoleSlug;
 use App\Models\Property;
 use App\Models\Role;
 use App\Models\User;
 use Cheesegrits\FilamentGoogleMaps\Fields\Map;
-use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Checkbox;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -30,11 +23,14 @@ use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\Features\SupportRedirects\Redirector;
+use Modules\Enums\VendorTypeEnum;
+use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
+use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
+use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Vendor;
 
 class VendorForm extends Component implements HasForms
@@ -42,13 +38,16 @@ class VendorForm extends Component implements HasForms
     use InteractsWithForms;
 
     public ?array $data = [];
+
     public Vendor $record;
+
     public bool $verified;
+
     public $showDeleteConfirmation = false;
 
     public function mount(?Vendor $vendor): void
     {
-        $this->record = $vendor ?? new Vendor();
+        $this->record = $vendor ?? app(Vendor::class);
 
         $this->verified = $vendor->verified ?? false;
 
@@ -74,7 +73,7 @@ class VendorForm extends Component implements HasForms
 
     public function toggleVerified()
     {
-        $this->verified = !$this->verified;
+        $this->verified = ! $this->verified;
         $this->record->update(['verified' => $this->verified]);
     }
 
@@ -134,9 +133,14 @@ class VendorForm extends Component implements HasForms
 
         return $form
             ->schema([
+                TextInput::make('name')->label('Name')->required(),
                 Grid::make(2)
                     ->schema([
-                        TextInput::make('name')->label('Name')->required(),
+                        Select::make('type')
+                            ->label('Type')
+                            ->multiple()
+                            ->options(VendorTypeEnum::getOptions())
+                            ->required(),
                         Select::make('user_ids')
                             ->label('Users')
                             ->getSearchResultsUsing(
@@ -175,9 +179,10 @@ class VendorForm extends Component implements HasForms
                                     ->title('User created successfully')
                                     ->success()
                                     ->send();
+
                                 return $user->id;
                             }),
-                ]),
+                    ]),
 
                 Grid::make(2)
                     ->schema([
@@ -185,7 +190,7 @@ class VendorForm extends Component implements HasForms
                             ->schema([
                                 TextInput::make('full_address')
                                     ->label('Get Location by Address')
-                                    ->placeholder(fn($get) => $get('addressArr.line_1') . ' ' . $get('addressArr.city')),
+                                    ->placeholder(fn ($get) => $get('addressArr.line_1').' '.$get('addressArr.city')),
                                 TextInput::make('lat')->label('Latitude')->numeric()->readOnly(),
                                 TextInput::make('lng')->label('Longitude')->numeric()->readOnly(),
                             ])->columnSpan(1),
@@ -194,7 +199,6 @@ class VendorForm extends Component implements HasForms
                             ->label('Google Map')
                             ->content('Please add GOOGLE_API_DEVELOPER_KEY to the .env file to display the Google Map and search coordinates by address.'),
                     ]),
-
 
                 Grid::make(2)
                     ->schema([
@@ -210,40 +214,27 @@ class VendorForm extends Component implements HasForms
 
                 Grid::make(2)
                     ->schema([
-                    TextInput::make('website')->label('Website'),
-                    Select::make('galleries')
-                        ->label('Galleries')
-                        ->multiple()
-                        ->relationship('galleries', 'gallery_name')
-                        ->preload(),
-                ]),
+                        TextInput::make('website')->label('Website'),
+                        Select::make('galleries')
+                            ->label('Galleries')
+                            ->multiple()
+                            ->relationship('galleries', 'gallery_name')
+                            ->preload(),
+                    ]),
 
                 Grid::make(6)
                     ->schema([
-//                        ToggleButtons::make('independent_flag')
-//                            ->label('Independent?')
-//                            ->boolean()
-//                            ->grouped()
-//                            ->reactive()
-//                            ->afterStateUpdated(function ($state, callable $set) {
-//                                if ($state) {
-//                                    $set('giata_code_visible', true);
-//                                } else {
-//                                    $set('giata_code_visible', false);
-//                                }
-//                            })
-//                            ->disabled(fn () => $this->record->exists),
-                            CustomToggle::make('independent_flag')
-                                ->label('Independent')
-                                ->reactive()
-                                ->afterStateUpdated(function ($state, callable $set) {
-                                    if ($state) {
-                                        $set('giata_code_visible', true);
-                                    } else {
-                                        $set('giata_code_visible', false);
-                                    }
-                                })
-                                ->disabled(fn () => $this->record->exists),
+                        CustomToggle::make('independent_flag')
+                            ->label('Independent')
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    $set('giata_code_visible', true);
+                                } else {
+                                    $set('giata_code_visible', false);
+                                }
+                            })
+                            ->disabled(fn () => $this->record->exists),
                         Select::make('giata_code')
                             ->label('GIATA code')
                             ->searchable()
@@ -253,9 +244,10 @@ class VendorForm extends Component implements HasForms
                                     DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name, code'))
                                     ->whereRaw("MATCH(search_index) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
                                     ->limit(100);
+
                                 return $result->pluck('full_name', 'code')
                                     ->mapWithKeys(function ($full_name, $code) {
-                                        return [$code => $code . ' (' . $full_name  . ')'];
+                                        return [$code => $code.' ('.$full_name.')'];
                                     })
                                     ->toArray() ?? [];
                             })
@@ -264,12 +256,13 @@ class VendorForm extends Component implements HasForms
                                     ->where('code', $value)
                                     ->first()
                                     ->full_name ?? '';
+
                                 return $properties;
                             })
                             ->columnSpan(2)
                             ->visible(fn ($get) => $get('giata_code_visible'))
-                            ->hidden(fn ($get) => !$get('giata_code_visible')),
-                        ]),
+                            ->hidden(fn ($get) => ! $get('giata_code_visible')),
+                    ]),
 
             ])
             ->statePath('data')
@@ -279,13 +272,13 @@ class VendorForm extends Component implements HasForms
     public function save(): Redirector|RedirectResponse
     {
         $this->validate();
-        $isCreate = !$this->record->exists;
+        $isCreate = ! $this->record->exists;
 
         $this->data['address'] = $this->data['addressArr'];
 
         $this->record->fill($this->data);
         $this->record->verified = $this->verified ?? false;
-        $isNew = !$this->record->exists || !$this->record->team;
+        $isNew = ! $this->record->exists || ! $this->record->team;
         $this->record->save();
 
         $userIds = $this->data['user_ids'];
@@ -328,6 +321,7 @@ class VendorForm extends Component implements HasForms
             ->send();
 
         session()->flash('message', $message);
+
         return redirect()->route('vendor-repository.index');
     }
 
@@ -345,7 +339,7 @@ class VendorForm extends Component implements HasForms
             $results = json_decode($response, true);
             $streetNumber = $route = $city = $postal_town = $state_province_name = $zip = $country_code = '';
 
-            if (!empty($results['results'][0]['address_components'])) {
+            if (! empty($results['results'][0]['address_components'])) {
                 $components = $results['results'][0]['address_components'];
 
                 // Populate address fields
@@ -373,7 +367,7 @@ class VendorForm extends Component implements HasForms
                     }
                 }
 
-//                $set('address', trim("$streetNumber $route, $zip"));
+                //                $set('address', trim("$streetNumber $route, $zip"));
                 $set('addressArr.line_1', trim("$streetNumber $route, $zip"));
                 $set('addressArr.city', $city !== '' ? $city : $postal_town);
                 $set('addressArr.state_province_name', $state_province_name);
@@ -400,7 +394,9 @@ class VendorForm extends Component implements HasForms
             $user->switchTeam($team);
         }
 
-        if ($team) $team->update(['vendor_id' => $this->record->id]);
+        if ($team) {
+            $team->update(['vendor_id' => $this->record->id]);
+        }
 
         Notification::make()
             ->title('Team created successfully')
@@ -419,7 +415,9 @@ class VendorForm extends Component implements HasForms
         $teamUsers = $team->users->pluck('id')->toArray();
 
         foreach ($userIds as $userId) {
-            if (in_array($userId, $teamUsers)) continue;
+            if (in_array($userId, $teamUsers)) {
+                continue;
+            }
 
             $user = User::findOrFail($userId);
             resolve(AddTeamMember::class)->add($owner, $team, $user->email, 'admin');
@@ -427,7 +425,7 @@ class VendorForm extends Component implements HasForms
         }
 
         foreach ($teamUsers as $teamUser) {
-            if (!in_array($teamUser, $userIds)) {
+            if (! in_array($teamUser, $userIds)) {
                 $user = User::findOrFail($teamUser);
                 resolve(RemoveTeamMember::class)->remove($owner, $team, $user);
             }

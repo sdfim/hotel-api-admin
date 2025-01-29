@@ -23,6 +23,10 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
+use Modules\Enums\InsuranceDocTypeEnum;
+use Modules\Enums\InsuranceDocVisibilityEnum;
+use Modules\Enums\VendorTypeEnum;
+use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsuranceProviderDocumentation;
 
 class DocumentationsTable extends Component implements HasForms, HasTable
@@ -30,19 +34,30 @@ class DocumentationsTable extends Component implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
-    public array $documentTypes = [];
-
-    public function mount(): void
-    {
-        $this->documentTypes = [
-            'privacy_policy' => 'Privacy Policy',
-            'terms_and_condition' => 'Terms & Conditions'
-        ];
-    }
-
     public function form(Form $form): Form
     {
         return $form->schema($this->schemeForm());
+    }
+
+    public function getVisibilityOptions(?string $documentType): array
+    {
+        if (! $documentType) {
+            return [];
+        }
+
+        $options = [
+            InsuranceDocTypeEnum::PRIVACY_POLICY->value => [InsuranceDocVisibilityEnum::EXTERNAL->value],
+            InsuranceDocTypeEnum::TERMS_AND_CONDITION->value => [InsuranceDocVisibilityEnum::EXTERNAL->value],
+            InsuranceDocTypeEnum::TRAVEL_PROTECTION_PLAN_SUMMARY->value => [InsuranceDocVisibilityEnum::EXTERNAL->value],
+            InsuranceDocTypeEnum::SCHEDULE_OF_BENEFITS_PLAN_COSTS->value => [InsuranceDocVisibilityEnum::INTERNAL->value],
+            InsuranceDocTypeEnum::CLAIM_PROCESS->value => [InsuranceDocVisibilityEnum::INTERNAL->value],
+            InsuranceDocTypeEnum::EMERGENCY_TRAVEL_ASSISTANCE_PLATINUM->value => [InsuranceDocVisibilityEnum::EXTERNAL->value],
+            InsuranceDocTypeEnum::EMERGENCY_TRAVEL_ASSISTANCE_SILVER->value => [InsuranceDocVisibilityEnum::EXTERNAL->value],
+            InsuranceDocTypeEnum::TRIPMATE_CLAIMS->value => [InsuranceDocVisibilityEnum::INTERNAL->value],
+            InsuranceDocTypeEnum::GENERAL_INFORMATION->value => [InsuranceDocVisibilityEnum::INTERNAL->value, InsuranceDocVisibilityEnum::EXTERNAL->value],
+        ];
+
+        return array_intersect_key(InsuranceDocVisibilityEnum::getOptions(), array_flip($options[$documentType] ?? []));
     }
 
     public function schemeForm(?InsuranceProviderDocumentation $record = null): array
@@ -52,15 +67,19 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                 ->schema([
                     Select::make('vendor_id')
                         ->label('Provider Documentation')
-                        ->relationship(name: 'vendor', titleAttribute: 'name')
+                        ->options(fn () => Vendor::where('type', 'like', '%'.VendorTypeEnum::INSURANCE->value.'%')->pluck('name', 'id')->toArray())
                         ->preload()
                         ->required(),
+
                     Select::make('document_type')
                         ->label('Type Document')
-                        ->options([
-                            'privacy_policy' => 'Privacy Policy',
-                            'terms_and_condition' => 'Terms & Conditions',
-                        ])
+                        ->reactive()
+                        ->options(InsuranceDocTypeEnum::getOptions())
+                        ->required(),
+
+                    Select::make('viewable')
+                        ->label('Viewable')
+                        ->options(fn (callable $get) => $this->getVisibilityOptions($get('document_type')))
                         ->required(),
                 ]),
             FileUpload::make('path')
@@ -68,7 +87,7 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                 ->disk('public')
                 ->directory('insurance-documentation')
                 ->visibility('private')
-                ->downloadable()
+                ->downloadable(),
         ];
     }
 
@@ -78,7 +97,7 @@ class DocumentationsTable extends Component implements HasForms, HasTable
             ->query(
                 InsuranceProviderDocumentation::query()
                     ->when(
-                        auth()->user()->currentTeam && !auth()->user()->hasRole(RoleSlug::ADMIN->value),
+                        auth()->user()->currentTeam && ! auth()->user()->hasRole(RoleSlug::ADMIN->value),
                         fn ($q) => $q->where('vendor_id', auth()->user()->currentTeam->vendor_id),
                     )
             )
@@ -91,7 +110,7 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                     ->label('Document type')
                     ->sortable()
                     ->searchable()
-                    ->formatStateUsing(fn($state) => $this->documentTypes[$state])
+                    ->formatStateUsing(fn ($state) => InsuranceDocTypeEnum::tryFrom($state)?->label() ?? $state),
             ])
             ->actions([
                 Action::make('download')
@@ -118,7 +137,7 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                 EditAction::make()
                     ->label('')
                     ->tooltip('Edit Provider Documentation')
-                    ->form(fn(InsuranceProviderDocumentation $record) => $this->schemeForm($record))
+                    ->form(fn (InsuranceProviderDocumentation $record) => $this->schemeForm($record))
                     ->fillForm(function (InsuranceProviderDocumentation $record) {
                         return $record->toArray();
                     })
@@ -156,7 +175,7 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                             ->title('Deleted successfully')
                             ->success()
                             ->send();
-                    })
+                    }),
             ])
             ->headerActions([
                 CreateAction::make()

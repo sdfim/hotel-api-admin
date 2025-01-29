@@ -30,19 +30,17 @@ class HotelController extends BaseWithPolicyController
     {
         $hotel = Hotel::findOrFail($id);
         $text = $this->message;
-        $hotelId = $hotel->id;
-        $productId = $hotel->product->id;
+        $product = $hotel->product;
 
-        return view('dashboard.hotel_repository.form', compact('hotel', 'text', 'hotelId', 'productId'));
+        return view('dashboard.hotel_repository.form', compact('hotel', 'text', 'hotel', 'product'));
     }
 
     public function create(): View
     {
         $text = $this->message;
         $hotel = new Hotel();
-        $hotelId = 0;
-        $productId = 0;
+        $product = 0;
 
-        return view('dashboard.hotel_repository.form', compact('hotel','text', 'hotelId', 'productId'));
+        return view('dashboard.hotel_repository.form', compact('hotel','text', 'hotel', 'product'));
     }
 }

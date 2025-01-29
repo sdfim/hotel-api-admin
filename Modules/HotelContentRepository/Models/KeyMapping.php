@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\HotelContentRepository\Models\Factories\KeyMappingFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class KeyMapping extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -40,5 +43,13 @@ class KeyMapping extends Model
     public function keyMappingOwner(): BelongsTo
     {
         return $this->belongsTo(KeyMappingOwner::class, 'key_mapping_owner_id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['product_id', 'key_id', 'key_mapping_owner_id'])
+            ->logOnlyDirty()
+            ->useLogName('key_mapping');
     }
 }

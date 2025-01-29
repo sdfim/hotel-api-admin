@@ -27,9 +27,7 @@ class ImportInsuranceRateTiers extends Command
 
         $records = $csv->getRecords();
 
-        DB::beginTransaction();
-
-        try {
+        DB::transaction(function () use ($vendor_id, $records) {
             DB::table('insurance_rate_tiers')->where('vendor_id', $vendor_id)->delete();
 
             foreach ($records as $record) {
@@ -45,13 +43,8 @@ class ImportInsuranceRateTiers extends Command
                 ]);
             }
 
-            DB::commit();
             $this->info('Insurance rate tiers imported successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            $this->error('Error importing insurance rate tiers: ' . $e->getMessage());
-            return 1;
-        }
+        }, 1);
 
         return 0;
     }

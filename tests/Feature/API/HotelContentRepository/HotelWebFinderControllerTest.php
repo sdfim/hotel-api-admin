@@ -18,9 +18,9 @@ class HotelWebFinderControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'base_url', 'finder', 'type', 'example']
+                '*' => ['id', 'base_url', 'finder', 'website', 'example'],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_hotel_web_finders', 3);
     }
@@ -32,8 +32,8 @@ class HotelWebFinderControllerTest extends TestCase
         $response = $this->request()->postJson('api/repo/hotel-web-finders', $data);
         $response->assertStatus(201);
         $response->assertJsonStructure([
-            'data' => ['id', 'base_url', 'finder', 'type', 'example'],
-            'message'
+            'data' => ['id', 'base_url', 'finder', 'website', 'example'],
+            'message',
         ]);
         $this->assertDatabaseHas('pd_hotel_web_finders', $data);
     }
@@ -45,8 +45,8 @@ class HotelWebFinderControllerTest extends TestCase
         $response = $this->request()->getJson("api/repo/hotel-web-finders/{$webFinder->id}");
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'base_url', 'finder', 'type', 'example'],
-            'message'
+            'data' => ['id', 'base_url', 'finder', 'website', 'example'],
+            'message',
         ]);
         $this->assertDatabaseHas('pd_hotel_web_finders', $webFinder->toArray());
     }
@@ -59,8 +59,8 @@ class HotelWebFinderControllerTest extends TestCase
         $response = $this->request()->putJson("api/repo/hotel-web-finders/{$webFinder->id}", $data);
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'base_url', 'finder', 'type', 'example'],
-            'message'
+            'data' => ['id', 'base_url', 'finder', 'website', 'example'],
+            'message',
         ]);
         $this->assertDatabaseHas('pd_hotel_web_finders', $data);
     }

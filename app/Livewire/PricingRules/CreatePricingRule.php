@@ -20,21 +20,30 @@ class CreatePricingRule extends Component implements HasForms
 
     public ?array $data = [];
     public bool $isSrCreator = false;
+    public ?string $rateCode = null;
     public ?int $giataCodeProperty = null;
 
-    public function mount(bool $isSrCreator = false, ?int $giataCodeProperty = null): void
+    public function mount(bool $isSrCreator = false, ?int $giataCodeProperty = null, ?string $rateCode = null): void
     {
         $this->form->fill();
         $this->isSrCreator = $isSrCreator;
         $this->giataCodeProperty = $giataCodeProperty;
+        $this->rateCode = $rateCode;
         if ($this->giataCodeProperty) {
             $this->data['conditions'] = [
                 [
                     'field' => 'property',
                     'compare' => '=',
-                    'value_from' => $this->giataCodeProperty
-                ]
+                    'value_from' => $this->giataCodeProperty,
+                ],
             ];
+            if ($this->rateCode) {
+                $this->data['conditions'][] = [
+                    'field' => 'rate_code',
+                    'compare' => '=',
+                    'value_from' => $this->rateCode,
+                ];
+            }
         }
     }
 

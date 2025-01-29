@@ -6,6 +6,7 @@ use App\Helpers\ClassHelper;
 use App\Livewire\Configurations\ServiceTypes\ServiceTypesForm;
 use App\Models\Configurations\ConfigServiceType;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -13,12 +14,8 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -28,6 +25,8 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
+use Modules\HotelContentRepository\Actions\ProductInformativeService\AddProductInformativeService;
+use Modules\HotelContentRepository\Actions\ProductInformativeService\EditProductInformativeService;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Product;
@@ -35,24 +34,28 @@ use Modules\HotelContentRepository\Models\ProductInformativeService;
 
 class ProductInformativeServicesTable extends Component implements HasForms, HasTable
 {
+    use HasProductActions;
     use InteractsWithForms;
     use InteractsWithTable;
-    use HasProductActions;
 
     public int $productId;
+
+    public ?int $rateId = null;
+
     public string $title;
 
-    public function mount(int $productId)
+    public function mount(Product $product, ?int $rateId = null)
     {
-        $this->productId = $productId;
-        $product = Product::find($productId);
-        $this->title = 'Informational Service for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
+        $this->productId = $product->id;
+        $this->rateId = $rateId;
+        $this->title = 'Informational Service for <h4>'.$product->name.'</h4>';
     }
 
     public function schemeForm(): array
     {
         return [
             Hidden::make('product_id')->default($this->productId),
+            Hidden::make('rate_id')->default($this->rateId),
 
             Grid::make(3)
                 ->schema([
@@ -100,7 +103,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
 
             Grid::make(4)
                 ->schema([
-                     Checkbox::make('show_service_on_pdf')
+                    Checkbox::make('show_service_on_pdf')
                         ->label('Show Service on PDF'),
                     Checkbox::make('show_service_data_on_pdf')
                         ->label('Show Service Data on PDF'),
@@ -132,7 +135,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
         return $table
             ->query(
                 ProductInformativeService::with('service')->where('product_id', $this->productId)
-            )
+                    ->where('rate_id', $this->rateId))
             ->columns([
                 TextColumn::make('name')->label('Name')->searchable(),
                 TextColumn::make('service.name')->label('Service Type')->searchable(),
@@ -153,12 +156,13 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                     ->fillForm(function ($record) {
                         $data = $record->toArray();
                         $data['dynamicColumns'] = $record->dynamicColumns->toArray();
+
                         return $data;
                     })
                     ->action(function ($data, $record) {
-                        $record->update($data);
-                        $record->dynamicColumns()->delete();
-                        $record->dynamicColumns()->createMany($data['dynamicColumns']);
+                        /** @var EditProductInformativeService $editProductInformativeService */
+                        $editProductInformativeService = app(EditProductInformativeService::class);
+                        $editProductInformativeService->updateWithDynamicColumns($record, $data);
                         Notification::make()
                             ->title('Service updated successfully')
                             ->success()
@@ -177,13 +181,14 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                     ->form($this->schemeForm())
                     ->createAnother(false)
                     ->action(function ($data) {
-                        $service = ProductInformativeService::create($data);
-                        $service->dynamicColumns()->createMany($data['dynamicColumns']);
+                        /** @var AddProductInformativeService $addProductInformativeService */
+                        $addProductInformativeService = app(AddProductInformativeService::class);
+                        $addProductInformativeService->createWithDynamicColumns($data);
                         Notification::make()
                             ->title('Service created successfully')
                             ->success()
                             ->send();
-                    })
+                    }),
             ]);
     }
 

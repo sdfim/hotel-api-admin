@@ -28,13 +28,14 @@ class ImageGallery extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
-        'pivot'
+        'pivot',
     ];
 
     public function images(): BelongsToMany
     {
         return $this->belongsToMany(Image::class, 'pd_gallery_images', 'gallery_id', 'image_id');
     }
+
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Hotel::class, 'pd_product_gallery', 'gallery_id', 'product_id');

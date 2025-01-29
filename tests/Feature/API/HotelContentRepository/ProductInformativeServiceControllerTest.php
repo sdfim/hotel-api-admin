@@ -18,9 +18,9 @@ class ProductInformativeServiceControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'product_id', 'service_id', 'cost']
+                '*' => ['id', 'product_id', 'service_id', 'cost'],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_product_informative_services', 3);
     }
@@ -33,7 +33,7 @@ class ProductInformativeServiceControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'service_id', 'cost'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_informative_services', $data);
     }
@@ -46,7 +46,7 @@ class ProductInformativeServiceControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'service_id', 'cost'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_informative_services', $service->toArray());
     }
@@ -60,7 +60,7 @@ class ProductInformativeServiceControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'service_id', 'cost'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_informative_services', $data);
     }

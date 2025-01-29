@@ -2,7 +2,6 @@
 
 namespace Modules\HotelContentRepository\Livewire\ProductAgeRestriction;
 
-use App\Helpers\ClassHelper;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -10,36 +9,31 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
-use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Modules\Enums\AgeRestrictionTypeEnum;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
-use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductAgeRestriction;
 
 class ProductAgeRestrictionTable extends Component implements HasForms, HasTable
 {
+    use HasProductActions;
     use InteractsWithForms;
     use InteractsWithTable;
-    use HasProductActions;
 
     public int $productId;
+
     public string $title;
 
-    public function mount(int $productId)
+    public function mount(Product $product)
     {
-        $this->productId = $productId;
-        $product = Product::find($productId);
-        $this->title = 'Age Restriction for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
+        $this->productId = $product->id;
+        $this->title = 'Age Restriction for <h4>'.$product->name.'</h4>';
     }
 
     public function form(Form $form): Form
@@ -60,7 +54,7 @@ class ProductAgeRestrictionTable extends Component implements HasForms, HasTable
 
                     return collect(AgeRestrictionTypeEnum::cases())
                         ->pluck('value', 'value')
-                        ->filter(fn($value) => !in_array($value, $existingRestrictions));
+                        ->filter(fn ($value) => ! in_array($value, $existingRestrictions));
                 })
                 ->required(),
             TextInput::make('value')
@@ -69,7 +63,7 @@ class ProductAgeRestrictionTable extends Component implements HasForms, HasTable
                 ->required(),
             Checkbox::make('active')
                 ->label('Active')
-                ->default(true)
+                ->default(true),
         ];
     }
 
@@ -84,7 +78,7 @@ class ProductAgeRestrictionTable extends Component implements HasForms, HasTable
                 TextColumn::make('value')->label('Value'),
                 BooleanColumn::make('active')
                     ->label('Is Active'),
-                ])
+            ])
             ->actions($this->getActions())
             ->bulkActions($this->getBulkActions())
             ->headerActions($this->getHeaderActions());

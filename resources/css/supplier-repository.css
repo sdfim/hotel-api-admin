@@ -128,6 +128,8 @@ thead .bg-gray-50{
 .hotel-form-container .choices__inner {
     min-height: 55px !important;
     border-radius: 2px !important;
+    display: flex;
+    align-items: center;
 }
 
 .hotel-form-container .fi-select-input:focus {
@@ -344,7 +346,7 @@ thead .bg-gray-50{
     position: relative;
     display: inline-block;
     width: 60px; /* Ширина тумблера */
-    height: 30px; /* Высота тумблера */
+    height: 32px; /* Высота тумблера */
 }
 
 .hotel-form-toggle-button input {
@@ -370,8 +372,8 @@ thead .bg-gray-50{
     content: "";
     height: 25px; /* Размер круга */
     width: 25px;
-    left: 3px; /* Расстояние от левого края */
-    bottom: 2.5px; /* Центрирование круга */
+    left: 4px; /* Расстояние от левого края */
+    bottom: 3.5px; /* Центрирование круга */
     background-color: var(--red-color); /* Красный круг в неактивном состоянии */
     transition: transform 0.4s, background-color 0.4s;
     border-radius: 50%;
@@ -382,7 +384,7 @@ thead .bg-gray-50{
 }
 
 .hotel-form-toggle-button input:checked + .hotel-form-slider:before {
-    transform: translateX(30px); /* Смещение круга вправо */
+    transform: translateX(27px); /* Смещение круга вправо */
     background-color: var(--green-color) /* Зеленый круг в активном состоянии */
 }
 

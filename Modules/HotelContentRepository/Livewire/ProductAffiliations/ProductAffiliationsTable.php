@@ -2,36 +2,22 @@
 
 namespace Modules\HotelContentRepository\Livewire\ProductAffiliations;
 
-use App\Helpers\ClassHelper;
-use App\Livewire\Components\CustomRepeater;
+use App\Actions\ConfigAmenity\CreateConfigAmenity;
 use App\Livewire\Configurations\Amenities\AmenitiesForm;
-use App\Livewire\Configurations\JobDescriptions\JobDescriptionsForm;
 use App\Models\Configurations\ConfigAmenity;
 use App\Models\Configurations\ConfigConsortium;
-use App\Models\Configurations\ConfigJobDescription;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Filament\Tables;
-use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BooleanColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Product;
@@ -39,24 +25,32 @@ use Modules\HotelContentRepository\Models\ProductAffiliation;
 
 class ProductAffiliationsTable extends Component implements HasForms, HasTable
 {
+    use HasProductActions;
     use InteractsWithForms;
     use InteractsWithTable;
-    use HasProductActions;
 
     public int $productId;
+
+    public ?int $rateId = null;
+
+    public ?int $roomId = null;
+
     public string $title;
 
-    public function mount(int $productId)
+    public function mount(Product $product, ?int $rateId = null, ?int $roomId = null)
     {
-        $this->productId = $productId;
-        $product = Product::find($productId);
-        $this->title = 'Amenities for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
+        $this->productId = $product->id;
+        $this->rateId = $rateId;
+        $this->roomId = $roomId;
+        $this->title = 'Amenities for <h4>'.$product->name.'</h4>';
     }
 
     public function schemeForm(): array
     {
-        return  [
+        return [
             Hidden::make('product_id')->default($this->productId),
+            Hidden::make('rate_id')->default($this->rateId),
+            Hidden::make('room_id')->default($this->roomId),
 
             Grid::make(1)->schema([
                 Select::make('consortia_id')
@@ -82,18 +76,21 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
             Grid::make(1)
                 ->schema([
                     Select::make('amenities')
-                    ->label('Amenities')
-                    ->options(ConfigAmenity::pluck('name', 'name'))
-                    ->multiple()
+                        ->label('Amenities')
+                        ->options(ConfigAmenity::pluck('name', 'name'))
+                        ->multiple()
                         ->createOptionForm(AmenitiesForm::getSchema())
                         ->createOptionUsing(function (array $data) {
-                            $amenity = ConfigAmenity::create($data);
+                            /** @var CreateConfigAmenity $createConfigAmenity */
+                            $createConfigAmenity = app(CreateConfigAmenity::class);
+                            $amenity = $createConfigAmenity->create($data);
                             Notification::make()
                                 ->title('Department created successfully')
                                 ->success()
                                 ->send();
+
                             return $amenity->name;
-                        })
+                        }),
                 ]),
         ];
     }
@@ -103,6 +100,8 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
         return $table
             ->query(
                 ProductAffiliation::query()->where('product_id', $this->productId)
+                    ->where('rate_id', $this->rateId)
+                    ->where('room_id', $this->roomId)
             )
             ->columns([
                 TextColumn::make('consortia.name')->label('Consortia'),

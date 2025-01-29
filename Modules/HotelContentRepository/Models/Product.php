@@ -11,11 +11,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Modules\HotelContentRepository\Models\Factories\ProductFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Product extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -130,7 +133,7 @@ class Product extends Model
 
     public function contactInformation()
     {
-        return $this->morphOne(ContactInformation::class, 'contactable');
+        return $this->morphMany(ContactInformation::class, 'contactable');
     }
 
     public function travelAgencyCommissions()
@@ -229,5 +232,13 @@ class Product extends Model
     public static function getComputedLocation(): string
     {
         return 'location';
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['vendor_id', 'product_type', 'name', 'verified', 'content_source_id', 'property_images_source_id', 'default_currency', 'website', 'location', 'lat', 'lng', 'related_id', 'related_type'])
+            ->logOnlyDirty()
+            ->useLogName('product');
     }
 }

@@ -236,6 +236,7 @@ class HotelWebFinderUnitRequest extends FormRequest
             'web_finder_id' => 'required|integer',
             'field' => 'required|string|max:255',
             'value' => 'required|string|max:255',
+            'type' => 'required|string|max:255',
         ];
     }
 }

@@ -12,11 +12,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Modules\HotelContentRepository\Models\Factories\HotelFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Hotel extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -35,25 +38,25 @@ class Hotel extends Model
         'num_rooms',
         'room_images_source_id',
         'hotel_board_basis',
-        'travel_agent_commission'
+        'travel_agent_commission',
     ];
 
     protected $casts = [
         'address' => 'array',
         'location' => 'array',
         'hotel_board_basis' => 'array',
-        'travel_agent_commission' => 'float'
+        'travel_agent_commission' => 'float',
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
-        'pivot'
+        'pivot',
     ];
 
     public function giataCode(): HasOne
     {
-        return $this->hasOne(Property::class, 'code');
+        return $this->hasOne(Property::class, 'code', 'giata_code');
     }
 
     public function roomImagesSource(): BelongsTo
@@ -79,5 +82,13 @@ class Hotel extends Model
     public function contentSource(): BelongsTo
     {
         return $this->belongsTo(ContentSource::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis', 'travel_agent_commission'])
+            ->logOnlyDirty()
+            ->useLogName('hotel');
     }
 }

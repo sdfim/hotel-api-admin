@@ -25,6 +25,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
+use Modules\Enums\InsuranceRestrictionSaleTypeEnum;
+use Modules\Enums\VendorTypeEnum;
+use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsuranceRestriction;
 use Modules\Insurance\Models\InsuranceRestrictionType;
 
@@ -48,47 +51,52 @@ class RestrictionsTable extends Component implements HasForms, HasTable
     public function schemeForm(): array
     {
         return [
-            Grid::make(4)
+            Select::make('vendor_id')
+                ->label('Vendor')
+                ->options(fn () => Vendor::where('type', 'like', '%'.VendorTypeEnum::INSURANCE->value.'%')->pluck('name', 'id')->toArray())
+                ->preload()
+                ->required(),
+            Grid::make(2)
                 ->schema([
-                    Select::make('vendor_id')
-                        ->label('Vendor')
-                        ->relationship(name: 'vendor', titleAttribute: 'name')
-                        ->preload()
-                        ->required(),
                     Select::make('restriction_type_id')
                         ->label('Restriction Type')
                         ->relationship(name: 'restrictionType', titleAttribute: 'label')
                         ->preload()
                         ->required()
                         ->live()
-                        ->afterStateUpdated(fn(Select $component) => $component
+                        ->afterStateUpdated(fn (Select $component) => $component
                             ->getContainer()
                             ->getComponent('dynamicFieldValue')
                             ->getChildComponentContainer()
                             ->fill()
                         ),
+                    Select::make('sale_type')
+                        ->label('Sale Type')
+                        ->options(InsuranceRestrictionSaleTypeEnum::getOptions())
+                        ->preload()
+                        ->required(),
                     Select::make('compare')
                         ->label('Compare')
-                        ->options(fn(Get $get): array => match (array_search($get('restriction_type_id'), $this->restrictionTypes)) {
+                        ->options(fn (Get $get): array => match (array_search($get('restriction_type_id'), $this->restrictionTypes)) {
                             'customer_location', 'travel_location' => [
                                 '!=' => '!=',
-                            ],
-                            'age' => [
-                                '>' => '>',
+                                '=' => '=',
                             ],
                             default => [
                                 '=' => '=',
                                 '<' => '<',
-                                '>' => '>'
+                                '>' => '>',
+                                '>=' => '>=',
+                                '<=' => '<=',
                             ],
                         })
                         ->required(),
                     Grid::make(1)
-                        ->schema(fn(Get $get): array => match (array_search($get('restriction_type_id'), $this->restrictionTypes)) {
+                        ->schema(fn (Get $get): array => match (array_search($get('restriction_type_id'), $this->restrictionTypes)) {
                             'age' => [
                                 TextInput::make('value')
                                     ->label('Value')
-                                    ->maxValue(21)
+//                                    ->maxValue(21)
                                     ->integer()
                                     ->required(),
                             ],
@@ -105,7 +113,9 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                                     ->getSearchResultsUsing(function (string $search): array {
                                         $result = Property::select(
                                             DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
-                                            ->where('city', 'like', "%$search%")->limit(30);
+                                            ->where('city', 'like', "%$search%")
+                                            ->where('locale', 'like', "%$search%")
+                                            ->limit(30);
 
                                         return $result->pluck('full_name', 'city_id')->toArray() ?? [];
                                     })
@@ -132,7 +142,7 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                             ],
                         })
                         ->key('dynamicFieldValue')
-                        ->columnStart(4)
+                        ->columnStart(2),
                 ]),
         ];
     }
@@ -143,7 +153,7 @@ class RestrictionsTable extends Component implements HasForms, HasTable
             ->query(
                 InsuranceRestriction::query()
                     ->when(
-                        auth()->user()->currentTeam && !auth()->user()->hasRole(RoleSlug::ADMIN->value),
+                        auth()->user()->currentTeam && ! auth()->user()->hasRole(RoleSlug::ADMIN->value),
                         fn ($q) => $q->where('vendor_id', auth()->user()->currentTeam->vendor_id),
                     )
             )
@@ -173,13 +183,17 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                         }
 
                         return $record->value;
-                    })
+                    }),
+                TextColumn::make('sale_type')
+                    ->label('Sale Type')
+                    ->sortable()
+                    ->alignCenter(),
             ])
             ->actions([
                 EditAction::make()
                     ->label('')
                     ->tooltip('Edit Restriction')
-                    ->form(fn() => $this->schemeForm())
+                    ->form(fn () => $this->schemeForm())
                     ->fillForm(function (InsuranceRestriction $record) {
                         return $record->toArray();
                     })
@@ -206,11 +220,12 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                             ->title('Deleted successfully')
                             ->success()
                             ->send();
-                    })
+                    }),
             ])
             ->headerActions([
                 CreateAction::make()
                     ->form($this->schemeForm())
+                    ->createAnother(false)
                     ->action(function (array $data) {
                         InsuranceRestriction::create($data);
 

@@ -14,4 +14,24 @@ class EditProductCancellationPolicy
         ProductCancellationPolicyEdited::dispatch($productCancellationPolicy);
         return $productCancellationPolicy;
     }
+
+    public function updateWithConditions(ProductCancellationPolicy $productCancellationPolicy, array $data): void
+    {
+        $productCancellationPolicy->update($data);
+
+        if (isset($data['conditions'])) {
+            foreach ($data['conditions'] as $condition) {
+                if ($condition['compare'] == 'in' || $condition['compare'] == 'not_in') {
+                    $condition['value_from'] = null;
+                } else {
+                    $condition['value'] = null;
+                }
+                if (isset($condition['id'])) {
+                    $productCancellationPolicy->conditions()->updateOrCreate(['id' => $condition['id']], $condition);
+                } else {
+                    $productCancellationPolicy->conditions()->create($condition);
+                }
+            }
+        }
+    }
 }

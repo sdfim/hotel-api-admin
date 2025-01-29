@@ -19,6 +19,7 @@ use App\Policies\Configurations\ConfigConsortiumPolicy;
 use App\Policies\Configurations\ConfigDescriptiveTypePolicy;
 use App\Policies\Configurations\ConfigJobDescriptionPolicy;
 use App\Policies\Configurations\ConfigServiceTypePolicy;
+use App\Policies\HotelRatePolicy;
 use App\Policies\HotelRoomPolicy;
 use App\Policies\ImagePolicy;
 use App\Policies\HotelPolicy;
@@ -36,6 +37,7 @@ use App\Policies\VendorPolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\HotelRate;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\Image;
 use Modules\HotelContentRepository\Models\ImageGallery;
@@ -60,6 +62,7 @@ class PermissionServiceProvider extends ServiceProvider
 
     private static array $modelPolicies = [
         HotelRoom::class                            => HotelRoomPolicy::class,
+        HotelRate::class                            => HotelRatePolicy::class,
         Hotel::class                                => HotelPolicy::class,
         Vendor::class                               => VendorPolicy::class,
         Product::class                              => ProductPolicy::class,

@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('pd_product_promotions', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('rate_id')->nullable();
             $table->string('promotion_name');
             $table->string('rate_code')->nullable();
             $table->text('description')->nullable();

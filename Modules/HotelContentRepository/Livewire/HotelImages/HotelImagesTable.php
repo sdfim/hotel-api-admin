@@ -3,27 +3,28 @@
 namespace Modules\HotelContentRepository\Livewire\HotelImages;
 
 use App\Helpers\ClassHelper;
-use Filament\Tables\Columns\ImageColumn;
-use Illuminate\Support\Facades\Storage;
-use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Models\HotelRoom;
-use Modules\HotelContentRepository\Models\Image;
-use Modules\HotelContentRepository\Models\Product;
-use Modules\HotelContentRepository\Models\ImageGallery;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Livewire\Component;
-use Filament\Forms\Components\Select;
-use Illuminate\Support\Facades\DB;
+use Modules\HotelContentRepository\Actions\Image\AddImage;
+use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\HotelRoom;
+use Modules\HotelContentRepository\Models\Image;
+use Modules\HotelContentRepository\Models\ImageGallery;
+use Modules\HotelContentRepository\Models\Product;
 
 class HotelImagesTable extends Component implements HasForms, HasTable
 {
@@ -31,6 +32,7 @@ class HotelImagesTable extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     public ?int $productId = null;
+
     public ?int $roomId = null;
 
     public function mount(?int $productId, ?int $roomId = null): void
@@ -58,7 +60,7 @@ class HotelImagesTable extends Component implements HasForms, HasTable
         if ($this->productId) {
             $product = Product::find($this->productId);
             ['filePath' => $filePath, 'galleryName' => $galleryName, 'description' => $description] = self::generateGalleryDetails($product);
-            $description = 'Product Image Gallery: ' . $galleryName;
+            $description = 'Product Image Gallery: '.$galleryName;
         }
         if ($this->roomId) {
             $product = Hotel::whereHas('rooms', function ($query) {
@@ -67,8 +69,8 @@ class HotelImagesTable extends Component implements HasForms, HasTable
             $room = HotelRoom::find($this->roomId);
             ['filePath' => $filePath, 'galleryName' => $galleryName, 'description' => $description] = $this->generateGalleryDetails($product);
             $filePath = $filePath."/Room_{$this->roomId}";
-            $galleryName = $galleryName . " - Room {$this->roomId}";
-            $description = 'Room Image Gallery: ' . $galleryName;
+            $galleryName = $galleryName." - Room {$this->roomId}";
+            $description = 'Room Image Gallery: '.$galleryName;
         }
 
         return $table
@@ -89,6 +91,7 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                         });
                     });
                 }
+
                 return $query;
             })
             ->defaultSort('created_at', 'desc')
@@ -129,34 +132,12 @@ class HotelImagesTable extends Component implements HasForms, HasTable
                     ->modalHeading('Create Image')
                     ->form(array_filter(
                         HotelImagesForm::getFormComponents($filePath),
-                        fn($component) => !(($this->roomId || $this->productId) && $component instanceof Select && $component->getName() === 'galleries')
+                        fn ($component) => ! (($this->roomId || $this->productId) && $component instanceof Select && $component->getName() === 'galleries')
                     ))
                     ->action(function ($data) use ($product, $room, $galleryName, $description) {
-                        DB::transaction(function () use ($data, $room, $product, $galleryName, $description) {
-                            $image = Image::create([
-                                'image_url'  => $data['image_url'],
-                                'tag'        => $data['tag'],
-                                'alt'        => $data['alt'],
-                                'section_id' => $data['section_id'],
-                                'weight'     => $data['weight'] ?? '500px',
-                            ]);
-
-                            if ($this->productId) {
-                                $gallery = ImageGallery::firstOrCreate(
-                                    ['gallery_name' => $galleryName],
-                                    ['description' => $description]
-                                );
-                                $gallery->images()->attach($image->id);
-                                $product->galleries()->syncWithoutDetaching([$gallery->id]);
-                            }
-                            if ($this->roomId) {
-                                $gallery = ImageGallery::firstOrCreate(
-                                    ['gallery_name' => $galleryName],
-                                    ['description' => $description]
-                                );
-                                $gallery->images()->attach($image->id);
-                                $room->galleries()->syncWithoutDetaching([$gallery->id]);                            }
-                        });
+                        /** @var AddImage $addImage */
+                        $addImage = app(AddImage::class);
+                        $addImage->addImageToGallery($data, $product, $room, $galleryName, $description);
                     })
                     ->visible(fn () => Gate::allows('create', Image::class)),
             ]);

@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('pd_product_fees_and_taxes', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('rate_id')->nullable();
             $table->string('name');
             $table->string('fee_category', 50);
             $table->decimal('net_value', 12, 4);

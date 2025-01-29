@@ -2,11 +2,9 @@
 
 namespace Modules\HotelContentRepository\API\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
-use Modules\HotelContentRepository\Models\KeyMappingOwner;
 use Modules\HotelContentRepository\API\Requests\KeyMappingOwnerRequest;
-use Modules\HotelContentRepository\API\Controllers\BaseController;
+use Modules\HotelContentRepository\Models\KeyMappingOwner;
 
 class KeyMappingOwnerController extends BaseController
 {
@@ -22,12 +20,14 @@ class KeyMappingOwnerController extends BaseController
     public function store(KeyMappingOwnerRequest $request)
     {
         $keyMappingOwner = KeyMappingOwner::create($request->validated());
+
         return $this->sendResponse($keyMappingOwner->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
         $keyMappingOwner = KeyMappingOwner::findOrFail($id);
+
         return $this->sendResponse($keyMappingOwner->toArray(), 'show success');
     }
 
@@ -35,6 +35,7 @@ class KeyMappingOwnerController extends BaseController
     {
         $keyMappingOwner = KeyMappingOwner::findOrFail($id);
         $keyMappingOwner->update($request->validated());
+
         return $this->sendResponse($keyMappingOwner->toArray(), 'update success');
     }
 
@@ -42,6 +43,7 @@ class KeyMappingOwnerController extends BaseController
     {
         $keyMappingOwner = KeyMappingOwner::findOrFail($id);
         $keyMappingOwner->delete();
+
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 }

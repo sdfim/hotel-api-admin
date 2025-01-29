@@ -4,60 +4,59 @@ namespace Modules\HotelContentRepository\Livewire\Hotel;
 
 use App\Helpers\Strings;
 use App\Models\Channel;
-use App\Models\Configurations\ConfigJobDescription;
 use App\Models\Enums\RoleSlug;
 use App\Models\Property;
+use Cheesegrits\FilamentGoogleMaps\Fields\Map;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
 use Filament\Forms\Get;
-use Filament\Forms\Set;
+use Filament\Notifications\Notification;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
+use Intervention\Image\Laravel\Facades\Image;
 use Livewire\Component;
-use Modules\Enums\MealPlansEnum;
+use Livewire\Features\SupportRedirects\Redirector;
 use Modules\Enums\HotelSaleTypeEnum;
+use Modules\Enums\MealPlansEnum;
 use Modules\Enums\SupplierNameEnum;
+use Modules\HotelContentRepository\Actions\Hotel\AddHotel;
 use Modules\HotelContentRepository\Livewire\Components\CustomTab;
 use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Arr;
-use Illuminate\Http\RedirectResponse;
-use Livewire\Features\SupportRedirects\Redirector;
-use Cheesegrits\FilamentGoogleMaps\Fields\Map;
-use Cheesegrits\FilamentGoogleMaps\Fields\Geocomplete;
 use Modules\HotelContentRepository\Models\Vendor;
-use Illuminate\View\View;
-use Intervention\Image\Laravel\Facades\Image;
-use Illuminate\Support\Facades\Storage;
-use Filament\Support\Colors\Color;
 
 class HotelForm extends Component implements HasForms
 {
     use InteractsWithForms;
 
     public ?array $data = [];
+
     public Hotel $record;
+
     public bool $verified;
+
     public bool $onSale;
+
     public $showDeleteConfirmation = false;
 
     public function __construct()
     {
-        $this->record = new Hotel();
+        $this->record = new Hotel;
     }
 
     public function mount(Hotel $hotel): void
@@ -88,13 +87,13 @@ class HotelForm extends Component implements HasForms
 
     public function toggleVerified()
     {
-        $this->verified = !$this->verified;
+        $this->verified = ! $this->verified;
         $this->record->product->update(['verified' => $this->verified]);
     }
 
     public function toggleOnSale()
     {
-        $this->onSale = !$this->onSale;
+        $this->onSale = ! $this->onSale;
         $this->record->product->update(['onSale' => $this->onSale]);
     }
 
@@ -188,6 +187,7 @@ class HotelForm extends Component implements HasForms
                                             HotelSaleTypeEnum::DIRECT_CONNECTION->value => HotelSaleTypeEnum::DIRECT_CONNECTION->value,
                                             HotelSaleTypeEnum::MANUAL_CONTRACT->value => HotelSaleTypeEnum::MANUAL_CONTRACT->value,
                                             HotelSaleTypeEnum::COMMISSION_TRACKING->value => HotelSaleTypeEnum::COMMISSION_TRACKING->value,
+                                            HotelSaleTypeEnum::HYBRID_DIRECT_CONNECT_MANUAL_CONTRACT->value => HotelSaleTypeEnum::HYBRID_DIRECT_CONNECT_MANUAL_CONTRACT->value,
                                         ])->required()
                                         ->rule('required', function (Get $get, $state) {
                                             return self::validateRequiredField($get, $state, 'Type');
@@ -226,7 +226,7 @@ class HotelForm extends Component implements HasForms
                                         ->afterStateUpdated(function ($state, $set) {
                                             if ($state) {
                                                 $originalPath = $state->storeAs('products', $state->getClientOriginalName(), 'public');
-                                                $thumbnailPath = 'products/thumbnails/' . $state->getClientOriginalName();
+                                                $thumbnailPath = 'products/thumbnails/'.$state->getClientOriginalName();
                                                 if (Storage::disk('public')->exists($originalPath)) {
                                                     $image = Image::read(Storage::disk('public')->get($originalPath));
                                                     $image->resize(150, 150);
@@ -248,12 +248,12 @@ class HotelForm extends Component implements HasForms
                                 ->schema([
                                     Grid::make(1)
                                         ->schema([
-                                        TextInput::make('full_address')
-                                            ->label('Get Location by Address')
-                                            ->placeholder(fn($get) => $get('addressArr.line_1') . ' ' . $get('addressArr.city')),
-                                        TextInput::make('product.lat')->label('Latitude')->numeric()->readOnly(),
-                                        TextInput::make('product.lng')->label('Longitude')->numeric()->readOnly(),
-                                    ])->columnSpan(1),
+                                            TextInput::make('full_address')
+                                                ->label('Get Location by Address')
+                                                ->placeholder(fn ($get) => $get('addressArr.line_1').' '.$get('addressArr.city')),
+                                            TextInput::make('product.lat')->label('Latitude')->numeric()->readOnly(),
+                                            TextInput::make('product.lng')->label('Longitude')->numeric()->readOnly(),
+                                        ])->columnSpan(1),
 
                                     $mapComponent ?? Placeholder::make('map_message')
                                         ->label('Google Map')
@@ -320,25 +320,25 @@ class HotelForm extends Component implements HasForms
                                 ]),
                             TextInput::make('weight')->label('Weight')
                                 ->integer(),
-//                            TextInput::make('travel_agent_commission')
-//                                ->label('Travel Agent Commission')
-//                                ->numeric('decimal'),
+                            //                            TextInput::make('travel_agent_commission')
+                            //                                ->label('Travel Agent Commission')
+                            //                                ->numeric('decimal'),
                             Select::make('channels')
                                 ->label('Channels')
                                 ->multiple()
                                 ->options(Channel::pluck('name', 'id')),
-//                            Select::make('galleries')
-//                                ->label('Galleries')
-//                                ->multiple()
-//                                ->options(ImageGallery::pluck('gallery_name', 'id')),
-//                            Select::make('product.off_sale_by_sources')
-//                                ->label('Off Sale By Sources')
-//                                ->multiple()
-//                                ->options(SupplierNameEnum::optionsDriver()),
+                            //                            Select::make('galleries')
+                            //                                ->label('Galleries')
+                            //                                ->multiple()
+                            //                                ->options(ImageGallery::pluck('gallery_name', 'id')),
+                            //                            Select::make('product.off_sale_by_sources')
+                            //                                ->label('Off Sale By Sources')
+                            //                                ->multiple()
+                            //                                ->options(SupplierNameEnum::optionsDriver()),
 
                             Section::make('Drivers')
                                 ->schema($toggles)
-                            ->columns(8)
+                                ->columns(8),
 
                         ])
                         ->columns(2),
@@ -352,7 +352,7 @@ class HotelForm extends Component implements HasForms
                     ->extraAttributes([
                         'class' => 'save-button',
                     ])
-                ->visible(fn (Hotel $record) => Gate::allows('create', $record)),
+                    ->visible(fn (Hotel $record) => Gate::allows('create', $record)),
             ]),
         ];
     }
@@ -365,8 +365,10 @@ class HotelForm extends Component implements HasForms
                 ->body("The {$fieldName} field is required.")
                 ->danger()
                 ->send();
+
             return false;
         }
+
         return true;
     }
 
@@ -382,9 +384,10 @@ class HotelForm extends Component implements HasForms
                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name, code'))
                         ->whereRaw("MATCH(search_index) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
                         ->limit(100);
+
                     return $result->pluck('full_name', 'code')
                         ->mapWithKeys(function ($full_name, $code) {
-                            return [$code => $code . ' (' . $full_name  . ')'];
+                            return [$code => $code.' ('.$full_name.')'];
                         })
                         ->toArray() ?? [];
                 })
@@ -393,9 +396,10 @@ class HotelForm extends Component implements HasForms
                         ->where('code', $value)
                         ->first()
                         ->full_name ?? '';
+
                     return $properties;
                 })
-            ->disabled(fn () => $record),
+                ->disabled(fn () => $record),
             Select::make('product.vendor_id')
                 ->label('Vendor Name')
 //                ->disabled(fn () => $record)
@@ -404,6 +408,7 @@ class HotelForm extends Component implements HasForms
                     if (auth()->user()->hasRole(RoleSlug::EXTERNAL_USER->value)) {
                         $query->where('name', auth()->user()->currentTeam->name);
                     }
+
                     return $query->pluck('name', 'id')->toArray();
                 })
                 ->dehydrated()
@@ -418,49 +423,9 @@ class HotelForm extends Component implements HasForms
     {
         $data = $this->form->getState();
 
-        $data['address'] = $data['addressArr'];
-
-        $hotel = Hotel::create(Arr::only($data, [
-            'weight',
-            'giata_code',
-            'featured_flag',
-            'sale_type',
-            'address',
-            'star_rating',
-            'num_rooms',
-            'room_images_source_id',
-            'hotel_board_basis',
-            'travel_agent_commission'
-        ]));
-
-        $data['product']['product_type'] = 'hotel';
-        $data['product']['verified'] = false;
-        $data['product']['onSale'] = false;
-
-        $product = $hotel->product()->create(Arr::only($data['product'], [
-            'vendor_id',
-            'hero_image',
-            'hero_image_thumbnails',
-            'product_type',
-            'name',
-            'verified',
-            'onSale',
-            'lat',
-            'lng',
-            'content_source_id',
-            'property_images_source_id',
-            'default_currency',
-            'website',
-            'off_sale_by_sources',
-        ]));
-
-        if (isset($data['galleries'])) {
-            $hotel->product->galleries()->sync($data['galleries']);
-        }
-
-        if (isset($data['channels'])) {
-            $hotel->product->channels()->sync($data['channels']);
-        }
+        /** @var AddHotel $hotelAction */
+        $hotelAction = app(AddHotel::class);
+        $hotel = $hotelAction->create($data);
 
         Notification::make()
             ->title('Created successfully')
@@ -474,69 +439,9 @@ class HotelForm extends Component implements HasForms
     {
         $data = $this->form->getState();
 
-        if (!isset($data['product']['verified'])) {
-            $data['verified'] = false;
-        }
-        if (!isset($data['product']['onSale'])) {
-            $data['onSale'] = false;
-        }
-
-        $data['product']['off_sale_by_sources'] = array_keys(array_filter($data['off_save'], function($value) {
-            return $value === true;
-        }));
-
-        $data['address'] = $data['addressArr'];
-
-        $hotel = Hotel::find($this->record->id);
-
-        $productData = Arr::only($data['product'], [
-            'vendor_id',
-            'name',
-            'verified',
-            'onSale',
-            'hero_image',
-            'hero_image_thumbnails',
-            'lat',
-            'lng',
-            'content_source_id',
-            'property_images_source_id',
-            'default_currency',
-            'website',
-            'off_sale_by_sources',
-        ]);
-
-        $hotel->product->update($productData);
-
-        $hotel->update(Arr::only($data, [
-            'weight',
-            'giata_code',
-            'featured_flag',
-            'sale_type',
-            'address',
-            'star_rating',
-            'num_rooms',
-            'room_images_source_id',
-            'hotel_board_basis',
-            'travel_agent_commission'
-        ]));
-
-        if (isset($data['galleries'])) {
-            $hotel->product->galleries()->sync($data['galleries']);
-        }
-
-        if (isset($data['channels'])) {
-            $hotel->product->channels()->sync($data['channels']);
-        }
-
-        if ($hotel->product->vendor->independent_flag) {
-            $vendor = $hotel->product->vendor;
-            $vendor->lat = $data['product']['lat'];
-            $vendor->name = $data['product']['name'];
-            $vendor->lng = $data['product']['lng'];
-            $vendor->website = $data['product']['website'];
-            $vendor->address = $data['addressArr'];
-            $vendor->save();
-        }
+        /** @var AddHotel $hotelAction */
+        $hotelAction = app(AddHotel::class);
+        $hotel = $hotelAction->update($this->record, $data);
 
         Notification::make()
             ->title('Updated successfully')
@@ -550,6 +455,7 @@ class HotelForm extends Component implements HasForms
             parse_str($query, $params);
             $tab = $params['tab'] ?? $tab;
         }
+
         return redirect()->route('hotel-repository.edit', ['hotel_repository' => $hotel, 'tab' => $tab]);
     }
 
@@ -567,7 +473,7 @@ class HotelForm extends Component implements HasForms
             $results = json_decode($response, true);
             $streetNumber = $route = $city = $postal_town = $state_province_name = $zip = $country_code = '';
 
-            if (!empty($results['results'][0]['address_components'])) {
+            if (! empty($results['results'][0]['address_components'])) {
                 $components = $results['results'][0]['address_components'];
 
                 // Populate address fields

@@ -14,7 +14,7 @@ use Illuminate\Http\Client\Pool;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Modules\API\Suppliers\DTO\IcePortal\IcePortalAssetDto;
+use Modules\API\Suppliers\Transformers\IcePortal\IcePortalAssetTransformer;
 use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
 use Modules\API\Tools\Geography;
 
@@ -150,7 +150,7 @@ class IcePortalHotelController
             }
         });
 
-        $icePortalAssetDto = new IcePortalAssetDto();
+        $icePortalAssetDto = new IcePortalAssetTransformer();
         $batch = [];
         foreach ($responses as $key => $response) {
 

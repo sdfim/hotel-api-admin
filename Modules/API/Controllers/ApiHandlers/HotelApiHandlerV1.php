@@ -8,21 +8,17 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
-use Modules\API\BaseController;
-use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
-use Modules\API\Controllers\ApiHandlerInterface;
 use Modules\API\Controllers\ApiHandlers\ContentSuppliers\ExpediaHotelController;
 use Modules\API\Controllers\ApiHandlers\ContentSuppliers\IcePortalHotelController;
-use Modules\API\PropertyWeighting\EnrichmentWeight;
 use Modules\API\Services\DetailDataTransformer;
 use Modules\API\Services\MappingCacheService;
-use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelContentDetailDto;
-use Modules\API\Suppliers\DTO\Expedia\ExpediaHotelContentDto;
-use Modules\API\Suppliers\DTO\HBSI\HbsiHotelPricingDto;
-use Modules\API\Suppliers\DTO\IcePortal\IcePortalHotelContentDetailDto;
-use Modules\API\Suppliers\DTO\IcePortal\IcePortalHotelContentDto;
+use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentDetailTransformer;
+use Modules\API\Suppliers\Transformers\Expedia\ExpediaHotelContentTransformer;
+use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentDetailTransformer;
+use Modules\API\Suppliers\Transformers\IcePortal\IcePortalHotelContentTransformer;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Hotel;
 use Psr\Container\ContainerExceptionInterface;
@@ -31,14 +27,14 @@ use Psr\Container\NotFoundExceptionInterface;
 class HotelApiHandlerV1 extends HotelApiHandler
 {
     public function __construct(
-        private readonly ExpediaHotelContentDetailDto   $ExpediaHotelContentDetailDto,
-        private readonly DetailDataTransformer          $dataTransformer,
-        private readonly MappingCacheService            $mappingCacheService,
-        private readonly ExpediaHotelController         $expedia = new ExpediaHotelController(),
-        private readonly IcePortalHotelController       $icePortal = new IcePortalHotelController(),
-        private readonly ExpediaHotelContentDto         $expediaHotelContentDto = new ExpediaHotelContentDto(),
-        private readonly IcePortalHotelContentDto       $icePortalHotelContentDto = new IcePortalHotelContentDto(),
-        private readonly IcePortalHotelContentDetailDto $icePortalHotelContentDetailDto,
+        private readonly ExpediaHotelContentDetailTransformer $ExpediaHotelContentDetailDto,
+        private readonly DetailDataTransformer $dataTransformer,
+        private readonly MappingCacheService $mappingCacheService,
+        private readonly ExpediaHotelController $expedia,
+        private readonly IcePortalHotelController $icePortal,
+        private readonly ExpediaHotelContentTransformer $expediaHotelContentDto,
+        private readonly IcePortalHotelContentTransformer $icePortalHotelContentDto,
+        private readonly IcePortalHotelContentDetailTransformer $icePortalHotelContentDetailDto,
     ) {}
 
     public function search(Request $request): JsonResponse
@@ -46,11 +42,11 @@ class HotelApiHandlerV1 extends HotelApiHandler
         try {
             $keyContent = $this->generateCacheKey($request);
 
-            if (Cache::has($keyContent . ':dataResponse')) {
-                $contentResults = Cache::get($keyContent . ':dataResponse');
+            if (Cache::has($keyContent.':dataResponse')) {
+                $contentResults = Cache::get($keyContent.':dataResponse');
             } else {
                 $contentResults = $this->fetchContentResults($request);
-                Cache::put($keyContent . ':dataResponse', $contentResults, now()->addMinutes(self::TTL));
+                Cache::put($keyContent.':dataResponse', $contentResults, now()->addMinutes(self::TTL));
             }
 
             $page = $request->input('page', 1);
@@ -65,7 +61,7 @@ class HotelApiHandlerV1 extends HotelApiHandler
                 'results' => $paginatedResults,
             ], 'success');
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
-            Log::error('HotelApiHandler ' . $e->getMessage());
+            Log::error('HotelApiHandler '.$e->getMessage());
             Log::error($e->getTraceAsString());
 
             return $this->sendError($e->getMessage(), 'failed');
@@ -77,16 +73,16 @@ class HotelApiHandlerV1 extends HotelApiHandler
         try {
             $keyDetail = $this->generateCacheKey($request);
 
-            if (Cache::has($keyDetail . ':dataResponse')) {
-                $detailResults = Cache::get($keyDetail . ':dataResponse');
+            if (Cache::has($keyDetail.':dataResponse')) {
+                $detailResults = Cache::get($keyDetail.':dataResponse');
             } else {
                 $detailResults = $this->fetchDetailResults($request);
-                Cache::put($keyDetail . ':dataResponse', $detailResults, now()->addMinutes(self::TTL));
+                Cache::put($keyDetail.':dataResponse', $detailResults, now()->addMinutes(self::TTL));
             }
 
             return $this->sendResponse(['results' => $detailResults], 'success');
         } catch (Exception|NotFoundExceptionInterface|ContainerExceptionInterface $e) {
-            Log::error('HotelApiHandler ' . $e->getMessage());
+            Log::error('HotelApiHandler '.$e->getMessage());
             Log::error($e->getTraceAsString());
 
             return $this->sendError($e->getMessage(), 'failed');
@@ -100,13 +96,15 @@ class HotelApiHandlerV1 extends HotelApiHandler
         });
 
         $offset = ($page - 1) * $resultsPerPage;
+
         return array_slice($contentResults, $offset, $resultsPerPage);
     }
 
     private function generateCacheKey(Request $request): string
     {
         $queryParams = $request->except(['page', 'results_per_page']);
-        return $request->type . ':contentDetail:' . http_build_query(Arr::dot($queryParams));
+
+        return $request->type.':contentDetail:'.http_build_query(Arr::dot($queryParams));
     }
 
     private function fetchContentResults(Request $request): array
@@ -127,7 +125,6 @@ class HotelApiHandlerV1 extends HotelApiHandler
 
     private function fetchDetailResults(Request $request): array
     {
-        $supplierNames = $this->getSupplierNames();
         $giataCodes = $this->getGiataCodes($request);
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
@@ -158,11 +155,19 @@ class HotelApiHandlerV1 extends HotelApiHandler
         );
     }
 
-    private function getRepoData(array $giataCodes)
+    private function getRepoData(array $giataCodes): ?Collection
     {
-        return Hotel::with(['product' => function ($query) {
+        $hotels = Hotel::with(['product' => function ($query) {
             $query->where('onSale', 1);
         }])->whereIn('giata_code', $giataCodes)->get();
+
+        foreach ($hotels as $hotel) {
+            if (! $hotel->product) {
+                unset($hotels[$hotel->giata_code]);
+            }
+        }
+
+        return $hotels;
     }
 
     private function getExpediaResults(array $giataCodes): array
@@ -173,7 +178,9 @@ class HotelApiHandlerV1 extends HotelApiHandler
         $expediaData = $this->getExpediaData($expediaCodes);
 
         foreach ($expediaData as $item) {
-            if (!isset($item->expediaSlave)) continue;
+            if (! isset($item->expediaSlave)) {
+                continue;
+            }
             foreach ($item->expediaSlave->getAttributes() as $key => $value) {
                 if (is_string($value)) {
                     $value = json_decode($value, true);
@@ -210,6 +217,7 @@ class HotelApiHandlerV1 extends HotelApiHandler
                 $expediaCodes[] = $expediaCode;
             }
         }
+
         return $expediaCodes;
     }
 
@@ -248,7 +256,9 @@ class HotelApiHandlerV1 extends HotelApiHandler
         foreach ($rooms as $giataCode => $roomArray) {
             foreach ($roomArray as $room) {
                 $supplierCodes = json_decode($room['supplier_codes'], true);
-                if (!$supplierCodes) continue;
+                if (! $supplierCodes) {
+                    continue;
+                }
                 foreach ($supplierCodes as $supplier) {
                     $mapper[$supplier['supplier']] = $supplier['code'];
                     $mapper['external_code'] = $room['hbsi_data_mapped_name'];
@@ -256,13 +266,14 @@ class HotelApiHandlerV1 extends HotelApiHandler
                 $roomMappers[$giataCode][] = $mapper;
             }
         }
+
         return $roomMappers;
     }
 
     private function filterResultsIcePortal(array $resultsIcePortal, array $existingExpediaGiataIds): array
     {
-        return array_filter($resultsIcePortal, function($item) use ($existingExpediaGiataIds) {
-            return !in_array($item['giata_hotel_code'], $existingExpediaGiataIds);
+        return array_filter($resultsIcePortal, function ($item) use ($existingExpediaGiataIds) {
+            return ! in_array($item['giata_hotel_code'], $existingExpediaGiataIds);
         });
     }
 
@@ -282,8 +293,9 @@ class HotelApiHandlerV1 extends HotelApiHandler
                 $expediaRoomId = $expediaRoom['supplier_room_id'];
                 $foundInMapper = false;
 
-                if (!isset($roomMappers[$giataCode])) {
+                if (! isset($roomMappers[$giataCode])) {
                     $mergedRooms[] = $expediaRoom;
+
                     continue;
                 }
 
@@ -294,7 +306,7 @@ class HotelApiHandlerV1 extends HotelApiHandler
                         $romsImagesData[$giataCode][$externalCode][SupplierNameEnum::EXPEDIA->value] = $expediaRoom['images'];
                         $foundInMapper = true;
                         $icePortalRoomId = Arr::get($mapper, SupplierNameEnum::ICE_PORTAL->value);
-                        if (!$icePortalRoomId) {
+                        if (! $icePortalRoomId) {
                             $expediaRoom['supplier_codes'] = $mapper;
                             $mergedRooms[] = $expediaRoom;
                             break;
@@ -315,7 +327,7 @@ class HotelApiHandlerV1 extends HotelApiHandler
                         break;
                     }
                 }
-                if (!$foundInMapper) {
+                if (! $foundInMapper) {
                     $mergedRooms[] = $expediaRoom;
                 }
             }
@@ -332,6 +344,7 @@ class HotelApiHandlerV1 extends HotelApiHandler
         foreach ($missingGiataCodes as $giataCode) {
             $detailResults = array_merge($detailResults, [$this->dataTransformer->createEmptyHotelResponse($giataCode)]);
         }
+
         return $detailResults;
     }
 
@@ -339,20 +352,26 @@ class HotelApiHandlerV1 extends HotelApiHandler
     {
         foreach ($detailResults as &$result) {
             $giata_code = Arr::get($result, 'giata_hotel_code');
-            if (!$giata_code || !isset($structureSource[$giata_code])) continue;
+            if (! $giata_code || ! isset($structureSource[$giata_code])) {
+                continue;
+            }
 
             $hotel = $repoData->where('giata_code', $giata_code)->first();
+            if (! $hotel->product) {
+                continue;
+            }
             $this->dataTransformer->updateResultWithHotelData($result, $hotel, $structureSource[$giata_code], $resultsIcePortal, $romsImagesData);
         }
         unset($result);
 
         return $detailResults;
     }
+
     private function combineContentResults(array $resultsExpedia, array $resultsIcePortal, array $structureSource, $repoData, array $giataCodes): array
     {
         $existingGiataIds = array_column($resultsExpedia, 'giata_hotel_code');
-        $filteredResultsIcePortal = array_filter($resultsIcePortal, function($item) use ($existingGiataIds) {
-            return !in_array($item['giata_hotel_code'], $existingGiataIds);
+        $filteredResultsIcePortal = array_filter($resultsIcePortal, function ($item) use ($existingGiataIds) {
+            return ! in_array($item['giata_hotel_code'], $existingGiataIds);
         });
 
         $contentResults = array_merge($resultsExpedia, $filteredResultsIcePortal);
@@ -364,7 +383,9 @@ class HotelApiHandlerV1 extends HotelApiHandler
 
         foreach ($contentResults as &$result) {
             $giata_code = Arr::get($result, 'giata_hotel_code');
-            if (!$giata_code || !isset($structureSource[$giata_code])) continue;
+            if (! $giata_code || ! isset($structureSource[$giata_code])) {
+                continue;
+            }
 
             $hotel = $repoData->where('giata_code', $giata_code)->first();
             $this->dataTransformer->updateContentResultWithHotelData($result, $hotel, $structureSource[$giata_code], $transformedResultsIcePortal);

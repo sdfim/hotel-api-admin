@@ -14,13 +14,13 @@ class ProductFeeTaxControllerTest extends TestCase
     public function test_index()
     {
         ProductFeeTax::factory()->count(3)->create();
-        $response =  $this->request()->getJson('api/repo/product-fee-taxes');
+        $response = $this->request()->getJson('api/repo/product-fee-taxes');
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'product_id', 'name', 'net_value', 'rack_value', 'value_type',  'commissionable',  'collected_by', 'type']
+                '*' => ['id', 'product_id', 'name', 'net_value', 'rack_value', 'value_type',  'commissionable',  'collected_by', 'type'],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_product_fees_and_taxes', 3);
     }
@@ -33,7 +33,7 @@ class ProductFeeTaxControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'name', 'net_value', 'rack_value', 'value_type',  'commissionable',  'collected_by', 'type'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_fees_and_taxes', $data);
     }
@@ -42,11 +42,11 @@ class ProductFeeTaxControllerTest extends TestCase
     public function test_show()
     {
         $feeTax = ProductFeeTax::factory()->create();
-        $response =  $this->request()->getJson("api/repo/product-fee-taxes/{$feeTax->id}");
+        $response = $this->request()->getJson("api/repo/product-fee-taxes/{$feeTax->id}");
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'name', 'net_value', 'rack_value', 'value_type',  'commissionable',  'collected_by', 'type'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_fees_and_taxes', $feeTax->toArray());
     }
@@ -56,11 +56,11 @@ class ProductFeeTaxControllerTest extends TestCase
     {
         $feeTax = ProductFeeTax::factory()->create();
         $data = ProductFeeTax::factory()->make()->toArray();
-        $response = $this->request()->putJson('api/repo/product-fee-taxes/' . $feeTax->id, $data);
+        $response = $this->request()->putJson('api/repo/product-fee-taxes/'.$feeTax->id, $data);
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'name', 'net_value', 'rack_value', 'value_type',  'commissionable',  'collected_by', 'type'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_fees_and_taxes', $data);
     }
@@ -69,7 +69,7 @@ class ProductFeeTaxControllerTest extends TestCase
     public function test_destroy()
     {
         $feeTax = ProductFeeTax::factory()->create();
-        $response =  $this->request()->deleteJson("api/repo/product-fee-taxes/{$feeTax->id}");
+        $response = $this->request()->deleteJson("api/repo/product-fee-taxes/{$feeTax->id}");
         $response->assertStatus(204);
         $this->assertDatabaseMissing('pd_product_fees_and_taxes', ['id' => $feeTax->id]);
     }

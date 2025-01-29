@@ -16,6 +16,7 @@ class HotelWebFinderUnitFactory extends Factory
             'web_finder_id' => HotelWebFinder::factory(),
             'field' => $this->faker->word,
             'value' => $this->faker->word,
+            'type' => $this->faker->word,
         ];
     }
 }

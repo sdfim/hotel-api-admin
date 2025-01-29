@@ -3,7 +3,6 @@
 namespace Tests\Feature\API\HotelContentRepository;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\Product;
 use PHPUnit\Framework\Attributes\Test;
@@ -23,10 +22,10 @@ class ProductControllerTest extends TestCase
                 '*' => [
                     'id', 'vendor_id', 'product_type', 'name', 'verified',
                     'content_source_id', 'property_images_source_id', 'default_currency',
-                    'website', 'lat', 'lng', 'related_id', 'related_type'
-                ]
+                    'website', 'lat', 'lng', 'related_id', 'related_type',
+                ],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_products', 3);
     }
@@ -41,9 +40,9 @@ class ProductControllerTest extends TestCase
             'data' => [
                 'id', 'vendor_id', 'product_type', 'name', 'verified',
                 'content_source_id', 'property_images_source_id', 'default_currency',
-                'website', 'lat', 'lng', 'related_id', 'related_type'
+                'website', 'lat', 'lng', 'related_id', 'related_type',
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_products', $data);
     }
@@ -59,10 +58,10 @@ class ProductControllerTest extends TestCase
                 '*' => [
                     'id', 'vendor_id', 'product_type', 'name', 'verified',
                     'content_source_id', 'property_images_source_id', 'default_currency',
-                    'website', 'lat', 'lng', 'related_id', 'related_type'
-                ]
+                    'website', 'lat', 'lng', 'related_id', 'related_type',
+                ],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_products', $product->toArray());
     }
@@ -78,9 +77,9 @@ class ProductControllerTest extends TestCase
             'data' => [
                 'id', 'vendor_id', 'product_type', 'name', 'verified',
                 'content_source_id', 'property_images_source_id', 'default_currency',
-                'website', 'lat', 'lng', 'related_id', 'related_type'
+                'website', 'lat', 'lng', 'related_id', 'related_type',
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_products', $data);
     }
@@ -107,9 +106,9 @@ class ProductControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'gallery_name', 'description']
+                '*' => ['id', 'gallery_name', 'description'],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_gallery', [
             'product_id' => $product->id,
@@ -131,7 +130,7 @@ class ProductControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success',
-            'message'
+            'message',
         ]);
 
         $this->assertDatabaseMissing('pd_product_gallery', [

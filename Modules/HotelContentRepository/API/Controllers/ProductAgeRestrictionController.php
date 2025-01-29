@@ -2,19 +2,18 @@
 
 namespace Modules\HotelContentRepository\API\Controllers;
 
+use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Actions\ProductAgeRestriction\AddProductAgeRestriction;
 use Modules\HotelContentRepository\Actions\ProductAgeRestriction\DeleteProductAgeRestriction;
 use Modules\HotelContentRepository\Actions\ProductAgeRestriction\EditProductAgeRestriction;
-use Modules\HotelContentRepository\API\Controllers\BaseController;
-use Illuminate\Http\Response;
-use Modules\HotelContentRepository\Models\ProductAgeRestriction;
 use Modules\HotelContentRepository\API\Requests\ProductAgeRestrictionRequest;
+use Modules\HotelContentRepository\Models\ProductAgeRestriction;
 
 class ProductAgeRestrictionController extends BaseController
 {
     public function __construct(
-        protected AddProductAgeRestriction    $addProductAgeRestriction,
-        protected EditProductAgeRestriction   $editProductAgeRestriction,
+        protected AddProductAgeRestriction $addProductAgeRestriction,
+        protected EditProductAgeRestriction $editProductAgeRestriction,
         protected DeleteProductAgeRestriction $deleteProductAgeRestriction
     ) {}
 
@@ -30,12 +29,14 @@ class ProductAgeRestrictionController extends BaseController
     public function store(ProductAgeRestrictionRequest $request)
     {
         $restriction = $this->addProductAgeRestriction->handle($request);
+
         return $this->sendResponse($restriction->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
         $restriction = ProductAgeRestriction::findOrFail($id);
+
         return $this->sendResponse($restriction->toArray(), 'show success');
     }
 
@@ -43,6 +44,7 @@ class ProductAgeRestrictionController extends BaseController
     {
         $restriction = ProductAgeRestriction::findOrFail($id);
         $restriction = $this->editProductAgeRestriction->handle($restriction, $request);
+
         return $this->sendResponse($restriction->toArray(), 'update success');
     }
 
@@ -50,6 +52,7 @@ class ProductAgeRestrictionController extends BaseController
     {
         $restriction = ProductAgeRestriction::findOrFail($id);
         $this->deleteProductAgeRestriction->handle($restriction);
+
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 }

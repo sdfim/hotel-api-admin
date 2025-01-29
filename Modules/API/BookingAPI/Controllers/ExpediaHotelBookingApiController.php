@@ -15,9 +15,8 @@ use Modules\Enums\SupplierNameEnum;
 class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
 {
     public function __construct(
-        private readonly RapidClient $rapidClient = new RapidClient(),
-    ) {
-    }
+        private readonly RapidClient $rapidClient,
+    ) {}
 
     public function addItem(array $filters, string $type = 'add_item', array $headers = []): ?array
     {
@@ -30,7 +29,9 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
 
         $booking_id = $filters['booking_id'] ?? (string) Str::uuid();
 
-        if ($type === 'change') $filters['search_id'] = $filters['change_search_id'];
+        if ($type === 'change') {
+            $filters['search_id'] = $filters['change_search_id'];
+        }
         $supplierId = Supplier::where('name', SupplierNameEnum::EXPEDIA->value)->first()->id;
         $bookingInspector = ApiBookingInspectorRepository::newBookingInspector([
             $booking_id, $filters, $supplierId, $type, 'price_check', 'hotel',
@@ -45,7 +46,7 @@ class ExpediaHotelBookingApiController extends BaseHotelBookingApiController
 
             SaveBookingInspector::dispatch($bookingInspector, $content, []);
         } catch (RequestException $e) {
-            Log::error('ExpediaHotelBookingApiHandler | ' . $type . ' | price_check ' . $e->getResponse()->getBody());
+            Log::error('ExpediaHotelBookingApiHandler | '.$type.' | price_check '.$e->getResponse()->getBody());
             Log::error($e->getTraceAsString());
             $content = json_decode(''.$e->getResponse()->getBody());
 

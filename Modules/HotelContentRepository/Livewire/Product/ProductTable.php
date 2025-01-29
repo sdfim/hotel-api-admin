@@ -15,10 +15,11 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Arr;
-use Livewire\Features\SupportRedirects\Redirector;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\Features\SupportRedirects\Redirector;
+use Modules\HotelContentRepository\Actions\Product\DeleteProduct;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\Vendor;
 
@@ -40,14 +41,15 @@ class ProductTable extends Component implements HasForms, HasTable
             ->paginated([5, 10, 25, 50])
             ->query(function () {
                 $query = Product::query()
-                ->when(
-                    auth()->user()->currentTeam && !auth()->user()->hasRole(RoleSlug::ADMIN->value),
-                    fn ($q) => $q->where('vendor_id', auth()->user()->currentTeam->vendor_id)
-                );
+                    ->when(
+                        auth()->user()->currentTeam && ! auth()->user()->hasRole(RoleSlug::ADMIN->value),
+                        fn ($q) => $q->where('vendor_id', auth()->user()->currentTeam->vendor_id)
+                    );
 
                 if ($this->vendor?->id) {
                     $query->where('vendor_id', $this->vendor->id);
                 }
+
                 return $query;
             })
             ->columns([
@@ -98,9 +100,9 @@ class ProductTable extends Component implements HasForms, HasTable
                     ->toggleable()
                     ->sortable()
                     ->default(function ($record) {
-                        return 'Content: ' . $record->contentSource->name . '<br>'
-                            . 'Room Images: ' . $record->related?->roomImagesSource->name . '<br>'
-                            . 'Property Images: ' . $record->propertyImagesSource->name;
+                        return 'Content: '.$record->contentSource->name.'<br>'
+                            .'Room Images: '.$record->related?->roomImagesSource->name.'<br>'
+                            .'Property Images: '.$record->propertyImagesSource->name;
                     })
                     ->html(),
 
@@ -115,21 +117,19 @@ class ProductTable extends Component implements HasForms, HasTable
                     ->label('')
                     ->tooltip('View')
                     ->url(function ($record): string {
-//                        dump($record->product_type);
+                        //                        dump($record->product_type);
                         return $record->product_type === 'hotel'
                             ? route('hotel-repository.edit', $record->related)
                             : route('product-repository.edit', $record);
                     })
-                    ->visible(fn (Product $record) => Gate::allows('update', $record))
-                ,
+                    ->visible(fn (Product $record) => Gate::allows('update', $record)),
                 Tables\Actions\DeleteAction::make()
                     ->label('')
                     ->tooltip('Delete')
                     ->action(function (Product $record) {
-                        \DB::transaction(function () use ($record) {
-                            $record->related->delete();
-                            $record->delete();
-                        });
+                        /** @var DeleteProduct $deleteProduct */
+                        $deleteProduct = app(DeleteProduct::class);
+                        $deleteProduct->deleteWithRelated($record);
                         Notification::make()
                             ->title('Product deleted successfully')
                             ->success()
@@ -143,16 +143,18 @@ class ProductTable extends Component implements HasForms, HasTable
     {
         $data['address'] = array_reduce($data['address'], function ($result, $item) {
             $result[$item['field']] = $item['value'];
+
             return $result;
         }, []);
 
-        if (!isset($data['verified'])) {
+        if (! isset($data['verified'])) {
             $data['verified'] = false;
         }
 
         if (isset($data['location'])) {
             $data['location'] = array_reduce($data['location'], function ($result, $item) {
                 $result[$item['field']] = $item['value'];
+
                 return $result;
             }, []);
         } else {
@@ -179,7 +181,7 @@ class ProductTable extends Component implements HasForms, HasTable
             'property_images_source_id',
             'travel_agent_commission',
             'hotel_board_basis',
-            'default_currency'
+            'default_currency',
         ]));
 
         if (isset($data['galleries'])) {

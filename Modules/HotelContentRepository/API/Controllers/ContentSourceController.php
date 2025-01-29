@@ -2,14 +2,12 @@
 
 namespace Modules\HotelContentRepository\API\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Actions\ContentSource\AddContentSource;
 use Modules\HotelContentRepository\Actions\ContentSource\DeleteContentSource;
 use Modules\HotelContentRepository\Actions\ContentSource\EditContentSource;
-use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\API\Requests\ContentSourceRequest;
-use Modules\HotelContentRepository\API\Controllers\BaseController;
+use Modules\HotelContentRepository\Models\ContentSource;
 
 class ContentSourceController extends BaseController
 {
@@ -31,12 +29,14 @@ class ContentSourceController extends BaseController
     public function store(ContentSourceRequest $request)
     {
         $contentSource = $this->addContentSource->handle($request);
+
         return $this->sendResponse($contentSource->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
         $contentSource = ContentSource::findOrFail($id);
+
         return $this->sendResponse($contentSource->toArray(), 'show success');
     }
 
@@ -44,6 +44,7 @@ class ContentSourceController extends BaseController
     {
         $contentSource = ContentSource::findOrFail($id);
         $contentSource = $this->editContentSource->handle($contentSource, $request);
+
         return $this->sendResponse($contentSource->toArray(), 'update success');
     }
 
@@ -51,6 +52,7 @@ class ContentSourceController extends BaseController
     {
         $contentSource = ContentSource::findOrFail($id);
         $this->deleteContentSource->handle($contentSource);
+
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 }

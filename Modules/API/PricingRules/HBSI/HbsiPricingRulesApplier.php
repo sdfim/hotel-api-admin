@@ -101,8 +101,8 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
             }
         }
 
-        if (!empty($validPricingRules)) {
-            usort($validPricingRules, fn($a, $b) => $b['weight'] <=> $a['weight']);
+        if (! empty($validPricingRules)) {
+            usort($validPricingRules, fn ($a, $b) => $b['weight'] <=> $a['weight']);
             $this->applyPricingRulesLogic($validPricingRules[0]);
         }
 
@@ -134,8 +134,8 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
 
         foreach ($roomPricingLoop as $rate) {
             // check if AmountBeforeTax is equal to AmountAfterTax
-            $current_total_net = (float)$rate['Total']['@attributes']['AmountBeforeTax'];
-            $current_total_price = (float)$rate['Total']['@attributes']['AmountAfterTax'];
+            $current_total_net = (float) $rate['Total']['@attributes']['AmountBeforeTax'];
+            $current_total_price = (float) $rate['Total']['@attributes']['AmountAfterTax'];
 
             $totals['total_net'] += $current_total_net;
 
@@ -144,7 +144,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
             }
 
             if (isset($rate['Base']['Taxes']['Tax'])) {
-                $unitMultiplier = (int)$rate['@attributes']['UnitMultiplier'];
+                $unitMultiplier = (int) $rate['@attributes']['UnitMultiplier'];
                 if (array_key_first($rate['Base']['Taxes']['Tax']) === 0) {
                     foreach ($rate['Base']['Taxes']['Tax'] as $tax) {
                         $totals = $this->calculateTaxAndFees($tax, $totals, $unitMultiplier);
@@ -180,7 +180,7 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         */
 
         // TODO: check that logic when there are actual lists of taxes and fees.
-        $totals['total_tax'] += (float)$tax['@attributes']['Amount'] * $unitMultiplier;
+        $totals['total_tax'] += (float) $tax['@attributes']['Amount'] * $unitMultiplier;
 
         return $totals;
     }

@@ -14,4 +14,22 @@ class AddProductDepositInformation
         ProductDepositInformationAdded::dispatch($productDepositInformation);
         return $productDepositInformation;
     }
+
+    public function createWithConditions(array $data): ProductDepositInformation
+    {
+        $productDepositInformation = ProductDepositInformation::create($data);
+
+        if (isset($data['conditions'])) {
+            foreach ($data['conditions'] as $condition) {
+                if ($condition['compare'] == 'in' || $condition['compare'] == 'not_in') {
+                    $condition['value_from'] = null;
+                } else {
+                    $condition['value'] = null;
+                }
+                $productDepositInformation->conditions()->create($condition);
+            }
+        }
+
+        return $productDepositInformation;
+    }
 }

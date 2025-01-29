@@ -49,7 +49,7 @@ class RouteApiController extends Controller
         $suppliersIds = GeneralConfiguration::pluck('currently_suppliers')->first() ?? [1];
 
         $handler = match (TypeEnum::from($type)) {
-            TypeEnum::HOTEL => str_contains($route, 'v1') ? $this->hotelApiHandlerV1 : $this->hotelApiHandler,
+            TypeEnum::HOTEL => $this->getHotelApiHandler($route),
             TypeEnum::FLIGHT => $this->flightApiHandler,
             TypeEnum::COMBO => $this->comboApiHandler,
         };
@@ -59,6 +59,11 @@ class RouteApiController extends Controller
             RouteEnum::ROUTE_DETAIL, RouteEnum::ROUTE_DETAIL_V1 => $handler->detail($this->detailRequest($type)),
             RouteEnum::ROUTE_PRICE, RouteEnum::ROUTE_PRICE_V1 => $handler->price($this->priceRequest($type), $suppliersIds),
         };
+    }
+
+    private function getHotelApiHandler(string $route): HotelApiHandler
+    {
+        return str_contains($route, 'v1') ? $this->hotelApiHandlerV1 : $this->hotelApiHandler;
     }
 
     private function searchRequest(string $type): Request

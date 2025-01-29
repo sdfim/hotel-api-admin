@@ -7,6 +7,9 @@ use Livewire\Livewire;
 use Modules\HotelContentRepository\Livewire\Activity\ActivityTable;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
+use Modules\HotelContentRepository\Livewire\HotelRates\HotelRateForm;
+use Modules\HotelContentRepository\Livewire\HotelRates\HotelRateTable;
+use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
 use Modules\HotelContentRepository\Livewire\PdGrid\PdGridTable;
 use Modules\HotelContentRepository\Livewire\Product\ProductTable;
 use Modules\HotelContentRepository\Livewire\ProductAffiliations\ProductAffiliationsTable;
@@ -21,7 +24,6 @@ use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
 use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesTable;
 use Modules\HotelContentRepository\Livewire\ProductInformativeServices\ProductInformativeServicesTable;
 use Modules\HotelContentRepository\Livewire\ProductPromotion\ProductPromotionTable;
-use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
 use Modules\HotelContentRepository\Livewire\HotelWebFinder\HotelWebFinderTable;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesTable;
@@ -31,6 +33,7 @@ use Modules\HotelContentRepository\Livewire\Vendor\VendorForm;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorTable;
 use Modules\Insurance\Livewire\Plans\InsurancePlanTable;
 use Modules\Insurance\Livewire\Vendors\DocumentationsTable;
+use Modules\Insurance\Livewire\Vendors\ProvidersTable;
 use Modules\Insurance\Livewire\RateTiers\RateTiersTable;
 use Modules\Insurance\Livewire\Restrictions\RestrictionsTable;
 
@@ -70,6 +73,8 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('hotels.hotel-table', HotelTable::class);
         Livewire::component('hotels.hotel-web-finder-table', HotelWebFinderTable::class);
         Livewire::component('hotels.hotel-room-table', HotelRoomTable::class);
+        Livewire::component('hotels.hotel-rate-table', HotelRateTable::class);
+        Livewire::component('hotels.hotel-rate-form', HotelRateForm::class);
 
         Livewire::component('commissions.travel-agency-commission-table', TravelAgencyCommissionTable::class);
 

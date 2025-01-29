@@ -429,6 +429,15 @@
                                     </a>
                                 </li>
                             @endcan
+                                @can('log-viewer')
+                                    <li>
+                                        <a href="{{ url('admin/activities') }}"
+                                           class="{{ ClassHelper::sidebarCildrenClass() }}">
+                                            <i class="dripicons-document"></i>
+                                            <span data-key="t-log-viewer">Activity Log</span>
+                                        </a>
+                                    </li>
+                                @endcan
                             @can('swagger-docs')
                                 <li>
                                     <a href="javascript: void(0);" aria-expanded="false"

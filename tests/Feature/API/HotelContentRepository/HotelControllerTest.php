@@ -5,7 +5,6 @@ namespace Tests\Feature\API\HotelContentRepository;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\HotelWebFinder;
-use Modules\HotelContentRepository\Models\ImageGallery;
 use PHPUnit\Framework\Attributes\Test;
 
 class HotelControllerTest extends TestCase
@@ -21,10 +20,10 @@ class HotelControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis'
-                ]
+                    'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis',
+                ],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_hotels', 3);
     }
@@ -37,11 +36,11 @@ class HotelControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis'
+                'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis',
             ],
-            'message'
+            'message',
         ]);
-//        $this->assertDatabaseHas('pd_hotels', $data);
+        //        $this->assertDatabaseHas('pd_hotels', $data);
     }
 
     #[Test]
@@ -55,12 +54,12 @@ class HotelControllerTest extends TestCase
             'data' => [
                 '*' => [
                     'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms',
-                    'room_images_source_id', 'hotel_board_basis', 'travel_agent_commission'
-                ]
+                    'room_images_source_id', 'hotel_board_basis', 'travel_agent_commission',
+                ],
             ],
-            'message'
-            ]);
-//        $this->assertDatabaseHas('pd_hotels', $hotel->toArray());
+            'message',
+        ]);
+        //        $this->assertDatabaseHas('pd_hotels', $hotel->toArray());
     }
 
     #[Test]
@@ -72,11 +71,11 @@ class HotelControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis'
+                'id', 'weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis',
             ],
-            'message'
+            'message',
         ]);
-//        $this->assertDatabaseHas('pd_hotels', $data);
+        //        $this->assertDatabaseHas('pd_hotels', $data);
     }
 
     #[Test]
@@ -101,9 +100,9 @@ class HotelControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'base_url', 'finder', 'type', 'example']
+                '*' => ['id', 'base_url', 'finder', 'example'],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_hotel_web_finder_hotel', [
             'hotel_id' => $hotel->id,
@@ -125,7 +124,7 @@ class HotelControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'success',
-            'message'
+            'message',
         ]);
 
         $this->assertDatabaseMissing('pd_hotel_web_finder_hotel', [

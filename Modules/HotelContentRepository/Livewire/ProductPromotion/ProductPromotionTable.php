@@ -4,50 +4,55 @@ namespace Modules\HotelContentRepository\Livewire\ProductPromotion;
 
 use App\Helpers\ClassHelper;
 use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
+use Modules\HotelContentRepository\Actions\ProductPromotion\AddProductPromotion;
+use Modules\HotelContentRepository\Actions\ProductPromotion\EditProductPromotion;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
+use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductPromotion;
-use Filament\Tables\Contracts\HasTable;
-use Modules\HotelContentRepository\Models\ImageGallery;
 
 class ProductPromotionTable extends Component implements HasForms, HasTable
 {
+    use HasProductActions;
     use InteractsWithForms;
     use InteractsWithTable;
-    use HasProductActions;
 
     public int $productId;
+
+    public ?int $rateId = null;
+
     public string $title;
 
-    public function mount(int $productId)
+    public function mount(Product $product, ?int $rateId = null)
     {
-        $this->productId = $productId;
-        $product = Product::find($productId);
-        $this->title = 'Promotions for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
+        $this->productId = $product->id;
+        $this->rateId = $rateId;
+        $this->title = 'Promotions for <h4>'.$product->name.'</h4>';
     }
 
     public function schemeForm(): array
     {
-        return  [
+        return [
             Hidden::make('product_id')->default($this->productId),
+            Hidden::make('rate_id')->default($this->rateId),
             TextInput::make('promotion_name')
                 ->label('Promotion Name')
                 ->required(),
@@ -111,7 +116,7 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
         return $table
             ->query(
                 ProductPromotion::query()->where('product_id', $this->productId)
-            )
+                    ->where('rate_id', $this->rateId))
             ->columns([
                 TextColumn::make('promotion_name')->label('Promotion Name')->searchable(),
                 TextColumn::make('rate_code')->label('Rate Code')->searchable(),
@@ -132,11 +137,13 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                     ->fillForm(function ($record) {
                         $data = $record->toArray();
                         $data['galleries'] = $record->galleries->pluck('id')->toArray();
+
                         return $data;
                     })
                     ->action(function (ProductPromotion $record, array $data) {
-                        $record->update($data);
-                        if (isset($data['galleries'])) $record->galleries()->sync($data['galleries']);
+                        /** @var EditProductPromotion $editProductPromotion */
+                        $editProductPromotion = app(EditProductPromotion::class);
+                        $editProductPromotion->updateWithGalleries($record, $data);
                     })
                     ->modalHeading(new HtmlString("Edit {$this->title}"))
                     ->modalHeading('Edit Promotion')
@@ -148,9 +155,12 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                     ->form($this->schemeForm())
                     ->modalHeading(new HtmlString("Create {$this->title}"))
                     ->action(function ($data) {
-                        if ($this->productId) $data['product_id'] = $this->productId;
-                        $promotion = ProductPromotion::create($data);
-                        if (isset($data['galleries'])) $promotion->galleries()->sync($data['galleries']);
+                        if ($this->productId) {
+                            $data['product_id'] = $this->productId;
+                        }
+                        /** @var AddProductPromotion $addProductPromotion */
+                        $addProductPromotion = app(AddProductPromotion::class);
+                        $addProductPromotion->createWithGalleries($data);
                     })
                     ->createAnother(false)
                     ->tooltip('Add New Promotion')

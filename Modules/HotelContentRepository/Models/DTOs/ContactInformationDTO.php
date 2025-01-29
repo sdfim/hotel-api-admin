@@ -33,10 +33,17 @@ class ContactInformationDTO
             'email' => $contactInformation->email,
             'phone' => $contactInformation->phone,
             'job_title' => $contactInformation->job_title,
-            'jobs' => $contactInformation->contactInformations->map(function ($information) {
+            'contactable_id' => $contactInformation->contactable_id,
+            'contactable_type' => $contactInformation->contactable_type,
+            'ujv_department' => $contactInformation->ujv_department,
+            'emails' => $contactInformation->emails->map(function ($email) {
                 return [
-                    'id' => $information->id,
-                    'name' => $information->name,
+                    'email' => $email->email,
+                ];
+            }),
+            'phones' => $contactInformation->phones->map(function ($phone) {
+                return [
+                    'phone' => $phone->phone,
                 ];
             }),
         ];

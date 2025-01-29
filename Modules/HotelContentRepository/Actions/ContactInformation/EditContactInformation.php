@@ -14,4 +14,24 @@ class EditContactInformation
         ContactInformationEdited::dispatch($hotelContactInformation);
         return $hotelContactInformation;
     }
+
+    public function execute($data, $record, $contactableType)
+    {
+        $data['contactable_type'] = 'Modules\\HotelContentRepository\\Models\\'.$contactableType;
+        $emails = $data['emails'] ?? [];
+        $phones = $data['phones'] ?? [];
+        unset($data['emails'], $data['phones']);
+        $record->update($data);
+        $record->ujvDepartments()->sync($data['ujv_departments']);
+        $record->emails()->delete();
+        foreach ($emails as $email) {
+            $email['contact_information_id'] = $record->id;
+            $record->emails()->create($email);
+        }
+        $record->phones()->delete();
+        foreach ($phones as $phone) {
+            $phone['contact_information_id'] = $record->id;
+            $record->phones()->create($phone);
+        }
+    }
 }

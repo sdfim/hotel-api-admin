@@ -40,15 +40,15 @@ class AmenitiesForm extends Component implements HasForms
     {
         return [
             TextInput::make('name')
-            ->required()
-            ->maxLength(191)
-            ];
+                ->required()
+                ->maxLength(191),
+        ];
     }
 
     public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
-        if (!isset($data['default_value'])) {
+        if (! isset($data['default_value'])) {
             $data['default_value'] = '';
         }
         $this->record->fill($data);

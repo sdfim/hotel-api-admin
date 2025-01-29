@@ -9,12 +9,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\ProductInformativeServiceFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 use Carbon\Carbon;
 
 class ProductInformativeService extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -25,6 +28,7 @@ class ProductInformativeService extends Model
 
     protected $fillable = [
         'product_id',
+        'rate_id',
         'service_id',
         'cost',
         'name',
@@ -65,5 +69,13 @@ class ProductInformativeService extends Model
     public function dynamicColumns(): HasMany
     {
         return $this->hasMany(ProductInformativeServiceDynamicColumn::class, 'product_informative_service_id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['product_id', 'service_id', 'cost'])
+            ->logOnlyDirty()
+            ->useLogName('product_informative_service');
     }
 }

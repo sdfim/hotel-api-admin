@@ -24,6 +24,8 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
+use Modules\Enums\VendorTypeEnum;
+use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsuranceRateTier;
 
 class RateTiersTable extends Component implements HasForms, HasTable
@@ -43,7 +45,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
                 ->schema([
                     Select::make('vendor_id')
                         ->label('Vendor')
-                        ->relationship(name: 'vendor', titleAttribute: 'name')
+                        ->options(fn () => Vendor::where('type', 'like', '%'.VendorTypeEnum::INSURANCE->value.'%')->pluck('name', 'id')->toArray())
                         ->preload()
                         ->required(),
                     TextInput::make('min_trip_cost')
@@ -83,7 +85,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
             ->query(
                 InsuranceRateTier::query()
                     ->when(
-                        auth()->user()->currentTeam && !auth()->user()->hasRole(RoleSlug::ADMIN->value),
+                        auth()->user()->currentTeam && ! auth()->user()->hasRole(RoleSlug::ADMIN->value),
                         fn ($q) => $q->where('vendor_id', auth()->user()->currentTeam->vendor_id),
                     )
             )
@@ -117,7 +119,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
                 EditAction::make()
                     ->label('')
                     ->tooltip('Edit Rate Tier')
-                    ->form(fn(InsuranceRateTier $record) => $this->schemeForm($record))
+                    ->form(fn (InsuranceRateTier $record) => $this->schemeForm($record))
                     ->fillForm(function (InsuranceRateTier $record) {
                         return $record->toArray();
                     })
@@ -144,7 +146,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
                             ->title('Deleted successfully')
                             ->success()
                             ->send();
-                    })
+                    }),
             ])
             ->headerActions([
                 CreateAction::make()
@@ -169,7 +171,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     ->form([
                         Select::make('vendor_id')
                             ->label('Vendor')
-                            ->relationship(name: 'vendor', titleAttribute: 'name')
+                            ->options(fn () => Vendor::where('type', 'like', '%'.VendorTypeEnum::INSURANCE->value.'%')->pluck('name', 'id')->toArray())
                             ->preload()
                             ->required(),
                         FileUpload::make('file')
@@ -190,7 +192,7 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     ->action(function (array $data) {
                         Artisan::call('import:insurance-rate-tiers', [
                             'vendor_id' => $data['vendor_id'],
-                            'file' => storage_path('app/public/' . $data['file']),
+                            'file' => storage_path('app/public/'.$data['file']),
                         ]);
                         Notification::make()
                             ->title('Insurance rate tiers imported successfully')

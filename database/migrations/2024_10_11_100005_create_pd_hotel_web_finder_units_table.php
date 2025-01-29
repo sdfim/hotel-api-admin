@@ -13,6 +13,7 @@ return new class extends Migration
             $table->unsignedBigInteger('web_finder_id');
             $table->string('field');
             $table->string('value');
+            $table->string('type');
             $table->timestamps();
         });
     }

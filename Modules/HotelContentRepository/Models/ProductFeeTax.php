@@ -8,11 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Enums\ProductFeeTaxApplyTypeEnum;
 use Modules\HotelContentRepository\Models\Factories\ProductFeeTaxFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ProductFeeTax extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -24,6 +27,7 @@ class ProductFeeTax extends Model
     protected $fillable = [
         'name',
         'product_id',
+        'rate_id',
         'net_value',
         'rack_value',
         'type',
@@ -50,5 +54,13 @@ class ProductFeeTax extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'product_id', 'net_value', 'rack_value', 'type', 'value_type', 'commissionable', 'collected_by', 'fee_category'])
+            ->logOnlyDirty()
+            ->useLogName('product_fee_tax');
     }
 }

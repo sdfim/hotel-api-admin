@@ -28,9 +28,10 @@ class PricingRulesController extends BaseWithPolicyController
         $text = $this->message;
         $isSrCreator = $request->input('sr', false);
         $giataCodeProperty = $request->input('gc', null);
+        $rateCode = $request->input('rc', null);
         if(!$giataCodeProperty) $isSrCreator = false;
 
-        return view('dashboard.pricing-rules.create', compact('text', 'isSrCreator', 'giataCodeProperty'));
+        return view('dashboard.pricing-rules.create', compact('text', 'isSrCreator', 'giataCodeProperty', 'rateCode'));
     }
 
     /**

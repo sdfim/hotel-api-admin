@@ -11,6 +11,8 @@ return new class extends Migration
         Schema::create('pd_product_affiliations', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('rate_id')->nullable();
+            $table->unsignedBigInteger('room_id')->nullable();
             $table->unsignedBigInteger('consortia_id');
             $table->text('description')->nullable();
             $table->date('start_date')->nullable();

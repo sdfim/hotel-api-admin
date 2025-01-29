@@ -9,11 +9,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\ProductDescriptiveContentSectionFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ProductDescriptiveContentSection extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -24,6 +27,7 @@ class ProductDescriptiveContentSection extends Model
 
     protected $fillable = [
         'product_id',
+        'rate_id',
         'section_name',
         'start_date',
         'end_date',
@@ -39,5 +43,13 @@ class ProductDescriptiveContentSection extends Model
     public function descriptiveType()
     {
         return $this->belongsTo(ConfigDescriptiveType::class, 'descriptive_type_id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['product_id', 'section_name', 'start_date', 'end_date', 'descriptive_type_id', 'value'])
+            ->logOnlyDirty()
+            ->useLogName('product_descriptive_content_section');
     }
 }

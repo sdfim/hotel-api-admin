@@ -13,6 +13,7 @@ use Modules\HotelContentRepository\Models\Vendor;
  * @property int $id
  * @property int $provider_id
  * @property string $document_type
+ * @property string $viewable
  * @property string $path
  *
  * @property InsuranceProvider $provider
@@ -24,6 +25,7 @@ class InsuranceProviderDocumentation extends Model
     protected $fillable = [
         'vendor_id',
         'document_type',
+        'viewable',
         'path',
     ];
 

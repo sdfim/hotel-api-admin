@@ -18,9 +18,8 @@ class HotelWebFinderUnitControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'field', 'value', 'web_finder_id']
+                '*' => ['id', 'field', 'value', 'web_finder_id', 'type'],
             ],
-            'message'
         ]);
         $this->assertDatabaseCount('pd_hotel_web_finder_units', 3);
     }
@@ -32,8 +31,8 @@ class HotelWebFinderUnitControllerTest extends TestCase
         $response = $this->request()->postJson('api/repo/hotel-web-finder-units', $data);
         $response->assertStatus(201);
         $response->assertJsonStructure([
-            'data' => ['id', 'field', 'value', 'web_finder_id'],
-            'message'
+            'data' => ['id', 'field', 'value', 'web_finder_id', 'type'],
+            'message',
         ]);
         $this->assertDatabaseHas('pd_hotel_web_finder_units', $data);
     }
@@ -45,8 +44,8 @@ class HotelWebFinderUnitControllerTest extends TestCase
         $response = $this->request()->getJson("api/repo/hotel-web-finder-units/{$unit->id}");
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'field', 'value', 'web_finder_id'],
-            'message'
+            'data' => ['id', 'field', 'value', 'web_finder_id', 'type'],
+            'message',
         ]);
         $this->assertDatabaseHas('pd_hotel_web_finder_units', $unit->toArray());
     }
@@ -59,8 +58,8 @@ class HotelWebFinderUnitControllerTest extends TestCase
         $response = $this->request()->putJson("api/repo/hotel-web-finder-units/{$unit->id}", $data);
         $response->assertStatus(200);
         $response->assertJsonStructure([
-            'data' => ['id', 'field', 'value', 'web_finder_id'],
-            'message'
+            'data' => ['id', 'field', 'value', 'web_finder_id', 'type'],
+            'message',
         ]);
         $this->assertDatabaseHas('pd_hotel_web_finder_units', $data);
     }

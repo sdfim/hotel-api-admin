@@ -11,6 +11,7 @@ return new class extends Migration
         Schema::create('pd_product_cancellation_policies', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('rate_id')->nullable();
             $table->string('name');
             $table->dateTime('start_date');
             $table->dateTime('expiration_date');

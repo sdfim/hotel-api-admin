@@ -23,6 +23,7 @@ class HotelWebFinderUnit extends Model
         'web_finder_id',
         'field',
         'value',
+        'type',
     ];
 
     public function webFinder()

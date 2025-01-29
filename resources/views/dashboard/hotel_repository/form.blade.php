@@ -24,6 +24,12 @@
                 ['title' => 'Rooms', 'component' => 'hotels.hotel-room-table'],
              ],
         ],
+        'Rates' => [
+            'tab_name' => 'rates',
+             'related' => [
+                ['title' => 'Rates', 'component' => 'hotels.hotel-rate-table'],
+             ],
+        ],
         'Attributes' => [
             'tab_name' => 'attributes',
             'related' => [
@@ -57,7 +63,7 @@
         'Descriptive Content' => [
             'tab_name' => 'descriptive-content',
             'related' => [
-                ['title' => 'Descriptive Content Section', 'component' => 'products.hotel-descriptive-content-section-table'],
+                ['title' => 'Descriptive Content', 'component' => 'products.hotel-descriptive-content-section-table'],
             ],
         ],
         'Pricing Rules' => [
@@ -68,13 +74,13 @@
                 ['title' => 'Cancellation Policy', 'component' => 'products.product-cancellation-policy-table'],
             ],
         ],
-//        'Travel Agency Commission' => [
-//            'tab_name' => 'travel-agency-commission',
-//            'related' => [
-//                ['title' => 'Travel Agency Commission', 'component' => 'commissions.travel-agency-commission-table'],
-//            ],
-//        ],
-        'Gallery' => [
+        'UJV Commission' => [
+            'tab_name' => 'travel-agency-commission',
+            'related' => [
+                ['title' => 'UJV Commission', 'component' => 'commissions.travel-agency-commission-table'],
+            ],
+        ],
+        'Galleries' => [
             'tab_name' => 'images-gallery',
             'related' => [
 //                ['title' => 'Product Images', 'component' => 'hotel-images.hotel-images-table'],
@@ -83,7 +89,7 @@
         ],
     ];
 
-    $hotelTitle = ['Rooms', 'Website Search Generation'];
+    $hotelTitle = ['Rooms', 'Rates', 'Website Search Generation'];
     $createTabs = ['Product', 'Location', 'Data Sources', 'Gallery',];
 @endphp
 @extends('layouts.master')
@@ -149,13 +155,13 @@
                                         @foreach ($tabs['related'] as $tab)
                                             <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4">{{ $tab['title'] }}</h3>
                                             @if ($tab['title'] === 'Pricing Rules')
-                                                @livewire($tab['component'], ['productId' => $productId, 'isSrCreator' => true])
+                                                @livewire($tab['component'], ['productId' => $product->id, 'isSrCreator' => true])
                                             @elseif ($tab['title'] === 'Contact Information')
-                                                @livewire($tab['component'], ['contactableId' => $productId, 'contactableType' => 'Product'])
+                                                @livewire($tab['component'], ['contactableId' => $product->id, 'contactableType' => 'Product'])
                                             @elseif (in_array($tab['title'], $hotelTitle))
-                                                @livewire($tab['component'], ['hotelId' => $hotelId])
+                                                @livewire($tab['component'], ['hotel' => $hotel])
                                             @else
-                                                @livewire($tab['component'], ['productId' => $productId])
+                                                @livewire($tab['component'], ['product' => $product])
                                             @endif
                                         @endforeach
                                     </div>

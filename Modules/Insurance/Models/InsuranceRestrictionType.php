@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property string $name
  * @property string $label
- *
  * @property InsuranceRestriction[] $restrictions
  */
 class InsuranceRestrictionType extends Model
@@ -21,7 +20,7 @@ class InsuranceRestrictionType extends Model
 
     protected $fillable = [
         'name',
-        'label'
+        'label',
     ];
 
     public function restrictions(): HasMany

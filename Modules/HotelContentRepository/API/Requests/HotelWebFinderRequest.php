@@ -18,7 +18,7 @@ class HotelWebFinderRequest extends FormRequest
      *     required=false,
      *     description="Filter by base URL",
      *     @OA\Schema(
-     *       type="string",
+     *       website="string",
      *       example="https://example.com"
      *     )
      *   ),
@@ -28,7 +28,7 @@ class HotelWebFinderRequest extends FormRequest
      *     required=false,
      *     description="Filter by finder",
      *     @OA\Schema(
-     *       type="string",
+     *       website="string",
      *       example="Finder Example"
      *     )
      *   ),
@@ -247,7 +247,7 @@ class HotelWebFinderRequest extends FormRequest
         return [
             'base_url' => 'required|string|max:255',
             'finder' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
+            'website' => 'required|string|max:255',
             'example' => 'string|max:255',
         ];
     }

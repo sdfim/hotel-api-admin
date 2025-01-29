@@ -18,9 +18,9 @@ class KeyMappingOwnerControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'name']
+                '*' => ['id', 'name'],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_key_mapping_owners', 3);
     }
@@ -33,7 +33,7 @@ class KeyMappingOwnerControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => ['id', 'name'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_key_mapping_owners', $data);
     }
@@ -46,7 +46,7 @@ class KeyMappingOwnerControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'name'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_key_mapping_owners', $keyMappingOwner->toArray());
     }
@@ -60,7 +60,7 @@ class KeyMappingOwnerControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'name'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_key_mapping_owners', $data);
     }

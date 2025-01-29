@@ -3,7 +3,6 @@
 namespace Modules\HotelContentRepository\Models;
 
 use App\Models\Team;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,11 +11,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Modules\HotelContentRepository\Models\Factories\VendorFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 use Modules\Insurance\Models\InsurancePlan;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Vendor extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -33,21 +35,23 @@ class Vendor extends Model
         'lng',
         'website',
         'location',
-        'independent_flag'
+        'independent_flag',
+        'type',
     ];
 
     protected $casts = [
         'address' => 'array',
+        'type' => 'array',
         'lat' => 'float',
         'lng' => 'float',
         'verified' => 'boolean',
-        'independent_flag' => 'boolean'
+        'independent_flag' => 'boolean',
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
-        'location'
+        'location',
     ];
 
     public function products(): HasMany
@@ -59,6 +63,7 @@ class Vendor extends Model
     {
         return $this->hasMany(InsurancePlan::class, 'vendor_id');
     }
+
     public function contactInformation()
     {
         return $this->morphOne(ContactInformation::class, 'contactable');
@@ -107,15 +112,12 @@ class Vendor extends Model
      * Used by the Filament Google Maps package.
      *
      * Requires the 'location' attribute be included in this model's $fillable array.
-     *
-     * @return array
      */
-
     public function getLocationAttribute(): array
     {
         return [
-            'lat' => (float)$this->lat,
-            'lng' => (float)$this->lng,
+            'lat' => (float) $this->lat,
+            'lng' => (float) $this->lng,
         ];
     }
 
@@ -126,14 +128,10 @@ class Vendor extends Model
      * Used by the Filament Google Maps package.
      *
      * Requires the 'location' attribute be included in this model's $fillable array.
-     *
-     * @param ?array $location
-     * @return void
      */
     public function setLocationAttribute(?array $location): void
     {
-        if (is_array($location))
-        {
+        if (is_array($location)) {
             $this->attributes['lat'] = $location['lat'];
             $this->attributes['lng'] = $location['lng'];
             unset($this->attributes['location']);
@@ -159,11 +157,17 @@ class Vendor extends Model
      * Get the name of the computed location attribute
      *
      * Used by the Filament Google Maps package.
-     *
-     * @return string
      */
     public static function getComputedLocation(): string
     {
         return 'location';
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['name', 'verified', 'address', 'lat', 'lng', 'website'])
+            ->logOnlyDirty()
+            ->useLogName('vendor');
     }
 }
