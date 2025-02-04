@@ -15,7 +15,8 @@ class UniversalUniqueIdentifierMiddleware
 
     public function handle(Request $request, Closure $next): mixed
     {
-        $request->attributes->add([static::UUID_KEY => $this->generator->uuidv4()]);
+
+        $request->attributes->add([static::UUID_KEY => $request->header('x-admin-session-uuid', $this->generator->uuidv4())]);
         return $next($request);
     }
 }
