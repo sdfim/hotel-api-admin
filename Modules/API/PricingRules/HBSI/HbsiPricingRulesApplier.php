@@ -179,8 +179,13 @@ class HbsiPricingRulesApplier extends BasePricingRulesApplier implements Pricing
         }
         */
 
-        // TODO: check that logic when there are actual lists of taxes and fees.
-        $totals['total_tax'] += (float)$tax['@attributes']['Amount'] * $unitMultiplier;
+        if ($tax['@attributes']['Type'] === 'PropertyCollects')
+        {
+            $totals['total_fees'] += (float)$tax['@attributes']['Amount'];
+        }else{
+            // TODO: check that logic when there are actual lists of taxes and fees.
+            $totals['total_tax'] += (float)$tax['@attributes']['Amount'] * $unitMultiplier;
+        }
 
         return $totals;
     }

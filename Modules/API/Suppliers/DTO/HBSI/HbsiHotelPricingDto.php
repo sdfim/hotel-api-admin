@@ -458,6 +458,7 @@ class HbsiHotelPricingDto
     private function getBreakdown(array $rates): array
     {
         $breakdown = [];
+        $fees = [];
         $night = 0;
         if (isset($rates['Rates']['Rate']) && is_numeric(array_key_first($rates['Rates']['Rate']))) {
             $loopRates = $rates['Rates']['Rate'];
@@ -491,21 +492,33 @@ class HbsiHotelPricingDto
                     }
 
                     foreach ($_taxes as $_tax) {
+                        $type = null;
                         $code = strtolower($_tax['@attributes']['Code']);
                         $name = strtolower($_tax['@attributes']['Type']);
-                        if (in_array(strtolower($_tax['@attributes']['Code']), $this->fees)) {
+                        if (in_array(strtolower($_tax['@attributes']['Code']), $this->fees) || $_tax['@attributes']['Type'] === 'PropertyCollects') {
                             $type = 'fee';
                         }
                         if (in_array($code, $this->taxes)) {
                             $type = 'tax';
                         }
-                        $taxesFeesRate[] = [
-                            'type' => $type ?? 'tax' . ' ' . $name,
-                            'amount' => $_tax['@attributes']['Amount'],
-                            'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
-                                ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
-                                : $_tax['@attributes']['Code']),
-                        ];
+
+                        if($type !== 'fee') {
+                            $taxesFeesRate[] = [
+                                'type' => $type ?? 'tax' . ' ' . $name,
+                                'amount' => $_tax['@attributes']['Amount'],
+                                'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
+                                    ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
+                                    : $_tax['@attributes']['Code']),
+                            ];
+                        }else{
+                            $fees[] = [
+                                'type' => $type ?? 'tax' . ' ' . $name,
+                                'amount' => $_tax['@attributes']['Amount'],
+                                'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
+                                    ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
+                                    : $_tax['@attributes']['Code']),
+                            ];
+                        }
 
                         $taxType = strtolower($_tax['@attributes']['Type']);
 
@@ -536,7 +549,7 @@ class HbsiHotelPricingDto
         return [
             'nightly' => $breakdownWithoutKeys,
             'stay' => [],
-            'fees' => [],
+            'fees' => $fees,
 
         ];
     }
