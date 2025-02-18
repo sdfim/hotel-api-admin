@@ -53,7 +53,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     private const PAGINATION_TO_RESULT = true;
 
     public function __construct(
-        private readonly HbsiHotelPricingTransformer $HbsiHotelPricingDto,
+        private readonly HbsiHotelPricingTransformer $HbsiHotelPricingTransformer,
         private readonly HbsiHotelController $hbsi,
         private readonly PricingDtoTools $pricingDtoTools,
         private readonly ExpediaHotelController $expedia,
@@ -278,6 +278,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
 
                 $st = microtime(true);
                 $pricingRules = $this->pricingRulesService->rules($filters);
+                $pricingExclusionRules = $this->pricingRulesService->rules($filters, true);
                 Log::info('HotelApiHandler _ price _ pricingRulesService '.(microtime(true) - $st).' seconds');
 
                 $dataResponse = $clientResponse = $fibers = $bookingItems = $dataOriginal = $totalPages = [];
@@ -326,7 +327,9 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                         $currentFilters = $filters;
                         $currentFilters['query_package'] = $optionsQuery;
 
-                        $fibers[$fiberKey] = new Fiber(function () use ($supplier, $currentFilters, $search_id, $pricingRules, $searchInspector, $preSearchData) {
+                        $fibers[$fiberKey] = new Fiber(function () use (
+                            $supplier, $currentFilters, $search_id, $pricingRules, $pricingExclusionRules, $searchInspector, $preSearchData
+                        ) {
                             $supplierResponse = match (SupplierNameEnum::from($supplier)) {
                                 SupplierNameEnum::EXPEDIA => $this->expedia->price($currentFilters, $searchInspector, $preSearchData),
                                 SupplierNameEnum::HBSI => $this->hbsi->price($currentFilters, $searchInspector, $preSearchData),
@@ -337,7 +340,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                                 $giataIds = array_column(Arr::get($preSearchData, 'data', []), 'giata');
                             }
 
-                            return $this->handlePriceSupplier($supplierResponse, $supplier, $currentFilters, $search_id, $pricingRules, $giataIds);
+                            return $this->handlePriceSupplier($supplierResponse, $supplier, $currentFilters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
                         });
                     }
 
@@ -642,7 +645,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
     /**
      * @throws Throwable
      */
-    private function handlePriceSupplier($supplierResponse, string $supplierName, array $filters, string $search_id, array $pricingRules, array $giataIds): array
+    private function handlePriceSupplier($supplierResponse, string $supplierName, array $filters, string $search_id, array $pricingRules, array $pricingExclusionRules, array $giataIds): array
     {
         $dataResponse = [];
         $clientResponse = [];
@@ -659,7 +662,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $dataOriginal[$supplierName] = json_encode($expediaResponse['original']);
 
             $st = microtime(true);
-            $transformerData = $this->expediaHotelPricingTransformer->ExpediaToHotelResponse($expediaResponse['array'], $filters, $search_id, $pricingRules);
+            $transformerData = $this->expediaHotelPricingTransformer->ExpediaToHotelResponse($expediaResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules);
             $bookingItems[$supplierName] = $transformerData['bookingItems'];
             $clientResponse[$supplierName] = $transformerData['response'];
             Log::info('HotelApiHandler _ price _ Transformer ExpediaToHotelResponse '.(microtime(true) - $st).' seconds');
@@ -678,7 +681,7 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
             $dataOriginal[$supplierName] = $hbsiResponse['original'];
 
             $st = microtime(true);
-            $transformerData = $this->HbsiHotelPricingDto->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules, $giataIds);
+            $transformerData = $this->HbsiHotelPricingTransformer->HbsiToHotelResponse($hbsiResponse['array'], $filters, $search_id, $pricingRules, $pricingExclusionRules, $giataIds);
 
             /** Enrichment Room Combinations */
             $countRooms = count($filters['occupancy']);

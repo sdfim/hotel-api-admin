@@ -5,21 +5,48 @@ namespace Modules\API\ContentAPI\ResponseModels;
 class ContentSearchResponse
 {
     private int $giata_hotel_code;
+
     private array $images;
+
     private array $description;
+
     private string $hotel_name;
+
     private string $distance;
+
     private string $latitude;
+
     private string $longitude;
+
     private string $rating;
+
     private array $amenities;
+
     private string $giata_destination;
+
     private string $user_rating;
+
     private array $important_information;
+
     private array $supplier_information;
+
     private int $weight;
+
     private array $deposit_information;
+
     private array $cancellation_policies;
+
+    private array $drivers;
+
+    public function setDrivers(array $drivers): void
+    {
+        $this->drivers = $drivers;
+    }
+
+    public function getDrivers(): array
+    {
+        return $this->drivers;
+    }
 
     public function setCancellationPolicies(array $cancellation_policies): void
     {
@@ -195,11 +222,12 @@ class ContentSearchResponse
             'latitude' => $this->getLatitude(),
             'longitude' => $this->getLongitude(),
             'rating' => $this->getRating(),
-            'amenities' => array_values($this->getAmenities()),
+            'attributes' => array_values($this->getAmenities()),
             'giata_destination' => $this->getGiataDestination(),
             'user_rating' => $this->getUserRating(),
             'important_information' => $this->getImportantInformation(),
             'supplier_information' => $this->getSupplierInformation(),
+            'drivers' => $this->getDrivers(),
         ];
     }
 }

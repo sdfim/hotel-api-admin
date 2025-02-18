@@ -2,14 +2,15 @@
 
 namespace Modules\HotelContentRepository\Models\Factories;
 
+use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Enums\FeeTaxCollectedByEnum;
 use Modules\Enums\ProductFeeTaxApplyTypeEnum;
 use Modules\Enums\ProductFeeTaxTypeEnum;
 use Modules\Enums\ProductFeeTaxValueTypeEnum;
-use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Models\ProductFeeTax;
+use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Models\Product;
+use Modules\HotelContentRepository\Models\ProductFeeTax;
 
 class ProductFeeTaxFactory extends Factory
 {
@@ -17,6 +18,11 @@ class ProductFeeTaxFactory extends Factory
 
     public function definition()
     {
+        $supplier = Supplier::firstOrCreate(
+            ['name' => SupplierNameEnum::HBSI->value],
+            ['description' => 'HBSI Supplier']
+        );
+
         return [
             'product_id' => Product::factory(),
             'name' => $this->faker->word,
@@ -24,22 +30,25 @@ class ProductFeeTaxFactory extends Factory
             'rack_value' => $this->faker->randomFloat(2, 10, 1000),
             'type' => $this->faker->randomElement([
                 ProductFeeTaxTypeEnum::TAX->value,
-                ProductFeeTaxTypeEnum::FEE->value
+                ProductFeeTaxTypeEnum::FEE->value,
             ]),
             'value_type' => $this->faker->randomElement([
                 ProductFeeTaxValueTypeEnum::PERCENTAGE->value,
-                ProductFeeTaxValueTypeEnum::AMOUNT->value
+                ProductFeeTaxValueTypeEnum::AMOUNT->value,
             ]),
             'collected_by' => $this->faker->randomElement([
                 FeeTaxCollectedByEnum::DIRECT->value,
-                FeeTaxCollectedByEnum::VENDOR->value
+                FeeTaxCollectedByEnum::VENDOR->value,
             ]),
             'commissionable' => $this->faker->boolean,
             'fee_category' => $this->faker->randomElement(['optional', 'mandatory']),
             'apply_type' => $this->faker->randomElement([
                 ProductFeeTaxApplyTypeEnum::PER_NIGHT->value,
-                ProductFeeTaxApplyTypeEnum::PER_PERSON->value
+                ProductFeeTaxApplyTypeEnum::PER_PERSON->value,
             ]),
+            'supplier_id' => $supplier->id,
+            'action_type' => 'create',
+            'old_name' => $this->faker->word,
         ];
     }
 }

@@ -17,7 +17,7 @@ class ConfigDescriptiveTypeFactory extends Factory
                 'Inclusions',
                 'Cancellation Policy',
                 'Privacy Policy',
-                'User Agreement'
+                'User Agreement',
             ]),
             'location' => $this->faker->randomElement(['internal', 'external', 'all']),
             'type' => $this->faker->word(),

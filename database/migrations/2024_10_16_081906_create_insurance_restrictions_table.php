@@ -12,6 +12,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('vendor_id');
             $table->unsignedBigInteger('restriction_type_id');
+            $table->unsignedBigInteger('insurance_type_id');
+
             $table->string('compare')->nullable();
             $table->string('value')->nullable();
             $table->string('sale_type')->nullable();
@@ -19,6 +21,7 @@ return new class extends Migration
 
             $table->foreign('vendor_id')->references('id')->on('pd_vendors')->onDelete('cascade');
             $table->foreign('restriction_type_id')->references('id')->on('insurance_restriction_types')->onDelete('cascade');
+            $table->foreign('insurance_type_id')->references('id')->on('insurance_types')->onDelete('cascade');
         });
     }
 

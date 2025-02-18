@@ -12,12 +12,12 @@ use Modules\HotelContentRepository\Models\Vendor;
  *
  * @property int $id
  * @property int $vendor_id
+ * @property int $insurance_type_id
  * @property float $min_trip_cost
  * @property float $max_trip_cost
  * @property float $consumer_plan_cost
  * @property float $ujv_retention
  * @property float $net_to_trip_mate
- *
  * @property InsuranceProvider $provider
  */
 class InsuranceRateTier extends Model
@@ -28,6 +28,7 @@ class InsuranceRateTier extends Model
 
     protected $fillable = [
         'vendor_id',
+        'insurance_type_id',
         'min_trip_cost',
         'max_trip_cost',
         'consumer_plan_cost',
@@ -38,5 +39,19 @@ class InsuranceRateTier extends Model
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');
+    }
+
+    public function insuranceType(): BelongsTo
+    {
+        return $this->belongsTo(InsuranceType::class, 'insurance_type_id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            $model->ujv_retention = $model->net_to_trip_mate - $model->consumer_plan_cost;
+        });
     }
 }

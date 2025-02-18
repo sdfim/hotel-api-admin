@@ -27,6 +27,9 @@ class AddHotelRoom
             if (isset($data['galleries'])) {
                 $hotelRoom->galleries()->sync($data['galleries']);
             }
+            if (isset($data['related_rooms'])) {
+                $hotelRoom->relatedRooms()->sync($data['related_rooms']);
+            }
         }
 
         return $hotelRoom;

@@ -26,6 +26,7 @@ use Livewire\Component;
 use Modules\Enums\InsuranceDocTypeEnum;
 use Modules\Enums\InsuranceDocVisibilityEnum;
 use Modules\Enums\VendorTypeEnum;
+use Modules\HotelContentRepository\Livewire\Components\CustomToggle;
 use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsuranceProviderDocumentation;
 
@@ -33,6 +34,15 @@ class DocumentationsTable extends Component implements HasForms, HasTable
 {
     use InteractsWithForms;
     use InteractsWithTable;
+
+    public function mount(InsuranceProviderDocumentation $record): void
+    {
+        $data = $record->toArray();
+        foreach ($record->viewable ?? [] as $option) {
+            $data['viewable'][$option] = true;
+        }
+        $this->form->fill($data);
+    }
 
     public function form(Form $form): Form
     {
@@ -77,11 +87,18 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                         ->options(InsuranceDocTypeEnum::getOptions())
                         ->required(),
 
-                    Select::make('viewable')
-                        ->label('Viewable')
-                        ->options(fn (callable $get) => $this->getVisibilityOptions($get('document_type')))
-                        ->required(),
                 ]),
+            Grid::make(6)
+                ->schema(function (callable $get) {
+                    $listOptions = array_values($this->getVisibilityOptions($get('document_type')));
+                    $toggles = [];
+                    foreach ($listOptions as $key => $option) {
+                        $toggles[] = CustomToggle::make('viewable.'.$option)
+                            ->label($option);
+                    }
+
+                    return $toggles;
+                }),
             FileUpload::make('path')
                 ->label('Upload file')
                 ->disk('public')
@@ -120,7 +137,7 @@ class DocumentationsTable extends Component implements HasForms, HasTable
                     ->action(function (InsuranceProviderDocumentation $record) {
                         $filePath = $record->path;
 
-                        if (Storage::disk('public')->exists($filePath)) {
+                        if (Storage::disk('public')->exists('dump.sql')) {
                             return response()->download(
                                 Storage::disk('public')->path($filePath),
                                 basename($filePath)

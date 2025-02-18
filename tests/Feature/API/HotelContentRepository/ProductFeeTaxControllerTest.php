@@ -30,6 +30,7 @@ class ProductFeeTaxControllerTest extends TestCase
     {
         $data = ProductFeeTax::factory()->make()->toArray();
         $response = $this->request()->postJson('api/repo/product-fee-taxes', $data);
+
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'name', 'net_value', 'rack_value', 'value_type',  'commissionable',  'collected_by', 'type'],

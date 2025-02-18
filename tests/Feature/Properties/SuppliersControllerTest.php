@@ -11,7 +11,9 @@ use Tests\TestCase;
 
 class SuppliersControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker, AuthenticatesUser;
+    use AuthenticatesUser;
+    use RefreshDatabase;
+    use WithFaker;
 
     #[Test]
     public function test_index(): void

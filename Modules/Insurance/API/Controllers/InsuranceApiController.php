@@ -15,7 +15,6 @@ use Modules\HotelContentRepository\Actions\Insurance\DeleteInsurance;
 use Modules\HotelContentRepository\Services\InsuranceService;
 use Modules\Insurance\API\Requests\InsuranceAddRequest;
 use Modules\Insurance\Models\DTOs\InsurancePlanDTO;
-use Modules\Insurance\Models\InsuranceApplication;
 use Modules\Insurance\Models\InsurancePlan;
 use Throwable;
 
@@ -39,6 +38,11 @@ class InsuranceApiController extends BaseController
             return $this->sendError('The selected insurance vendor is invalid or unavailable', 404);
         }
 
+        $insuranceType = $this->insuranceService->getInsuranceType($request['insurance_type']);
+        if (! $insuranceType) {
+            return $this->sendError('The selected insurance insurance_type is invalid or unavailable', 404);
+        }
+
         $bookingItems = $this->insuranceService->getBookingItems($bookingId, $bookingItem);
         if (empty($bookingItems)) {
             return $this->sendError('Either booking_id or booking_item must be provided', 400);
@@ -48,7 +52,8 @@ class InsuranceApiController extends BaseController
         $errCount = 0;
 
         foreach ($bookingItems as $bookingItem) {
-            $notValid = $this->insuranceService->validateBookingItem($bookingItem, $insuranceProvider->id);
+            // check if $bookingItem corresponds to restrictions
+            $notValid = $this->insuranceService->validateBookingItem($bookingItem, $insuranceProvider->id, $insuranceType->id);
             if (! empty($notValid)) {
                 return $this->sendError('The booking item does not meet the required conditions.', '', 400, [
                     'message' => 'The booking item does not meet the required conditions.',
@@ -57,6 +62,7 @@ class InsuranceApiController extends BaseController
             }
 
             [$bookingId, $filters, $supplierId, $apiBookingInspectorItem] = BookingRepository::getParams($request, $bookingItem);
+
             if (empty($bookingId) || empty($filters) || empty($supplierId) || empty($apiBookingInspectorItem)) {
                 return $this->sendError('The specified booking item is not valid or not found in the booking inspector', 404);
             }
@@ -83,9 +89,9 @@ class InsuranceApiController extends BaseController
                 $bookingId, $filters, $supplierId, 'add_insurance', '', 'hotel',
             ]);
 
-            DB::transaction(function () use ($request, $bookingItem, $insuranceProvider, $itemPricing, $apiSearchInspectorItem, &$responseAll, &$errCount, $bookingInspector, &$originalRQ) {
+            DB::transaction(function () use ($request, $bookingItem, $insuranceProvider, $insuranceType, $itemPricing, $apiSearchInspectorItem, &$responseAll, &$errCount, $bookingInspector, &$originalRQ) {
                 try {
-                    $insurancePlan = $this->insuranceService->createInsurancePlan($request, $bookingItem, $insuranceProvider, $itemPricing, $apiSearchInspectorItem);
+                    $insurancePlan = $this->insuranceService->createInsurancePlan($request, $bookingItem, $insuranceProvider, $insuranceType, $itemPricing, $apiSearchInspectorItem);
                     $insuranceApplications = $this->insuranceService->createInsuranceApplications($insurancePlan, $apiSearchInspectorItem);
 
                     if (! $this->addInsuranceApplication->insert($insuranceApplications)) {

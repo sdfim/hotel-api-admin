@@ -5,8 +5,10 @@ namespace Modules\HotelContentRepository\Livewire\ProductAttributes;
 use App\Actions\ConfigAttribute\CreateConfigAttribute;
 use App\Livewire\Configurations\Attributes\AttributesForm;
 use App\Models\Configurations\ConfigAttribute;
+use App\Models\Configurations\ConfigAttributeCategory;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -56,6 +58,23 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
                     return $attribute->id;
                 })
                 ->required(),
+            Select::make('config_attribute_category_id')
+                ->label('Category')
+                ->options(ConfigAttributeCategory::all()->pluck('name', 'id'))
+                ->createOptionForm([
+                    TextInput::make('name')
+                        ->label('Category Name')
+                        ->required(),
+                ])
+                ->createOptionUsing(function (array $data) {
+                    $category = ConfigAttributeCategory::create($data);
+                    Notification::make()
+                        ->title('Category created successfully')
+                        ->success()
+                        ->send();
+
+                    return $category->id;
+                }),
         ];
     }
 
@@ -67,7 +86,7 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
             )
             ->columns([
                 TextColumn::make('attribute.name')->label('Attribute Name'),
-                //                TextColumn::make('attribute.default_value')->label('Value'),
+                TextColumn::make('category.name')->label('Category Name'),
             ])
             ->actions($this->getActions())
             ->bulkActions($this->getBulkActions())

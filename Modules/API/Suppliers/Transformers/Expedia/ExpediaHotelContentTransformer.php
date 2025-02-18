@@ -2,6 +2,7 @@
 
 namespace Modules\API\Suppliers\Transformers\Expedia;
 
+use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponse;
 use Modules\API\ContentAPI\ResponseModels\ContentSearchResponseFactory;
 use Modules\API\Suppliers\Transformers\SupplierContentTransformerInterface;
@@ -11,6 +12,10 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
     private const TA_CLIENT = 'https://developer.expediapartnersolutions.com/terms/en';
 
     private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
+
+    public function __construct(
+        private readonly ExpediaTranformerService $expediaTranformerService
+    ) {}
 
     /**
      * @return ContentSearchResponse[]
@@ -38,10 +43,12 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
                     $countImages++;
                 }
             }
+            $description = json_decode(Arr::get($hotel, 'descriptions', []), true);
+            $description = $this->expediaTranformerService->transformToNameValueArray($description, ['start_date', 'end_date']);
 
             $hotelResponse->setGiataHotelCode($hotel['giata_id'] ?? '');
             $hotelResponse->setImages($images);
-            $hotelResponse->setDescription(isset($hotel['descriptions']) ? json_decode($hotel['descriptions'], true) : []);
+            $hotelResponse->setDescription($description);
             $hotelResponse->setHotelName($hotel['name']);
             $hotelResponse->setDistance($hotel['distance'] ?? '');
             $hotelResponse->setLatitude($hotel['location']['coordinates']['latitude']);
@@ -51,9 +58,9 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
             if (! is_array($amenities)) {
                 $amenities = [];
             }
-            $hotelResponse->setAmenities(array_map(function ($amenity) {
+            $hotelResponse->setAmenities(array_values(array_map(function ($amenity) {
                 return $amenity['name'];
-            }, $amenities));
+            }, $amenities)));
             $hotelResponse->setGiataDestination($hotel['city'] ?? '');
             $hotelResponse->setUserRating($hotel['rating'] ?? '');
             $hotelResponse->setImportantInformation([

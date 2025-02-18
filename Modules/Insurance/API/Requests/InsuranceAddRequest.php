@@ -215,6 +215,7 @@ class InsuranceAddRequest extends ApiRequest
             'booking_id' => 'required_without:booking_item|size:36|exists:api_booking_inspector,booking_id',
             'booking_item' => 'required_without:booking_id|size:36|exists:api_booking_items,booking_item',
             'vendor' => 'required|exists:pd_vendors,name',
+            'insurance_type' => 'required|exists:insurance_types,name',
         ];
     }
 }

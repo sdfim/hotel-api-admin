@@ -16,6 +16,7 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
 use Filament\Tables\Actions\EditAction;
@@ -82,15 +83,24 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                         'undo',
                     ])
                     ->extraAttributes([
-                        'style' => 'max-height: 22em; overflow-x: auto;',
+                        'style' => 'max-height: 30em; overflow-x: auto;',
                     ])->columnSpan(2),
                 Grid::make(1)->schema([
                     TextInput::make('area')->label('Area, square feet'),
                     TagsInput::make('room_views')->label('Room Views')->placeholder('Enter Views'),
                     TagsInput::make('bed_groups')->label('Bed Types')->placeholder('Enter Bed Types'),
+                    Select::make('related_rooms')
+                        ->label('Connecting Room Types')
+                        ->multiple()
+                        ->options(function (callable $get) {
+                            $hotelId = $get('hotel_id');
+
+                            return HotelRoom::where('hotel_id', $hotelId)
+                                ->pluck('name', 'id');
+                        }),
                 ])->columnSpan(1),
             ]),
-            Grid::make(2)->schema([
+            Grid::make(1)->schema([
                 Select::make('attributes')
                     ->label('Attributes')
                     ->createOptionForm(AttributesForm::getSchema())
@@ -162,55 +172,67 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([
-                EditAction::make()
-                    ->label('')
-                    ->modalWidth('6xl')
-                    ->modalHeading(new HtmlString("Edit {$this->title}"))
-                    ->tooltip('Edit Hotel Room')
-                    ->form($this->schemeForm())
-                    ->fillForm(function ($record) {
-                        $data = $record->toArray();
-                        $data['galleries'] = $record->galleries->pluck('id')->toArray();
-                        $data['attributes'] = $record->attributes->pluck('id')->toArray();
-                        $data['hotel_id'] = $record->hotel->id;
-                        $data['supplier_codes'] = json_decode($record->supplier_codes, true);
+                ActionGroup::make([
+                    EditAction::make()
+                        ->label('Edit Room')
+                        ->icon('heroicon-o-pencil')
+                        ->modalWidth('7xl')
+                        ->modalHeading(new HtmlString("Edit {$this->title}"))
+                        ->form($this->schemeForm())
+                        ->fillForm(function ($record) {
+                            $data = $record->toArray();
+                            $data['galleries'] = $record->galleries->pluck('id')->toArray();
+                            $data['attributes'] = $record->attributes->pluck('id')->toArray();
+                            $data['hotel_id'] = $record->hotel->id;
+                            $data['supplier_codes'] = json_decode($record->supplier_codes, true);
 
-                        return $data;
-                    })
-                    ->action(function (HotelRoom $record, array $data) {
-                        /** @var EditHotelRoom $editHotelRoom */
-                        $editHotelRoom = app(EditHotelRoom::class);
-                        $editHotelRoom->execute($record, $data);
-                        Notification::make()
-                            ->title('Success')
-                            ->body('Hotel room updated successfully.')
-                            ->success()
-                            ->send();
-                    })
-                    ->visible(fn () => Gate::allows('create', Hotel::class)),
-                Action::make('add-image')
-                    ->icon('heroicon-o-eye')
-                    ->tooltip('List Images and Add New Image')
-                    ->iconButton()
-                    ->modalHeading('Add Image')
-                    ->modalWidth('7xl')
-                    ->modalContent(function ($record) {
-                        return view('dashboard.images.modal', ['productId' => null, 'roomId' => $record->id]);
-                    })
-                    ->visible(fn () => Gate::allows('create', Hotel::class)),
-                Action::make('add-amenities')
-                    ->icon('heroicon-o-paint-brush')
-                    ->tooltip('List Amenities and Add New Amenities')
-                    ->iconButton()
-                    ->modalHeading(fn ($record) => 'Add Amenities For Room: '.$record->name)
-                    ->modalWidth('7xl')
-                    ->modalContent(function ($record) {
-                        return view('dashboard.hotel_repository.hotel_rooms.modal_amenities', [
-                            'product' => $record->hotel->product,
-                            'roomId' => $record->id,
-                        ]);
-                    })
-                    ->visible(fn () => Gate::allows('create', Hotel::class)),
+                            return $data;
+                        })
+                        ->action(function (HotelRoom $record, array $data) {
+                            /** @var EditHotelRoom $editHotelRoom */
+                            $editHotelRoom = app(EditHotelRoom::class);
+                            $editHotelRoom->execute($record, $data);
+                            Notification::make()
+                                ->title('Success')
+                                ->body('Hotel room updated successfully.')
+                                ->success()
+                                ->send();
+                        })
+                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                    Action::make('add-image')
+                        ->icon('heroicon-o-gif')
+                        ->label('Images')
+                        ->modalHeading('Add Image')
+                        ->modalWidth('7xl')
+                        ->modalContent(function ($record) {
+                            return view('dashboard.images.modal', ['productId' => null, 'roomId' => $record->id]);
+                        })
+                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                    Action::make('add-attributes')
+                        ->icon('heroicon-o-gift')
+                        ->label('Attributes')
+                        ->modalHeading(fn ($record) => 'Add Attributes For Room: '.$record->name)
+                        ->modalWidth('7xl')
+                        ->modalContent(function ($record) {
+                            return view('dashboard.hotel_repository.hotel_rooms.modal_attributes', [
+                                'product' => $record->hotel->product,
+                                'roomId' => $record->id,
+                            ]);
+                        })
+                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                    Action::make('add-informational-service')
+                        ->icon('heroicon-o-sparkles')
+                        ->label('Informational Services')
+                        ->modalHeading(fn ($record) => 'Add Informational Services For Room: '.$record->name)
+                        ->modalWidth('7xl')
+                        ->modalContent(function ($record) {
+                            return view('dashboard.hotel_repository.hotel_rooms.modal_informative_services', [
+                                'product' => $record->hotel->product,
+                                'roomId' => $record->id,
+                            ]);
+                        })
+                        ->visible(fn () => Gate::allows('create', Hotel::class)),
+                ]),
             ])
             ->bulkActions([
                 DeleteBulkAction::make()

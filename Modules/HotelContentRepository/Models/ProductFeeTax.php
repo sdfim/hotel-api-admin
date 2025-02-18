@@ -2,6 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,6 +37,9 @@ class ProductFeeTax extends Model
         'collected_by',
         'fee_category',
         'apply_type',
+        'supplier_id',
+        'action_type',
+        'old_name',
     ];
 
     protected $casts = [
@@ -48,12 +52,22 @@ class ProductFeeTax extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
-        'pivot'
+        'pivot',
     ];
 
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function rate(): BelongsTo
+    {
+        return $this->belongsTo(HotelRate::class);
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
     public function getActivitylogOptions(): LogOptions

@@ -33,13 +33,14 @@ class HotelRoom extends Model
         'bed_groups',
         'room_views',
         'description',
-        'supplier_codes',
+        'related_rooms',
     ];
 
     protected $casts = [
         'amenities' => 'array',
         'bed_groups' => 'array',
         'room_views' => 'array',
+        'related_rooms' => 'array',
     ];
 
     protected $hidden = [
@@ -66,6 +67,20 @@ class HotelRoom extends Model
     public function affiliations(): HasMany
     {
         return $this->hasMany(ProductAffiliation::class, 'room_id', 'id');
+    }
+
+    public function relatedRooms()
+    {
+        return $this->belongsToMany(HotelRoom::class, 'pd_hotel_related_room_pivot_table', 'room_id', 'related_room_id');
+    }
+
+    public function getFullNameAttribute()
+    {
+        $res = "{$this->name}";
+        if ($this->hbsi_data_mapped_name) {
+            $res .= " - {$this->hbsi_data_mapped_name}";
+        }
+        return $res;
     }
 
     public function getActivitylogOptions(): LogOptions

@@ -24,6 +24,7 @@ class PricingRule extends Model
         'rule_expiration_date',
         'rule_start_date',
         'weight',
+        'is_exclude_action',
     ];
 
     /**
@@ -37,6 +38,7 @@ class PricingRule extends Model
             'rule_start_date' => 'datetime',
             'rule_expiration_date' => 'datetime',
             'is_sr_creator' => 'boolean',
+            'is_exclude_action' => 'boolean',
         ];
     }
 

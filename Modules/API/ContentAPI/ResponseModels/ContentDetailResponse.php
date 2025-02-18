@@ -5,27 +5,60 @@ namespace Modules\API\ContentAPI\ResponseModels;
 class ContentDetailResponse
 {
     private int $giata_hotel_code;
+
     private array $images;
+
     private string $description;
+
     private string $hotel_name;
+
     private string $distance;
+
     private string $latitude;
+
     private string $longitude;
+
     private string $rating;
+
     private array $amenities;
+
     private string $giata_destination;
+
     private string $user_rating;
+
     private array $special_instructions;
+
     private string $check_in_time;
+
     private string $check_out_time;
+
     private array $hotel_fees;
+
     private array $policies;
+
     private array $descriptions;
+
     private array $rooms;
+
     private string $address;
+
     private array $supplier_information = [];
+
     private array $deposit_information;
+
     private array $cancellation_policies;
+
+    private array $drivers;
+
+    public function setDrivers(array $drivers): void
+    {
+        $this->drivers = $drivers;
+    }
+
+    public function getDrivers(): array
+    {
+        return $this->drivers;
+    }
 
     public function setCancellationPolicies(array $cancellation_policies): void
     {
@@ -252,13 +285,13 @@ class ContentDetailResponse
         return [
             'giata_hotel_code' => $this->getGiataHotelCode(),
             'images' => $this->getImages(),
-//            'description' => $this->getDescription(),
+            //            'description' => $this->getDescription(),
             'hotel_name' => $this->getHotelName(),
             'distance' => $this->getDistance(),
             'latitude' => $this->getLatitude(),
             'longitude' => $this->getLongitude(),
             'rating' => $this->getRating(),
-            'amenities' => $this->getAmenities(),
+            'attributes' => $this->getAmenities(),
             'giata_destination' => $this->getGiataDestination(),
             'user_rating' => $this->getUserRating(),
             'special_instructions' => $this->getSpecialInstructions(),
@@ -272,6 +305,7 @@ class ContentDetailResponse
             'address' => $this->getAddress(),
             'rooms' => $this->getRooms(),
             'supplier_information' => $this->getSupplierInformation(),
+            'drivers' => $this->getDrivers(),
         ];
     }
 }

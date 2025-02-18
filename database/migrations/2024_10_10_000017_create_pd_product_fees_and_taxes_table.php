@@ -12,18 +12,22 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('rate_id')->nullable();
-            $table->string('name');
-            $table->string('fee_category', 50);
-            $table->decimal('net_value', 12, 4);
-            $table->decimal('rack_value', 12, 4);
-            $table->string('type');
-            $table->string('value_type');
-            $table->string('apply_type');
-            $table->boolean('commissionable');
+            $table->unsignedBigInteger('supplier_id');
+            $table->string('action_type');
+            $table->string('old_name')->nullable();
+            $table->string('name')->nullable();
+            $table->decimal('net_value', 12, 4)->nullable();
+            $table->decimal('rack_value', 12, 4)->nullable();
+            $table->string('type')->nullable();
+            $table->string('value_type')->nullable();
+            $table->string('apply_type')->nullable();
+            $table->boolean('commissionable')->default(false);
+            $table->string('fee_category', 50)->nullable();
             $table->string('collected_by');
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');
+            $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
         });
     }
 

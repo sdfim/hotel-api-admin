@@ -2,36 +2,17 @@
 
 namespace Modules\HotelContentRepository\API\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Modules\API\Validate\ApiRequest;
 
-class HotelWebFinderRequest extends FormRequest
+class HotelWebFinderRequest extends ApiRequest
 {
     /**
      * @OA\Get(
      *   tags={"Hotel | Website Search Generation"},
-     *   path="/api/repo/hotel-web-finders",
+     *   path="/api/repo/hotel-web-finder",
      *   summary="Get all hotel web finders",
      *   description="Retrieve all hotel web finder records with optional filters.",
-     *   @OA\Parameter(
-     *     name="base_url",
-     *     in="query",
-     *     required=false,
-     *     description="Filter by base URL",
-     *     @OA\Schema(
-     *       website="string",
-     *       example="https://example.com"
-     *     )
-     *   ),
-     *   @OA\Parameter(
-     *     name="finder",
-     *     in="query",
-     *     required=false,
-     *     description="Filter by finder",
-     *     @OA\Schema(
-     *       website="string",
-     *       example="Finder Example"
-     *     )
-     *   ),
+     *
      *   @OA\Parameter(
      *     name="type",
      *     in="query",
@@ -39,19 +20,10 @@ class HotelWebFinderRequest extends FormRequest
      *     description="Filter by type",
      *     @OA\Schema(
      *       type="string",
-     *       example="Type Example"
+     *       example="Example Type"
      *     )
      *   ),
-     *   @OA\Parameter(
-     *     name="example",
-     *     in="query",
-     *     required=false,
-     *     description="Filter by example",
-     *     @OA\Schema(
-     *       type="string",
-     *       example="Example"
-     *     )
-     *   ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -72,20 +44,20 @@ class HotelWebFinderRequest extends FormRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Post(
      *   tags={"Hotel | Website Search Generation"},
-     *   path="/api/repo/hotel-web-finders",
+     *   path="/api/repo/hotel-web-finder",
      *   summary="Create a new hotel web finder",
      *   description="Create a new hotel web finder entry.",
      *   @OA\RequestBody(
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"base_url", "finder", "type"},
+     *       required={"base_url", "finder", "website", "example"},
      *       @OA\Property(property="base_url", type="string", example="https://example.com"),
-     *       @OA\Property(property="finder", type="string", example="Finder Example"),
-     *       @OA\Property(property="type", type="string", example="Type Example"),
+     *       @OA\Property(property="finder", type="string", example="Example Finder"),
+     *       @OA\Property(property="website", type="string", example="Example Website"),
      *       @OA\Property(property="example", type="string", example="Example")
      *     )
      *   ),
@@ -109,10 +81,10 @@ class HotelWebFinderRequest extends FormRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Get(
      *   tags={"Hotel | Website Search Generation"},
-     *   path="/api/repo/hotel-web-finders/{id}",
+     *   path="/api/repo/hotel-web-finder/{id}",
      *   summary="Get hotel web finder details",
      *   description="Retrieve details of a specific hotel web finder.",
      *   @OA\Parameter(
@@ -145,10 +117,10 @@ class HotelWebFinderRequest extends FormRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Put(
      *   tags={"Hotel | Website Search Generation"},
-     *   path="/api/repo/hotel-web-finders/{id}",
+     *   path="/api/repo/hotel-web-finder/{id}",
      *   summary="Update hotel web finder details",
      *   description="Update details of a specific hotel web finder.",
      *   @OA\Parameter(
@@ -165,10 +137,10 @@ class HotelWebFinderRequest extends FormRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"base_url", "finder", "type"},
+     *       required={"base_url", "finder", "website", "example"},
      *       @OA\Property(property="base_url", type="string", example="https://example.com"),
-     *       @OA\Property(property="finder", type="string", example="Finder Example"),
-     *       @OA\Property(property="type", type="string", example="Type Example"),
+     *       @OA\Property(property="finder", type="string", example="Example Finder"),
+     *       @OA\Property(property="website", type="string", example="Example Website"),
      *       @OA\Property(property="example", type="string", example="Example")
      *     )
      *   ),
@@ -199,10 +171,10 @@ class HotelWebFinderRequest extends FormRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Delete(
      *   tags={"Hotel | Website Search Generation"},
-     *   path="/api/repo/hotel-web-finders/{id}",
+     *   path="/api/repo/hotel-web-finder/{id}",
      *   summary="Delete a hotel web finder",
      *   description="Delete a specific hotel web finder.",
      *   @OA\Parameter(
@@ -237,12 +209,7 @@ class HotelWebFinderRequest extends FormRequest
      * )
      */
 
-    public function authorize()
-    {
-        return true;
-    }
-
-    public function rules()
+    public function rules(): array
     {
         return [
             'base_url' => 'required|string|max:255',

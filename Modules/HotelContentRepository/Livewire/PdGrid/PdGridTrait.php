@@ -12,7 +12,11 @@ trait PdGridTrait
     {
         return $record->product?->feeTaxes
             ->filter(fn ($feeTax) => $feeTax->type === $type)
-            ->map(fn ($feeTax) => "{$feeTax->name} {$feeTax->net_value} ".($feeTax->value_type === 'Percentage' ? '%' : '$')." {$feeTax->apply_type->name}")
+            ->map(fn ($feeTax) => ($feeTax && $feeTax->name && $feeTax->apply_type)
+                ? "{$feeTax->name} {$feeTax->net_value} ".($feeTax->value_type === 'Percentage' ? '%' : '$')." {$feeTax->apply_type->name}"
+                : ''
+            )
+            ->filter()
             ->join(', ');
     }
 
@@ -127,7 +131,7 @@ trait PdGridTrait
         $emails = [];
         foreach ($contacts as $contact) {
             foreach ($contact->emails as $email) {
-                foreach ($email->contactInformations as $contactInformation) {
+                foreach ($email->contactInformations ?? [] as $contactInformation) {
                     if ($contactInformation->name === $type) {
                         $emails[] = $email->email;
                     }

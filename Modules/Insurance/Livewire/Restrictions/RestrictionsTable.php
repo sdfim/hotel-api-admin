@@ -162,6 +162,10 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                     ->label('Vendor name')
                     ->sortable()
                     ->searchable(),
+                TextColumn::make('insuranceType.name')
+                    ->label('Insurance type')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('restrictionType.label')
                     ->label('Restriction type')
                     ->sortable()

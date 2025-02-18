@@ -8,6 +8,8 @@ class RoomResponse extends BaseResponse
 
     private array $capacity = [];
 
+    private string $unified_room_code;
+
     private string $giata_room_code;
 
     private string $giata_room_name;
@@ -29,10 +31,6 @@ class RoomResponse extends BaseResponse
     private float $total_fees;
 
     private float $total_net;
-
-    private float $commissionable_amount = 0;
-
-    private float $commission_amount = 0;
 
     private float $markup;
 
@@ -78,6 +76,16 @@ class RoomResponse extends BaseResponse
     public function getQueryPackage(): string
     {
         return $this->query_package;
+    }
+
+    public function getUnifiedRoomCode(): string
+    {
+        return $this->unified_room_code;
+    }
+
+    public function setUnifiedRoomCode(string $unified_room_code): void
+    {
+        $this->unified_room_code = $unified_room_code;
     }
 
     public function setRoomDescription(string $room_description): void
@@ -218,26 +226,6 @@ class RoomResponse extends BaseResponse
     public function getTotalTax(): float
     {
         return $this->total_tax;
-    }
-
-    public function setCommissionAmount(float $commission_amount): void
-    {
-        $this->commission_amount = $commission_amount;
-    }
-
-    public function getCommissionAmount(): float
-    {
-        return $this->commission_amount;
-    }
-
-    public function getCommissionableAmount(): float
-    {
-        return $this->commissionable_amount;
-    }
-
-    public function setCommissionableAmount(float $commissionable_amount): void
-    {
-        $this->commissionable_amount = $commissionable_amount;
     }
 
     public function setTotalFees(float $total_fees): void
@@ -405,6 +393,7 @@ class RoomResponse extends BaseResponse
         return [
             'amenities' => $this->getAmenities(),
             'capacity' => $this->getCapacity(),
+            'unified_room_code' => $this->getUnifiedRoomCode(),
             'giata_room_code' => $this->getGiataRoomCode(),
             'giata_room_name' => $this->getGiataRoomName(),
             'supplier_room_name' => $this->getSupplierRoomName(),
@@ -434,8 +423,6 @@ class RoomResponse extends BaseResponse
             'package_deal' => $this->isPackageDeal(),
             'penalty_date' => $this->getPenaltyDate(),
             'promotions' => $this->getPromotions(),
-            'commissionable_amount' => $this->getCommissionableAmount(),
-            'commission_amount' => $this->getCommissionAmount(),
         ];
     }
 }

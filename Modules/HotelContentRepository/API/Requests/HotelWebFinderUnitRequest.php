@@ -2,9 +2,9 @@
 
 namespace Modules\HotelContentRepository\API\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Modules\API\Validate\ApiRequest;
 
-class HotelWebFinderUnitRequest extends FormRequest
+class HotelWebFinderUnitRequest extends ApiRequest
 {
     /**
      * @OA\Get(
@@ -13,33 +13,13 @@ class HotelWebFinderUnitRequest extends FormRequest
      *   summary="Get all hotel web finder units",
      *   description="Retrieve all hotel web finder unit records with optional filters.",
      *   @OA\Parameter(
-     *     name="web_finder_id",
+     *     name="type",
      *     in="query",
      *     required=false,
-     *     description="Filter by web finder ID",
-     *     @OA\Schema(
-     *       type="integer",
-     *       example=1
-     *     )
-     *   ),
-     *   @OA\Parameter(
-     *     name="field",
-     *     in="query",
-     *     required=false,
-     *     description="Filter by field",
+     *     description="Filter by type",
      *     @OA\Schema(
      *       type="string",
-     *       example="Field Example"
-     *     )
-     *   ),
-     *   @OA\Parameter(
-     *     name="value",
-     *     in="query",
-     *     required=false,
-     *     description="Filter by value",
-     *     @OA\Schema(
-     *       type="string",
-     *       example="Value Example"
+     *       example="Example Type"
      *     )
      *   ),
      *   @OA\Response(
@@ -62,7 +42,7 @@ class HotelWebFinderUnitRequest extends FormRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Post(
      *   tags={"Hotel | Website Search Generation"},
      *   path="/api/repo/hotel-web-finder-units",
@@ -72,10 +52,11 @@ class HotelWebFinderUnitRequest extends FormRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"web_finder_id", "field", "value"},
+     *       required={"web_finder_id", "field", "value", "type"},
      *       @OA\Property(property="web_finder_id", type="integer", example=1),
      *       @OA\Property(property="field", type="string", example="Field Example"),
-     *       @OA\Property(property="value", type="string", example="Value Example")
+     *       @OA\Property(property="value", type="string", example="Value Example"),
+     *       @OA\Property(property="type", type="string", example="Type Example")
      *     )
      *   ),
      *   @OA\Response(
@@ -98,7 +79,7 @@ class HotelWebFinderUnitRequest extends FormRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Get(
      *   tags={"Hotel | Website Search Generation"},
      *   path="/api/repo/hotel-web-finder-units/{id}",
@@ -134,7 +115,7 @@ class HotelWebFinderUnitRequest extends FormRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Put(
      *   tags={"Hotel | Website Search Generation"},
      *   path="/api/repo/hotel-web-finder-units/{id}",
@@ -154,10 +135,11 @@ class HotelWebFinderUnitRequest extends FormRequest
      *     required=true,
      *     @OA\JsonContent(
      *       type="object",
-     *       required={"web_finder_id", "field", "value"},
+     *       required={"web_finder_id", "field", "value", "type"},
      *       @OA\Property(property="web_finder_id", type="integer", example=1),
      *       @OA\Property(property="field", type="string", example="Field Example"),
-     *       @OA\Property(property="value", type="string", example="Value Example")
+     *       @OA\Property(property="value", type="string", example="Value Example"),
+     *       @OA\Property(property="type", type="string", example="Type Example")
      *     )
      *   ),
      *   @OA\Response(
@@ -187,7 +169,7 @@ class HotelWebFinderUnitRequest extends FormRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * )
-
+     *
      * @OA\Delete(
      *   tags={"Hotel | Website Search Generation"},
      *   path="/api/repo/hotel-web-finder-units/{id}",
@@ -225,12 +207,7 @@ class HotelWebFinderUnitRequest extends FormRequest
      * )
      */
 
-    public function authorize()
-    {
-        return true;
-    }
-
-    public function rules()
+    public function rules(): array
     {
         return [
             'web_finder_id' => 'required|integer',

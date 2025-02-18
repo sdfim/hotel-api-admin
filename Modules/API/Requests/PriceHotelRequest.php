@@ -3,9 +3,6 @@
 namespace Modules\API\Requests;
 
 use App\Models\Supplier;
-use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
 class PriceHotelRequest extends ApiRequest
@@ -73,7 +70,6 @@ class PriceHotelRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
-
     public function rules(): array
     {
         $validCurrencies = [
@@ -104,12 +100,12 @@ class PriceHotelRequest extends ApiRequest
                 ];
             } elseif (isset($value['children']) && (count($value['children_ages']) !== $value['children'])) {
                 return [
-                        'occupancy.'.$key.'.children_ages' => ['required',
-                            function ($attribute, $value, $fail) {
-                                $fail('The number of children must equal the number of records of their age children_ages.');
-                            },
-                        ],
-                    ];
+                    'occupancy.'.$key.'.children_ages' => ['required',
+                        function ($attribute, $value, $fail) {
+                            $fail('The number of children must equal the number of records of their age children_ages.');
+                        },
+                    ],
+                ];
             }
         }
 
@@ -118,7 +114,7 @@ class PriceHotelRequest extends ApiRequest
             'currency' => ['string', 'in:'.implode(',', $validCurrencies)],
             'hotel_name' => 'nullable|string',
             'supplier' => 'string',
-            'checkin' => 'required|date_format:Y-m-d|after:'.Carbon::yesterday()->subDay()->format('Y-m-d'),
+            'checkin' => 'required|date_format:Y-m-d|after:yesterday',
             'checkout' => 'required|date_format:Y-m-d|after:checkin',
 
             'giata_ids' => 'required_without_all:latitude,longitude,destination,place|array',

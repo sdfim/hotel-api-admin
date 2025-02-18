@@ -4,7 +4,8 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('insurance_plans', function (Blueprint $table) {
@@ -16,6 +17,7 @@ return new class extends Migration {
             $table->json('request')->nullable();
 
             $table->foreignId('vendor_id')->constrained('pd_vendors')->onDelete('cascade');
+            $table->foreignId('insurance_type_id')->constrained('insurance_types')->onDelete('cascade');
             $table->foreign('booking_item')->references('booking_item')->on('api_booking_items')->onDelete('cascade');
             $table->timestamps();
         });

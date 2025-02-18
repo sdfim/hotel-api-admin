@@ -19,6 +19,7 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Artisan;
@@ -27,6 +28,7 @@ use Livewire\Component;
 use Modules\Enums\VendorTypeEnum;
 use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsuranceRateTier;
+use Modules\Insurance\Models\InsuranceType;
 
 class RateTiersTable extends Component implements HasForms, HasTable
 {
@@ -41,11 +43,16 @@ class RateTiersTable extends Component implements HasForms, HasTable
     public function schemeForm(?InsuranceRateTier $record = null): array
     {
         return [
-            Grid::make(3)
+            Grid::make(2)
                 ->schema([
                     Select::make('vendor_id')
                         ->label('Vendor')
                         ->options(fn () => Vendor::where('type', 'like', '%'.VendorTypeEnum::INSURANCE->value.'%')->pluck('name', 'id')->toArray())
+                        ->preload()
+                        ->required(),
+                    Select::make('insurance_type_id')
+                        ->label('Insurance Type')
+                        ->options(fn () => InsuranceType::pluck('name', 'id')->toArray())
                         ->preload()
                         ->required(),
                     TextInput::make('min_trip_cost')
@@ -62,11 +69,6 @@ class RateTiersTable extends Component implements HasForms, HasTable
                         ->unique(ignorable: $record),
                     TextInput::make('consumer_plan_cost')
                         ->label('Consumer Plan Cost')
-                        ->numeric()
-                        ->inputMode('decimal')
-                        ->required(),
-                    TextInput::make('ujv_retention')
-                        ->label('UJV Retention')
                         ->numeric()
                         ->inputMode('decimal')
                         ->required(),
@@ -93,15 +95,19 @@ class RateTiersTable extends Component implements HasForms, HasTable
                 TextColumn::make('vendor.name')
                     ->label('Insurance Vendor')
                     ->sortable()
-                    ->searchable(isIndividual: true),
+                    ->searchable(),
+                TextColumn::make('insuranceType.name')
+                    ->label('Insurance type')
+                    ->sortable()
+                    ->searchable(),
                 TextColumn::make('min_trip_cost')
                     ->label('Min Trip Cost')
                     ->sortable()
-                    ->searchable(isIndividual: true),
+                    ->searchable(),
                 TextColumn::make('max_trip_cost')
                     ->label('Max Trip Cost')
                     ->sortable()
-                    ->searchable(isIndividual: true),
+                    ->searchable(),
                 TextColumn::make('consumer_plan_cost')
                     ->label('Consumer Plan Cost')
                     ->sortable()
@@ -174,6 +180,11 @@ class RateTiersTable extends Component implements HasForms, HasTable
                             ->options(fn () => Vendor::where('type', 'like', '%'.VendorTypeEnum::INSURANCE->value.'%')->pluck('name', 'id')->toArray())
                             ->preload()
                             ->required(),
+                        Select::make('insurance_type_id')
+                            ->label('Insurance Type')
+                            ->options(fn () => InsuranceType::pluck('name', 'id')->toArray())
+                            ->preload()
+                            ->required(),
                         FileUpload::make('file')
                             ->label('Upload CSV File')
                             ->disk('public')
@@ -188,10 +199,11 @@ class RateTiersTable extends Component implements HasForms, HasTable
                     ->modalDescription('All existing records for this provider will be deleted and replaced with new data from the file.')
                     ->modalSubmitActionLabel('Yes, proceed')
                     ->modalCancelActionLabel('Cancel')
-                    ->disableCreateAnother()
+                    ->createAnother(false)
                     ->action(function (array $data) {
                         Artisan::call('import:insurance-rate-tiers', [
                             'vendor_id' => $data['vendor_id'],
+                            'insurance_type_id' => $data['insurance_type_id'],
                             'file' => storage_path('app/public/'.$data['file']),
                         ]);
                         Notification::make()
@@ -207,6 +219,14 @@ class RateTiersTable extends Component implements HasForms, HasTable
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),
+            ])
+            ->filters([
+                SelectFilter::make('insurance_type_id')
+                    ->label('Insurance Type')
+                    ->options(InsuranceType::pluck('name', 'id')->toArray()),
+                SelectFilter::make('vendor_id')
+                    ->label('Vendor')
+                    ->options(Vendor::where('type', 'like', '%'.VendorTypeEnum::INSURANCE->value.'%')->pluck('name', 'id')->toArray()),
             ]);
     }
 

@@ -2,8 +2,6 @@
 
 namespace Modules\API\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
 class SearchHotelRequest extends ApiRequest
@@ -86,6 +84,7 @@ class SearchHotelRequest extends ApiRequest
      *
      *      @OA\JsonContent(
      *        oneOf={
+     *
      *             @OA\Schema(ref="#/components/schemas/ContentSearchRequestGooglePlace"),
      *             @OA\Schema(ref="#/components/schemas/ContentSearchRequestPlace"),
      *             @OA\Schema(ref="#/components/schemas/ContentSearchRequestDestination"),
@@ -140,7 +139,6 @@ class SearchHotelRequest extends ApiRequest
      *    security={{ "apiAuth": {} }}
      *  )
      */
-
     public function rules(): array
     {
         return [
@@ -148,11 +146,17 @@ class SearchHotelRequest extends ApiRequest
             'rating' => 'numeric|between:1,5.5',
             'page' => 'integer|between:1,1000',
             'results_per_page' => 'integer|between:1,1000',
-            'place' => 'required_without_all:latitude,longitude,destination|string|max:32',
-            'destination' => 'required_without_all:latitude,longitude,place|integer|min:1',
-            'latitude' => 'required_without_all:destination,place|decimal:2,8|min:-90|max:90',
-            'longitude' => 'required_without_all:destination,place|decimal:2,8|min:-180|max:180',
-            'radius' => 'required_without_all:destination|numeric|between:1,100',
+
+            'giata_ids' => 'required_without_all:latitude,longitude,destination,place|array',
+            'giata_ids.*' => 'integer',
+
+            'place' => 'required_without_all:giata_ids,latitude,longitude,destination|nullable|string|max:32',
+            'session' => 'required_with:place|nullable|string|max:36',
+
+            'destination' => 'required_without_all:latitude,longitude,place,giata_ids|integer|min:1',
+            'latitude' => 'required_without_all:destination,place,giata_ids|decimal:2,8|min:-90|max:90',
+            'longitude' => 'required_without_all:destination,place,giata_ids|decimal:2,8|min:-180|max:180',
+            'radius' => 'required_without_all:destination,giata_ids|numeric|between:1,100',
             'supplier' => 'string',
             'hotel_name' => 'string',
         ];

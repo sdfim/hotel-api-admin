@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Permission;
 use App\Models\Role;
-use App\Models\User;
 use App\Models\Team;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class UserSeeder extends Seeder
@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
 
             $adminTeam = Team::create([
                 'user_id' => $admin->id,
-                'name' => $admin->name . "'s Team",
+                'name' => $admin->name."'s Team",
                 'personal_team' => true,
             ]);
             $admin->ownedTeams()->save($adminTeam);
@@ -62,11 +62,11 @@ class UserSeeder extends Seeder
         // Check if the administrator has a private command
         $adminTeam = $admin->ownedTeams()->where('personal_team', true)->first();
 
-        if (!$adminTeam) {
+        if (! $adminTeam) {
             // If there is no command, create a new one
             $adminTeam = Team::create([
                 'user_id' => $admin->id,
-                'name' => $admin->name . "'s Team",
+                'name' => $admin->name."'s Team",
                 'personal_team' => true,
             ]);
 

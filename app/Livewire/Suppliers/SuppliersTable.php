@@ -32,6 +32,8 @@ class SuppliersTable extends Component implements HasForms, HasTable
                     ->searchable(),
                 TextColumn::make('description')
                     ->searchable(),
+                TextColumn::make('product_type')
+                    ->searchable(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

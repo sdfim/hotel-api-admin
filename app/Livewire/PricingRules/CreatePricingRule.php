@@ -19,8 +19,11 @@ class CreatePricingRule extends Component implements HasForms
     use InteractsWithForms;
 
     public ?array $data = [];
+
     public bool $isSrCreator = false;
+
     public ?string $rateCode = null;
+
     public ?int $giataCodeProperty = null;
 
     public function mount(bool $isSrCreator = false, ?int $giataCodeProperty = null, ?string $rateCode = null): void
@@ -69,21 +72,30 @@ class CreatePricingRule extends Component implements HasForms
             ->send();
     }
 
-    public function create(): RedirectResponse|Redirector
+    public function create($data = null): RedirectResponse|Redirector
     {
-        $data = $this->form->getState();
-        $data['is_sr_creator'] = $this->isSrCreator;
+        $data = $data ?? $this->form->getState();
+        $data['is_sr_creator'] = $data['is_sr_creator'] ?? $this->isSrCreator;
 
+        if ($data['is_exclude_action']) {
+            $data['manipulable_price_type'] = 'exclude_action';
+            $data['price_value_target'] = 'exclude_action';
+            $data['price_value'] = 0.0;
+            $data['price_value_type'] = 'exclude_action';
+        }
+
+        $conditions = $data['conditions'] ?? [];
+        unset($data['conditions']);
         $record = PricingRule::create($data);
 
-        $this->form->model($record)->saveRelationships();
+        $record->conditions()->createMany($conditions);
 
         Notification::make()
             ->title('Created successfully')
             ->success()
             ->send();
 
-        return redirect()->route('pricing-rules.index');
+        return redirect()->back();
     }
 
     public function render(): View

@@ -10,7 +10,10 @@ use Database\Seeders\GeneralConfigurationSeeder;
 use Database\Seeders\SuppliersSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Modules\Insurance\Seeders\InsuranceRateTierSeeder;
+use Modules\Insurance\Seeders\InsuranceRestrictionTypeSeeder;
+use Modules\Insurance\Seeders\InsuranceTypeSeeder;
 use Modules\Insurance\Seeders\InsuranceVendorSeeder;
+use Modules\Insurance\Seeders\TripMateDefaultRestrictionsSeeder;
 use Tests\RefreshDatabaseMany;
 
 class TestCase extends BaseTestCase
@@ -39,8 +42,11 @@ class TestCase extends BaseTestCase
     {
         $this->seed(SuppliersSeeder::class);
         $this->seed(InsuranceVendorSeeder::class);
-        $this->seed(InsuranceRateTierSeeder::class);
         $this->seed(ConfigServiceTypeSeeder::class);
+        $this->seed(InsuranceRestrictionTypeSeeder::class);
+        $this->seed(InsuranceTypeSeeder::class);
+        $this->seed(TripMateDefaultRestrictionsSeeder::class);
+        $this->seed(InsuranceRateTierSeeder::class);
         if (! GeneralConfiguration::exists()) {
             $this->seed(GeneralConfigurationSeeder::class);
         }

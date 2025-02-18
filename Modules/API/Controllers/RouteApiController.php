@@ -23,7 +23,7 @@ class RouteApiController extends Controller
         private FlightApiHandler $flightApiHandler,
         private ComboApiHandler $comboApiHandler,
         private HotelApiHandlerV1 $hotelApiHandlerV1,
-    ) { }
+    ) {}
 
     /**
      * @throws \Throwable

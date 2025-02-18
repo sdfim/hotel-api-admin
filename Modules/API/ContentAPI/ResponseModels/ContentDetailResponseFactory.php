@@ -6,7 +6,8 @@ class ContentDetailResponseFactory
 {
     public static function create(): ContentDetailResponse
     {
-        $contentDetailResponse = new ContentDetailResponse();
+        /** @var ContentDetailResponse $contentDetailResponse */
+        $contentDetailResponse = app(ContentDetailResponse::class);
 
         $contentDetailResponse->setGiataHotelCode(0);
         $contentDetailResponse->setImages([]);
@@ -29,6 +30,7 @@ class ContentDetailResponseFactory
         $contentDetailResponse->setSupplierInformation([]);
         $contentDetailResponse->setDepositInformation([]);
         $contentDetailResponse->setCancellationPolicies([]);
+        $contentDetailResponse->setDrivers([]);
 
         return $contentDetailResponse;
     }

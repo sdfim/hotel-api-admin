@@ -29,6 +29,10 @@ class InsuranceProviderDocumentation extends Model
         'path',
     ];
 
+    protected $casts = [
+        'viewable' => 'array',
+    ];
+
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');

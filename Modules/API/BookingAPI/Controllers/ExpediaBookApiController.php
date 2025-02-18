@@ -536,7 +536,7 @@ class ExpediaBookApiController extends BaseBookApiController
         // Delete item DELETE method query
         $props = $this->getPathParamsFromLink($linkDeleteItem);
         $path = $props['path'];
-        $itineraryId = Arr::get(explode('/', $path), '3', BookingRepository::getItineraryId($filters, $supplierId));
+        $itineraryId = Arr::get(explode('/', $path), '3', BookingRepository::getItineraryId($filters));
 
         $bodyArr = [
             'itinerary_id' => $itineraryId,

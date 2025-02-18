@@ -1546,35 +1546,15 @@
                 ]
             }
         },
-        "/api/repo/hotel-web-finders": {
+        "/api/repo/hotel-web-finder": {
             "get": {
                 "tags": [
                     "Hotel | Website Search Generation"
                 ],
                 "summary": "Get all hotel web finders",
                 "description": "Retrieve all hotel web finder records with optional filters.",
-                "operationId": "6d1ee009eadb2e288366a28100ba8c2c",
+                "operationId": "2207632fff79c7d9864662fd731dff7b",
                 "parameters": [
-                    {
-                        "name": "base_url",
-                        "in": "query",
-                        "description": "Filter by base URL",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "https://example.com"
-                        }
-                    },
-                    {
-                        "name": "finder",
-                        "in": "query",
-                        "description": "Filter by finder",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Finder Example"
-                        }
-                    },
                     {
                         "name": "type",
                         "in": "query",
@@ -1582,17 +1562,7 @@
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "example": "Type Example"
-                        }
-                    },
-                    {
-                        "name": "example",
-                        "in": "query",
-                        "description": "Filter by example",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Example"
+                            "example": "Example Type"
                         }
                     }
                 ],
@@ -1633,7 +1603,7 @@
                 ],
                 "summary": "Create a new hotel web finder",
                 "description": "Create a new hotel web finder entry.",
-                "operationId": "42fad0d34744eb2b512af99ab327a765",
+                "operationId": "61c19683759228c696e1d3462a4e2512",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1642,7 +1612,8 @@
                                 "required": [
                                     "base_url",
                                     "finder",
-                                    "type"
+                                    "website",
+                                    "example"
                                 ],
                                 "properties": {
                                     "base_url": {
@@ -1651,11 +1622,11 @@
                                     },
                                     "finder": {
                                         "type": "string",
-                                        "example": "Finder Example"
+                                        "example": "Example Finder"
                                     },
-                                    "type": {
+                                    "website": {
                                         "type": "string",
-                                        "example": "Type Example"
+                                        "example": "Example Website"
                                     },
                                     "example": {
                                         "type": "string",
@@ -1699,14 +1670,14 @@
                 ]
             }
         },
-        "/api/repo/hotel-web-finders/{id}": {
+        "/api/repo/hotel-web-finder/{id}": {
             "get": {
                 "tags": [
                     "Hotel | Website Search Generation"
                 ],
                 "summary": "Get hotel web finder details",
                 "description": "Retrieve details of a specific hotel web finder.",
-                "operationId": "c14c48b52d5547288965af7ba39f1801",
+                "operationId": "28530e53fe394215b7e1d1c873e23b8a",
                 "parameters": [
                     {
                         "name": "id",
@@ -1756,7 +1727,7 @@
                 ],
                 "summary": "Update hotel web finder details",
                 "description": "Update details of a specific hotel web finder.",
-                "operationId": "a477606b52b572fa6ae6f88ad84cafed",
+                "operationId": "0f8c2668f36d6026bb9f7457946bfb3d",
                 "parameters": [
                     {
                         "name": "id",
@@ -1777,7 +1748,8 @@
                                 "required": [
                                     "base_url",
                                     "finder",
-                                    "type"
+                                    "website",
+                                    "example"
                                 ],
                                 "properties": {
                                     "base_url": {
@@ -1786,11 +1758,11 @@
                                     },
                                     "finder": {
                                         "type": "string",
-                                        "example": "Finder Example"
+                                        "example": "Example Finder"
                                     },
-                                    "type": {
+                                    "website": {
                                         "type": "string",
-                                        "example": "Type Example"
+                                        "example": "Example Website"
                                     },
                                     "example": {
                                         "type": "string",
@@ -1849,7 +1821,7 @@
                 ],
                 "summary": "Delete a hotel web finder",
                 "description": "Delete a specific hotel web finder.",
-                "operationId": "e378f023e661a1040b0cd7f1dca41195",
+                "operationId": "2426dd78bfd4b0e71b45c51619cfe904",
                 "parameters": [
                     {
                         "name": "id",
@@ -1901,36 +1873,16 @@
                 ],
                 "summary": "Get all hotel web finder units",
                 "description": "Retrieve all hotel web finder unit records with optional filters.",
-                "operationId": "d4509ea536ba031dacd870eb57dc03ec",
+                "operationId": "f7095bd34608c5db1bb29cfab94122ff",
                 "parameters": [
                     {
-                        "name": "web_finder_id",
+                        "name": "type",
                         "in": "query",
-                        "description": "Filter by web finder ID",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    },
-                    {
-                        "name": "field",
-                        "in": "query",
-                        "description": "Filter by field",
+                        "description": "Filter by type",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "example": "Field Example"
-                        }
-                    },
-                    {
-                        "name": "value",
-                        "in": "query",
-                        "description": "Filter by value",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Value Example"
+                            "example": "Example Type"
                         }
                     }
                 ],
@@ -1971,7 +1923,7 @@
                 ],
                 "summary": "Create a new hotel web finder unit",
                 "description": "Create a new hotel web finder unit entry.",
-                "operationId": "93340a8ffd7b0aac84fcf32c0226cda2",
+                "operationId": "87264d86eacae7df499865dcfb1b1faa",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1980,7 +1932,8 @@
                                 "required": [
                                     "web_finder_id",
                                     "field",
-                                    "value"
+                                    "value",
+                                    "type"
                                 ],
                                 "properties": {
                                     "web_finder_id": {
@@ -1994,6 +1947,10 @@
                                     "value": {
                                         "type": "string",
                                         "example": "Value Example"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "Type Example"
                                     }
                                 },
                                 "type": "object"
@@ -2040,7 +1997,7 @@
                 ],
                 "summary": "Get hotel web finder unit details",
                 "description": "Retrieve details of a specific hotel web finder unit.",
-                "operationId": "29d304dc2868568ba0ec451330c86731",
+                "operationId": "363887b2b9c8e6c851ac9337462115b2",
                 "parameters": [
                     {
                         "name": "id",
@@ -2090,7 +2047,7 @@
                 ],
                 "summary": "Update hotel web finder unit details",
                 "description": "Update details of a specific hotel web finder unit.",
-                "operationId": "a4d9e627978b51e67b5e9f6121676e79",
+                "operationId": "ea291851d177a7d8e20ffdd4eadfe0f3",
                 "parameters": [
                     {
                         "name": "id",
@@ -2111,7 +2068,8 @@
                                 "required": [
                                     "web_finder_id",
                                     "field",
-                                    "value"
+                                    "value",
+                                    "type"
                                 ],
                                 "properties": {
                                     "web_finder_id": {
@@ -2125,6 +2083,10 @@
                                     "value": {
                                         "type": "string",
                                         "example": "Value Example"
+                                    },
+                                    "type": {
+                                        "type": "string",
+                                        "example": "Type Example"
                                     }
                                 },
                                 "type": "object"
@@ -2179,7 +2141,7 @@
                 ],
                 "summary": "Delete a hotel web finder unit",
                 "description": "Delete a specific hotel web finder unit.",
-                "operationId": "2e32393199d35cb2264f8984c227cd25",
+                "operationId": "83786c1f193f030e2cb43a4685a7444e",
                 "parameters": [
                     {
                         "name": "id",
@@ -6474,7 +6436,7 @@
                 ],
                 "summary": "Get all product informative services",
                 "description": "Retrieve all product informative service records with optional filters.",
-                "operationId": "5041747d330bcae836235417029c5141",
+                "operationId": "3d960b0e1dbaea04432e45daa091f2c5",
                 "parameters": [
                     {
                         "name": "product_id",
@@ -6534,7 +6496,7 @@
                 ],
                 "summary": "Create a new product informative service",
                 "description": "Create a new product informative service entry.",
-                "operationId": "94234de4c991b5183e9f75df38e1c5b5",
+                "operationId": "319c34ddbc94a1a63f02a323b6f37f3f",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -6627,7 +6589,7 @@
                 ],
                 "summary": "Get product informative service details",
                 "description": "Retrieve details of a specific product informative service.",
-                "operationId": "f993b24e630e0f11bf3569e2a200d0d8",
+                "operationId": "cd7e03dddb695753d0d85001f9bfaba8",
                 "parameters": [
                     {
                         "name": "id",
@@ -6677,7 +6639,7 @@
                 ],
                 "summary": "Update product informative service details",
                 "description": "Update details of a specific product informative service.",
-                "operationId": "da0f66b0f9f3e1ca3f96c1b331ee2864",
+                "operationId": "f2d5f151d639ef550b5789ca29cb2809",
                 "parameters": [
                     {
                         "name": "id",
@@ -6790,7 +6752,7 @@
                 ],
                 "summary": "Delete a product informative service",
                 "description": "Delete a specific product informative service.",
-                "operationId": "95e00700fa62513837e848c169df781c",
+                "operationId": "7e6dd3b78b205c7ba67baf1693f82dd7",
                 "parameters": [
                     {
                         "name": "id",

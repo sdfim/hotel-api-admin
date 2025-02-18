@@ -37,7 +37,7 @@ class HotelRate extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
-        'pivot'
+        'pivot',
     ];
 
     public function hotel()

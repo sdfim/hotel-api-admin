@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\API\Suppliers\Enums\MappingSuppliersEnum;
 use Modules\API\Suppliers\Enums\PropertiesSourceEnum;
-use Modules\Enums\SupplierNameEnum;
 
 class DownloadGiataData extends Command
 {
@@ -93,7 +92,7 @@ class DownloadGiataData extends Command
         $xmlContent = preg_replace('/&(?!#?[a-z0-9]+;)/', '&amp;', $text);
 
         $xml = simplexml_load_string($xmlContent);
-        $proterties = $xml->TTI_Property;
+        $properties = $xml->TTI_Property;
 
         $batchDataMapperHbsi = [];
         $batchDataMapperExpedia = [];
@@ -101,18 +100,18 @@ class DownloadGiataData extends Command
         $batchData = [];
         $propertyIds = [];
         $propertiesToNotUpdate = Property::where('property_auto_updates', 0)
-          ->orWhereNot('source', PropertiesSourceEnum::Giata->value)
-          ->get()
-          ->mapWithKeys(function ($value) {
-            return [
-                $value->code => true,
-            ];
-          })
-          ->toArray();
+            ->orWhereNot('source', PropertiesSourceEnum::Giata->value)
+            ->get()
+            ->mapWithKeys(function ($value) {
+                return [
+                    $value->code => true,
+                ];
+            })
+            ->toArray();
 
-        foreach ($proterties as $property) {
+        foreach ($properties as $property) {
             if (isset($propertiesToNotUpdate[$property['code']]) && $propertiesToNotUpdate[$property['code']]) {
-              continue;
+                continue;
             }
 
             $phones = [];
@@ -128,6 +127,9 @@ class DownloadGiataData extends Command
             $address = $this->processProperty($property, 'Address');
             $position = $this->processProperty($property, 'Position');
             $url = $this->processProperty($property, 'URL');
+
+            $latitude = isset($property->Position['Latitude']) ? (float) $property->Position['Latitude'] : null;
+            $longitude = isset($property->Position['Longitude']) ? (float) $property->Position['Longitude'] : null;
 
             $data = [
                 'code' => (int) $property['Code'],
@@ -145,8 +147,8 @@ class DownloadGiataData extends Command
                 'mapper_phone_number' => (string) $property->Phone['PhoneNumber'],
                 'phone' => $phones ? json_encode($phones) : null,
                 'position' => $position,
-                'latitude' => isset($property->Position['Latitude']) ? (float) $property->Position['Latitude'] : null,
-                'longitude' => isset($property->Position['Longitude']) ? (float) $property->Position['Longitude'] : null,
+                'latitude' => $latitude,
+                'longitude' => $longitude,
                 'url' => $url,
                 'cross_references' => $crossReferences,
                 'rating' => $property->Ratings ? (float) $property->Ratings[0]->Rating['Value'] : 0.0,
@@ -172,7 +174,7 @@ class DownloadGiataData extends Command
                     ];
                 }
 
-                if ((string) $crossReference['Code'] == 'ICE_PORTAL' && (string) $crossReference['Status'] !== 'Inactive') {
+                if ((string) $crossReference['Code'] == 'ICEPORTAL' && (string) $crossReference['Status'] !== 'Inactive') {
                     $batchDataMapperIcePortal[] = [
                         'supplier_id' => $crossReference->Code['HotelCode'],
                         'giata_id' => (int) $property['Code'],
@@ -180,11 +182,7 @@ class DownloadGiataData extends Command
                         'match_percentage' => 100,
                     ];
                 }
-
-
             }
-
-
 
             $batchData[] = $data;
             $propertyIds[] = $data['code'];
@@ -217,7 +215,7 @@ class DownloadGiataData extends Command
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            Log::error('ImportJsonlData insert Mapping For HBSI ', ['error' => $e->getMessage()]);
+            Log::error('ImportJsonlData insert Mapping ', ['error' => $e->getMessage()]);
             Log::error($e->getTraceAsString());
 
             return false;
@@ -238,7 +236,7 @@ class DownloadGiataData extends Command
 
         try {
             DB::beginTransaction();
-            Mapping::Expedia()->whereIn('giata_id', $propertyIds)->delete();
+            Mapping::IcePortal()->whereIn('giata_id', $propertyIds)->delete();
             Mapping::insert($batchDataMapperIcePortal);
             DB::commit();
         } catch (Exception $e) {
@@ -260,7 +258,7 @@ class DownloadGiataData extends Command
             return false;
         }
 
-        unset($batchData, $batchDataMapperHbsi, $batchDataMapperExpedia, $propertyIds, $proterties, $xml, $xmlContent);
+        unset($batchData, $batchDataMapperHbsi, $batchDataMapperExpedia, $propertyIds, $properties, $xml, $xmlContent);
 
         return $url;
     }

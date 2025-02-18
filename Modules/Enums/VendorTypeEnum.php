@@ -6,7 +6,7 @@ enum VendorTypeEnum: string
 {
     case HOTEL = 'hotel';
     case INSURANCE = 'insurance';
-    case TRIP = 'trip';
+    case TOUR = 'tour';
     case TRANSFER = 'transfer';
 
     public static function getOptions(): array
@@ -14,7 +14,7 @@ enum VendorTypeEnum: string
         return [
             self::HOTEL->value => ucfirst(self::HOTEL->value),
             self::INSURANCE->value => ucfirst(self::INSURANCE->value),
-            self::TRIP->value => ucfirst(self::TRIP->value),
+            self::TOUR->value => ucfirst(self::TOUR->value),
             self::TRANSFER->value => ucfirst(self::TRANSFER->value),
         ];
     }

@@ -3,7 +3,6 @@
 namespace Modules\AdministrationSuite\Http\Controllers;
 
 use App\Models\InformationalService;
-use Modules\AdministrationSuite\Http\Controllers\BaseWithPolicyController;
 use Illuminate\Contracts\View\View;
 
 class InformationalServicesController extends BaseWithPolicyController
@@ -25,7 +24,7 @@ class InformationalServicesController extends BaseWithPolicyController
         $text = $this->message;
         $service = new InformationalService();
 
-        return view('dashboard.informational-services.form', compact('service','text'));
+        return view('dashboard.informational-services.form', compact('service', 'text'));
     }
 
     public function edit(string $id): View

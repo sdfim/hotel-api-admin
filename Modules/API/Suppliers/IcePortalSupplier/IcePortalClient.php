@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\API\Suppliers\IceSuplier;
+namespace Modules\API\Suppliers\IcePortalSupplier;
 
 use Exception;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -8,7 +8,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
-class IceHBSIClient
+class IcePortalClient
 {
     private string $clientId;
 

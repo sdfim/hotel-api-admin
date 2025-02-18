@@ -18,5 +18,8 @@ class EditHotelRoom
         if (isset($data['galleries'])) {
             $record->galleries()->sync($data['galleries']);
         }
+        if (isset($data['related_rooms'])) {
+            $record->relatedRooms()->sync($data['related_rooms']);
+        }
     }
 }

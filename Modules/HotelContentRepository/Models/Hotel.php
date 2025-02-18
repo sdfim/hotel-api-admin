@@ -87,7 +87,7 @@ class Hotel extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['weight', 'sale_type', 'address', 'star_rating', 'num_rooms', 'room_images_source_id', 'hotel_board_basis', 'travel_agent_commission'])
+            ->logOnly(['*'])
             ->logOnlyDirty()
             ->useLogName('hotel');
     }

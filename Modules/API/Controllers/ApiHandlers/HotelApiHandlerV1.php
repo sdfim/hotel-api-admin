@@ -4,6 +4,7 @@ namespace Modules\API\Controllers\ApiHandlers;
 
 use App\Models\ExpediaContent;
 use App\Models\GeneralConfiguration;
+use App\Repositories\ChannelRenository;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,14 +28,14 @@ use Psr\Container\NotFoundExceptionInterface;
 class HotelApiHandlerV1 extends HotelApiHandler
 {
     public function __construct(
-        private readonly ExpediaHotelContentDetailTransformer $ExpediaHotelContentDetailDto,
+        private readonly ExpediaHotelContentDetailTransformer $ExpediaHotelContentDetailTransformer,
         private readonly DetailDataTransformer $dataTransformer,
         private readonly MappingCacheService $mappingCacheService,
         private readonly ExpediaHotelController $expedia,
         private readonly IcePortalHotelController $icePortal,
-        private readonly ExpediaHotelContentTransformer $expediaHotelContentDto,
-        private readonly IcePortalHotelContentTransformer $icePortalHotelContentDto,
-        private readonly IcePortalHotelContentDetailTransformer $icePortalHotelContentDetailDto,
+        private readonly ExpediaHotelContentTransformer $expediaHotelContentTransformer,
+        private readonly IcePortalHotelContentTransformer $icePortalHotelContentTransformer,
+        private readonly IcePortalHotelContentDetailTransformer $icePortalHotelContentDetailTransformer,
     ) {}
 
     public function search(Request $request): JsonResponse
@@ -76,7 +77,8 @@ class HotelApiHandlerV1 extends HotelApiHandler
             if (Cache::has($keyDetail.':dataResponse')) {
                 $detailResults = Cache::get($keyDetail.':dataResponse');
             } else {
-                $detailResults = $this->fetchDetailResults($request);
+                $giataCodes = $this->getGiataCodes($request);
+                $detailResults = $this->fetchDetailResults($giataCodes);
                 Cache::put($keyDetail.':dataResponse', $detailResults, now()->addMinutes(self::TTL));
             }
 
@@ -113,24 +115,25 @@ class HotelApiHandlerV1 extends HotelApiHandler
         $resultsIcePortal = Arr::get($this->icePortal->search($request->all()), 'results', []);
 
         $giataCodes = $this->getGiataCodesByContent($resultsExpedia, $resultsIcePortal);
+        $this->clearGiataCodesByOnSaleOff($giataCodes);
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
         $structureSource = $this->dataTransformer->buildStructureSource($repoData, $contentSource);
 
-        $resultsExpediaDto = $this->expediaHotelContentDto->SupplierToContentSearchResponse($resultsExpedia);
-        $resultsIcePortalDto = $this->icePortalHotelContentDto->SupplierToContentSearchResponse($resultsIcePortal);
+        $resultsExpediaTransformer = $this->expediaHotelContentTransformer->SupplierToContentSearchResponse($resultsExpedia);
+        $resultsIcePortalTransformer = $this->icePortalHotelContentTransformer->SupplierToContentSearchResponse($resultsIcePortal);
 
-        return $this->combineContentResults($resultsExpediaDto, $resultsIcePortalDto, $structureSource, $repoData, $giataCodes);
+        return $this->combineContentResults($resultsExpediaTransformer, $resultsIcePortalTransformer, $structureSource, $repoData, $giataCodes);
     }
 
-    private function fetchDetailResults(Request $request): array
+    public function fetchDetailResults(array $giataCodes): array
     {
-        $giataCodes = $this->getGiataCodes($request);
+        $this->clearGiataCodesByOnSaleOff($giataCodes);
         $contentSource = $this->dataTransformer->initializeContentSource($giataCodes);
         $repoData = $this->getRepoData($giataCodes);
         $structureSource = $this->dataTransformer->buildStructureSource($repoData, $contentSource);
         $resultsExpedia = $this->getExpediaResults($giataCodes);
-        $resultsIcePortal = $this->getIcePortalResults($giataCodes, $structureSource, $repoData);
+        $resultsIcePortal = $this->getIcePortalResults($giataCodes);
 
         return $this->combineDetailResults($resultsExpedia, $resultsIcePortal, $structureSource, $repoData, $giataCodes);
     }
@@ -155,22 +158,55 @@ class HotelApiHandlerV1 extends HotelApiHandler
         );
     }
 
-    private function getRepoData(array $giataCodes): ?Collection
+    private function getHotelsByOnSaleStatus(array $giataCodes, int $onSaleStatus): Collection
     {
-        $hotels = Hotel::with(['product' => function ($query) {
-            $query->where('onSale', 1);
-        }])->whereIn('giata_code', $giataCodes)->get();
+        return Hotel::whereIn('giata_code', $giataCodes)
+            ->whereHas('product', function ($query) use ($onSaleStatus) {
+                $query->where('onSale', $onSaleStatus);
+            })
+            ->get();
+    }
 
-        foreach ($hotels as $hotel) {
+    private function clearGiataCodesByOnSaleOff(array &$giataCodes): void
+    {
+        $hotels = $this->getHotelsByOnSaleStatus($giataCodes, 0);
+        $giataCodesNotOnSale = $hotels->pluck('giata_code')->toArray();
+
+        $token = request()->bearerToken();
+        $hotelsNotWhiteList = [];
+        if ($token) {
+            $channelId = ChannelRenository::getTokenId($token);
+            $hotelsNotWhiteList = Hotel::with('product.channels')
+                ->whereIn('giata_code', $giataCodes)
+                ->whereDoesntHave('product.channels', function ($query) use ($channelId) {
+                    $query->where('channel_id', $channelId);
+                })
+                ->get()->pluck('giata_code')->toArray();
+
+            $hotelsWithoutWhiteList = Hotel::with('product.channels')
+                ->whereDoesntHave('product.channels')
+                ->get()->pluck('giata_code')->toArray();
+
+            $hotelsNotWhiteList = array_diff($hotelsNotWhiteList, $hotelsWithoutWhiteList);
+        }
+
+        $giataCodes = array_diff($giataCodes, $giataCodesNotOnSale, $hotelsNotWhiteList);
+    }
+
+    public function getRepoData(array $giataCodes): ?Collection
+    {
+        $hotelsOnSale = $this->getHotelsByOnSaleStatus($giataCodes, 1);
+
+        foreach ($hotelsOnSale as $hotel) {
             if (! $hotel->product) {
-                unset($hotels[$hotel->giata_code]);
+                unset($hotelsOnSale[$hotel->giata_code]);
             }
         }
 
-        return $hotels;
+        return $hotelsOnSale;
     }
 
-    private function getExpediaResults(array $giataCodes): array
+    public function getExpediaResults(array $giataCodes): array
     {
         $resultsExpedia = [];
         $mappingsExpedia = $this->mappingCacheService->getMappingsExpediaHashMap();
@@ -187,20 +223,20 @@ class HotelApiHandlerV1 extends HotelApiHandler
                 }
                 $item->$key = $value;
             }
-            $contentDetailResponse = $this->ExpediaHotelContentDetailDto->ExpediaArrayToContentDetailResponse($item->toArray(), $mappingsExpedia[$item->property_id]);
+            $contentDetailResponse = $this->ExpediaHotelContentDetailTransformer->ExpediaArrayToContentDetailResponse($item->toArray(), $mappingsExpedia[$item->property_id]);
             $resultsExpedia = array_merge($resultsExpedia, $contentDetailResponse);
         }
 
         return $resultsExpedia;
     }
 
-    private function getIcePortalResults(array $giataCodes, array $structureSource, $repoData): array
+    public function getIcePortalResults(array $giataCodes): array
     {
         $resultsIcePortal = $this->icePortal->details($giataCodes);
 
         $results = [];
         foreach ($resultsIcePortal as $giataId => $item) {
-            $contentDetailResponse = $this->icePortalHotelContentDetailDto
+            $contentDetailResponse = $this->icePortalHotelContentDetailTransformer
                 ->HbsiToContentDetailResponseWithAssets($item, $giataId, $item['assets']);
             $results = array_merge($results, $contentDetailResponse);
         }

@@ -3,7 +3,6 @@
 namespace Modules\API\PricingRules\Expedia;
 
 use App\Models\Supplier;
-use Illuminate\Support\Arr;
 use Modules\API\PricingRules\BasePricingRulesApplier;
 use Modules\API\PricingRules\PricingRulesApplierInterface;
 
@@ -25,8 +24,14 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
      *      markup: float|int
      *  }
      */
-    public function apply(int $giataId, array $roomsPricingArray, string $roomName, string|int $roomCode, string|int $roomType, bool $b2b = true): array
-    {
+    public function apply(
+        int $giataId,
+        array $roomsPricingArray,
+        string $roomName,
+        string|int $roomCode,
+        string|int $roomType,
+        bool $b2b = true
+    ): array {
         $this->initPricingRulesProperties();
 
         foreach ($this->requestArray['occupancy'] as $room) {
@@ -71,7 +76,6 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
             'total_tax' => 0,
             'total_fees' => 0,
             'total_net' => 0,
-            'commission_amount' => 0,
         ];
 
         foreach ($roomPricing['nightly'] as $night) {
@@ -95,8 +99,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
             }
         }
 
-        $totals['total_fees'] += (float)($roomPricing['totals']['property_fees']['billable_currency']['value'] ?? 0);
-        $totals['commission_amount'] += (float)(Arr::get($roomPricing, 'totals.marketing_fee.billable_currency.value', 0));
+        $totals['total_fees'] += (float) ($roomPricing['totals']['property_fees']['billable_currency']['value'] ?? 0);
 
         return $totals;
     }

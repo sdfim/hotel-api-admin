@@ -73,7 +73,7 @@ class HbsiClient
     private Credentials $credentials;
 
     public function __construct(
-        private readonly Client $client = new Client(),
+        private readonly Client $client,
         private readonly array $headers = [
             'Content-Type' => 'text/xml; charset=UTF8',
         ],
@@ -164,23 +164,25 @@ class HbsiClient
             $result = $this->client->request('POST', $this->credentials->searchBookUrl, [
                 'headers' => $this->headers,
                 'body' => $bodyQuery,
-                'timeout' => ConfigRepository::getTimeout()
+                'timeout' => ConfigRepository::getTimeout(),
             ]);
         } catch (ServerException $e) {
             // Error 500
-            Log::error('HBSI Server error: ' . $e->getMessage());
+            Log::error('HBSI Server error: '.$e->getMessage());
             $parent_search_id = $searchInspector['search_id'];
             $searchInspector['search_id'] = Str::uuid();
-            SaveSearchInspector::dispatch($searchInspector, $original, [], [],'error',
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
                 ['side' => 'supplier', 'message' => 'HBSI Server error', 'parent_search_id' => $parent_search_id]);
+
             return ['error' => 'Server error'];
         } catch (TransferException $e) {
             // Timeout
-            Log::error('Connection timeout: ' . $e->getMessage());
+            Log::error('Connection timeout: '.$e->getMessage());
             $parent_search_id = $searchInspector['search_id'];
             $searchInspector['search_id'] = Str::uuid();
-            SaveSearchInspector::dispatch($searchInspector, $original, [], [],'error',
+            SaveSearchInspector::dispatch($searchInspector, $original, [], [], 'error',
                 ['side' => 'supplier', 'message' => 'Connection timeout', 'parent_search_id' => $parent_search_id]);
+
             return ['error' => 'Connection timeout'];
         }
 
@@ -299,7 +301,7 @@ class HbsiClient
         if ($this->isErrorSoap($body)) {
             return [
                 'request' => $bodyQuery,
-                'response' => $body
+                'response' => $body,
             ];
         }
         if ($this->isXml($body)) {
@@ -446,13 +448,11 @@ class HbsiClient
     }
 
     /**
-     * @param array $filters
-     * @return string
      * @throws Exception
      */
     private function hotelResModifyRQ(array $filters): string
     {
-        if(isset($filters['new_booking_item'])) {
+        if (isset($filters['new_booking_item'])) {
             $bookingItemData = ApiBookingItemRepository::getItemData($filters['new_booking_item']);
             $filters['search_id'] = ApiBookingItemRepository::getSearchId($filters['new_booking_item']);
         } else {
@@ -467,7 +467,7 @@ class HbsiClient
 
         $roomStaysArr = $this->processRoomStaysArr($response, $bookingItemData, $filters, $guests);
         $resGuestsArr = $this->processResGuestsArrByAge($guests, $filters);
-        $resGlobalInfoArr = isset ($filters['credit_cards']) ? $this->processDepositPaymentsArr($filters, $roomStaysArr) : [];
+        $resGlobalInfoArr = isset($filters['credit_cards']) ? $this->processDepositPaymentsArr($filters, $roomStaysArr) : [];
 
         // info about booking
         $resID = ApiBookingsMetadataRepository::bookedItem($filters['booking_id'], $filters['booking_item'])->first();
@@ -476,8 +476,8 @@ class HbsiClient
                 'ResID_Type' => '8',
                 'ResID_Value' => $resID->supplier_booking_item_id,
                 'ResID_Source' => 'HBSI',
-                'ResID_Date' => $resID->created_at->format('Y-m-d\TH:i:sP')
-            ]
+                'ResID_Date' => $resID->created_at->format('Y-m-d\TH:i:sP'),
+            ],
         ];
 
         $resGlobalInfoArr = array_merge($resGlobalInfoArr, $hotelReservationIDs);
@@ -490,14 +490,14 @@ class HbsiClient
         foreach ($roomStaysArr as $roomStay) {
             $roomStays .= str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($roomStay, null, 'RoomStay'));
         }
-        $roomStays = '<RoomStays>' . $roomStays . '</RoomStays>';
+        $roomStays = '<RoomStays>'.$roomStays.'</RoomStays>';
         $resGuests = str_replace('<?xml version="1.0"?>', '', $this->arrayToXml($resGuestsArr, null, 'ResGuests'));
         $iata = '';
         if (isset($filters['travel_agency_identifier'])) {
-            $iata = '<UniqueID Type="5" ID="' . $filters['travel_agency_identifier'] . '"/>';
+            $iata = '<UniqueID Type="5" ID="'.$filters['travel_agency_identifier'].'"/>';
         }
 
-        return '<OTA_HotelResModifyRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="' . $this->timeStamp . '" ResStatus="Commit"
+        return '<OTA_HotelResModifyRQ Target="'.$this->credentials->target.'" Version="1.003" TimeStamp="'.$this->timeStamp.'" ResStatus="Commit"
                 xmlns="http://www.opentravel.org/OTA/2003/05">
                 <POS>
                     <Source>
@@ -508,21 +508,17 @@ class HbsiClient
                     </Source>
                 </POS>
                 <HotelResModifies>
-                <HotelResModify RoomStayReservation="true" CreateDateTime="' . date('Y-m-d\TH:i:sP') . '" CreatorID="Partner">
-                    ' . $iata . '
-                    <UniqueID Type="14" ID="' . $bookingItem->booking_item . '"/>
-                    ' . $roomStays . '
-                    ' . $resGuests . '
-                    ' . $resGlobalInfo . '
+                <HotelResModify RoomStayReservation="true" CreateDateTime="'.date('Y-m-d\TH:i:sP').'" CreatorID="Partner">
+                    '.$iata.'
+                    <UniqueID Type="14" ID="'.$bookingItem->booking_item.'"/>
+                    '.$roomStays.'
+                    '.$resGuests.'
+                    '.$resGlobalInfo.'
                 </HotelResModify>
             </HotelResModifies>
         </OTA_HotelResModifyRQ>';
     }
 
-    /**
-     * @param array $reservation
-     * @return string
-     */
     private function readRQ(array $reservation): string
     {
         $type = Arr::get($reservation, 'type', 8);
@@ -794,17 +790,13 @@ class HbsiClient
         $guestArr['@attributes']['Age'] = $age;
 
         // we translate the input age to the age expected by the hotel. Added also Arr::has for compatibility for old searches
-        if (Arr::get($roomCapacity, 'unknown', 0) > 0 && Arr::has($roomCapacity, 'children'))
-        {
+        if (Arr::get($roomCapacity, 'unknown', 0) > 0 && Arr::has($roomCapacity, 'children')) {
             $adults = Arr::get($roomCapacity, 'adults', 0);
             $children = Arr::get($roomCapacity, 'children', []);
 
-            if ($age === self::AGE_ADULTS && $adults === 0)
-            {
+            if ($age === self::AGE_ADULTS && $adults === 0) {
                 $guestArr['@attributes']['Age'] = -1;
-            }
-            elseif ($age !== self::AGE_ADULTS && ! in_array($age, $children))
-            {
+            } elseif ($age !== self::AGE_ADULTS && ! in_array($age, $children)) {
                 $guestArr['@attributes']['Age'] = -1;
             }
         }
@@ -829,6 +821,7 @@ class HbsiClient
             $customer['Email'] = $filters['booking_contact']['email'];
             $customer['Address'] = $this->createAddressArr($filters);
         }
+
         return $customer;
     }
 

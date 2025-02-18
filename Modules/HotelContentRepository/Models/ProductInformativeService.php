@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Models;
 
 use App\Models\Configurations\ConfigServiceType;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,6 @@ use Modules\HotelContentRepository\Models\Factories\ProductInformativeServiceFac
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Carbon\Carbon;
 
 class ProductInformativeService extends Model
 {
@@ -29,6 +29,7 @@ class ProductInformativeService extends Model
     protected $fillable = [
         'product_id',
         'rate_id',
+        'room_id',
         'service_id',
         'cost',
         'name',
@@ -37,7 +38,7 @@ class ProductInformativeService extends Model
         'show_service_on_pdf',
         'show_service_data_on_pdf',
         'commissionable',
-        'auto_book'
+        'auto_book',
     ];
 
     protected $hidden = [
@@ -59,6 +60,11 @@ class ProductInformativeService extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(HotelRoom::class);
     }
 
     public function service(): BelongsTo

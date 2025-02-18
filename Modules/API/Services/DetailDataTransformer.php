@@ -153,7 +153,7 @@ class DetailDataTransformer
         $result['structure'] = $structureSource;
     }
 
-    private function getPropertyImages($hotel): array
+    public function getPropertyImages($hotel): array
     {
         return $hotel->product->galleries
             ->flatMap(function ($gallery) {
@@ -163,22 +163,23 @@ class DetailDataTransformer
             })->take(25)->all();
     }
 
-    private function updateResultWithInternalData(array &$result, $hotel): void
+    public function updateResultWithInternalData(array &$result, $hotel): void
     {
         $result['hotel_name'] = $hotel->product->name;
         $result['latitude'] = $hotel->product->lat;
         $result['longitude'] = $hotel->product->lng;
-        $result['address'] = $hotel->address;
+        $result['address'] = implode(', ', $hotel->address);
         $result['giata_destination'] = Arr::get($hotel->address, 'city', '');
         $result['rating'] = $hotel->star_rating;
         $result['user_rating'] = $hotel->star_rating;
         $result['hotel_fees'] = $this->getHotelFees($hotel);
-        $result['amenities'] = $this->getHotelAmenities($hotel);
+        $result['attributes'] = $this->getHotelAttributes($hotel);
         //        $result['rooms'] = $this->getHotelRooms($hotel);
         $result['weight'] = $hotel->weight;
         $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
         $result['deposit_information'] = $this->getProductDepositInformation($hotel);
-        $result['amenities'] = $this->getProductAmenities($hotel);
+        $result['drivers'] = $this->getHotelDrivers($hotel);
+        //        $result['amenities'] = $this->getProductAmenities($hotel);
     }
 
     private function updateContentResultWithInternalData(array &$result, $hotel): void
@@ -186,18 +187,33 @@ class DetailDataTransformer
         $result['hotel_name'] = $hotel->product->name;
         $result['latitude'] = $hotel->product->lat;
         $result['longitude'] = $hotel->product->lng;
-        $result['address'] = $hotel->address;
+        $result['address'] = implode(', ', $hotel->address);
         $result['giata_destination'] = Arr::get($hotel->address, 'city', '');
         $result['rating'] = $hotel->star_rating;
         $result['user_rating'] = $hotel->star_rating;
-        $result['amenities'] = $this->getHotelAmenities($hotel);
+        $result['attributes'] = $this->getHotelAttributes($hotel);
         $result['weight'] = $hotel->weight ?? 0;
         $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
         $result['deposit_information'] = $this->getProductDepositInformation($hotel);
-        $result['amenities'] = $this->getProductAmenities($hotel);
+        $result['drivers'] = $this->getHotelDrivers($hotel);
+        //        $result['amenities'] = $this->getProductAmenities($hotel);
     }
 
     private function getHotelFees($hotel): array
+    {
+        return $hotel->product->descriptiveContentsSection
+            ->map(function ($section) {
+                if ($section->descriptiveType->type === 'Taxes And Fees') {
+                    return [
+                        'name' => $section->descriptiveType->name,
+                        'value' => $section->value,
+                    ];
+                }
+            })
+            ->all();
+    }
+
+    private function getHotelFeesPricingApi($hotel): array
     {
         $res = [];
         foreach ($hotel->product->feeTaxes as $feeTax) {
@@ -292,27 +308,41 @@ class DetailDataTransformer
         })->implode(', ');
     }
 
-    private function getHotelDescriptions($hotel): array
+    public function getHotelDescriptions($hotel): array
     {
-        return $hotel->product->descriptiveContentsSection->mapWithKeys(function ($section) {
-            return [
-                $section->descriptiveType->name => [
+        return $hotel->product->descriptiveContentsSection
+            ->map(function ($section) {
+                return [
+                    'name' => $section->descriptiveType->name,
                     'value' => $section->value,
                     'start_date' => $section->start_date,
                     'end_date' => $section->end_date,
-                ],
+                ];
+            })
+            ->all();
+    }
+
+    private function getHotelAttributes($hotel): array
+    {
+        return $hotel->product->attributes->map(function ($attribute) {
+            return [
+                'name' => $attribute->attribute->name,
+                'category' => $attribute->category?->name ?? 'general',
             ];
         })->all();
     }
 
-    private function getHotelAmenities($hotel): array
+    private function getHotelDrivers($hotel): array
     {
-        return $hotel->product->attributes->mapWithKeys(function ($attribute) {
-            return [$attribute->attribute->id => $attribute->attribute->name];
+        return collect($hotel->product->off_sale_by_sources)->map(function ($driver) {
+            return [
+                'name' => $driver,
+                'value' => true,
+            ];
         })->all();
     }
 
-    private function getHotelRooms($hotel): array
+    public function getHotelRooms($hotel): array
     {
         $rooms = [];
         foreach ($hotel->rooms as $room) {
@@ -332,6 +362,13 @@ class DetailDataTransformer
                 })->all();
             }
 
+            $relatedRooms = $room->relatedRooms->map(function ($relatedRoom) {
+                return [
+                    'unified_room_code' => $relatedRoom->hbsi_data_mapped_name,
+                    'name' => $relatedRoom->name,
+                ];
+            })->all();
+
             $newImages = $room->galleries
                 ->flatMap(function ($gallery) {
                     return $gallery->images->pluck('image_url');
@@ -345,14 +382,16 @@ class DetailDataTransformer
 
             $rooms[] = [
                 'content_supplier' => 'Internal Repository',
+                'unified_room_code' => $room->hbsi_data_mapped_name,
                 'supplier_room_id' => $room->hbsi_data_mapped_name,
                 'supplier_room_name' => $room->name,
                 'area' => $room->area.' sqft',
                 'bed_groups' => $room->bed_groups,
                 'room_views' => $room->room_views,
+                'connecting_room_types' => $relatedRooms,
                 'supplier_room_code' => $room->hbsi_data_mapped_name,
                 'attributes' => $attributes,
-                'amenities' => $amenities,
+                //                'amenities' => $amenities,
                 'images' => $newImages,
                 'descriptions' => $room->description,
                 'supplier_codes' => $supplierCodes,

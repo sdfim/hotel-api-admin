@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Actions\Hotel;
 
 use App\Models\Configurations\ConfigAttribute;
+use App\Models\Configurations\ConfigAttributeCategory;
 use App\Models\Property;
 use Filament\Notifications\Notification;
 use Illuminate\Support\Arr;
@@ -14,6 +15,7 @@ use Modules\HotelContentRepository\API\Requests\HotelRequest;
 use Modules\HotelContentRepository\Events\Hotel\HotelAdded;
 use Modules\HotelContentRepository\Models\ContentSource;
 use Modules\HotelContentRepository\Models\Hotel;
+use Modules\HotelContentRepository\Models\ProductAttribute;
 
 class AddHotel
 {
@@ -41,24 +43,27 @@ class AddHotel
         $reversedHashMap = array_flip($hashMapperExpedia);
         $expediaCode = $reversedHashMap[$property->code] ?? null;
         $roomsData = [];
+        $attributes = [];
         $numRooms = 0;
         $mealPlansRes = [MealPlansEnum::NO_MEAL_PLAN->value];
         if ($expediaCode) {
-            $rooms = DB::connection('mysql_cache')
+            $expediaData = DB::connection('mysql_cache')
                 ->table('expedia_content_slave')
-                ->select('rooms', 'statistics', 'all_inclusive')
+                ->select('rooms', 'statistics', 'all_inclusive', 'amenities')
                 ->where('expedia_property_id', $expediaCode)
-                ->get();
-            if ($rooms->isEmpty()) {
+                ->first();
+            $expediaData = (array) $expediaData;
+            if (empty($expediaData)) {
                 Notification::make()
                     ->title('Rooms not found')
                     ->danger()
                     ->send();
             } else {
-                $roomsData = json_decode(Arr::get(json_decode($rooms, true)[0], 'rooms', '[]'), true);
-                $statistics = json_decode(Arr::get(json_decode($rooms, true)[0], 'statistics', '{}'), true);
+                $roomsData = json_decode(Arr::get($expediaData, 'rooms', '[]'), true);
+                $statistics = json_decode(Arr::get($expediaData, 'statistics', '{}'), true);
+                $attributes = json_decode(Arr::get($expediaData, 'amenities', '{}'), true);
                 $numRooms = Arr::get($statistics, '52.value', 0);
-                $allInclusive = json_decode(Arr::get(json_decode($rooms, true)[0], 'all_inclusive', '{}'), true);
+                $allInclusive = json_decode(Arr::get($expediaData, 'all_inclusive', '{}'), true);
                 $mealPlans = MealPlansEnum::values();
                 $mealPlansRes = array_filter($allInclusive, function ($value) use ($mealPlans) {
                     return in_array($value, $mealPlans);
@@ -70,7 +75,7 @@ class AddHotel
             }
         }
 
-        return DB::transaction(function () use ($property, $vendorId, $source_id, $roomsData, $numRooms, $mealPlansRes) {
+        return DB::transaction(function () use ($property, $vendorId, $source_id, $roomsData, $numRooms, $mealPlansRes, $attributes) {
             $hotel = Hotel::create([
                 'giata_code' => $property->code,
                 'star_rating' => max($property->rating ?? 1, 1),
@@ -86,7 +91,7 @@ class AddHotel
                 ],
             ]);
 
-            $hotel->product()->create([
+            $product = $hotel->product()->create([
                 'name' => $property->name,
                 'vendor_id' => $vendorId,
                 'product_type' => 'hotel',
@@ -118,22 +123,39 @@ class AddHotel
                     ]);
                     $attributeIds = [];
                     foreach ($room['amenities'] as $k => $amenity) {
+                        $amenityName = Arr::get($amenity, 'name' ?? '');
                         // Check if the attribute already exists
                         $attribute = ConfigAttribute::firstOrCreate([
-                            'name' => Arr::get($amenity, 'name'),
-                            'default_value' => '',
+                            'name' => $amenityName,
+                            'default_value' => $amenityName.' room',
                         ]);
                         // Collect the attribute ID
                         $attributeIds[] = $attribute->id;
-
-                        if ($k > 10) {
-                            break;
-                        }
                     }
                     // Attach the attribute IDs to the room
                     $hotelRoom->attributes()->sync($attributeIds);
                 }
             }
+
+            // Check and add amenities to ConfigAttribute and attach to ProductAttribute
+            $attributesData = [];
+            foreach ($attributes as $attribute) {
+                $attributeName = Arr::get($attribute, 'name', '');
+                $attributeCategory = Arr::get($attribute, 'categories.0', 'general');
+                $category = ConfigAttributeCategory::firstOrCreate([
+                    'name' => $attributeCategory,
+                ]);
+                $attribute = ConfigAttribute::firstOrCreate([
+                    'name' => $attributeName,
+                    'default_value' => $attributeName.' hotel',
+                ]);
+                $attributesData[] = [
+                    'product_id' => $product->id,
+                    'config_attribute_id' => $attribute->id,
+                    'config_attribute_category_id' => $category->id,
+                ];
+            }
+            ProductAttribute::upsert($attributesData, ['product_id', 'config_attribute_id', 'config_attribute_category_id']);
 
             return $hotel;
         });

@@ -10,28 +10,27 @@ use App\Models\Configurations\ConfigDescriptiveType;
 use App\Models\Configurations\ConfigJobDescription;
 use App\Models\Configurations\ConfigServiceType;
 use App\Models\Enums\RoleSlug;
+use App\Models\IcePortalProperty;
 use App\Models\InformationalService;
-use App\Models\Team;
-use App\Policies\Configurations\ConfigAttributePolicy;
 use App\Policies\Configurations\ConfigAmenityPolicy;
+use App\Policies\Configurations\ConfigAttributePolicy;
 use App\Policies\Configurations\ConfigChainPolicy;
 use App\Policies\Configurations\ConfigConsortiumPolicy;
 use App\Policies\Configurations\ConfigDescriptiveTypePolicy;
 use App\Policies\Configurations\ConfigJobDescriptionPolicy;
 use App\Policies\Configurations\ConfigServiceTypePolicy;
+use App\Policies\HotelPolicy;
 use App\Policies\HotelRatePolicy;
 use App\Policies\HotelRoomPolicy;
-use App\Policies\ImagePolicy;
-use App\Policies\HotelPolicy;
 use App\Policies\ImageGalleryPolicy;
+use App\Policies\ImagePolicy;
 use App\Policies\InformationalServicePolicy;
+use App\Policies\InsurancePlanPolicy;
 use App\Policies\InsuranceProviderDocumentationPolicy;
 use App\Policies\InsuranceProviderPolicy;
 use App\Policies\InsuranceRateTierPolicy;
 use App\Policies\InsuranceRestrictionPolicy;
-use App\Policies\InsurancePlanPolicy;
 use App\Policies\ProductPolicy;
-use App\Policies\TeamPolicy;
 use App\Policies\TravelAgencyCommissionPolicy;
 use App\Policies\VendorPolicy;
 use Illuminate\Support\Facades\Gate;
@@ -61,27 +60,27 @@ class PermissionServiceProvider extends ServiceProvider
     ];
 
     private static array $modelPolicies = [
-        HotelRoom::class                            => HotelRoomPolicy::class,
-        HotelRate::class                            => HotelRatePolicy::class,
-        Hotel::class                                => HotelPolicy::class,
-        Vendor::class                               => VendorPolicy::class,
-        Product::class                              => ProductPolicy::class,
-        InsuranceProvider::class                    => InsuranceProviderPolicy::class,
-        InsuranceProviderDocumentation::class       => InsuranceProviderDocumentationPolicy::class,
-        InsuranceRestriction::class                 => InsuranceRestrictionPolicy::class,
-        InsuranceRateTier::class                    => InsuranceRateTierPolicy::class,
-        InsurancePlan::class                        => InsurancePlanPolicy::class,
-        ConfigAttribute::class                      => ConfigAttributePolicy::class,
-        ConfigAmenity::class                        => ConfigAmenityPolicy::class,
-        ConfigConsortium::class                     => ConfigConsortiumPolicy::class,
-        ConfigDescriptiveType::class                => ConfigDescriptiveTypePolicy::class,
-        ConfigJobDescription::class                 => ConfigJobDescriptionPolicy::class,
-        ConfigServiceType::class                    => ConfigServiceTypePolicy::class,
-        ConfigChain::class                          => ConfigChainPolicy::class,
-        InformationalService::class                 => InformationalServicePolicy::class,
-        TravelAgencyCommission::class               => TravelAgencyCommissionPolicy::class,
-        ImageGallery::class                         => ImageGalleryPolicy::class,
-        Image::class                                => ImagePolicy::class,
+        HotelRoom::class => HotelRoomPolicy::class,
+        HotelRate::class => HotelRatePolicy::class,
+        Hotel::class => HotelPolicy::class,
+        Vendor::class => VendorPolicy::class,
+        Product::class => ProductPolicy::class,
+        InsuranceProvider::class => InsuranceProviderPolicy::class,
+        InsuranceProviderDocumentation::class => InsuranceProviderDocumentationPolicy::class,
+        InsuranceRestriction::class => InsuranceRestrictionPolicy::class,
+        InsuranceRateTier::class => InsuranceRateTierPolicy::class,
+        InsurancePlan::class => InsurancePlanPolicy::class,
+        ConfigAttribute::class => ConfigAttributePolicy::class,
+        ConfigAmenity::class => ConfigAmenityPolicy::class,
+        ConfigConsortium::class => ConfigConsortiumPolicy::class,
+        ConfigDescriptiveType::class => ConfigDescriptiveTypePolicy::class,
+        ConfigJobDescription::class => ConfigJobDescriptionPolicy::class,
+        ConfigServiceType::class => ConfigServiceTypePolicy::class,
+        ConfigChain::class => ConfigChainPolicy::class,
+        InformationalService::class => InformationalServicePolicy::class,
+        TravelAgencyCommission::class => TravelAgencyCommissionPolicy::class,
+        ImageGallery::class => ImageGalleryPolicy::class,
+        Image::class => ImagePolicy::class,
     ];
 
     /**

@@ -44,7 +44,6 @@ class Property extends Model
         'content_auto_updates',
     ];
 
-
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -62,7 +61,7 @@ class Property extends Model
             'position' => 'json',
             'cross_references' => 'json',
             'rating' => 'double',
-            'url' => 'array'
+            'url' => 'array',
         ];
     }
 
@@ -87,5 +86,10 @@ class Property extends Model
         return $this->hasOne(Mapping::class, 'giata_id', 'code')
             ->hBSI()
             ->connection(config('database.connections.mysql_cache'));
+    }
+
+    public function location(): HasOne
+    {
+        return $this->hasOne(PropertyLocation::class, 'property_code', 'code');
     }
 }

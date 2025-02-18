@@ -42,12 +42,15 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
 
     public ?int $rateId = null;
 
+    public ?int $roomId = null;
+
     public string $title;
 
-    public function mount(Product $product, ?int $rateId = null)
+    public function mount(Product $product, ?int $rateId = null, ?int $roomId = null)
     {
         $this->productId = $product->id;
         $this->rateId = $rateId;
+        $this->roomId = $roomId;
         $this->title = 'Informational Service for <h4>'.$product->name.'</h4>';
     }
 
@@ -56,6 +59,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
         return [
             Hidden::make('product_id')->default($this->productId),
             Hidden::make('rate_id')->default($this->rateId),
+            Hidden::make('room_id')->default($this->roomId),
 
             Grid::make(3)
                 ->schema([
@@ -135,7 +139,8 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
         return $table
             ->query(
                 ProductInformativeService::with('service')->where('product_id', $this->productId)
-                    ->where('rate_id', $this->rateId))
+                    ->where('rate_id', $this->rateId)
+                    ->where('room_id', $this->roomId))
             ->columns([
                 TextColumn::make('name')->label('Name')->searchable(),
                 TextColumn::make('service.name')->label('Service Type')->searchable(),

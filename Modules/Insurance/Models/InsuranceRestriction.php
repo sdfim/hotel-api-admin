@@ -13,6 +13,7 @@ use Modules\HotelContentRepository\Models\Vendor;
  * @property int $id
  * @property int $provider_id
  * @property int $restriction_type_id
+ * @property int $insurance_type_id
  * @property string $compare
  * @property mixed $value
  * @property InsuranceProvider $provider
@@ -25,6 +26,7 @@ class InsuranceRestriction extends Model
     protected $fillable = [
         'vendor_id',
         'restriction_type_id',
+        'insurance_type_id',
         'compare',
         'value',
         'sale_type',
@@ -33,6 +35,11 @@ class InsuranceRestriction extends Model
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');
+    }
+
+    public function insuranceType(): BelongsTo
+    {
+        return $this->belongsTo(InsuranceType::class, 'insurance_type_id');
     }
 
     public function restrictionType(): BelongsTo

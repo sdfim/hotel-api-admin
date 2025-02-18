@@ -2,7 +2,6 @@
 
 namespace Modules\HotelContentRepository\API\Requests;
 
-use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
 class ProductAffiliationRequest extends ApiRequest
@@ -13,17 +12,21 @@ class ProductAffiliationRequest extends ApiRequest
      *   in="path",
      *   required=true,
      *   description="ID of the hotel affiliation",
+     *
      *   @OA\Schema(
      *     type="integer",
      *     example=1
      *   )
      * ),
+     *
      * @OA\RequestBody(
      *   request="ProductAffiliationRequest",
      *   required=true,
+     *
      *   @OA\JsonContent(
      *     type="object",
      *     required={"product_id", "consortia_id", "description", "start_date", "end_date"},
+     *
      *     @OA\Property(property="product_id", type="integer", example=1),
      *     @OA\Property(property="consortia_id", type="integer", example=1),
      *     @OA\Property(property="description", type="string", example="Description of the affiliation"),
@@ -32,6 +35,7 @@ class ProductAffiliationRequest extends ApiRequest
      *     @OA\Property(property="amenities", type="array", @OA\Items(type="string"), example={"WiFi", "Pool"})
      *   )
      * ),
+     *
      * @OA\Response(
      *   response=200,
      *   description="OK"
@@ -39,6 +43,7 @@ class ProductAffiliationRequest extends ApiRequest
      * @OA\Response(
      *   response=401,
      *   description="Unauthenticated",
+     *
      *   @OA\JsonContent(
      *     ref="#/components/schemas/UnAuthenticatedResponse",
      *     examples={
@@ -46,9 +51,11 @@ class ProductAffiliationRequest extends ApiRequest
      *     }
      *   )
      * ),
+     *
      * @OA\Response(
      *   response=400,
      *   description="Bad Request",
+     *
      *   @OA\JsonContent(
      *     ref="#/components/schemas/BadRequestResponse",
      *     examples={
@@ -56,9 +63,11 @@ class ProductAffiliationRequest extends ApiRequest
      *     }
      *   )
      * ),
+     *
      * @OA\Response(
      *   response=404,
      *   description="Not Found",
+     *
      *   @OA\JsonContent(
      *     ref="#/components/schemas/NotFoundResponse",
      *     examples={
@@ -68,17 +77,21 @@ class ProductAffiliationRequest extends ApiRequest
      * ),
      * security={{ "apiAuth": {} }}
      * )
+     *
      * @OA\Post(
      *   tags={"Product | Affiliations"},
      *   path="/api/repo/product-affiliations",
      *   summary="Create a new hotel affiliation",
      *   description="Create a new hotel affiliation.",
+     *
      *   @OA\RequestBody(
      *     request="ProductAffiliationRequest",
      *     required=true,
+     *
      *     @OA\JsonContent(
      *       type="object",
      *       required={"product_id", "consortia_id", "description", "start_date", "end_date"},
+     *
      *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="consortia_id", type="integer", example=1),
      *       @OA\Property(property="description", type="string", example="Description of the affiliation"),
@@ -87,6 +100,7 @@ class ProductAffiliationRequest extends ApiRequest
      *       @OA\Property(property="amenities", type="array", @OA\Items(type="string"), example={"WiFi", "Pool"})
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=201,
      *     description="Created"
@@ -94,6 +108,7 @@ class ProductAffiliationRequest extends ApiRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -101,9 +116,11 @@ class ProductAffiliationRequest extends ApiRequest
      *       }
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse",
      *       examples={
@@ -113,27 +130,33 @@ class ProductAffiliationRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * ),
+     *
      * @OA\Put(
      *   tags={"Product | Affiliations"},
      *   path="/api/repo/product-affiliations/{id}",
      *   summary="Update a hotel affiliation",
      *   description="Update a specific hotel affiliation.",
+     *
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
      *     description="ID of the hotel affiliation",
+     *
      *     @OA\Schema(
      *       type="integer",
      *       example=1
      *     )
      *   ),
+     *
      *   @OA\RequestBody(
      *     request="ProductAffiliationRequest",
      *     required=true,
+     *
      *     @OA\JsonContent(
      *       type="object",
      *       required={"product_id", "consortia_id", "description", "start_date", "end_date"},
+     *
      *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="consortia_id", type="integer", example=1),
      *       @OA\Property(property="description", type="string", example="Description of the affiliation"),
@@ -142,6 +165,7 @@ class ProductAffiliationRequest extends ApiRequest
      *       @OA\Property(property="amenities", type="array", @OA\Items(type="string"), example={"WiFi", "Pool"})
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -149,6 +173,7 @@ class ProductAffiliationRequest extends ApiRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -156,9 +181,11 @@ class ProductAffiliationRequest extends ApiRequest
      *       }
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse",
      *       examples={
@@ -166,9 +193,11 @@ class ProductAffiliationRequest extends ApiRequest
      *       }
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=404,
      *     description="Not Found",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/NotFoundResponse",
      *       examples={
@@ -178,21 +207,25 @@ class ProductAffiliationRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * ),
+     *
      * @OA\Delete(
      *   tags={"Product | Affiliations"},
      *   path="/api/repo/product-affiliations/{id}",
      *   summary="Delete a hotel affiliation",
      *   description="Delete a specific hotel affiliation.",
+     *
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
      *     description="ID of the hotel affiliation",
+     *
      *     @OA\Schema(
      *       type="integer",
      *       example=1
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=204,
      *     description="No Content"
@@ -200,6 +233,7 @@ class ProductAffiliationRequest extends ApiRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -207,9 +241,11 @@ class ProductAffiliationRequest extends ApiRequest
      *       }
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=404,
      *     description="Not Found",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/NotFoundResponse",
      *       examples={
@@ -219,11 +255,13 @@ class ProductAffiliationRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * ),
+     *
      * @OA\Get(
      *   tags={"Product | Affiliations"},
      *   path="/api/repo/product-affiliations",
      *   summary="List all hotel affiliations",
      *   description="Get a list of all hotel affiliations.",
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -231,6 +269,7 @@ class ProductAffiliationRequest extends ApiRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -238,9 +277,11 @@ class ProductAffiliationRequest extends ApiRequest
      *       }
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=404,
      *     description="Not Found",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/NotFoundResponse",
      *       examples={
@@ -250,21 +291,25 @@ class ProductAffiliationRequest extends ApiRequest
      *   ),
      *   security={{ "apiAuth": {} }}
      * ),
+     *
      * @OA\Get(
      *   tags={"Product | Affiliations"},
      *   path="/api/repo/product-affiliations/{id}",
      *   summary="Get a specific hotel affiliation",
      *   description="Get details of a specific hotel affiliation.",
+     *
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
      *     description="ID of the hotel affiliation",
+     *
      *     @OA\Schema(
      *       type="integer",
      *       example=1
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -272,6 +317,7 @@ class ProductAffiliationRequest extends ApiRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse",
      *       examples={
@@ -279,9 +325,11 @@ class ProductAffiliationRequest extends ApiRequest
      *       }
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=404,
      *     description="Not Found",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/NotFoundResponse",
      *       examples={
@@ -292,7 +340,6 @@ class ProductAffiliationRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
-
     public function rules(): array
     {
         return [

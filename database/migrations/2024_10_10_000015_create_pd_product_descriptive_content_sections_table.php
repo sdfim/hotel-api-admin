@@ -17,6 +17,8 @@ return new class extends Migration
             $table->timestamp('end_date')->nullable();
             $table->unsignedBigInteger('descriptive_type_id');
             $table->text('value')->nullable();
+            $table->string('document_description')->nullable();
+            $table->string('document_path')->nullable();
             $table->timestamps();
 
             $table->foreign('product_id', 'fk_product_id')->references('id')->on('pd_products')->onDelete('cascade');

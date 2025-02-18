@@ -5,6 +5,8 @@ namespace App\Models\Configurations;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Database\Factories\ConfigAttributeFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Modules\HotelContentRepository\Models\Product;
 
 class ConfigAttribute extends Model
 {

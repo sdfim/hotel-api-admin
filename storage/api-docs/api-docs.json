@@ -2115,7 +2115,7 @@
                 ],
                 "summary": "Attach informative services",
                 "description": "Attach informative services to a booking item.",
-                "operationId": "aad10ae233f67be9d7828e130484228e",
+                "operationId": "a46488a78d4cfc4ec277860cbf1caa5e",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -2222,7 +2222,7 @@
                 ],
                 "summary": "Detach informative services",
                 "description": "Detach informative services from a booking item.",
-                "operationId": "b2a822bd7cf90521433cf1835fd1d2a3",
+                "operationId": "7995b277a4abf5aca7d581633cdbe4f1",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -2321,7 +2321,7 @@
                 ],
                 "summary": "Retrieve informative services",
                 "description": "Retrieve informative services for a booking item.",
-                "operationId": "a60febc0bc2e92520544f5afdcccc416",
+                "operationId": "f039f48879556354b618300429051622",
                 "parameters": [
                     {
                         "name": "booking_item",

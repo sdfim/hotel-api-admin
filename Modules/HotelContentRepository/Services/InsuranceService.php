@@ -7,6 +7,7 @@ use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingInspectorRepository as BookingRepository;
 use App\Repositories\ApiBookingItemRepository;
 use App\Repositories\ApiSearchInspectorRepository;
+use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Modules\HotelContentRepository\Actions\Insurance\AddInsurance;
@@ -14,7 +15,7 @@ use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsurancePlan;
 use Modules\Insurance\Models\InsuranceRateTier;
 use Modules\Insurance\Models\InsuranceRestriction;
-use Exception;
+use Modules\Insurance\Models\InsuranceType;
 
 class InsuranceService
 {
@@ -39,6 +40,11 @@ class InsuranceService
         return Vendor::where('name', $providerName)->first();
     }
 
+    public function getInsuranceType(string $insuranceTypeName): ?InsuranceType
+    {
+        return InsuranceType::where('name', $insuranceTypeName)->first();
+    }
+
     public function getBookingItems(?string $bookingId, ?string $bookingItem): array
     {
         if ($bookingId) {
@@ -52,7 +58,7 @@ class InsuranceService
         return [];
     }
 
-    public function createInsurancePlan($request, $bookingItem, $insuranceProvider, $itemPricing, $apiSearchInspectorItem): InsurancePlan
+    public function createInsurancePlan($request, $bookingItem, $insuranceProvider, $insuranceType, $itemPricing, $apiSearchInspectorItem): InsurancePlan
     {
         /** @var InsurancePlan $insurancePlan */
         $insurancePlan = app(InsurancePlan::class);
@@ -63,6 +69,7 @@ class InsuranceService
         $costPerPassenger = $totalPassengersNumber > 0 ? $bookingItemTotalPrice / $totalPassengersNumber : 0;
 
         $insuranceRateTier = InsuranceRateTier::where('vendor_id', $insuranceProvider->id)
+            ->where('insurance_type_id', $insuranceType->id)
             ->where('min_trip_cost', '<=', $costPerPassenger)
             ->where('max_trip_cost', '>=', $costPerPassenger)
             ->first();
@@ -79,6 +86,7 @@ class InsuranceService
         $insurancePlan->insurance_vendor_fee = $insuranceVendorFee;
         $insurancePlan->commission_ujv = $commissionUjv;
         $insurancePlan->vendor_id = $insuranceProvider->id;
+        $insurancePlan->insurance_type_id = $insuranceType->id;
         $insurancePlan->request = $request->all();
 
         if (! $this->addInsurance->handle($insurancePlan)) {
@@ -143,14 +151,16 @@ class InsuranceService
         ];
     }
 
-    public function validateBookingItem($bookingItem, $vendorId): array
+    public function validateBookingItem($bookingItem, $vendorId, $insuranceTypeId): array
     {
         $validationRules = InsuranceRestriction::with('restrictionType')
             ->where('vendor_id', $vendorId)
+            ->where('insurance_type_id', $insuranceTypeId)
             ->get()
             ->map(function ($restriction) {
                 return [
                     'vendor' => $restriction->vendor->name,
+                    'insurance_type' => $restriction->insuranceType->name,
                     'restriction_type' => $restriction->restrictionType->name,
                     'compare_sign' => $restriction->compare,
                     'restriction_value' => $restriction->value,

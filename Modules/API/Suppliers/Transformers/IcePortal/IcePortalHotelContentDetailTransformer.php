@@ -7,13 +7,13 @@ namespace Modules\API\Suppliers\Transformers\IcePortal;
 use Illuminate\Support\Arr;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailResponseFactory;
 use Modules\API\ContentAPI\ResponseModels\ContentDetailRoomsResponseFactory;
-use Modules\API\Suppliers\IceSuplier\IceHBSIClient;
+use Modules\API\Suppliers\IcePortalSupplier\IcePortalClient;
 use Modules\Enums\SupplierNameEnum;
 
 class IcePortalHotelContentDetailTransformer
 {
     public function __construct(
-        private readonly IceHBSIClient $client,
+        private readonly IcePortalClient           $client,
         private readonly IcePortalAssetTransformer $icePortalAssetTransformer,
     ) {}
 
@@ -80,6 +80,7 @@ class IcePortalHotelContentDetailTransformer
             $roomResponse = ContentDetailRoomsResponseFactory::create();
             $roomResponse->setSupplierRoomId($room['roomID']);
             $roomResponse->setSupplierRoomCode($room['roomCode']);
+            $roomResponse->setUnifiedRoomCode($room['roomCode']);
             $roomResponse->setAmenities(array_unique($roomAmenities));
             $roomResponse->setImages($images);
             $roomResponse->setDescriptions($room['description'] ?? '');
@@ -142,6 +143,7 @@ class IcePortalHotelContentDetailTransformer
             $roomResponse->setContentSupplier(SupplierNameEnum::ICE_PORTAL->value);
             $roomResponse->setSupplierRoomId(Arr::get($room, 'roomID'));
             $roomResponse->setSupplierRoomCode(Arr::get($room, 'roomCode'));
+            $roomResponse->setUnifiedRoomCode(Arr::get($room, 'roomCode'));
             $roomResponse->setAmenities(array_unique($roomAmenities));
             $roomResponse->setImages($images);
             $roomResponse->setDescriptions(Arr::get($room, 'description', ''));

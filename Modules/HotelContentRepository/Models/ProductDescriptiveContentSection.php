@@ -33,6 +33,8 @@ class ProductDescriptiveContentSection extends Model
         'end_date',
         'descriptive_type_id',
         'value',
+        'document_description',
+        'document_path',
     ];
 
     public function product(): BelongsTo
@@ -48,7 +50,7 @@ class ProductDescriptiveContentSection extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['product_id', 'section_name', 'start_date', 'end_date', 'descriptive_type_id', 'value'])
+            ->logOnly(['*'])
             ->logOnlyDirty()
             ->useLogName('product_descriptive_content_section');
     }

@@ -67,8 +67,12 @@ class HotelRateForm extends Component implements HasForms
                     Select::make('room_ids')
                         ->multiple()
                         ->options(function () {
-                            return HotelRoom::where('hotel_id', $this->data['hotel_id'])->limit(50)->pluck('name', 'id');
+                            return HotelRoom::where('hotel_id', $this->data['hotel_id'])
+                                ->limit(50)
+                                ->get()
+                                ->pluck('full_name', 'id');
                         })
+                        ->searchable()
                         ->required()
                         ->columnSpan(2),
                 ]),

@@ -203,13 +203,13 @@ class VendorForm extends Component implements HasForms
                 Grid::make(2)
                     ->schema([
                         TextInput::make('addressArr.city')
-                            ->label('City')->readOnly(),
+                            ->label('City'),
                         TextInput::make('addressArr.line_1')
-                            ->label('Line 1')->readOnly(),
+                            ->label('Line 1'),
                         TextInput::make('addressArr.country_code')
-                            ->label('Country Code')->readOnly(),
+                            ->label('Country Code'),
                         TextInput::make('addressArr.state_province_name')
-                            ->label('State Province Name')->readOnly(),
+                            ->label('State Province Name'),
                     ]),
 
                 Grid::make(2)

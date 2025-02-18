@@ -6,7 +6,8 @@ class ContentSearchResponseFactory
 {
     public static function create(): ContentSearchResponse
     {
-        $contentSearchResponse = new ContentSearchResponse();
+        /** @var ContentSearchResponse $contentSearchResponse */
+        $contentSearchResponse = app(ContentSearchResponse::class);
 
         $contentSearchResponse->setGiataHotelCode(0);
         $contentSearchResponse->setImages([]);
@@ -24,6 +25,7 @@ class ContentSearchResponseFactory
         $contentSearchResponse->setWeight(0);
         $contentSearchResponse->setDepositInformation([]);
         $contentSearchResponse->setCancellationPolicies([]);
+        $contentSearchResponse->setDrivers([]);
 
         return $contentSearchResponse;
     }

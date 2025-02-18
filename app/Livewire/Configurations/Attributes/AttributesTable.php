@@ -47,7 +47,7 @@ class AttributesTable extends Component implements HasForms, HasTable
             ])
             ->bulkActions([
                 BulkAction::make('delete')
-                    ->action(fn (array $records) => ConfigAttribute::destroy($records))
+                    ->action(fn ($records) => ConfigAttribute::destroy($records->pluck('id')->toArray()))
                     ->requiresConfirmation()
                     ->visible(fn () => Gate::allows('delete', ConfigAttribute::class)),
             ])

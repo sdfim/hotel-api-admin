@@ -2,9 +2,9 @@
 
 namespace Modules\HotelContentRepository\API\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use Modules\API\Validate\ApiRequest;
 
-class ProductInformativeServiceRequest extends FormRequest
+class ProductInformativeServiceRequest extends ApiRequest
 {
     /**
      * @OA\Get(
@@ -12,26 +12,31 @@ class ProductInformativeServiceRequest extends FormRequest
      *   path="/api/repo/product-informative-services",
      *   summary="Get all product informative services",
      *   description="Retrieve all product informative service records with optional filters.",
+     *
      *   @OA\Parameter(
      *     name="product_id",
      *     in="query",
      *     required=false,
      *     description="Filter by product ID",
+     *
      *     @OA\Schema(
      *       type="integer",
      *       example=1
      *     )
      *   ),
+     *
      *   @OA\Parameter(
      *     name="service_id",
      *     in="query",
      *     required=false,
      *     description="Filter by service ID",
+     *
      *     @OA\Schema(
      *       type="integer",
      *       example=1
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -39,13 +44,16 @@ class ProductInformativeServiceRequest extends FormRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse"
      *     )
@@ -53,16 +61,20 @@ class ProductInformativeServiceRequest extends FormRequest
      *   security={{ "apiAuth": {} }}
      * )
 
+     *
      * @OA\Post(
      *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services",
      *   summary="Create a new product informative service",
      *   description="Create a new product informative service entry.",
+     *
      *   @OA\RequestBody(
      *     required=true,
+     *
      *     @OA\JsonContent(
      *       type="object",
      *       required={"product_id", "service_id"},
+     *
      *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="service_id", type="integer", example=1),
      *       @OA\Property(property="cost", type="number", format="float", example=100.00),
@@ -74,6 +86,7 @@ class ProductInformativeServiceRequest extends FormRequest
      *       @OA\Property(property="auto_book", type="boolean", example=false)
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=201,
      *     description="Created"
@@ -81,13 +94,16 @@ class ProductInformativeServiceRequest extends FormRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse"
      *     )
@@ -95,21 +111,25 @@ class ProductInformativeServiceRequest extends FormRequest
      *   security={{ "apiAuth": {} }}
      * )
 
+     *
      * @OA\Get(
      *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services/{id}",
      *   summary="Get product informative service details",
      *   description="Retrieve details of a specific product informative service.",
+     *
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
      *     description="ID of the product informative service",
+     *
      *     @OA\Schema(
      *       type="integer",
      *       example=1
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -117,13 +137,16 @@ class ProductInformativeServiceRequest extends FormRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=404,
      *     description="Not Found",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/NotFoundResponse"
      *     )
@@ -131,26 +154,32 @@ class ProductInformativeServiceRequest extends FormRequest
      *   security={{ "apiAuth": {} }}
      * )
 
+     *
      * @OA\Put(
      *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services/{id}",
      *   summary="Update product informative service details",
      *   description="Update details of a specific product informative service.",
+     *
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
      *     description="ID of the product informative service",
+     *
      *     @OA\Schema(
      *       type="integer",
      *       example=1
      *     )
      *   ),
+     *
      *   @OA\RequestBody(
      *     required=true,
+     *
      *     @OA\JsonContent(
      *       type="object",
      *       required={"product_id", "service_id"},
+     *
      *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="service_id", type="integer", example=1),
      *       @OA\Property(property="cost", type="number", format="float", example=100.00),
@@ -162,6 +191,7 @@ class ProductInformativeServiceRequest extends FormRequest
      *       @OA\Property(property="auto_book", type="boolean", example=false)
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -169,20 +199,25 @@ class ProductInformativeServiceRequest extends FormRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=404,
      *     description="Not Found",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/NotFoundResponse"
      *     )
@@ -190,21 +225,25 @@ class ProductInformativeServiceRequest extends FormRequest
      *   security={{ "apiAuth": {} }}
      * )
 
+     *
      * @OA\Delete(
      *   tags={"Product | Informational Service"},
      *   path="/api/repo/product-informative-services/{id}",
      *   summary="Delete a product informative service",
      *   description="Delete a specific product informative service.",
+     *
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
      *     description="ID of the product informative service",
+     *
      *     @OA\Schema(
      *       type="integer",
      *       example=1
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=204,
      *     description="No Content"
@@ -212,13 +251,16 @@ class ProductInformativeServiceRequest extends FormRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=404,
      *     description="Not Found",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/NotFoundResponse"
      *     )
@@ -227,12 +269,7 @@ class ProductInformativeServiceRequest extends FormRequest
      * )
      */
 
-    public function authorize()
-    {
-        return true;
-    }
-
-    public function rules()
+    public function rules(): array
     {
         return [
             'product_id' => 'required|integer|exists:pd_products,id',
