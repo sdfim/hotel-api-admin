@@ -7,7 +7,7 @@ use App\Models\Configurations\ConfigInsuranceDocumentationType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Enums\InsuranceDocTypeEnum;
 
-class configInsuranceDocumentationTypeFactory extends Factory
+class ConfigInsuranceDocumentationTypeFactory extends Factory
 {
     protected $model = ConfigInsuranceDocumentationType::class;
 

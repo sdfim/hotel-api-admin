@@ -2,7 +2,7 @@
 
 namespace App\Models\Configurations;
 
-use Database\Factories\configInsuranceDocumentationTypeFactory;
+use Database\Factories\ConfigInsuranceDocumentationTypeFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
