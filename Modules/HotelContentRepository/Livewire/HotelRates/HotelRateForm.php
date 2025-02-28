@@ -2,7 +2,10 @@
 
 namespace Modules\HotelContentRepository\Livewire\HotelRates;
 
+use Filament\Forms\Components\Actions;
+use Filament\Forms\Components\Actions\Action;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -64,33 +67,54 @@ class HotelRateForm extends Component implements HasForms
                         ->required()
                         ->maxLength(191)
                         ->rule('unique:pd_hotel_rates,code,'.($this->record->id ?? 'NULL').',id,hotel_id,'.$this->data['hotel_id']),
-                    Select::make('room_ids')
-                        ->multiple()
-                        ->options(function () {
-                            return HotelRoom::where('hotel_id', $this->data['hotel_id'])
-                                ->limit(50)
-                                ->get()
-                                ->pluck('full_name', 'id');
-                        })
-                        ->searchable()
-                        ->required()
+                    Grid::make(8)
+                        ->schema([
+                            Select::make('room_ids')
+                                ->label('Rooms')
+                                ->multiple()
+                                ->options(function () {
+                                    return HotelRoom::where('hotel_id', $this->data['hotel_id'])
+                                        ->limit(50)
+                                        ->get()
+                                        ->pluck('full_name', 'id');
+                                })
+                                ->searchable()
+                                ->required()
+                                ->columnSpan(7),
+                            Actions::make([
+                                Action::make('add_all_rooms')
+                                    ->label('Add All Rooms')
+                                    ->action(function () {
+                                        $this->data['room_ids'] = HotelRoom::where('hotel_id', $this->data['hotel_id'])
+                                            ->pluck('id')
+                                            ->toArray();
+                                        $this->form->fill($this->data);
+                                    })
+                                    ->button()
+                                    ->extraAttributes(['class' => 'h-10 text-right']),
+                            ])
+                                ->extraAttributes(['class' => 'flex justify-end']),
+                        ])
                         ->columnSpan(2),
                 ]),
-            CustomRepeater::make('dates')->schema([
-                Grid::make(2)
-                    ->schema([
-                        DatePicker::make('start_date')
-                            ->label('')
-                            ->required()
-                            ->placeholder('Start Date')
-                            ->native(false),
-                        DatePicker::make('end_date')
-                            ->label('')
-                            ->required()
-                            ->placeholder('End Date')
-                            ->native(false),
-                    ]),
-            ]),
+            Fieldset::make('Date Setting')
+                ->schema([
+                    CustomRepeater::make('dates')->schema([
+                        Grid::make()
+                            ->schema([
+                                DatePicker::make('start_date')
+                                    ->placeholder('Travel Start Date')
+                                    ->label('')
+                                    ->required()
+                                    ->native(false),
+                                DatePicker::make('end_date')
+                                    ->placeholder('Travel End Date')
+                                    ->label('')
+                                    ->required()
+                                    ->native(false),
+                            ]),
+                    ])->columnSpan(2),
+                ]),
         ];
 
         return $schema;

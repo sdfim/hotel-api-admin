@@ -35,7 +35,7 @@ trait HasPricingRuleFields
                     ? 'The rule is being created from the Supplier Repository.'
                     : 'The rule was created from the Supplier Repository.')
                 ->visible($this->isSrCreator),
-            Fieldset::make('General settings')
+            Fieldset::make('General Setting')
                 ->schema([
                     TextInput::make('name')
                         ->label('Rule name')
@@ -45,8 +45,7 @@ trait HasPricingRuleFields
                     TextInput::make('weight')
                         ->label('Priority Weighting')
                         ->numeric()
-                        ->maxLength(191)
-                        ->required(),
+                        ->maxLength(191),
                     CustomToggle::make('is_exclude_action')
                         ->label('Exclusion Rule')
                         ->helperText('Remove a rate from the search results')
@@ -67,7 +66,7 @@ trait HasPricingRuleFields
                         }),
 
                     TextInput::make('rule_expiration_date')
-                        ->label('Rule Expiration Date')
+                        ->label('Rule End Date')
                         ->type('date')
                         ->afterStateHydrated(function (TextInput $component, $state) {
                             $formattedDate = isset($this->record) && $this->record->rule_expiration_date
@@ -86,7 +85,7 @@ trait HasPricingRuleFields
             <span id="toggleIcon">▼</span> IMPORTANT: Rules dates explanation
         </button>
         <div id="collapseContent" style="display: none;">
-            When doing a search, the users will need to select a start and an end travel date.
+            When doing a search, the users will need to select a start and an Travel End Date.
             This rule will only apply if the "Rule Start Date" is contained within the travel dates selected by the user.
             If the "Rule Expiration Date" is provided, it must also be contained within the travel dates selected by the user.
             If the "Rule Expiration Date" is not provided, a default date of 01-01-2100 will be applied.<br>
@@ -96,28 +95,28 @@ trait HasPricingRuleFields
             as the "Rule Expiration Date" (if provided)<br>
             <ul class="list-disc pl-6">
                 <li class="mb-2">
-                    User selects Jan 10, $currentYear as the start travel date <br>
-                    User selects Jan 14, $currentYear as the end travel date <br>
+                    User selects Jan 10, $currentYear as the Travel Start Date <br>
+                    User selects Jan 14, $currentYear as the Travel End Date <br>
                     Will this rule apply? NO
                 </li>
                 <li class="mb-2">
-                    User selects Jan 12, $currentYear as the start travel date <br>
-                    User selects Jan 18, $currentYear as the end travel date <br>
+                    User selects Jan 12, $currentYear as the Travel Start Date <br>
+                    User selects Jan 18, $currentYear as the Travel End Date <br>
                     Will this rule apply? NO
                 </li>
                 <li class="mb-2">
-                    User selects Jan 18, $currentYear as the start travel date <br>
-                    User selects Jan 24, $currentYear as the end travel date <br>
+                    User selects Jan 18, $currentYear as the Travel Start Date <br>
+                    User selects Jan 24, $currentYear as the Travel End Date <br>
                     Will this rule apply? NO
                 </li>
                 <li class="mb-2">
-                    User selects Jan 15, $currentYear as the start travel date <br>
-                    User selects Jan 18, $currentYear as the end travel date <br>
+                    User selects Jan 15, $currentYear as the Travel Start Date <br>
+                    User selects Jan 18, $currentYear as the Travel End Date <br>
                     Will this rule apply? YES
                 </li>
                 <li class="mb-2">
-                    User selects Jan 17, $currentYear as the start travel date <br>
-                    User selects Jan 20, $currentYear as the end travel date <br>
+                    User selects Jan 17, $currentYear as the Travel Start Date <br>
+                    User selects Jan 20, $currentYear as the Travel End Date <br>
                     Will this rule apply? YES
                 </li>
             </ul>
@@ -140,10 +139,10 @@ trait HasPricingRuleFields
                 ])
                 ->columns(5),
 
-            Fieldset::make('Price settings')
+            Fieldset::make('Price Setting')
                 ->schema([
                     Select::make('manipulable_price_type')
-                        ->label('Manipulable price type')
+                        ->label('Manipulable Price Type')
                         ->options([
                             'total_price' => 'Total Price',
                             'net_price' => 'Net Price',
@@ -151,7 +150,7 @@ trait HasPricingRuleFields
                         ])
                         ->required(),
                     TextInput::make('price_value')
-                        ->label('Price value')
+                        ->label('Price Value')
                         ->numeric()
                         ->required()
                         ->suffixIcon(function (Get $get) {
@@ -163,7 +162,7 @@ trait HasPricingRuleFields
                             };
                         }),
                     Select::make('price_value_type')
-                        ->label('Price value type')
+                        ->label('Price Value Type')
                         ->options([
                             'fixed_value' => 'Fixed Value',
                             'percentage' => 'Percentage',
@@ -173,9 +172,9 @@ trait HasPricingRuleFields
                         ->required()
                         ->afterStateUpdated(fn (?string $state, Set $set) => $state ?: $set('price_value', null)),
                     Select::make('price_value_target')
-                        ->label('Price value target')
+                        ->label('Price Value Target')
                         ->options([
-                            'per_guest' => 'Per Guest',
+                            'per_person' => 'Per Person',
                             'per_room' => 'Per Room',
                             'per_night' => 'Per Night',
                             'not_applicable' => 'N/A',

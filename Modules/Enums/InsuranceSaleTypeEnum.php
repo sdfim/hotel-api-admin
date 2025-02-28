@@ -2,7 +2,7 @@
 
 namespace Modules\Enums;
 
-enum InsuranceRestrictionSaleTypeEnum: string
+enum InsuranceSaleTypeEnum: string
 {
     case COMMISSION_TRACKING = 'Commission Tracking';
     case DIRECT_NET = 'Direct (Net)';

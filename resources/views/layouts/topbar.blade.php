@@ -93,7 +93,7 @@
             <div>
                 <div class="dropdown relative ltr:mr-4 rtl:ml-4">
                     <button type="button"
-                            class="flex items-center px-4 py-5 border-x border-gray-50 bg-gray-50/30 dropdown-toggle dark:bg-zinc-700 dark:border-zinc-600 dark:text-gray-100"
+                            class="flex items-center px-4 py-5 border-x border-gray-50 bg-gray-50/30 dropdown-toggle dark:bg-zinc-800 dark:border-zinc-600 dark:text-gray-100"
                             id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true"
                             aria-expanded="true">
                         @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())

@@ -70,7 +70,7 @@ class ProductCancellationPolicyRequest extends ApiRequest
      *       @OA\Property(property="manipulable_price_type", type="string", enum={"total_price", "net_price"}, example="total_price"),
      *       @OA\Property(property="price_value", type="number", format="float", example=100.00),
      *       @OA\Property(property="price_value_type", type="string", enum={"fixed_value", "percentage"}, example="fixed_value"),
-     *       @OA\Property(property="price_value_target", type="string", enum={"per_guest", "per_room", "per_night", "not_applicable"}, example="per_guest")
+     *       @OA\Property(property="price_value_target", type="string", enum={"per_person", "per_room", "per_night", "not_applicable"}, example="per_person")
      *     )
      *   ),
      *
@@ -174,7 +174,7 @@ class ProductCancellationPolicyRequest extends ApiRequest
      *       @OA\Property(property="manipulable_price_type", type="string", enum={"total_price", "net_price"}, example="total_price"),
      *       @OA\Property(property="price_value", type="number", format="float", example=100.00),
      *       @OA\Property(property="price_value_type", type="string", enum={"fixed_value", "percentage"}, example="fixed_value"),
-     *       @OA\Property(property="price_value_target", type="string", enum={"per_guest", "per_room", "per_night", "not_applicable"}, example="per_guest")
+     *       @OA\Property(property="price_value_target", type="string", enum={"per_person", "per_room", "per_night", "not_applicable"}, example="per_person")
      *     )
      *   ),
      *
@@ -254,6 +254,7 @@ class ProductCancellationPolicyRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
+
     public function rules(): array
     {
         return [
@@ -264,7 +265,7 @@ class ProductCancellationPolicyRequest extends ApiRequest
             'manipulable_price_type' => 'required|string|in:total_price,net_price',
             'price_value' => 'required|numeric',
             'price_value_type' => 'required|string|in:fixed_value,percentage',
-            'price_value_target' => 'required|string|in:per_guest,per_room,per_night,not_applicable',
+            'price_value_target' => 'required|string|in:per_person,per_room,per_night,not_applicable',
         ];
     }
 }

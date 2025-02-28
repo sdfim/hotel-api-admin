@@ -50,7 +50,7 @@ class HotelRoomTable extends Component implements HasForms, HasTable
     {
         $this->record = $record;
         $this->hotelId = $hotel->id;
-        $this->title = 'Hotel Room for <h4>'.$hotel->product->name.'</h4>';
+        $this->title = 'Hotel Room for '.$hotel->product->name;
     }
 
     public function schemeForm($record = null): array
@@ -210,9 +210,10 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                         ->visible(fn () => Gate::allows('create', Hotel::class)),
                     Action::make('add-attributes')
                         ->icon('heroicon-o-gift')
-                        ->label('Attributes')
-                        ->modalHeading(fn ($record) => 'Add Attributes For Room: '.$record->name)
+                        ->label('Ultimate Amenities')
+                        ->modalHeading(fn ($record) => 'Add Amenities For Room: '.$record->name)
                         ->modalWidth('7xl')
+                        ->modalSubmitAction(false)
                         ->modalContent(function ($record) {
                             return view('dashboard.hotel_repository.hotel_rooms.modal_attributes', [
                                 'product' => $record->hotel->product,
@@ -220,11 +221,25 @@ class HotelRoomTable extends Component implements HasForms, HasTable
                             ]);
                         })
                         ->visible(fn () => Gate::allows('create', Hotel::class)),
+                    Action::make('add-fee-tax')
+                        ->icon('heroicon-o-banknotes')
+                        ->label('Fees and Taxes')
+                        ->modalHeading(fn ($record) => 'Add Fees and Taxes For Room: '.$record->name)
+                        ->modalWidth('full')
+                        ->modalSubmitAction(false)
+                        ->modalContent(function ($record) {
+                            return view('dashboard.hotel_repository.hotel_rooms.modal_fee_tax', [
+                                'product' => $record->hotel->product,
+                                'roomId' => $record->id,
+                            ]);
+                        })
+                        ->visible(fn () => Gate::allows('create', Hotel::class)),
                     Action::make('add-informational-service')
                         ->icon('heroicon-o-sparkles')
-                        ->label('Informational Services')
+                        ->label('Hotel Service')
                         ->modalHeading(fn ($record) => 'Add Informational Services For Room: '.$record->name)
                         ->modalWidth('7xl')
+                        ->modalSubmitAction(false)
                         ->modalContent(function ($record) {
                             return view('dashboard.hotel_repository.hotel_rooms.modal_informative_services', [
                                 'product' => $record->hotel->product,

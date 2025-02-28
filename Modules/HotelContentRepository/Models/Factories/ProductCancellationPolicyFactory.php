@@ -23,7 +23,7 @@ class ProductCancellationPolicyFactory extends Factory
             'manipulable_price_type' => $this->faker->randomElement(['total_price', 'net_price']),
             'price_value' => $this->faker->randomFloat(2, 0, 100),
             'price_value_type' => $this->faker->randomElement(['fixed_value', 'percentage']),
-            'price_value_target' => $this->faker->randomElement(['per_guest', 'per_room', 'per_night', 'not_applicable']),
+            'price_value_target' => $this->faker->randomElement(['per_person', 'per_room', 'per_night', 'not_applicable']),
         ];
     }
 }

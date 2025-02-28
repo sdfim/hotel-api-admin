@@ -13,11 +13,8 @@ return new class extends Migration
             $table->unsignedBigInteger('product_id');
             $table->unsignedBigInteger('rate_id')->nullable();
             $table->unsignedBigInteger('room_id')->nullable();
-            $table->unsignedBigInteger('consortia_id');
-            $table->text('description')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->string('amenities')->nullable();
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');

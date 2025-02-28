@@ -52,24 +52,35 @@ trait PdGridTrait
         $str = [];
         $affiliations = $record->product?->affiliations;
         foreach ($affiliations as $affiliation) {
-            if ($affiliation->consortia->name !== $type) {
-                continue;
+            if ($affiliation->amenities) {
+                foreach ($affiliation->amenities as $amenity) {
+                    if (in_array($type, $amenity->consortia)) {
+                        $str[] = implode(', ', $amenity->consortia)
+                            .' ('.$affiliation->start_date.' - '.$affiliation->end_date.')'
+                            .($amenity->is_paid ? ' ('.$amenity->is_paid.' - '.$amenity->price.')' : '')
+                            .': '.$amenity->amenity->name;
+                    }
+                }
             }
-            $str[] = $affiliation->consortia->name
-                .' ('.$affiliation->start_date.' - '.$affiliation->end_date.')'
-                .': '.$affiliation->description
-                .($affiliation->combinable ? ' - Combinable' : '');
         }
 
-        return implode('; ', $str);
+        return implode('<br> ', $str);
     }
 
     public function getConsortiaExit(Hotel $record, string $type): string
     {
         $affiliations = $record->product?->affiliations;
         foreach ($affiliations as $affiliation) {
-            if ($affiliation->consortia->name === $type) {
-                return 'Y';
+            if ($affiliation->amenities) {
+                $result = $affiliation->amenities->map(function ($amenity) use ($type) {
+                    if (in_array($type, $amenity->consortia)) {
+                        return 'Y';
+                    }
+                })->filter()->first();
+
+                if ($result) {
+                    return $result;
+                }
             }
         }
 

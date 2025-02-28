@@ -25,6 +25,7 @@ class HotelResponseFactory
         $hotelResponse->setRefundableRates('');
         $hotelResponse->setRoomGroups([]);
         $hotelResponse->setRoomCombinations([]);
+        $hotelResponse->setSupplierInformation([]);
 
         return $hotelResponse;
     }

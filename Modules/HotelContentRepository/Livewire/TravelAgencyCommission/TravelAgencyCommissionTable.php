@@ -59,14 +59,13 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
             ]),
             Grid::make()->schema([
                 DatePicker::make('date_range_start')
-                    ->label('Start Date')
+                    ->label('Travel Start Date')
                     ->native(false)
                     ->default(fn () => now())
                     ->required(),
                 DatePicker::make('date_range_end')
-                    ->label('End Date')
-                    ->native(false)
-                    ->required(),
+                    ->label('Travel End Date')
+                    ->native(false),
             ]),
 
             Grid::make()->schema([
@@ -127,13 +126,13 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('date_range_start')
-                    ->label('Start Date')
+                    ->label('Travel Start Date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()
                     ->date(),
                 TextColumn::make('date_range_end')
-                    ->label('End Date')
+                    ->label('Travel End Date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()

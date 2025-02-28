@@ -244,6 +244,7 @@ class ImageRequest extends ApiRequest
      *   security={{ "apiAuth": {} }}
      * )
      */
+
     public function rules(): array
     {
         return [

@@ -9,10 +9,6 @@ use Modules\API\Suppliers\Transformers\SupplierContentTransformerInterface;
 
 class ExpediaHotelContentTransformer implements SupplierContentTransformerInterface
 {
-    private const TA_CLIENT = 'https://developer.expediapartnersolutions.com/terms/en';
-
-    private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
-
     public function __construct(
         private readonly ExpediaTranformerService $expediaTranformerService
     ) {}
@@ -43,14 +39,38 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
                     $countImages++;
                 }
             }
-            $description = json_decode(Arr::get($hotel, 'descriptions', []), true);
-            $description = $this->expediaTranformerService->transformToNameValueArray($description, ['start_date', 'end_date']);
+
+            $checkin = [];
+            $checkinData = json_decode(Arr::get($hotel, 'checkin', []), true);
+            foreach ($checkinData ?? [] as $key => $value) {
+                $checkin = array_merge($checkin, $this->expediaTranformerService->transformToNameValueArray([$key => $value], ['start_date', 'end_date'], 'checkin_'.$key));
+            }
+            $checkout = [];
+            $checkoutData = json_decode(Arr::get($hotel, 'checkout', []), true);
+            foreach ($checkoutData ?? [] as $key => $value) {
+                $checkout = array_merge($checkout, $this->expediaTranformerService->transformToNameValueArray([$key => $value], ['start_date', 'end_date'], 'checkout_'.$key));
+            }
+
+            $descriptionsData = json_decode(Arr::get($hotel, 'descriptions', []), true);
+
+            $hotel_fees = $this->expediaTranformerService->transformToNameValueArray(json_decode(Arr::get($hotel, 'fees', []), true), ['start_date', 'end_date'], 'hotel_fees');
+            $policies = $this->expediaTranformerService->transformToNameValueArray(json_decode(Arr::get($hotel, 'policies', []), true), ['start_date', 'end_date'], 'policies');
+            $descriptions = $this->expediaTranformerService->transformToNameValueArray($descriptionsData, ['start_date', 'end_date']);
+
+            $attractionsData = Arr::get($descriptionsData, 'attractions', '');
+            $attractions = $this->expediaTranformerService->parseAttractions($attractionsData);
+            $nearestAirports = array_filter($attractions, function ($attraction) {
+                return strpos($attraction['name'], 'Airport') !== false;
+            });
+            $hotelResponse->setNearestAirports(array_values($nearestAirports));
+
+            $descriptions = array_merge($descriptions, $hotel_fees, $policies, $checkin, $checkout);
+            $descriptions = array_values(array_filter($descriptions, fn ($description) => $description !== null));
 
             $hotelResponse->setGiataHotelCode($hotel['giata_id'] ?? '');
             $hotelResponse->setImages($images);
-            $hotelResponse->setDescription($description);
+            $hotelResponse->setDescription($descriptions);
             $hotelResponse->setHotelName($hotel['name']);
-            $hotelResponse->setDistance($hotel['distance'] ?? '');
             $hotelResponse->setLatitude($hotel['location']['coordinates']['latitude']);
             $hotelResponse->setLongitude($hotel['location']['coordinates']['longitude']);
             $hotelResponse->setRating($hotel['rating']);
@@ -63,16 +83,6 @@ class ExpediaHotelContentTransformer implements SupplierContentTransformerInterf
             }, $amenities)));
             $hotelResponse->setGiataDestination($hotel['city'] ?? '');
             $hotelResponse->setUserRating($hotel['rating'] ?? '');
-            $hotelResponse->setImportantInformation([
-                'checkin' => $hotel['checkin'] ? json_decode($hotel['checkin']) : '',
-                'checkout' => $hotel['checkout'] ? json_decode($hotel['checkout']) : '',
-                'fees' => $hotel['fees'] ? json_decode($hotel['fees']) : '',
-                'policies' => $hotel['policies'] ? json_decode($hotel['policies']) : '',
-            ]);
-            $hotelResponse->setSupplierInformation([
-                'supplier_terms_and_conditions_client' => self::TA_CLIENT,
-                'supplier_terms_and_conditions_agent' => self::TA_AGENT,
-            ]);
 
             $contentSearchResponse[] = $hotelResponse->toArray();
         }

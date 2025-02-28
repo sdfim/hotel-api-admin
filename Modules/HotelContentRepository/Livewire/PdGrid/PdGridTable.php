@@ -140,6 +140,7 @@ class PdGridTable extends Component implements HasForms, HasTable
                 TextColumn::make('Virtuoso Amenities')
                     ->label('Virtuoso Amenities')
                     ->wrap()->limit(300)
+                    ->html()
                     ->getStateUsing(fn ($record) => $this->getConsortia($record, 'Virtuoso'))
                     ->extraCellAttributes(fn ($record) => [
                         'title' => $this->getConsortia($record, 'Virtuoso'),
@@ -161,6 +162,7 @@ class PdGridTable extends Component implements HasForms, HasTable
                 TextColumn::make('Signature Amenities')
                     ->label('Signature Amenities')
                     ->wrap()->limit(300)
+                    ->html()
                     ->getStateUsing(fn ($record) => $this->getConsortia($record, 'Signature'))
                     ->extraCellAttributes(fn ($record) => [
                         'title' => $this->getConsortia($record, 'Signature'),
@@ -182,6 +184,7 @@ class PdGridTable extends Component implements HasForms, HasTable
                 TextColumn::make('Travel Leaders Amenities')
                     ->label('Travel Leaders Amenities')
                     ->wrap()->limit(300)
+                    ->html()
                     ->getStateUsing(fn ($record) => $this->getConsortia($record, 'Travel Leaders'))
                     ->extraCellAttributes(fn ($record) => [
                         'title' => $this->getConsortia($record, 'Travel Leaders'),

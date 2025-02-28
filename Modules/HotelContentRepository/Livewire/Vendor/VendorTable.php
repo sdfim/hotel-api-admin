@@ -35,11 +35,6 @@ class VendorTable extends Component implements HasForms, HasTable
                 )
             )
             ->columns([
-                IconColumn::make('verified')
-                    ->label('Verified')
-                    ->sortable()
-                    ->toggleable()
-                    ->boolean(),
                 TextColumn::make('name')
                     ->label('Name')
                     ->searchable()

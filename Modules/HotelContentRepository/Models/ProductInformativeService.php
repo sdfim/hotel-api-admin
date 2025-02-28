@@ -31,6 +31,8 @@ class ProductInformativeService extends Model
         'rate_id',
         'room_id',
         'service_id',
+        'start_date',
+        'end_date',
         'cost',
         'name',
         'currency',
@@ -39,6 +41,8 @@ class ProductInformativeService extends Model
         'show_service_data_on_pdf',
         'commissionable',
         'auto_book',
+        'age_from',
+        'age_to',
     ];
 
     protected $hidden = [
@@ -46,6 +50,8 @@ class ProductInformativeService extends Model
         'show_service_on_pdf' => 'boolean',
         'show_service_data_on_pdf' => 'boolean',
         'auto_book' => 'boolean',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
     ];
 
     public function setServiceTimeAttribute($value)
@@ -65,6 +71,11 @@ class ProductInformativeService extends Model
     public function room(): BelongsTo
     {
         return $this->belongsTo(HotelRoom::class);
+    }
+
+    public function rate(): BelongsTo
+    {
+        return $this->belongsTo(HotelRate::class);
     }
 
     public function service(): BelongsTo

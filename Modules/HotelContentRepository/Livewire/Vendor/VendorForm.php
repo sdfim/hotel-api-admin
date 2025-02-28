@@ -16,7 +16,6 @@ use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
@@ -49,7 +48,7 @@ class VendorForm extends Component implements HasForms
     {
         $this->record = $vendor ?? app(Vendor::class);
 
-        $this->verified = $vendor->verified ?? false;
+        $this->verified = $vendor->verified ?? true;
 
         $vendor = $this->record->attributesToArray();
 
@@ -67,14 +66,36 @@ class VendorForm extends Component implements HasForms
         }
 
         $vendor['independent_flag'] = $this->record->independent_flag ?? false;
+        $vendor['giata_code_visible'] = $this->record->independent_flag && $this->record->products->count() < 2 ?? false;
+
+        $vendor['giata_code'] = $this->record->products->first()->related->giata_code ?? null;
 
         $this->form->fill($vendor);
     }
 
-    public function toggleVerified()
+    public function toggleActivated()
     {
         $this->verified = ! $this->verified;
         $this->record->update(['verified' => $this->verified]);
+
+        if (! $this->verified) {
+            $this->record->products()->update([
+                'OnSale' => false,
+                'on_sale_causation' => 'Vendor Activation status changed to false',
+            ]);
+
+            Notification::make()
+                ->title('Products Updated')
+                ->body('All products have been set to not on sale due to vendor deactivation.')
+                ->danger()
+                ->send();
+        } else {
+            Notification::make()
+                ->title('Vendor Activated')
+                ->body('The vendor has been successfully activated.')
+                ->success()
+                ->send();
+        }
     }
 
     public function confirmDeleteVendor()
@@ -143,6 +164,10 @@ class VendorForm extends Component implements HasForms
                             ->required(),
                         Select::make('user_ids')
                             ->label('Users')
+                            ->native(false)
+                            ->options(
+                                User::pluck('email', 'id')->toArray()
+                            )
                             ->getSearchResultsUsing(
                                 fn (string $search): array => User::where('email', 'like', "%$search%")
                                     ->limit(10)->pluck('email', 'id')->toArray()
@@ -159,6 +184,7 @@ class VendorForm extends Component implements HasForms
                                     ->maxLength(191),
                                 TextInput::make('email')
                                     ->unique(ignorable: $this->record)
+                                    ->unique(User::class, 'email')
                                     ->required()
                                     ->email()
                                     ->maxLength(191),
@@ -234,7 +260,7 @@ class VendorForm extends Component implements HasForms
                                     $set('giata_code_visible', false);
                                 }
                             })
-                            ->disabled(fn () => $this->record->exists),
+                            ->disabled(fn () => $this->record->exists && $this->record->products->count() > 1),
                         Select::make('giata_code')
                             ->label('GIATA code')
                             ->searchable()
@@ -277,7 +303,7 @@ class VendorForm extends Component implements HasForms
         $this->data['address'] = $this->data['addressArr'];
 
         $this->record->fill($this->data);
-        $this->record->verified = $this->verified ?? false;
+        $this->record->verified = $this->verified ?? true;
         $isNew = ! $this->record->exists || ! $this->record->team;
         $this->record->save();
 
@@ -295,15 +321,15 @@ class VendorForm extends Component implements HasForms
         }
 
         if ($this->data['independent_flag']) {
-            if ($isCreate) {
+            $existHotels = Hotel::whereHas('product', function ($query) {
+                $query->where('vendor_id', $this->record->id);
+            })->get();
+            if ($isCreate || $existHotels->isEmpty() || $existHotels->count() == 1) {
                 $dataGiata['giata_code'] = $this->data['giata_code'];
                 $dataGiata['product']['vendor_id'] = $this->record->id;
                 resolve(HotelTable::class)->saveHotelWithGiataCode($dataGiata);
             } else {
-                $hotels = Hotel::whereHas('product', function ($query) {
-                    $query->where('vendor_id', $this->record->id);
-                })->get();
-                foreach ($hotels as $hotel) {
+                foreach ($existHotels as $hotel) {
                     $hotel->product->name = $this->data['name'];
                     $hotel->product->lat = $this->data['lat'];
                     $hotel->product->lng = $this->data['lng'];

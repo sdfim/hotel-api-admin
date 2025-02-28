@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::create('insurance_provider_documentations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vendor_id')->constrained('pd_vendors')->onDelete('cascade');
-            $table->string('document_type');
+            $table->foreignId('document_type_id')->constrained('insurance_config_documentation_types')->onDelete('cascade');
             $table->string('viewable')->nullable();
             $table->string('path');
             $table->timestamps();

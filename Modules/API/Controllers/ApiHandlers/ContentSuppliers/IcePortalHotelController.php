@@ -238,7 +238,10 @@ class IcePortalHotelController
 
         $existingRecordsArray = [];
         foreach ($existingRecords->get() as $record) {
-            $giataCode = $dataMapper->firstWhere('supplier_id', $record->listingID)->giata_id;
+            $giataCode = $dataMapper->firstWhere('supplier_id', $record->listingID)?->giata_id;
+            if (! $giataCode) {
+                continue;
+            }
             $existingRecordsArray[$giataCode] = $record->toArray();
         }
 

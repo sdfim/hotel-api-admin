@@ -12,19 +12,23 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Actions\ProductPromotion\AddProductPromotion;
 use Modules\HotelContentRepository\Actions\ProductPromotion\EditProductPromotion;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
+use Modules\HotelContentRepository\Models\HotelRate;
 use Modules\HotelContentRepository\Models\ImageGallery;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductPromotion;
@@ -45,7 +49,12 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
     {
         $this->productId = $product->id;
         $this->rateId = $rateId;
-        $this->title = 'Promotions for <h4>'.$product->name.'</h4>';
+        $rate = HotelRate::where('id', $rateId)->first();
+        $this->title = 'Promotions for '.$product->name;
+        if ($this->rateId) {
+            $this->title .= ' - Rate ID: '.$this->rateId;
+            $this->title .= ' - Rate Name: '.$rate->name;
+        }
     }
 
     public function schemeForm(): array
@@ -63,32 +72,30 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
             Grid::make()
                 ->schema([
                     DatePicker::make('validity_start')
-                        ->label('Validity Start')
+                        ->label('Travel Start Date')
                         ->native(false)
                         ->required(),
                     DatePicker::make('validity_end')
-                        ->label('Validity End')
+                        ->label('Travel End Datee')
                         ->native(false),
                 ]),
             Grid::make()
                 ->schema([
                     TextInput::make('min_night_stay')
                         ->label('Min Night Stay')
-                        ->numeric()
-                        ->required(),
+                        ->numeric(),
                     TextInput::make('max_night_stay')
                         ->label('Max Night Stay')
-                        ->numeric()
-                        ->required(),
+                        ->numeric(),
                 ]),
             Grid::make()
                 ->schema([
                     DatePicker::make('booking_start')
-                        ->label('Booking Start')
+                        ->label('Booking Start Date')
                         ->native(false)
                         ->required(),
                     DatePicker::make('booking_end')
-                        ->label('Booking End')
+                        ->label('Booking End Date')
                         ->native(false)
                         ->required(),
                 ]),
@@ -115,9 +122,30 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
     {
         return $table
             ->query(
-                ProductPromotion::query()->where('product_id', $this->productId)
-                    ->where('rate_id', $this->rateId))
+                ProductPromotion::query()
+                    ->where('product_id', $this->productId)
+            )
+            ->modifyQueryUsing(function (Builder $query) {
+                if ($this->rateId) {
+                    $query->where(function ($q) {
+                        $q->where('rate_id', $this->rateId)
+                            ->orWhereNull('rate_id');
+                    });
+                } else {
+                    $query->whereNull('rate_id');
+                }
+            })
             ->columns([
+                TextColumn::make('level')
+                    ->label('Level')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        return ($this->productId && $this->rateId && $this->rateId === $record->rate_id) ? 'Rate' : 'Hotel';
+                    })
+                    ->colors([
+                        'primary' => 'Hotel',
+                        'warning' => 'Rate',
+                    ]),
                 TextColumn::make('promotion_name')->label('Promotion Name')->searchable(),
                 TextColumn::make('rate_code')->label('Rate Code')->searchable(),
                 TextColumn::make('description')->label('Description')->searchable(),
@@ -130,26 +158,29 @@ class ProductPromotionTable extends Component implements HasForms, HasTable
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
             ->actions([
-                EditAction::make()
-                    ->label('')
-                    ->tooltip('Edit Promotion')
-                    ->form($this->schemeForm())
-                    ->fillForm(function ($record) {
-                        $data = $record->toArray();
-                        $data['galleries'] = $record->galleries->pluck('id')->toArray();
+                ActionGroup::make([
+                    EditAction::make()
+                        ->tooltip('Edit Promotion')
+                        ->form($this->schemeForm())
+                        ->fillForm(function ($record) {
+                            $data = $record->toArray();
+                            $data['galleries'] = $record->galleries->pluck('id')->toArray();
 
-                        return $data;
-                    })
-                    ->action(function (ProductPromotion $record, array $data) {
-                        /** @var EditProductPromotion $editProductPromotion */
-                        $editProductPromotion = app(EditProductPromotion::class);
-                        $editProductPromotion->updateWithGalleries($record, $data);
-                    })
-                    ->modalHeading(new HtmlString("Edit {$this->title}"))
-                    ->modalHeading('Edit Promotion')
-                    ->visible(fn () => Gate::allows('create', Product::class)),
+                            return $data;
+                        })
+                        ->action(function (ProductPromotion $record, array $data) {
+                            /** @var EditProductPromotion $editProductPromotion */
+                            $editProductPromotion = app(EditProductPromotion::class);
+                            $editProductPromotion->updateWithGalleries($record, $data);
+                        })
+                        ->modalHeading(new HtmlString("Edit {$this->title}"))
+                        ->modalHeading('Edit Promotion')
+                        ->visible(fn () => Gate::allows('create', Product::class)),
+                    DeleteAction::make()
+                        ->visible(fn () => Gate::allows('create', Product::class)),
+                ])->visible(fn (ProductPromotion $record): bool => ($this->productId && $this->rateId === $record->rate_id) || ($this->productId && ! $this->rateId)),
+
             ])
-            ->bulkActions($this->getBulkActions())
             ->headerActions([
                 CreateAction::make()
                     ->form($this->schemeForm())

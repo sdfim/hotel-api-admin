@@ -3,6 +3,7 @@
 namespace Modules\HotelContentRepository\Livewire\ProductFeeTaxes;
 
 use App\Models\Supplier;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
@@ -13,11 +14,17 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Filament\Tables\Actions\ActionGroup;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\API\Suppliers\Enums\HBSI\HbsiFeeTaxTypeEnum;
 use Modules\Enums\FeeTaxCollectedByEnum;
@@ -26,6 +33,8 @@ use Modules\Enums\ProductFeeTaxTypeEnum;
 use Modules\Enums\ProductFeeTaxValueTypeEnum;
 use Modules\Enums\SupplierNameEnum;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
+use Modules\HotelContentRepository\Models\HotelRate;
+use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductFeeTax;
 
@@ -39,15 +48,31 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
 
     public ?int $rateId = null;
 
+    public ?int $roomId = null;
+
+    public ?array $rateRoomIds = [];
+
     public string $title;
 
     public ?string $supplierType = null;
 
-    public function mount(Product $product, ?int $rateId = null)
+    public function mount(Product $product, ?int $rateId = null, ?int $roomId = null)
     {
         $this->productId = $product->id;
         $this->rateId = $rateId;
-        $this->title = 'Fees and Taxes for <h4>'.$product->name.'</h4>';
+        $this->roomId = $roomId;
+        $rate = HotelRate::where('id', $rateId)->first();
+        $this->rateRoomIds = $rate?->room_ids ?? [];
+        $room = HotelRoom::where('id', $roomId)->first();
+        $this->title = 'Fees and Taxes for '.$product->name;
+        if ($this->rateId) {
+            $this->title .= ' - Rate ID: '.$this->rateId;
+            $this->title .= ' - Rate Name: '.$rate->name;
+        }
+        if ($this->roomId) {
+            $this->title .= ' - Room ID: '.$this->roomId;
+            $this->title .= ' - Room Name: '.$room->name;
+        }
     }
 
     public function updatedSupplierId($value)
@@ -70,14 +95,15 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
     {
         return [
             Hidden::make('product_id')->default($this->productId),
+            Hidden::make('room_id')->default($this->roomId),
             Hidden::make('rate_id')->default($this->rateId),
 
-            Fieldset::make('General settings')
+            Fieldset::make('General Setting')
                 ->columns(2)
                 ->schema([
                     Select::make('supplier_id')
                         ->label('Supplier/Driver')
-                        ->required()
+                        ->rules(['required'])
                         ->options(
                             Supplier::query()
                                 ->whereJsonContains('product_type', 'hotel')
@@ -106,22 +132,34 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             'delete' => 'Delete',
                         ])
                         ->live()
-                        ->required(),
+                        ->rules(['required']),
                     TextInput::make('name')
                         ->label('New Name')
                         ->reactive()
-                        ->required()
+                        ->rules(['required'])
                         ->visible(fn (Get $get) => $get('action_type') !== 'delete'),
                     Select::make('old_name')
                         ->label('Current Name')
                         ->reactive()
                         ->searchable()
                         ->options(fn (Get $get) => $get('old_name_options') ?? [])
-                        ->required()
+                        ->rules(['required'])
                         ->visible(fn (Get $get) => $get('action_type') !== 'add'),
                 ]),
 
-            Fieldset::make('Type settings')
+            Fieldset::make('Date Setting')
+                ->schema([
+                    DatePicker::make('start_date')
+                        ->label('Travel Start Date')
+                        ->native(false)
+                        ->rules(['required', 'date']),
+                    DatePicker::make('end_date')
+                        ->label('Travel End Date')
+                        ->native(false)
+                        ->rules(['required', 'date', 'after_or_equal:start_date']),
+                ]),
+
+            Fieldset::make('Type Setting')
                 ->columns(2)
                 ->visible(fn (Get $get) => $get('action_type') !== 'delete')
                 ->schema([
@@ -131,23 +169,23 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             ProductFeeTaxTypeEnum::TAX->value => 'Tax',
                             ProductFeeTaxTypeEnum::FEE->value => 'Fee',
                         ])
-                        ->required(),
+                        ->rules(['required']),
                     Grid::make(2)
                         ->schema([
                             Toggle::make('commissionable')
                                 ->label('Commissionable')
                                 ->inline(false)
-                                ->required(),
+                                ->rules(['required']),
                             Select::make('fee_category')
                                 ->label('Fee Category')
                                 ->options([
                                     'mandatory' => 'Mandatory',
                                     'optional' => 'Optional',
                                 ])
-                                ->required(),
+                                ->rules(['required']),
                         ])->columnSpan(1),
                 ]),
-            Fieldset::make('Value settings')
+            Fieldset::make('Value Setting')
                 ->columns(2)
                 ->visible(fn (Get $get) => $get('action_type') === 'add')
                 ->schema([
@@ -157,7 +195,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             ProductFeeTaxValueTypeEnum::PERCENTAGE->value => 'Percentage',
                             ProductFeeTaxValueTypeEnum::AMOUNT->value => 'Amount',
                         ])
-                        ->required(),
+                        ->rules(['required']),
                     Select::make('apply_type')
                         ->label('Apply Type')
                         ->options([
@@ -165,16 +203,16 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             ProductFeeTaxApplyTypeEnum::PER_PERSON->value => 'Per Person',
                             ProductFeeTaxApplyTypeEnum::PER_NIGHT_PER_PERSON->value => 'Per Night Per Person',
                         ])
-                        ->required(),
+                        ->rules(['required']),
 
                     TextInput::make('net_value')
                         ->label('Net Value')
                         ->numeric(2)
-                        ->required(),
+                        ->rules(['required']),
                     TextInput::make('rack_value')
                         ->label('Rack Value')
                         ->numeric(2)
-                        ->required(),
+                        ->rules(['required']),
                 ]),
             Grid::make(2)
                 ->schema([
@@ -184,7 +222,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                             FeeTaxCollectedByEnum::DIRECT->value => 'Direct',
                             FeeTaxCollectedByEnum::VENDOR->value => 'Vendor',
                         ])
-                        ->required(),
+                        ->rules(['required']),
                 ]),
         ];
     }
@@ -193,9 +231,55 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
     {
         return $table
             ->query(
-                ProductFeeTax::query()->where('product_id', $this->productId)
-                    ->where('rate_id', $this->rateId))
+                ProductFeeTax::query()
+                    ->where('product_id', $this->productId)
+            )
+            ->modifyQueryUsing(function (Builder $query) {
+                if ($this->rateId) {
+                    $query->where(function ($q) {
+                        $q->where('rate_id', $this->rateId)
+                            ->orWhereNull('rate_id');
+                    });
+                    $query->where(function ($q) {
+                        $q->whereIn('room_id', $this->rateRoomIds)
+                            ->orWhereNull('room_id');
+                    });
+                } elseif ($this->roomId) {
+                    $query->where(function ($q) {
+                        $q->where('room_id', $this->roomId)
+                            ->orWhereNull('rate_id')->whereNull('room_id');
+                    });
+                } else {
+                    $query->whereNull('rate_id')->whereNull('room_id');
+                }
+            })
             ->columns([
+                TextColumn::make('level')
+                    ->label('Level')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        return match (true) {
+                            $this->productId && $this->rateId && $this->rateId === $record->rate_id => 'Rate',
+                            $this->productId && $this->roomId && $this->roomId === $record->room_id,
+                            $this->productId && $this->rateId && $record->room_id !== null => 'Room',
+                            default => 'Hotel',
+                        };
+                    })
+                    ->colors([
+                        'primary' => 'Hotel',
+                        'warning' => 'Rate',
+                        'success' => 'Room',
+                    ]),
+                TextColumn::make('code_entity')
+                    ->toggleable()
+                    ->label('Code')
+                    ->getStateUsing(function ($record) {
+                        return match (true) {
+                            $this->productId && $this->rateId && $this->rateId === $record->rate_id => $record->rate?->code,
+                            in_array($record->room_id, $this->rateRoomIds) => $record->room->hbsi_data_mapped_name,
+                            default => '',
+                        };
+                    }),
                 TextColumn::make('old_name')->label('Current Name')->searchable(),
                 TextColumn::make('name')->label('New Name')->searchable(),
                 TextColumn::make('supplier.name')->label('Driver')->searchable(),
@@ -229,8 +313,48 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
 
                 TextColumn::make('created_at')->label('Created At')->date(),
             ])
-            ->actions($this->getActions())
-            ->bulkActions($this->getBulkActions())
+            ->actions([
+                ActionGroup::make([
+                    EditAction::make()
+                        ->modalHeading(new HtmlString("Edit {$this->title}"))
+                        ->form($this->schemeForm())
+                        ->action(function (ProductFeeTax $record, array $data) {
+                            if ($data['action_type'] === 'delete') {
+                                // General Setting
+                                $data['name'] = null;
+                                // Type Setting
+                                $data['type'] = null;
+                                $data['fee_category'] = null;
+                                // Value Setting
+                                $data['value_type'] = null;
+                                $data['apply_type'] = null;
+                                $data['net_value'] = null;
+                                $data['rack_value'] = null;
+                            }
+                            if ($data['action_type'] === 'add') {
+                                // General Setting
+                                $data['old_name'] = null;
+                            }
+                            if ($data['action_type'] === 'edit') {
+                                // Value Setting
+                                $data['value_type'] = null;
+                                $data['apply_type'] = null;
+                                $data['net_value'] = null;
+                                $data['rack_value'] = null;
+                            }
+                            $record->update($data);
+                        })
+                        ->closeModalByClickingAway(false)
+                        ->visible(fn () => Gate::allows('create', Product::class)),
+                    DeleteAction::make()
+                        ->label('Delete')
+                        ->visible(fn () => Gate::allows('create', Product::class)),
+                ])
+                    ->visible(fn (ProductFeeTax $record): bool => ($this->rateId && $this->rateId === $record->rate_id) ||
+                    ($this->roomId && $this->roomId === $record->room_id) ||
+                    (! $this->rateId && ! $this->roomId)
+                    ),
+            ])
             ->headerActions($this->getHeaderActions());
     }
 

@@ -15,8 +15,7 @@ class ProductAffiliationControllerTest extends TestCase
     {
         $data = ProductAffiliation::factory()->make()->toArray();
         $response = $this->request()->postJson('api/repo/product-affiliations', $data);
-        $response->assertStatus(201)
-            ->assertJsonFragment($data);
+        $response->assertStatus(201)->assertJsonFragment($data);
         $this->assertDatabaseHas('pd_product_affiliations', $data);
     }
 
@@ -26,8 +25,7 @@ class ProductAffiliationControllerTest extends TestCase
         $productAffiliation = ProductAffiliation::factory()->create();
         $data = ProductAffiliation::factory()->make(['product_id' => $productAffiliation->product_id])->toArray();
         $response = $this->request()->putJson("api/repo/product-affiliations/{$productAffiliation->id}", $data);
-        $response->assertStatus(200)
-            ->assertJsonFragment($data);
+        $response->assertStatus(200)->assertJsonFragment($data);
         $this->assertDatabaseHas('pd_product_affiliations', $data);
     }
 

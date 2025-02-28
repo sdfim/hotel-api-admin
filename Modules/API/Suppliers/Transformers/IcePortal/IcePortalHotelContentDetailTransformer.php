@@ -13,7 +13,7 @@ use Modules\Enums\SupplierNameEnum;
 class IcePortalHotelContentDetailTransformer
 {
     public function __construct(
-        private readonly IcePortalClient           $client,
+        private readonly IcePortalClient $client,
         private readonly IcePortalAssetTransformer $icePortalAssetTransformer,
     ) {}
 
@@ -51,22 +51,18 @@ class IcePortalHotelContentDetailTransformer
         $hotelResponse->setImages($hotelImages);
         $hotelResponse->setDescription($supplierResponse->description ?? '');
         $hotelResponse->setHotelName($supplierResponse->name);
-        $hotelResponse->setDistance($supplierResponse->distance ?? '');
         $hotelResponse->setLatitude($supplierResponse->address['latitude'] ?? '');
         $hotelResponse->setLongitude($supplierResponse->address['longitude'] ?? '');
         $hotelResponse->setRating($rating);
         $hotelResponse->setAmenities(array_unique($hotelAmenities));
         $hotelResponse->setGiataDestination($supplierResponse->address['city'] ?? '');
         $hotelResponse->setUserRating($rating);
-        $hotelResponse->setSpecialInstructions($supplierResponse->room ?? []);
-        $hotelResponse->setCheckInTime($supplierResponse->checkin_time ?? '');
-        $hotelResponse->setCheckOutTime($supplierResponse->checkout_time ?? '');
-        $hotelResponse->setHotelFees(isset($supplierResponse->fees) ?
-            json_decode(json_encode($supplierResponse->fees), true) : []);
-        $hotelResponse->setPolicies(isset($supplierResponse->policies) ?
-            json_decode(json_encode($supplierResponse->policies), true) : []);
-        $hotelResponse->setDescriptions(isset($supplierResponse->descriptions) ?
-            json_decode(json_encode($supplierResponse->descriptions), true) : []);
+
+        $fees = isset($supplierResponse->fees) ? json_decode(json_encode($supplierResponse->fees), true) : [];
+        $policies = isset($supplierResponse->policies) ? json_decode(json_encode($supplierResponse->policies), true) : [];
+        $descriptions = isset($supplierResponse->descriptions) ? json_decode(json_encode($supplierResponse->descriptions), true) : [];
+        $descriptions = array_merge($fees, $policies, $descriptions);
+        $hotelResponse->setDescriptions($descriptions);
         $hotelResponse->setAddress($supplierResponse->address ? $address : '');
 
         $rooms = [];
@@ -117,7 +113,6 @@ class IcePortalHotelContentDetailTransformer
         $hotelResponse->setImages($hotelImages);
         $hotelResponse->setDescription(Arr::get($supplierResponse, 'description', ''));
         $hotelResponse->setHotelName(Arr::get($supplierResponse, 'name', ''));
-        $hotelResponse->setDistance(Arr::get($supplierResponse, 'distance', ''));
         $hotelResponse->setLatitude(Arr::get($supplierResponse, 'address.latitude', ''));
         $hotelResponse->setLongitude(Arr::get($supplierResponse, 'address.longitude', ''));
         $hotelResponse->setRating($rating);
@@ -125,11 +120,13 @@ class IcePortalHotelContentDetailTransformer
         $hotelResponse->setGiataDestination(Arr::get($supplierResponse, 'address.city', ''));
         $hotelResponse->setUserRating($rating);
         $hotelResponse->setSpecialInstructions(Arr::get($supplierResponse, 'room', []));
-        $hotelResponse->setCheckInTime(Arr::get($supplierResponse, 'checkin_time', ''));
-        $hotelResponse->setCheckOutTime(Arr::get($supplierResponse, 'checkout_time', ''));
-        $hotelResponse->setHotelFees(Arr::get($supplierResponse, 'fees', []));
-        $hotelResponse->setPolicies(Arr::get($supplierResponse, 'policies', []));
-        $hotelResponse->setDescriptions(Arr::get($supplierResponse, 'descriptions', []));
+
+        $fees = Arr::get($supplierResponse, 'fees', []);
+        $policies = Arr::get($supplierResponse, 'policies', []);
+        $descriptions = Arr::get($supplierResponse, 'descriptions', []);
+        $descriptions = array_merge($fees, $policies, $descriptions);
+
+        $hotelResponse->setDescriptions($descriptions);
         $hotelResponse->setAddress($address);
 
         $rooms = [];

@@ -3,14 +3,14 @@
     @if ($record->exists)
         <div class="hotel-form-toggle-container">
             <div class="left-block">
-                <span class="hotel-form-toggle-label">Verified</span>
+                <span class="hotel-form-toggle-label dark:text-white">Verified</span>
                 <label class="hotel-form-toggle-button">
-                    <input type="checkbox" wire:click="toggleVerified" {{ $verified ? 'checked' : '' }}>
+                    <input type="checkbox" wire:model="verified" wire:click.prevent="toggleVerified" {{ $verified ? 'checked' : '' }}>
                     <span class="hotel-form-slider"></span>
                 </label>
-                <span class="hotel-form-toggle-label pl-6">On Sale</span>
+                <span class="hotel-form-toggle-label pl-6 dark:text-white">On Sale</span>
                 <label class="hotel-form-toggle-button">
-                    <input type="checkbox" wire:click="toggleOnSale" {{ $onSale ? 'checked' : '' }}>
+                    <input type="checkbox" wire:model="onSale" wire:click.prevent="toggleOnSale">
                     <span class="hotel-form-slider"></span>
                 </label>
                 <button class="pd-history-button" wire:click="$set('showInfoModal', true)">
@@ -98,7 +98,7 @@
     <h3 class="sr_tab-title text-lg font-semibold mb-4 mt-4" x-show="activeTab.includes('-data-sources-tab')">Data
         Sources</h3>
 
-    <form class="hotel-form-container" wire:submit="edit" x-show="activeTab.includes('tab')">
+    <form class="hotel-form-container dark:bg-gray-900" wire:submit="edit" x-show="activeTab.includes('tab')">
         {{ $this->form }}
     </form>
 

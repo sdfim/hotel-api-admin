@@ -4,6 +4,7 @@ namespace Modules\Insurance\Livewire\Restrictions;
 
 use App\Helpers\ClassHelper;
 use App\Models\Enums\RoleSlug;
+use App\Models\GiataGeography;
 use App\Models\Property;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Select;
@@ -25,11 +26,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
-use Modules\Enums\InsuranceRestrictionSaleTypeEnum;
 use Modules\Enums\VendorTypeEnum;
 use Modules\HotelContentRepository\Models\Vendor;
 use Modules\Insurance\Models\InsuranceRestriction;
 use Modules\Insurance\Models\InsuranceRestrictionType;
+use Modules\Insurance\Models\InsuranceType;
 
 class RestrictionsTable extends Component implements HasForms, HasTable
 {
@@ -56,7 +57,12 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                 ->options(fn () => Vendor::where('type', 'like', '%'.VendorTypeEnum::INSURANCE->value.'%')->pluck('name', 'id')->toArray())
                 ->preload()
                 ->required(),
-            Grid::make(2)
+            Select::make('insurance_type_id')
+                ->label('Insurance Type')
+                ->options(fn () => InsuranceType::pluck('name', 'id')->toArray())
+                ->preload()
+                ->required(),
+            Grid::make(4)
                 ->schema([
                     Select::make('restriction_type_id')
                         ->label('Restriction Type')
@@ -70,11 +76,6 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                             ->getChildComponentContainer()
                             ->fill()
                         ),
-                    Select::make('sale_type')
-                        ->label('Sale Type')
-                        ->options(InsuranceRestrictionSaleTypeEnum::getOptions())
-                        ->preload()
-                        ->required(),
                     Select::make('compare')
                         ->label('Compare')
                         ->options(fn (Get $get): array => match (array_search($get('restriction_type_id'), $this->restrictionTypes)) {
@@ -111,20 +112,28 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                                     ->label('Value')
                                     ->searchable()
                                     ->getSearchResultsUsing(function (string $search): array {
-                                        $result = Property::select(
-                                            DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'), 'city_id')
-                                            ->where('city', 'like', "%$search%")
-                                            ->where('locale', 'like', "%$search%")
-                                            ->limit(30);
-
-                                        return $result->pluck('full_name', 'city_id')->toArray() ?? [];
+                                        return GiataGeography::selectRaw("
+                                                DISTINCT CASE
+                                                    WHEN locale_name IS NULL OR locale_name = country_name THEN country_name
+                                                    ELSE CONCAT(country_name, ' (', locale_name, ')')
+                                                END AS country_locale
+                                            ")
+                                            ->whereRaw("CONCAT(country_name, ' ', locale_name) LIKE ?", ["%{$search}%"])
+                                            ->pluck('country_locale', 'country_locale')
+                                            ->toArray();
                                     })
                                     ->getOptionLabelUsing(function ($value): ?string {
-                                        $result = Property::select(
-                                            DB::raw('CONCAT(city, " (", city_id, ") ", ", ", locale) AS full_name'))
-                                            ->where('city_id', $value)->first();
+                                        if (preg_match('/^(.*?) \((.*?)\)$/', $value, $matches)) {
+                                            $countryName = $matches[1];
+                                            $localeName = $matches[2];
 
-                                        return $result->full_name ?? '';
+                                            return GiataGeography::where('country_name', $countryName)
+                                                ->where('locale_name', $localeName)
+                                                ->first()
+                                                ->country_name.' ('.$localeName.')';
+                                        }
+
+                                        return GiataGeography::where('country_name', $value)->first()->country_name ?? '';
                                     })
                                     ->required(),
                             ],
@@ -142,7 +151,7 @@ class RestrictionsTable extends Component implements HasForms, HasTable
                             ],
                         })
                         ->key('dynamicFieldValue')
-                        ->columnStart(2),
+                        ->columnStart(3),
                 ]),
         ];
     }
@@ -188,10 +197,6 @@ class RestrictionsTable extends Component implements HasForms, HasTable
 
                         return $record->value;
                     }),
-                TextColumn::make('sale_type')
-                    ->label('Sale Type')
-                    ->sortable()
-                    ->alignCenter(),
             ])
             ->actions([
                 EditAction::make()

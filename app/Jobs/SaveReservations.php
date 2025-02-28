@@ -11,7 +11,10 @@ use Modules\API\Suppliers\ExpediaSupplier\ExpediaTools;
 
 class SaveReservations implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * Create a new job instance.
@@ -20,15 +23,15 @@ class SaveReservations implements ShouldQueue
         private readonly string $booking_id,
         private readonly array $filters,
         private readonly array $dataPassengers,
-        private readonly ExpediaTools $expediaTools = new ExpediaTools(),
-    ) {
-    }
+    ) {}
 
     /**
      * Execute the job.
      */
     public function handle(): void
     {
-        $this->expediaTools->saveAddItemToReservations($this->booking_id, $this->filters, $this->dataPassengers);
+        /* @var ExpediaTools $expediaTools */
+        $expediaTools = app(ExpediaTools::class);
+        $expediaTools->saveAddItemToReservations($this->booking_id, $this->filters, $this->dataPassengers);
     }
 }

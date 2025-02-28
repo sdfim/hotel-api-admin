@@ -11,6 +11,8 @@ return new class extends Migration
         Schema::create('insurance_types', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->float('commission', 8, 2)->nullable();
+            $table->string('sale_type')->nullable();
             $table->json('benefits');
             $table->timestamps();
         });

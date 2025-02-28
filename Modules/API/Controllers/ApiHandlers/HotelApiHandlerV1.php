@@ -223,7 +223,7 @@ class HotelApiHandlerV1 extends HotelApiHandler
                 }
                 $item->$key = $value;
             }
-            $contentDetailResponse = $this->ExpediaHotelContentDetailTransformer->ExpediaArrayToContentDetailResponse($item->toArray(), $mappingsExpedia[$item->property_id]);
+            $contentDetailResponse = $this->ExpediaHotelContentDetailTransformer->ExpediaToContentDetailResponse($item->toArray(), $mappingsExpedia[$item->property_id]);
             $resultsExpedia = array_merge($resultsExpedia, $contentDetailResponse);
         }
 

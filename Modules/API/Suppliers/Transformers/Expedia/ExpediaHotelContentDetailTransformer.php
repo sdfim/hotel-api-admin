@@ -11,156 +11,11 @@ use Psr\Container\NotFoundExceptionInterface;
 
 class ExpediaHotelContentDetailTransformer
 {
-    private const TA_CLIENT = 'https://developer.expediapartnersolutions.com/terms/en';
-
-    private const TA_AGENT = 'https://developer.expediapartnersolutions.com/terms/agent/en/';
-
     public function __construct(
         private readonly ExpediaTranformerService $expediaTranformerService
     ) {}
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function ExpediaToContentDetailResponse(object $supplierResponse, int $giata_id): array
-    {
-        $contentResponse = [];
-
-        $hotelImages = [];
-        if (isset($supplierResponse->images) && is_iterable($supplierResponse->images)) {
-            foreach ($supplierResponse->images as $image) {
-                $hotelImages[] = $image->links->{'1000px'}->href;
-            }
-        } else {
-            \Log::error('ExpediaHotelContentDetailTransformer | Probably an error with the expedia_content_slave table');
-        }
-        $viewAmenities = request()->get('category_amenities') === 'true';
-
-        $address = $supplierResponse->address['line_1'].', '.
-            $supplierResponse->address['city'];
-
-        if ($postalCode = Arr::get($supplierResponse->address, 'postal_code')) {
-            $address .= " - $postalCode";
-        }
-
-        $hotelResponse = ContentDetailResponseFactory::create();
-        $hotelResponse->setGiataHotelCode($giata_id);
-        $hotelResponse->setImages($hotelImages);
-        $hotelResponse->setDescription($supplierResponse->description ?? '');
-        $hotelResponse->setHotelName($supplierResponse->name);
-        $hotelResponse->setDistance($supplierResponse->distance ?? '');
-        $hotelResponse->setLatitude($supplierResponse->location['coordinates']['latitude']);
-        $hotelResponse->setLongitude($supplierResponse->location['coordinates']['longitude']);
-        $hotelResponse->setRating($supplierResponse->rating);
-        $amenities = $supplierResponse->amenities ? json_decode(json_encode($supplierResponse->amenities), true) : [];
-
-        if ($viewAmenities) {
-            $hotelResponse->setAmenities($amenities);
-        } else {
-            $hotelResponse->setAmenities(array_values(array_map(function ($amenity) {
-                return [
-                    'name' => Arr::get($amenity, 'name'),
-                    'category' => Arr::get($amenity, 'categories.0', 'general'),
-                ];
-            }, $amenities)));
-        }
-        $hotelResponse->setGiataDestination($supplierResponse->city ?? '');
-        $hotelResponse->setUserRating($supplierResponse->rating ?? '');
-        $hotelResponse->setSpecialInstructions([
-            'checkin' => $supplierResponse->checkin ?? null,
-            'checkout' => $supplierResponse->checkout ?? null,
-        ]);
-        $hotelResponse->setCheckInTime($supplierResponse->checkin?->begin_time ?? '');
-        $hotelResponse->setCheckOutTime($supplierResponse->checkout?->time ?? '');
-
-        $fees = [];
-        if (isset($supplierResponse->fees) && is_object($supplierResponse->fees)) {
-            foreach ($supplierResponse->fees as $key => $value) {
-                $fees[] = [
-                    'name' => $key,
-                    'value' => $value,
-                ];
-            }
-        }
-
-        $policies = [];
-        if (isset($supplierResponse->policies) && is_object($supplierResponse->policies)) {
-            foreach ($supplierResponse->policies as $key => $value) {
-                $policies[] = [
-                    'name' => $key,
-                    'value' => $value,
-                ];
-            }
-        }
-
-        $descriptions = [];
-        if (isset($supplierResponse->descriptions) && is_object($supplierResponse->descriptions)) {
-            foreach ($supplierResponse->descriptions as $key => $value) {
-                $descriptions[] = [
-                    'name' => $key,
-                    'value' => $value,
-                ];
-            }
-        }
-
-        $hotelResponse->setHotelFees($fees);
-        $hotelResponse->setPolicies($policies);
-        $hotelResponse->setDescriptions($descriptions);
-        $hotelResponse->setDrivers([['name' => 'Expedia', 'value' => true]]);
-        $hotelResponse->setAddress($supplierResponse->address ? $address : '');
-        $hotelResponse->setSupplierInformation([
-            'supplier_terms_and_conditions_client' => self::TA_CLIENT,
-            'supplier_terms_and_conditions_agent' => self::TA_AGENT,
-        ]);
-
-        $rooms = [];
-        if ($supplierResponse->rooms) {
-            $_rooms = is_object($supplierResponse->rooms) ? $supplierResponse->rooms : json_decode($supplierResponse->rooms);
-
-            // THIS IS A TEMP LOG TO TEST AN ISSUE
-            if (! is_array($supplierResponse->rooms)) {
-                \Log::info('ROOM DETAIL TEMP INFO', ['room' => $supplierResponse->rooms]);
-            }
-
-            foreach ($_rooms as $room) {
-                if (! $room) {
-                    continue;
-                }
-                $amenities = $room?->amenities ? json_decode(json_encode($room->amenities), true) : [];
-                $images = [];
-                if (isset($room->images)) {
-                    foreach ($room->images as $image) {
-                        $images[] = $image->links->{'350px'}->href;
-                    }
-                }
-                $roomResponse = ContentDetailRoomsResponseFactory::create();
-                $roomResponse->setSupplierRoomId($room->id);
-                $roomResponse->setUnifiedRoomCode($room->id);
-                $roomResponse->setSupplierRoomName($room->name);
-                if ($viewAmenities) {
-                    $roomResponse->setAmenities($amenities ?? []);
-                } else {
-                    $roomResponse->setAmenities(array_values(array_map(function ($amenity) {
-                        return [
-                            'name' => Arr::get($amenity, 'name'),
-                            'category' => Arr::get($amenity, 'categories.0', 'general'),
-                        ];
-                    }, $amenities)));
-                }
-                $roomResponse->setImages($images);
-                $roomResponse->setDescriptions($room->descriptions ? $room->descriptions->overview : '');
-                $rooms[] = $roomResponse->toArray();
-            }
-        }
-        $hotelResponse->setRooms($rooms);
-
-        $contentResponse[] = $hotelResponse->toArray();
-
-        return $contentResponse;
-    }
-
-    public function ExpediaArrayToContentDetailResponse(array $supplierResponse, int $giata_id): array
+    public function ExpediaToContentDetailResponse(array $supplierResponse, int $giata_id): array
     {
         $contentResponse = [];
 
@@ -186,7 +41,6 @@ class ExpediaHotelContentDetailTransformer
         $hotelResponse->setGiataHotelCode($giata_id);
         $hotelResponse->setImages($hotelImages);
         $hotelResponse->setHotelName(Arr::get($supplierResponse, 'name', ''));
-        $hotelResponse->setDistance(Arr::get($supplierResponse, 'distance', ''));
         $hotelResponse->setLatitude(Arr::get($supplierResponse, 'location.coordinates.latitude', ''));
         $hotelResponse->setLongitude(Arr::get($supplierResponse, 'location.coordinates.longitude', ''));
         $hotelResponse->setRating(Arr::get($supplierResponse, 'rating', ''));
@@ -203,28 +57,34 @@ class ExpediaHotelContentDetailTransformer
         }
         $hotelResponse->setGiataDestination(Arr::get($supplierResponse, 'city', ''));
         $hotelResponse->setUserRating(Arr::get($supplierResponse, 'rating', ''));
-        $hotelResponse->setSpecialInstructions([
-            'checkin' => Arr::get($supplierResponse, 'checkin', null),
-            'checkout' => Arr::get($supplierResponse, 'checkout', null),
-        ]);
-        $hotelResponse->setCheckInTime(Arr::get($supplierResponse, 'checkin.begin_time', ''));
-        $hotelResponse->setCheckOutTime(Arr::get($supplierResponse, 'checkout.time', ''));
 
-        $fees = $this->expediaTranformerService->transformToNameValueArray(Arr::get($supplierResponse, 'fees', []));
-        $policies = $this->expediaTranformerService->transformToNameValueArray(Arr::get($supplierResponse, 'policies', []));
+        $attractionsData = Arr::get($supplierResponse, 'descriptions.attractions', []);
+        $attractions = $this->expediaTranformerService->parseAttractions($attractionsData);
+        $nearestAirports = array_filter($attractions, function ($attraction) {
+            return strpos($attraction['name'], 'Airport') !== false;
+        });
+        $hotelResponse->setNearestAirports(array_values($nearestAirports));
+
+        $checkin = [];
+        $checkinData = Arr::get($supplierResponse, 'checkin', []);
+        foreach ($checkinData as $key => $value) {
+            $checkin = array_merge($checkin, $this->expediaTranformerService->transformToNameValueArray([$key => $value], ['start_date', 'end_date'], 'checkin_'.$key));
+        }
+        $checkout = [];
+        $checkoutData = Arr::get($supplierResponse, 'checkout', []);
+        foreach ($checkoutData as $key => $value) {
+            $checkout = array_merge($checkout, $this->expediaTranformerService->transformToNameValueArray([$key => $value], ['start_date', 'end_date'], 'checkout_'.$key));
+        }
+
+        $hotel_fees = $this->expediaTranformerService->transformToNameValueArray(Arr::get($supplierResponse, 'fees', []), ['start_date', 'end_date'], 'hotel_fees');
+        $policies = $this->expediaTranformerService->transformToNameValueArray(Arr::get($supplierResponse, 'policies', []), ['start_date', 'end_date'], 'policies');
         $descriptions = $this->expediaTranformerService->transformToNameValueArray(Arr::get($supplierResponse, 'descriptions', []), ['start_date', 'end_date']);
 
-        $hotelResponse->setHotelFees($fees);
-        $hotelResponse->setPolicies($policies);
-        $hotelResponse->setDescriptions($descriptions);
+        $hotelResponse->setDescriptions(array_merge($descriptions, $hotel_fees, $policies, $checkin, $checkout));
 
         $hotelResponse->setDrivers([['name' => 'Expedia', 'value' => true]]);
 
         $hotelResponse->setAddress($address);
-        $hotelResponse->setSupplierInformation([
-            'supplier_terms_and_conditions_client' => self::TA_CLIENT,
-            'supplier_terms_and_conditions_agent' => self::TA_AGENT,
-        ]);
 
         $rooms = [];
         $supplierRooms = Arr::get($supplierResponse, 'rooms', []);

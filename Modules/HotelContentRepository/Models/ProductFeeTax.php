@@ -28,7 +28,10 @@ class ProductFeeTax extends Model
     protected $fillable = [
         'name',
         'product_id',
+        'room_id',
         'rate_id',
+        'start_date',
+        'end_date',
         'net_value',
         'rack_value',
         'type',
@@ -47,6 +50,8 @@ class ProductFeeTax extends Model
         'rack_value' => 'float',
         'commissionable' => 'boolean',
         'apply_type' => ProductFeeTaxApplyTypeEnum::class,
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
     ];
 
     protected $hidden = [
@@ -65,6 +70,11 @@ class ProductFeeTax extends Model
         return $this->belongsTo(HotelRate::class);
     }
 
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(HotelRoom::class);
+    }
+
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
@@ -73,7 +83,7 @@ class ProductFeeTax extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->logOnly(['name', 'product_id', 'net_value', 'rack_value', 'type', 'value_type', 'commissionable', 'collected_by', 'fee_category'])
+            ->logOnly(['*'])
             ->logOnlyDirty()
             ->useLogName('product_fee_tax');
     }

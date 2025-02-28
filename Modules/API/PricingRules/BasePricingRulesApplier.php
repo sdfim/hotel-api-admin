@@ -139,7 +139,7 @@ class BasePricingRulesApplier
         $percentageValue = ($this->{$totalPropertyName} * $fixedValue) / 100;
 
         $this->markup += match ($priceValueTarget) {
-            'per_guest' => match ($priceValueType) {
+            'per_person' => match ($priceValueType) {
                 'percentage' => $this->totalNumberOfGuests * $percentageValue,
                 'fixed_value' => $this->totalNumberOfGuests * $fixedValue
             },

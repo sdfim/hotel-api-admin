@@ -7,6 +7,7 @@ use App\Models\Configurations\ConfigAttribute;
 use App\Models\Configurations\ConfigChain;
 use App\Models\Configurations\ConfigConsortium;
 use App\Models\Configurations\ConfigDescriptiveType;
+use App\Models\Configurations\ConfigInsuranceDocumentationType;
 use App\Models\Configurations\ConfigJobDescription;
 use App\Models\Configurations\ConfigServiceType;
 use App\Models\Enums\RoleSlug;
@@ -17,8 +18,10 @@ use App\Policies\Configurations\ConfigAttributePolicy;
 use App\Policies\Configurations\ConfigChainPolicy;
 use App\Policies\Configurations\ConfigConsortiumPolicy;
 use App\Policies\Configurations\ConfigDescriptiveTypePolicy;
+use App\Policies\Configurations\ConfigInsuranceDocumentationTypePolicy;
 use App\Policies\Configurations\ConfigJobDescriptionPolicy;
 use App\Policies\Configurations\ConfigServiceTypePolicy;
+use App\Policies\Configurations\KeyMappingOwnerPolicy;
 use App\Policies\HotelPolicy;
 use App\Policies\HotelRatePolicy;
 use App\Policies\HotelRoomPolicy;
@@ -40,6 +43,7 @@ use Modules\HotelContentRepository\Models\HotelRate;
 use Modules\HotelContentRepository\Models\HotelRoom;
 use Modules\HotelContentRepository\Models\Image;
 use Modules\HotelContentRepository\Models\ImageGallery;
+use Modules\HotelContentRepository\Models\KeyMappingOwner;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
 use Modules\HotelContentRepository\Models\Vendor;
@@ -77,6 +81,8 @@ class PermissionServiceProvider extends ServiceProvider
         ConfigJobDescription::class => ConfigJobDescriptionPolicy::class,
         ConfigServiceType::class => ConfigServiceTypePolicy::class,
         ConfigChain::class => ConfigChainPolicy::class,
+        ConfigInsuranceDocumentationType::class => ConfigInsuranceDocumentationTypePolicy::class,
+        KeyMappingOwner::class => KeyMappingOwnerPolicy::class,
         InformationalService::class => InformationalServicePolicy::class,
         TravelAgencyCommission::class => TravelAgencyCommissionPolicy::class,
         ImageGallery::class => ImageGalleryPolicy::class,

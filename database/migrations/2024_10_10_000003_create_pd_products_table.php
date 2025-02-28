@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('product_type');
             $table->string('name');
             $table->boolean('verified');
-            $table->boolean('onSale')->default(true);
+            $table->boolean('onSale')->default(false);
             $table->string('on_sale_causation')->nullable();
             $table->unsignedBigInteger('content_source_id');
             $table->unsignedBigInteger('property_images_source_id');

@@ -32,6 +32,7 @@ class Hotel extends Model
         'giata_code',
         'featured_flag',
         'weight',
+        'is_not_auto_weight',
         'sale_type',
         'address',
         'star_rating',
@@ -46,6 +47,7 @@ class Hotel extends Model
         'location' => 'array',
         'hotel_board_basis' => 'array',
         'travel_agent_commission' => 'float',
+        'is_not_auto_weight' => 'boolean',
     ];
 
     protected $hidden = [
@@ -67,6 +69,11 @@ class Hotel extends Model
     public function rooms(): HasMany
     {
         return $this->hasMany(HotelRoom::class);
+    }
+
+    public function rates(): HasMany
+    {
+        return $this->hasMany(HotelRate::class);
     }
 
     public function webFinders(): BelongsToMany

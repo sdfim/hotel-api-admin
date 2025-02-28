@@ -189,8 +189,12 @@ class HotelApiHandler extends BaseController implements ApiHandlerInterface
                     if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::EXPEDIA) {
                         $data = $this->expedia->detail($request);
                         $dataResponse[$supplierName] = $data;
-                        $clientResponse[$supplierName] = count($data) > 0
-                            ? $this->expediaHotelContentDetailTransformer->ExpediaToContentDetailResponse($data->first(), $request->input('property_id'))
+                        $dataForTransformer = [];
+                        if ($data->first() !== null) {
+                            $dataForTransformer = json_decode(json_encode($data->first()->toArray()), true);
+                        }
+                        $clientResponse[$supplierName] = count($dataForTransformer) > 0
+                            ? $this->expediaHotelContentDetailTransformer->ExpediaToContentDetailResponse($dataForTransformer, $request->input('property_id'))
                             : [];
                     }
                     if (SupplierNameEnum::from($supplierName) === SupplierNameEnum::ICE_PORTAL) {

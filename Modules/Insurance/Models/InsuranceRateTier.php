@@ -51,7 +51,7 @@ class InsuranceRateTier extends Model
         parent::boot();
 
         static::saving(function ($model) {
-            $model->ujv_retention = $model->net_to_trip_mate - $model->consumer_plan_cost;
+            $model->ujv_retention = $model->consumer_plan_cost - $model->net_to_trip_mate;
         });
     }
 }

@@ -60,7 +60,14 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
                 ->required(),
             Select::make('config_attribute_category_id')
                 ->label('Category')
-                ->options(ConfigAttributeCategory::all()->pluck('name', 'id'))
+                ->options(
+                    ConfigAttributeCategory::all()
+                        ->mapWithKeys(function ($item) {
+                            $formattedName = ucwords(str_replace('_', ' ', $item->name));
+
+                            return [$item->id => $formattedName];
+                        })
+                )
                 ->createOptionForm([
                     TextInput::make('name')
                         ->label('Category Name')
@@ -86,7 +93,9 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
             )
             ->columns([
                 TextColumn::make('attribute.name')->label('Attribute Name'),
-                TextColumn::make('category.name')->label('Category Name'),
+                TextColumn::make('category.name')
+                    ->label('Category Name')
+                    ->formatStateUsing(fn ($state) => ucwords(str_replace('_', ' ', $state))),
             ])
             ->actions($this->getActions())
             ->bulkActions($this->getBulkActions())

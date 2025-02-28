@@ -6,19 +6,22 @@ use App\Helpers\ClassHelper;
 use Carbon\Carbon;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 use Modules\HotelContentRepository\Actions\ProductDepositInformation\AddProductDepositInformation;
 use Modules\HotelContentRepository\Actions\ProductDepositInformation\EditProductDepositInformation;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
+use Modules\HotelContentRepository\Models\HotelRate;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductDepositInformation;
 
@@ -39,20 +42,46 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
     {
         $this->productId = $product->id;
         $this->rateId = $rateId;
-        $this->title = 'Deposit Information for <h4>'.$product->name.'</h4>';
+        $rate = HotelRate::where('id', $rateId)->first();
+        $this->title = 'Deposit Information for '.$product->name;
+        if ($this->rateId) {
+            $this->title .= ' - Rate ID: '.$this->rateId;
+            $this->title .= ' - Rate Name: '.$rate->name;
+        }
     }
 
     public function table(Table $table): Table
     {
         return $table
             ->query(
-                ProductDepositInformation::query()->where('product_id', $this->productId)
-                    ->where('rate_id', $this->rateId))
+                ProductDepositInformation::query()
+                    ->where('product_id', $this->productId)
+            )
+            ->modifyQueryUsing(function (Builder $query) {
+                if ($this->rateId) {
+                    $query->where(function ($q) {
+                        $q->where('rate_id', $this->rateId)
+                            ->orWhereNull('rate_id');
+                    });
+                } else {
+                    $query->whereNull('rate_id');
+                }
+            })
             ->columns([
-                TextColumn::make('name')->label('Name')->searchable(),
-                TextColumn::make('start_date')->label('Start Date')->date()->searchable(),
+                TextColumn::make('level')
+                    ->label('Level')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        return ($this->productId && $this->rateId && $this->rateId === $record->rate_id) ? 'Rate' : 'Hotel';
+                    })
+                    ->colors([
+                        'primary' => 'Hotel',
+                        'warning' => 'Rate',
+                    ]),
+                TextColumn::make('name')->label('Name')->wrap()->searchable(),
+                TextColumn::make('start_date')->label('Travel Start Date')->date()->searchable(),
                 TextColumn::make('expiration_date')
-                    ->label('Expiration Date')
+                    ->label('Travel End Date')
                     ->date()
                     ->searchable()
                     ->formatStateUsing(function ($state) {
@@ -74,34 +103,37 @@ class ProductDepositInformationTable extends Component implements HasForms, HasT
                     ->searchable()
                     ->formatStateUsing(fn ($state) => ucwords(str_replace('_', ' ', $state))),            ])
             ->actions([
-                EditAction::make()
-                    ->iconButton()
-                    ->modalHeading(new HtmlString("Edit {$this->title}"))
-                    ->tooltip('Edit Deposit Information')
-                    ->form(fn ($record) => $this->schemeForm($record))
-                    ->fillForm(function ($record) {
-                        $data = $record->toArray();
-                        $data['conditions'] = $record->conditions->toArray();
+                ActionGroup::make([
+                    EditAction::make()
+                        ->modalHeading(new HtmlString("Edit {$this->title}"))
+                        ->tooltip('Edit Deposit Information')
+                        ->form(fn ($record) => $this->schemeForm($record))
+                        ->fillForm(function ($record) {
+                            $data = $record->toArray();
+                            $data['conditions'] = $record->conditions->toArray();
 
-                        return $data;
-                    })
-                    ->action(function (array $data, ProductDepositInformation $record) {
-                        if ($this->productId) {
-                            $data['product_id'] = $this->productId;
-                        }
-                        if (! $data['expiration_date']) {
-                            $data['expiration_date'] = Carbon::create(2112, 02, 02);
-                        }
-                        /* @var EditProductDepositInformation $editProductDepositInformation */
-                        $editProductDepositInformation = app(EditProductDepositInformation::class);
-                        $editProductDepositInformation->updateWithConditions($record, $data);
-                    })
-                    ->modalWidth('7xl')
-                    ->visible(fn () => Gate::allows('create', Product::class)),
-            ])
-            ->bulkActions([
-                DeleteBulkAction::make()
-                    ->visible(fn () => Gate::allows('create', Product::class)),
+                            return $data;
+                        })
+                        ->action(function (array $data, ProductDepositInformation $record) {
+                            if ($this->productId) {
+                                $data['product_id'] = $this->productId;
+                            }
+                            if (! $data['expiration_date']) {
+                                $data['expiration_date'] = Carbon::create(2112, 02, 02);
+                            }
+                            /* @var EditProductDepositInformation $editProductDepositInformation */
+                            $editProductDepositInformation = app(EditProductDepositInformation::class);
+                            $editProductDepositInformation->updateWithConditions($record, $data);
+                        })
+                        ->modalWidth('7xl')
+                        ->visible(fn () => Gate::allows('create', Product::class)),
+                    DeleteAction::make()
+                        ->tooltip('Delete Deposit Information')
+                        ->action(function (ProductDepositInformation $record) {
+                            $record->delete();
+                        })
+                        ->visible(fn () => Gate::allows('create', Product::class)),
+                ])->visible(fn (ProductDepositInformation $record): bool => ($this->productId && $this->rateId === $record->rate_id) || ($this->productId && ! $this->rateId)),
             ])
             ->headerActions([
                 CreateAction::make()

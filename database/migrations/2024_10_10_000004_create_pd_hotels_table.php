@@ -14,10 +14,11 @@ return new class extends Migration
             $table->integer('giata_code');
             $table->boolean('featured_flag')->nullable();
             $table->json('address')->nullable();
-            $table->integer('star_rating');
+            $table->decimal('star_rating', 8, 2);
             $table->integer('weight')->nullable();
+            $table->boolean('is_not_auto_weight')->nullable();
             $table->integer('num_rooms');
-            $table->decimal('travel_agent_commission',8,2)->nullable();
+            $table->decimal('travel_agent_commission', 8, 2)->nullable();
             $table->unsignedBigInteger('room_images_source_id')->nullable();
             $table->string('hotel_board_basis')->nullable();
             $table->timestamps();

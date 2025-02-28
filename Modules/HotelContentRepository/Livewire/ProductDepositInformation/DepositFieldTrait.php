@@ -28,7 +28,7 @@ trait DepositFieldTrait
             Hidden::make('product_id')->default($this->productId),
             Hidden::make('rate_id')->default($this->rateId),
 
-            Fieldset::make('General settings')
+            Fieldset::make('General Setting')
                 ->schema([
                     TextInput::make('name')
                         ->label('Name')
@@ -37,7 +37,7 @@ trait DepositFieldTrait
                         ->unique(ignoreRecord: true)
                         ->required(),
                     TextInput::make('start_date')
-                        ->label('Start Date')
+                        ->label('Travel Start Date')
                         ->type('date')
                         ->default(Carbon::now()->format('Y-m-d'))
                         ->required()
@@ -51,7 +51,7 @@ trait DepositFieldTrait
                         }),
 
                     TextInput::make('expiration_date')
-                        ->label('Expiration Date')
+                        ->label('Travel End Date')
                         ->type('date')
                         ->afterStateHydrated(function (TextInput $component) use ($record) {
                             $formattedDate = isset($record) && $record->expiration_date
@@ -67,14 +67,14 @@ trait DepositFieldTrait
                     //            Fieldset::make('Settings')
                     //                ->schema([
                     Select::make('manipulable_price_type')
-                        ->label('Manipulable price type')
+                        ->label('Manipulable Price Type')
                         ->options([
                             'total_price' => 'Total Price',
                             'net_price' => 'Net Price',
                         ])
                         ->required(),
                     TextInput::make('price_value')
-                        ->label('Price value')
+                        ->label('Price Value')
                         ->numeric()
                         ->required()
                         ->suffixIcon(function (Get $get) {
@@ -85,7 +85,7 @@ trait DepositFieldTrait
                             };
                         }),
                     Select::make('price_value_type')
-                        ->label('Price value type')
+                        ->label('Price Value Type')
                         ->options([
                             'fixed_value' => 'Fixed Value',
                             'percentage' => 'Percentage',
@@ -94,11 +94,12 @@ trait DepositFieldTrait
                         ->required()
                         ->afterStateUpdated(fn (?string $state, Set $set) => $state ?: $set('price_value', null)),
                     Select::make('price_value_target')
-                        ->label('Price value target')
+                        ->label('Price Value Target')
                         ->options([
-                            'per_guest' => 'Per Guest',
+                            'per_person' => 'Per Person',
                             'per_room' => 'Per Room',
                             'per_night' => 'Per Night',
+                            'per_person_per_night' => 'Per Person Per Night',
                             'not_applicable' => 'N/A',
                         ])
                         ->required(),

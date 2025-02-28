@@ -19,11 +19,9 @@ class HotelService
         $resultsExpedia = Arr::get($this->hotelHandler->getExpediaResults([$giataCode]), 0, []);
         unset($resultsExpedia['images']);
         unset($resultsExpedia['rooms']);
-        unset($resultsExpedia['supplier_information']);
         $resultsIcePortal = Arr::get($this->hotelHandler->getIcePortalResults([$giataCode]), 0, []);
         unset($resultsIcePortal['images']);
         unset($resultsIcePortal['rooms']);
-        unset($resultsIcePortal['supplier_information']);
 
         $hotel = Hotel::where('giata_code', $giataCode)->first();
         $repoData = $resultsExpedia;

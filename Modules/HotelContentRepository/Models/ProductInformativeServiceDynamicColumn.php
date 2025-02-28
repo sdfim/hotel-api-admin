@@ -15,7 +15,16 @@ class ProductInformativeServiceDynamicColumn extends Model
     protected $fillable = [
         'product_informative_service_id',
         'name',
-        'value'
+        'value',
+        'show_on_invoice',
+        'show_on_itinerary',
+        'show_on_vendor_manifest',
+    ];
+
+    protected $casts = [
+        'show_on_invoice' => 'boolean',
+        'show_on_itinerary' => 'boolean',
+        'show_on_vendor_manifest' => 'boolean',
     ];
 
     public $timestamps = false;

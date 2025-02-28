@@ -16,7 +16,6 @@ return new class extends Migration
 
             $table->string('compare')->nullable();
             $table->string('value')->nullable();
-            $table->string('sale_type')->nullable();
             $table->timestamps();
 
             $table->foreign('vendor_id')->references('id')->on('pd_vendors')->onDelete('cascade');
