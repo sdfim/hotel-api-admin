@@ -8,6 +8,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Modules\API\PricingAPI\Resolvers\Deposits\DepositResolver;
 use Modules\API\PricingAPI\ResponseModels\HotelResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomGroupsResponseFactory;
 use Modules\API\PricingAPI\ResponseModels\RoomResponseFactory;
@@ -26,6 +27,8 @@ class HbsiHotelPricingTransformer
     private HbsiPricingRulesApplier $pricingRulesApplier;
 
     private array $mapperSupplierRepository;
+
+    private array $depositInformation;
 
     /**
      * @var string[]
@@ -119,13 +122,16 @@ class HbsiHotelPricingTransformer
 
         $hotelResponse = [];
         foreach ($supplierResponse as $key => $propertyGroup) {
-            $hotelResponse[] = $this->setHotelResponse($propertyGroup, $key);
+            $hotelResponse[] = $this->setHotelResponse($propertyGroup, $key, $query);
         }
 
         return ['response' => $hotelResponse, 'bookingItems' => $this->bookingItems];
     }
-
-    public function setHotelResponse(array $propertyGroup, int|string $key): array
+    private function filterActiveDepositInformation(array $depositInformation):array
+    {
+        return $depositInformation;
+    }
+    public function setHotelResponse(array $propertyGroup, int|string $key,array $query): array
     {
         $this->roomCombinations = [];
         $hotelResponse = HotelResponseFactory::create();
@@ -137,6 +143,7 @@ class HbsiHotelPricingTransformer
         $hotelResponse->setSupplier(SupplierNameEnum::HBSI->value);
         $hotelResponse->setSupplierHotelId($key);
         $hotelResponse->setDestination($this->giata[$propertyGroup['giata_id']]['city'] ?? $this->destinationData);
+        $hotelResponse->setDepositInformation($this->filterActiveDepositInformation(Arr::get($this->depositInformation,$propertyGroup['giata_id'], [])));
 
         $hotelResponse->setPayAtHotelAvailable($propertyGroup['pay_at_hotel_available'] ?? '');
         $hotelResponse->setPayNowAvailable($propertyGroup['pay_now_available'] ?? '');
@@ -145,7 +152,7 @@ class HbsiHotelPricingTransformer
         $lowestPrice = 100000;
 
         foreach ($propertyGroup['rooms'] as $roomGroup) {
-            $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup, $key);
+            $roomGroupsData = $this->setRoomGroupsResponse($roomGroup, $propertyGroup, $key, $hotelResponse->getDepositInformation(), $query);
             $roomGroups[] = $roomGroupsData['roomGroupsResponse'];
             $lowestPricedRoom = $roomGroupsData['lowestPricedRoom'];
             if ($lowestPricedRoom > 0 && $lowestPricedRoom < $lowestPrice) {
@@ -186,7 +193,7 @@ class HbsiHotelPricingTransformer
         return ['refundable_rates' => implode(',', $refundableRates), 'non_refundable_rates' => implode(',', $nonRefundableRates)];
     }
 
-    public function setRoomGroupsResponse(array $roomGroup, $propertyGroup, int|string $supplierHotelId): array
+    public function setRoomGroupsResponse(array $roomGroup, $propertyGroup, int|string $supplierHotelId, array $depositInformation, array $query): array
     {
         $giataId = $propertyGroup['giata_id'] ?? 0;
 
@@ -214,7 +221,7 @@ class HbsiHotelPricingTransformer
                 continue;
             }
 
-            $roomData = $this->setRoomResponse((array) $room, $propertyGroup, $giataId, $supplierHotelId);
+            $roomData = $this->setRoomResponse((array) $room, $propertyGroup, $giataId, $supplierHotelId, $depositInformation, $query);
             $roomResponse = $roomData['roomResponse'];
             $pricingRulesApplierRoom = $roomData['pricingRulesApplier'];
             $rooms[] = $roomResponse;
@@ -246,7 +253,7 @@ class HbsiHotelPricingTransformer
         return ['roomGroupsResponse' => $roomGroupsResponse->toArray(), 'lowestPricedRoom' => $lowestPricedRoom];
     }
 
-    public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId): array
+    public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId, array $depositInformation, array $query): array
     {
         $ratePlanCode = Arr::get($rate, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
 
@@ -466,6 +473,7 @@ class HbsiHotelPricingTransformer
             'hotel_id' => $propertyGroup['giata_id'] ?? 0,
             'room_id' => $rate['id'] ?? $roomType ?? 0,
         ];
+        $roomResponse->setDeposits(DepositResolver::resolve($roomResponse, $depositInformation, $query));
 
         return ['roomResponse' => $roomResponse->toArray(), 'pricingRulesApplier' => $pricingRulesApplier];
     }
@@ -620,6 +628,9 @@ class HbsiHotelPricingTransformer
     private function fetchSupplierRepositoryData(array $giataIds): void
     {
         $supplierRepositoryData = Hotel::has('rooms')->whereIn('giata_code', $giataIds)->get();
+        $this->depositInformation = $supplierRepositoryData->mapWithKeys(function ($hotel) {
+            return[$hotel->giata_code =>  $hotel->product?->depositInformations];
+        })->toArray();
         $this->mapperSupplierRepository = $supplierRepositoryData->mapWithKeys(function ($hotel) {
             return [
                 $hotel->giata_code => $hotel->rooms->mapWithKeys(function ($room) {
