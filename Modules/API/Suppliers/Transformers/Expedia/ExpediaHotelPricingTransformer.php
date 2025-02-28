@@ -331,6 +331,7 @@ class ExpediaHotelPricingTransformer
         $roomResponse->setMarkup($pricingRulesApplier['markup']);
         $roomResponse->setCancellationPolicies($cancellationPolicies);
         $roomResponse->setPackageDeal(Arr::get($rate, 'sale_scenario.package', false));
+        $roomResponse->setDistribution(Arr::get($rate, 'sale_scenario.distribution', false));
         $roomResponse->setPromotions($promotions);
         $roomResponse->setNonRefundable(! $rate['refundable']);
         $roomResponse->setAmenities($this->getAmenitiesFromRate($rate));
