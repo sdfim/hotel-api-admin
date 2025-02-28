@@ -18,7 +18,6 @@ class ProductAffiliationFactory extends Factory
 
         return [
             'product_id' => Product::factory(),
-            'amenity_id' => ConfigAmenity::factory(),
             'start_date' => $startDate->format('Y-m-d'),
             'end_date' => $endDate->format('Y-m-d'),
         ];

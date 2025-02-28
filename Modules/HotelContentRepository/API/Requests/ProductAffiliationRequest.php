@@ -345,10 +345,8 @@ class ProductAffiliationRequest extends ApiRequest
     {
         return [
             'product_id' => 'required|integer|exists:pd_products,id',
-            'amenity_id' => 'required|integer|exists:config_amenities,id',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'consortia' => 'nullable|array',
         ];
     }
 }
