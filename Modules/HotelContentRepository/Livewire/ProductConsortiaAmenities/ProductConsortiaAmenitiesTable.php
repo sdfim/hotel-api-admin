@@ -93,13 +93,12 @@ class ProductConsortiaAmenitiesTable extends Component implements HasForms, HasT
                 ]),
             Grid::make(2)->schema([
                 DatePicker::make('start_date')
-                    ->label('Start Date')
+                    ->label('Travel Start Date')
                     ->native(false)
                     ->required(),
                 DatePicker::make('end_date')
-                    ->label('End Date')
-                    ->native(false)
-                    ->required(),
+                    ->label('Travel End Date')
+                    ->native(false),
             ]),
         ];
     }

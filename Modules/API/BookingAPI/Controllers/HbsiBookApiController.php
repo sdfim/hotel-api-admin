@@ -397,11 +397,10 @@ class HbsiBookApiController extends BaseBookApiController
             }
 
             $dataResponseToSave = $dataResponse;
-            $mainGuest = Arr::get($xmlPriceData, 'main_guest');
             $dataResponseToSave['original'] = [
                 'request' => $xmlPriceData['request'],
                 'response' => $xmlPriceData['response'] instanceof SimpleXMLElement ? $xmlPriceData['response']->asXML() : $xmlPriceData['response'],
-                'main_guest' => $mainGuest,
+                'main_guest' => Arr::get($xmlPriceData, 'main_guest'),
             ];
             if ($soapError) {
                 SaveBookingInspector::dispatch($bookingInspector, $dataResponseToSave, [],
@@ -417,12 +416,6 @@ class HbsiBookApiController extends BaseBookApiController
             }
 
             SaveBookingInspector::dispatch($bookingInspector, $dataResponseToSave, $clientResponse);
-            $apiBookingsMetadata = ApiBookingsMetadataRepository::getBookedItem($filters['booking_id'], $filters['booking_item']);
-            $data = [
-                ...$apiBookingsMetadata->booking_item_data,
-                'main_guest' => Arr::get(json_decode($mainGuest, true), 'PersonName', []),
-            ];
-            ApiBookingsMetadataRepository::updateBookingItemData($apiBookingsMetadata, $data);
 
         } catch (RequestException $e) {
             Log::error('HbsiBookApiController | changeBooking '.$e->getResponse()->getBody());
@@ -555,7 +548,7 @@ class HbsiBookApiController extends BaseBookApiController
     {
         try {
             $hbsiHotel = HbsiRepository::getByGiataId($hotelId);
-            $hotelIds = isset($hbsiHotel['supplier_id']) ? [$hbsiHotel['supplier_id']] : [];
+            $hotelIds = [$hbsiHotel['supplier_id']];
 
             if (empty($hotelIds)) {
                 return [

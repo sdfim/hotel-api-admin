@@ -528,7 +528,9 @@ class HotelForm extends Component implements HasForms
                 ->options(function ($record) {
                     $query = Vendor::query()
                         ->whereJsonContains('type', 'hotel');
-                    if (! $record) {
+                    if ($record?->product?->vendor->independent_flag) {
+                        $query->where('id', $record->product->vendor->id);
+                    } else {
                         $query->where('independent_flag', false);
                     }
                     if (auth()->user()->hasRole(RoleSlug::EXTERNAL_USER->value)) {

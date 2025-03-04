@@ -730,6 +730,10 @@ class HbsiHotelPricingTransformer
     {
         $repoTaxFees = $this->repoTaxFees[$giataCode];
 
+        // Calculate the number of nights and the number of passengers
+        $numberOfNights = array_sum(array_column($transformedRates, 'UnitMultiplier'));
+        $numberOfPassengers = $rateOccupancy ? array_sum(explode('-', $rateOccupancy)) : 1;
+
         // Filter repoTaxFees based on start_date and end_date
         foreach ($repoTaxFees as $key => $fees) {
             $repoTaxFees[$key] = array_filter($fees, function ($feeTax) {
@@ -755,11 +759,9 @@ class HbsiHotelPricingTransformer
                         if (! is_null($editFeeTax['unified_room_code']) && $editFeeTax['unified_room_code'] !== $unifiedRoomCode) {
                             continue;
                         }
-                        foreach ($rate['Taxes'] as $key => &$tax) {
+                        foreach ($rate['Taxes'] ?? [] as $key => &$tax) {
                             if (is_int($key) || is_string($key)) {
                                 if (strcasecmp($tax['Description'], $editFeeTax['old_name']) === 0) {
-                                    // TODO: Check if this is correct or not
-                                    // if ($editFeeTax['type'] === 'Fee') OR if (!$editFeeTax['commissionable'])
                                     if (! $editFeeTax['commissionable'] && $editFeeTax['type'] === 'Fee') {
                                         if (! isset($rate['Fees'])) {
                                             $rate['Fees'] = [];
@@ -775,9 +777,68 @@ class HbsiHotelPricingTransformer
                                         ];
                                         unset($rate['Taxes'][$key]);
                                     } else {
-                                        $tax['Description'] = $editFeeTax['name'];
-                                        $tax['ObeAction'] = $editFeeTax['action_type'];
-                                        $tax['Amount'] = $editFeeTax['net_value'] ?? $tax['Amount'];
+                                        $rateData['Type'] = $tax['Type'];
+                                        $rateData['Code'] = 'OBE_'.$editFeeTax['id'];
+                                        $rateData['Amount'] = match ($editFeeTax['apply_type']) {
+                                            ProductFeeTaxApplyTypeEnum::PER_PERSON->value => round(($editFeeTax['net_value'] / $numberOfNights), 3),
+                                            ProductFeeTaxApplyTypeEnum::PER_NIGHT_PER_PERSON->value => round(($editFeeTax['net_value'] * $numberOfPassengers / $numberOfNights), 3),
+                                            default => $editFeeTax['net_value'],
+                                        };
+                                        $rateData['Description'] = $editFeeTax['name'];
+                                        $rateData['ObeAction'] = $editFeeTax['action_type'];
+                                        $rate['Taxes'][] = $rateData;
+                                        unset($rate['Taxes'][$key]);
+                                    }
+                                }
+                            }
+                        }
+                        foreach ($rate['Fees'] ?? [] as $key => &$fee) {
+                            if (is_int($key) || is_string($key)) {
+                                if (strcasecmp($fee['Description'], $editFeeTax['old_name']) === 0) {
+                                    $feeData['Description'] = $editFeeTax['name'];
+                                    $feeData['ObeAction'] = $editFeeTax['action_type'];
+                                    $feeData['Amount'] = $editFeeTax['net_value'] ?? $fee['Amount'];
+                                    $rate['Fees'][] = $feeData;
+                                    unset($rate['Fees'][$key]);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Apply updates
+                if (isset($repoTaxFees['update'])) {
+                    foreach ($repoTaxFees['update'] as $updateFeeTax) {
+                        if (! is_null($updateFeeTax['rate_code']) && $updateFeeTax['rate_code'] !== $ratePlanCode) {
+                            continue;
+                        }
+                        if (! is_null($updateFeeTax['unified_room_code']) && $updateFeeTax['unified_room_code'] !== $unifiedRoomCode) {
+                            continue;
+                        }
+                        foreach ($rate['Taxes'] ?? [] as $key => &$tax) {
+                            if (is_int($key) || is_string($key)) {
+                                if (strcasecmp($tax['Description'], $updateFeeTax['old_name']) === 0) {
+                                    // TODO: Check if this is correct or not
+                                    // if ($updateFeeTax['type'] === 'Fee') OR if (!$updateFeeTax['commissionable'])
+                                    if (! $updateFeeTax['commissionable'] && $updateFeeTax['type'] === 'Fee') {
+                                        if (! isset($rate['Fees'])) {
+                                            $rate['Fees'] = [];
+                                        }
+                                        // Move from Taxes to Fees
+                                        $rate['Fees'][] = [
+                                            'Type' => 'Exclusive',
+                                            'Code' => 'OBE_'.$updateFeeTax['id'],
+                                            'Amount' => $updateFeeTax['net_value'] ?? $tax['Amount'],
+                                            'Description' => $updateFeeTax['name'],
+                                            'ObeAction' => $updateFeeTax['action_type'],
+                                            'MultiplierFee' => 1,
+                                        ];
+                                        unset($rate['Taxes'][$key]);
+                                    } else {
+                                        $rateData['Description'] = $updateFeeTax['name'];
+                                        $rateData['ObeAction'] = $updateFeeTax['action_type'];
+                                        $rateData['Amount'] = $updateFeeTax['net_value'] ?? $tax['Amount'];
+                                        $rate['Taxes'][] = $rateData;
                                     }
                                 }
                             }
@@ -787,10 +848,6 @@ class HbsiHotelPricingTransformer
 
                 // Apply additions
                 if (isset($repoTaxFees['add'])) {
-                    // Calculate the number of nights and the number of passengers
-                    $numberOfNights = array_sum(array_column($transformedRates, 'UnitMultiplier'));
-                    $numberOfPassengers = $rateOccupancy ? array_sum(explode('-', $rateOccupancy)) : 1;
-
                     foreach ($repoTaxFees['add'] as $addFeeTax) {
                         if (! is_null($addFeeTax['rate_code']) && $addFeeTax['rate_code'] !== $ratePlanCode) {
                             continue;

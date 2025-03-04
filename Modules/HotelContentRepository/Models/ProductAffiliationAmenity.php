@@ -18,6 +18,8 @@ class ProductAffiliationAmenity extends Model
         'consortia',
         'is_paid',
         'price',
+        'min_night_stay',
+        'max_night_stay',
     ];
 
     protected $casts = [

@@ -96,6 +96,9 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                                 ->options(ConfigServiceType::all()->pluck('name', 'id')->toArray())
                                 ->createOptionForm(ServiceTypesForm::getSchema())
                                 ->createOptionUsing(function (array $data) {
+                                    if (! isset($data['cost'])) {
+                                        $data['cost'] = 0;
+                                    }
                                     ConfigServiceType::create($data);
                                     Notification::make()
                                         ->title('Service created successfully')
@@ -156,6 +159,20 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                                 }
                             };
                         }),
+                ]),
+
+            Fieldset::make('Nights Setting')
+                ->schema([
+                    TextInput::make('min_night_stay')
+                        ->label('Min Night Stay')
+                        ->numeric()
+                        ->minValue(0)
+                        ->step('1'),
+                    TextInput::make('max_night_stay')
+                        ->label('Max Night Stay')
+                        ->numeric()
+                        ->minValue(0)
+                        ->step('1'),
                 ]),
 
             Fieldset::make('Additional Setting')
@@ -239,9 +256,8 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                     ->badge()
                     ->getStateUsing(function ($record) {
                         return match (true) {
-                            $this->productId && $this->rateId && $this->rateId === $record->rate_id => 'Rate',
-                            $this->productId && $this->roomId && $this->roomId === $record->room_id,
-                            $this->productId && $this->rateId && $record->room_id !== null => 'Room',
+                            $this->productId && $record->rate_id !== null => 'Rate',
+                            $this->productId && $record->room_id !== null => 'Room',
                             default => 'Hotel',
                         };
                     })
@@ -255,7 +271,7 @@ class ProductInformativeServicesTable extends Component implements HasForms, Has
                     ->label('Code')
                     ->getStateUsing(function ($record) {
                         return match (true) {
-                            $this->productId && $this->rateId && $this->rateId === $record->rate_id => $record->rate?->code,
+                            $record->rate_id !== null => $record->rate?->code,
                             in_array($record->room_id, $this->rateRoomIds) => $record->room->hbsi_data_mapped_name,
                             default => '',
                         };

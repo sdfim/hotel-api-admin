@@ -17,8 +17,9 @@ class RefreshTables extends Command
     {
         $prefix = $this->argument('prefix');
 
-        // Clear the tables LIKE 'pd_%'
-        $this->clearTables('pd_');
+        if (isset($prefix) && $prefix === 'pd') {
+            $this->clearTables('pd_');
+        }
 
         if (isset($prefix) && $prefix === 'config') {
             $this->clearTables('config_');

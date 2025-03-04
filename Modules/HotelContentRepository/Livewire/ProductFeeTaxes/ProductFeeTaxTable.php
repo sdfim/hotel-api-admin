@@ -128,6 +128,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->label('Action Type')
                         ->options([
                             'add' => 'Add',
+                            'update' => 'Update',
                             'edit' => 'Edit',
                             'delete' => 'Delete',
                         ])
@@ -187,7 +188,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                 ]),
             Fieldset::make('Value Setting')
                 ->columns(2)
-                ->visible(fn (Get $get) => $get('action_type') === 'add')
+                ->visible(fn (Get $get) => $get('action_type') === 'add' || $get('action_type') === 'edit')
                 ->schema([
                     Select::make('value_type')
                         ->label('Value Type')
@@ -259,9 +260,8 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     ->badge()
                     ->getStateUsing(function ($record) {
                         return match (true) {
-                            $this->productId && $this->rateId && $this->rateId === $record->rate_id => 'Rate',
-                            $this->productId && $this->roomId && $this->roomId === $record->room_id,
-                            $this->productId && $this->rateId && $record->room_id !== null => 'Room',
+                            $this->productId && $record->rate_id !== null => 'Rate',
+                            $this->productId && $record->room_id !== null => 'Room',
                             default => 'Hotel',
                         };
                     })
@@ -275,7 +275,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     ->label('Code')
                     ->getStateUsing(function ($record) {
                         return match (true) {
-                            $this->productId && $this->rateId && $this->rateId === $record->rate_id => $record->rate?->code,
+                            $record->rate_id !== null => $record->rate?->code,
                             in_array($record->room_id, $this->rateRoomIds) => $record->room->hbsi_data_mapped_name,
                             default => '',
                         };
@@ -290,6 +290,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                     ->colors([
                         'primary' => 'add',
                         'warning' => 'edit',
+                        'success' => 'update',
                         'danger' => 'delete',
                     ]),
 
@@ -335,7 +336,7 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                                 // General Setting
                                 $data['old_name'] = null;
                             }
-                            if ($data['action_type'] === 'edit') {
+                            if ($data['action_type'] === 'update') {
                                 // Value Setting
                                 $data['value_type'] = null;
                                 $data['apply_type'] = null;
@@ -350,9 +351,9 @@ class ProductFeeTaxTable extends Component implements HasForms, HasTable
                         ->label('Delete')
                         ->visible(fn () => Gate::allows('create', Product::class)),
                 ])
-                    ->visible(fn (ProductFeeTax $record): bool => ($this->rateId && $this->rateId === $record->rate_id) ||
-                    ($this->roomId && $this->roomId === $record->room_id) ||
-                    (! $this->rateId && ! $this->roomId)
+                    ->visible(fn (ProductFeeTax $record): bool => ($this->rateId && $this->rateId === $record->rate_id)
+                        || ($this->roomId && $this->roomId === $record->room_id)
+                        || (! $this->rateId && ! $this->roomId)
                     ),
             ])
             ->headerActions($this->getHeaderActions());

@@ -8,8 +8,6 @@ class RoomResponse extends BaseResponse
 
     private array $capacity = [];
 
-    private bool $distribution = false;
-
     private string $unified_room_code;
 
     private string $giata_room_code;
@@ -390,24 +388,6 @@ class RoomResponse extends BaseResponse
         $this->amenities = $amenities;
     }
 
-    /**
-     * @return bool
-     */
-    public function isDistribution(): bool
-    {
-        return $this->distribution;
-    }
-
-    /**
-     * @param bool $distribution
-     */
-    public function setDistribution(bool $distribution): void
-    {
-        $this->distribution = $distribution;
-    }
-
-
-
     public function toArray(): array
     {
         return [
@@ -419,7 +399,6 @@ class RoomResponse extends BaseResponse
             'supplier_room_name' => $this->getSupplierRoomName(),
             'per_day_rate_breakdown' => $this->getPerDayRateBreakdown(),
             'supplier_room_id' => $this->getSupplierRoomCode(),
-            'distribution' => $this->isDistribution(),
             'query_package' => $this->getQueryPackage(),
             // 'supplier_bed_groups' => $this->getSupplierBedGroups(),
             'room_type' => $this->getRoomType(),

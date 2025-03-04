@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands\RequestFlowTests;
 
-use App\Models\ApiBookingItem;
 use App\Repositories\ApiBookingItemRepository;
 use Faker\Factory as Faker;
 use Illuminate\Console\Command;
@@ -19,24 +18,22 @@ class FlowHbsiBookOperations extends Command
     /**
      * The name and signature of the console command.
      */
-    protected $signature = 'flow:hbsi-book-operations {scenarios?} {destination?} {checkin?} {giata_id?}';
+    protected $signature = 'flow:hbsi-book-operations {scenarios?} {destination?} {type?}';
     protected PendingRequest $client;
 
     protected string $url;
 
     private ?string $destination;
-    private ?string $checkin;
-    private ?int $giata_id;
+    private ?array $query;
+    private ?string $type;
     private ?string $supplier;
     private ?int $daysAfter;
-    protected bool $isQueueSync;
 
     public function __construct()
     {
         parent::__construct();
         $this->client = Http::withToken(env('TEST_TOKEN'));
         $this->url = env('BASE_URI_FLOW_HBSI_BOOK_TEST', 'http://localhost:8000');
-        $this->isQueueSync = config('queue.default') === 'sync';
     }
 
     public function handle(): void
@@ -165,7 +162,6 @@ class FlowHbsiBookOperations extends Command
         $checkout = Carbon::now()->addDays($this->daysAfter + $nights)->toDateString();
 
         [$bookingId, $bookingItem] = $this->processBooking($occupancy, $nights, $checkin, $checkout);
-
         $checkout = Carbon::now()->addDays($this->daysAfter + $nights + 1)->toDateString();
         $this->flowHardCange($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
         $this->cancel($bookingId);
@@ -369,43 +365,26 @@ class FlowHbsiBookOperations extends Command
     }
 
 
-    private function processBooking(array $occupancy, int $nights, string $checkin, string $checkout, array $difRoomType = []): array|bool
+    private function processBooking(array $occupancy, int $nights, string $checkin, string $checkout, array $difRoomType = []): array
     {
-        $searchResponse = $this->search($occupancy, $checkin, $checkout);
+        $searchResponse = $this->search($occupancy, $nights, $checkin, $checkout);
         $bookingItem = !empty($difRoomType)
             ? $this->fetchBookingItemWithDifferentRoomTypes($searchResponse, $difRoomType)
             : $this->fetchBookingItem($searchResponse);
-        if (!$bookingItem && empty($difRoomType)) {
-            $this->error('non_refundable Booking item not found');
-            exit(1);
-        }
-        $this->handleSleep();
         $bookingId = $this->addBookingItem($bookingItem);
-
-        $this->handleSleep();
-        $responseAddPassengers = $this->addPassengers($bookingId, [$bookingItem], [$occupancy]);
-        if (Arr::get($responseAddPassengers, 'error')) {
-            $this->error('Adding passengers failed');
-            exit(1);
-        }
-
-        $this->handleSleep();
-        $responseBook = $this->book($bookingId, [$bookingItem]);
-        if (Arr::get($responseBook, 'error')) {
-            $this->error('Booking failed');
-            exit(1);
-        }
+        $this->addPassengers($bookingId, [$bookingItem], [$occupancy]);
+        $this->book($bookingId, [$bookingItem]);
 
         return [$bookingId, $bookingItem];
     }
 
     private function preset(): void
     {
-        $this->destination = $this->argument('destination') ?? '508';
-        $this->checkin = $this->argument('checkin') ?? null;
-        $this->giata_id = $this->argument('giata_id') ?? null;
+        $this->destination= $this->argument('destination') ?? '508';
+        $this->type= $this->argument('type') ?? 'test';
         $this->supplier = 'HBSI';
-        $this->daysAfter = $this->checkin ? (abs(Carbon::parse($this->checkin)->diffInDays(Carbon::now())) + 20) : 240;
+        if ($this->type !== 'test') $this->daysAfter = 240;
+        else $this->daysAfter = 20;
     }
 
     /**
@@ -414,9 +393,10 @@ class FlowHbsiBookOperations extends Command
      * @param array $occupancy Array of rooms, where each room is an associative array with keys:
      *                        - 'adults' (int): Number of adults in the room.
      *                        - 'children_ages' (array): Optional array of integers representing the ages of the children in the room.
+     * @param int $nights Number of nights for the stay.
      * @throws ConnectionException
      */
-    private function search(array $occupancy, string $checkin, string $checkout): array
+    private function search(array $occupancy, int $nights, string $checkin, string $checkout): array
     {
         $faker = Faker::create();
 
@@ -429,8 +409,6 @@ class FlowHbsiBookOperations extends Command
             'occupancy' => $occupancy,
             'results_per_page' => 100,
         ];
-
-        if ($this->giata_id) $requestData['giata_ids'] = [$this->giata_id];
 
         $response = $this->client->post($this->url.'/api/pricing/search', $requestData);
 
@@ -521,30 +499,15 @@ class FlowHbsiBookOperations extends Command
         return null;
     }
 
-    private function addBookingItem(string $bookingItem, ?string $bookingId = null): string|bool
+    private function addBookingItem(string $bookingItem, ?string $bookingId = null): string
     {
         $requestData = ['booking_item' => $bookingItem];
         if ($bookingId !== null) {
             $requestData['booking_id'] = $bookingId;
         }
 
-        for ($i = 1; $i <= 2; $i++) {
-            $isWriteDb = ApiBookingItem::where('booking_item', $bookingItem)->exists();
-            if ($isWriteDb) break;
-            $this->handleSleep();
-        }
-
-        if (!$isWriteDb) {
-            $this->error('Booking item not found in the database');
-            exit(1);
-        }
-
-        $responseAddItem = $this->client->post($this->url.'/api/booking/add-item', $requestData);
-        if (Arr::get($responseAddItem, 'error')) {
-            $this->error('Adding item failed');
-        }
-
-        $bookingId = $responseAddItem->json()['data']['booking_id'];
+        $response = $this->client->post($this->url.'/api/booking/add-item', $requestData);
+        $bookingId = $response->json()['data']['booking_id'];
 
         $this->info('Booking ID: '.$bookingId);
 
@@ -606,7 +569,7 @@ class FlowHbsiBookOperations extends Command
 
         $response = $this->client->post($this->url.'/api/booking/add-passengers', $requestData);
 
-        $this->info('addPassengers: '.json_encode($response->json()));
+//        $this->info('addPassengers: '.json_encode($response->json()));
         $response->json() ? $this->info('addPassengers success') : $this->error('addPassengers failed');
     }
 
@@ -670,7 +633,6 @@ class FlowHbsiBookOperations extends Command
 
 
         $response = $this->client->post($this->url.'/api/booking/book', $requestData);
-        $this->info('------------------------------------');
         $this->info('book: '.json_encode($response->json()));
     }
 
@@ -681,7 +643,7 @@ class FlowHbsiBookOperations extends Command
         ];
 
         $response = $this->client->delete($this->url . '/api/booking/cancel-booking', $requestData);
-        $this->info('------------------------------------');
+
         if ($response->successful()) {
             $this->info('Cancelled booking: ' . $bookingId);
         } else {
@@ -692,11 +654,7 @@ class FlowHbsiBookOperations extends Command
     private function flowHardCange(string $bookingId, string $bookingItem, array $occupancy, string $checkin, string $checkout, string $roomType = null): void
     {
         $this->info('------------------------------------');
-        $this->handleSleep();
         $responseAvailability = $this->availability($bookingId, $bookingItem, $occupancy, $checkin, $checkout);
-        if (Arr::get($responseAvailability, 'error') || is_null(Arr::get($responseAvailability, 'success'))) {
-            $this->error('Availability failed');
-        }
         $this->info('softChange result : '.json_encode([
                     'success' => Arr::get($responseAvailability,'success'),
                     'message' => Arr::get($responseAvailability,'message'),
@@ -705,7 +663,6 @@ class FlowHbsiBookOperations extends Command
             ));
 
         $this->info('------------------------------------');
-        $this->handleSleep();
         $newBookingItem = Arr::get($responseAvailability,'data.change_search_id', false)
             ? (!$roomType
                 ? $this->getBookingItem($responseAvailability)
@@ -714,20 +671,14 @@ class FlowHbsiBookOperations extends Command
         $this->info('$new_booking_item: '.$newBookingItem);
 
         $this->info('------------------------------------');
-        $this->handleSleep();
         $responsePriceCheck = $this->priceCheck($bookingId, $bookingItem, $newBookingItem);
         $this->info('priceCheck: '.json_encode($responsePriceCheck));
-        if (Arr::get($responsePriceCheck, 'error')) {
-            $this->error('Price check failed');
-        }
 
         $this->info('------------------------------------');
-        $this->handleSleep();
         $responseHardChange = $this->hardChange($bookingId, $bookingItem, $newBookingItem, $occupancy);
         $this->info('hardChange: '.json_encode($responseHardChange));
 
         $this->info('------------------------------------');
-        $this->handleSleep();
         $responseRetrieveItems = $this->retrieveBooking($bookingId);
         $this->info('retrieveBooking: '.json_encode($responseRetrieveItems));
     }
@@ -750,12 +701,8 @@ class FlowHbsiBookOperations extends Command
         $faker = Faker::create();
 
         foreach ($rooms as $k => $room) {
-            $adults = (int)explode('-', $room)[0];
-            $child = (int)explode('-', $room)[1];
-            $infants = (int)(explode('-', $room)[2]);
-            $passengersNumber = $adults + $child + $infants;
-
-            for ($i = 0; $i < $passengersNumber; $i++) {
+            $adults = explode('-', $room)[0];
+            for ($i = 0; $i < $adults; $i++) {
                 $passengers[] = [
                     'title' => 'mr',
                     'given_name' => $faker->firstName,
@@ -965,12 +912,5 @@ class FlowHbsiBookOperations extends Command
         }
 
         return null;
-    }
-
-    private function handleSleep(): void
-    {
-        if (!$this->isQueueSync) {
-            sleep(5);
-        }
     }
 }

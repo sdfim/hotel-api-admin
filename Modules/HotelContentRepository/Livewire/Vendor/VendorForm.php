@@ -66,7 +66,7 @@ class VendorForm extends Component implements HasForms
         }
 
         $vendor['independent_flag'] = $this->record->independent_flag ?? false;
-        $vendor['giata_code_visible'] = $this->record->independent_flag && $this->record->products->count() < 2 ?? false;
+        $vendor['giata_code_visible'] = $this->record->independent_flag && $this->record->products->count() < 1 ?? false;
 
         $vendor['giata_code'] = $this->record->products->first()->related->giata_code ?? null;
 
@@ -260,7 +260,9 @@ class VendorForm extends Component implements HasForms
                                     $set('giata_code_visible', false);
                                 }
                             })
-                            ->disabled(fn () => $this->record->exists && $this->record->products->count() > 1),
+                            ->disabled(function () {
+                                return ($this->record->exists && $this->record->products->count() > 0) || ! in_array(VendorTypeEnum::HOTEL->value, $this->record->type);
+                            }),
                         Select::make('giata_code')
                             ->label('GIATA code')
                             ->searchable()

@@ -43,6 +43,8 @@ class ProductInformativeService extends Model
         'auto_book',
         'age_from',
         'age_to',
+        'min_night_stay',
+        'max_night_stay',
     ];
 
     protected $hidden = [

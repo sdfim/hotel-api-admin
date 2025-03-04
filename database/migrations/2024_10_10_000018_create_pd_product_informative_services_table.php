@@ -26,6 +26,8 @@ return new class extends Migration
             $table->boolean('auto_book');
             $table->unsignedInteger('age_from')->nullable();
             $table->unsignedInteger('age_to')->nullable();
+            $table->unsignedInteger('min_night_stay')->nullable();
+            $table->unsignedInteger('max_night_stay')->nullable();
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');

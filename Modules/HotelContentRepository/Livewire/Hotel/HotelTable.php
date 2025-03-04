@@ -173,7 +173,8 @@ class HotelTable extends Component implements HasForms, HasTable
                     })
                     ->modalHeading('Add Hotel with GIATA Code')
                     ->modalWidth('lg')
-                    ->form(HotelForm::getCoreFields()),
+                    ->form(HotelForm::getCoreFields())
+                    ->visible(! $this->vendor?->id),
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\Action::make('exportDatabase')
                         ->label('Export Database')
@@ -282,7 +283,8 @@ class HotelTable extends Component implements HasForms, HasTable
                 ])
                     ->label('Database Actions')
                     ->icon('heroicon-o-circle-stack')
-                    ->iconButton(),
+                    ->iconButton()
+                    ->visible(! $this->vendor?->id),
             ]);
     }
 

@@ -130,10 +130,24 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                                         ->reactive()
                                         ->required(),
                                     TextInput::make('price')
+                                        ->label('Net Price')
                                         ->numeric()
                                         ->minValue(0)
                                         ->step('0.01')
                                         ->visible(fn ($get) => $get('is_paid') == 1),
+                                ]),
+                            Grid::make(2)
+                                ->schema([
+                                    TextInput::make('min_night_stay')
+                                        ->label('Min Night Stay')
+                                        ->numeric()
+                                        ->minValue(0)
+                                        ->step('1'),
+                                    TextInput::make('max_night_stay')
+                                        ->label('Max Night Stay')
+                                        ->numeric()
+                                        ->minValue(0)
+                                        ->step('1'),
                                 ]),
                         ]),
                 ]),
@@ -147,34 +161,33 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                 ProductAffiliation::query()
                     ->where('product_id', $this->productId)
             )
-            ->modifyQueryUsing(function (Builder $query) {
-                if ($this->rateId) {
-                    $query->where(function ($q) {
-                        $q->where('rate_id', $this->rateId)
-                            ->orWhereNull('rate_id');
-                    });
-                    $query->where(function ($q) {
-                        $q->whereIn('room_id', $this->rateRoomIds)
-                            ->orWhereNull('room_id');
-                    });
-                } elseif ($this->roomId) {
-                    $query->where(function ($q) {
-                        $q->where('room_id', $this->roomId)
-                            ->orWhereNull('rate_id')->whereNull('room_id');
-                    });
-                } else {
-                    $query->whereNull('rate_id')->whereNull('room_id');
-                }
-            })
+//            ->modifyQueryUsing(function (Builder $query) {
+//                if ($this->rateId) {
+//                    $query->where(function ($q) {
+//                        $q->where('rate_id', $this->rateId)
+//                            ->orWhereNull('rate_id');
+//                    });
+//                    $query->where(function ($q) {
+//                        $q->whereIn('room_id', $this->rateRoomIds)
+//                            ->orWhereNull('room_id');
+//                    });
+//                } elseif ($this->roomId) {
+//                    $query->where(function ($q) {
+//                        $q->where('room_id', $this->roomId)
+//                            ->orWhereNull('rate_id')->whereNull('room_id');
+//                    });
+//                } else {
+//                    $query->whereNull('rate_id')->whereNull('room_id');
+//                }
+//            })
             ->columns([
                 TextColumn::make('level')
                     ->label('Level')
                     ->badge()
                     ->getStateUsing(function ($record) {
                         return match (true) {
-                            $this->productId && $this->rateId && $this->rateId === $record->rate_id => 'Rate',
-                            $this->productId && $this->roomId && $this->roomId === $record->room_id,
-                            $this->productId && $this->rateId && $record->room_id !== null => 'Room',
+                            $this->productId && $record->rate_id !== null => 'Rate',
+                            $this->productId && $record->room_id !== null => 'Room',
                             default => 'Hotel',
                         };
                     })
@@ -188,8 +201,8 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                     ->label('Code')
                     ->getStateUsing(function ($record) {
                         return match (true) {
-                            $this->productId && $this->rateId && $this->rateId === $record->rate_id => $record->rate->code,
-                            in_array($record->room_id, $this->rateRoomIds) => $record->room->hbsi_data_mapped_name,
+                            $record->rate_id !== null => $record->rate?->code,
+                            $record->room_id !== null => $record->room->hbsi_data_mapped_name,
                             default => '',
                         };
                     }),
@@ -199,7 +212,11 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                     ->html()
                     ->getStateUsing(function ($record) {
                         return $record->amenities->map(function ($amenity) {
-                            return "Amenity: {$amenity->amenity->name}, Consortia: ".implode(', ', $amenity->consortia).', Is Paid: '.($amenity->is_paid ? 'Yes' : 'No').', Price: '.($amenity->price ?? 'N/A');
+                            return "Amenity: {$amenity->amenity->name},
+                            Consortia: ".implode(', ', $amenity->consortia).',
+                            Is Paid: '.($amenity->is_paid ? 'Yes' : 'No').', Price: '.($amenity->price ?? 'N/A').
+                                ', Min Night Stay: '.($amenity->min_night_stay ?? 'N/A').
+                                ', Max Night Stay: '.($amenity->max_night_stay ?? 'N/A');
                         })->implode('<br>');
                     }),
                 TextColumn::make('start_date')->label('Travel Start Date')->date(),
@@ -226,9 +243,9 @@ class ProductAffiliationsTable extends Component implements HasForms, HasTable
                         }),
                     DeleteAction::make()
                         ->label('Delete'),
-                ])->visible(fn (ProductAffiliation $record): bool => ($this->rateId && $this->rateId === $record->rate_id) ||
-                                            ($this->roomId && $this->roomId === $record->room_id) ||
-                                            (! $this->rateId && ! $this->roomId)
+                ])->visible(fn (ProductAffiliation $record): bool => ($this->rateId && $this->rateId === $record->rate_id)
+                    || ($this->roomId && $this->roomId === $record->room_id)
+                    || (! $this->rateId && ! $this->roomId && $record->room_id === null && $record->rate_id === null)
                 ),
             )
             ->headerActions([

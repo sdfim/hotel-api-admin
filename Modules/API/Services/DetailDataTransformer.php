@@ -345,6 +345,8 @@ class DetailDataTransformer
                             'consortia' => $amenity->consortia,
                             'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
                             'price' => $amenity->price,
+                            'min_night_stay' => $amenity->min_night_stay,
+                            'max_night_stay' => $amenity->max_night_stay,
                         ];
                     })->all(),
                 ];
@@ -382,6 +384,8 @@ class DetailDataTransformer
                                 'consortia' => $amenity->consortia,
                                 'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
                                 'price' => $amenity->price,
+                                'min_night_stay' => $amenity->min_night_stay,
+                                'max_night_stay' => $amenity->max_night_stay,
                             ];
                         })->all(),
                     ];
