@@ -728,6 +728,9 @@ class HbsiHotelPricingTransformer
 
     private function applyRepoTaxFees(array &$transformedRates, $giataCode, $ratePlanCode, $unifiedRoomCode, $rateOccupancy): void
     {
+        if (! isset($this->repoTaxFees[$giataCode])) {
+            return;
+        }
         $repoTaxFees = $this->repoTaxFees[$giataCode];
 
         // Calculate the number of nights and the number of passengers

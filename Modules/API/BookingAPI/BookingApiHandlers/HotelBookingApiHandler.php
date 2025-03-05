@@ -31,7 +31,7 @@ class HotelBookingApiHandler extends BaseController implements BookingApiHandler
         private readonly HbsiHotelBookingApiController $hbsi,
         private readonly HbsiService $hbsiService,
 
-    ) { }
+    ) {}
 
     public function addItem(Request $request, string $supplier): JsonResponse
     {

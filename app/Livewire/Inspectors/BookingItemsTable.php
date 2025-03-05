@@ -37,13 +37,17 @@ class BookingItemsTable extends Component implements HasForms, HasTable
                     ->icon(fn (ApiBookingItem $record): string => match ($record->search->search_type) {
                         'hotel' => 'heroicon-o-home',
                         'flight' => 'heroicon-o-airplane',
-                        default => 'heroicon-o-search',
+                        'tour' => 'heroicon-o-globe-alt',
+                        'transfer' => 'heroicon-o-map-pin',
+                        default => 'heroicon-o-academic-cap',
                     })
                     ->toggleable()
                     ->size(TextColumn\TextColumnSize::Large)
                     ->color(fn (string $state): string => match ($state) {
                         'hotel' => 'grey',
                         'flight' => 'success',
+                        'tour' => 'warning',
+                        'transfer' => 'danger',
                         default => 'info',
                     })
                     ->searchable(isIndividual: true),
