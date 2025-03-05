@@ -10,12 +10,14 @@ class AffiliationTransformer extends TransformerAbstract
     public function transform(ProductAffiliation $affiliation)
     {
         return [
-            'affiliation_id' => $affiliation->affiliation_id,
-            'consortia' => $affiliation->consortia->name,
-            'description' => $affiliation->description,
             'start_date' => $affiliation->start_date,
             'end_date' => $affiliation->end_date,
-            'combinable' => $affiliation->combinable,
+            'amenities' => $affiliation->amenities->map(function ($amenity) {
+                return $amenity->name;
+            })->all(),
+            'consortia' => $affiliation->consortia,
+            'is_paid' => $affiliation->is_paid ? 'Yes' : 'No',
+            'price' => $affiliation->price,
         ];
     }
 }

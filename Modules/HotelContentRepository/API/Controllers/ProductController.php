@@ -2,8 +2,8 @@
 
 namespace Modules\HotelContentRepository\API\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Response;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection as FractalCollection;
 use Modules\HotelContentRepository\Actions\Product\AddProduct;
@@ -15,30 +15,29 @@ use Modules\HotelContentRepository\Models\DTOs\ProductDTO;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\Transformers\CustomFractalSerializer;
 use Modules\HotelContentRepository\Models\Transformers\ProductTransformer;
-use Illuminate\Http\Response;
-use Modules\HotelContentRepository\API\Controllers\BaseController;
-use Spatie\Fractal\Fractal;
 
 class ProductController extends BaseController
 {
+    protected Manager $fractal;
+
     public function __construct(
         protected AddProduct $addProduct,
         protected EditProduct $editProduct,
         protected DeleteProduct $deleteProduct,
         protected ProductDTO $productDTO
     ) {
-        $this->fractal = new Manager();
-        $this->fractal->setSerializer(new CustomFractalSerializer());
+        $this->fractal = app(Manager::class);
+        $this->fractal->setSerializer(app(CustomFractalSerializer::class));
     }
 
     public function index()
     {
         $query = Product::query();
         $query = $this->filter($query, Product::class);
-        $products = $query->with($this->getIncludes())->get();
+        $products = $query->get();
 
         $useFractal = config('packages.fractal.use_fractal', true);
-        if (!$useFractal) {
+        if (! $useFractal) {
             $productDTO = $this->productDTO->transform($products, true);
         } else {
             $resource = new FractalCollection($products, new ProductTransformer());
@@ -51,22 +50,24 @@ class ProductController extends BaseController
     public function store(ProductRequest $request)
     {
         $product = $this->addProduct->handle($request);
+
         return $this->sendResponse($product->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
         try {
-            $product = Product::with($this->getIncludes())->findOrFail($id);
+            $product = Product::findOrFail($id);
+            \Log::debug('show', [$product->contactInformation]);
         } catch (ModelNotFoundException $e) {
             return $this->sendError('Product not found', Response::HTTP_NOT_FOUND);
         }
 
         $useFractal = config('packages.fractal.use_fractal', true);
-        if (!$useFractal) {
+        if (! $useFractal) {
             $productDTO = $this->productDTO->transformProduct($product, true);
         } else {
-            $resource = new FractalCollection([$product], new ProductTransformer());
+            $resource = new FractalCollection([$product], new ProductTransformer);
             $productDTO = $this->fractal->createData($resource)->toArray()[0];
         }
 
@@ -77,6 +78,7 @@ class ProductController extends BaseController
     {
         $product = Product::findOrFail($id);
         $product = $this->editProduct->handle($product, $request);
+
         return $this->sendResponse($product->toArray(), 'update success');
     }
 
@@ -84,6 +86,7 @@ class ProductController extends BaseController
     {
         $product = Product::findOrFail($id);
         $this->deleteProduct->handle($product);
+
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 
@@ -91,6 +94,7 @@ class ProductController extends BaseController
     {
         $product = Product::findOrFail($id);
         $product->galleries()->attach($request->gallery_id);
+
         return $this->sendResponse($product->galleries->toArray(), 'Gallery attached successfully');
     }
 
@@ -98,23 +102,7 @@ class ProductController extends BaseController
     {
         $product = Product::findOrFail($id);
         $product->galleries()->detach($request->gallery_id);
-        return $this->sendResponse($product->galleries->toArray(), 'Gallery detached successfully');
-    }
 
-    protected function getIncludes(): array
-    {
-        return [
-            'affiliations',
-            'attributes',
-            'contentSource',
-            'propertyImagesSource',
-            'descriptiveContentsSection',
-            'feeTaxes',
-            'informativeServices.service',
-            'promotions.galleries.images',
-            'keyMappings',
-            'galleries.images',
-            'contactInformation',
-        ];
+        return $this->sendResponse($product->galleries->toArray(), 'Gallery detached successfully');
     }
 }

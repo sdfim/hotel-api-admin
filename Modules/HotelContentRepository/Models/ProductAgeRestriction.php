@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\HotelContentRepository\Models\Factories\ProductAgeRestrictionFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ProductAgeRestriction extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -30,5 +33,13 @@ class ProductAgeRestriction extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['product_id', 'restriction_type', 'value', 'active'])
+            ->logOnlyDirty()
+            ->useLogName('product_age_restriction');
     }
 }

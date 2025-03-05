@@ -5,21 +5,69 @@ namespace Modules\API\ContentAPI\ResponseModels;
 class ContentSearchResponse
 {
     private int $giata_hotel_code;
+
     private array $images;
+
     private array $description;
+
     private string $hotel_name;
-    private string $distance;
+
     private string $latitude;
+
     private string $longitude;
+
     private string $rating;
+
     private array $amenities;
+
     private string $giata_destination;
+
     private string $user_rating;
+
     private array $important_information;
-    private array $supplier_information;
+
     private int $weight;
+
     private array $deposit_information;
+
     private array $cancellation_policies;
+
+    private array $drivers;
+
+    private array $ultimate_amenities;
+
+    private array $nearest_airports;
+
+
+    public function setNearestAirports(array $nearest_airports): void
+    {
+        $this->nearest_airports = $nearest_airports;
+    }
+
+    public function getNearestAirports(): array
+    {
+        return $this->nearest_airports;
+    }
+
+    public function setUltimateAmenities(array $ultimate_amenities): void
+    {
+        $this->ultimate_amenities = $ultimate_amenities;
+    }
+
+    public function getUltimateAmenities(): array
+    {
+        return $this->ultimate_amenities;
+    }
+
+    public function setDrivers(array $drivers): void
+    {
+        $this->drivers = $drivers;
+    }
+
+    public function getDrivers(): array
+    {
+        return $this->drivers;
+    }
 
     public function setCancellationPolicies(array $cancellation_policies): void
     {
@@ -49,16 +97,6 @@ class ContentSearchResponse
     public function getWeight(): int
     {
         return $this->weight;
-    }
-
-    public function setSupplierInformation(array $supplier_information): void
-    {
-        $this->supplier_information = $supplier_information;
-    }
-
-    public function getSupplierInformation(): array
-    {
-        return $this->supplier_information;
     }
 
     public function getImportantInformation(): array
@@ -131,16 +169,6 @@ class ContentSearchResponse
         return $this->latitude;
     }
 
-    public function setDistance(string $distance): void
-    {
-        $this->distance = $distance;
-    }
-
-    public function getDistance(): string
-    {
-        return $this->distance;
-    }
-
     public function setHotelName(string $hotel_name): void
     {
         $this->hotel_name = $hotel_name;
@@ -188,18 +216,18 @@ class ContentSearchResponse
             'weight' => $this->getWeight(),
             'images' => $this->getImages(),
             'description' => $this->getDescription(),
+            'nearest_airports' => $this->getNearestAirports(),
             'deposit_information' => $this->getDepositInformation(),
             'cancellation_policies' => $this->getCancellationPolicies(),
             'hotel_name' => $this->getHotelName(),
-            'distance' => $this->getDistance(),
             'latitude' => $this->getLatitude(),
             'longitude' => $this->getLongitude(),
             'rating' => $this->getRating(),
-            'amenities' => array_values($this->getAmenities()),
+            'attributes' => array_values($this->getAmenities()),
+            'ultimate_amenities' => $this->getUltimateAmenities(),
             'giata_destination' => $this->getGiataDestination(),
             'user_rating' => $this->getUserRating(),
-            'important_information' => $this->getImportantInformation(),
-            'supplier_information' => $this->getSupplierInformation(),
+            'drivers' => $this->getDrivers(),
         ];
     }
 }

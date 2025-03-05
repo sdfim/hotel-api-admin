@@ -3,7 +3,6 @@
 namespace Tests\Feature\API\HotelContentRepository;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\ProductAttribute;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -19,9 +18,9 @@ class ProductAttributeControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'product_id', 'config_attribute_id']
+                '*' => ['id', 'product_id', 'config_attribute_id'],
             ],
-            'message'
+            'message',
         ]);
     }
 
@@ -33,7 +32,7 @@ class ProductAttributeControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'config_attribute_id'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_attributes', $data);
     }
@@ -46,7 +45,7 @@ class ProductAttributeControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'config_attribute_id'],
-            'message'
+            'message',
         ]);
     }
 
@@ -59,7 +58,7 @@ class ProductAttributeControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => ['id', 'product_id', 'config_attribute_id'],
-                'message'
+                'message',
             ]);
         $this->assertDatabaseHas('pd_product_attributes', $data);
     }

@@ -25,12 +25,12 @@ class Image extends Model
         'weight',
         'section_id',
         'alt',
-        ];
+    ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
-        'pivot'
+        'pivot',
     ];
 
     public function section()

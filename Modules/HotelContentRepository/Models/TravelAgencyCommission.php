@@ -9,11 +9,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Modules\HotelContentRepository\Models\Factories\TravelAgencyCommissionFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class TravelAgencyCommission extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -63,5 +66,13 @@ class TravelAgencyCommission extends Model
     public function setConsortiaAttribute($value): void
     {
         $this->attributes['consortia'] = json_encode($value);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['product_id', 'name', 'commission_value', 'commission_value_type', 'date_range_start', 'date_range_end'])
+            ->logOnlyDirty()
+            ->useLogName('travel_agency_commission');
     }
 }

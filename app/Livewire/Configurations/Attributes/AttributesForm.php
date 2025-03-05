@@ -24,7 +24,6 @@ class AttributesForm extends Component implements HasForms
     public function mount(ConfigAttribute $configAttribute): void
     {
         $this->record = $configAttribute;
-
         $this->form->fill($this->record->attributesToArray());
     }
 
@@ -40,15 +39,15 @@ class AttributesForm extends Component implements HasForms
     {
         return [
             TextInput::make('name')
-            ->required()
-            ->maxLength(191)
-            ];
+                ->required()
+                ->maxLength(191),
+        ];
     }
 
     public function edit(): Redirector|RedirectResponse
     {
         $data = $this->form->getState();
-        if (!isset($data['default_value'])) {
+        if (! isset($data['default_value'])) {
             $data['default_value'] = '';
         }
         $this->record->fill($data);

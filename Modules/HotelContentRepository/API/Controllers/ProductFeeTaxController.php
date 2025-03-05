@@ -2,12 +2,9 @@
 
 namespace Modules\HotelContentRepository\API\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
-use Modules\HotelContentRepository\Models\ProductFeeTax;
 use Modules\HotelContentRepository\API\Requests\ProductFeeTaxRequest;
-use Illuminate\Http\Request;
-use Modules\HotelContentRepository\API\Controllers\BaseController;
+use Modules\HotelContentRepository\Models\ProductFeeTax;
 
 class ProductFeeTaxController extends BaseController
 {
@@ -23,12 +20,14 @@ class ProductFeeTaxController extends BaseController
     public function store(ProductFeeTaxRequest $request)
     {
         $hotelFeeTax = ProductFeeTax::create($request->validated());
+
         return $this->sendResponse($hotelFeeTax->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
         $hotelFeeTax = ProductFeeTax::findOrFail($id);
+
         return $this->sendResponse($hotelFeeTax->toArray(), 'show success');
     }
 
@@ -36,6 +35,7 @@ class ProductFeeTaxController extends BaseController
     {
         $hotelFeeTax = ProductFeeTax::findOrFail($id);
         $hotelFeeTax->update($request->validated());
+
         return $this->sendResponse($hotelFeeTax->toArray(), 'update success');
     }
 
@@ -43,6 +43,7 @@ class ProductFeeTaxController extends BaseController
     {
         $hotelFeeTax = ProductFeeTax::findOrFail($id);
         $hotelFeeTax->delete();
+
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 }

@@ -2,54 +2,42 @@
 
 namespace Modules\HotelContentRepository\Livewire\TravelAgencyCommission;
 
-use App\Helpers\ClassHelper;
 use App\Livewire\Configurations\Consortia\ConsortiaForm;
 use App\Models\Configurations\ConfigConsortium;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Notifications\Notification;
-use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\HtmlString;
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Enums\CommissionValueTypeEnum;
-use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\TravelAgencyCommission;
-use Modules\HotelContentRepository\Models\TravelAgencyCommissionCondition;
 
 class TravelAgencyCommissionTable extends Component implements HasForms, HasTable
 {
+    use HasProductActions;
     use InteractsWithForms;
     use InteractsWithTable;
-    use HasProductActions;
 
     public int $productId;
+
     public string $title;
 
-    public function mount(int $productId)
+    public function mount(Product $product)
     {
-        $this->productId = $productId;
-        $product = Product::find($productId);
-        $this->title = 'Travel Agency Commission for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
+        $this->productId = $product->id;
+        $this->title = 'Travel Agency Commission for <h4>'.$product->name.'</h4>';
     }
 
     public function schemeForm(): array
@@ -61,9 +49,9 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                 ->required(),
             Grid::make()->schema([
                 TextInput::make('commission_value')
-                ->label('Commission Value')
-                ->numeric('decimal')
-                ->required(),
+                    ->label('Commission Value')
+                    ->numeric('decimal')
+                    ->required(),
                 Select::make('commission_value_type')
                     ->label('Commission Value Type')
                     ->options(array_column(CommissionValueTypeEnum::cases(), 'value', 'value'))
@@ -71,14 +59,13 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
             ]),
             Grid::make()->schema([
                 DatePicker::make('date_range_start')
-                    ->label('Start Date')
+                    ->label('Travel Start Date')
                     ->native(false)
-                    ->default(fn() => now())
+                    ->default(fn () => now())
                     ->required(),
                 DatePicker::make('date_range_end')
-                    ->label('End Date')
-                    ->native(false)
-                    ->required(),
+                    ->label('Travel End Date')
+                    ->native(false),
             ]),
 
             Grid::make()->schema([
@@ -91,11 +78,12 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     ->options(ConfigConsortium::pluck('name', 'id'))
                     ->createOptionForm(ConsortiaForm::getSchema())
                     ->createOptionUsing(function (array $data) {
-                        $consortia =ConfigConsortium::create($data);
+                        $consortia = ConfigConsortium::create($data);
                         Notification::make()
                             ->title('Consortia created successfully')
                             ->success()
                             ->send();
+
                         return $consortia->id;
                     }),
             ]),
@@ -123,7 +111,10 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     ->searchable()
                     ->formatStateUsing(function ($state) {
                         $consortiaIds = explode(',', str_replace(' ', '', $state));
-                        if (empty($consortiaIds)) return '';
+                        if (empty($consortiaIds)) {
+                            return '';
+                        }
+
                         return ConfigConsortium::whereIn('id', $consortiaIds)->pluck('name')->implode(', ');
                     }),
                 TextColumn::make('commission_value')
@@ -135,13 +126,13 @@ class TravelAgencyCommissionTable extends Component implements HasForms, HasTabl
                     ->sortable()
                     ->toggleable(),
                 TextColumn::make('date_range_start')
-                    ->label('Start Date')
+                    ->label('Travel Start Date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()
                     ->date(),
                 TextColumn::make('date_range_end')
-                    ->label('End Date')
+                    ->label('Travel End Date')
                     ->dateTime()
                     ->sortable()
                     ->toggleable()

@@ -20,14 +20,14 @@ class ConfigAttributeFactory extends Factory
                 'Gym',
                 'Free WiFi',
                 'Parking',
-                'Pet Friendly'
+                'Pet Friendly',
             ]),
             'default_value' => $this->faker->randomElement([
                 'All Inclusive',
                 'Yes',
                 'No',
                 'Available',
-                'Not Available'
+                'Not Available',
             ]),
         ];
     }

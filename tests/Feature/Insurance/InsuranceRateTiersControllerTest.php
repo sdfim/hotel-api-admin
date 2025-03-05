@@ -8,9 +8,11 @@ use PHPUnit\Framework\Attributes\Test;
 use Tests\Feature\AuthenticatesUser;
 use Tests\TestCase;
 
-class InsuranceRateTiersControllerTest  extends TestCase
+class InsuranceRateTiersControllerTest extends TestCase
 {
-    use RefreshDatabase, WithFaker, AuthenticatesUser;
+    use AuthenticatesUser;
+    use RefreshDatabase;
+    use WithFaker;
 
     #[Test]
     public function test_insurance_rate_tiers_index_is_opening(): void

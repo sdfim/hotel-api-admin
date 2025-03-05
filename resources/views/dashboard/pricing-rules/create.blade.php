@@ -29,7 +29,7 @@
                         </div>
                     </div>
                     <div class="mx-1 py-1 col-span-9 xl:col-span-6">
-                        @livewire('pricing-rules.create-pricing-rule', ['isSrCreator' => $isSrCreator, 'giataCodeProperty' => $giataCodeProperty])
+                        @livewire('pricing-rules.create-pricing-rule', ['isSrCreator' => $isSrCreator, 'giataCodeProperty' => $giataCodeProperty, 'rateCode' => $rateCode])
                     </div>
                 </div>
             </div>

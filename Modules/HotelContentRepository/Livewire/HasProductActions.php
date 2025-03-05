@@ -21,6 +21,7 @@ trait HasProductActions
                 ->iconButton()
                 ->modalHeading(new HtmlString("Edit {$this->title}"))
                 ->form($this->schemeForm())
+                ->closeModalByClickingAway(false)
                 ->visible(fn () => Gate::allows('create', Product::class)),
         ];
 
@@ -45,7 +46,7 @@ trait HasProductActions
             CreateAction::make()
                 ->modalHeading(new HtmlString("Create {$this->title}"))
                 ->form($this->schemeForm())
-                ->tooltip('Add New Fee')
+                ->tooltip('Add New Entity')
                 ->icon('heroicon-o-plus')
                 ->visible(fn () => Gate::allows('create', Product::class))
                 ->extraAttributes(['class' => ClassHelper::buttonClasses()])

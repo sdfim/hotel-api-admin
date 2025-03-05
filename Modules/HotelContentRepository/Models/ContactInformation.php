@@ -5,9 +5,7 @@ namespace Modules\HotelContentRepository\Models;
 use App\Models\Configurations\ConfigJobDescription;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\Relation;
 use Modules\HotelContentRepository\Models\Factories\ContactInformationFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
 
@@ -29,7 +27,7 @@ class ContactInformation extends Model
         'job_title',
         'contactable_id',
         'contactable_type',
-        'ujv_department'
+        'ujv_department',
     ];
 
     public function contactable()

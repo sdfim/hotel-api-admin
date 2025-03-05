@@ -28,7 +28,7 @@ class ApiSearchInspectorRepository
         $booking_item = $filters['booking_item'];
 
         $bookingItemData = ApiBookingItemRepository::getItemData($booking_item);
-        $keyExpedia = 'Expedia_' . $bookingItemData['query_package'];
+        $keyExpedia = 'Expedia_'.$bookingItemData['query_package'];
 
         $search_id = ApiSearchInspector::where('search_id', $search_id)->first();
         $json_response = json_decode(Storage::get($search_id->response_path));
@@ -54,12 +54,7 @@ class ApiSearchInspectorRepository
         return $linkPriceCheck;
     }
 
-    /**
-     * @param $search_id
-     * @param ApiBookingItem $bookingItem
-     * @return string|null
-     */
-    public static function getLinkAvailability($search_id, ApiBookingItem $bookingItem): string|null
+    public static function getLinkAvailability($search_id, ApiBookingItem $bookingItem): ?string
     {
         try {
             $searchId = ApiSearchInspector::where('search_id', $search_id)->first();
@@ -73,10 +68,6 @@ class ApiSearchInspectorRepository
         return $link;
     }
 
-    /**
-     * @param string $search_id
-     * @return string
-     */
     public static function geTypeBySearchId(string $search_id): string
     {
         $search = ApiSearchInspector::where('search_id', $search_id)->first();
@@ -151,7 +142,7 @@ class ApiSearchInspectorRepository
         $numberOfAdults = 0;
 
         foreach ($occupancy as $room) {
-            if (!empty($room['children_ages'])) {
+            if (! empty($room['children_ages'])) {
                 $numberOfChildren += count($room['children_ages']);
             }
 
@@ -169,7 +160,7 @@ class ApiSearchInspectorRepository
         ];
 
         foreach ($occupancy as $room) {
-            if (!empty($room['children_ages'])) {
+            if (! empty($room['children_ages'])) {
                 $breakdown['children'] += count($room['children_ages']);
             }
 
@@ -222,14 +213,14 @@ class ApiSearchInspectorRepository
 
         $token_id = ChannelRenository::getTokenId(request()->bearerToken());
 
-        $inspector = new ApiSearchInspector();
+        $inspector = new ApiSearchInspector;
         $inspector->search_id = $search_id;
         $inspector->type = $type;
         $inspector->search_type = $search_type;
         $inspector->suppliers = implode(',', $suppliers);
         $inspector->request = json_encode($request);
         $inspector->token_id = $token_id;
-        $inspector->destination_name = Arr::get($request,'destination_name');
+        $inspector->destination_name = Arr::get($request, 'destination_name');
 
         \Log::info('Created ApiSearchInspector:', ['inspector' => $inspector]);
 

@@ -3,18 +3,21 @@
 namespace Modules\HotelContentRepository\Models;
 
 use App\Models\Configurations\ConfigServiceType;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\ProductInformativeServiceFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
-use Carbon\Carbon;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ProductInformativeService extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -25,7 +28,11 @@ class ProductInformativeService extends Model
 
     protected $fillable = [
         'product_id',
+        'rate_id',
+        'room_id',
         'service_id',
+        'start_date',
+        'end_date',
         'cost',
         'name',
         'currency',
@@ -33,7 +40,11 @@ class ProductInformativeService extends Model
         'show_service_on_pdf',
         'show_service_data_on_pdf',
         'commissionable',
-        'auto_book'
+        'auto_book',
+        'age_from',
+        'age_to',
+        'min_night_stay',
+        'max_night_stay',
     ];
 
     protected $hidden = [
@@ -41,6 +52,8 @@ class ProductInformativeService extends Model
         'show_service_on_pdf' => 'boolean',
         'show_service_data_on_pdf' => 'boolean',
         'auto_book' => 'boolean',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
     ];
 
     public function setServiceTimeAttribute($value)
@@ -57,6 +70,16 @@ class ProductInformativeService extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(HotelRoom::class);
+    }
+
+    public function rate(): BelongsTo
+    {
+        return $this->belongsTo(HotelRate::class);
+    }
+
     public function service(): BelongsTo
     {
         return $this->belongsTo(ConfigServiceType::class);
@@ -65,5 +88,13 @@ class ProductInformativeService extends Model
     public function dynamicColumns(): HasMany
     {
         return $this->hasMany(ProductInformativeServiceDynamicColumn::class, 'product_informative_service_id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['product_id', 'service_id', 'cost'])
+            ->logOnlyDirty()
+            ->useLogName('product_informative_service');
     }
 }

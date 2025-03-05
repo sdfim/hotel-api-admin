@@ -17,8 +17,8 @@ use Modules\HotelContentRepository\Models\Vendor;
  * @property float $commission_ujv
  * @property float $insurance_vendor_fee
  * @property int $vendor_id
+ * @property int $insurance_type_id
  * @property string|null $request
- *
  * @property InsuranceProvider $provider
  * @property InsuranceRestriction[] $restrictions
  * @property InsuranceApplication[] $applications
@@ -33,19 +33,25 @@ class InsurancePlan extends Model
         'commission_ujv',
         'insurance_vendor_fee',
         'vendor_id',
-        'request'
+        'insurance_type_id',
+        'request',
     ];
 
     protected $casts = [
         'total_insurance_cost' => 'float',
         'commission_ujv' => 'float',
         'insurance_vendor_fee' => 'float',
-        'request' => 'array'
+        'request' => 'array',
     ];
 
     public function vendor(): BelongsTo
     {
         return $this->belongsTo(Vendor::class, 'vendor_id');
+    }
+
+    public function insuranceType(): BelongsTo
+    {
+        return $this->belongsTo(InsuranceType::class, 'insurance_type_id');
     }
 
     public function restrictions(): HasMany

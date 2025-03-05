@@ -15,7 +15,7 @@ class HotelWebFinderFactory extends Factory
         return [
             'base_url' => $this->faker->url,
             'finder' => $this->faker->word,
-            'type' => $this->faker->word,
+            'website' => $this->faker->word,
             'example' => $this->faker->word,
         ];
     }

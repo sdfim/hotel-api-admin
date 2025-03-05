@@ -3,12 +3,11 @@
 namespace Tests\Feature\Teams;
 
 use App\Actions\Jetstream\AddTeamMember;
-use App\Models\Team;
 use App\Models\User;
+use Faker\Factory as Faker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
-use Faker\Factory as Faker;
 
 class AddTeamMemberTest extends TestCase
 {
@@ -26,7 +25,7 @@ class AddTeamMemberTest extends TestCase
 
         $newMember = User::factory()->create(['email' => $fakeEmail]);
 
-        $action = new AddTeamMember();
+        $action = new AddTeamMember;
         $action->add($user, $team, $fakeEmail, 'viewer');
 
         $this->assertTrue($team->fresh()->hasUserWithEmail($fakeEmail));
@@ -39,7 +38,7 @@ class AddTeamMemberTest extends TestCase
 
         $team = $user->currentTeam;
 
-        $action = new AddTeamMember();
+        $action = new AddTeamMember;
 
         $this->expectException(\Illuminate\Validation\ValidationException::class);
 

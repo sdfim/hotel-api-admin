@@ -2,20 +2,28 @@
 
 namespace Modules\Insurance\Seeders;
 
-use Illuminate\Database\Seeder;
-use Modules\Insurance\Models\InsuranceRateTier;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
+use Modules\HotelContentRepository\Models\Vendor;
+use Modules\Insurance\Models\InsuranceRateTier;
+use Modules\Insurance\Models\InsuranceType;
 
 class InsuranceRateTierSeeder extends Seeder
 {
     public function run(): void
     {
+        $tripMateId = Vendor::where('name', 'TripMate')->pluck('id')->first();
+
+        $silverPlan = InsuranceType::where('name', 'Silver Plan - F545U')->first();
+        $platinumPlan = InsuranceType::where('name', 'Platinum Plan - F545F')->first();
+
         if (InsuranceRateTier::count() === 0) {
             $now = Carbon::now();
 
             $rateTiers = [
                 [
-                    'vendor_id' => 1,
+                    'vendor_id' => $tripMateId,
+                    'insurance_type_id' => $silverPlan->id,
                     'min_trip_cost' => 0,
                     'max_trip_cost' => 1000,
                     'consumer_plan_cost' => 43,
@@ -25,7 +33,8 @@ class InsuranceRateTierSeeder extends Seeder
                     'updated_at' => $now,
                 ],
                 [
-                    'vendor_id' => 1,
+                    'vendor_id' => $tripMateId,
+                    'insurance_type_id' => $silverPlan->id,
                     'min_trip_cost' => 1001,
                     'max_trip_cost' => 2000,
                     'consumer_plan_cost' => 86,
@@ -35,7 +44,8 @@ class InsuranceRateTierSeeder extends Seeder
                     'updated_at' => $now,
                 ],
                 [
-                    'vendor_id' => 1,
+                    'vendor_id' => $tripMateId,
+                    'insurance_type_id' => $silverPlan->id,
                     'min_trip_cost' => 2001,
                     'max_trip_cost' => 3000,
                     'consumer_plan_cost' => 129,
@@ -45,7 +55,8 @@ class InsuranceRateTierSeeder extends Seeder
                     'updated_at' => $now,
                 ],
                 [
-                    'vendor_id' => 1,
+                    'vendor_id' => $tripMateId,
+                    'insurance_type_id' => $platinumPlan->id,
                     'min_trip_cost' => 3001,
                     'max_trip_cost' => 4000,
                     'consumer_plan_cost' => 172,
@@ -55,7 +66,8 @@ class InsuranceRateTierSeeder extends Seeder
                     'updated_at' => $now,
                 ],
                 [
-                    'vendor_id' => 1,
+                    'vendor_id' => $tripMateId,
+                    'insurance_type_id' => $platinumPlan->id,
                     'min_trip_cost' => 4001,
                     'max_trip_cost' => 5000,
                     'consumer_plan_cost' => 215,
@@ -65,7 +77,8 @@ class InsuranceRateTierSeeder extends Seeder
                     'updated_at' => $now,
                 ],
                 [
-                    'vendor_id' => 1,
+                    'vendor_id' => $tripMateId,
+                    'insurance_type_id' => $platinumPlan->id,
                     'min_trip_cost' => 5001,
                     'max_trip_cost' => 6000,
                     'consumer_plan_cost' => 258,

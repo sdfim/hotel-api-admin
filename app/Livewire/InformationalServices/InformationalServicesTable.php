@@ -60,30 +60,29 @@ class InformationalServicesTable extends Component implements HasForms, HasTable
                     ->label('Service Name')
                     ->searchable(isIndividual: true),
                 TextColumn::make('cost')->searchable(),
-            ])
-//            ->actions([
-//                ActionGroup::make([
-//                    EditAction::make()
-//                        ->form($this->schemeForm())
-//                        ->fillForm(function ($record) {
-//                            return $record->load('bookingItem', 'service')->toArray();
-//                        })
-//                        ->visible(fn (InformationalService $record) => Gate::allows('update', $record)),
-//                    DeleteAction::make()
-//                        ->requiresConfirmation()
-//                        ->action(fn (InformationalService $record) => $record->delete())
-//                        ->visible(fn (InformationalService $record) => Gate::allows('delete', $record)),
-//                ]),
-//            ])
-//            ->headerActions([
-//                CreateAction::make()
-//                    ->icon('heroicon-o-plus')
-//                    ->iconButton()
-//                    ->form($this->schemeForm())
-//                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
-//                    ->visible(fn () => Gate::allows('create', InformationalService::class)),
-//            ])
-            ;
+            ]);
+        //            ->actions([
+        //                ActionGroup::make([
+        //                    EditAction::make()
+        //                        ->form($this->schemeForm())
+        //                        ->fillForm(function ($record) {
+        //                            return $record->load('bookingItem', 'service')->toArray();
+        //                        })
+        //                        ->visible(fn (InformationalService $record) => Gate::allows('update', $record)),
+        //                    DeleteAction::make()
+        //                        ->requiresConfirmation()
+        //                        ->action(fn (InformationalService $record) => $record->delete())
+        //                        ->visible(fn (InformationalService $record) => Gate::allows('delete', $record)),
+        //                ]),
+        //            ])
+        //            ->headerActions([
+        //                CreateAction::make()
+        //                    ->icon('heroicon-o-plus')
+        //                    ->iconButton()
+        //                    ->form($this->schemeForm())
+        //                    ->extraAttributes(['class' => ClassHelper::buttonClasses()])
+        //                    ->visible(fn () => Gate::allows('create', InformationalService::class)),
+        //            ])
     }
 
     public function render(): View

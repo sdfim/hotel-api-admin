@@ -2,11 +2,9 @@
 
 namespace Modules\HotelContentRepository\API\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
-use Modules\HotelContentRepository\Models\KeyMapping;
 use Modules\HotelContentRepository\API\Requests\KeyMappingRequest;
-use Modules\HotelContentRepository\API\Controllers\BaseController;
+use Modules\HotelContentRepository\Models\KeyMapping;
 
 class KeyMappingController extends BaseController
 {
@@ -14,7 +12,7 @@ class KeyMappingController extends BaseController
     {
         $query = KeyMapping::query();
         $query = $this->filter($query, KeyMapping::class);
-        $keyMappings = $query->with(['keyMappingOwner'])->get();
+        $keyMappings = $query->get();
 
         return $this->sendResponse($keyMappings->toArray(), 'index success');
     }
@@ -22,12 +20,14 @@ class KeyMappingController extends BaseController
     public function store(KeyMappingRequest $request)
     {
         $keyMapping = KeyMapping::create($request->validated());
+
         return $this->sendResponse($keyMapping->toArray(), 'create success', Response::HTTP_CREATED);
     }
 
     public function show($id)
     {
-        $keyMapping = KeyMapping::with(['keyMappingOwner'])->findOrFail($id);
+        $keyMapping = KeyMapping::findOrFail($id);
+
         return $this->sendResponse($keyMapping->toArray(), 'show success');
     }
 
@@ -35,6 +35,7 @@ class KeyMappingController extends BaseController
     {
         $keyMapping = KeyMapping::findOrFail($id);
         $keyMapping->update($request->validated());
+
         return $this->sendResponse($keyMapping->toArray(), 'update success');
     }
 
@@ -42,6 +43,7 @@ class KeyMappingController extends BaseController
     {
         $keyMapping = KeyMapping::findOrFail($id);
         $keyMapping->delete();
+
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 }

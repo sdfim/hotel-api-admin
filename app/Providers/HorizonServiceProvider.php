@@ -3,18 +3,17 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\ServiceProvider;
-//use Laravel\Horizon\Horizon;
-//use Laravel\Horizon\HorizonApplicationServiceProvider;
+use Laravel\Horizon\Horizon;
+use Laravel\Horizon\HorizonApplicationServiceProvider;
 
-class HorizonServiceProvider extends ServiceProvider// HorizonApplicationServiceProvider
+class HorizonServiceProvider extends HorizonApplicationServiceProvider
 {
     /**
      * Bootstrap any application services.
      */
     public function boot(): void
     {
-        //parent::boot();
+        parent::boot();
 
         // Horizon::routeSmsNotificationsTo('15556667777');
         // Horizon::routeMailNotificationsTo('example@example.com');

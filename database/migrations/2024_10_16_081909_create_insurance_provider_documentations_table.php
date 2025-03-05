@@ -4,13 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class extends Migration
+{
     public function up(): void
     {
         Schema::create('insurance_provider_documentations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('vendor_id')->constrained('pd_vendors')->onDelete('cascade');
-            $table->string('document_type');
+            $table->foreignId('document_type_id')->constrained('insurance_config_documentation_types')->onDelete('cascade');
+            $table->string('viewable')->nullable();
             $table->string('path');
             $table->timestamps();
         });

@@ -2,7 +2,6 @@
 
 namespace Modules\HotelContentRepository\API\Requests;
 
-use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
 /**
@@ -11,6 +10,7 @@ use Modules\API\Validate\ApiRequest;
  *   path="/api/repo/key-mappings",
  *   summary="Get all key mappings",
  *   description="Retrieve all key mapping records with optional filters.",
+ *
  *   @OA\Response(
  *     response=200,
  *     description="OK"
@@ -18,6 +18,7 @@ use Modules\API\Validate\ApiRequest;
  *   @OA\Response(
  *     response=401,
  *     description="Unauthenticated",
+ *
  *     @OA\JsonContent(
  *       ref="#/components/schemas/UnAuthenticatedResponse",
  *       examples={
@@ -25,9 +26,11 @@ use Modules\API\Validate\ApiRequest;
  *       }
  *     )
  *   ),
+ *
  *   @OA\Response(
  *     response=400,
  *     description="Bad Request",
+ *
  *     @OA\JsonContent(
  *       ref="#/components/schemas/BadRequestResponse",
  *       examples={
@@ -43,16 +46,20 @@ use Modules\API\Validate\ApiRequest;
  *   path="/api/repo/key-mappings",
  *   summary="Create a new key mapping",
  *   description="Create a new key mapping.",
+ *
  *   @OA\RequestBody(
  *     required=true,
+ *
  *     @OA\JsonContent(
  *       type="object",
  *       required={"product_id", "key_id", "key_mapping_owner_id"},
+ *
  *       @OA\Property(property="product_id", type="integer", example=1),
  *       @OA\Property(property="key_id", type="string", example="Key123"),
  *       @OA\Property(property="key_mapping_owner_id", type="integer", example=1)
  *     )
  *   ),
+ *
  *   @OA\Response(
  *     response=201,
  *     description="Created"
@@ -60,6 +67,7 @@ use Modules\API\Validate\ApiRequest;
  *   @OA\Response(
  *     response=401,
  *     description="Unauthenticated",
+ *
  *     @OA\JsonContent(
  *       ref="#/components/schemas/UnAuthenticatedResponse",
  *       examples={
@@ -67,9 +75,11 @@ use Modules\API\Validate\ApiRequest;
  *       }
  *     )
  *   ),
+ *
  *   @OA\Response(
  *     response=400,
  *     description="Bad Request",
+ *
  *     @OA\JsonContent(
  *       ref="#/components/schemas/BadRequestResponse",
  *       examples={
@@ -85,16 +95,19 @@ use Modules\API\Validate\ApiRequest;
  *   path="/api/repo/key-mappings/{id}",
  *   summary="Get key mapping details",
  *   description="Retrieve details of a specific key mapping.",
+ *
  *   @OA\Parameter(
  *     name="id",
  *     in="path",
  *     required=true,
  *     description="ID of the key mapping",
+ *
  *     @OA\Schema(
  *       type="integer",
  *       example=1
  *     )
  *   ),
+ *
  *   @OA\Response(
  *     response=200,
  *     description="OK"
@@ -102,6 +115,7 @@ use Modules\API\Validate\ApiRequest;
  *   @OA\Response(
  *     response=401,
  *     description="Unauthenticated",
+ *
  *     @OA\JsonContent(
  *       ref="#/components/schemas/UnAuthenticatedResponse",
  *       examples={
@@ -109,9 +123,11 @@ use Modules\API\Validate\ApiRequest;
  *       }
  *     )
  *   ),
+ *
  *   @OA\Response(
  *     response=404,
  *     description="Not Found",
+ *
  *     @OA\JsonContent(
  *       ref="#/components/schemas/NotFoundResponse",
  *       examples={
@@ -127,26 +143,32 @@ use Modules\API\Validate\ApiRequest;
  *   path="/api/repo/key-mappings/{id}",
  *   summary="Update key mapping details",
  *   description="Update details of a specific key mapping.",
+ *
  *   @OA\Parameter(
  *     name="id",
  *     in="path",
  *     required=true,
  *     description="ID of the key mapping",
+ *
  *     @OA\Schema(
  *       type="integer",
  *       example=1
  *     )
  *   ),
+ *
  *   @OA\RequestBody(
  *     required=true,
+ *
  *     @OA\JsonContent(
  *       type="object",
  *       required={"product_id", "key_id", "key_mapping_owner_id"},
+ *
  *       @OA\Property(property="product_id", type="integer", example=1),
  *       @OA\Property(property="key_id", type="string", example="Key123"),
  *       @OA\Property(property="key_mapping_owner_id", type="integer", example=1)
  *     )
  *   ),
+ *
  *   @OA\Response(
  *     response=200,
  *     description="OK"
@@ -154,6 +176,7 @@ use Modules\API\Validate\ApiRequest;
  *   @OA\Response(
  *     response=401,
  *     description="Unauthenticated",
+ *
  *     @OA\JsonContent(
  *       ref="#/components/schemas/UnAuthenticatedResponse",
  *       examples={
@@ -161,9 +184,11 @@ use Modules\API\Validate\ApiRequest;
  *       }
  *     )
  *   ),
+ *
  *   @OA\Response(
  *     response=400,
  *     description="Bad Request",
+ *
  *     @OA\JsonContent(
  *       ref="#/components/schemas/BadRequestResponse",
  *       examples={
@@ -171,9 +196,11 @@ use Modules\API\Validate\ApiRequest;
  *       }
  *     )
  *   ),
+ *
  *   @OA\Response(
  *     response=404,
  *     description="Not Found",
+ *
  *     @OA\JsonContent(
  *       ref="#/components/schemas/NotFoundResponse",
  *       examples={
@@ -189,16 +216,19 @@ use Modules\API\Validate\ApiRequest;
  *   path="/api/repo/key-mappings/{id}",
  *   summary="Delete a key mapping",
  *   description="Delete a specific key mapping.",
+ *
  *   @OA\Parameter(
  *     name="id",
  *     in="path",
  *     required=true,
  *     description="ID of the key mapping",
+ *
  *     @OA\Schema(
  *       type="integer",
  *       example=1
  *     )
  *   ),
+ *
  *   @OA\Response(
  *     response=204,
  *     description="No Content"
@@ -206,6 +236,7 @@ use Modules\API\Validate\ApiRequest;
  *   @OA\Response(
  *     response=401,
  *     description="Unauthenticated",
+ *
  *     @OA\JsonContent(
  *       ref="#/components/schemas/UnAuthenticatedResponse",
  *       examples={
@@ -213,9 +244,11 @@ use Modules\API\Validate\ApiRequest;
  *       }
  *     )
  *   ),
+ *
  *   @OA\Response(
  *     response=404,
  *     description="Not Found",
+ *
  *     @OA\JsonContent(
  *       ref="#/components/schemas/NotFoundResponse",
  *       examples={
@@ -226,8 +259,10 @@ use Modules\API\Validate\ApiRequest;
  *   security={{ "apiAuth": {} }}
  * )
  */
+
 class KeyMappingRequest extends ApiRequest
-{    public function rules(): array
+{
+    public function rules(): array
     {
         return [
             'product_id' => 'required|integer|exists:pd_products,id',

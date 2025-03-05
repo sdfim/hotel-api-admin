@@ -11,7 +11,11 @@ return new class extends Migration
         Schema::create('pd_product_informative_services', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('room_id')->nullable();
+            $table->unsignedBigInteger('rate_id')->nullable();
             $table->unsignedBigInteger('service_id');
+            $table->dateTime('start_date')->nullable();
+            $table->dateTime('end_date')->nullable();
             $table->decimal('cost', 8, 2);
             $table->string('name');
             $table->string('currency');
@@ -20,6 +24,10 @@ return new class extends Migration
             $table->boolean('show_service_data_on_pdf');
             $table->boolean('commissionable');
             $table->boolean('auto_book');
+            $table->unsignedInteger('age_from')->nullable();
+            $table->unsignedInteger('age_to')->nullable();
+            $table->unsignedInteger('min_night_stay')->nullable();
+            $table->unsignedInteger('max_night_stay')->nullable();
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');

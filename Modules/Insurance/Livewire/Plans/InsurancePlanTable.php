@@ -24,7 +24,7 @@ class InsurancePlanTable extends Component implements HasForms, HasTable
             ->query(
                 InsurancePlan::query()
                     ->when(
-                        auth()->user()->currentTeam && !auth()->user()->hasRole(RoleSlug::ADMIN->value),
+                        auth()->user()->currentTeam && ! auth()->user()->hasRole(RoleSlug::ADMIN->value),
                         fn ($q) => $q->where('vendor_id', auth()->user()->currentTeam->vendor_id),
                     )
             )
@@ -51,35 +51,35 @@ class InsurancePlanTable extends Component implements HasForms, HasTable
                     ->alignCenter(),
             ])
             ->actions([
-//                EditAction::make()
-//                    ->label('')
-//                    ->tooltip('Edit Insurance Plan')
-//                    ->form(fn() => $this->schemeForm())
-//                    ->fillForm(function (InsurancePlan $record) {
-//                        return $record->toArray();
-//                    })
-//                    ->action(function (InsurancePlan $record, array $data) {
-//                        $record->update($data);
-//
-//                        Notification::make()
-//                            ->title('Updated successfully')
-//                            ->success()
-//                            ->send();
-//
-//                        return $data;
-//                    }),
-//                DeleteAction::make()
-//                    ->label('')
-//                    ->tooltip('Delete Insurance Plan')
-//                    ->requiresConfirmation()
-//                    ->action(function (InsurancePlan $record) {
-//                        $record->delete();
-//
-//                        Notification::make()
-//                            ->title('Deleted successfully')
-//                            ->success()
-//                            ->send();
-//                    })
+                //                EditAction::make()
+                //                    ->label('')
+                //                    ->tooltip('Edit Insurance Plan')
+                //                    ->form(fn() => $this->schemeForm())
+                //                    ->fillForm(function (InsurancePlan $record) {
+                //                        return $record->toArray();
+                //                    })
+                //                    ->action(function (InsurancePlan $record, array $data) {
+                //                        $record->update($data);
+                //
+                //                        Notification::make()
+                //                            ->title('Updated successfully')
+                //                            ->success()
+                //                            ->send();
+                //
+                //                        return $data;
+                //                    }),
+                //                DeleteAction::make()
+                //                    ->label('')
+                //                    ->tooltip('Delete Insurance Plan')
+                //                    ->requiresConfirmation()
+                //                    ->action(function (InsurancePlan $record) {
+                //                        $record->delete();
+                //
+                //                        Notification::make()
+                //                            ->title('Deleted successfully')
+                //                            ->success()
+                //                            ->send();
+                //                    })
             ]);
     }
 

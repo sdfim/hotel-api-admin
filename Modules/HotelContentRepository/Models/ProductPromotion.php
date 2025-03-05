@@ -8,11 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Modules\HotelContentRepository\Models\Factories\ProductPromotionFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ProductPromotion extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -23,6 +26,7 @@ class ProductPromotion extends Model
 
     protected $fillable = [
         'product_id',
+        'rate_id',
         'promotion_name',
         'rate_code',
         'description',
@@ -58,5 +62,13 @@ class ProductPromotion extends Model
     public function galleries(): BelongsToMany
     {
         return $this->belongsToMany(ImageGallery::class, 'pd_product_promotion_gallery', 'product_promotion_id', 'gallery_id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['product_id', 'promotion_name', 'description', 'validity_start', 'validity_end', 'booking_start', 'booking_end', 'terms_conditions', 'exclusions', 'deposit_info'])
+            ->logOnlyDirty()
+            ->useLogName('product_promotion');
     }
 }

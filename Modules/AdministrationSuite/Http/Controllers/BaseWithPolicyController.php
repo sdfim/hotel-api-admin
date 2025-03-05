@@ -9,13 +9,11 @@ class BaseWithPolicyController extends Controller
 {
     /**
      * Model class for detect access
-     * @var string
      */
     protected static string $model = Model::class;
 
     /**
      * Corresponds to the name of the resource type router for obtaining a model instance
-     * @var string|null
      */
     protected static ?string $parameterName = null;
 

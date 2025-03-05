@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::create('pd_hotel_web_finders', function (Blueprint $table) {
             $table->id();
+            $table->string('website')->nullable();
             $table->string('base_url');
-            $table->string('finder');
-            $table->string('type')->default('pricing');
-            $table->string('example')->nullable();
+            $table->string('finder', 255);
+            $table->string('example', 255)->nullable();
             $table->timestamps();
         });
     }

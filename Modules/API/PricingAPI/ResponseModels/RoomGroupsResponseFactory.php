@@ -6,7 +6,8 @@ class RoomGroupsResponseFactory
 {
     public static function create(): RoomGroupsResponse
     {
-        $roomGroupsResponse = new RoomGroupsResponse();
+        /** @var RoomGroupsResponse $roomGroupsResponse */
+        $roomGroupsResponse = app(RoomGroupsResponse::class);
 
         $roomGroupsResponse->setTotalPrice(0.0);
         $roomGroupsResponse->setTotalTax(0.0);

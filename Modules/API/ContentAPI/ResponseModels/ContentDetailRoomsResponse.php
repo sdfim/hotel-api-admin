@@ -5,12 +5,44 @@ namespace Modules\API\ContentAPI\ResponseModels;
 class ContentDetailRoomsResponse
 {
     private string $content_supplier;
+
+    private string $unified_room_code;
+
     private int $supplier_room_id;
+
     private string $supplier_room_name;
+
     private string $supplier_room_code;
+
     private array $amenities;
+
     private array $images;
+
     private string $descriptions;
+
+    private array $related_rooms;
+
+    private array $ultimate_amenities;
+
+    public function setUltimateAmenities(array $ultimate_amenities): void
+    {
+        $this->ultimate_amenities = $ultimate_amenities;
+    }
+
+    public function getUltimateAmenities(): array
+    {
+        return $this->ultimate_amenities;
+    }
+
+    public function setRelatedRooms(array $related_rooms): void
+    {
+        $this->related_rooms = $related_rooms;
+    }
+
+    public function getRelatedRooms(): array
+    {
+        return $this->related_rooms;
+    }
 
     public function setContentSupplier(string $content_supplier): void
     {
@@ -20,6 +52,16 @@ class ContentDetailRoomsResponse
     public function getContentSupplier(): string
     {
         return $this->content_supplier;
+    }
+
+    public function setUnifiedRoomCode(string $unified_room_code): void
+    {
+        $this->unified_room_code = $unified_room_code;
+    }
+
+    public function getUnifiedRoomCode(): string
+    {
+        return $this->unified_room_code;
     }
 
     public function setDescriptions(string $descriptions): void
@@ -86,12 +128,15 @@ class ContentDetailRoomsResponse
     {
         return [
             'content_supplier' => $this->getContentSupplier(),
+            'unified_room_code' => $this->getUnifiedRoomCode(),
             'supplier_room_id' => $this->getSupplierRoomId(),
             'supplier_room_name' => $this->getSupplierRoomName(),
             'supplier_room_code' => $this->getSupplierRoomCode(),
-            'amenities' => $this->getAmenities(),
+            'attributes' => $this->getAmenities(),
+            'ultimate_amenities' => $this->getUltimateAmenities(),
             'images' => $this->getImages(),
             'descriptions' => $this->getDescriptions(),
+            'connecting_room_types' => $this->getRelatedRooms(),
         ];
     }
 }

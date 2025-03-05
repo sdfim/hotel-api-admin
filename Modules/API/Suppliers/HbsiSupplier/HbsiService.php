@@ -15,7 +15,7 @@ use Modules\Enums\SupplierNameEnum;
 
 class HbsiService
 {
-    const TTL_CACHE_COMBINATION_ITEMS = 60*24;
+    const TTL_CACHE_COMBINATION_ITEMS = 60 * 24;
 
     private int $supplier_id;
 
@@ -29,7 +29,9 @@ class HbsiService
 
     public function updateBookingItemsData(string $completeItem, array $room_combinations = []): void
     {
-        if (empty($room_combinations)) $room_combinations = Cache::get('room_combinations:'.$completeItem);
+        if (empty($room_combinations)) {
+            $room_combinations = Cache::get('room_combinations:'.$completeItem);
+        }
         $completeBookingItem = [];
         foreach ($room_combinations as $key => $value) {
             $bookingItem = ApiBookingItem::where('booking_item', $value)->first();
@@ -78,12 +80,12 @@ class HbsiService
             $completeBookingItem['booking_pricing_data']['supplier_room_name'][] = $booking_pricing_data['supplier_room_name'];
 
             $completeBookingItem['booking_pricing_data']['cancellation_policies'][] = [
-                'room' => ($key+1),
+                'room' => ($key + 1),
                 'booking_item' => $bookingItem->booking_item,
                 'cancellation_policies' => $booking_pricing_data['cancellation_policies'],
             ];
             $completeBookingItem['booking_pricing_data']['breakdown'][] = [
-                'room' => ($key+1),
+                'room' => ($key + 1),
                 'booking_item' => $bookingItem->booking_item,
                 'breakdown' => $booking_pricing_data['breakdown'],
             ];
@@ -305,17 +307,17 @@ class HbsiService
     {
         $res = true;
         foreach ($result as $hk => $hotel) {
-            $hotelResponse = new HotelResponse();
+            $hotelResponse = new HotelResponse;
             if (! $hotelResponse->validateArrayKeys($hotel)) {
                 $res = false;
             }
             foreach ($hotel['room_groups'] as $rgk => $room_groups) {
-                $roomGroups = new RoomGroupsResponse();
+                $roomGroups = new RoomGroupsResponse;
                 if (! $roomGroups->validateArrayKeys($room_groups)) {
                     $res = false;
                 }
                 foreach ($room_groups['rooms'] as $rk => $rooms) {
-                    $room = new RoomResponse();
+                    $room = new RoomResponse;
                     if (! $room->validateArrayKeys($rooms)) {
                         $res = false;
                     }
@@ -362,3 +364,4 @@ class HbsiService
 
     }
 }
+

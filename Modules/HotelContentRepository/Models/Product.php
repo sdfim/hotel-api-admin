@@ -11,11 +11,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Modules\HotelContentRepository\Models\Factories\ProductFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Product extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -32,6 +35,7 @@ class Product extends Model
         'name',
         'verified',
         'onSale',
+        'on_sale_causation',
         'content_source_id',
         'property_images_source_id',
         'default_currency',
@@ -55,7 +59,7 @@ class Product extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
-        'location'
+        'location',
     ];
 
     public function vendor(): BelongsTo
@@ -130,7 +134,7 @@ class Product extends Model
 
     public function contactInformation()
     {
-        return $this->morphOne(ContactInformation::class, 'contactable');
+        return $this->morphMany(ContactInformation::class, 'contactable');
     }
 
     public function travelAgencyCommissions()
@@ -171,15 +175,12 @@ class Product extends Model
      * Used by the Filament Google Maps package.
      *
      * Requires the 'location' attribute be included in this model's $fillable array.
-     *
-     * @return array
      */
-
     public function getLocationAttribute(): array
     {
         return [
-            'lat' => (float)$this->lat,
-            'lng' => (float)$this->lng,
+            'lat' => (float) $this->lat,
+            'lng' => (float) $this->lng,
         ];
     }
 
@@ -190,14 +191,10 @@ class Product extends Model
      * Used by the Filament Google Maps package.
      *
      * Requires the 'location' attribute be included in this model's $fillable array.
-     *
-     * @param ?array $location
-     * @return void
      */
     public function setLocationAttribute(?array $location): void
     {
-        if (is_array($location))
-        {
+        if (is_array($location)) {
             $this->attributes['lat'] = $location['lat'];
             $this->attributes['lng'] = $location['lng'];
             unset($this->attributes['location']);
@@ -223,11 +220,17 @@ class Product extends Model
      * Get the name of the computed location attribute
      *
      * Used by the Filament Google Maps package.
-     *
-     * @return string
      */
     public static function getComputedLocation(): string
     {
         return 'location';
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['*'])
+            ->logOnlyDirty()
+            ->useLogName('product');
     }
 }

@@ -12,11 +12,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Modules\HotelContentRepository\Models\Factories\HotelFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Hotel extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -29,31 +32,33 @@ class Hotel extends Model
         'giata_code',
         'featured_flag',
         'weight',
+        'is_not_auto_weight',
         'sale_type',
         'address',
         'star_rating',
         'num_rooms',
         'room_images_source_id',
         'hotel_board_basis',
-        'travel_agent_commission'
+        'travel_agent_commission',
     ];
 
     protected $casts = [
         'address' => 'array',
         'location' => 'array',
         'hotel_board_basis' => 'array',
-        'travel_agent_commission' => 'float'
+        'travel_agent_commission' => 'float',
+        'is_not_auto_weight' => 'boolean',
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
-        'pivot'
+        'pivot',
     ];
 
     public function giataCode(): HasOne
     {
-        return $this->hasOne(Property::class, 'code');
+        return $this->hasOne(Property::class, 'code', 'giata_code');
     }
 
     public function roomImagesSource(): BelongsTo
@@ -64,6 +69,11 @@ class Hotel extends Model
     public function rooms(): HasMany
     {
         return $this->hasMany(HotelRoom::class);
+    }
+
+    public function rates(): HasMany
+    {
+        return $this->hasMany(HotelRate::class);
     }
 
     public function webFinders(): BelongsToMany
@@ -79,5 +89,13 @@ class Hotel extends Model
     public function contentSource(): BelongsTo
     {
         return $this->belongsTo(ContentSource::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['*'])
+            ->logOnlyDirty()
+            ->useLogName('hotel');
     }
 }

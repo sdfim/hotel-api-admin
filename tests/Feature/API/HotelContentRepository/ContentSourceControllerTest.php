@@ -18,9 +18,9 @@ class ContentSourceControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'name']
+                '*' => ['id', 'name'],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_content_sources', 3);
     }
@@ -33,7 +33,7 @@ class ContentSourceControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => ['id', 'name'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_content_sources', $data);
     }
@@ -46,7 +46,7 @@ class ContentSourceControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'name'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_content_sources', $contentSource->toArray());
     }
@@ -60,7 +60,7 @@ class ContentSourceControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'name'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_content_sources', $data);
     }

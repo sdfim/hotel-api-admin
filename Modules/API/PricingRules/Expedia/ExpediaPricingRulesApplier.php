@@ -24,8 +24,14 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
      *      markup: float|int
      *  }
      */
-    public function apply(int $giataId, array $roomsPricingArray, string $roomName, string|int $roomCode, string|int $roomType, bool $b2b = true): array
-    {
+    public function apply(
+        int $giataId,
+        array $roomsPricingArray,
+        string $roomName,
+        string|int $roomCode,
+        string|int $roomType,
+        bool $b2b = true
+    ): array {
         $this->initPricingRulesProperties();
 
         foreach ($this->requestArray['occupancy'] as $room) {
@@ -47,8 +53,8 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
             }
         }
 
-        if (!empty($validPricingRules)) {
-            usort($validPricingRules, fn($a, $b) => $b['weight'] <=> $a['weight']);
+        if (! empty($validPricingRules)) {
+            usort($validPricingRules, fn ($a, $b) => $b['weight'] <=> $a['weight']);
             $this->applyPricingRulesLogic($validPricingRules[0]);
         }
 
@@ -93,7 +99,7 @@ class ExpediaPricingRulesApplier extends BasePricingRulesApplier implements Pric
             }
         }
 
-        $totals['total_fees'] += (float)($roomPricing['totals']['property_fees']['billable_currency']['value'] ?? 0);
+        $totals['total_fees'] += (float) ($roomPricing['totals']['property_fees']['billable_currency']['value'] ?? 0);
 
         return $totals;
     }

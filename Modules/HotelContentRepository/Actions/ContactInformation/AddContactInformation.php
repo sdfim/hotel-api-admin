@@ -14,4 +14,25 @@ class AddContactInformation
         ContactInformationAdded::dispatch($hotelContactInformation);
         return $hotelContactInformation;
     }
+
+    public function execute($data, $contactableId, $contactableType)
+    {
+        if ($contactableId) {
+            $data['contactable_id'] = $contactableId;
+        }
+        $data['contactable_type'] = 'Modules\\HotelContentRepository\\Models\\'.$contactableType;
+        $emails = $data['emails'] ?? [];
+        $phones = $data['phones'] ?? [];
+        unset($data['emails'], $data['phones']);
+        $hotelContactInformation = ContactInformation::create($data);
+        $hotelContactInformation->ujvDepartments()->sync($data['ujv_departments']);
+        foreach ($emails as $email) {
+            $email['contact_information_id'] = $hotelContactInformation->id;
+            $hotelContactInformation->emails()->create($email);
+        }
+        foreach ($phones as $phone) {
+            $phone['contact_information_id'] = $hotelContactInformation->id;
+            $hotelContactInformation->phones()->create($phone);
+        }
+    }
 }

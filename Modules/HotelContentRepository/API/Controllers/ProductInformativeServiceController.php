@@ -2,17 +2,15 @@
 
 namespace Modules\HotelContentRepository\API\Controllers;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Response;
-use Modules\HotelContentRepository\Models\ProductInformativeService;
 use Modules\HotelContentRepository\API\Requests\ProductInformativeServiceRequest;
-use Modules\HotelContentRepository\API\Controllers\BaseController;
+use Modules\HotelContentRepository\Models\ProductInformativeService;
 
 class ProductInformativeServiceController extends BaseController
 {
     public function index()
     {
-        $query = ProductInformativeService::with('dynamicColumns');
+        $query = ProductInformativeService::query();
         $query = $this->filter($query, ProductInformativeService::class);
         $hotelInformativeServices = $query->get();
 
@@ -31,7 +29,8 @@ class ProductInformativeServiceController extends BaseController
 
     public function show($id)
     {
-        $hotelInformativeService = ProductInformativeService::with('dynamicColumns')->findOrFail($id);
+        $hotelInformativeService = ProductInformativeService::findOrFail($id);
+
         return $this->sendResponse($hotelInformativeService->toArray(), 'show success');
     }
 
@@ -46,7 +45,7 @@ class ProductInformativeServiceController extends BaseController
                 $hotelInformativeService->dynamicColumns()->createMany($request->input('dynamic_columns'));
             }
         } catch (\Exception $e) {
-            return $this->sendError('update failed: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->sendError('update failed: '.$e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return $this->sendResponse($hotelInformativeService->toArray(), 'update success');
@@ -56,6 +55,7 @@ class ProductInformativeServiceController extends BaseController
     {
         $hotelInformativeService = ProductInformativeService::findOrFail($id);
         $hotelInformativeService->delete();
+
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 }

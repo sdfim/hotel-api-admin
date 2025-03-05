@@ -10,7 +10,10 @@ use Database\Seeders\GeneralConfigurationSeeder;
 use Database\Seeders\SuppliersSeeder;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Modules\Insurance\Seeders\InsuranceRateTierSeeder;
+use Modules\Insurance\Seeders\InsuranceRestrictionTypeSeeder;
+use Modules\Insurance\Seeders\InsuranceTypeSeeder;
 use Modules\Insurance\Seeders\InsuranceVendorSeeder;
+use Modules\Insurance\Seeders\TripMateDefaultRestrictionsSeeder;
 use Tests\RefreshDatabaseMany;
 
 class TestCase extends BaseTestCase
@@ -18,6 +21,7 @@ class TestCase extends BaseTestCase
     use RefreshDatabaseMany;
 
     protected static User $user;
+
     protected static string $accessToken;
 
     protected function setUp(): void
@@ -28,7 +32,7 @@ class TestCase extends BaseTestCase
 
     protected function setUpTestData(): void
     {
-        if (!isset(self::$user)) {
+        if (! isset(self::$user)) {
             $this->runSeeders();
             $this->setAuth();
         }
@@ -38,9 +42,12 @@ class TestCase extends BaseTestCase
     {
         $this->seed(SuppliersSeeder::class);
         $this->seed(InsuranceVendorSeeder::class);
-        $this->seed(InsuranceRateTierSeeder::class);
         $this->seed(ConfigServiceTypeSeeder::class);
-        if (!GeneralConfiguration::exists()) {
+        $this->seed(InsuranceRestrictionTypeSeeder::class);
+        $this->seed(InsuranceTypeSeeder::class);
+        $this->seed(TripMateDefaultRestrictionsSeeder::class);
+        $this->seed(InsuranceRateTierSeeder::class);
+        if (! GeneralConfiguration::exists()) {
             $this->seed(GeneralConfigurationSeeder::class);
         }
     }
@@ -52,17 +59,17 @@ class TestCase extends BaseTestCase
             self::$accessToken = $channel->access_token;
             self::$user = User::whereHas(
                 'tokens',
-                fn($q) => $q->where('personal_access_tokens.id', $tokenId)
+                fn ($q) => $q->where('personal_access_tokens.id', $tokenId)
             )->firstOrFail();
         } else {
             self::$user = User::factory()->create();
             $token = self::$user->createToken('Test');
             self::$accessToken = $token->plainTextToken;
             Channel::create([
-                'token_id'     => $token->accessToken->id,
+                'token_id' => $token->accessToken->id,
                 'access_token' => $token->plainTextToken,
-                'name'         => 'Test channel',
-                'description'  => 'Temp channel',
+                'name' => 'Test channel',
+                'description' => 'Temp channel',
             ]);
         }
     }

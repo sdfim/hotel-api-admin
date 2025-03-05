@@ -2,45 +2,39 @@
 
 namespace Modules\HotelContentRepository\Livewire\ProductAttributes;
 
-use App\Helpers\ClassHelper;
+use App\Actions\ConfigAttribute\CreateConfigAttribute;
 use App\Livewire\Configurations\Attributes\AttributesForm;
 use App\Models\Configurations\ConfigAttribute;
+use App\Models\Configurations\ConfigAttributeCategory;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
-use Filament\Support\Contracts\TranslatableContentDriver;
-use Filament\Tables\Actions\CreateAction;
-use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Gate;
 use Livewire\Component;
 use Modules\HotelContentRepository\Livewire\HasProductActions;
-use Modules\HotelContentRepository\Models\Hotel;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductAttribute;
 
 class ProductAttributesTable extends Component implements HasForms, HasTable
 {
+    use HasProductActions;
     use InteractsWithForms;
     use InteractsWithTable;
-    use HasProductActions;
 
     public int $productId;
+
     public string $title;
 
-    public function mount(int $productId)
+    public function mount(Product $product)
     {
-        $this->productId = $productId;
-        $product = Product::find($productId);
-        $this->title = 'Attributes for <h4>' . ($product ? $product->name : 'Unknown Hotel') . '</h4>';
+        $this->productId = $product->id;
+        $this->title = 'Attributes for <h4>'.$product->name.'</h4>';
     }
 
     public function schemeForm(): array
@@ -53,14 +47,41 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
                 ->createOptionForm(AttributesForm::getSchema())
                 ->createOptionUsing(function (array $data) {
                     $data['default_value'] = '';
-                    $attribute = ConfigAttribute::create($data);
+                    /** @var CreateConfigAttribute $createConfigAttribute */
+                    $createConfigAttribute = app(CreateConfigAttribute::class);
+                    $attribute = $createConfigAttribute->create($data);
                     Notification::make()
                         ->title('Attributes created successfully')
                         ->success()
                         ->send();
+
                     return $attribute->id;
                 })
                 ->required(),
+            Select::make('config_attribute_category_id')
+                ->label('Category')
+                ->options(
+                    ConfigAttributeCategory::all()
+                        ->mapWithKeys(function ($item) {
+                            $formattedName = ucwords(str_replace('_', ' ', $item->name));
+
+                            return [$item->id => $formattedName];
+                        })
+                )
+                ->createOptionForm([
+                    TextInput::make('name')
+                        ->label('Category Name')
+                        ->required(),
+                ])
+                ->createOptionUsing(function (array $data) {
+                    $category = ConfigAttributeCategory::create($data);
+                    Notification::make()
+                        ->title('Category created successfully')
+                        ->success()
+                        ->send();
+
+                    return $category->id;
+                }),
         ];
     }
 
@@ -72,7 +93,9 @@ class ProductAttributesTable extends Component implements HasForms, HasTable
             )
             ->columns([
                 TextColumn::make('attribute.name')->label('Attribute Name'),
-//                TextColumn::make('attribute.default_value')->label('Value'),
+                TextColumn::make('category.name')
+                    ->label('Category Name')
+                    ->formatStateUsing(fn ($state) => ucwords(str_replace('_', ' ', $state))),
             ])
             ->actions($this->getActions())
             ->bulkActions($this->getBulkActions())

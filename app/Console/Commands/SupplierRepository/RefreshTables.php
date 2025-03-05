@@ -10,16 +10,23 @@ use Illuminate\Support\Facades\Schema;
 class RefreshTables extends Command
 {
     protected $signature = 'db:refresh-pd-tables {prefix?}';
+
     protected $description = 'Refreshes the tables in the hotel content repository / supplier repository';
 
     public function handle()
     {
         $prefix = $this->argument('prefix');
 
-        // Clear the tables LIKE 'pd_%'
-        $this->clearTables('pd_');
-        if (isset($prefix) && $prefix === 'config') $this->clearTables('config_');
-        if (isset($prefix) && $prefix === 'insurance') $this->clearTables('insurance_');
+        if (isset($prefix) && $prefix === 'pd') {
+            $this->clearTables('pd_');
+        }
+
+        if (isset($prefix) && $prefix === 'config') {
+            $this->clearTables('config_');
+        }
+        if (isset($prefix) && $prefix === 'insurance') {
+            $this->clearTables('insurance_');
+        }
 
         // Run the migrate command
         Artisan::call('migrate');
@@ -44,11 +51,11 @@ class RefreshTables extends Command
         $tables = $connection->select("SHOW TABLES LIKE '".$prefix."%'");
 
         // Save table names in reverse order
-        $tableNames = array_reverse(array_map(function($table) {
-            return array_values((array)$table)[0];
+        $tableNames = array_reverse(array_map(function ($table) {
+            return array_values((array) $table)[0];
         }, $tables));
 
-        if (!empty($tableNames)) {
+        if (! empty($tableNames)) {
 
             // Disable foreign key checking
             $connection->statement('SET FOREIGN_KEY_CHECKS=0');

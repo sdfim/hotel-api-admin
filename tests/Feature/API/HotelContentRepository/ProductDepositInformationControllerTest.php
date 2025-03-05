@@ -19,10 +19,10 @@ class ProductDepositInformationControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 '*' => [
-                    'id', 'product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target'
-                ]
+                    'id', 'product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target',
+                ],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_product_deposit_information', 3);
     }
@@ -35,9 +35,9 @@ class ProductDepositInformationControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target'
+                'id', 'product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target',
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_deposit_information', $data);
     }
@@ -50,9 +50,9 @@ class ProductDepositInformationControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target'
+                'id', 'product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target',
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_deposit_information', $depositInformation->toArray());
     }
@@ -66,9 +66,9 @@ class ProductDepositInformationControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target'
+                'id', 'product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target',
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_deposit_information', $data);
     }

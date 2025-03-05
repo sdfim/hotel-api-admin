@@ -12,7 +12,6 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
@@ -20,8 +19,6 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\HtmlString;
-use Modules\HotelContentRepository\Models\HotelRoom;
 
 trait DepositFieldTrait
 {
@@ -29,8 +26,9 @@ trait DepositFieldTrait
     {
         return [
             Hidden::make('product_id')->default($this->productId),
+            Hidden::make('rate_id')->default($this->rateId),
 
-            Fieldset::make('General settings')
+            Fieldset::make('General Setting')
                 ->schema([
                     TextInput::make('name')
                         ->label('Name')
@@ -39,7 +37,7 @@ trait DepositFieldTrait
                         ->unique(ignoreRecord: true)
                         ->required(),
                     TextInput::make('start_date')
-                        ->label('Start Date')
+                        ->label('Travel Start Date')
                         ->type('date')
                         ->default(Carbon::now()->format('Y-m-d'))
                         ->required()
@@ -53,7 +51,7 @@ trait DepositFieldTrait
                         }),
 
                     TextInput::make('expiration_date')
-                        ->label('Expiration Date')
+                        ->label('Travel End Date')
                         ->type('date')
                         ->afterStateHydrated(function (TextInput $component) use ($record) {
                             $formattedDate = isset($record) && $record->expiration_date
@@ -64,19 +62,19 @@ trait DepositFieldTrait
                             }
                             $component->state($formattedDate);
                         }),
-//                ])
-//                ->columns(4),
-//            Fieldset::make('Settings')
-//                ->schema([
+                    //                ])
+                    //                ->columns(4),
+                    //            Fieldset::make('Settings')
+                    //                ->schema([
                     Select::make('manipulable_price_type')
-                        ->label('Manipulable price type')
+                        ->label('Manipulable Price Type')
                         ->options([
                             'total_price' => 'Total Price',
                             'net_price' => 'Net Price',
                         ])
                         ->required(),
                     TextInput::make('price_value')
-                        ->label('Price value')
+                        ->label('Price Value')
                         ->numeric()
                         ->required()
                         ->suffixIcon(function (Get $get) {
@@ -87,21 +85,21 @@ trait DepositFieldTrait
                             };
                         }),
                     Select::make('price_value_type')
-                        ->label('Price value type')
+                        ->label('Price Value Type')
                         ->options([
                             'fixed_value' => 'Fixed Value',
                             'percentage' => 'Percentage',
                         ])
                         ->live()
                         ->required()
-                        ->afterStateUpdated(fn(?string $state, Set $set) => $state ?: $set('price_value', null))
-                    ,
+                        ->afterStateUpdated(fn (?string $state, Set $set) => $state ?: $set('price_value', null)),
                     Select::make('price_value_target')
-                        ->label('Price value target')
+                        ->label('Price Value Target')
                         ->options([
-                            'per_guest' => 'Per Guest',
+                            'per_person' => 'Per Person',
                             'per_room' => 'Per Room',
                             'per_night' => 'Per Night',
+                            'per_person_per_night' => 'Per Person Per Night',
                             'not_applicable' => 'N/A',
                         ])
                         ->required(),
@@ -127,7 +125,7 @@ trait DepositFieldTrait
                         return [
                             'supplier_id' => 'Supplier ID',
                             'channel_id' => 'Channel ID',
-//                            'property' => 'Property',
+                            //                            'property' => 'Property',
                             'destination' => 'Destination',
                             'travel_date' => 'Travel date',
                             'booking_date' => 'Booking date',
@@ -137,22 +135,22 @@ trait DepositFieldTrait
                             'rating' => 'Rating',
                             'number_of_rooms' => 'Number of rooms',
                             'meal_plan' => 'Meal plan / Board basis',
-//                                'room_code' => 'Room code',
+                            //                                'room_code' => 'Room code',
                             'room_name' => 'Room name',
                             'room_type' => 'Room type',
                         ];
                     })
                     ->live()
                     ->required()
-                    ->afterStateUpdated(fn(Select $component) => $component
+                    ->afterStateUpdated(fn (Select $component) => $component
                         ->getContainer()
                         ->getComponent('dynamicFieldValue')
                         ->getChildComponentContainer()
                         ->fill()
                     ),
                 Select::make('compare')
-                    ->options(fn(Get $get): array => match ($get('field')) {
-                        'supplier_id', 'channel_id', 'meal_plan'  => [
+                    ->options(fn (Get $get): array => match ($get('field')) {
+                        'supplier_id', 'channel_id', 'meal_plan' => [
                             '=' => 'Equals',
                             '!=' => 'Not Equals',
                         ],
@@ -177,7 +175,7 @@ trait DepositFieldTrait
                         $set('value_to', null);
                     }),
                 Grid::make()
-                    ->schema(components: fn(Get $get): array => match ($get('field')) {
+                    ->schema(components: fn (Get $get): array => match ($get('field')) {
                         'supplier_id' => [
                             Select::make('value_from')
                                 ->label('Supplier ID')
@@ -201,9 +199,10 @@ trait DepositFieldTrait
                                         DB::raw('CONCAT(name, " (", city, ", ", locale, ")") AS full_name, code'))
                                         ->whereRaw("MATCH(search_index) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
                                         ->limit(100);
+
                                     return $result->pluck('full_name', 'code')
                                         ->mapWithKeys(function ($full_name, $code) {
-                                            return [$code => $full_name . ' (' . $code . ')'];
+                                            return [$code => $full_name.' ('.$code.')'];
                                         })
                                         ->toArray() ?? [];
                                 })
@@ -212,13 +211,14 @@ trait DepositFieldTrait
                                         ->whereIn('code', $values)
                                         ->get()
                                         ->mapWithKeys(function ($property) {
-                                            return [$property->code => $property->full_name . ' (' . $property->code . ')'];
+                                            return [$property->code => $property->full_name.' ('.$property->code.')'];
                                         })
                                         ->toArray();
+
                                     return $properties;
                                 })
                                 ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', '!in'])),
+                                ->visible(fn (Get $get) => in_array($get('compare'), ['in', '!in'])),
 
                             Select::make('value_from')
                                 ->label('Property')
@@ -229,6 +229,7 @@ trait DepositFieldTrait
                                         DB::raw('CONCAT(name, " (", city, ", ", locale, ", ", code, ")") AS full_name, code'))
                                         ->whereRaw("MATCH(search_index) AGAINST('$preparedSearchText' IN BOOLEAN MODE)")
                                         ->limit(100);
+
                                     return $result->pluck('full_name', 'code')->toArray() ?? [];
                                 })
                                 ->getOptionLabelUsing(function ($value): ?string {
@@ -240,7 +241,7 @@ trait DepositFieldTrait
                                 })
                                 ->required()
                                 ->dehydrated()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', '!in'])),
+                                ->visible(fn (Get $get) => ! in_array($get('compare'), ['in', '!in'])),
                         ],
                         'destination' => [
                             Select::make('value')
@@ -264,10 +265,11 @@ trait DepositFieldTrait
                                             return [$property->city_id => $property->full_name];
                                         })
                                         ->toArray();
+
                                     return $properties;
                                 })
                                 ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', '!in'])),
+                                ->visible(fn (Get $get) => in_array($get('compare'), ['in', '!in'])),
 
                             Select::make('value_from')
                                 ->label('Destination')
@@ -287,7 +289,7 @@ trait DepositFieldTrait
                                     return $result->full_name ?? '';
                                 })
                                 ->required()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', '!in'])),
+                                ->visible(fn (Get $get) => ! in_array($get('compare'), ['in', '!in'])),
                         ],
 
                         'travel_date' => [
@@ -306,9 +308,9 @@ trait DepositFieldTrait
                                         ->time(false)
                                         ->format('Y-m-d')
                                         ->displayFormat('d-m-Y')
-                                        ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
+                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
                                 ])
                                 ->columns(2),
                         ],
@@ -328,9 +330,9 @@ trait DepositFieldTrait
                                         ->time(false)
                                         ->format('Y-m-d')
                                         ->displayFormat('d-m-Y')
-                                        ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                        ->disabled(fn(Get $get): bool => $get('compare') !== 'between')
-                                        ->readonly(fn(Get $get): bool => $get('compare') === 'between'),
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
+                                        ->disabled(fn (Get $get): bool => $get('compare') !== 'between')
+                                        ->readonly(fn (Get $get): bool => $get('compare') === 'between'),
                                 ])
                                 ->columns(2),
                         ],
@@ -344,9 +346,9 @@ trait DepositFieldTrait
                                     TextInput::make('value_to')
                                         ->label('Total guests to')
                                         ->numeric()
-                                        ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
+                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
                                 ])
                                 ->columns(2),
                         ],
@@ -360,9 +362,9 @@ trait DepositFieldTrait
                                     TextInput::make('value_to')
                                         ->label('Days until departure to')
                                         ->numeric()
-                                        ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
+                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
                                 ])
                                 ->columns(2),
                         ],
@@ -376,9 +378,9 @@ trait DepositFieldTrait
                                     TextInput::make('value_to')
                                         ->label('Nights to')
                                         ->numeric()
-                                        ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
+                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
                                 ])
                                 ->columns(2),
                         ],
@@ -388,17 +390,17 @@ trait DepositFieldTrait
                                     TextInput::make('value_from')
                                         ->label('Rating from')
                                         ->numeric()
-                                        ->minValue(fn(): float => 1.0)
-                                        ->maxValue(fn(): float => 5.5)
+                                        ->minValue(fn (): float => 1.0)
+                                        ->maxValue(fn (): float => 5.5)
                                         ->required(),
                                     TextInput::make('value_to')
                                         ->label('Rating to')
                                         ->numeric()
-                                        ->minValue(fn(): float => 1.0)
-                                        ->maxValue(fn(): float => 5.5)
-                                        ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                        ->minValue(fn (): float => 1.0)
+                                        ->maxValue(fn (): float => 5.5)
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
+                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
                                 ])
                                 ->columns(2),
                         ],
@@ -412,9 +414,9 @@ trait DepositFieldTrait
                                     TextInput::make('value_to')
                                         ->label('Number of rooms to')
                                         ->numeric()
-                                        ->required(fn(Get $get): bool => $get('compare') === 'between')
-                                        ->readOnly(fn(Get $get): bool => $get('compare') !== 'between')
-                                        ->visible(fn(Get $get): bool => $get('compare') === 'between'),
+                                        ->required(fn (Get $get): bool => $get('compare') === 'between')
+                                        ->readOnly(fn (Get $get): bool => $get('compare') !== 'between')
+                                        ->visible(fn (Get $get): bool => $get('compare') === 'between'),
                                 ])
                                 ->columns(2),
                         ],
@@ -423,56 +425,56 @@ trait DepositFieldTrait
                                 ->label('Rate code')
                                 ->maxLength(191)
                                 ->required()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', '!in'])),
+                                ->visible(fn (Get $get) => ! in_array($get('compare'), ['in', '!in'])),
 
                             TagsInput::make('value')
                                 ->separator('; ')
                                 ->placeholder('New Rate code')
                                 ->label('Rate codes')
                                 ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', '!in'])),
+                                ->visible(fn (Get $get) => in_array($get('compare'), ['in', '!in'])),
                         ],
                         'room_type' => [
                             TextInput::make('value_from')
                                 ->label('Room type')
                                 ->maxLength(191)
                                 ->required()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', '!in'])),
+                                ->visible(fn (Get $get) => ! in_array($get('compare'), ['in', '!in'])),
 
                             TagsInput::make('value')
                                 ->placeholder('New Room type')
                                 ->separator('; ')
                                 ->label('Room types')
                                 ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', '!in'])),
+                                ->visible(fn (Get $get) => in_array($get('compare'), ['in', '!in'])),
                         ],
                         'room_code' => [
                             TextInput::make('value_from')
                                 ->label('Room code')
                                 ->maxLength(191)
                                 ->required()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', '!in'])),
+                                ->visible(fn (Get $get) => ! in_array($get('compare'), ['in', '!in'])),
 
                             TagsInput::make('value')
                                 ->separator('; ')
                                 ->placeholder('New Room code')
                                 ->label('Room codes')
                                 ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', '!in'])),
+                                ->visible(fn (Get $get) => in_array($get('compare'), ['in', '!in'])),
                         ],
                         'room_name' => [
                             TextInput::make('value_from')
                                 ->label('Room name')
                                 ->maxLength(191)
                                 ->required()
-                                ->visible(fn(Get $get) => !in_array($get('compare'), ['in', '!in'])),
+                                ->visible(fn (Get $get) => ! in_array($get('compare'), ['in', '!in'])),
 
                             TagsInput::make('value')
                                 ->separator('; ')
                                 ->placeholder('New Room name')
                                 ->label('Room names')
                                 ->required()
-                                ->visible(fn(Get $get) => in_array($get('compare'), ['in', '!in'])),
+                                ->visible(fn (Get $get) => in_array($get('compare'), ['in', '!in'])),
                         ],
                         'meal_plan' => [
                             TextInput::make('value_from')

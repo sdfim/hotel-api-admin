@@ -6,11 +6,9 @@ use Modules\Insurance\Models\InsurancePlan;
 
 class InsurancePlanDTO
 {
-    public array $data;
-
-    public function __construct(InsurancePlan $insurancePlan)
+    public function setData(InsurancePlan $insurancePlan): array
     {
-        $this->data = [
+        return [
             'id' => $insurancePlan->id,
             'booking_item' => $insurancePlan->booking_item,
             'total_insurance_cost' => $insurancePlan->total_insurance_cost,

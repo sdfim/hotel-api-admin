@@ -11,11 +11,10 @@ return new class extends Migration
         Schema::create('pd_product_affiliations', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
-            $table->unsignedBigInteger('consortia_id');
-            $table->text('description')->nullable();
+            $table->unsignedBigInteger('rate_id')->nullable();
+            $table->unsignedBigInteger('room_id')->nullable();
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->string('amenities')->nullable();
             $table->timestamps();
 
             $table->foreign('product_id')->references('id')->on('pd_products')->onDelete('cascade');

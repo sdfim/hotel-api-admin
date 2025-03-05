@@ -18,9 +18,9 @@ class ImageSectionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'name']
+                '*' => ['id', 'name'],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_image_sections', 3);
     }
@@ -33,7 +33,7 @@ class ImageSectionControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => ['id', 'name'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_image_sections', $data);
     }
@@ -46,7 +46,7 @@ class ImageSectionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'name'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_image_sections', $hotelImageSection->toArray());
     }
@@ -60,7 +60,7 @@ class ImageSectionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'name'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_image_sections', $data);
     }

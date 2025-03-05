@@ -19,9 +19,9 @@ class ImageGalleryControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'gallery_name', 'description']
+                '*' => ['id', 'gallery_name', 'description'],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_image_galleries', 3);
     }
@@ -34,7 +34,7 @@ class ImageGalleryControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => ['id', 'gallery_name', 'description'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_image_galleries', $data);
     }
@@ -47,7 +47,7 @@ class ImageGalleryControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'gallery_name', 'description'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_image_galleries', $gallery->toArray());
     }
@@ -61,7 +61,7 @@ class ImageGalleryControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'gallery_name', 'description'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_image_galleries', $data);
     }
@@ -89,10 +89,10 @@ class ImageGalleryControllerTest extends TestCase
         $response->assertJsonStructure([
             'data' => [
                 'id', 'gallery_name', 'description', 'images' => [
-                    '*' => ['id', 'image_url', 'tag', 'weight', 'section_id']
-                ]
+                    '*' => ['id', 'image_url', 'tag', 'weight', 'section_id'],
+                ],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_gallery_images', [
             'gallery_id' => $gallery->id,
@@ -114,9 +114,9 @@ class ImageGalleryControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                'id', 'gallery_name', 'description', 'images' => []
+                'id', 'gallery_name', 'description', 'images' => [],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseMissing('pd_gallery_images', [
             'gallery_id' => $gallery->id,

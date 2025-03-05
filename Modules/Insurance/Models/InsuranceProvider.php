@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $id
  * @property string $name
  * @property string $contact_info
- *
  * @property InsurancePlan[] $plans
  * @property InsuranceRestriction[] $restrictions
  * @property InsuranceProviderDocumentation[] $documentations
@@ -23,7 +22,7 @@ class InsuranceProvider extends Model
 
     protected $fillable = [
         'name',
-        'contact_info'
+        'contact_info',
     ];
 
     public function plans(): HasMany

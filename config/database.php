@@ -18,6 +18,7 @@ return [
             'database' => env('DB_DATABASE', 'forge'),
             'username' => env('DB_USERNAME', 'forge'),
             'password' => env('DB_PASSWORD', ''),
+            'collation' => env('DB_COLLATION', 'utf8mb4_0900_ai_ci'),
         ],
 
         'mysql_cache' => [

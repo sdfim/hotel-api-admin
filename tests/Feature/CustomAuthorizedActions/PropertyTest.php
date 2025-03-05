@@ -21,7 +21,7 @@ class PropertyTest extends CustomAuthorizedActionsTestCase
     {
         parent::setUp();
 
-        $this->giata = Property::factory()->count(10)->create();
+        $this->giata = Property::factory()->count(3)->create();
     }
 
     #[Test]

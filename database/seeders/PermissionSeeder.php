@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Permission;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -22,7 +21,7 @@ class PermissionSeeder extends Seeder
         'property',
         'reservation',
         'property_weighting',
-        'ice_portal_propery',
+        'ice_portal_property',
         'expedia_content',
         'mapping',
         'user',
@@ -35,15 +34,18 @@ class PermissionSeeder extends Seeder
         'insurance_provider_documentation',
         'insurance_restriction',
         'insurance_rate_tier',
+        'insurance_type',
         'config_attribute',
         'config_consortium',
         'config_descriptive_type',
         'config_job_description',
         'config_service_type',
         'config_chain',
+        'config_insurance_documentation_type',
         'image_gallery',
         'hotel_image',
         'hotel_room',
+        'hotel_rate',
     ];
 
     private static array $permissions = [
@@ -66,8 +68,8 @@ class PermissionSeeder extends Seeder
 
             foreach ($permissionTypes as $type) {
                 $this->createIfNotExists(
-                    slug: $prefix . "." . $type,
-                    name: $modelName . ' ' . $type,
+                    slug: $prefix.'.'.$type,
+                    name: $modelName.' '.$type,
                 );
             }
         }
@@ -82,7 +84,7 @@ class PermissionSeeder extends Seeder
 
     private function createIfNotExists(string $slug, string $name): void
     {
-        if (!Permission::where('slug', $slug)->exists()) {
+        if (! Permission::where('slug', $slug)->exists()) {
             $permission = new Permission();
             $permission->slug = $slug;
             $permission->name = $name;

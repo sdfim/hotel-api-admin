@@ -6,10 +6,12 @@ class RoomResponseFactory
 {
     public static function create(): RoomResponse
     {
-        $roomResponse = new RoomResponse();
+        /** @var RoomResponse $roomResponse */
+        $roomResponse = app(RoomResponse::class);
 
         $roomResponse->setGiataRoomCode('');
         $roomResponse->setGiataRoomName('');
+        $roomResponse->setUnifiedRoomCode('');
         $roomResponse->setQueryPackage('');
         $roomResponse->setSupplierRoomName('');
         $roomResponse->setPerDayRateBreakdown('');

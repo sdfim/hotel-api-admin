@@ -326,6 +326,9 @@ class DownloadExpediaData extends Command
                 $outputSlave[$key] = json_encode(['']);
             }
             foreach ($arr_slave as $key) {
+                if ($key == 'tax_id') {
+                    $outputSlave[$key] = '';
+                }
                 $outputSlave[$key] = '';
             }
 
@@ -387,8 +390,8 @@ class DownloadExpediaData extends Command
 
             $ratingConfig = GeneralConfiguration::latest()->first()->star_ratings;
 
-            $rating = $ratingConfig ?? self::MIN_RATING ?? 3;
-            // $rating = 0;
+            //            $rating = $ratingConfig ?? self::MIN_RATING ?? 3;
+            $rating = 0;
 
             if ($output['rating'] < $rating) {
                 $is_write = false;

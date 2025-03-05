@@ -2,37 +2,43 @@
 
 namespace App\Providers;
 
+use App\Livewire\Configurations\KeyMappingOwner\KeyMappingOwnerForm;
+use App\Livewire\Configurations\KeyMappingOwner\KeyMappingOwnerTable;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Modules\HotelContentRepository\Livewire\Activity\ActivityTable;
+use Modules\HotelContentRepository\Livewire\ContactInformation\ContactInformationTable;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelForm;
 use Modules\HotelContentRepository\Livewire\Hotel\HotelTable;
-use Modules\HotelContentRepository\Livewire\PdGrid\PdGridTable;
-use Modules\HotelContentRepository\Livewire\Product\ProductTable;
-use Modules\HotelContentRepository\Livewire\ProductAffiliations\ProductAffiliationsTable;
-use Modules\HotelContentRepository\Livewire\ProductAgeRestriction\ProductAgeRestrictionTable;
-use Modules\HotelContentRepository\Livewire\ProductAttributes\ProductAttributesTable;
-use Modules\HotelContentRepository\Livewire\ContactInformation\ContactInformationTable;
-use Modules\HotelContentRepository\Livewire\ProductDepositInformation\ProductCancellationPolicyTable;
-use Modules\HotelContentRepository\Livewire\ProductDepositInformation\ProductDepositInformationTable;
-use Modules\HotelContentRepository\Livewire\ProductDescriptiveContentSection\ProductDescriptiveContentSectionTable;
-use Modules\HotelContentRepository\Livewire\ProductFeeTaxes\ProductFeeTaxTable;
 use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesForm;
 use Modules\HotelContentRepository\Livewire\HotelImages\HotelImagesTable;
-use Modules\HotelContentRepository\Livewire\ProductInformativeServices\ProductInformativeServicesTable;
-use Modules\HotelContentRepository\Livewire\ProductPromotion\ProductPromotionTable;
+use Modules\HotelContentRepository\Livewire\HotelRates\HotelRateForm;
+use Modules\HotelContentRepository\Livewire\HotelRates\HotelRateTable;
 use Modules\HotelContentRepository\Livewire\HotelRooms\HotelRoomTable;
 use Modules\HotelContentRepository\Livewire\HotelWebFinder\HotelWebFinderTable;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesForm;
 use Modules\HotelContentRepository\Livewire\ImageGalleries\ImageGalleriesTable;
 use Modules\HotelContentRepository\Livewire\KeyMappings\KeyMappingTable;
+use Modules\HotelContentRepository\Livewire\PdGrid\PdGridTable;
+use Modules\HotelContentRepository\Livewire\Product\ProductTable;
+use Modules\HotelContentRepository\Livewire\ProductAffiliations\ProductAffiliationsTable;
+use Modules\HotelContentRepository\Livewire\ProductAgeRestriction\ProductAgeRestrictionTable;
+use Modules\HotelContentRepository\Livewire\ProductAttributes\ProductAttributesTable;
+use Modules\HotelContentRepository\Livewire\ProductConsortiaAmenities\ProductConsortiaAmenitiesTable;
+use Modules\HotelContentRepository\Livewire\ProductDepositInformation\ProductCancellationPolicyTable;
+use Modules\HotelContentRepository\Livewire\ProductDepositInformation\ProductDepositInformationTable;
+use Modules\HotelContentRepository\Livewire\ProductDescriptiveContentSection\ProductDescriptiveContentSectionTable;
+use Modules\HotelContentRepository\Livewire\ProductFeeTaxes\ProductFeeTaxTable;
+use Modules\HotelContentRepository\Livewire\ProductInformativeServices\ProductInformativeServicesTable;
+use Modules\HotelContentRepository\Livewire\ProductPromotion\ProductPromotionTable;
 use Modules\HotelContentRepository\Livewire\TravelAgencyCommission\TravelAgencyCommissionTable;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorForm;
 use Modules\HotelContentRepository\Livewire\Vendor\VendorTable;
 use Modules\Insurance\Livewire\Plans\InsurancePlanTable;
-use Modules\Insurance\Livewire\Vendors\DocumentationsTable;
 use Modules\Insurance\Livewire\RateTiers\RateTiersTable;
 use Modules\Insurance\Livewire\Restrictions\RestrictionsTable;
+use Modules\Insurance\Livewire\Type\InsuranceTypeTable;
+use Modules\Insurance\Livewire\Vendors\DocumentationsTable;
 
 class SupplierRepositoryServiceProvider extends ServiceProvider
 {
@@ -56,13 +62,14 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('products.product-table', ProductTable::class);
         Livewire::component('products.key-mapping-table', KeyMappingTable::class);
         Livewire::component('products.product-affiliations-table', ProductAffiliationsTable::class);
+        Livewire::component('products.product-consortia-amenities-table', ProductConsortiaAmenitiesTable::class);
         Livewire::component('products.hotel-age-restriction-table', ProductAgeRestrictionTable::class);
         Livewire::component('products.product-attributes-table', ProductAttributesTable::class);
         Livewire::component('products.contact-information-table', ContactInformationTable::class);
         Livewire::component('products.product-deposit-information-table', ProductDepositInformationTable::class);
         Livewire::component('products.product-cancellation-policy-table', ProductCancellationPolicyTable::class);
         Livewire::component('products.hotel-descriptive-content-section-table', ProductDescriptiveContentSectionTable::class);
-        Livewire::component('products.hotel-fee-tax-table', ProductFeeTaxTable::class);
+        Livewire::component('products.product-fee-tax-table', ProductFeeTaxTable::class);
         Livewire::component('products.product-informative-services-table', ProductInformativeServicesTable::class);
         Livewire::component('products.hotel-promotion-table', ProductPromotionTable::class);
 
@@ -70,6 +77,8 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('hotels.hotel-table', HotelTable::class);
         Livewire::component('hotels.hotel-web-finder-table', HotelWebFinderTable::class);
         Livewire::component('hotels.hotel-room-table', HotelRoomTable::class);
+        Livewire::component('hotels.hotel-rate-table', HotelRateTable::class);
+        Livewire::component('hotels.hotel-rate-form', HotelRateForm::class);
 
         Livewire::component('commissions.travel-agency-commission-table', TravelAgencyCommissionTable::class);
 
@@ -82,7 +91,11 @@ class SupplierRepositoryServiceProvider extends ServiceProvider
         Livewire::component('insurance.restrictions-table', RestrictionsTable::class);
         Livewire::component('insurance.rate-tiers-table', RateTiersTable::class);
         Livewire::component('insurance.insurance-plans-table', InsurancePlanTable::class);
+        Livewire::component('insurance.insurance-type-table', InsuranceTypeTable::class);
 
         Livewire::component('activity.activity-table', ActivityTable::class);
+
+        Livewire::component('configurations.key-mapping-owners.key-mapping-owner-table', KeyMappingOwnerTable::class);
+        Livewire::component('configurations.key-mapping-owners.key-mapping-owner-form', KeyMappingOwnerForm::class);
     }
 }

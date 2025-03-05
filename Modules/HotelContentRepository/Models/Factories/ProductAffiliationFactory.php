@@ -2,7 +2,7 @@
 
 namespace Modules\HotelContentRepository\Models\Factories;
 
-use App\Models\Configurations\ConfigConsortium;
+use App\Models\Configurations\ConfigAmenity;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\ProductAffiliation;
@@ -18,8 +18,6 @@ class ProductAffiliationFactory extends Factory
 
         return [
             'product_id' => Product::factory(),
-            'consortia_id' => ConfigConsortium::factory(),
-            'description' => $this->faker->sentence,
             'start_date' => $startDate->format('Y-m-d'),
             'end_date' => $endDate->format('Y-m-d'),
         ];

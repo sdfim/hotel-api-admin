@@ -9,11 +9,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\ProductCancellationPolicyFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ProductCancellationPolicy extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -24,6 +27,7 @@ class ProductCancellationPolicy extends Model
 
     protected $fillable = [
         'product_id',
+        'rate_id',
         'name',
         'start_date',
         'expiration_date',
@@ -46,5 +50,13 @@ class ProductCancellationPolicy extends Model
     public function conditions(): HasMany
     {
         return $this->hasMany(ProductCancellationPolicyCondition::class, 'product_cancellation_policy_id', 'id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['product_id', 'name', 'start_date', 'expiration_date', 'manipulable_price_type', 'price_value', 'price_value_type', 'price_value_target'])
+            ->logOnlyDirty()
+            ->useLogName('product_cancellation_policy');
     }
 }

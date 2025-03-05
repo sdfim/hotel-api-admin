@@ -2,8 +2,8 @@
 
 use Modules\API\BookingAPI\routes\BookingApiRoutes;
 use Modules\API\ContentAPI\routes\ContentApiRoutes;
-use Modules\API\HotelContentRepositoryAPI\routes\HotelContentRepositoryApiRoutes;
-use Modules\API\HotelContentRepositoryAPI\routes\InformativeServicesApiRoutes;
+use Modules\API\ContentRepositoryAPI\routes\ContentRepositoryApiRoutes;
+use Modules\API\ContentRepositoryAPI\routes\InformativeServicesApiRoutes;
 use Modules\API\PricingAPI\routes\PricingApiRoutes;
 use Modules\API\Report\routes\ReportApiRoutes;
 use Modules\Insurance\routes\InsuranceApiRoutes;
@@ -27,7 +27,7 @@ BookingApiRoutes::routes();
 
 ReportApiRoutes::routes();
 
-HotelContentRepositoryApiRoutes::routes();
+ContentRepositoryApiRoutes::routes();
 
 InsuranceApiRoutes::routes();
 

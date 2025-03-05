@@ -18,9 +18,9 @@ class ContactInformationControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'contactable_id', 'first_name', 'last_name', 'contactable_type']
+                '*' => ['id', 'contactable_id', 'first_name', 'last_name', 'contactable_type'],
             ],
-            'message'
+            'message',
         ]);
     }
 
@@ -32,7 +32,7 @@ class ContactInformationControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => ['id', 'contactable_id', 'first_name', 'last_name', 'contactable_type'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_contact_information', $data);
     }
@@ -45,7 +45,7 @@ class ContactInformationControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'contactable_id', 'first_name', 'last_name', 'contactable_type'],
-            'message'
+            'message',
         ]);
     }
 
@@ -58,7 +58,7 @@ class ContactInformationControllerTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => ['id', 'contactable_id', 'first_name', 'last_name', 'contactable_type'],
-                'message'
+                'message',
             ]);
         $this->assertDatabaseHas('pd_contact_information', $data);
     }

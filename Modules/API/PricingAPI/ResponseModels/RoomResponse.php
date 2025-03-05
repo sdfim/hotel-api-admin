@@ -8,6 +8,8 @@ class RoomResponse extends BaseResponse
 
     private array $capacity = [];
 
+    private string $unified_room_code;
+
     private string $giata_room_code;
 
     private string $giata_room_name;
@@ -66,26 +68,26 @@ class RoomResponse extends BaseResponse
 
     private string $query_package;
 
-    /**
-     * @param string $query_package
-     * @return void
-     */
     public function setQueryPackage(string $query_package): void
     {
         $this->query_package = $query_package;
     }
 
-    /**
-     * @return string
-     */
     public function getQueryPackage(): string
     {
         return $this->query_package;
     }
 
-    /**
-     * @param string $room_description
-     */
+    public function getUnifiedRoomCode(): string
+    {
+        return $this->unified_room_code;
+    }
+
+    public function setUnifiedRoomCode(string $unified_room_code): void
+    {
+        $this->unified_room_code = $unified_room_code;
+    }
+
     public function setRoomDescription(string $room_description): void
     {
         $this->room_description = $room_description;
@@ -356,17 +358,11 @@ class RoomResponse extends BaseResponse
         $this->penalty_date = $penalty_date;
     }
 
-    /**
-     * @return array
-     */
     public function getPromotions(): array
     {
         return $this->promotions;
     }
 
-    /**
-     * @param array $promotions
-     */
     public function setPromotions(array $promotions): void
     {
         $this->promotions = $promotions;
@@ -377,36 +373,27 @@ class RoomResponse extends BaseResponse
         return $this->capacity;
     }
 
-    /**
-     * @param array $capacity
-     */
     public function setCapacity(array $capacity): void
     {
         $this->capacity = $capacity;
     }
 
-    /**
-     * @return array
-     */
     public function getAmenities(): array
     {
         return $this->amenities;
     }
 
-    /**
-     * @param array $amenities
-     */
     public function setAmenities(array $amenities): void
     {
         $this->amenities = $amenities;
     }
-
 
     public function toArray(): array
     {
         return [
             'amenities' => $this->getAmenities(),
             'capacity' => $this->getCapacity(),
+            'unified_room_code' => $this->getUnifiedRoomCode(),
             'giata_room_code' => $this->getGiataRoomCode(),
             'giata_room_name' => $this->getGiataRoomName(),
             'supplier_room_name' => $this->getSupplierRoomName(),

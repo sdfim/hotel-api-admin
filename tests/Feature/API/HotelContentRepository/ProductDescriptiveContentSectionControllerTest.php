@@ -3,8 +3,6 @@
 namespace Tests\Feature\API\HotelContentRepository;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Modules\HotelContentRepository\Models\Hotel;
-use Modules\HotelContentRepository\Models\ProductDescriptiveContent;
 use Modules\HotelContentRepository\Models\ProductDescriptiveContentSection;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -20,9 +18,9 @@ class ProductDescriptiveContentSectionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => [
-                '*' => ['id', 'product_id', 'section_name', 'start_date', 'end_date', 'descriptive_type_id', 'value']
+                '*' => ['id', 'product_id', 'section_name', 'start_date', 'end_date', 'descriptive_type_id', 'value'],
             ],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseCount('pd_product_descriptive_content_sections', 3);
     }
@@ -35,7 +33,7 @@ class ProductDescriptiveContentSectionControllerTest extends TestCase
         $response->assertStatus(201);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'section_name', 'start_date', 'end_date', 'descriptive_type_id', 'value'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_descriptive_content_sections', $data);
     }
@@ -48,7 +46,7 @@ class ProductDescriptiveContentSectionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'section_name', 'start_date', 'end_date', 'descriptive_type_id', 'value'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_descriptive_content_sections', $content->toArray());
     }
@@ -62,7 +60,7 @@ class ProductDescriptiveContentSectionControllerTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonStructure([
             'data' => ['id', 'product_id', 'section_name', 'start_date', 'end_date', 'descriptive_type_id', 'value'],
-            'message'
+            'message',
         ]);
         $this->assertDatabaseHas('pd_product_descriptive_content_sections', $data);
     }

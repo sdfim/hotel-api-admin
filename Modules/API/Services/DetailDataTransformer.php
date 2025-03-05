@@ -16,6 +16,7 @@ class DetailDataTransformer
         foreach ($giataCodes as $giata_code) {
             $contentSource[$giata_code] = SupplierNameEnum::EXPEDIA->value;
         }
+
         return $contentSource;
     }
 
@@ -23,6 +24,9 @@ class DetailDataTransformer
     {
         $structureSource = [];
         foreach ($repoData as $item) {
+            if (! $item->product?->contentSource) {
+                continue;
+            }
             $structureSource[$item->giata_code] = [
                 'content_source' => $item->product->contentSource->name,
                 'room_images' => $item->roomImagesSource->name,
@@ -30,6 +34,7 @@ class DetailDataTransformer
             ];
             $contentSource[$item->giata_code] = $item->product->contentSource->name;
         }
+
         return $structureSource;
     }
 
@@ -38,6 +43,7 @@ class DetailDataTransformer
         $hotelResponse = ContentDetailResponseFactory::create();
         $hotelResponse->setGiataHotelCode($giataCode);
         $hotelResponse->setRooms([]);
+
         return $hotelResponse->toArray();
     }
 
@@ -45,6 +51,7 @@ class DetailDataTransformer
     {
         $hotelResponse = ContentSearchResponseFactory::create();
         $hotelResponse->setGiataHotelCode($giataCode);
+
         return $hotelResponse->toArray();
     }
 
@@ -54,11 +61,12 @@ class DetailDataTransformer
         $this->updateContentResultWithInternalData($result, $hotel);
         $internalPropertyImages = $this->getPropertyImages($hotel);
         $internalPropertyDescription = $this->getHotelDescriptions($hotel);
+        $internalPropertyDescription = array_values(array_filter($internalPropertyDescription, fn ($description) => $description !== null));
 
         if ($structureSource['property_images'] == SupplierNameEnum::EXPEDIA->value) {
             $result['images'] = array_merge($internalPropertyImages, $result['images']);
         } elseif ($structureSource['property_images'] == SupplierNameEnum::ICE_PORTAL->value) {
-            $result['images'] = array_merge($internalPropertyImages, Arr::get($transformedResultsIcePortal, $hotel->giata_code . '.images', []));
+            $result['images'] = array_merge($internalPropertyImages, Arr::get($transformedResultsIcePortal, $hotel->giata_code.'.images', []));
         } else {
             $result['images'] = $internalPropertyImages;
         }
@@ -66,7 +74,7 @@ class DetailDataTransformer
         if ($structureSource['content_source'] == SupplierNameEnum::EXPEDIA->value) {
             $result['description'] = array_merge($internalPropertyDescription, $result['description']);
         } elseif ($structureSource['content_source'] == SupplierNameEnum::ICE_PORTAL->value) {
-            $result['description'] = array_merge($internalPropertyDescription, Arr::get($transformedResultsIcePortal, $hotel->giata_code . '.description', []));
+            $result['description'] = array_merge($internalPropertyDescription, Arr::get($transformedResultsIcePortal, $hotel->giata_code.'.description', []));
         } else {
             $result['description'] = $internalPropertyDescription;
         }
@@ -76,10 +84,10 @@ class DetailDataTransformer
 
     public function updateResultWithHotelData(array &$result, $hotel, array $structureSource, array $resultsIcePortal, array $romsImagesData): void
     {
-         // create as Internal data by default
-         $this->updateResultWithInternalData($result, $hotel);
-         $internalPropertyImages = $this->getPropertyImages($hotel);
-         $internalPropertyDescription = $this->getHotelDescriptions($hotel);
+        // create as Internal data by default
+        $this->updateResultWithInternalData($result, $hotel);
+        $internalPropertyImages = $this->getPropertyImages($hotel);
+        $internalPropertyDescription = $this->getHotelDescriptions($hotel);
 
         $internalRooms = $this->getHotelRooms($hotel);
         $existingRoomCodes = [
@@ -93,18 +101,20 @@ class DetailDataTransformer
 
         foreach ($internalRooms as &$room) {
             $room['images'] = array_map(function ($imageUrl) {
-                return url('storage/' . $imageUrl);
+                return url('storage/'.$imageUrl);
             }, $room['images']);
         }
 
         $result['rooms'] = array_merge($internalRooms, $result['rooms']);
 
-        foreach ($result['rooms'] as &$room) {
-            $contentSupplier = Arr::get($room, 'content_supplier', '');
-            $supplierRoomId = Arr::get($room, 'supplier_room_id', '');
-            if (!isset($existingRoomCodes[$contentSupplier])) continue;
+        foreach ($result['rooms'] as $key => $resultRoom) {
+            $contentSupplier = Arr::get($resultRoom, 'content_supplier', '');
+            $supplierRoomId = Arr::get($resultRoom, 'supplier_room_id', '');
+            if (! isset($existingRoomCodes[$contentSupplier])) {
+                continue;
+            }
             if (in_array($supplierRoomId, $existingRoomCodes[$contentSupplier])) {
-                unset($room);
+                unset($result['rooms'][$key]);
             }
         }
 
@@ -117,7 +127,7 @@ class DetailDataTransformer
         if ($structureSource['property_images'] == SupplierNameEnum::EXPEDIA->value) {
             $result['images'] = array_merge($internalPropertyImages, $result['images']);
         } elseif ($structureSource['property_images'] == SupplierNameEnum::ICE_PORTAL->value) {
-            $result['images'] = array_merge($internalPropertyImages, Arr::get($transformedResultsIcePortal, $hotel->giata_code . '.images', []));
+            $result['images'] = array_merge($internalPropertyImages, Arr::get($transformedResultsIcePortal, $hotel->giata_code.'.images', []));
         }
 
         $giataId = $hotel->giata_code;
@@ -136,7 +146,7 @@ class DetailDataTransformer
         if ($structureSource['content_source'] == SupplierNameEnum::EXPEDIA->value) {
             $result['descriptions'] = array_merge($internalPropertyDescription, $result['descriptions']);
         } elseif ($structureSource['content_source'] == SupplierNameEnum::ICE_PORTAL->value) {
-            $result['descriptions'] = array_merge($internalPropertyDescription, Arr::get($transformedResultsIcePortal, $hotel->giata_code . '.descriptions', []));
+            $result['descriptions'] = array_merge($internalPropertyDescription, Arr::get($transformedResultsIcePortal, $hotel->giata_code.'.descriptions', []));
         } else {
             $result['descriptions'] = $internalPropertyDescription;
         }
@@ -144,32 +154,32 @@ class DetailDataTransformer
         $result['structure'] = $structureSource;
     }
 
-    private function getPropertyImages($hotel): array
+    public function getPropertyImages($hotel): array
     {
         return $hotel->product->galleries
             ->flatMap(function ($gallery) {
                 return $gallery->images->pluck('image_url')->map(function ($imageUrl) {
-                    return url('storage/' . $imageUrl);
+                    return url('storage/'.$imageUrl);
                 });
             })->take(25)->all();
     }
 
-    private function updateResultWithInternalData(array &$result, $hotel): void
+    public function updateResultWithInternalData(array &$result, $hotel): void
     {
         $result['hotel_name'] = $hotel->product->name;
         $result['latitude'] = $hotel->product->lat;
         $result['longitude'] = $hotel->product->lng;
-        $result['address'] = $hotel->address;
+        $result['address'] = implode(', ', $hotel->address);
         $result['giata_destination'] = Arr::get($hotel->address, 'city', '');
         $result['rating'] = $hotel->star_rating;
         $result['user_rating'] = $hotel->star_rating;
-        $result['hotel_fees'] = $this->getHotelFees($hotel);
-        $result['amenities'] = $this->getHotelAmenities($hotel);
-//        $result['rooms'] = $this->getHotelRooms($hotel);
+        //        $result['hotel_fees'] = $this->getHotelFees($hotel);
+        $result['attributes'] = $this->getHotelAttributes($hotel);
+        $result['ultimate_amenities'] = $this->getUltimateAmenities($hotel);
         $result['weight'] = $hotel->weight;
         $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
         $result['deposit_information'] = $this->getProductDepositInformation($hotel);
-        $result['amenities'] = $this->getProductAmenities($hotel);
+        $result['drivers'] = $this->getHotelDrivers($hotel);
     }
 
     private function updateContentResultWithInternalData(array &$result, $hotel): void
@@ -177,18 +187,36 @@ class DetailDataTransformer
         $result['hotel_name'] = $hotel->product->name;
         $result['latitude'] = $hotel->product->lat;
         $result['longitude'] = $hotel->product->lng;
-        $result['address'] = $hotel->address;
+        $result['address'] = implode(', ', $hotel->address);
         $result['giata_destination'] = Arr::get($hotel->address, 'city', '');
         $result['rating'] = $hotel->star_rating;
         $result['user_rating'] = $hotel->star_rating;
-        $result['amenities'] = $this->getHotelAmenities($hotel);
+        $result['attributes'] = $this->getHotelAttributes($hotel);
+        $result['ultimate_amenities'] = $this->getUltimateAmenities($hotel);
         $result['weight'] = $hotel->weight ?? 0;
         $result['cancellation_policies'] = $this->getHotelCancellationPolicies($hotel);
         $result['deposit_information'] = $this->getProductDepositInformation($hotel);
-        $result['amenities'] = $this->getProductAmenities($hotel);
+        $result['drivers'] = $this->getHotelDrivers($hotel);
     }
 
     private function getHotelFees($hotel): array
+    {
+        return $hotel->product->descriptiveContentsSection
+            ->map(function ($section) {
+                if ($section->descriptiveType?->type === 'Taxes And Fees') {
+                    return [
+                        //                        'name' => 'hotel_fees_'.$section->descriptiveType?->name,
+                        'name' => 'hotel_fees',
+                        'value' => $section->value,
+                        'start_date' => $section->start_date,
+                        'end_date' => $section->end_date,
+                    ];
+                }
+            })
+            ->all();
+    }
+
+    private function getHotelFeesPricingApi($hotel): array
     {
         $res = [];
         foreach ($hotel->product->feeTaxes as $feeTax) {
@@ -206,14 +234,16 @@ class DetailDataTransformer
                 $res['optional'][] = $data;
             }
         }
+
         return $res;
     }
 
     private function getHotelCancellationPolicies($hotel): array
     {
-        if (!$hotel->product->cancellationPolicies) {
+        if (! $hotel->product->cancellationPolicies) {
             return [];
         }
+
         return $hotel->product->cancellationPolicies->map(function ($policy) {
             return [
                 'name' => $policy->name,
@@ -230,9 +260,10 @@ class DetailDataTransformer
 
     private function getProductDepositInformation($hotel): array
     {
-        if (!$hotel->product->depositInformations) {
+        if (! $hotel->product->depositInformations) {
             return [];
         }
+
         return $hotel->product->depositInformations->map(function ($depositInfo) {
             return [
                 'name' => $depositInfo->name,
@@ -247,29 +278,14 @@ class DetailDataTransformer
         })->all();
     }
 
-    private function getProductAmenities($hotel): array
-    {
-        if (!$hotel->product->affiliations) {
-            return [];
-        }
-        return $hotel->product->affiliations->map(function ($depositInfo) {
-            return [
-                'consortia' => $depositInfo->consortia->name,
-                'description' => $depositInfo->description,
-                'start_date' => $depositInfo->start_date,
-                'end_date' => $depositInfo->end_date,
-                'amenities' => $depositInfo->amenities,
-            ];
-        })->all();
-    }
-
     private function formatConditions(Collection $conditions): string
     {
         return collect($conditions)->map(function ($condition) {
             $value = $condition['value'] ?? '';
             $valueFrom = $condition['value_from'] ?? '';
             $valueTo = $condition['value_to'] ?? '';
-//            return "{$condition['field']} {$condition['compare']} {$value} {$valueFrom} {$valueTo}";
+
+            //            return "{$condition['field']} {$condition['compare']} {$value} {$valueFrom} {$valueTo}";
             return preg_replace(
                 ['/ {2,}/', '/\s+([,.!?])/', '/\s+$/'],
                 [' ', '$1', ''],
@@ -278,32 +294,109 @@ class DetailDataTransformer
         })->implode(', ');
     }
 
-    private function getHotelDescriptions($hotel): array
+    public function getHotelDescriptions($hotel): array
     {
-        return $hotel->product->descriptiveContentsSection->mapWithKeys(function ($section) {
-            return [
-                $section->descriptiveType->name => [
+        $descriptions = $hotel->product->descriptiveContentsSection
+            ->filter(function ($section) {
+                return $section->descriptiveType?->type !== 'Taxes And Fees';
+            })
+            ->map(function ($section) {
+                return [
+                    'name' => $section->descriptiveType?->name,
                     'value' => $section->value,
                     'start_date' => $section->start_date,
                     'end_date' => $section->end_date,
-                ]
+                ];
+            })
+            ->all();
+
+        $descriptions = array_merge($descriptions, $this->getHotelFees($hotel));
+
+        $descriptions = array_filter($descriptions, function ($description) {
+            return $description !== null;
+        });
+
+        return array_values($descriptions);
+    }
+
+    private function getHotelAttributes($hotel): array
+    {
+        return $hotel->product->attributes->map(function ($attribute) {
+            return [
+                'name' => $attribute->attribute?->name,
+                'category' => $attribute->category?->name ?? 'general',
             ];
         })->all();
     }
 
-    private function getHotelAmenities($hotel): array
+    private function getUltimateAmenities($hotel): array
     {
-        return $hotel->product->attributes->mapWithKeys(function ($attribute) {
-            return [$attribute->attribute->id => $attribute->attribute->name];
+        return $hotel->product->affiliations
+            ->filter(function ($affiliation) {
+                return $affiliation->room_id === null;
+            })
+            ->map(function ($affiliation) {
+                return [
+                    'start_date' => $affiliation->start_date,
+                    'end_date' => $affiliation->end_date,
+                    'amenities' => $affiliation->amenities->map(function ($amenity) {
+                        return [
+                            'name' => $amenity->amenity->name,
+                            'consortia' => $amenity->consortia,
+                            'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
+                            'price' => $amenity->price,
+                            'min_night_stay' => $amenity->min_night_stay,
+                            'max_night_stay' => $amenity->max_night_stay,
+                        ];
+                    })->all(),
+                ];
+            })
+            ->all();
+    }
+
+    private function getHotelDrivers($hotel): array
+    {
+        return collect($hotel->product->off_sale_by_sources)->map(function ($driver) {
+            return [
+                'name' => $driver,
+                'value' => true,
+            ];
         })->all();
     }
 
-    private function getHotelRooms($hotel): array
+    public function getHotelRooms($hotel): array
     {
         $rooms = [];
         foreach ($hotel->rooms as $room) {
-            $amenities = $room->attributes->mapWithKeys(function ($attribute) {
+            $attributes = $room->attributes->mapWithKeys(function ($attribute) {
                 return [$attribute->id => $attribute->name];
+            })->all();
+
+            $ultimateAmenities = [];
+            if ($room->affiliations) {
+                $ultimateAmenities = $room->affiliations->map(function ($affiliation) {
+                    return [
+                        'start_date' => $affiliation->start_date,
+                        'end_date' => $affiliation->end_date,
+                        'amenities' => $affiliation->amenities->map(function ($amenity) {
+                            return [
+                                'name' => $amenity->amenity->name,
+                                'consortia' => $amenity->consortia,
+                                'is_paid' => $amenity->is_paid ? 'Yes' : 'No',
+                                'price' => $amenity->price,
+                                'min_night_stay' => $amenity->min_night_stay,
+                                'max_night_stay' => $amenity->max_night_stay,
+                            ];
+                        })->all(),
+                    ];
+                })->all();
+            }
+
+            $relatedRooms = $room->relatedRooms->map(function ($relatedRoom) {
+                return [
+                    'unified_room_code' => $relatedRoom->hbsi_data_mapped_name,
+                    'name' => $relatedRoom->name,
+                ];
             })->all();
 
             $newImages = $room->galleries
@@ -319,18 +412,24 @@ class DetailDataTransformer
 
             $rooms[] = [
                 'content_supplier' => 'Internal Repository',
+                'unified_room_code' => $room->hbsi_data_mapped_name,
                 'supplier_room_id' => $room->hbsi_data_mapped_name,
                 'supplier_room_name' => $room->name,
-                'area' => $room->area . ' sqft',
+                'area' => $room->area.' sqft',
                 'bed_groups' => $room->bed_groups,
                 'room_views' => $room->room_views,
+                'connecting_room_types' => $relatedRooms,
                 'supplier_room_code' => $room->hbsi_data_mapped_name,
-                'amenities' => $amenities,
+                'attributes' => $attributes,
+                'ultimate_amenities' => $ultimateAmenities,
                 'images' => $newImages,
                 'descriptions' => $room->description,
                 'supplier_codes' => $supplierCodes,
             ];
         }
+
+        \Log::debug('Rooms', $rooms);
+
         return $rooms;
     }
 }

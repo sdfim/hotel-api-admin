@@ -2,7 +2,6 @@
 
 namespace Modules\HotelContentRepository\API\Requests;
 
-use Illuminate\Support\Facades\Auth;
 use Modules\API\Validate\ApiRequest;
 
 class ProductDescriptiveContentSectionRequest extends ApiRequest
@@ -13,48 +12,57 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *   path="/api/repo/product-descriptive-content-sections",
      *   summary="Get all product descriptive content sections",
      *   description="Retrieve all product descriptive content section records with optional filters.",
+     *
      *   @OA\Parameter(
      *     name="product_id",
      *     in="query",
      *     required=false,
      *     description="Filter by product ID",
+     *
      *     @OA\Schema(
      *       type="integer",
      *       example=1
      *     )
      *   ),
+     *
      *   @OA\Parameter(
      *     name="section_name",
      *     in="query",
      *     required=false,
      *     description="Filter by section name",
+     *
      *     @OA\Schema(
      *       type="string",
      *       example="General Information"
      *     )
      *   ),
+     *
      *   @OA\Parameter(
      *     name="start_date",
      *     in="query",
      *     required=false,
      *     description="Filter by start date",
+     *
      *     @OA\Schema(
      *       type="string",
      *       format="date",
      *       example="2023-01-01"
      *     )
      *   ),
+     *
      *   @OA\Parameter(
      *     name="end_date",
      *     in="query",
      *     required=false,
      *     description="Filter by end date",
+     *
      *     @OA\Schema(
      *       type="string",
      *       format="date",
      *       example="2023-12-31"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -62,13 +70,16 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse"
      *     )
@@ -81,11 +92,14 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *   path="/api/repo/product-descriptive-content-sections",
      *   summary="Create a new product descriptive content section",
      *   description="Create a new product descriptive content section entry.",
+     *
      *   @OA\RequestBody(
      *     required=true,
+     *
      *     @OA\JsonContent(
      *       type="object",
      *       required={"product_id", "section_name", "start_date", "descriptive_type_id", "value"},
+     *
      *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="section_name", type="string", example="General Information"),
      *       @OA\Property(property="start_date", type="string", format="date", example="2023-01-01"),
@@ -94,6 +108,7 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *       @OA\Property(property="value", type="string", example="Some descriptive content")
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=201,
      *     description="Created"
@@ -101,13 +116,16 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse"
      *     )
@@ -120,16 +138,19 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *   path="/api/repo/product-descriptive-content-sections/{id}",
      *   summary="Get product descriptive content section details",
      *   description="Retrieve details of a specific product descriptive content section.",
+     *
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
      *     description="ID of the product descriptive content section",
+     *
      *     @OA\Schema(
      *       type="integer",
      *       example=1
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -137,13 +158,16 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=404,
      *     description="Not Found",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/NotFoundResponse"
      *     )
@@ -156,21 +180,26 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *   path="/api/repo/product-descriptive-content-sections/{id}",
      *   summary="Update product descriptive content section details",
      *   description="Update details of a specific product descriptive content section.",
+     *
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
      *     description="ID of the product descriptive content section",
+     *
      *     @OA\Schema(
      *       type="integer",
      *       example=1
      *     )
      *   ),
+     *
      *   @OA\RequestBody(
      *     required=true,
+     *
      *     @OA\JsonContent(
      *       type="object",
      *       required={"product_id", "section_name", "start_date", "descriptive_type_id", "value"},
+     *
      *       @OA\Property(property="product_id", type="integer", example=1),
      *       @OA\Property(property="section_name", type="string", example="General Information"),
      *       @OA\Property(property="start_date", type="string", format="date", example="2023-01-01"),
@@ -179,6 +208,7 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *       @OA\Property(property="value", type="string", example="Some descriptive content")
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=200,
      *     description="OK"
@@ -186,20 +216,25 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=400,
      *     description="Bad Request",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/BadRequestResponse"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=404,
      *     description="Not Found",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/NotFoundResponse"
      *     )
@@ -212,16 +247,19 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *   path="/api/repo/product-descriptive-content-sections/{id}",
      *   summary="Delete a product descriptive content section",
      *   description="Delete a specific product descriptive content section.",
+     *
      *   @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
      *     description="ID of the product descriptive content section",
+     *
      *     @OA\Schema(
      *       type="integer",
      *       example=1
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=204,
      *     description="No Content"
@@ -229,13 +267,16 @@ class ProductDescriptiveContentSectionRequest extends ApiRequest
      *   @OA\Response(
      *     response=401,
      *     description="Unauthenticated",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/UnAuthenticatedResponse"
      *     )
      *   ),
+     *
      *   @OA\Response(
      *     response=404,
      *     description="Not Found",
+     *
      *     @OA\JsonContent(
      *       ref="#/components/schemas/NotFoundResponse"
      *     )

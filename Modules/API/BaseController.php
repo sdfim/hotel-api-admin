@@ -75,9 +75,9 @@ class BaseController extends Controller
     public function sendError($error, string $errorMessages = '', int $code = 400, array $data = []): JsonResponse
     {
         $response = [
-            'data'    => $data,
+            'data' => $data,
             'success' => false,
-            'error'   => $error,
+            'error' => $error,
         ];
 
         if (! empty($errorMessages)) {
@@ -93,7 +93,7 @@ class BaseController extends Controller
 
         foreach ($filterableFields as $field) {
             if (request()->has($field)) {
-                $query->where($field, 'like', '%' . request()->input($field) . '%');
+                $query->where($field, 'like', '%'.request()->input($field).'%');
             }
         }
 

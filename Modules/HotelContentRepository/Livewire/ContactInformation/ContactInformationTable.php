@@ -2,17 +2,18 @@
 
 namespace Modules\HotelContentRepository\Livewire\ContactInformation;
 
+use App\Actions\ConfigJobDescription\CreateConfigJobDescription;
 use App\Helpers\ClassHelper;
 use App\Livewire\Configurations\JobDescriptions\JobDescriptionsForm;
 use App\Models\Configurations\ConfigJobDescription;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TagsInput;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Actions\DeleteBulkAction;
@@ -21,11 +22,14 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Illuminate\Support\Arr;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
+use Modules\Enums\ContactInformationDepartmentEnum;
+use Modules\HotelContentRepository\Actions\ContactInformation\AddContactInformation;
+use Modules\HotelContentRepository\Actions\ContactInformation\EditContactInformation;
 use Modules\HotelContentRepository\Livewire\Components\CustomRepeater;
 use Modules\HotelContentRepository\Models\ContactInformation;
-use Modules\Enums\ContactInformationDepartmentEnum;
 use Modules\HotelContentRepository\Models\Product;
 use Modules\HotelContentRepository\Models\Vendor;
 
@@ -35,7 +39,9 @@ class ContactInformationTable extends Component implements HasForms, HasTable
     use InteractsWithTable;
 
     public int $contactableId;
+
     public string $contactableType;
+
     public string $title;
 
     public function mount(int $contactableId, string $contactableType)
@@ -49,7 +55,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
             $contactable = Product::find($contactableId) ?? null;
         }
 
-        $this->title = 'Contact Information for <h4>' . ($contactable ? $contactable->name : 'Unknown Entity') . '</h4>';
+        $this->title = 'Contact Information for '.($contactable ? $contactable->name : 'Unknown Entity');
     }
 
     public function schemeForm(): array
@@ -62,10 +68,9 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                 ->schema([
                     TextInput::make('first_name')
                         ->label('First Name')
-                        ->required(),
+                        ->rules(['required', 'string', 'max:191']),
                     TextInput::make('last_name')
-                        ->label('Last Name')
-                        ->required(),
+                        ->label('Last Name'),
                     TextInput::make('job_title')
                         ->label('Job Title'),
                     Select::make('ujv_departments')
@@ -75,29 +80,35 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                         ->options(ConfigJobDescription::pluck('name', 'id'))
                         ->createOptionForm(JobDescriptionsForm::getSchema())
                         ->createOptionUsing(function (array $data) {
-                            $description = ConfigJobDescription::create($data);
+                            /** @var CreateConfigJobDescription $actionDescription */
+                            $actionDescription = app(CreateConfigJobDescription::class);
+                            $description = $actionDescription->create($data);
                             Notification::make()
                                 ->title('Department created successfully')
                                 ->success()
                                 ->send();
+
                             return $description->id;
-                        })
+                        }),
                 ]),
 
             CustomRepeater::make('phones')
                 ->label('Phones')
+                ->defaultItems(0)
                 ->schema([
                     Grid::make(6)
                         ->schema([
                             TextInput::make('country_code')
                                 ->hiddenLabel()
-                                ->placeholder('Country Code*'),
+                                ->placeholder('Country Code*')
+                                ->rules(['required', 'string', 'max:5']),
                             TextInput::make('area_code')
                                 ->hiddenLabel()
                                 ->placeholder('Area Code'),
                             TextInput::make('phone')
                                 ->hiddenLabel()
-                                ->placeholder('Phone*'),
+                                ->placeholder('Phone*')
+                                ->rules(['required', 'string', 'max:15']),
                             TextInput::make('extension')
                                 ->hiddenLabel()
                                 ->placeholder('Extension'),
@@ -105,7 +116,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                                 ->hiddenLabel()
                                 ->placeholder('Description')
                                 ->columnSpan(2),
-                            ]),
+                        ]),
                 ]),
 
             CustomRepeater::make('emails')
@@ -115,10 +126,11 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                         ->schema([
                             TextInput::make('email')
                                 ->hiddenLabel()
-                                ->placeholder('Email*')
-                                ->required(),
+                                ->rules(['required'])
+                                ->placeholder('Email*'),
                             Select::make('departments')
                                 ->hiddenLabel()
+                                ->rules(['required'])
                                 ->placeholder('Select UJV Department*')
                                 ->multiple()
                                 ->options(ContactInformationDepartmentEnum::options())
@@ -157,6 +169,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                 ->label('Job Title/Departments')
                 ->getStateUsing(function ($record) {
                     $ujvDepartments = $record->ujvDepartments ?? collect();
+
                     return "{$record->job_title} / {$ujvDepartments->pluck('name')->implode(', ')}";
                 })
                 ->wrap(),
@@ -182,6 +195,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                             return true;
                         }
                     }
+
                     return false;
                 });
 
@@ -194,7 +208,7 @@ class ContactInformationTable extends Component implements HasForms, HasTable
             ->query(
                 ContactInformation::with('emails', 'phones')
                     ->where('contactable_id', $this->contactableId)
-                    ->where('contactable_type', 'Modules\\HotelContentRepository\\Models\\' . $this->contactableType)
+                    ->where('contactable_type', 'Modules\\HotelContentRepository\\Models\\'.$this->contactableType)
             )
             ->columns($columns)
             ->actions([
@@ -204,56 +218,43 @@ class ContactInformationTable extends Component implements HasForms, HasTable
                     ->modalHeading(new HtmlString("Edit {$this->title}"))
                     ->tooltip('Edit Contact Information')
                     ->form($this->schemeForm())
+                    ->closeModalByClickingAway(false)
                     ->fillForm(function ($record) {
                         $data = $record->toArray();
                         $data['ujv_departments'] = $record->ujvDepartments->pluck('id')->toArray();
                         $data['emails'] = $record->emails->toArray();
                         $data['phones'] = $record->phones->toArray();
+
                         return $data;
                     })
                     ->action(function ($data, $record) {
-                        $data['contactable_type'] = 'Modules\\HotelContentRepository\\Models\\' . $this->contactableType;
-                        $emails = $data['emails'] ?? [];
-                        $phones = $data['phones'] ?? [];
-                        unset($data['emails'], $data['phones']);
-                        $record->update($data);
-                        $record->ujvDepartments()->sync($data['ujv_departments']);
-                        $record->emails()->delete();
-                        foreach ($emails as $email) {
-                            $email['contact_information_id'] = $record->id;
-                           $record->emails()->create($email);
-                        }
-                        $record->phones()->delete();
-                        foreach ($phones as $phone) {
-                            $phone['contact_information_id'] = $record->id;
-                            $record->phones()->create($phone);
-                        }
-                    })
+                        /** @var EditContactInformation $editContactInformation */
+                        $editContactInformation = app(EditContactInformation::class);
+                        $editContactInformation->execute($data, $record, $this->contactableType);
+                    }),
             ])
             ->bulkActions([
                 DeleteBulkAction::make(),
             ])
             ->headerActions([
-                CreateAction::make()
+                CreateAction::make('addContact')
                     ->modalHeading(new HtmlString("Create {$this->title}"))
                     ->modalWidth('6xl')
                     ->form($this->schemeForm())
-                    ->createAnother(false)
-                    ->action(function ($data) {
-                        if ($this->contactableId) $data['contactable_id'] = $this->contactableId;
-                        $data['contactable_type'] = 'Modules\\HotelContentRepository\\Models\\' . $this->contactableType;
-                        $emails = $data['emails'] ?? [];
-                        $phones = $data['phones'] ?? [];
-                        unset($data['emails'], $data['phones']);
-                        $hotelContactInformation = ContactInformation::create($data);
-                        $hotelContactInformation->ujvDepartments()->sync($data['ujv_departments']);
-                        foreach ($emails as $email) {
-                            $email['contact_information_id'] = $hotelContactInformation->id;
-                            $hotelContactInformation->emails()->create($email);
-                        }
-                        foreach ($phones as $phone) {
-                            $phone['contact_information_id'] = $hotelContactInformation->id;
-                            $hotelContactInformation->phones()->create($phone);
+                    ->closeModalByClickingAway(false)
+                    ->action(function ($data, CreateAction $action) {
+                        /** @var AddContactInformation $addContactInformation */
+                        $addContactInformation = app(AddContactInformation::class);
+                        $addContactInformation->execute($data, $this->contactableId, $this->contactableType);
+                        if (Arr::get($action->getArguments(), 'another', false)) {
+                            Notification::make()
+                                ->title('Contact Information created successfully')
+                                ->success()
+                                ->send();
+                            $this->reset('mountedTableActionsData');
+                            $this->mountedTableActionsData[0]['contactable_id'] = $this->contactableId;
+                            $this->mountedTableActionsData[0]['emails'][] = ['email' => '', 'departments' => []];
+                            $action->halt();
                         }
                     })
                     ->tooltip('Add New Contact Information')

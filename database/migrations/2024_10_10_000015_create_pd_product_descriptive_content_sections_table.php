@@ -11,11 +11,14 @@ return new class extends Migration
         Schema::create('pd_product_descriptive_content_sections', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('rate_id')->nullable();
             $table->string('section_name')->nullable();
             $table->timestamp('start_date')->nullable();
             $table->timestamp('end_date')->nullable();
             $table->unsignedBigInteger('descriptive_type_id');
             $table->text('value')->nullable();
+            $table->string('document_description')->nullable();
+            $table->string('document_path')->nullable();
             $table->timestamps();
 
             $table->foreign('product_id', 'fk_product_id')->references('id')->on('pd_products')->onDelete('cascade');

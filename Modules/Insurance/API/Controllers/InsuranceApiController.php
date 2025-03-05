@@ -10,18 +10,22 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use Modules\API\BaseController;
-use Modules\Insurance\API\InsuranceHelper;
+use Modules\HotelContentRepository\Actions\Insurance\AddInsuranceApplication;
+use Modules\HotelContentRepository\Actions\Insurance\DeleteInsurance;
+use Modules\HotelContentRepository\Services\InsuranceService;
 use Modules\Insurance\API\Requests\InsuranceAddRequest;
 use Modules\Insurance\Models\DTOs\InsurancePlanDTO;
-use Modules\Insurance\Models\InsuranceApplication;
 use Modules\Insurance\Models\InsurancePlan;
-use Modules\Insurance\Models\InsuranceProvider;
-use Modules\Insurance\Models\InsuranceRateTier;
-use Modules\Insurance\Models\InsuranceRestriction;
+use Throwable;
 
 class InsuranceApiController extends BaseController
 {
-    use InsuranceHelper;
+    public function __construct(
+        protected InsuranceService $insuranceService,
+        protected InsurancePlanDTO $insurancePlanDTO,
+        private readonly DeleteInsurance $deleteInsurance,
+        private readonly AddInsuranceApplication $addInsuranceApplication,
+    ) {}
 
     public function add(InsuranceAddRequest $request): JsonResponse
     {
@@ -29,22 +33,28 @@ class InsuranceApiController extends BaseController
         $bookingId = $request->input('booking_id');
         $bookingItem = $request->input('booking_item');
 
-        $insuranceProvider = $this->getInsuranceProvider($request['vendor']);
-        if (!$insuranceProvider) {
+        $insuranceProvider = $this->insuranceService->getInsuranceProvider($request['vendor']);
+        if (! $insuranceProvider) {
             return $this->sendError('The selected insurance vendor is invalid or unavailable', 404);
         }
 
-        $bookingItems = $this->getBookingItems($bookingId, $bookingItem);
+        $insuranceType = $this->insuranceService->getInsuranceType($request['insurance_type']);
+        if (! $insuranceType) {
+            return $this->sendError('The selected insurance insurance_type is invalid or unavailable', 404);
+        }
+
+        $bookingItems = $this->insuranceService->getBookingItems($bookingId, $bookingItem);
         if (empty($bookingItems)) {
             return $this->sendError('Either booking_id or booking_item must be provided', 400);
         }
 
-        $responceAll = [];
+        $responseAll = [];
         $errCount = 0;
 
         foreach ($bookingItems as $bookingItem) {
-            $notValid = $this->validateBookingItem($bookingItem, $insuranceProvider->id);
-            if (!empty($notValid)) {
+            // check if $bookingItem corresponds to restrictions
+            $notValid = $this->insuranceService->validateBookingItem($bookingItem, $insuranceProvider->id, $insuranceType->id);
+            if (! empty($notValid)) {
                 return $this->sendError('The booking item does not meet the required conditions.', '', 400, [
                     'message' => 'The booking item does not meet the required conditions.',
                     'condition' => $notValid,
@@ -52,6 +62,7 @@ class InsuranceApiController extends BaseController
             }
 
             [$bookingId, $filters, $supplierId, $apiBookingInspectorItem] = BookingRepository::getParams($request, $bookingItem);
+
             if (empty($bookingId) || empty($filters) || empty($supplierId) || empty($apiBookingInspectorItem)) {
                 return $this->sendError('The specified booking item is not valid or not found in the booking inspector', 404);
             }
@@ -66,9 +77,10 @@ class InsuranceApiController extends BaseController
             $existingInsurancePlan = InsurancePlan::where('booking_item', $bookingItem)->first();
 
             if ($existingInsurancePlan) {
-                $insurancePlanDTO = new InsurancePlanDTO($existingInsurancePlan);
-                unset($insurancePlanDTO->data['request']);
-                $responceAll[] = array_merge($insurancePlanDTO->data, ['message' => 'Insurance plan already exists with the specified booking item.']);
+                $insurancePlanDTO = $this->insurancePlanDTO->setData($existingInsurancePlan);
+                unset($insurancePlanDTO['request']);
+                $responseAll[] = array_merge($insurancePlanDTO, ['message' => 'Insurance plan already exists with the specified booking item.']);
+
                 continue;
             }
 
@@ -77,34 +89,28 @@ class InsuranceApiController extends BaseController
                 $bookingId, $filters, $supplierId, 'add_insurance', '', 'hotel',
             ]);
 
-            DB::beginTransaction();
+            DB::transaction(function () use ($request, $bookingItem, $insuranceProvider, $insuranceType, $itemPricing, $apiSearchInspectorItem, &$responseAll, &$errCount, $bookingInspector, &$originalRQ) {
+                try {
+                    $insurancePlan = $this->insuranceService->createInsurancePlan($request, $bookingItem, $insuranceProvider, $insuranceType, $itemPricing, $apiSearchInspectorItem);
+                    $insuranceApplications = $this->insuranceService->createInsuranceApplications($insurancePlan, $apiSearchInspectorItem);
 
-            try {
-                $insurancePlan = $this->createInsurancePlan($request, $bookingItem, $insuranceProvider, $itemPricing, $apiSearchInspectorItem);
-                $insuranceApplications = $this->createInsuranceApplications($insurancePlan, $apiSearchInspectorItem);
+                    if (! $this->addInsuranceApplication->insert($insuranceApplications)) {
+                        throw new Exception('Failed to create insurance applications. Please try again later.');
+                    }
 
-                if (!InsuranceApplication::insert($insuranceApplications)) {
-                    DB::rollBack();
-                    return $this->sendError('Failed to create insurance applications. Please try again later.', 500);
+                    $responseData = $this->insurancePlanDTO->setData($insurancePlan);
+                    $this->insuranceService->dispatchSaveBookingInspector($request, $bookingInspector, $responseData);
+
+                    unset($responseData['request']);
+                    $responseAll[] = array_merge($responseData, ['message' => 'Insurance plan and related applications successfully created']);
+                } catch (Throwable $e) {
+                    $this->insuranceService->handleException($e, $bookingInspector, $originalRQ, $responseAll, $bookingItem);
+                    $errCount++;
                 }
-
-                $insurancePlanDTO = new InsurancePlanDTO($insurancePlan);
-                $responseData = $insurancePlanDTO->data;
-
-                $this->dispatchSaveBookingInspector($request, $bookingInspector, $responseData);
-
-                DB::commit();
-
-                unset($responseData['request']);
-                $responceAll[] = array_merge($responseData, ['message' => 'Insurance plan and related applications successfully created']);
-            } catch (Exception $e) {
-                DB::rollBack();
-                $this->handleException($e, $bookingInspector, $originalRQ, $responceAll, $bookingItem);
-                $errCount++;
-            }
+            });
         }
 
-        return $this->finalizeResponse($errCount, $responceAll, $request);
+        return $this->finalizeResponse($errCount, $responseAll, $request);
     }
 
     public function delete(InsuranceAddRequest $request): JsonResponse
@@ -112,7 +118,7 @@ class InsuranceApiController extends BaseController
         $bookingId = $request->input('booking_id');
         $bookingItem = $request->input('booking_item');
 
-        $bookingItems = $this->getBookingItems($bookingId, $bookingItem);
+        $bookingItems = $this->insuranceService->getBookingItems($bookingId, $bookingItem);
         if (empty($bookingItems)) {
             return $this->sendError('Either booking_id or booking_item must be provided', 400);
         }
@@ -120,16 +126,15 @@ class InsuranceApiController extends BaseController
         foreach ($bookingItems as $bookingItem) {
             $insurancePlan = InsurancePlan::where('booking_item', $bookingItem)->first();
 
-            if (!$insurancePlan) {
-                return $this->sendError('Insurance plan not found for booking item: ' . $bookingItem, 404);
+            if (! $insurancePlan) {
+                return $this->sendError('Insurance plan not found for booking item: '.$bookingItem, 404);
             }
 
-            $insurancePlan->applications()->delete();
-            $insurancePlan->delete();
+            $this->deleteInsurance->handle($insurancePlan);
 
             [$bookingId, $filters, $supplierId, $apiBookingInspectorItem] = BookingRepository::getParams($request, $bookingItem);
 
-            if (!$apiBookingInspectorItem) {
+            if (! $apiBookingInspectorItem) {
                 return $this->sendError('The specified booking item is not valid or not found in the booking inspector', 404);
             }
 
@@ -144,7 +149,7 @@ class InsuranceApiController extends BaseController
                 'body' => $request->all(),
             ];
 
-            $message = 'Insurance plan successfully deleted for booking item: ' . $bookingItem;
+            $message = 'Insurance plan successfully deleted for booking item: '.$bookingItem;
             $responseData = ['message' => $message];
             SaveBookingInspector::dispatch($bookingInspector, ['original' => ['request' => $originalRQ]], $responseData);
         }
@@ -158,7 +163,7 @@ class InsuranceApiController extends BaseController
         $bookingItem = $request->input('booking_item');
 
         if ($bookingId) {
-            $bookingItems = $this->getBookingItems($bookingId, null);
+            $bookingItems = $this->insuranceService->getBookingItems($bookingId, null);
             $insurancePlans = InsurancePlan::whereIn('booking_item', $bookingItems)->get();
         } elseif ($bookingItem) {
             $insurancePlans = InsurancePlan::where('booking_item', $bookingItem)->get();
@@ -171,9 +176,20 @@ class InsuranceApiController extends BaseController
         }
 
         $insurancePlansDTO = $insurancePlans->map(function ($insurancePlan) {
-            return (new InsurancePlanDTO($insurancePlan))->data;
+            return $this->insurancePlanDTO->setData($insurancePlan);
         });
 
         return $this->sendResponse($insurancePlansDTO->toArray(), 'Insurance plans retrieved successfully', 200);
+    }
+
+    public function finalizeResponse(int $errCount, array $responseAll, $request): JsonResponse
+    {
+        if ($errCount > 0) {
+            return $this->sendError('An error occurred while processing the insurance plan.', '', 500, $responseAll);
+        } else {
+            $responseAll = array_merge(['request' => $request->all()], ['insurances' => $responseAll]);
+
+            return $this->sendResponse($responseAll, 'successfull', 201);
+        }
     }
 }

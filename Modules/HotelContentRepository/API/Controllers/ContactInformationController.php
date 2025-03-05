@@ -2,31 +2,28 @@
 
 namespace Modules\HotelContentRepository\API\Controllers;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Http\Response;
 use Modules\HotelContentRepository\Actions\ContactInformation\AddContactInformation;
 use Modules\HotelContentRepository\Actions\ContactInformation\DeleteContactInformation;
 use Modules\HotelContentRepository\Actions\ContactInformation\EditContactInformation;
-use Modules\HotelContentRepository\Models\ContactInformation;
 use Modules\HotelContentRepository\API\Requests\ContactInformationRequest;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Modules\HotelContentRepository\API\Controllers\BaseController;
+use Modules\HotelContentRepository\Models\ContactInformation;
 
 class ContactInformationController extends BaseController
 {
     public function __construct(
-        protected AddContactInformation    $addProductContactInformation,
-        protected EditContactInformation   $editProductContactInformation,
+        protected AddContactInformation $addProductContactInformation,
+        protected EditContactInformation $editProductContactInformation,
         protected DeleteContactInformation $deleteProductContactInformation
     ) {}
 
     public function index()
     {
-        $query = ContactInformation::with(['emails.contactInformations', 'phones']);
+        $query = ContactInformation::query();
         $query = $this->filter($query, ContactInformation::class);
-        $contactInformations = $query->get();
+        $contactInformation = $query->get();
 
-        return $this->sendResponse($contactInformations->toArray(), 'index success');
+        return $this->sendResponse($contactInformation->toArray(), 'index success');
     }
 
     public function store(ContactInformationRequest $request)
@@ -50,7 +47,7 @@ class ContactInformationController extends BaseController
                 $contactInformation->phones()->createMany($phones);
             }
         } catch (\Exception $e) {
-            return $this->sendError('create failed: ' . $e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->sendError('create failed: '.$e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
         return $this->sendResponse($contactInformation->toArray(), 'create success', Response::HTTP_CREATED);
@@ -58,10 +55,11 @@ class ContactInformationController extends BaseController
 
     public function show($id)
     {
-        $contactInformation = ContactInformation::with(['emails.contactInformations', 'phones'])->find($id);
-        if (!$contactInformation) {
+        $contactInformation = ContactInformation::find($id);
+        if (! $contactInformation) {
             return $this->sendError('not found', Response::HTTP_NOT_FOUND);
         }
+
         return $this->sendResponse($contactInformation->toArray(), 'show success');
     }
 
@@ -69,6 +67,7 @@ class ContactInformationController extends BaseController
     {
         $contactInformation = ContactInformation::findOrFail($id);
         $contactInformation = $this->editProductContactInformation->handle($contactInformation, $request);
+
         return $this->sendResponse($contactInformation->toArray(), 'update success');
     }
 
@@ -76,6 +75,7 @@ class ContactInformationController extends BaseController
     {
         $contactInformation = ContactInformation::findOrFail($id);
         $this->deleteProductContactInformation->handle($contactInformation);
+
         return $this->sendResponse([], 'delete success', Response::HTTP_NO_CONTENT);
     }
 }

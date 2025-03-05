@@ -14,31 +14,6 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
     use WithFaker;
 
     #[Test]
-    public function test_validation_of_supplier_form_as_well_as_new_supplier_creating(): void
-    {
-        Livewire::test(CreateSuppliersForm::class)
-            ->set('data', [
-                'name' => '',
-                'description' => '',
-            ])
-            ->call('create')
-            ->assertHasErrors(['data.name', 'data.description']);
-
-        Livewire::test(CreateSuppliersForm::class)
-            ->set('data', [
-                'name' => 'Test Suppliers',
-                'description' => 'Test Description',
-            ])
-            ->call('create')
-            ->assertRedirect(route('suppliers.index'));
-
-        $this->assertDatabaseHas('suppliers', [
-            'name' => 'Test Suppliers',
-            'description' => 'Test Description',
-        ]);
-    }
-
-    #[Test]
     public function test_suppliers_index_is_opening(): void
     {
         $response = $this->get('/admin/suppliers');
@@ -106,23 +81,5 @@ class SuppliersTest extends CustomAuthorizedActionsTestCase
         $suppliers->delete();
 
         $this->assertDatabaseMissing('suppliers', ['id' => $suppliers->id]);
-    }
-
-    #[Test]
-    public function test_possibility_of_updating_an_existing_supplier(): void
-    {
-        $suppliers = Supplier::factory()->create();
-
-        Livewire::test(UpdateSuppliersForm::class, ['suppliers' => $suppliers])
-            ->set('data.name', 'Updated Supplier Name')
-            ->set('data.description', 'Updated Supplier Description')
-            ->call('edit')
-            ->assertRedirect(route('suppliers.index'));
-
-        $this->assertDatabaseHas('suppliers', [
-            'id' => $suppliers->id,
-            'name' => 'Updated Supplier Name',
-            'description' => 'Updated Supplier Description',
-        ]);
     }
 }

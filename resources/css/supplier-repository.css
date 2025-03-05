@@ -28,6 +28,35 @@
     --primary-950: 26, 26, 69;
 }
 
+.choices__list--multiple .choices__item {
+    font-size: 0.85rem;
+    line-height: 0.9rem;
+    padding: .45rem .5rem;
+}
+
+.pd-history-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pd-history-button svg {
+    width: 24px;
+    height: 24px;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+
+.pd-history-button:hover svg {
+    color: #0056b3;
+}
+
+
+
 .pd-grid table {
     max-height: 65vh;
     overflow-y: auto;
@@ -128,6 +157,8 @@ thead .bg-gray-50{
 .hotel-form-container .choices__inner {
     min-height: 55px !important;
     border-radius: 2px !important;
+    display: flex;
+    align-items: center;
 }
 
 .hotel-form-container .fi-select-input:focus {
@@ -344,7 +375,7 @@ thead .bg-gray-50{
     position: relative;
     display: inline-block;
     width: 60px; /* Ширина тумблера */
-    height: 30px; /* Высота тумблера */
+    height: 32px; /* Высота тумблера */
 }
 
 .hotel-form-toggle-button input {
@@ -370,8 +401,8 @@ thead .bg-gray-50{
     content: "";
     height: 25px; /* Размер круга */
     width: 25px;
-    left: 3px; /* Расстояние от левого края */
-    bottom: 2.5px; /* Центрирование круга */
+    left: 4px; /* Расстояние от левого края */
+    bottom: 3.5px; /* Центрирование круга */
     background-color: var(--red-color); /* Красный круг в неактивном состоянии */
     transition: transform 0.4s, background-color 0.4s;
     border-radius: 50%;
@@ -382,12 +413,14 @@ thead .bg-gray-50{
 }
 
 .hotel-form-toggle-button input:checked + .hotel-form-slider:before {
-    transform: translateX(30px); /* Смещение круга вправо */
+    transform: translateX(27px); /* Смещение круга вправо */
     background-color: var(--green-color) /* Зеленый круг в активном состоянии */
 }
 
 /* Basic Modal Styles */
-/* Общий стиль модального окна */
+.hotel-modal-header.wm-800{
+    max-width: 800px;
+}
 .hotel-modal {
     position: fixed;
     top: 0;
@@ -469,3 +502,113 @@ thead .bg-gray-50{
     z-index: 1;
     background-color: var(--background-main-color);
 }
+
+/* Custom slider */
+.slider-container {
+    width: 100%;
+    max-width: 600px; /* Ограничиваем максимальную ширину */
+    margin: 0 auto; /* Центрируем слайдер */
+    padding: 20px 0;
+    position: relative;
+}
+
+.slider {
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    touch-action: pan-y pinch-zoom;
+    aspect-ratio: 16/9; /* Задаём пропорции слайдера */
+}
+
+.slides {
+    display: flex;
+    transition: transform 0.3s ease-in-out;
+    width: 100%;
+    height: 100%;
+}
+
+.slide {
+    min-width: 100%;
+    position: relative;
+    height: 100%;
+}
+
+.slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Сохраняем пропорции изображения */
+    pointer-events: none;
+}
+
+/* Navigation Arrows */
+.nav-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.7);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s;
+    z-index: 2;
+}
+
+.nav-arrow:hover {
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.nav-arrow.left {
+    left: 10px;
+}
+
+.nav-arrow.right {
+    right: 10px;
+}
+
+/* Navigation Dots */
+.navigation {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+}
+
+.nav-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid white;
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+    transition: background-color 0.3s;
+}
+
+.nav-dot.active,
+.nav-dot:hover {
+    background: white;
+}
+
+@media (max-width: 640px) {
+    .nav-arrow {
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+
+    .nav-dot {
+        width: 8px;
+        height: 8px;
+    }
+}
+
+

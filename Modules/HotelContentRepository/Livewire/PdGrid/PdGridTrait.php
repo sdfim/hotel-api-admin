@@ -3,16 +3,20 @@
 namespace Modules\HotelContentRepository\Livewire\PdGrid;
 
 use Illuminate\Database\Eloquent\Collection;
-use Modules\HotelContentRepository\Models\Hotel;
 use Modules\Enums\ContactInformationDepartmentEnum;
+use Modules\HotelContentRepository\Models\Hotel;
 
 trait PdGridTrait
 {
     protected function getFormattedFeeTaxes(Hotel $record, string $type): string
     {
         return $record->product?->feeTaxes
-            ->filter(fn($feeTax) => $feeTax->type === $type)
-            ->map(fn($feeTax) => "{$feeTax->name} {$feeTax->net_value} " . ($feeTax->value_type === 'Percentage' ? '%' : '$') . " {$feeTax->apply_type->name}")
+            ->filter(fn ($feeTax) => $feeTax->type === $type)
+            ->map(fn ($feeTax) => ($feeTax && $feeTax->name && $feeTax->apply_type)
+                ? "{$feeTax->name} {$feeTax->net_value} ".($feeTax->value_type === 'Percentage' ? '%' : '$')." {$feeTax->apply_type->name}"
+                : ''
+            )
+            ->filter()
             ->join(', ');
     }
 
@@ -23,6 +27,7 @@ trait PdGridTrait
                 return $section->value;
             }
         }
+
         return '';
     }
 
@@ -38,6 +43,7 @@ trait PdGridTrait
         foreach ($attributes as $attribute) {
             $str[] = $attribute->attribute->name;
         }
+
         return implode('; ', $str);
     }
 
@@ -46,33 +52,47 @@ trait PdGridTrait
         $str = [];
         $affiliations = $record->product?->affiliations;
         foreach ($affiliations as $affiliation) {
-            if ($affiliation->consortia->name !== $type) {
-                continue;
+            if ($affiliation->amenities) {
+                foreach ($affiliation->amenities as $amenity) {
+                    if (in_array($type, $amenity->consortia)) {
+                        $str[] = implode(', ', $amenity->consortia)
+                            .' ('.$affiliation->start_date.' - '.$affiliation->end_date.')'
+                            .($amenity->is_paid ? ' ('.$amenity->is_paid.' - '.$amenity->price.')' : '')
+                            .': '.$amenity->amenity->name;
+                    }
+                }
             }
-            $str[] = $affiliation->consortia->name
-                . ' (' . $affiliation->start_date . ' - ' . $affiliation->end_date . ')'
-                . ': ' . $affiliation->description
-                . ($affiliation->combinable ? ' - Combinable' : '');
         }
-        return implode('; ', $str);
+
+        return implode('<br> ', $str);
     }
 
     public function getConsortiaExit(Hotel $record, string $type): string
     {
         $affiliations = $record->product?->affiliations;
         foreach ($affiliations as $affiliation) {
-            if ($affiliation->consortia->name === $type) {
-                return 'Y';
+            if ($affiliation->amenities) {
+                $result = $affiliation->amenities->map(function ($amenity) use ($type) {
+                    if (in_array($type, $amenity->consortia)) {
+                        return 'Y';
+                    }
+                })->filter()->first();
+
+                if ($result) {
+                    return $result;
+                }
             }
         }
+
         return 'N';
     }
 
     public function getDepositInformation(Hotel $record): string
     {
-        if (!$record->product->depositInformations) {
+        if (! $record->product->depositInformations) {
             return '';
         }
+
         return $record->product->depositInformations->map(function ($depositInfo) {
             return "{$depositInfo->name},
                 {$depositInfo->start_date},
@@ -80,15 +100,16 @@ trait PdGridTrait
                 {$depositInfo->manipulable_price_type},
                 {$depositInfo->price_value},
                 {$depositInfo->price_value_type},
-                {$depositInfo->price_value_target}, " . $this->formatConditions($depositInfo->conditions);
+                {$depositInfo->price_value_target}, ".$this->formatConditions($depositInfo->conditions);
         })->implode('; ');
     }
 
     public function getCancellationPolicy(Hotel $record): string
     {
-        if (!$record->product->cancellationPolicies) {
+        if (! $record->product->cancellationPolicies) {
             return '';
         }
+
         return $record->product->cancellationPolicies->map(function ($policy) {
             return "{$policy->name},
                 {$policy->start_date},
@@ -96,7 +117,7 @@ trait PdGridTrait
                 {$policy->manipulable_price_type},
                 {$policy->price_value},
                 {$policy->price_value_type},
-                {$policy->price_value_target}, " . $this->formatConditions($policy->conditions);
+                {$policy->price_value_target}, ".$this->formatConditions($policy->conditions);
         })->implode('; ');
     }
 
@@ -106,6 +127,7 @@ trait PdGridTrait
             $value = $condition['value'] ?? '';
             $valueFrom = $condition['value_from'] ?? '';
             $valueTo = $condition['value_to'] ?? '';
+
             return preg_replace(
                 ['/ {2,}/', '/\s+([,.!?])/', '/\s+$/'],
                 [' ', '$1', ''],
@@ -120,21 +142,21 @@ trait PdGridTrait
         $emails = [];
         foreach ($contacts as $contact) {
             foreach ($contact->emails as $email) {
-                foreach ($email->contactInformations as $contactInformation) {
+                foreach ($email->contactInformations ?? [] as $contactInformation) {
                     if ($contactInformation->name === $type) {
                         $emails[] = $email->email;
                     }
-                    if (!in_array($contactInformation->name, [
-                            ContactInformationDepartmentEnum::RESERVATION->value,
-                            ContactInformationDepartmentEnum::CONCIERGE->value,
-                            ContactInformationDepartmentEnum::SALES_MARKETING->value
-                        ]) && $type === 'All') {
-                        $emails[] = $contactInformation->name . ': ' . $email->email;
+                    if (! in_array($contactInformation->name, [
+                        ContactInformationDepartmentEnum::RESERVATION->value,
+                        ContactInformationDepartmentEnum::CONCIERGE->value,
+                        ContactInformationDepartmentEnum::SALES_MARKETING->value,
+                    ]) && $type === 'All') {
+                        $emails[] = $contactInformation->name.': '.$email->email;
                     }
                 }
             }
         }
+
         return implode('; ', $emails);
     }
-
 }

@@ -2,18 +2,22 @@
 
 namespace Modules\HotelContentRepository\Models;
 
+use App\Models\Configurations\ConfigAmenity;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Modules\HotelContentRepository\Models\Factories\ProductAffiliationFactory;
 use Modules\HotelContentRepository\Models\Traits\Filterable;
-use App\Models\Configurations\ConfigConsortium;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class ProductAffiliation extends Model
 {
     use Filterable;
     use HasFactory;
+    use LogsActivity;
 
     protected static function newFactory()
     {
@@ -24,23 +28,26 @@ class ProductAffiliation extends Model
 
     protected $fillable = [
         'product_id',
-        'consortia_id',
-        'description',
+        'rate_id',
+        'room_id',
         'start_date',
         'end_date',
-        'amenities',
+        'consortia',
+        'is_paid',
+        'price',
     ];
 
     protected $casts = [
-        'amenities' => 'array',
         'start_date' => 'date',
         'end_date' => 'date',
+        'consortia' => 'array',
+        'is_paid' => 'boolean',
     ];
 
     protected $hidden = [
         'created_at',
         'updated_at',
-        'pivot'
+        'pivot',
     ];
 
     public function product(): BelongsTo
@@ -48,8 +55,26 @@ class ProductAffiliation extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function consortia(): BelongsTo
+    public function amenities(): HasMany
     {
-        return $this->belongsTo(ConfigConsortium::class);
+        return $this->hasMany(ProductAffiliationAmenity::class);
+    }
+
+    public function rate(): BelongsTo
+    {
+        return $this->belongsTo(HotelRate::class);
+    }
+
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(HotelRoom::class);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['*'])
+            ->logOnlyDirty()
+            ->useLogName('product_affiliation');
     }
 }

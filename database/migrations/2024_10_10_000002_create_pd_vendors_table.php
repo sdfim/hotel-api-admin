@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Modules\Enums\VendorTypeEnum;
 
 return new class extends Migration
 {
@@ -11,6 +12,7 @@ return new class extends Migration
         Schema::create('pd_vendors', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name', 255);
+            $table->string('type')->nullable();
             $table->boolean('verified');
             $table->boolean('independent_flag')->default(false);
             $table->json('address')->nullable();

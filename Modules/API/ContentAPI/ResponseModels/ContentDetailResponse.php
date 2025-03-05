@@ -5,27 +5,80 @@ namespace Modules\API\ContentAPI\ResponseModels;
 class ContentDetailResponse
 {
     private int $giata_hotel_code;
+
     private array $images;
+
     private string $description;
+
     private string $hotel_name;
-    private string $distance;
+
     private string $latitude;
+
     private string $longitude;
+
     private string $rating;
+
     private array $amenities;
+
     private string $giata_destination;
+
     private string $user_rating;
+
     private array $special_instructions;
+
     private string $check_in_time;
+
     private string $check_out_time;
+
     private array $hotel_fees;
+
     private array $policies;
+
     private array $descriptions;
+
     private array $rooms;
+
     private string $address;
-    private array $supplier_information = [];
+
     private array $deposit_information;
+
     private array $cancellation_policies;
+
+    private array $drivers;
+
+    private array $ultimate_amenities;
+
+    private array $nearest_airports;
+
+    public function setNearestAirports(array $nearest_airports): void
+    {
+        $this->nearest_airports = $nearest_airports;
+    }
+
+    public function getNearestAirports(): array
+    {
+        return $this->nearest_airports;
+    }
+
+    public function setUltimateAmenities(array $ultimate_amenities): void
+    {
+        $this->ultimate_amenities = $ultimate_amenities;
+    }
+
+    public function getUltimateAmenities(): array
+    {
+        return $this->ultimate_amenities;
+    }
+
+    public function setDrivers(array $drivers): void
+    {
+        $this->drivers = $drivers;
+    }
+
+    public function getDrivers(): array
+    {
+        return $this->drivers;
+    }
 
     public function setCancellationPolicies(array $cancellation_policies): void
     {
@@ -45,16 +98,6 @@ class ContentDetailResponse
     public function getDepositInformation(): array
     {
         return $this->deposit_information;
-    }
-
-    public function setSupplierInformation(array $supplier_information): void
-    {
-        $this->supplier_information = $supplier_information;
-    }
-
-    public function getSupplierInformation(): array
-    {
-        return $this->supplier_information;
     }
 
     public function setAddress(string $address): void
@@ -197,16 +240,6 @@ class ContentDetailResponse
         return $this->latitude;
     }
 
-    public function setDistance(string $distance): void
-    {
-        $this->distance = $distance;
-    }
-
-    public function getDistance(): string
-    {
-        return $this->distance;
-    }
-
     public function setHotelName(string $hotel_name): void
     {
         $this->hotel_name = $hotel_name;
@@ -252,26 +285,22 @@ class ContentDetailResponse
         return [
             'giata_hotel_code' => $this->getGiataHotelCode(),
             'images' => $this->getImages(),
-//            'description' => $this->getDescription(),
+            //            'description' => $this->getDescription(),
             'hotel_name' => $this->getHotelName(),
-            'distance' => $this->getDistance(),
             'latitude' => $this->getLatitude(),
             'longitude' => $this->getLongitude(),
             'rating' => $this->getRating(),
-            'amenities' => $this->getAmenities(),
+            'nearest_airports' => $this->getNearestAirports(),
+            'attributes' => $this->getAmenities(),
+            'ultimate_amenities' => $this->getUltimateAmenities(),
             'giata_destination' => $this->getGiataDestination(),
             'user_rating' => $this->getUserRating(),
-            'special_instructions' => $this->getSpecialInstructions(),
-            'check_in_time' => $this->getCheckInTime(),
-            'check_out_time' => $this->getCheckOutTime(),
-            'hotel_fees' => $this->getHotelFees(),
-            'policies' => $this->getPolicies(),
             'descriptions' => $this->getDescriptions(),
             'deposit_information' => $this->getDepositInformation(),
             'cancellation_policies' => $this->getCancellationPolicies(),
             'address' => $this->getAddress(),
             'rooms' => $this->getRooms(),
-            'supplier_information' => $this->getSupplierInformation(),
+            'drivers' => $this->getDrivers(),
         ];
     }
 }

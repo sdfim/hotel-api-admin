@@ -8,4 +8,5 @@ return [
     App\Providers\PermissionServiceProvider::class,
     App\Providers\RolesServiceProvider::class,
     App\Providers\SupplierRepositoryServiceProvider::class,
+    App\Providers\RouteServiceProvider::class,
 ];

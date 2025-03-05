@@ -1,9 +1,9 @@
 <div>
     <div class="hotel-form-toggle-container">
         <div class="left-block">
-            <span class="hotel-form-toggle-label">Verified</span>
+            <span class="hotel-form-toggle-label">Activated</span>
             <label class="hotel-form-toggle-button">
-                <input type="checkbox" wire:click="toggleVerified" {{ $verified ? 'checked' : '' }}>
+                <input type="checkbox" wire:model="verified"  wire:click.prevent="toggleActivated" {{ $verified ? 'checked' : '' }}>
                 <span class="hotel-form-slider"></span>
             </label>
         </div>
