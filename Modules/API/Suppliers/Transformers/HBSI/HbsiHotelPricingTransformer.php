@@ -548,6 +548,7 @@ class HbsiHotelPricingTransformer
     private function getBreakdown(array $rates): array
     {
         $breakdown = [];
+        $fees = [];
         $night = 0;
         if (isset($rates['Rates']['Rate']) && is_numeric(array_key_first($rates['Rates']['Rate']))) {
             $loopRates = $rates['Rates']['Rate'];
@@ -581,21 +582,33 @@ class HbsiHotelPricingTransformer
                     }
 
                     foreach ($_taxes as $_tax) {
+                        $type = null;
                         $code = strtolower($_tax['@attributes']['Code']);
                         $name = strtolower($_tax['@attributes']['Type']);
-                        if (in_array(strtolower($_tax['@attributes']['Code']), $this->fees)) {
+                        if (in_array(strtolower($_tax['@attributes']['Code']), $this->fees) || $_tax['@attributes']['Type'] === 'PropertyCollects') {
                             $type = 'fee';
                         }
                         if (in_array($code, $this->taxes)) {
                             $type = 'tax';
                         }
-                        $taxesFeesRate[] = [
-                            'type' => $type ?? 'tax'.' '.$name,
-                            'amount' => $_tax['@attributes']['Amount'],
-                            'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
-                                ? $_tax['@attributes']['Percent'].' % '.$_tax['@attributes']['Code']
-                                : $_tax['@attributes']['Code']),
-                        ];
+
+                        if($type !== 'fee') {
+                            $taxesFeesRate[] = [
+                                'type' => $type ?? 'tax' . ' ' . $name,
+                                'amount' => $_tax['@attributes']['Amount'],
+                                'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
+                                    ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
+                                    : $_tax['@attributes']['Code']),
+                            ];
+                        }else{
+                            $fees[] = [
+                                'type' => $type ?? 'tax' . ' ' . $name,
+                                'amount' => $_tax['@attributes']['Amount'],
+                                'title' => Arr::get($_tax, 'TaxDescription.Text', isset($_tax['@attributes']['Percent'])
+                                    ? $_tax['@attributes']['Percent'] . ' % ' . $_tax['@attributes']['Code']
+                                    : $_tax['@attributes']['Code']),
+                            ];
+                        }
 
                         $taxType = strtolower($_tax['@attributes']['Type']);
 
@@ -625,7 +638,7 @@ class HbsiHotelPricingTransformer
         return [
             'nightly' => $breakdownWithoutKeys,
             'stay' => [],
-            'fees' => [],
+            'fees' => $fees,
 
         ];
     }
@@ -724,6 +737,11 @@ class HbsiHotelPricingTransformer
     private function transformTaxes(array $taxes): array
     {
         $transformedTaxes = [];
+        //it means that is not an array
+        if(isset($taxes['@attributes']))
+        {
+            $taxes = [$taxes];
+        }
 
         foreach ($taxes as $tax) {
             $transformedTaxes[] = [
@@ -739,10 +757,7 @@ class HbsiHotelPricingTransformer
 
     private function applyRepoTaxFees(array &$transformedRates, $giataCode, $ratePlanCode, $unifiedRoomCode, $rateOccupancy): void
     {
-        if (! isset($this->repoTaxFees[$giataCode])) {
-            return;
-        }
-        $repoTaxFees = $this->repoTaxFees[$giataCode];
+        $repoTaxFees = Arr::get($this->repoTaxFees, $giataCode, []);
 
         // Calculate the number of nights and the number of passengers
         $numberOfNights = array_sum(array_column($transformedRates, 'UnitMultiplier'));
@@ -918,6 +933,17 @@ class HbsiHotelPricingTransformer
                         $rate['Taxes'] = array_filter($rate['Taxes'], function ($tax) use ($deleteFeeTax) {
                             return strcasecmp($tax['Description'], $deleteFeeTax['old_name']) !== 0;
                         });
+                    }
+                }
+            }else{
+                foreach ($rate['Taxes'] ?? [] as $key => &$tax) {
+                    if(Arr::get($tax,'Type') === 'PropertyCollects')
+                    {
+                        if (! isset($rate['Fees'])) {
+                            $rate['Fees'] = [];
+                        }
+                        $rate['Fees'][] = $tax;
+                        unset($rate['Taxes'][$key]);
                     }
                 }
             }
