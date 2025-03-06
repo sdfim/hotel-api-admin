@@ -253,6 +253,10 @@ class HbsiHotelPricingTransformer
 
     public function setRoomResponse(array $rate, array $propertyGroup, int $giataId, int|string $supplierHotelId): array
     {
+        if($giataId === 10057691)
+        {
+            $ratePlanCode = Arr::get($rate, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
+        }
         $ratePlanCode = Arr::get($rate, 'RatePlans.RatePlan.@attributes.RatePlanCode', '');
         $roomType = Arr::get($rate, 'RoomTypes.RoomType.@attributes.RoomTypeCode', 0);
         $giataCode = Arr::get($propertyGroup, 'giata_id', 0);
@@ -726,6 +730,11 @@ class HbsiHotelPricingTransformer
     private function transformTaxes(array $taxes): array
     {
         $transformedTaxes = [];
+        //it means that is not an array
+        if(isset($taxes['@attributes']))
+        {
+            $taxes = [$taxes];
+        }
 
         foreach ($taxes as $tax) {
             $transformedTaxes[] = [
@@ -741,7 +750,7 @@ class HbsiHotelPricingTransformer
 
     private function applyRepoTaxFees(array &$transformedRates, $giataCode, $ratePlanCode, $unifiedRoomCode, $rateOccupancy): void
     {
-        $repoTaxFees = $this->repoTaxFees[$giataCode];
+        $repoTaxFees = Arr::get($this->repoTaxFees, $giataCode, []);
 
         // Calculate the number of nights and the number of passengers
         $numberOfNights = array_sum(array_column($transformedRates, 'UnitMultiplier'));
@@ -909,6 +918,17 @@ class HbsiHotelPricingTransformer
                         $rate['Taxes'] = array_filter($rate['Taxes'], function ($tax) use ($deleteFeeTax) {
                             return strcasecmp($tax['Description'], $deleteFeeTax['old_name']) !== 0;
                         });
+                    }
+                }
+            }else{
+                foreach ($rate['Taxes'] ?? [] as $key => &$tax) {
+                    if(Arr::get($tax,'Type') === 'PropertyCollects')
+                    {
+                        if (! isset($rate['Fees'])) {
+                            $rate['Fees'] = [];
+                        }
+                        $rate['Fees'][] = $tax;
+                        unset($rate['Taxes'][$key]);
                     }
                 }
             }
