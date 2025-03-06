@@ -68,6 +68,18 @@ class RoomResponse extends BaseResponse
 
     private string $query_package;
 
+    private ?array $deposits = [];
+
+    public function setDeposits(array $deposits): void
+    {
+        $this->deposits = $deposits;
+    }
+
+    public function getDeposits(): array
+    {
+        return $this->deposits;
+    }
+
     public function setQueryPackage(string $query_package): void
     {
         $this->query_package = $query_package;
@@ -423,6 +435,7 @@ class RoomResponse extends BaseResponse
             'package_deal' => $this->isPackageDeal(),
             'penalty_date' => $this->getPenaltyDate(),
             'promotions' => $this->getPromotions(),
+            'deposits' => $this->getDeposits(),
         ];
     }
 }
